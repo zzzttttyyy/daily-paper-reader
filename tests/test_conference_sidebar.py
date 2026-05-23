@@ -28,6 +28,7 @@ class ConferenceSidebarTest(unittest.TestCase):
                     "id": "openreview-icml-2025-abc123",
                     "title": title,
                     "link": "https://openreview.net/forum?id=abc123",
+                    "pdf_url": "https://openreview.net/pdf?id=abc123",
                     "source": "ICML-2025-Accepted",
                     "abstract": "This paper proposes a new reinforcement learning method for symbolic discovery.",
                 }
@@ -53,7 +54,7 @@ class ConferenceSidebarTest(unittest.TestCase):
             sidebar.write_text("* <a class=\"dpr-sidebar-root-link\" href=\"#/\">首页</a>\n* Daily Papers\n", encoding="utf-8")
             self.write_result(result)
 
-            self.mod.update_sidebar_with_conference(sidebar, result, docs_dir=tmp_path / "docs")
+            self.mod.update_sidebar_with_conference(sidebar, result, docs_dir=tmp_path / "docs", deep_min_score=-1)
             text = sidebar.read_text(encoding="utf-8")
 
             self.assertIn("* Conference Papers", text)
@@ -71,6 +72,7 @@ class ConferenceSidebarTest(unittest.TestCase):
             self.assertTrue(paper_md.exists())
             md_text = paper_md.read_text(encoding="utf-8")
             self.assertIn("title_zh: 会议论文中文标题", md_text)
+            self.assertIn("pdf: \"https://openreview.net/pdf?id=abc123\"", md_text)
             self.assertIn("selection_source: conference_retrieval", md_text)
             self.assertIn("motivation:", md_text)
             self.assertIn("method:", md_text)
@@ -93,9 +95,9 @@ class ConferenceSidebarTest(unittest.TestCase):
             sidebar.write_text("* Daily Papers\n", encoding="utf-8")
 
             self.write_result(result, title="First Title")
-            self.mod.update_sidebar_with_conference(sidebar, result, docs_dir=tmp_path / "docs")
+            self.mod.update_sidebar_with_conference(sidebar, result, docs_dir=tmp_path / "docs", deep_min_score=-1)
             self.write_result(result, title="Second Title")
-            self.mod.update_sidebar_with_conference(sidebar, result, docs_dir=tmp_path / "docs")
+            self.mod.update_sidebar_with_conference(sidebar, result, docs_dir=tmp_path / "docs", deep_min_score=-1)
             text = sidebar.read_text(encoding="utf-8")
 
             self.assertEqual(text.count("<!--dpr-conference:icml-2025-->"), 1)

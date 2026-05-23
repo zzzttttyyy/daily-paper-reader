@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import argparse
 import html
+import importlib.util
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple
 
@@ -15,6 +17,8 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_SIDEBAR_PATH = ROOT_DIR / "docs" / "_sidebar.md"
 DEFAULT_DOCS_DIR = ROOT_DIR / "docs"
 CONFERENCE_HEADING = "* Conference Papers\n"
+CONFERENCE_DEEP_MIN_SCORE = 3.0
+_GENERATE_DOCS_MODULE = None
 
 
 def norm_text(value: Any) -> str:
@@ -61,6 +65,53 @@ def yaml_escape_value(value: Any) -> str:
     if any(ch in text for ch in [":", "#", '"', "'", "\n", "[", "]", "{", "}", ",", "&", "*", "!", "|", ">", "%", "@", "`"]):
         return '"' + text.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n") + '"'
     return text
+
+
+def load_generate_docs_module():
+    global _GENERATE_DOCS_MODULE
+    if _GENERATE_DOCS_MODULE is not None:
+        return _GENERATE_DOCS_MODULE
+
+    src_dir = ROOT_DIR / "src"
+    if str(src_dir) not in sys.path:
+        sys.path.insert(0, str(src_dir))
+    module_path = src_dir / "6.generate_docs.py"
+    spec = importlib.util.spec_from_file_location("dpr_generate_docs_for_conference", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"无法加载日常页生成模块：{module_path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    _GENERATE_DOCS_MODULE = module
+    return module
+
+
+def parse_front_matter(text: str) -> Dict[str, str]:
+    raw = str(text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not raw.startswith("---\n"):
+        return {}
+    end = raw.find("\n---", 4)
+    if end < 0:
+        return {}
+    out: Dict[str, str] = {}
+    for line in raw[4:end].splitlines():
+        key, sep, value = line.partition(":")
+        if not sep:
+            continue
+        out[key.strip()] = value.strip()
+    return out
+
+
+def parse_json_front_matter_value(value: Any) -> Any:
+    text = norm_text(value)
+    if not text:
+        return None
+    if len(text) >= 2 and text[0] == '"' and text[-1] == '"':
+        text = text[1:-1].replace('\\"', '"').replace("\\n", "\n").replace("\\\\", "\\")
+    try:
+        return json.loads(text)
+    except Exception:
+        return None
 
 
 def normalize_sidebar_tag(raw_tag: str) -> Tuple[str, str]:
@@ -147,6 +198,10 @@ def build_conference_summary_lines(
     ranked_item: Dict[str, Any],
     link: str,
 ) -> List[str]:
+    deep_summary = norm_text(ranked_item.get("_deep_summary"))
+    if deep_summary:
+        return ["---", "", "## 论文详细总结（自动生成）", "", deep_summary.rstrip(), ""]
+
     evidence = get_evidence(ranked_item)
     tldr = get_tldr(ranked_item)
     query_text = norm_text(ranked_item.get("matched_query_text"))
@@ -192,6 +247,65 @@ def score_from_ranked_item(item: Dict[str, Any]) -> float:
         except Exception:
             continue
     return 0.0
+
+
+def resolve_conference_pdf_url(paper: Dict[str, Any]) -> str:
+    pdf_url = norm_text(paper.get("pdf_url"))
+    if pdf_url:
+        return pdf_url
+    link = norm_text(paper.get("link"))
+    if not link:
+        return ""
+    if re.search(r"\.pdf(?:$|[?#])", link, flags=re.IGNORECASE) or "/pdf?" in link:
+        return link
+    match = re.search(r"[?&]id=([^&#]+)", link)
+    if "openreview.net/forum" in link and match:
+        return f"https://openreview.net/pdf?id={match.group(1)}"
+    return link
+
+
+def source_key_for_figures(paper: Dict[str, Any]) -> str:
+    paper_id = norm_text(paper.get("id"))
+    source = norm_text(paper.get("source")).lower()
+    if paper_id.startswith("openreview-") or "openreview" in source or "icml-" in source or "neurips-" in source or "iclr-" in source:
+        return "openreview"
+    if "biorxiv" in source:
+        return "biorxiv"
+    if "arxiv" in source:
+        return "arxiv"
+    return slugify(source) or "conference"
+
+
+def ensure_conference_figures(
+    paper: Dict[str, Any],
+    *,
+    docs_dir: Path,
+    pdf_url: str,
+) -> List[Dict[str, Any]]:
+    if not pdf_url:
+        return []
+    asset_key = norm_text(paper.get("id")) or slugify(norm_text(paper.get("title")))
+    try:
+        from paper_figures import ensure_paper_figures
+
+        return ensure_paper_figures(
+            pdf_url=pdf_url,
+            docs_dir=str(docs_dir),
+            source_key=source_key_for_figures(paper),
+            asset_key=asset_key,
+        )
+    except Exception as exc:
+        print(f"[WARN] 会议论文插图提取失败：{asset_key}: {exc}", flush=True)
+        return []
+
+
+def is_generated_deep_summary(text: str) -> bool:
+    summary = norm_text(text)
+    if not summary:
+        return False
+    if "### 1. 检索相关性" in summary[:500] and "### 4. 来源与原文" in summary[:1500]:
+        return False
+    return "（完）" in summary or "## " in summary or "### " in summary or len(summary) > 600
 
 
 def collect_ranked_ids(data: Dict[str, Any], limit: int) -> List[Dict[str, Any]]:
@@ -284,6 +398,7 @@ def build_conference_markdown(
     published = norm_text(paper.get("published"))[:10] or "Unknown"
     source = norm_text(paper.get("source"))
     link = norm_text(paper.get("link"))
+    pdf_url = resolve_conference_pdf_url(paper)
     abstract = norm_text(paper.get("abstract")) or "No abstract is available."
     evidence = get_evidence(ranked_item)
     tldr = get_tldr(ranked_item)
@@ -307,8 +422,8 @@ def build_conference_markdown(
         lines.append(f"title_zh: {yaml_escape_value(title_zh)}")
     lines.append(f"authors: {yaml_escape_value(authors_text)}")
     lines.append(f"date: {yaml_escape_value(published)}")
-    if link:
-        lines.append(f"pdf: {yaml_escape_value(link)}")
+    if pdf_url:
+        lines.append(f"pdf: {yaml_escape_value(pdf_url)}")
     lines.append(f"tags: [{', '.join(yaml_escape_value(tag) for tag in tags)}]")
     if score_text:
         lines.append(f"score: {score_text}")
@@ -319,6 +434,9 @@ def build_conference_markdown(
     if source:
         lines.append(f"source: {yaml_escape_value(source)}")
     lines.append("selection_source: conference_retrieval")
+    figure_assets = paper.get("_figure_assets") if isinstance(paper.get("_figure_assets"), list) else []
+    if figure_assets:
+        lines.append(f"figures_json: {yaml_escape_value(json.dumps(figure_assets, ensure_ascii=False))}")
     lines.append(f"motivation: {yaml_escape_value(glance['motivation'])}")
     lines.append(f"method: {yaml_escape_value(glance['method'])}")
     lines.append(f"result: {yaml_escape_value(glance['result'])}")
@@ -338,6 +456,8 @@ def write_conference_docs(
     ranked: List[Dict[str, Any]],
     conference: str,
     years: str,
+    *,
+    deep_min_score: float = CONFERENCE_DEEP_MIN_SCORE,
 ) -> Dict[str, str]:
     route_by_id: Dict[str, str] = {}
     for item in ranked:
@@ -348,12 +468,71 @@ def write_conference_docs(
         route = build_conference_paper_route(paper, conference, years)
         md_path = docs_dir / f"{route}.md"
         md_path.parent.mkdir(parents=True, exist_ok=True)
+        if deep_min_score >= 0 and score_from_ranked_item(item) >= deep_min_score:
+            enrich_conference_paper_for_deep_read(
+                paper,
+                item,
+                md_path=md_path,
+                docs_dir=docs_dir,
+                conference=conference,
+                years=years,
+            )
         md_path.write_text(build_conference_markdown(paper, item, conference, years), encoding="utf-8")
         route_by_id[paper_id] = route
     return route_by_id
 
 
-def build_conference_block(result_path: Path, docs_dir: Path, limit: int = 80) -> List[str]:
+def enrich_conference_paper_for_deep_read(
+    paper: Dict[str, Any],
+    ranked_item: Dict[str, Any],
+    *,
+    md_path: Path,
+    docs_dir: Path,
+    conference: str,
+    years: str,
+) -> None:
+    pdf_url = resolve_conference_pdf_url(paper)
+    if not pdf_url:
+        return
+
+    existing = md_path.read_text(encoding="utf-8") if md_path.exists() else ""
+    existing_meta = parse_front_matter(existing)
+    cached_figures = parse_json_front_matter_value(existing_meta.get("figures_json"))
+    if isinstance(cached_figures, list) and cached_figures:
+        paper["_figure_assets"] = cached_figures
+
+    if not norm_text(existing_meta.get("figures_json")):
+        figures = ensure_conference_figures(paper, docs_dir=docs_dir, pdf_url=pdf_url)
+        if figures:
+            paper["_figure_assets"] = figures
+
+    existing_summary = ""
+    if existing:
+        try:
+            generate_docs = load_generate_docs_module()
+            existing_summary = generate_docs.extract_section_tail(existing, "论文详细总结（自动生成）")
+        except Exception:
+            existing_summary = ""
+    if existing_summary:
+        if is_generated_deep_summary(existing_summary):
+            ranked_item["_deep_summary"] = existing_summary
+            return
+        ranked_item.pop("_deep_summary", None)
+
+    base_md = build_conference_markdown(paper, ranked_item, conference, years)
+    md_path.write_text(base_md, encoding="utf-8")
+    txt_path = md_path.with_suffix(".txt")
+    try:
+        generate_docs = load_generate_docs_module()
+        generate_docs.ensure_text_content(pdf_url, str(txt_path))
+        summary = generate_docs.generate_deep_summary(str(md_path), str(txt_path))
+        if summary:
+            ranked_item["_deep_summary"] = summary
+    except Exception as exc:
+        print(f"[WARN] 会议论文精读生成失败：{paper.get('id') or md_path.stem}: {exc}", flush=True)
+
+
+def build_conference_block(result_path: Path, docs_dir: Path, limit: int = 80, deep_min_score: float = CONFERENCE_DEEP_MIN_SCORE) -> List[str]:
     data = load_json(result_path)
     conference, years = parse_conference_result_name(result_path)
     marker = build_conference_marker(conference, years)
@@ -364,7 +543,14 @@ def build_conference_block(result_path: Path, docs_dir: Path, limit: int = 80) -
         if isinstance(item, dict) and norm_text(item.get("id"))
     }
     ranked = collect_ranked_ids(data, limit)
-    route_by_id = write_conference_docs(docs_dir, papers, ranked, conference, years)
+    route_by_id = write_conference_docs(
+        docs_dir,
+        papers,
+        ranked,
+        conference,
+        years,
+        deep_min_score=deep_min_score,
+    )
 
     lines = [f"  * {label} {marker}\n"]
     for item in ranked:
@@ -437,6 +623,7 @@ def update_sidebar_with_conference(
     result_path: Path,
     limit: int = 80,
     docs_dir: Path = DEFAULT_DOCS_DIR,
+    deep_min_score: float = CONFERENCE_DEEP_MIN_SCORE,
 ) -> None:
     sidebar_path.parent.mkdir(parents=True, exist_ok=True)
     lines = sidebar_path.read_text(encoding="utf-8").splitlines(keepends=True) if sidebar_path.exists() else []
@@ -444,7 +631,7 @@ def update_sidebar_with_conference(
     marker = build_conference_marker(conference, years)
     remove_existing_conference_block(lines, marker)
     heading_idx = ensure_conference_heading(lines)
-    block = build_conference_block(result_path, docs_dir=docs_dir, limit=limit)
+    block = build_conference_block(result_path, docs_dir=docs_dir, limit=limit, deep_min_score=deep_min_score)
     lines[heading_idx + 1:heading_idx + 1] = block
     sidebar_path.write_text("".join(lines), encoding="utf-8")
 
@@ -466,6 +653,12 @@ def main() -> None:
     parser.add_argument("--sidebar", default=str(DEFAULT_SIDEBAR_PATH))
     parser.add_argument("--docs-dir", default=str(DEFAULT_DOCS_DIR))
     parser.add_argument("--limit", type=int, default=80)
+    parser.add_argument(
+        "--deep-min-score",
+        type=float,
+        default=CONFERENCE_DEEP_MIN_SCORE,
+        help="会议论文分数达到该阈值时生成精读全文和图片；设置为负数可禁用。",
+    )
     args = parser.parse_args()
 
     result_path = choose_result_file(Path(item) for item in args.result)
@@ -474,6 +667,7 @@ def main() -> None:
         result_path,
         limit=max(int(args.limit or 0), 0),
         docs_dir=Path(args.docs_dir),
+        deep_min_score=float(args.deep_min_score),
     )
     print(f"[INFO] Conference sidebar updated: {args.sidebar} <- {result_path}", flush=True)
 
