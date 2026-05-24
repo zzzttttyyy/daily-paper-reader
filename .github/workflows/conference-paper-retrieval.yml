@@ -201,6 +201,8 @@ jobs:
           fi
 
           git commit -m "[chore] conference retrieval"
+          git status --short
+          git reset --hard HEAD
           git fetch origin "$branch"
           git rebase -X theirs "origin/$branch"
           git push origin HEAD:"$branch"
