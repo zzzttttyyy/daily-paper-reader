@@ -25,3 +25,54 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: tfree-diff
+      description: 请帮我查找扩散模型图像/视频生成的免训练优化相关论文
+      enabled: true
+      paper_sources:
+        - arxiv
+      keywords:
+        - keyword: diffusion model
+          keyword_cn: ''
+          query: diffusion models for generative tasks
+        - keyword: diffusion image generation
+          keyword_cn: ''
+          query: image generation using diffusion models
+        - keyword: diffusion video generation
+          keyword_cn: ''
+          query: video generation with diffusion models
+        - keyword: training-free optimization
+          keyword_cn: ''
+          query: optimization methods that do not require training for diffusion models
+      intent_queries:
+        - query: What are training free sampling optimization techniques for diffusion model image generation?
+          query_cn: ''
+          enabled: true
+          source: manual
+          note: ''
+        - query: How to improve diffusion model video generation without additional training?
+          query_cn: ''
+          enabled: true
+          source: manual
+          note: ''
+        - query: Survey of training free methods for diffusion models in image and video generation.
+          query_cn: ''
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-05-29T07:17:53.775Z'
+source_backends:
+  arxiv:
+    papers_table: arxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_arxiv_papers
+    vector_rpc_exact: match_arxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_arxiv_papers_bm25
+    sync_table: arxiv_sync_status
+    sync_success_value: success
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
