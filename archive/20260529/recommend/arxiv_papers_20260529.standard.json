@@ -1,0 +1,565 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-29T21:07:13.468251+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 8,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 8,
+    "quick_skim_target": 11,
+    "quick_selected": 8
+  },
+  "deep_dive": [
+    {
+      "id": "2605.23610v1",
+      "source": "arxiv",
+      "title": "EM-Vid: Training-Free Entity-Centric Memory for Efficient and Consistent Multi-Shot Video Generation",
+      "abstract": "Multi-shot video generation requires maintaining a consistent appearance of recurring entities across shots while remaining faithful to shot-specific text prompts. Recent autoregressive methods reuse previously generated frames as memory. However, full-frame storage entangles persistent entity information with transient scene context, leading to irrelevant information leakage and high computational cost. We propose an entity-centric memory in the form of an entity-indexed bank of latent patches. We introduce sparse token conditioning compatible with pretrained models, restricting self-attention to entity-relevant tokens and reducing computational cost. To support this, we introduce a structured multi-shot script format. We additionally propose a budgeted memory update strategy to maintain a compact, evolving memory. Finally, we equip the entity representation with a noise-injection mechanism that enables fine-grained appearance control, preventing leakage of irrelevant information. Our method improves prompt adherence and efficiency while preserving subject consistency.",
+      "authors": [
+        "Jente Vandersanden",
+        "Matheus Gadelha",
+        "Chun-Hao P. Huang",
+        "Hyeonho Jeong",
+        "Yulia Gryaditskaya"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-22T13:20:29+00:00",
+      "link": "https://arxiv.org/pdf/2605.23610v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free video generation with entity-centric memory",
+      "llm_evidence_cn": "免训练的视频生成，基于实体中心记忆",
+      "llm_evidence": "免训练的视频生成，基于实体中心记忆",
+      "canonical_evidence": "免训练的视频生成，基于实体中心记忆",
+      "llm_tldr_en": "Proposes a training-free entity-centric memory for multi-shot video generation, using sparse token conditioning to maintain entity consistency across shots without additional training.",
+      "llm_tldr_cn": "针对多镜头视频生成中实体一致性难以保持且全帧存储计算成本高的问题，提出一种免训练的实体中心记忆机制，通过实体索引的潜在补丁库和稀疏令牌条件化，在不额外训练的情况下实现高效且一致的跨镜头实体外观保持。实验表明该方法显著降低计算开销并提升一致性。",
+      "llm_tldr": "针对多镜头视频生成中实体一致性难以保持且全帧存储计算成本高的问题，提出一种免训练的实体中心记忆机制，通过实体索引的潜在补丁库和稀疏令牌条件化，在不额外训练的情况下实现高效且一致的跨镜头实体外观保持。实验表明该方法显著降低计算开销并提升一致性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.24509v1",
+      "source": "arxiv",
+      "title": "Φ-Noise: Training-Free Temporal Video Conditioning via Phase-Based Noise Manipulation",
+      "abstract": "Latent video diffusion models generate videos by progressively transforming Gaussian noise into realistic samples conditioned on text or visual inputs. However, existing conditioning methods often require additional training and computational overhead. Motivated by recent findings on the importance of frequency components in generative models, we propose a simple, training-free approach for motion-conditioned video generation by injecting low-frequency phase information from a reference video directly into the diffusion noise latents. Our method transfers motion cues without modifying the model architecture or inference pipeline. Using several applications, we demonstrate effective control over both appearance and dynamics in generated videos, while achieving competitive or superior results compared to more complex conditioning approaches.",
+      "authors": [
+        "Ofir Abramovich",
+        "Nadav Z. Cohen",
+        "Adi Rosenthal",
+        "Ariel Shamir"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.GR",
+        "cs.LG"
+      ],
+      "published": "2026-05-23T10:43:40+00:00",
+      "link": "https://arxiv.org/pdf/2605.24509v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free temporal video conditioning via phase-based noise manipulation",
+      "llm_evidence_cn": "基于相位噪声操作的免训练时间视频条件控制",
+      "llm_evidence": "基于相位噪声操作的免训练时间视频条件控制",
+      "canonical_evidence": "基于相位噪声操作的免训练时间视频条件控制",
+      "llm_tldr_en": "A training-free method for motion-conditioned video generation by injecting low-frequency phase information from a reference video into diffusion noise latents.",
+      "llm_tldr_cn": "针对视频扩散模型条件控制需要额外训练的问题，提出一种无需训练的相位噪声注入方法，将参考视频的低频相位信息直接注入扩散噪声潜空间，在不修改架构或推理流程的情况下实现对运动和外观的有效控制。",
+      "llm_tldr": "针对视频扩散模型条件控制需要额外训练的问题，提出一种无需训练的相位噪声注入方法，将参考视频的低频相位信息直接注入扩散噪声潜空间，在不修改架构或推理流程的情况下实现对运动和外观的有效控制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.30317v1",
+      "source": "arxiv",
+      "title": "VPG: Visual Prefix Guidance for Autoregressive Image and Video Generation",
+      "abstract": "Autoregressive image and video generators are trained with teacher-forced histories but must sample from their own generated prefixes at inference time, making them vulnerable to exposure bias and prefix drift. Existing remedies either modify training or apply sampling-time guidance aimed primarily at external semantic conditions, such as class labels or text prompts, rather than testing whether a next-step prediction provides strong posterior support for the generated prefix itself. We propose Visual Prefix Guidance (VPG), a training-free inference-time guidance method for autoregressive image and video generation. VPG improves next-step prediction by contrasting the model's output under the generated prefix with its output under a corrupted prefix, then extrapolating logits toward candidates that strengthen the posterior support of the generated prefix. Across class-conditional image generation with VAR, text-to-image generation with Infinity, and text-to-video generation with InfinityStar, VPG improves generation quality without retraining the base model, reducing FID on VAR by 0.36 on average and improving benchmark performance on both image and video generation.",
+      "authors": [
+        "Xinyao Liao",
+        "Qiyuan He",
+        "Yicong Li",
+        "Jiayin Zhu",
+        "Xiaoye Qu",
+        "Wei Wei",
+        "Angela Yao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-28T17:55:06+00:00",
+      "link": "https://arxiv.org/pdf/2605.30317v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free inference-time guidance for autoregressive image and video generation",
+      "llm_evidence_cn": "针对自回归图像和视频生成的免训练推理时引导方法",
+      "llm_evidence": "针对自回归图像和视频生成的免训练推理时引导方法",
+      "canonical_evidence": "针对自回归图像和视频生成的免训练推理时引导方法",
+      "llm_tldr_en": "VPG proposes Visual Prefix Guidance, a training-free method that improves next-step prediction by contrasting outputs under generated vs corrupted prefixes, reducing exposure bias in autoregressive image and video generation.",
+      "llm_tldr_cn": "自回归图像和视频生成器由于训练时的强制教学和推理时的前缀漂移而存在暴露偏差。VPG提出视觉前缀引导（VPG），一种免训练推理时引导方法，通过对比模型在生成前缀和损坏前缀下的输出来改进下一步预测。实验表明该方法有效减少了暴露偏差，提升了生成质量，无需额外训练即可应用于现有模型。",
+      "llm_tldr": "自回归图像和视频生成器由于训练时的强制教学和推理时的前缀漂移而存在暴露偏差。VPG提出视觉前缀引导（VPG），一种免训练推理时引导方法，通过对比模型在生成前缀和损坏前缀下的输出来改进下一步预测。实验表明该方法有效减少了暴露偏差，提升了生成质量，无需额外训练即可应用于现有模型。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.30332v1",
+      "source": "arxiv",
+      "title": "Colored Noise Diffusion Sampling",
+      "abstract": "Diffusion models achieve state-of-the-art image synthesis, with their generative trajectories fundamentally exhibiting a spectral bias, resolving low-frequency global structures early and high-frequency fine details later. Conventional stochastic differential equation (SDE) solvers fail to account for this dynamic, naively injecting uniform white noise throughout the entire process and misusing the finite energy budget. In this work, we establish a mathematical framework that reconsiders SDE inference as a targeted, frequency-decoupled energy transfer. Leveraging this framework, we introduce Colored Noise Sampling (CNS), a novel, training-free stochastic solver. Rather than injecting uniform white noise, CNS utilizes a dynamic, timestep- and frequency-dependent schedule that more efficiently allocates injected energy toward structurally unresolved frequency bands. By actively exploiting the model's inherent spectral bias, CNS systematically steers the generated distribution toward the true data manifold. Extensive experiments demonstrate that CNS significantly outperforms standard ODE and SDE baselines as a strictly plug-and-play, inference-time sampler substitution across diverse architectures (SiT, JiT, FLUX). Compared to standard sampling on ImageNet-256, CNS achieves substantial unguided FID reductions, improving from 8.26 to 6.27 on SiT-XL/2, 32.39 to 26.69 on JiT-B/16, and 11.88 to 8.31 on JiT-H/16, while yielding consistent relative FID improvements with Classifier-Free Guidance. Project page is available at https://hadardavidson.github.io/CNS/.",
+      "authors": [
+        "Hadar Davidson",
+        "Noam Issachar",
+        "Sagie Benaim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-28T17:58:13+00:00",
+      "link": "https://arxiv.org/pdf/2605.30332v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free colored noise sampling for image generation",
+      "llm_evidence_cn": "用于图像生成的免训练彩色噪声采样",
+      "llm_evidence": "用于图像生成的免训练彩色噪声采样",
+      "canonical_evidence": "用于图像生成的免训练彩色噪声采样",
+      "llm_tldr_en": "Proposes Colored Noise Sampling (CNS), a training-free stochastic solver that improves image generation by dynamically injecting frequency-decoupled noise, outperforming conventional SDE solvers.",
+      "llm_tldr_cn": "针对传统扩散模型SDE求解器注入均匀白噪声忽略频谱偏置的问题，本文提出了一种免训练的彩色噪声采样方法（CNS）。CNS利用动态的、依赖于时间步和频率的噪声调度，更有效地分配能量，从而改善图像生成的质量和采样效率。实验表明该方法无需额外训练即可提升生成效果。",
+      "llm_tldr": "针对传统扩散模型SDE求解器注入均匀白噪声忽略频谱偏置的问题，本文提出了一种免训练的彩色噪声采样方法（CNS）。CNS利用动态的、依赖于时间步和频率的噪声调度，更有效地分配能量，从而改善图像生成的质量和采样效率。实验表明该方法无需额外训练即可提升生成效果。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.22668v1",
+      "source": "arxiv",
+      "title": "SEGA: Spectral-Energy Guided Attention for Resolution Extrapolation in Diffusion Transformers",
+      "abstract": "Diffusion transformers (DiTs) have emerged as a dominant architecture for text-to-image generation, yet their performance drops when generating at resolutions beyond their training range. Existing training-free approaches mitigate this by modifying inference-time attention behavior, often through Rotary Position Embeddings (RoPE) extrapolation combined with attention scaling. However, these strategies apply a uniform and content-agnostic scaling across RoPE components with distinct frequency characteristics, inducing a trade-off between preserving global structure and recovering fine detail. We introduce SEGA, a training-free method that dynamically scales attention across RoPE components according to the latent's spatial-frequency structure at each denoising step. This adaptive scaling improves both structural coherence and fine-detail fidelity. Experiments show that SEGA consistently improves high-resolution synthesis across multiple target resolutions, outperforming state-of-the-art training-free baselines.",
+      "authors": [
+        "Javad Rajabi",
+        "Kimia Shaban",
+        "Koorosh Roohi",
+        "David B. Lindell",
+        "Babak Taati"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-21T16:09:01+00:00",
+      "link": "https://arxiv.org/pdf/2605.22668v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free resolution extrapolation for diffusion transformers",
+      "llm_evidence_cn": "扩散变换器的免训练分辨率外推方法",
+      "llm_evidence": "扩散变换器的免训练分辨率外推方法",
+      "canonical_evidence": "扩散变换器的免训练分辨率外推方法",
+      "llm_tldr_en": "Introduces SEGA, a training-free method that dynamically scales attention across RoPE components based on latent spatial frequency, improving resolution extrapolation for diffusion transformers.",
+      "llm_tldr_cn": "扩散变换器在超出训练范围的分辨率下性能下降，现有免训练方法统一缩放RoPE组件导致全局结构与细节恢复的权衡。提出SEGA，一种根据潜在空间频率动态缩放注意力的免训练方法，在保持全局结构的同时恢复细粒度细节，无需重新训练。实验证明在高分辨率生成中超越现有训练-free方法。",
+      "llm_tldr": "扩散变换器在超出训练范围的分辨率下性能下降，现有免训练方法统一缩放RoPE组件导致全局结构与细节恢复的权衡。提出SEGA，一种根据潜在空间频率动态缩放注意力的免训练方法，在保持全局结构的同时恢复细粒度细节，无需重新训练。实验证明在高分辨率生成中超越现有训练-free方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.24870v1",
+      "source": "arxiv",
+      "title": "Trajectory-Consistent Calibration for Cache-Accelerated Diffusion Models",
+      "abstract": "Diffusion Transformers require repeated denoiser evaluations during iterative sampling, making inference computationally expensive. Cache-based acceleration reduces this cost by reusing intermediate representations across denoising steps, but can introduce representation deviations and degrade generation quality. In this paper, we analyze these deviations and show that effective calibration should consider both the direct mismatch caused by reuse and the subsequent trajectory shift induced by earlier corrections. To address this challenge, we propose Trajectory-Consistent Calibration (TCC), a training-free method that calibrates cached representations toward their full-computation counterparts. Specifically, rather than estimating all calibration priors from a single uncorrected cache trajectory, TCC uses an offline iterative procedure so that each prior accounts for the trajectory shift induced by preceding calibrations. Experiments on PixArt-alpha and DiT-XL/2 show that TCC consistently improves FID across representative cache-based acceleration methods while preserving their underlying reuse policies. Notably, in a representative PixArt-alpha cache-acceleration setting based on FORA, TCC reduces FID from 29.83 to 27.35, slightly surpassing the full-computation baseline.",
+      "authors": [
+        "Mingyu Liang",
+        "Dingkun Xu",
+        "Jingwei Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-24T05:00:06+00:00",
+      "link": "https://arxiv.org/pdf/2605.24870v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Training-free calibration method for cache-accelerated diffusion model sampling",
+      "llm_evidence_cn": "无需训练的缓存加速扩散模型采样校准方法",
+      "llm_evidence": "无需训练的缓存加速扩散模型采样校准方法",
+      "canonical_evidence": "无需训练的缓存加速扩散模型采样校准方法",
+      "llm_tldr_en": "Proposes Trajectory-Consistent Calibration (TCC), a training-free method to correct representation deviations in cache-accelerated diffusion transformers, improving generation quality.",
+      "llm_tldr_cn": "本文针对缓存加速扩散模型因表示重用导致生成质量下降的问题，提出轨迹一致校准（TCC）。该方法无需训练，通过分析直接偏差和轨迹偏移，对缓存表示进行校准。实验证明，TCC在保持加速效果的同时，使生成质量接近全计算版本，为扩散模型的高效免训练推理优化提供了新途径。",
+      "llm_tldr": "本文针对缓存加速扩散模型因表示重用导致生成质量下降的问题，提出轨迹一致校准（TCC）。该方法无需训练，通过分析直接偏差和轨迹偏移，对缓存表示进行校准。实验证明，TCC在保持加速效果的同时，使生成质量接近全计算版本，为扩散模型的高效免训练推理优化提供了新途径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.27990v1",
+      "source": "arxiv",
+      "title": "Geometry-Correct Diffusion Posterior Sampling with Denoiser-Pullback Curvature Guidance and Manifold-Aligned Damping",
+      "abstract": "Diffusion posterior sampling conditions diffusion priors on measurements, but data-consistency updates are typically scaled by hand-tuned guidance weights and can destabilize sampling under stiff, operator-dependent curvature. We replace scalar guidance with a per-noise-level damped Gauss--Newton correction computed in diffusion-state coordinates. The correction pulls likelihood gradients back through the denoiser, uses a one-sided curvature model that avoids forward denoiser Jacobians, and applies diffusion-calibrated rank-one damping aligned with the denoiser residual. Each correction is solved with matrix-free GMRES using automatic differentiation, and sampling proceeds with a variance-preserving Langevin transition with a closed-form drift/noise split. On FFHQ and ImageNet across inverse problems, it achieves competitive PSNR/SSIM/LPIPS while running markedly faster than most of the compared baselines; on accelerated MRI reconstruction, it achieves the best PSNR/SSIM among the compared baselines.",
+      "authors": [
+        "Seunghyeok Shin",
+        "Minwoo Kim",
+        "Dabin Kim",
+        "Hongki Lim"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-05-27T05:29:35+00:00",
+      "link": "https://arxiv.org/pdf/2605.27990v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Training-free optimization for diffusion posterior sampling using curvature guidance and damping",
+      "llm_evidence_cn": "免训练优化方法，通过曲率引导和阻尼改进扩散后验采样",
+      "llm_evidence": "免训练优化方法，通过曲率引导和阻尼改进扩散后验采样",
+      "canonical_evidence": "免训练优化方法，通过曲率引导和阻尼改进扩散后验采样",
+      "llm_tldr_en": "Proposes a training-free damped Gauss-Newton correction for diffusion posterior sampling, replacing scalar guidance with per-noise-level curvature guidance and manifold-aligned damping.",
+      "llm_tldr_cn": "本文针对扩散后验采样中引导权重手动调节导致的采样不稳定问题，提出一种无需训练的逐噪声水平阻尼高斯-牛顿校正方法。该方法通过去噪器拉回曲率模型和流形对齐阻尼，避免计算去噪器雅可比矩阵，在保持采样速度的同时显著提升数据一致性。实验结果表明，该方法在多种测量条件下稳定有效，为扩散模型的条件生成提供了一种通用免训练优化框架。",
+      "llm_tldr": "本文针对扩散后验采样中引导权重手动调节导致的采样不稳定问题，提出一种无需训练的逐噪声水平阻尼高斯-牛顿校正方法。该方法通过去噪器拉回曲率模型和流形对齐阻尼，避免计算去噪器雅可比矩阵，在保持采样速度的同时显著提升数据一致性。实验结果表明，该方法在多种测量条件下稳定有效，为扩散模型的条件生成提供了一种通用免训练优化框架。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.26632v1",
+      "source": "arxiv",
+      "title": "RT-Lynx: Putting the GEMM Sparsity In a Right Way for Diffusion Models",
+      "abstract": "Diffusion Transformers (DiT) achieve strong performance in image generation but incur substantial inference costs. While prior work has reduced this cost via quantization and distillation, semi-structured sparsity, which can nearly halve FLOPs, remains underexplored. A key reason is that most existing approaches focus on weight sparsification, and pruning 50% of the weights can remove critical model capacity and degrade generation quality. Our study, however, shows that DiT activations are intrinsically sparse and significantly more robust to N:M semi-structured sparsification than weights. Motivated by this observation, we advocate a paradigm shift from weight sparsification to activation sparsification. We propose RT-Lynx, which applies N:M sparsification to activations and incorporates error-compensation techniques to mitigate accuracy loss. We further implement highly optimized CUDA kernels tailored to this setting, achieving up to a 1.55x speedup on average in linear layers. Extensive experiments across multiple diffusion models demonstrate that our method preserves the generation quality of the original models while substantially accelerating inference.",
+      "authors": [
+        "Xing Cong",
+        "Hanlin Tang",
+        "Kan Liu",
+        "Lan Tao",
+        "Lin Qu",
+        "Chenhao Xie"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-26T07:09:49+00:00",
+      "link": "https://arxiv.org/pdf/2605.26632v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "activation sparsification for diffusion model inference without training",
+      "llm_evidence_cn": "激活稀疏化实现扩散模型免训练推理加速",
+      "llm_evidence": "激活稀疏化实现扩散模型免训练推理加速",
+      "canonical_evidence": "激活稀疏化实现扩散模型免训练推理加速",
+      "llm_tldr_en": "RT-Lynx applies N:M activation sparsification to DiT, reducing FLOPs without weight pruning or retraining, achieving faster inference.",
+      "llm_tldr_cn": "针对扩散Transformer（DiT）推理成本高的问题，提出RT-Lynx方法，利用激活值固有的稀疏性，直接应用N:M半结构化稀疏化，而无需权重剪枝或重新训练。实验表明，该方法在保持生成质量的同时几乎减半FLOPs，是一种免训练的推理优化技术。",
+      "llm_tldr": "针对扩散Transformer（DiT）推理成本高的问题，提出RT-Lynx方法，利用激活值固有的稀疏性，直接应用N:M半结构化稀疏化，而无需权重剪枝或重新训练。实验表明，该方法在保持生成质量的同时几乎减半FLOPs，是一种免训练的推理优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.25763v2",
+      "source": "arxiv",
+      "title": "AI-T2I: Aggregating-and-Isolating Cross-Attention to Diffusion Models for Text-to-Image Synthesis",
+      "abstract": "Text-to-image synthesis has made significant progress, benefiting from the strong generative capabilities of diffusion models. However, these models struggle to achieve precise text-to-image alignment within cross-attention maps during the denoising process. Existing works primarily focus on inter-subject-token activations (i.e., cross-attention scores) overlap for different subjects, overlooking the intra-subject-token activations scattering issue for identical subjects. In this paper, we propose an Aggregating-and-Isolating cross-attention approach to diffusion models for Text-to-Image synthesis, dubbed AI-T2I. Technically, to address the scattering issue, we devise an aggregation loss to identify and consolidate the scattered intra-token activations, which implicitly helps mitigate the potential overlap issue. Upon that, an isolation loss is further introduced to push the inter-token activations apart, thus fulfilling precise text-to-image alignment. Extensive experiments on various benchmarks demonstrate the superiority of AI-T2I over the state-of-the-art works for text-to-image synthesis. Furthermore, our AI-T2I exhibits excellent generalization across other tasks, e.g., controllable layout generation and personalized generation.",
+      "authors": [
+        "Shipeng Cao",
+        "Biao Qian",
+        "Haipeng Liu",
+        "Yang Wang",
+        "Meng Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-25T12:17:32+00:00",
+      "link": "https://arxiv.org/pdf/2605.25763v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "improving text-to-image alignment in diffusion models",
+      "llm_evidence_cn": "改进扩散模型文本到图像的对齐",
+      "llm_evidence": "改进扩散模型文本到图像的对齐",
+      "canonical_evidence": "改进扩散模型文本到图像的对齐",
+      "llm_tldr_en": "Proposes AI-T2I to aggregate and isolate cross-attention for better text-to-image alignment in diffusion models, addressing token scattering.",
+      "llm_tldr_cn": "针对扩散模型文本到图像生成中跨注意力图不准确的问题，提出聚合与隔离跨注意力方法（AI-T2I）。通过聚合损失整合分散的同名词元激活，并隔离不同词元，显著提升了文本与图像的对齐精度。实验表明该方法在多个基准上优于现有工作。",
+      "llm_tldr": "针对扩散模型文本到图像生成中跨注意力图不准确的问题，提出聚合与隔离跨注意力方法（AI-T2I）。通过聚合损失整合分散的同名词元激活，并隔离不同词元，显著提升了文本与图像的对齐精度。实验表明该方法在多个基准上优于现有工作。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.29937v1",
+      "source": "arxiv",
+      "title": "Fisher-Preserving Guidance: Training-Free Manifold Constraints for Safe Diffusion Control",
+      "abstract": "Diffusion models are effective for waypoint prediction in visual navigation, but standard sampling and test time guidance can produce unreliable or inefficient trajectories when updates drift off the training manifold. We propose Fisher Preserving Guidance with Outer Product Span Projection, a training-free inference method that avoids large Fisher drift associated with off-distribution actions while optimizing a task objective. Our method computes the Fisher-preserving update via a low-rank Jacobian factorization, requiring only a single backward pass per step and enabling real-time use. We further introduce Truncated Fisher Denoising Sensitivity as an uncertainty signal and use it for robust multi-sample action blending. Experiments on toy and realistic navigation benchmarks, including Maze2D with TSDF-based guidance, PushT with official Diffusion Policy weights, and visual navigation in simulation and on real robots, demonstrate consistent improvements in performance over strong diffusion-policy baselines without additional training.",
+      "authors": [
+        "Hao Ren",
+        "Zetong Bi",
+        "Yiming Zeng",
+        "Le Zheng",
+        "Zhi Li",
+        "Zhaoliang Wan",
+        "Lu Qi",
+        "Hui Cheng"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.LG"
+      ],
+      "published": "2026-05-28T13:47:31+00:00",
+      "link": "https://arxiv.org/pdf/2605.29937v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free inference method for diffusion models",
+      "llm_evidence_cn": "扩散模型的免训练推理方法",
+      "llm_evidence": "扩散模型的免训练推理方法",
+      "canonical_evidence": "扩散模型的免训练推理方法",
+      "llm_tldr_en": "Fisher-Preserving Guidance is a training-free method that applies manifold constraints for safe diffusion control in navigation.",
+      "llm_tldr_cn": "该论文提出Fisher保持引导，一种免训练推理方法，通过低秩雅可比分解保持Fisher信息，用于视觉导航中的安全扩散控制。",
+      "llm_tldr": "该论文提出Fisher保持引导，一种免训练推理方法，通过低秩雅可比分解保持Fisher信息，用于视觉导航中的安全扩散控制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.28711v2",
+      "source": "arxiv",
+      "title": "Stage-wise Distortion-Perception Traversal in Zero-shot Inverse Problems with Diffusion Models",
+      "abstract": "The distortion-perception (D-P) tradeoff is a fundamental phenomenon of Bayesian inverse problems, which characterizes the inherent tension between distortion performance and perceptual quality. Enabling flexible traversal of the D-P tradeoff at inference time is crucial for practical applications. Despite the recent success of diffusion models in zero-shot inverse problem solving, efficient and principled strategies for D-P traversal in diffusion-based inverse algorithms remain inadequately characterized. In this paper, we propose a stage-wise framework for realizing D-P traversal using a single diffusion model in zero-shot inverse problems. Our proposed method, termed MAP-RPS, starts with an MAP estimation stage that approximates the MMSE solution and provides a low-distortion initialization, followed by a re-noised posterior sampling stage that progressively improves perceptual quality. We provide theoretical analyses for both stages, establishing the validity and effectiveness of the proposed design. Furthermore, we extend MAP-RPS to the latent space, yielding LMAP-RPS, which enjoys broader applicability by leveraging large-scale pre-trained latent diffusion backbones. Extensive experiments demonstrate that MAP-RPS and LMAP-RPS enable more effective D-P traversal on various tasks, while also exhibiting strong performance as efficient solvers for real-world inverse problems.",
+      "authors": [
+        "Jiawei Zhang",
+        "Ziyuan Liu",
+        "Leon Yan",
+        "Zhenyu Xiao",
+        "Yuantao Gu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-27T16:35:23+00:00",
+      "link": "https://arxiv.org/pdf/2605.28711v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "zero-shot D-P tradeoff traversal in diffusion inverse problems without training",
+      "llm_evidence_cn": "扩散模型逆问题中免训练的失真-感知权衡遍历",
+      "llm_evidence": "扩散模型逆问题中免训练的失真-感知权衡遍历",
+      "canonical_evidence": "扩散模型逆问题中免训练的失真-感知权衡遍历",
+      "llm_tldr_en": "MAP-RPS enables distortion-perception tradeoff traversal using a single diffusion model without extra training, via stage-wise MAP and RPS steps.",
+      "llm_tldr_cn": "提出MAP-RPS方法，通过分阶段的最大后验估计和残差-感知步骤，利用单个扩散模型在零样本逆问题中实现失真-感知权衡遍历，无需额外训练。该方法高效且原则性强，为扩散模型的免训练优化提供了新思路。",
+      "llm_tldr": "提出MAP-RPS方法，通过分阶段的最大后验估计和残差-感知步骤，利用单个扩散模型在零样本逆问题中实现失真-感知权衡遍历，无需额外训练。该方法高效且原则性强，为扩散模型的免训练优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.25763v3",
+      "source": "arxiv",
+      "title": "AI-T2I: Aggregating-and-Isolating Cross-Attention to Diffusion Models for Text-to-Image Synthesis",
+      "abstract": "Text-to-image synthesis has made significant progress, benefiting from the strong generative capabilities of diffusion models. However, these models struggle to achieve precise text-to-image alignment within cross-attention maps during the denoising process. Existing works primarily focus on inter-subject-token activations (i.e., cross-attention scores) overlap for different subjects, overlooking the intra-subject-token activations scattering issue for identical subjects. In this paper, we propose an Aggregating-and-Isolating cross-attention approach to diffusion models for Text-to-Image synthesis, dubbed AI-T2I. Technically, to address the scattering issue, we devise an aggregation loss to identify and consolidate the scattered intra-token activations, which implicitly helps mitigate the potential overlap issue. Upon that, an isolation loss is further introduced to push the inter-token activations apart, thus fulfilling precise text-to-image alignment. Extensive experiments on various benchmarks demonstrate the superiority of AI-T2I over the state-of-the-art works for text-to-image synthesis. Furthermore, our AI-T2I exhibits excellent generalization across other tasks, e.g., controllable layout generation and personalized generation. Our code is available at https://github.com/Hatter77/AI-T2I.",
+      "authors": [
+        "Shipeng Cao",
+        "Biao Qian",
+        "Haipeng Liu",
+        "Yang Wang",
+        "Meng Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-25T12:17:32+00:00",
+      "link": "https://arxiv.org/pdf/2605.25763v3",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "improving text-to-image alignment in diffusion models",
+      "llm_evidence_cn": "改进扩散模型文本到图像的对齐",
+      "llm_evidence": "改进扩散模型文本到图像的对齐",
+      "canonical_evidence": "改进扩散模型文本到图像的对齐",
+      "llm_tldr_en": "Proposes AI-T2I to aggregate and isolate cross-attention for better text-to-image alignment in diffusion models, addressing token scattering.",
+      "llm_tldr_cn": "针对扩散模型文本到图像生成中跨注意力图不准确的问题，提出聚合与隔离跨注意力方法（AI-T2I）。通过聚合损失整合分散的同名词元激活，并隔离不同词元，显著提升了文本与图像的对齐精度。实验表明该方法在多个基准上优于现有工作。",
+      "llm_tldr": "针对扩散模型文本到图像生成中跨注意力图不准确的问题，提出聚合与隔离跨注意力方法（AI-T2I）。通过聚合损失整合分散的同名词元激活，并隔离不同词元，显著提升了文本与图像的对齐精度。实验表明该方法在多个基准上优于现有工作。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.28900v1",
+      "source": "arxiv",
+      "title": "Spectral Guidance for Flexible and Efficient Control of Diffusion Models",
+      "abstract": "We introduce Spectral Guidance, a framework for controlling diffusion models by leveraging the intrinsic geometry of the generative process. As data is progressively corrupted by noise, only a small number of features remain informative for control. We characterize them as the singular functions of a conditional expectation operator and show that they can be learned via a self-supervised objective. Once recovered, this basis enables the projection of arbitrary guidance signals, such as labels, CLIP embeddings, or masks, directly onto the sampling trajectory. This approach allows for stable, high-fidelity control without retraining or denoiser backpropagation during sampling. Empirically, we improve conditional accuracy on CIFAR-10 by 37 percentage points over the strongest training-free baseline while offering $4\\times$ faster sampling. Moreover, the same representations that support label and CLIP guidance also enable spatial control, such as mask-based guidance, without auxiliary models. Finally, our framework reveals a phase transition in the generative process, pinpointing the optimal time window for effective guidance.",
+      "authors": [
+        "Gabriel Moreira",
+        "Manuel Marques",
+        "João Paulo Costeira",
+        "Chenyan Xiong"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-27T15:11:09+00:00",
+      "link": "https://arxiv.org/pdf/2605.28900v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free control of diffusion models via spectral guidance",
+      "llm_evidence_cn": "基于频谱引导的扩散模型免训练控制",
+      "llm_evidence": "基于频谱引导的扩散模型免训练控制",
+      "canonical_evidence": "基于频谱引导的扩散模型免训练控制",
+      "llm_tldr_en": "Proposes Spectral Guidance for controlling diffusion models without retraining or backpropagation, projecting arbitrary guidance signals onto the sampling trajectory using learned singular functions.",
+      "llm_tldr_cn": "扩散模型控制需要额外训练或反向传播，成本高。提出Spectral Guidance框架，利用自监督学习恢复条件期望算子的奇异函数，将任意引导信号投影到采样轨迹上，实现免训练的稳定高保真控制。在CIFAR-10上条件准确率提升37个百分点，且无需修改模型。",
+      "llm_tldr": "扩散模型控制需要额外训练或反向传播，成本高。提出Spectral Guidance框架，利用自监督学习恢复条件期望算子的奇异函数，将任意引导信号投影到采样轨迹上，实现免训练的稳定高保真控制。在CIFAR-10上条件准确率提升37个百分点，且无需修改模型。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.25765v1",
+      "source": "arxiv",
+      "title": "Concept Unlearning via Cross-Attention Activation Projection for Diffusion Models",
+      "abstract": "Concept unlearning aims to erase a target concept from a pretrained text-to-image diffusion model without retraining. Closed-form methods are attractive in this setting because they apply a single deterministic edit to the cross-attention weights and add no inference-time cost. Existing closed-form methods, however, represent the target concept through the text encoder's response to a few short anchor prompts that name it, and paraphrased prompts that evoke the concept without naming it consistently bypass the edit. We argue that the target should instead be represented in the cross-attention activation space. Text embeddings describe the user's prompt, while cross-attention activations describe what the model is about to render, and the latter generalize to paraphrase the anchor templates do not cover. Building on this observation, we propose PURE (Projection in U-Net Rendering for Erasure), a closed-form method that builds the forget and retain bases from per-layer cross-attention activations captured along a short denoising trajectory and applies a single linear projector to the cross-attention key and value weights. On a recent holistic concept-unlearning benchmark covering ten concepts across artistic style, intellectual property, celebrity, and NSFW categories, PURE significantly reduces target leakage under paraphrased and adversarial prompts while preserving retain concepts close to the unedited model, yielding the best overall forget-retain trade-off among evaluated methods.",
+      "authors": [
+        "Saemi Moon",
+        "Suhyeon Jun",
+        "Seoyeon Lee",
+        "Dongwoo Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-05-25T12:18:47+00:00",
+      "link": "https://arxiv.org/pdf/2605.25765v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free closed-form editing of cross-attention weights for concept unlearning",
+      "llm_evidence_cn": "免训练的闭式交叉注意力权重编辑用于概念擦除",
+      "llm_evidence": "免训练的闭式交叉注意力权重编辑用于概念擦除",
+      "canonical_evidence": "免训练的闭式交叉注意力权重编辑用于概念擦除",
+      "llm_tldr_en": "A training-free closed-form method to erase concepts from text-to-image diffusion models by projecting in cross-attention activation space.",
+      "llm_tldr_cn": "现有闭式概念擦除方法通过文本嵌入表示目标概念，但同义词提示能绕过。本文提出在交叉注意力激活空间表示目标，通过投影实现无需重新训练且抗绕过的擦除。",
+      "llm_tldr": "现有闭式概念擦除方法通过文本嵌入表示目标概念，但同义词提示能绕过。本文提出在交叉注意力激活空间表示目标，通过投影实现无需重新训练且抗绕过的擦除。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
