@@ -1,0 +1,5385 @@
+Title: Noise Schedule Design for Diffusion Models: An Optimal Control Perspective
+
+URL Source: https://arxiv.org/pdf/2605.21911v1
+
+Published Time: Fri, 22 May 2026 00:28:16 GMT
+
+Number of Pages: 40
+
+Markdown Content:
+# Noise Schedule Design for Diffusion Models: An Optimal Control Perspective 
+
+Seo Taek Kong 
+
+ECE & CSL University of Illinois Urbana-Champaign 
+
+skong10@illinois.edu 
+
+Weina Wang 
+
+Computer Science Department Carnegie Mellon University 
+
+weinaw@cs.cmu.edu 
+
+R. Srikant 
+
+ECE, CSL & NCSA University of Illinois Urbana-Champaign 
+
+rsrikant@illinois.edu 
+
+## Abstract 
+
+We develop a principled framework for analyzing and designing noise schedules in diffusion models. We show that one can recast this design problem as an opti-mal control problem, whose state is the Fisher information of the diffusion process which evolves according to an ODE and the control input is the noise schedule. The objective of the optimal control problem is a functional involving the Fisher information, which is shown to be an upper bound on the Kullback-Leibler sam-pling error. By solving this optimal control problem, we obtain sufficient con-ditions on noise schedules under which state-of-the-art ˜O(d/n ) sampling error is achievable, where d is the data dimension and n is the number of discretiza-tion steps. While existing theoretical work also prove that ˜O(d/n ) sampling error bounds are achievable, these results hold for specific noise schedules, which do not include the schedules used in practice. Under a further parametric assumption on the data distribution, we show that one can obtain closed-form expressions for the noise schedules. These noise schedules generalize standard empirical sched-ules such as exponential and sigmoid schedules by allowing additional parameters that can be tuned. Systematically tuning the parameters of these schedules yields new schedules that achieve superior FID scores on image generation benchmarks. 
+
+## 1 Introduction 
+
+Score-based generative models [23, 29, 33, 36] have emerged as a leading framework for approx-imate sampling. These methods formulate the generative process as the simulation of a time-reversed stochastic differential equation (SDE) driven by a learned score function. While the training objective is well-understood [10, 11, 35, 41], the design of noise schedules governing the forward and reverse processes remains largely heuristic. Consequently, standard noise schedules [23, 25, 30, 39, 40] are often selected through empirical sweeps rather than theoretical guidance. Noise schedule design plays a critical role in generating high-quality data using diffusion models [13, 30, 36]. This importance is partially reflected in existing theory. When utilizing constant noise schedules, the best-known bounds on the sampling error measured in the Kullback-Leibler (KL) divergence remain sub-optimal in the problem constants [6, 9, 11, 15]. Specifically, these upper bounds typically scale as ˜O(d2/n ) or ˜O(max {J ⋆, d }/n ), where J⋆ is the Fisher information of the data distribution, d is the data dimension, and n is the number of sampling steps. Because J⋆ can be much larger than d, these guarantees suffer from severe problem-dependent penalties. 
+
+> Preprint.
+> arXiv:2605.21911v1 [cs.LG] 21 May 2026
+
+The above upper bounds can be improved significantly using time-varying noise schedules. State-of-the-art upper bounds [4, 15] on the KL divergence sampling error scale as ˜O(d/n ), yielding a linear dependence on the data dimension d. While a matching lower bound is not known, the linear scaling in d is optimal [4]. Currently, achieving this rate requires utilizing specific noise schedules that are rarely deployed in practice [39]. Conversely, the noise schedules favored by practitioners lack comparable theoretical guarantees, leaving a gap between diffusion model theory and practice. We refer the reader to Section A for a more detailed discussion of related work. In this work, we establish a new theoretical framework for designing noise schedules, which enlarges the class of schedules that are known to achieve ˜O(d/n ) KL error bounds. Directly minimizing the KL divergence is analytically intractable because the densities are governed by the Fokker-Planck partial differential equation (PDE). We circumvent this by using Bochner’s formula to reduce the PDE constraint into a tractable, one-dimensional ODE governing the trajectory of the Fisher information. By analyzing the optimized Fisher information trajectory under a special class of data distributions (strongly log-concave and Gaussian mixture models), we extract a closed-form expression for a family of noise schedules which we term Affine-Coupled Schedules (ACS). This analysis shows that standard empirical heuristics, such as VE-Exponential [36] and VP-Sigmoid [25, 40], are special cases, where VE refers to variance exploding and VP refers to variance preserving models. More importantly, this framework provides a principled method to introduce new degrees of freedom into schedule design, enabling a systematic optimization of schedules across different computational budgets. Our contributions are summarized below: 1. Optimal Control: We formulate noise schedule design as an optimal control problem. The cost functional involves a variational bound on the discretization error with a non-trivial Lagrangian that admits path-dependent variations, and it replaces the intractable PDE representation of prob-ability density evolution with a one-dimensional Fisher information ODE. In addition to Gir-sanov’s theorem which is now widely used to theoretically study diffusion-based generative AI models [11, 28, 35], we also use a number of other tools from probability and information theory such as Bochner’s formula, concavity of entropy power, and Blachman-Stam inquality to derive the optimal control formulation. 2. Error Bounds for a Class of Noise Schedules: We show that the solution to the optimal control problem achieves ˜O(d/n ) error bounds. This result extends state-of-the-art sampling error guar-antees to a large class of noise schedules. For special classes of data distributions, we show that a parameterized class of noise schedules achieves the error bounds, and further the parameteric class includes certain widely-used practical noise schedules. 3. Principled Degrees of Freedom: We translate our schedules into a practical algorithm by treat-ing the introduced parameters as hyperparameters, which can be optimally configured for any given Neural Function Evaluation (NFE) budget. We empirically demonstrate that such a sys-tematic tuning of these hyperparameters yields schedules that achieve superior FID scores on image datasets compared to standard heuristic baselines. 
+
+General notation. The notation ∇ϕ is used to denote the gradient when ϕ is a scalar-valued func-tion, or the Jacobian when ϕ is a vector-valued function. Throughout, ∥·∥ denotes the standard element-wise ℓ2 norm: the Euclidean norm for vectors, the Frobenius norm for matrices, and the Hilbert-Schmidt norm for higher-order tensors. For any probability density p and a vector-valued function ϕ, let ∥ϕ∥L2(p) = pEX∼p∥ϕ(X)∥2. We write ≲ when ignoring absolute (problem-independent) constants in an inequality. 
+
+## 2 Preliminaries and Problem Setup 
+
+Diffusion models are based on two processes: the forward process , which transforms data into noise, and its time reversal, often referred to as the reverse process , which transforms noise back into data. The noise schedule controls the rates at which these transformations occur. 2Forward process. Let p⋆ denote the density function of the target data distribution on Rd. The forward process is a stochastic differential equation (SDE) of the following form: 
+
+dX t = −f (t)Xtdt + pg(t)dB t, 0 ≤ t ≤ T, X0 ∼ p⋆, (1) where (Bt : t ∈ [0 , T ]) is a standard Brownian motion on Rd independent of X0, and f (·) and g(·)
+
+are real-valued functions of time. Let pt denote the density function of Xt. We call the function pair (f, g ) the noise schedule . Many theoretical studies of diffusion models focus on the simplified setting f (t) = 1 and g(t) = 2 for all t, in which case the forward process is the standard Ornstein– Uhlenbeck (OU) process. To see how the noise schedule controls the distribution of the forward process, note that the marginal distribution of Xt admits the representation 
+
+Xtd
+
+= αtX0 + σtZ, Z ∼ N (0 , I ), (2) where 
+
+αt = exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+f (˜ t)d˜t
+
+
+
+, σ2 
+
+> t
+
+= α2
+
+> t
+
+Z t
+
+> 0
+
+g(˜ t)
+
+α2˜t
+
+d˜t. 
+
+In the OU setting where f (t) = 1 , g (t) = 2 , these quantities reduce to αt = e−t, σ 2 
+
+> t
+
+= 1 −
+
+e−2t. More generally, a larger value of f (t) leads to a faster decay of the contribution of X0 in the distribution of Xt, while a larger value of g(t) corresponds to a faster injection of Gaussian noise. In this paper, we consider the class of noise schedules Θ = F × G defined as 
+
+F = {f : f (t) ≥ 0 for all t ∈ [0 , T ]} and G = {g : g(t) > 0, |g′(t)| < ∞ for all t ∈ [0 , T ]} . (3) The noise schedules used in most diffusion model implementations [39] fall under the class Θ.
+
+Reverse process. The reverse process is the time reversal of the forward process (Xt : t ∈ [0 , T ]) 
+
+in (1). That is, the reverse process (X← 
+
+> τ
+
+: τ ∈ [0 , T ]) is defined by X←
+
+> τd
+
+= XT −τ , τ ∈ [0 , T ]. Then the reverse process admits the following SDE representation [2, 21]: 
+
+dX ← 
+
+> τ
+
+= [ f (T − τ )X← 
+
+> τ
+
++ g(T − τ )sT −τ (X← 
+
+> τ
+
+)] dτ + pg(T − τ )dB τ ,
+
+0 ≤ τ ≤ T, X← 
+
+> 0
+
+∼ pT , (4) where (Bτ : 0 ≤ τ ≤ T ) is a standard Brownian motion on Rd independent of X← 
+
+> 0
+
+, and the function 
+
+st(·) defined as st(x) ≜ ∇ log pt(x) is called the score function. 
+
+2.1 Noise Schedule Optimization 
+
+To turn the reverse process (4) into an implementable algorithm for generating data, several approx-imations need to be made: (1) The score function st is unknown since it depends on the unknown data distribution, and is therefore replaced by an approximation ˆst, typically learned through a train-ing process called score matching; (2) The reverse SDE cannot be solved exactly, but rather must be solved numerically with time discretization; (3) The reverse SDE cannot be initialized exactly from 
+
+pT , and is instead initialized from a Gaussian distribution so the initial state can be easily sampled. A central question in the analysis of diffusion models is how these approximations affect the error between the distribution of the generated samples and the target distribution [4, 6, 11, 15]. Existing analysis shows that the overall error can be separated into three additive terms: (1) score-matching error, (2) discretization error, and (3) initialization error, corresponding to the three approximations above. The score-matching error arises from the training stage, while the discretization error and the initialization error arise from the sampling stage when one solves the reverse SDE to generate data samples. In our theoretical analysis, we consider the setting where the score functions are perfectly learned, and focus on the error arising from sampling, i.e., the sum of the discretization error and initialization error. Our goal is to understand how this error depends on the noise schedule (f, g ), and how it can be minimized through noise schedule design. The setting where the score matching is non-zero can be addressed in one of two possible ways: (i) if a pre-trained score function with appropriate SNR coverage is available, then we can reuse the score function for the noise schedules that result 3from our analysis or (ii) learn the score function for our noise schedules. In both cases, one can incorporate the score matching error into our analysis; see Section B.2. Specifically, we consider the following solving method for the reverse SDE. We select discretization time points 0 = τ0 < τ 1 < τ 2 < · · · < τ n = T , where τk = kh, k = 0 , 1, 2, . . . , n with a step size h > 0, and solve the following SDE: 
+
+d ˆX← 
+
+> τ
+
+=
+
+h
+
+f (T − τ ) ˆX← 
+
+> τ
+
++ g(T − τ )sT −τk ( ˆX← 
+
+> τk
+
+)
+
+i
+
+dτ + pg(T − τ )dB τ ,τ ∈ [τk, τ k+1 ), k = 0 , 1, 2, . . . , n − 1, ˆX← 
+
+> 0
+
+∼ N (0 , σ 2 
+
+> T
+
+I).
+
+(5) Note that here we take the approach where we use a constant step h and let the noise schedule (f, g )
+
+vary over time. This is without loss of generality, as discussed in Section B.3. Let ˆp⋆ denote the density of ˆX← 
+
+> T
+
+, i.e., the output of the approximated reverse SDE in (5). Recall that 
+
+p⋆ is the density of the data distribution. Then our goal is to minimize the Kullback-Leibler (KL) divergence between p⋆ and ˆp⋆, i.e., to solve the following problem 
+
+minimize (f, g ) ∈ Θ KL( p⋆∥ˆp⋆)subject to p⋆ is the density of X← 
+
+> T
+
+in (4) ,
+
+ˆp⋆ is the density of ˆX← 
+
+> T
+
+in (5), (6) where the constraints are specified by partial differential equations (PDEs) for the density functions of X← 
+
+> t
+
+and ˆX← 
+
+> t
+
+given by the Fokker–Planck equations. Solving optimization problems subject to PDE constraints is notoriously difficult [22, 31], especially in high dimensions. In this work, we present a principled framework to find the optimal noise schedule while circumventing the difficulty involved with solving this PDE-constrained optimization problem. 
+
+Regularity assumption on data distribution. For convenience, we use X⋆ ∼ p⋆ to denote a sample from the data distribution with density p⋆. We also generally use the subscript ⋆ for quantities associated with the data distribution. Let s⋆ ≜ ∇ log p⋆ be the score function of p⋆. In our analysis, we frequently use the Fisher information of a distribution. For a density p with score function s, its Fisher information is defined as 
+
+J (p) ≜ ∥∇ log p∥2 
+
+> L2(p)
+
+= ∥s∥2
+
+> L2(p)
+
+. (7) The Fisher information of the data distribution is denoted by J⋆ := ∥s⋆∥2 
+
+> L2
+
+.
+
+Assumption 1. We assume that ∥X⋆∥2 
+
+> L2
+
+, ∥s⋆∥2 
+
+> L2
+
+, ∥∇ s⋆∥L2 , and ∥∇ 2s⋆∥L2 are all finite. 
+
+The L2 norms in Assumption 1 are all with respect to p⋆. When Assumption 1 is not satisfied, early stopping can be applied where the target distribution p⋆ is replaced by pδ for some δ > 0 as in [4, 7, 11, 27]. See Section C.4 for details. 
+
+## 3 Main Results 
+
+Our main results consist of two parts. In Section 3.1, we present an optimal control formulation for the noise schedule design problem, which leads to a class of schedules that achieve ˜O(d/n )
+
+sampling error. In Section 3.2, we derive noise schedules with closed-form expressions under addi-tional assumptions on the target data distribution. We will provide proof sketches of these results in Section 4, and defer the full proofs to Sections D and E. 
+
+3.1 An Optimal Control Formulation for Noise Schedule Design 
+
+Our objective is to solve the optimization problem (6), which minimizes KL( p⋆∥ˆp⋆), the KL-divergence between the data distribution p⋆ and the output distribution ˆp⋆. Here, the densities p⋆ and 
+
+ˆp⋆ are functions on the high-dimensional space Rd, and they depend on the noise schedule (f, g )
+
+through PDEs given by the Fokker–Planck equations. This PDE dependence makes directly solving the KL-minimization problem analytically intractable. 4To circumvent this difficulty, a key idea in our approach is to work with the Fisher information 
+
+Jt = J (pt). Unlike the density pt, the Fisher information Jt is a scalar quantity. Thus, rather than having its dynamics described by a PDE as pt does, Jt evolves according to an ODE, derived using the heat flow and the Bochner formula (Lemma 4): 
+
+˙Jt = 2 f (t)Jt − g(t)∥∇ st∥2 
+
+> L2
+
+. (8) Theorem 1 below shows that the KL objective can be upper bounded in terms of Jt.
+
+Theorem 1. Suppose Assumption 1 holds. For any noise schedule (f, g ) ∈ Θ and any sufficiently small step size h, it holds that 
+
+KL( p⋆∥ˆp⋆) ≲ α2
+
+> T
+
+σ2
+
+> T
+
+∥X⋆∥2 
+
+> L2(p⋆)
+
++ hd 
+
+Z T
+
+> 0
+
+2f (t) − ˙Jt
+
+Jt
+
+!2
+
+dt. (9) Theorem 1 allows us to formulate the noise schedule design problem as the following optimal control problem: 
+
+minimize (f, g ) ∈ Θ
+
+α2
+
+> T
+
+σ2
+
+> T
+
+∥X⋆∥2 
+
+> L2(p⋆)
+
++ hd 
+
+Z T
+
+> 0
+
+2f (t) − ˙Jt
+
+Jt
+
+!2
+
+dt 
+
+subject to ˙Jt = 2 f (t)Jt − g(t)∥∇ st∥2 
+
+> L2
+
+,
+
+J0 = J⋆, JT = JT .
+
+(10) This optimal control problem (10) is significantly more tractable thanks to the ODE constraint. Moreover, we show in Theorem 2 that its solution, although obtained by minimizing an upper bound on the KL objective, indeed achieves ˜O(d/n ) sampling error in the KL divergence. 
+
+Theorem 2. Suppose Assumption 1 holds. For any f ∈ F , there exists g∗ ∈ G such that 
+
+KL( p⋆∥ˆp⋆) ≲ dn log 2
+
+ ∥X⋆∥2
+
+> L2
+
+d · J⋆
+
+d · n
+
+
+
+. (11) Theorem 2 informs the following noise schedule design approach. One can choose f freely, and then choose the corresponding optimal g∗ in Theorem 2. The proof of Theorem 2 reveals that the optimal g∗ takes the form 
+
+g∗(t) = λ∗ J ∗
+
+> t
+
+∥∇ st∥2
+
+> L2
+
+, (12) where λ∗ is a constant independent of t and (J ∗ 
+
+> t
+
+: t ∈ [0 , T ]) is the optimal Fisher information trajectory. We will demonstrate how this design approach leads to noise schedules with closed-forms in Section 3.2. 
+
+3.2 Noise Schedule Design 
+
+In this section, we consider target data distributions that satisfy the following additional assumption. 
+
+Assumption 2. The target data distribution is either strongly log-concave (SLC), or belongs to a class of isotropic Gaussian mixture models (GMMs). Specifically, the density p⋆ of the data distri-bution satisfies one of the following conditions: (i) (SLC) For some m⋆, M ⋆ > 0,
+
+m⋆I ⪯ −∇ 2 log p⋆ ⪯ M⋆I. (13) 
+
+(ii) (GMM) For some mixture weights {πi}Li=1 , means {μi}Li=1 with μi ∈ Rd, and ν > 0, the density p⋆(x) = PLi=1 πiφ(x; μi, ν 2I), where φ(x; μi, ν 2I) is the density of N (μi, ν 2I).
+
+SLC distributions and GMMs are two representative classes of distributions. An SLC distribu-tion represents a distribution with good concentration properties, while a GMM is a prototypical multi-modal distribution. We show in Proposition 1 that these two classes lead to the same form of characterization of g∗. Based on this characterization, we derive a class of noise schedules with 5closed-form expressions in Corollary 1. Although real-world data distributions are highly complex and may not belong to either of these two classes, the noise schedules we obtain using insights from these two classes show strong empirical performance on complex real-world distributions, as demonstrated in Section 5. 
+
+Proposition 1. Suppose Assumption 1 holds. When the data distribution additionally satisfies As-sumption 2, there exists a problem constant κ ≥ 1 such that the g∗ found in Theorem 2 satisfies 
+
+a1 exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+(2 f (˜ t) − λ∗)d˜t
+
+
+
+≤ g∗(t) ≤ a2 exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+(2 f (˜ t) − λ∗)d˜t
+
+
+
+, (14) 
+
+where a1 = λ∗d/ (J⋆κ2) and a2 = λ∗d/ J⋆.In particular, it holds that for any f ∈ F , there exists a time-independent constant g0 such that 
+
+g◦(t) = g0 exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+(2 f (˜ t) − λ∗)d˜t
+
+
+
+(15) 
+
+achieves ˜O(d/n ) sampling error in the KL-divergence. 
+
+Proposition 1 establishes that the functional form of the optimal schedule can be bounded by static properties of the target distribution, specifically its initial Fisher information J⋆ and a problem constant κ. By replacing the dependence on the trajectory with these constants, the schedule g◦ cir-cumvents the need to estimate the trajectory or solve the Fisher information ODE. From a practical standpoint, this decouples the schedule design from the dynamics of the SDE; these parameters sim-ply act as intrinsic problem constants that can either be directly estimated from the data distribution prior to sampling or treated as tunable hyperparameters. Proposition 1 gives the functional form of the schedule g◦ in terms of f , and leaves f as a free choice. We now further restrict the class of schedules to obtain more concrete closed-form expressions. In particular, we consider noise schedules in which f and g have an affine relationship. We call this class the affine-coupled schedules (ACSs): 
+
+ΘACS = {(f, g ) ∈ Θ : f (t) = θg (t) + ω for some θ, ω ≥ 0} . (16) This ACS class encompasses Variance Exploding (VE) schedules where f (t) = 0 [34], with pa-rameter choice (θ, ω ) = (0 , 0) , and Variance Preserving (VP) schedules where f (t) = g(t)/2
+
+[13, 23, 30, 36], with parameter choice (θ, ω ) = (1 /2, 0) . VE and VP schedules are widely used in standard diffusion models. After restricting to ACSs, we obtain closed-form expressions for the noise schedules (f, g ◦).
+
+Corollary 1. Noise schedules of the form (f, g ◦) in (15) within the ACS class (16) can be written as when 2ω̸ = λ∗, f (t) = θg 0(2 ω − λ∗)(2 θg 0 + 2 ω − λ∗)e(2 ω−λ∗)t − 2θg 0
+
++ ω, g◦(t) = g0(2 ω − λ∗)(2 θg 0 + 2 ω − λ∗)e(2 ω−λ∗)t − 2θg 0
+
+,
+
+when 2ω = λ∗, f (t) = θg 0
+
+1 + 2 θg 0t + ω, g◦(t) = g0
+
+1 + 2 θg 0t ,
+
+(17) 
+
+with parameters (θ, ω, g 0).
+
+The noise schedule design in Corollary 1 generalizes several empirically successful schedules. • VE-Exponential: Setting (θ, ω ) = (0 , 0) , (17) simplifies to g◦(t) = g0eλ∗t, which is the exponential schedule proposed by Song and Ermon [34]. • VP-Sigmoid: Setting (θ, ω ) = (1 /2, 0) , (17) simplifies to a sigmoidal function 
+
+2f (t) = g◦(t) = g0λ∗
+
+g0 + ( c − g0)e−λ∗t ,
+
+which has been used in [13, 25, 40]. Our results provide a theoretical explanation for the empirical success of these schedules. Moreover, the noise schedule design in Corollary 1 introduces additional tunable parameters, g0 and c, allowing practitioners to go beyond the commonly used schedules above and further improve performance. 64 Analysis 
+
+Here we present proof sketches for Theorems 1 and 2, Proposition 1, and Corollary 1. We focus on the main proof ideas and omit regularity conditions. The full proofs and intermediate lemmas, are presented in Appendix D for Theorems 1 and 2, and in Appendix E for Proposition 1 and Corollary 1. 
+
+4.1 Proof Sketches for Theorems 1 and 2 
+
+Proof Sketch for Theorem 1: The goal is to upper bound KL( p⋆∥ˆp⋆), the KL-divergence between the data distribution p⋆ and the output distribution ˆp⋆.
+
+Step 1: Error Decomposition. Following standard techniques that use Girsanov theorem and data processing inequality to analyze SDE samplers (see, e.g., [11, 28, 35]), we can decompose the total sampling error KL( p⋆∥ˆp⋆) into the initialization error and the accumulated discretization error over the reverse SDE steps: 
+
+KL( p⋆∥ˆp⋆) ≤ α2
+
+> T
+
+2σ2
+
+> T
+
+∥X⋆∥2
+
+> L2(p⋆)
+
+| {z }
+
+> initialization error
+
++ 12
+
+> n−1
+
+X
+
+> k=0
+
+Z tk+1 
+
+> tk
+
+g(t) ∥st(Xt) − stk (Xtk )∥2 
+
+> L2(pt)
+
+dt 
+
+| {z }
+
+> discretization error
+
+. (18) Here the discretization error is written in terms of forward process quantities using the distributional equivalence X←
+
+> τd
+
+= XT −τ , τ ∈ [0 , T ], and tk = T − τn−k. The remainder of the proof focuses on bounding the discretization error. 
+
+Step 2: Local Discretization Error. We now bound ∥st(Xt) − stk (Xtk )∥2 
+
+> L2
+
+for t ∈ [tk, t k+1 ]. For this, it is more convenient to work with sT −τ (X← 
+
+> τ
+
+) and show that it satisfies an SDE (Lemma 2): 
+
+ds T −τ (X← 
+
+> τ
+
+) = −f (T − τ )sT −τ (X← 
+
+> τ
+
+) + pg(T − τ )∇sT −τ (X← 
+
+> τ
+
+)dB τ . (19) Analyzing the movement of this SDE gives an upper bound on ∥sT −τ (X← 
+
+> τ
+
+)−sT −τn−k (X← 
+
+> τn−k
+
+)∥2 
+
+> L2
+
+,which can be converted into the following upper bound: 
+
+∥st(Xt) − stk (Xtk )∥2 
+
+> L2
+
+≲ hg (t)∥∇ st(Xt)∥2 
+
+> L2
+
+, ∀t ∈ [tk, t k+1 ]. (20) Here when analyzing the movement of an SDE within a small time interval of length h, the key fact to leverage is the Itˆ o isometry, which says for a stochastic integral with respect to Brownian motion, 
+
+E[( R YtdB t)2] = R E[Y 2 
+
+> t
+
+]dt. This makes the diffusion term in (50) the dominant term, which gives the O(h) bound in (20), and makes other terms on the order of O(h2).
+
+Step 3: Fisher Information ODE. Now a key term to tackle is ∥∇ st(Xt)∥2 
+
+> L2
+
+in the bound (20). Using Bochner’s formula, we show that it is related to the Fisher information via the following ODE (Lemma 4): 
+
+˙Jt = 2 f (t)Jt − g(t)∥∇ st(Xt)∥2 
+
+> L2
+
+⇔ g(t)∥∇ st(Xt)∥2 
+
+> L2
+
+= 2 f (t)Jt − ˙Jt. (21) 
+
+Step 4: Final Error Bound. Substituting (21) into the discretization error gives discretization error ≲ h
+
+Z T
+
+> 0
+
+g(t)(2 f (t)Jt − ˙Jt)dt. (22) However, this is still not easy to optimize since it involves f (t), g (t), J t, which are related. There-fore, we eliminate g(t) by writing the bound as 
+
+h
+
+Z T
+
+> 0
+
+g(t)(2 f (t)Jt − ˙Jt)dt = h
+
+Z T
+
+> 0
+
+(2 f (t)Jt − ˙Jt)2
+
+∥∇ st(Xt)∥2
+
+> L2
+
+dt, (23) and using the concavity of entropy power J 2 
+
+> t
+
+≤ d∥∇ st(Xt)∥2 
+
+> L2
+
+(Lemma 5), which gives the final error bound discretization error ≲ hd 
+
+Z T
+
+> 0
+
+2f (t) − ˙Jt
+
+Jt
+
+!2
+
+dt. (24) 7Proof Sketch for Theorem 2: For any f , we aim to find the optimal g∗, which must produce a trajectory (J ∗ 
+
+> t
+
+: t ∈ [0 , T ]) that minimizes the upper bound on the discretization error in (24). This problem can be solved via the Euler-Lagrange equation, which states that to minimize a functional 
+
+R T 
+
+> 0
+
+L(t, u t, ˙ut)dt , the optimal condition is described by 
+
+∂L
+
+∂u t
+
+− ddt ∂L
+
+∂ ˙ut
+
+= 0 . (25) Let ut = log Jt, so ˙ut = ˙Jt/Jt and L(t, u t, ˙ut) = (2 f (t) − ˙ut)2. Then the optimal condition for the optimal trajectory (J ∗ 
+
+> t
+
+: t ∈ [0 , T ]) is 
+
+2f (t) − ˙J ∗
+
+> t
+
+J ∗
+
+> t
+
+= λ, (26) where λ > 0 is a time-independent constant. This condition also gives the characterization of the optimal g∗ in (12). Then the discretization error bound becomes discretization error ≲ hdλ 2T. 
+
+Balancing the initialization error and the discretization error by choosing λ = λ∗ yields the 
+
+KL( p⋆∥ˆp⋆) = ˜O(d/n ) bound. 
+
+4.2 Proof Sketches for Proposition 1 and Corollary 1 
+
+We prove Proposition 1 by using additional properties of the forward process when the data distribu-tion is either SLC or a GMM. After obtaining the form of g◦ in Proposition 1, we further restrict to the ACS class in Corollary 1, which reduces the noise schedule design problem to solving a solvable non-linear ODE. 
+
+Proof sketch for Proposition 1: We start with the optimal condition for g∗ in (12), restated below 
+
+g∗(t) = λ∗ J ∗
+
+> t
+
+∥∇ st∥2
+
+> L2
+
+.
+
+The key is to understand how Jt is related to ∥∇ st∥2 
+
+> L2
+
+.
+
+Step 1: Establishing Equivalence Between J 2 
+
+> t
+
+and ∥∇ st∥2 
+
+> L2
+
+(Lemma 8). In this step, we show 
+
+dκ2 ≤ J 2
+
+> t
+
+∥∇ st∥2
+
+> L2
+
+≤ d, ∀t ∈ [0 , T ], (27) where κ is a constant determined by the data distribution p⋆.
+
+Upper bound d (Lemma 5): This upper bound is again due to the concavity of the entropy power, which we have used in the proof of Theorem 1. This upper bound holds for general data distributions without requiring Assumption 2. 
+
+Lower bound d/κ 2: From the forward SDE, we know that Xtd
+
+= αtX⋆ + σtZ, where Z ∼ N (0 , I )
+
+and Z ⊥ X⋆. Therefore, when the data distribution p⋆ is either SLC or a GMM under Assumption 2, it is known that the density pt of Xt is also either SLC or a GMM, respectively. With this, we show that for the Hessian −∇ 2 log pt = −∇ st, its Frobenius norm (which determines ∥∇ st∥2 
+
+> L2
+
+) cannot diverge arbitrarily far from its trace (which determines Jt). The maximum possible divergence between these two quantities is upper bounded by a problem constant κ2. In the SLC case, κ is the condition number of the data distribution; in the GMM case, κ is a constant determined by the ratio between the radius of the mixture means and the standard deviation of each Gaussian component. 
+
+Step 2: Certificate on the Optimal Schedule. Since g∗(t) = λ∗ J ∗
+
+> t
+> ∥∇ st∥2
+> L2
+
+= λ∗   
+
+> J∗
+> t
+> (J∗
+> t)2
+> ∥∇ st∥2
+> L2
+
+, the equivalence in (27) gives 
+
+1
+
+κ2 · λ∗d
+
+J ∗
+
+> t
+
+≤ g∗(t) ≤ λ∗d
+
+J ∗
+
+> t
+
+. (28) Since the Euler–Lagrange equation yields 
+
+J ∗ 
+
+> t
+
+= J⋆ exp 
+
+Z t
+
+> 0
+
+(2 f (˜ t) − λ∗)d˜t
+
+
+
+, (29) 8we obtain the certificate 
+
+1
+
+κ2 · λ∗d
+
+J⋆
+
+exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+ 2f (˜ t) − λ∗ d˜t
+
+
+
+≤ g∗(t) ≤ λ∗d
+
+J⋆
+
+exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+ 2f (˜ t) − λ∗ d˜t
+
+
+
+.
+
+The ˜O(d/n ) sampling error is further established with properly chosen parameter g0 (Proposition 3). 
+
+Proof Sketch of Corollary 1: The approximated schedule g◦ in (15) satisfies the ODE 
+
+ddt g◦(t) = −(2 f (t) − λ∗)g◦(t). (30) Within the ACS class, f (t) = θg ◦(t) + ω, which turns the ODE into 
+
+ddt g◦(t) = −(2 θg ◦(t) + 2 ω − λ∗)g◦(t). (31) Solving this ODE yields the functional forms in Corollary 1. 
+
+## 5 Experiments 
+
+In this section, we present experimental results on evaluating the generation quality of our designed noise schedules against standard baselines on CIFAR-10 and ImageNet datasets. We first explain the parameterization used in the experiments. Note that although our noise schedule 
+
+g◦ in (15) has λ∗ in the expression, we can replace λ∗ with another constant and adjust the value of 
+
+g0 accordingly. In particular, we introduce a tunable parameter γ and write g◦ as 
+
+g◦(t) = g0 exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+(2 f (˜ t) − c)d˜t
+
+
+
+, c = γλ ∗. (32) Then deploying the Affine-Coupled Schedule (ACS) in practice requires configuring the hyperpa-rameters (θ, ω, γ, g 0). Noise schedules used in practice often satisfy additional constraints. We con-sider the common choice that the forward process injects noise monotonically g′(t) > 0. Combined with the constraints in ΘACS , this constraint allows us to analytically determine g0 and identify a re-lationship among the parameters (θ, ω, γ ). The exact parametrizations are deferred to Section G.1. Beyond these constraints, Theorem 2 indicates that the parameters of the noise schedule should vary with the Neural Function Evaluation (NFE) budget n. To optimally balance initialization and discretization errors, λ∗ must scale dynamically with n. As shown in the Section D.3, λ∗ is of the form W(Kn ), where W is the Lambert-W function. The constants K and γ act as tunable hyperparameters. This procedure instantiates an adaptive schedule (f, g ◦) that automatically adjusts its curvature and variance trajectory for any chosen inference budget. We evaluate the generation quality of our adaptive ACS framework against standard baselines (VP-Linear, VP-Cosine, and VP-Sigmoid) on unconditional CIFAR-10 and class-conditional ImageNet (64 × 64). For a fair comparison, we utilize standard pre-trained score networks from [26]. We exploit the statistical equivalence of diffusion SDEs (Section B.1) to map and evaluate these pre-trained models under the respective noise schedules without any fine-tuning. The hyperparameters for all four schedules were tuned on an identical computational budget (Section G.2). Table 1: Mean FID scores for different noise schedules across various NFEs. Bold values indicate the best results and those within one standard deviation of the minimum FID; see Table 3. Dataset CIFAR10 ImageNet NFE 10 20 30 40 50 10 20 30 40 50 Linear [23] 29.98 17.78 13.80 11.60 10.24 25.59 14.19 10.53 8.63 7.46 Cosine [30] 36.49 16.42 11.55 9.43 8.25 31.12 13.06 8.70 6.74 5.67 Sigmoid [25] 35.21 15.20 10.44 8.33 7.26 29.69 14.02 9.86 7.89 6.77 ACS (Ours) 30.41 14.64 9.94 7.63 6.49 27.16 13.10 8.57 6.51 5.30 
+
+Table 1 reports the FID-50k scores across varying computational budgets ranging from NFE 10 to 50, corroborating our theoretical findings. While VP-Linear performs competitively in the low-compute regime (NFE = 10), its generation quality degrades rapidly relative to the baselines at 9higher computational budgets due to its inability to adapt to the changing discretization step size. A theoretical analysis of the linear schedule is included in Section F. By contrast, ACS adapts its parameters as a function of n. This theoretically grounded adaptation balances the fundamental trade-off between initialization and discretization errors, enabling ACS to consistently outperform heuristic baselines across diverse compute regimes. 
+
+## 6 Conclusion 
+
+We introduced an optimal control framework for designing noise schedules, utilizing a Fisher in-formation ODE to bypass intractable PDE constraints. Our approach guarantees state-of-the-art 
+
+˜O(d/n ) KL divergence bounds and yields a novel class of Affine-Coupled Schedules (ACS) that dynamically adapt to compute budgets, achieving superior FID scores on standard benchmarks. Fu-ture work will explore extending our theoretical characterizations of noise schedules that achieve the ˜O(d/n ) bound to broader classes of complex data distributions. 
+
+## References 
+
+[1] T. Akiba, S. Sano, T. Yanase, T. Ohta, and M. Koyama. Optuna: A next-generation hyper-parameter optimization framework. In The 25th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining , pages 2623–2631, 2019. [2] B. D. Anderson. Reverse-time diffusion equation models. Stochastic Processes and their Applications , 12(3), 1982. [3] D. Bakry, I. Gentil, and M. Ledoux. Analysis and Geometry of Markov Diffusion Operators ,volume 348. Springer Science & Business Media, 2013. [4] J. Benton, V. D. Bortoli, A. Doucet, and G. Deligiannidis. Nearly d-linear convergence bounds for diffusion models via stochastic localization. In International Conference on Learning Rep-resentations , 2024. [5] N. Blachman. The convolution inequality for entropy powers. IEEE Transactions on Informa-tion Theory , 11(2):267–271, Apr. 1965. [6] A. Block, Y. Mroueh, and A. Rakhlin. Generative Modeling with Denoising Auto-Encoders and Langevin Sampling. Oct. 2022. [7] V. D. Bortoli. Convergence of denoising diffusion models under the manifold hypothesis. 
+
+Transactions on Machine Learning Research , (arXiv:2208.05314), May 2023. [8] S. Boucheron, G. Lugosi, and P. Massart. Concentration Inequalities: A Nonasymptotic Theory of Independence . Oxford University Press, Feb. 2013. [9] H. Chen, H. Lee, and J. Lu. Improved analysis of score-based generative modeling: User-friendly bounds under minimal smoothness assumptions. In International Conference on Ma-chine Learning , pages 4735–4763. PMLR, 2023. [10] M. Chen, K. Huang, T. Zhao, and M. Wang. Score approximation, estimation and distribu-tion recovery of diffusion models on low-dimensional data. In International Conference on Machine Learning , pages 4672–4712. PMLR, 2023. [11] S. Chen, S. Chewi, J. Li, Y. Li, A. Salim, and A. Zhang. Sampling is as easy as learning the score: theory for diffusion models with minimal data assumptions. In The Eleventh Interna-tional Conference on Learning Representations , 2023. [12] S. Chen, V. Kontonis, and K. Shah. Learning general gaussian mixtures with efficient score matching. arXiv preprint arXiv:2404.18893 , 2024. [13] T. Chen. On the importance of noise scheduling for diffusion models, 2023. [14] Y. Chen, E. Vanden-Eijnden, and J. Xu. Lipschitz-guided design of interpolation schedules in generative models. arXiv preprint arXiv:2509.01629 , 2025. 10 [15] G. Conforti, A. Durmus, and M. G. Silveri. Kl convergence guarantees for score diffusion models under minimal data assumptions. SIAM Journal on Mathematics of Data Science , 7 (1):86–109, 2025. [16] A. Dembo. Simple proof of the concavity of the entropy power with respect to added Gaussian noise. IEEE Transactions on Information Theory , 35(4):887–888, July 1989. ISSN 1557-9654. [17] R. Esposito. On a relation between detection and estimation in decision theory. Inf. Control ,12(2):116–120, Feb. 1968. [18] X. Gao and L. Zhu. Convergence analysis for general probability flow odes of diffusion models in wasserstein distances. arXiv preprint arXiv:2401.17958 , 2024. [19] K. Gatmiry, J. Kelner, and H. Lee. Learning mixtures of gaussians using diffusion models. 
+
+arXiv preprint arXiv:2404.18869 , 2024. [20] L. Gross. Logarithmic Sobolev Inequalities. American Journal of Mathematics , 97(4):1061– 1083, 1975. ISSN 0002-9327. doi: 10.2307/2373688. [21] U. G. Haussmann and E. Pardoux. Time reversal of diffusions. The Annals of Probability ,pages 1188–1205, 1986. [22] M. Hinze, R. Pinnau, M. Ulbrich, and S. Ulbrich. Optimization with PDE constraints . Springer Science & Business Media, 2008. [23] J. Ho, A. Jain, and P. Abbeel. Denoising diffusion probabilistic models. Advances in neural information processing systems , 33:6840–6851, 2020. [24] K. Hornik. Approximation capabilities of multilayer feedforward networks. Neural networks ,4(2):251–257, 1991. [25] A. Jabri, D. Fleet, and T. Chen. Scalable adaptive computation for iterative generation, 2023. [26] T. Karras, M. Aittala, T. Aila, and S. Laine. Elucidating the design space of diffusion-based generative models. Advances in neural information processing systems , 35:26565–26577, 2022. [27] H. Lee, J. Lu, and Y. Tan. Convergence of score-based generative modeling for general data distributions. In International Conference on Algorithmic Learning Theory , pages 946–985. PMLR, 2023. [28] X. Liu, L. Wu, M. Ye, and Q. Liu. Let us build bridges: Understanding and extending diffusion generative models. arXiv preprint arXiv:2208.14699 , 2022. [29] X. Liu, C. Gong, and Q. Liu. Flow straight and fast: Learning to generate and transfer data with rectified flow. In The Eleventh International Conference on Learning Representations ,2023. [30] A. Q. Nichol and P. Dhariwal. Improved denoising diffusion probabilistic models. In Interna-tional conference on machine learning . PMLR, 2021. [31] H. Risken. Fokker-planck equation. In The Fokker-Planck equation: methods of solution and applications . Springer, 1989. [32] H. Robbins. An empirical Bayes approach to statistics. In Third Berkeley Symp. Math Statist. Probab , 1956. [33] J. Song, C. Meng, and S. Ermon. Denoising diffusion implicit models. In International Con-ference on Learning Representations , 2021. [34] Y. Song and S. Ermon. Generative modeling by estimating gradients of the data distribution. 
+
+Advances in neural information processing systems , 32, 2019. [35] Y. Song, C. Durkan, I. Murray, and S. Ermon. Maximum likelihood training of score-based diffusion models. Advances in neural information processing systems , 34, 2021. 11 [36] Y. Song, J. Sohl-Dickstein, D. P. Kingma, A. Kumar, S. Ermon, and B. Poole. Score-based generative modeling through stochastic differential equations. In International Conference on Learning Representations , 2021. [37] A. Stam. Some inequalities satisfied by the quantities of information of Fisher and Shannon. 
+
+Information and Control , 2(2), June 1959. [38] C. Villani. A short proof of the “concavity of entropy power”. IEEE Transactions on Informa-tion Theory , 46(4), July 2000. [39] P. von Platen, S. Patil, A. Lozhkov, P. Cuenca, N. Lambert, K. Rasul, M. Davaadorj, D. Nair, S. Paul, W. Berman, Y. Xu, S. Liu, and T. Wolf. Diffusers: State-of-the-art diffusion models. https://github.com/huggingface/diffusers, 2022. [40] M. Xu, L. Yu, Y. Song, C. Shi, S. Ermon, and J. Tang. Geodiff: A geometric diffusion model for molecular conformation generation. In International Conference on Learning Representations ,2022. [41] Y. Zhang, W. Xu, M. Zhou, M. Fazel, and S. S. Du. Convergence dynamics of over-parameterized score matching for a single gaussian. arXiv preprint arXiv:2511.22069 , 2025. 12 A Additional Related Works 
+
+Early theoretical analyses of diffusion models [6, 7, 11] focused predominantly on SDE samplers utilizing first-order discretization schemes under constant noise schedules. A primary objective in this line of work has been to obtain a bound on the sampling error, typically measured in the total variation (TV) distance. Because their analysis is restricted to constant noise schedules, their bounds scale sub-optimally with respect to the data dimension d and problem constants. Chen et al. [9], Conforti et al. [15] strengthened these results by establishing bounds on the KL divergence, which implies a similar scaling in the TV distance through Pinsker’s inequality. The effect of time-varying noise schedules have been explored more recently. Benton et al. [4], Conforti et al. [15] showed that by utilizing time-varying noise schedules, the KL error bound’s dependence on the dimension d and problem constants can be improved significantly such that it grows linearly with d. Their results imply that the iteration complexity n ≍ d/ϵ 2 is sufficient to achieve KL( p⋆∥ˆp⋆) ≲ ϵ2 error bounds. These improved error bounds are achieved by considering constant (f, g ) and time-varying discretization step size {hk}. As mentioned in [9, Remark 3], such schedules can be viewed as fixing a constant-in-time f and using g that increases exponentially with time. While these works establish ˜O(d/n ) rates, the specific schedule constructions required by their analyses depart from the standard affine-coupled schedules commonly favored in empirical implementations. Beyond tuning the standard time-reversal schedule, a conceptually related problem explored by Chen et al. [14] seeks to design a reverse process that differs from the exact time-reversal of the forward process. To design this mismatched schedule, Chen et al. [14] propose to minimize the Lipschitz constant of the resulting reverse drift. However, such generation processes also depart from standard empirical pipelines. In contrast, our framework aligns with practice by maintaining the exact time-reversal of the true forward SDE and directly minimizes a rigorous upper bound on the KL sampling error, rather than relying on a regularity proxy. Lastly, noise schedule design was considered in the context of Probability Flow ODEs. Gao and Zhu [18] analyze the Wasserstein-2 error, requiring the data distribution be strongly log-concave. Under this regime, they conclude that VE schedules exhibit worse iteration complexity than VP schedules. In contrast, we analyze stochastic SDE samplers using KL divergence and establish an optimal control framework based on Fisher information dynamics. We require only mild regularity conditions to prove ˜O(d/n ) bounds, where a strongly log-concave or a Gaussian mixture model is assumed only to derive closed-form parametrizations. Under this setting, we prove that both VE-exponential and VP-sigmoid schedules for SDE samplers can achieve the ˜O(d/n ) error rate. 
+
+## B Supplement to Section 2 
+
+B.1 Statistical Equivalence of Score Functions 
+
+We describe how to map a score function trained for one noise schedule to the score function cor-responding to another noise schedule using their statistical equivalence as discussed in [14]. In this section, we use τt to be a map from one time-scale t to another time-scale τt.Let X(1)  
+
+> t
+
+= α(1)  
+
+> t
+
+X⋆ + σ(1)  
+
+> t
+
+Z and X(2)  
+
+> t
+
+= α(2)  
+
+> t
+
+X⋆ + σ(2)  
+
+> t
+
+Z be two random variables parameterized by (α(i) 
+
+> t
+
+, σ (i) 
+
+> t
+
+). We first identify the equivalent time τt in the first schedule that matches the SNR of the second schedule at time t:
+
+α(1) 
+
+> τt
+
+σ(1) 
+
+> τt
+
+= α(2) 
+
+> t
+
+σ(2) 
+
+> t
+
+Because the SNRs are identical, X(2)  
+
+> t
+
+and X(1)  
+
+> τt
+
+differ strictly by a scaling factor. Specifically, 
+
+X(2)  
+
+> t
+
+= σ(2) 
+
+> t
+
+α(2) 
+
+> t
+
+σ(2) 
+
+> t
+
+X⋆ + Z
+
+!
+
+= σ(2) 
+
+> t
+
+α(1) 
+
+> τt
+
+σ(1) 
+
+> τt
+
+X⋆ + Z
+
+!
+
+= σ(2) 
+
+> t
+
+σ(1) 
+
+> τt
+
+X(1)  
+
+> τt
+
+.
+
+Applying the change of variables formula for probability densities, p(2)  
+
+> t
+
+(x) =
+
+ σ(1) 
+
+> τt
+> σ(2)
+> t
+
+d
+
+p(1) 
+
+> τt
+
+ σ(1) 
+
+> τt
+> σ(2)
+> t
+
+x
+
+
+
+. Taking the gradient of the logarithm of this density with respect to x
+
+13 yields the translation: 
+
+s(2)  
+
+> t
+
+(x) = σ(1) 
+
+> τt
+
+σ(2) 
+
+> t
+
+s(1) 
+
+> τt
+
+σ(1) 
+
+> τt
+
+σ(2) 
+
+> t
+
+x
+
+!
+
+(33) 
+
+Score Function from Noise Prediction Model: It is common to train a noise prediction model 
+
+St(x) = E[Z | Xt = x]
+
+in place of the score function st. The score of the conditional distribution of (Xt | X⋆) ∼N (αtX⋆, σ 2 
+
+> t
+
+I) is given by 
+
+∇xt log p(xt | x⋆) = − xt − αtx⋆
+
+σ2
+
+> t
+
+= − Zσt
+
+.
+
+The marginal score is the expectation of the conditional score, which gives the general relationship 
+
+st(x) = − 1
+
+σt
+
+St(x)
+
+B.2 Non-Zero Score Matching Error 
+
+For any noise schedule (f, g ), define the score matching error ϵsc as 
+
+ϵ2 
+
+> sc
+
+:= 
+
+Z T
+
+> 0
+
+g(t)∥st − ˆst∥2 
+
+> L2
+
+dt. 
+
+Applying the Girsanov theorem and the data processing inequality as in [4, 11, 15] and following the analysis in Section 4.1, the bound (18) is replaced by 
+
+KL( p⋆∥ˆp⋆) ≤ ϵ2 
+
+> sc
+
++ α2
+
+> T
+
+2σ2
+
+> T
+
+∥X⋆∥2 
+
+> L2
+
++ 12
+
+> n−1
+
+X
+
+> k=0
+
+Z τk+1 
+
+> τk
+
+g(t) st(X← 
+
+> τ
+
+) − stk (X← 
+
+> τk
+
+) 2 
+
+> L2(pt)
+
+dτ. (34) To address the impact of the score matching error ϵ2
+
+> sc
+
+, we evaluate two distinct paradigms: utilizing an existing pre-trained score network, and training a new model from scratch. 
+
+Pre-Trained Statistical Equivalence: Let (f1, g 1) and (f2, g 2) denote two distinct noise schedules with corresponding marginal distributions characterized by parameters (α(1)  
+
+> t
+
+, σ (1)  
+
+> t
+
+) and (α(2)  
+
+> t
+
+, σ (2)  
+
+> t
+
+).Suppose there exists a monotonically increasing time-map τt such that the Signal-to-Noise Ratios (SNRs) of the two schedules are strictly equivalent, i.e., 
+
+α(1) 
+
+> τt
+
+σ(1) 
+
+> τt
+
+= α(2) 
+
+> t
+
+σ(2) 
+
+> t
+
+, ∀t ∈ [0 , T 2]. (35) As established in Section B.1, under this SNR equivalence, the random variables X(2)  
+
+> t
+
+and X(1) 
+
+> τt
+
+differ only by a deterministic spatial scaling. Consequently, the score network ˆs(2) corresponding to schedule (f1, g 1) can be derived from a pre-trained score function ˆs(1) as in (33). By applying this change of variables, the score matching error ϵ2 
+
+> sc
+
+evaluated under (f2, g 2) is fundamentally governed by the pre-trained approximation error under (f1, g 1). Thus, implementing our optimal optimal noise schedule design natively preserves the learned capabilities of an existing pre-trained model without incurring unaccounted optimization penalties. 
+
+Universal Approximation: Alternatively, when training a score network ˆst(x) from scratch under noise schedule (f, g ) ∈ Θ, the score matching error can be driven arbitrarily close to zero. To formalize this, we rewrite the score matching objective as an L2 distance with respect to a joint space-time measure. Let us define the measure dμ (x, t ) = g(t)pt(x)dxdt on Rd × [0 , T ]. The score matching error is then equivalently given by: 
+
+ϵ2 
+
+> sc
+
+=
+
+Z T
+
+> 0
+
+Z
+
+> Rd
+
+∥ˆst(x) − st(x)∥2dμ (x, t ). (36) Because pt(x) integrates to 1 over Rd, the total measure is μ(Rd × [0 , T ]) = R T 
+
+> 0
+
+g(t)dt . For any schedule (f, g ) ∈ Θ, this integral is finite, making μ a finite measure. Furthermore, the target score 14 function st(x) resides within the space L2(μ), as its norm is strictly bounded by the integrated Fisher information: 
+
+∥st∥2 
+
+> L2(μ)
+
+=
+
+Z T
+
+> 0
+
+g(t)Jtdt < ∞. (37) The finiteness of this integral follows directly from the integrability of g(t) and our previous deriva-tion that the Fisher information Jt remains bounded over the finite interval t ∈ [0 , T ] (under As-sumption 1). Under these conditions, the universal approximation theorem (e.g., [24]) guarantees that the class of neural networks is dense in L2(μ). Therefore, given sufficient model capacity and adequate samples from the forward process, there exists a parameterization such that the score matching error ϵ2 
+
+> sc
+
+can be rendered arbitrarily small, regardless of the noise schedule chosen. 
+
+B.3 Constant Step Size Suffices for Time-Varying Noise Schedules 
+
+We show that choosing (f, g ) with constant step size is without loss of generality. Consider a choice of noise schedule (f1, g 1) and time-varying step size with time grid {τ (1)  
+
+> k
+
+}. Denote by { ˆX←,(1)  
+
+> τ(1)
+> k
+
+}
+
+the EI discretized process according to this noise schedule and time grid. We show that there exists a noise schedule (f2, g 2) and time grid {τ (2)  
+
+> k
+
+} generated by constant step size h, i.e., τ (2)  
+
+> k
+
+= kh ,such that the EI discretized process { ˆX←,(2)  
+
+> τ(2)
+> k
+
+} admits the same distribution as { ˆX←,(1)  
+
+> τ(1)
+> k
+
+}.Fix (f1, g 1), {τ (1)  
+
+> k
+
+}, and {τ (2)  
+
+> k
+
+} where τ (2)  
+
+> k
+
+= kh . Let ϕ : τ (2)  
+
+> k
+
+7 → τ (1)  
+
+> k
+
+be a continuous differentiable map between the two time-scale grids. We consider the construction 
+
+f2(T − τ (2) ) = f1(T − ϕ(τ (2) )) · ϕ′(τ (2) ), g2(T − τ (2) ) = g1(T − ϕ(τ (2) )) · ϕ′(τ (2) ), (38) for all τ (1) ∈ { τ (1)  
+
+> k
+
+} and τ (2) ∈ { τ (2)  
+
+> k
+
+}, where ϕ′ is the temporal derivative of ϕ. The SDE governing 
+
+{ ˆX←,(1)  
+
+> τ(1)
+> k
+
+} is 
+
+d ˆX←,(1)   
+
+> τ(1)
+
+=
+
+
+
+f1(T − τ (1) )X(1)   
+
+> τ(1)
+
++ g1(T − τ (1) )sT −τ (1) 
+
+> k
+
+(X(1)  
+
+> τ(1)
+> k
+
+)
+
+
+
+dτ (1) +
+
+q
+
+g1(T − τ (1) )dB τ (1) 
+
+(39) Substituting the differentials 
+
+dτ (1) = ϕ′(τ (2) )dτ (2) , dB ϕ(τ (2) ) =
+
+q
+
+ϕ′(τ (2) )dB τ (2) 
+
+for (39), we obtain 
+
+d ˆX←,(2)   
+
+> τ(2)
+
+=
+
+h
+
+f1(T − ϕ(τ (2) )) ˆX←,(2)  
+
+> τ(2)
+
++ g1(T − ϕ(τ (2) )) sT −τ (1) 
+
+> k
+
+( ˆX(2)  
+
+> τ(2)
+> k
+
+)
+
+i
+
+v′(τ (2) )dτ (2) +
+
+q
+
+g1(T − ϕ(τ (2) )) ϕ′(τ (2) )dB τ (2) .
+
+Substituting (38) for the above equation, we obtain 
+
+d ˆX←,(2)   
+
+> τ(2)
+
+=
+
+
+
+f2(T − τ (2) ) ˆX←,(2)   
+
+> τ(2)
+
++ g2(T − τ (2) )sT −ϕ(τ (2)  
+
+> k)
+
+(X←,(2)  
+
+> τ(2)
+> k
+
+)
+
+
+
+dτ (2) 
+
++
+
+q
+
+g2(T − τ (2) )dB τ (2) .
+
+Since ˆX←,(2)  
+
+> τ(2)
+> d
+
+= ˆX←,(1)   
+
+> τ(1)
+
+, the sequence of variables at the respective grid points {τ (1)  
+
+> k
+
+} and {τ (2)  
+
+> k
+
+}
+
+have the same distribution. 
+
+## C Preliminaries 
+
+Throughout the paper, we use the notation (αt, σ t) to denote the coefficients of Xt = αtX⋆ +
+
+σtZ, which is the solution to the forward SDE (1). The coefficients can be evaluated as αt =exp( − R t 
+
+> 0
+
+f (˜ t)d˜t) and σ2 
+
+> t
+
+as a solution to the ODE 
+
+ddt σ2 
+
+> t
+
+= −2f (t)σ2 
+
+> t
+
++ g(t), σ0 = 0 . (40) 15 The name “variance preserving” is used to refer to schedules satisfying f (t) > 0 and g(t) = 2 f (t)
+
+because they preserve the variance when Var( X⋆) := ∥X⋆∥2 
+
+> L2
+
+= ∥Z∥2 
+
+> L2
+
+.
+
+Notations: For the proofs in the appendix, we use t and τ = T − t to denote the corresponding forward and reverse time indices. The notation ⊗ is used to denote the tensor product, and ∥·∥ 
+
+is used to denote the Hilbert-Schmidt norm for order r tensors in (Rd)⊗r . The divergence of a vector-valued function ϕ is denoted by ∇ · ϕ.
+
+C.1 Noise Schedules 
+
+In this section, we describe the coefficients (f, g ) that correspond to various noise schedules used in practice. 
+
+Exponential: Variance exploding models were used in [34], where the corresponding SDE form [36] is given by 
+
+dX t = pg(t)dB t,
+
+where g(t) is chosen to grow exponentially with t.
+
+Sigmoid: The sigmoid schedule [13] corresponds to the forward process (43) with 
+
+¯αt = σ(h(1)) − σ(h(t)) 
+
+σ(h(1)) − σ(h(0)) , h(t) = t(θmax − θmin ) + θmin 
+
+τsig 
+
+,
+
+where σ is the sigmoid function. The map t 7 → h(t) is interpreted as the corresponding timescale. Using the relation f (t) = −(2¯ αt)−1 ddt ¯αt and the evaluation 
+
+ddt ¯αt = − θmax − θmin 
+
+τsig 
+
+· σ′(h(t)) 
+
+σ(h(1)) − σ(h(0)) ,
+
+we have 
+
+f (t) = θmax − θmin 
+
+2τsig 
+
+ σ(h(t))(1 − σ(h(t))) 
+
+σ(h(1)) − σ(h(t)) 
+
+
+
+. (41) Using the approximation σ(h(1)) ≈ 1, the above becomes 
+
+f (t) ≈ θmax − θmin 
+
+2τsig 
+
+σ(h(t)) . (42) In [13], θmax is set to 3, which yields σ(h(1)) ≈ 0.95 .The sigmoid schedule used in [40] is the sigmoid parametrization (42), and not the form in (41). 
+
+Linear: The linear schedule, proposed in [23], parametrizes the sample path solution 
+
+Xt = √¯αtX⋆ + √1 − ¯αtZ, ¯αtk =
+
+> k−1
+
+Y
+
+> j=0
+
+(1 − βtj ). (43) The sequence {β˜t} is a linear function βt = βmin + ( βmax − βmin ) · (t/T ). As shown in [36], the expression for f in the limit n → ∞ is 
+
+flin (t) := 12
+
+
+
+βmin + ( βmax − βmin ) tT
+
+
+
+.
+
+The parameters are set with βmin = 0 .1/T, β max = 20 /T . While (flin , g lin ) are obtained in the limit n → ∞ , we refer to the pair as linear schedules. 
+
+Cosine: The cosine schedule [30] refers to the choice 
+
+√¯αt =cos 
+
+ t/T +s 
+
+> 1+ s
+
+· π
+
+> 2
+
+
+
+cos 
+
+ s 
+
+> 1+ s
+
+· π
+
+> 2
+
+ , s = 0 .008 .
+
+16 Let θ(t) = ( t/T + s)π/ (2(1 + s)) so that √¯αt = cos θ(t)/ cos θ(0) . In the SDE (1), this is equivalently written as the VP constraint f = g/ 2 with ¯αt = exp 
+
+
+
+−2 R t 
+
+> 0
+
+f (˜ t)d˜t
+
+
+
+, which yields 
+
+f (t) = − ddt log √¯αt = − ddt (log cos θ(t) − log cos θ(0)) = sin θ(t)cos θ(t) θ′(t)= π
+
+2T (1 + s) tan 
+
+ t/T + s
+
+1 + s · π
+
+2
+
+
+
+.
+
+As a result, the cosine schedule corresponds to g(t) = ( π/T (1 + s)) tan(( t/T + s)/(1 + s) · (π/ 2)) .
+
+C.2 Generalized Blachman-Stam Inequality 
+
+Recall the Blachman-Stam inequality [5, 37] which states that for Xt = αtX⋆ + σtZ,
+
+1
+
+J (αtX⋆ + σtZ) ≥ 1
+
+J (αtX⋆) + 1
+
+J (σtZ) = α2
+
+> t
+
+J⋆
+
++ σ2
+
+> t
+
+d .
+
+Denote by PS( a, b ) for two positive scalars a, b to be the parallel sum (x−1 + y−1)−1. Rearranging and using the notation Jt = J (αtX⋆ + σtZ), we obtain the Blachman-Stam inequality 
+
+Jt ≤ PS 
+
+ J⋆
+
+α2
+
+> t
+
+, dσ2
+
+> t
+
+
+
+.
+
+We prove a generalization of Stam’s inequality that holds for higher order derivatives. 
+
+Lemma 1. Let pt and pt|⋆ be the density and (Gaussian) transition kernels of Xt = αtX⋆ + σtZ
+
+with X⋆ ⊥ Z. Suppose ∇mp⋆ ∈ L1(Leb d). Then, 
+
+∇mpt
+
+pt L2
+
+≤ PS α−mt
+
+∇mp⋆
+
+p⋆ L2
+
+, ∥Hm∥L2(γd)
+
+σmt
+
+!
+
+. (44) Importantly, this bound interpolates the L2 norm of ∇mp⋆/p ⋆ and that of the limit αt/σ t → 0.
+
+Proof. First, we show that Assumption 1 implies that the boundary condition vanishes sufficiently fast for the integration by parts formula 
+
+Z
+
+∇mx⋆ pt|⋆(x|x⋆)p⋆(x⋆)dx ⋆ = −
+
+Z
+
+∇m−j pt|⋆(x|x⋆) ⊗ ∇ j p⋆(x⋆)dx ⋆, ∀j ∈ { 1, · · · , m } (45) to hold. Denote by ϕ the Gaussian transition kernel. The case for j = 1 simplifies to 
+
+Z
+
+(∇2ϕ)p⋆dx = −
+
+Z
+
+∇ϕ ⊗ ∇ p⋆dx ⇔
+
+Z
+
+∇(p⋆∇ϕ)dx ⋆ = 0 .
+
+The second identity above holds if p⋆∇ϕ and ∇(p⋆∇ϕ) are in L1. Since ∇ϕ is bounded, 
+
+Z
+
+∥p⋆∇ϕ∥dx ⋆ ≤ ∥∇ ϕ∥∞
+
+Z
+
+p⋆dx ⋆ < ∞.
+
+Therefore, p⋆∇ϕ ∈ L1(Leb d). Observe ∇· (p⋆∇ϕ) = p⋆∇2ϕ+⟨∇ ϕ, ∇p⋆⟩. Since ∇2ϕ is bounded, the first term is in L1. The second term is bounded in L1 since 
+
+Z
+
+∥∇ p⋆∥dx ⋆ =
+
+Z ∥∇ p⋆∥
+
+p⋆
+
+p⋆dx ⋆ ≤  ∥∇ log p⋆∥2p⋆dx ⋆
+
+1/2 < ∞.
+
+The case for j = 2 follows by observing that 
+
+−
+
+Z
+
+∇ϕ ⊗ ∇ p⋆dx ⋆ =
+
+Z
+
+ϕ∇2p⋆dx ⋆ ⇔
+
+Z
+
+∇(ϕ∇p⋆) = 0 ,
+
+17 and repeating the same steps above, observing that ∇· (ϕ∇p⋆) involves ∇ log p⋆ and ∇2 log p⋆. The same argument applies to any m and j ∈ { 1, · · · , m }.Let Hm(x) = ( −1) mex2/2∇me−x2/2 be the m-th order Hermite polynomial. It holds by the marginalization pt(x) = R pt|x(x|x⋆)p⋆(x⋆)dx ⋆ and the identity 
+
+∇mpt|0(x|x⋆) = (−1) m
+
+σmt
+
+Hm
+
+ x − αtx⋆
+
+σt
+
+
+
+pt|0(x|x⋆) (46) that 
+
+∇mpt(x)
+
+pt(x) =
+
+Z (−1) m
+
+σmt
+
+Hm(z) pt|0(x|x⋆)
+
+pt(x) p⋆(x⋆)dx ⋆
+
+= (−1) m
+
+σmt
+
+E [Hm(Z)|Xt = x] , (47) where m = 1 recovers Tweedie’s formula [17, 32] 
+
+st(x) = αtE[X⋆|Xt = x] − xσ2
+
+> t
+
+. (48) Observe the identity 
+
+∇xpt|⋆(x|x⋆) = − 1
+
+αt
+
+∇x⋆ pt|⋆(x|x⋆),
+
+which holds by pt|⋆(x|x⋆) being a Gaussian transition probability N (αtx⋆; σtI). Applying the same derivatives m times, we obtain 
+
+∇mx pt|⋆(x|x⋆) = (−1) m
+
+αmt
+
+∇mx⋆ pt|⋆(x|x⋆).
+
+Marginalizing, we obtain 
+
+∇mx pt(x) = ∇mx
+
+Z
+
+pt|⋆(x|x⋆)p⋆(x⋆)dx ⋆ =
+
+Z (−1) m
+
+αmt
+
+∇mx⋆ pt|⋆(x|x⋆)p⋆(x⋆)dx ⋆
+
+Using the integration by parts property (45) repeatedly, we obtain 
+
+(−1) m
+
+αmt
+
+Z
+
+∇mx⋆ pt|⋆(x|x⋆)p⋆(x⋆)dx ⋆ = (−1) m−1
+
+αmt
+
+Z
+
+∇m−1pt|⋆(x|x⋆) ⊗ ∇ p⋆(x⋆)dx ⋆
+
+= 1
+
+αmt
+
+Z
+
+pt|⋆(x|x⋆)∇mp⋆(x⋆)dx ⋆.
+
+Dividing by pt(x), we obtain the identity 
+
+∇mpt(x)
+
+pt(x) = 1
+
+αmt
+
+Z ∇mp⋆(x⋆)
+
+p⋆(x⋆)
+
+pt|⋆(x|x⋆)p⋆(x⋆)
+
+pt(x) dx ⋆
+
+= α−mt E
+
+ ∇mp⋆(X⋆)
+
+p⋆(X⋆) | Xt = x
+
+
+
+.
+
+To summarize, we obtained above and in (47) the two identities 
+
+∇mpt(x)
+
+pt(x) = α−mt E
+
+ ∇mp⋆(X⋆)
+
+p⋆(X⋆) | Xt = x
+
+
+
+,
+
+∇mpt(x)
+
+pt(x) = σ−mt (−1) mE [Hm(Z) | Xt = x] .
+
+For any θ, it holds that their linear combination is equal to ∇mpt(x)/p t(x). By Jensen’s inequality, we obtain 
+
+∇mpt
+
+pt
+
+> 2
+> L2
+
+≤ E (1 − θ)α−mt E
+
+ ∇mp⋆(X⋆)
+
+p⋆(X⋆) | Xt = x
+
+
+
++ θσ −mt (−1) mE [Hm(Z) | Xt = x]
+
+> 2
+
+≤ (1 − θ)2α−2mt
+
+∇mp⋆
+
+p⋆
+
+> 2
+> L2
+
++ θ2σ−2mt ∥Hm∥2 
+
+> L2(γd)
+
+,
+
+where the last step used Z ⊥ X⋆ and EHm(Z) = 0 . Minimizing over θ, we obtain (44). 18 A consequence of Stam’s inequality is that α2 
+
+> T
+
+∥X⋆∥2 
+
+> L2
+
+≪ σ2 
+
+> T
+
+d implies JT ≈ σ−2 
+
+> T
+
+d. Recall Tweedie’s formula (48), which implies 
+
+JT = 1
+
+σ2
+
+> T
+
+E∥E[Z|XT ]∥2 = 1
+
+σ2
+
+> T
+
+(d − ETrCov( Z|XT )) .
+
+Using Z = σ−1 
+
+> T
+
+(XT − αT X⋆), we have 
+
+TrCov( Z|XT ) = α2
+
+> T
+
+σ2
+
+> T
+
+TrCov( X⋆|XT ) ≤ α2
+
+> T
+
+σ2
+
+> T
+
+TrCov( X⋆).
+
+Substituting for Tweedie’s formula above, we have 
+
+1
+
+σ2
+
+> T
+
+
+
+d − α2
+
+> T
+
+σ2
+
+> T
+
+∥X⋆∥2
+
+> L2
+
+
+
+≤ J T ≤ dσ2
+
+> T
+
+, (49) which implies JT ≈ σ−2 
+
+> T
+
+d when α2 
+
+> T
+
+∥X⋆∥2 
+
+> L2
+
+≪ σ2 
+
+> T
+
+d.
+
+C.3 Score Function Dynamics Along the Reverse SDE 
+
+The SDE describing the score function st(X← 
+
+> τ
+
+) = ∇ log pt(X← 
+
+> τ
+
+) along the reverse process (X← 
+
+> τ
+
+)
+
+with constant schedules was established in [15, Proposition 3.2]. Assuming the regularity conditions in Assumption 1, we derive the corresponding SDE for time-varying schedules. 
+
+Lemma 2. Under Assumption 1, it holds that 
+
+ds t(X← 
+
+> τ
+
+) = −f (t)st(X← 
+
+> τ
+
+) + pg(t)∇st(X← 
+
+> τ
+
+)dB τ (50) 
+
+is well-defined, and ∥st∥L2 , ∥∇ st∥L2 < ∞ for all t ∈ [0 , T ].Proof. The Fokker-Planck equation governing the evolution of the density pt along the SDE (1) is 
+
+∂∂t pt = ∇ · (f (t)xp t) + 12 g(t)∇ · ∇ pt. (51) By the chain rule, we obtain the point-wise evaluation 
+
+∂∂t log pt = f (t)d + f (t)⟨x, s t⟩ + 12 g(t)( ∇ · st + ∥st∥2).
+
+Using the identities ∇(x · st) = st + ( ∇st)x, ∇∥ st∥2 = 2( ∇st)st and taking the gradient on both sides of the above equation, we obtain 
+
+∂tst = f (t)st + f (t)( ∇st)x + 12 g(t)∇(∇ · st) + g(t)( ∇st)st, (52) where (∇st)x is understood as the matrix-vector product of the Jacobian ∇st and the vector x.Using the Itˆ o formula, we obtain that the drift driving ds t(X← 
+
+> τ
+
+) along the reverse process is 
+
+(−∂tst(X← 
+
+> τ
+
+)) ( X← 
+
+> τ
+
+) + ∇st(X← 
+
+> τ
+
+) [ f (t)X← 
+
+> τ
+
++ g(t)st(X← 
+
+> τ
+
+)] + g(t)2 ∇(∇ · st)( X← 
+
+> τ
+
+)= −f (t)st(X← 
+
+> τ
+
+).
+
+Substituting for the Itˆ o formula, we obtain 
+
+ds t(X← 
+
+> τ
+
+) = −f (t)st(X← 
+
+> τ
+
+) + pg(t)( ∇st)( X← 
+
+> τ
+
+)dB τ .
+
+Since ∇st = ∇2pt 
+
+> pt
+
+− ∇pt∇p† 
+
+> t
+> pt
+
+, the finiteness of ∥∇ st∥L2 follows from Lemma 1. 
+
+C.4 Regularity Properties of the Score Function 
+
+Recall the definition Ψ( t) = g(t)∥∇ st∥2 
+
+> L2
+
+.
+
+Lemma 3. Under Assumption 1, it holds for any (f, g ) ∈ Θ such that 
+
+|Ψ′(t)| < ∞, ∀t ∈ [0 , T ]. (53) 19 Proof. We first show that Ψ′(t) is a polynomial of ∥st∥L2 , ∥∇ st∥L2 , and ∥∇ Tr ∇st∥L2 which in turn depends on ∇2st.Using Tr ∇st = ∇ · st, (52), and the Fokker-Planck equation, we evaluate Ψ′ as 
+
+Ψ′(t) = g′(t)∥∇ st∥2 
+
+> L2
+
++ g(t)
+
+
+
+2ETr ∇st∂t∇st +
+
+Z
+
+∥∇ st∥2∂tptdx 
+
+
+
+. (54) The expression for ∂tst was evaluated in (52), and we have 
+
+E(∇st)∇(∂tst) = E(∇st)∇
+
+
+
+f (t)st + f (t)( ∇st)x + 12 g(t)∇(∇ · st) + g(t)( ∇st)st
+
+
+
+.
+
+Only the third term on the RHS depends on a third order derivative, which is resolved using integra-tion by parts 
+
+ETr( ∇st)( ∇2(∇ · st)) = 
+
+Z
+
+ptTr ∇st∇2(∇ · st)dx = −
+
+Z
+
+⟨∇ · (pt∇st), ∇(∇ · st)⟩ dx. 
+
+By evaluating the divergence in the first argument, we obtain that the above equates to 
+
+ETr( ∇st)( ∇2(∇ · st)) = −
+
+Z
+
+pt ⟨(∇st)st + ∇ · (∇st), ∇(∇ · st)⟩ dx 
+
+≤  ∥(∇st)st∥L2 + ∥∇ · (∇st)∥L2
+
+ ∥∇ (∇ · st)∥L2 .
+
+Therefore, we conclude that Tr E(∇st)∇(∂tst) is a polynomial function of ∥st∥L2 , ∥∇ st∥L2 , and 
+
+∥∇ 2st∥L2 . By Assumption 1 and Lemma 1, all terms above are bounded for (f, g ) ∈ Θ.The last term of (54) is evaluated as 
+
+Z
+
+∥∇ st∥2∂tptdx =
+
+Z
+
+∥∇ st∥2∇ · 
+
+
+
+f xp t + g
+
+2 ∇pt
+
+
+
+dx 
+
+= −
+
+Z D
+
+f xp + g
+
+2 ptst, ∇∥∇ st∥2E
+
+dx 
+
+= −f (t)E⟨x, ∇∥∇ st∥2⟩ − g(t)2 E⟨st, ∇∥∇ st∥2⟩,
+
+where the second equality used integration by parts. Again, this quantity is a polynomial of 
+
+∥st∥L2 , ∥∇ st∥L2 , and ∥∇ 2st∥L2 , which were all shown to be finite by Assumption 1 and Lemma 1. Because Ψ′(t) is a polynomial on a bounded domain with finite coefficients, |Ψ′(t)| < ∞ for all t.Gaussian mixture models form an important class of distributions that is often used to model real-world data. We show that Assumption 1 is satisfied by a Gaussian mixture model. Consider p0(x) = 
+
+Pℓi=1 wiN (x; 0 , Σi), where we assume centered components without loss of generality. The score function s0(x) can be evaluated as in [12], where 
+
+s0(x) = −
+
+> ℓ
+
+X
+
+> i=1
+
+πi(x)Σ −1 
+
+> i
+
+x, πi(x) = wiN (x; 0 , Σi)
+
+p0(x) .
+
+Taking the gradient on both sides, we obtain 
+
+∇s0(x) = −
+
+> ℓ
+
+X
+
+> i=1
+
+πi(x)Σ −1 
+
+> i
+
++
+
+> ℓ
+
+X
+
+> i=1
+
+πi(x)( −Σ−1 
+
+> i
+
+x − s0(x))( −Σ−1 
+
+> i
+
+x − s0(x)) †.
+
+There exists a single Gaussian component that dominates as ∥x∥ → ∞ , with πi(x) decaying to zero exponentially fast for all other i. Therefore, ∥∇ s0(x)∥ is bounded in L∞. The same can be deduced for higher order derivatives. By Lemma 1, the same holds for t > 0.20 C.5 Fisher Information Dynamics 
+
+The following states the Fisher information dynamics in (8). 
+
+Lemma 4. Suppose Assumption 1 holds. For any (f, g ) ∈ Θ,
+
+˙Jt = 2 f (t)Jt − g(t)∥∇ st∥2 
+
+> L2
+
+.
+
+Proof. In this proof, we use the notation pXt = pt to distinguish between the density pXt of the process (Xt) from the process (Yt) defined as 
+
+Xt = αtYt. (55) By the Itˆ o formula, the two processes are related through the SDE dX t = ˙ αtYtdt + αtdY t. Substi-tuting ˙αt = −f (t)αt and using (55), we obtain 
+
+dY t = − ˙αt
+
+αt
+
+Ytdt + dX t = f (t)Ytdt − f (t) Xt
+
+αt
+
+dt +
+
+pg(t)
+
+αt
+
+dB t =
+
+pg(t)
+
+αt
+
+dB t. (56) The density pYt of Yt is a convolution between pY 
+
+> 0
+
+and a Gaussian kernel, and differentiating under the integral yields the well-known identity (e.g., [37, Section 5]) 
+
+∂tpYt = g(t)2α2
+
+> t
+
+∆pYt .
+
+The Bochner formula [38] yields the identity 
+
+ddt J (pYt ) = − g(t)2α2
+
+> t
+
+∥∇ 2 log pYt ∥2 
+
+> L2
+
+. (57) Moreover, using the change of variables pXt (x) = α−dt pYt (x/α t) ⇒ ∇ log pXt (x) =
+
+α−1 
+
+> t
+
+∇ log pYt (x/α t), we obtain the relation between the Fisher information of the two laws: 
+
+J (pXt ) = α−2 
+
+> t
+
+J (pYt ). (58) Differentiating J (pXt ) in (58), we obtain 
+
+ddt J (pXt ) = −2α−3 ˙αt
+
+ J (pYt ) + α−2
+
+> t
+
+ddt J (pYt )= 2 f (t)α−2 
+
+> t
+
+J (pYt ) + α−2
+
+> t
+
+ddt J (pYt ).
+
+Substituting (58) and ∇2 
+
+> x
+
+log pXt (x) = α−2 
+
+> t
+
+∇2 log pYt (x/α t), we obtain 
+
+ddt J (pXt ) = 2 f (t)J (pXt ) − g(t)
+
+α4 
+
+> t
+
+(t) ∥∇ 2 log pYt ∥2 
+
+> L2
+
+= 2 f (t)J (pXt ) − g(t)∥∇ 2 log pXt ∥2 
+
+> L2
+
+.
+
+We use the following “concavity of entropy power” theorem [16, 38]. 
+
+Lemma 5. For any X⋆ with density p⋆ satisfying Assumption 1, it holds that 
+
+J 2 
+
+> t
+
+≤ d∥∇ st∥2 
+
+> L2
+
+.
+
+Proof. Recall that the solution (Xt) to (1) can be written as (2). Because the density pt is obtained as a convolution of p⋆ with a Gaussian density, pt is infinitely differentiable and the integration by parts formula 
+
+E∇ log pt∇ log p† 
+
+> t
+
+= −E∇2 log pt, ∀t ∈ (0 , T ]
+
+holds. The relation ∥∇ st∥2 
+
+> L2,F
+
+≥ J 2 
+
+> t
+
+/d is shown next: 
+
+Jt = E∥∇ log pt∥2 = Tr E∇ log pt∇ log p† 
+
+> t
+
+= 
+
+> (∗)
+
+−Tr E∇2 log pt
+
+= −Tr E∇st,
+
+where (∗) follows from integration by parts. By Jensen’s inequality and the Cauchy-Schwartz in-equality, 
+
+J 2 
+
+> t
+
+= ( ETr ∇st)2 ≤ E(Tr ∇st)2 ≤ dTr E(∇st)2 := d∥∇ st∥2 
+
+> L2
+
+.
+
+21 D Proofs of Theorems 1 and 2 and Practical Insights (Section 3.1) 
+
+D.1 Proof of Theorem 1 
+
+We first prove the bound on the initialization error. When (f, g ) are constants, the log-Sobolev inequality [20] and the contraction of the KL divergence along the Ornstein-Uhlenbeck process [3] can be used to obtain a bound as in [15]. A different bound can be obtained as in [4, Proposition 4] and [9, Lemma 9] based on the convexity of the KL divergence. For time-varying schedules, we find it to be more useful to utilize a small modification to the bound emerging from the latter argument. By (2), we have (XT |X⋆) ∼ N (αT X⋆, σ 2 
+
+> T
+
+I). Let I denote the mutual information so that 
+
+I(X⋆; XT ) = Ep⋆ [KL( N (αT X⋆, σ 2 
+
+> T
+
+I)∥pT )] . Using the chain rule, we obtain the bound 
+
+KL(Law( XT )∥N (0 , σ 2 
+
+> T
+
+I)) = Ep⋆
+
+KL(Law( XT |X0)∥N (0 , σ 2 
+
+> T
+
+I))  − I (X0; XT )
+
+≤ Ep⋆
+
+KL( N (αT X⋆, σ 2 
+
+> T
+
+I)∥N (0 , σ 2 
+
+> T
+
+I)) 
+
+= α2
+
+> T
+
+2σ2
+
+> T
+
+∥X⋆∥2
+
+> L2(p⋆)
+
+.
+
+where the inequality follows from non-negativity of I.Recall the Girsanov bound (18). We use Lemma 2 to obtain the identity 
+
+st(X← 
+
+> τ
+
+) − stk (X← 
+
+> τk
+
+) = −
+
+Z ττk
+
+f (˜ t)s˜t(X← 
+
+> ˜τ
+
+) d˜τ +
+
+Z ττk
+
+q
+
+g(˜ t)∇s˜t(X← 
+
+> ˜τ
+
+)dB ˜τ , (59) where ˜t = T − ˜τ . Evaluating the squared L2 norm, we have the bound 
+
+st(X← 
+
+> τ
+
+) − stk (X← 
+
+> τk
+
+) 2
+
+> L2
+
+≤ 2( τ − τk)
+
+Z ττk
+
+f (˜ t)2 ∥s˜t(X← 
+
+> ˜τ
+
+)∥2 
+
+> L2
+
+d˜τ + 2 
+
+Z ττk
+
+g(˜ t) ∥∇ s˜t(X← 
+
+> ˜τ
+
+)∥2 
+
+> L2
+
+d˜τ
+
+≤ 2h
+
+Z ττk
+
+f (˜ t)2J˜td˜τ + 2 
+
+Z ττk
+
+g(˜ t) ∥∇ s˜t(X← 
+
+> ˜τ
+
+)∥2 
+
+> L2
+
+d˜τ
+
+≲
+
+Z ττk
+
+g(˜ t)∥∇ s˜t(X← 
+
+> ˜τ
+
+)∥2 
+
+> L2
+
+d˜τ , 
+
+where the last holds when h is sufficiently small such that h < 1 and satisfies 
+
+h ≤ min  
+
+> k≤n−1
+
+min   
+
+> τ∈[τk,τ k+1 ]
+
+R ττk g(˜ t)∥∇ s˜t(X← 
+
+> ˜τ
+
+)∥2 
+
+> L2
+
+d˜τ
+
+R ττk f (˜ t)2J˜td˜τ . (60) We show that h ≲ 1/n satisfies (60) in Proposition 2. The derivative of Ψ( t) is bounded (Lemma 3), which implies Ψ(˜ τ ) = Ψ( τ ) + O(h) for |˜τ − τ | ≤ h.For any τ ∈ [τk, τ k+1 ], it therefore holds that 
+
+st(X← 
+
+> τ
+
+) − stk (X← 
+
+> τk
+
+) 2
+
+> L2
+
+≲
+
+Z ττk
+
+g(˜ t)∥∇ s˜t(X← 
+
+> ˜τ
+
+)∥2 
+
+> L2
+
+d˜τ =
+
+Z ττk
+
+Ψ(˜ τ )d˜τ
+
+= ( τ − τk)Ψ( τ ) + O(h2)
+
+≲ hg (t)∥∇ st(X← 
+
+> ˜τ
+
+)∥2 
+
+> L2
+
+. (61) By X˜td. 
+
+= X← 
+
+> ˜τ
+
+, it holds that ∥∇ st(X← 
+
+> τ
+
+)∥L2 = ∥∇ st(Xt)∥L2 and we denote this quantity by 
+
+∥∇ st∥L2 . Recall (8), where 
+
+˙Jt = 2 f (t)Jt − g(t)∥∇ st∥2 
+
+> L2
+
+.
+
+22 Substituting g(t)∥∇ st∥2 
+
+> L2
+
+= 2 f (t)Jt − ˙Jt for (61), we obtain 
+
+Z τk+1 
+
+> τk
+
+g(t) st(X← 
+
+> τ
+
+) − stk (X← 
+
+> τk
+
+) 2
+
+> L2
+
+≲ h
+
+Z τk+1 
+
+> τk
+
+g(t)
+
+
+
+2f (t)Jt − ˙Jt
+
+
+
+dτ 
+
+= h
+
+Z τk+1 
+
+> τk
+
+
+
+2f (t)Jt − ˙Jt
+
+2
+
+∥∇ st∥2
+
+> L2
+
+dτ 
+
+≤ hd 
+
+Z τk+1 
+
+> τk
+
+2f (t) − ˙Jt
+
+Jt
+
+!2
+
+dτ. 
+
+Summing over all k, we obtain 
+
+Z T
+
+> 0
+
+g(t) st(X← 
+
+> τ
+
+) − stk (X← 
+
+> τk
+
+) 2
+
+> L2
+
+≲ hd 
+
+Z T
+
+> 0
+
+2f (t) − ˙Jt
+
+Jt
+
+!2
+
+dt 
+
+D.2 Solving the Euler-Lagrange Equation 
+
+The discretization error bound in Theorem 1 is minimized over g. Under a change of variables 
+
+u(t) = log Jt, the second term’s integral in (9) is given by 
+
+Z T
+
+> 0
+
+[2 f (t) − ˙u(t)] 2 dt. 
+
+To find the optimal g∗, we first solve for the optimal trajectory: 
+
+min 
+
+> u(t)
+
+Z T
+
+> 0
+
+(2 f (t) − ˙u(t)) 2 dt, u(0) = log J⋆, u(T ) = log JT . (62) The integrand L(t, u, ˙u) = (2 f (t) − ˙u)2 is jointly convex in (u, ˙u), and the optimality condition is given by the Euler–Lagrange equation 
+
+∂L
+
+∂u − ddt 
+
+ ∂L
+
+∂ ˙u
+
+
+
+= 0 .
+
+Evaluating ∂uL = 0 , ∂ ˙uL = −2(2 f (t) − ˙u) = 2 ˙ u − 4f (t), we obtain the optimality condition 
+
+ddt ( ˙ ut − 2f (t)) = 0 .
+
+In other words, the optimality condition is given by (26), which we re-state: 
+
+2f (t) − ˙Jt
+
+Jt
+
+= λ, 
+
+where the value of λ is determined by the boundary condition 
+
+λT = 2 
+
+Z T
+
+> 0
+
+f (t)dt + log J⋆ − log JT . (63) The corresponding discretization error is obtained by substituting λ in (26) for the integrand in (9), where 
+
+KL( p⋆∥ˆp⋆) ≲ α2
+
+> T
+
+2σ2
+
+> T
+
+∥X⋆∥2 
+
+> L2(p⋆)
+
++ hdλ 2T. (64) We substitute R T 
+
+> 0
+
+f (t)dt = − log αT for (63), which yields 
+
+λ = 1
+
+T log J⋆
+
+JT
+
+· 1
+
+α2
+
+> T
+
+.
+
+By setting JT ≍ d/σ 2 
+
+> T
+
+and substituting h = T /n , we obtain 
+
+hdλ 2T ≲ dn
+
+
+
+log J⋆
+
+d · σ2
+
+> T
+
+α2
+
+> T
+
+2
+
+.
+
+23 Combining, we obtain 
+
+KL( p⋆∥ˆp⋆) ≲ α2
+
+> T
+
+2σ2
+
+> T
+
+∥X⋆∥2 
+
+> L2
+
++ dn
+
+
+
+log J⋆
+
+d · σ2
+
+> T
+
+α2
+
+> T
+
+2
+
+. (65) In particular, if α2 
+
+> T
+
+/σ 2 
+
+> T
+
+= Cd/ ∥X⋆∥2 
+
+> L2
+
+n for some universal constant C > 0, then (11) holds. The choice of terminal SNR α2 
+
+> T
+
+/σ 2 
+
+> T
+
+translates to a scaling of g∗. This is seen more easily through (66) and the optimization of λ in Section D.3. 
+
+Existence: While the Euler-Lagrange optimization was solved with respect to ut = log Jt, we must veirfy that the optimal trajectory J ∗ 
+
+> t
+
+corresponds to a valid noise schedule g∗ ∈ G . We establish this mapping using the process Yt = Xt/α t introduced in Section C.5. The above proof delineates an optimal trajectory (J ∗ 
+
+> t
+
+)t∈[0 ,T ]. We show that there exists a bijection 
+
+J ∗ 
+
+> t
+
+7 → g∗(t), which implies that the trajectory (J ∗ 
+
+> t
+
+) can be controlled by a choice of g∗.Using the relation Vt := σ2 
+
+> t
+
+/α 2 
+
+> t
+
+= R t 
+
+> 0
+
+g(˜ t)/α 2˜t d˜t which implies ˙Vt = g(t)/α 2 
+
+> t
+
+, the identity (57) can be written as 
+
+ddV t
+
+J (pYt ) = − 12 ∥∇ 2 log pYt ∥2 
+
+> L2
+
+.
+
+Because the RHS is strictly negative, J (pYt ) is strictly decreasing as a function of the variance Vt.Consequently, the map Vt 7 → J (pYt ) is a bijection. From (58), the optimal trajectory J ∗ 
+
+> t
+
+defines a corresponding trajectory J (pYt ) = α2 
+
+> t
+
+J ∗ 
+
+> t
+
+. Since 
+
+αt is a deterministic function of a fixed schedule f (t), the optimal target J ∗ 
+
+> t
+
+uniquely maps to a continuous variance trajectory V ∗ 
+
+> t
+
+. The noise schedule is then uniquely defined by differentiating this variance: 
+
+g∗(t) = α2
+
+> t
+
+ddt V ∗ 
+
+> t
+
+.
+
+Finally, we verify that g∗(t) > 0 so that it satisfies the constraints in (3). From the Fisher ODE (8) and the optimality condition (26), we obtain the explicit expression for g∗:
+
+g∗(t) = 2f (t)J ∗ 
+
+> t
+
+− ˙J ∗
+
+> t
+
+∥∇ st∥2
+
+> L2
+
+= λJ ∗
+
+> t
+
+∥∇ st∥2
+
+> L2
+
+. (66) By Lemma 1, ∥∇ st∥2 
+
+> L2
+
+< ∞ for all t ∈ [0 , T ]. Since Jt > 0 (e.g., via the CRLB (74)), we conclude 
+
+g∗(t) > 0.This concludes the proof of Theorem 2. 
+
+D.3 Practical Insights from Theorem 2 
+
+While the choice of αT in Theorem 2 establishes the ˜O(d/n ) bound, implementing this condition directly poses a challenge. The parameters αT and σT are related through σ2 
+
+> T
+
+= α2
+
+> T
+
+R T 
+
+> 0
+
+g(t)/α 2 
+
+> t
+
+dt ,and one cannot na¨ ıvely tune the schedules to satisfy the target boundary condition for αT without inadvertently altering σT . To circmuvent this implicit coupling, we compute the exact minimizer of the error bound (65) with respect to λ defined in (26). Consequently, we obtain an explicit, decoupled parametrization for the optimal continuous trajectory. The initialization error bound can be expressed in terms of λ defined in (26). By first relating λ to the boundary conditions as in (63), we have 
+
+λT = 2 
+
+Z T
+
+> 0
+
+f (t)dt + log J⋆
+
+JT
+
+= log 1
+
+α2
+
+> T
+
++ log J⋆
+
+JT
+
+⇔α2 
+
+> T
+
+= J⋆
+
+JT
+
+e−λT .
+
+Therefore, 
+
+α2
+
+> T
+
+2σ2
+
+> T
+
+∥X⋆∥2 
+
+> L2(p⋆)
+
+= ∥X⋆∥2
+
+> L2(p⋆)
+
+2σ2
+
+> T
+
+J⋆
+
+JT
+
+e−λT . (67) 24 The discretization error bound in (9) can be expressed in terms of λ as in (64). Combining with (67), we obtain 
+
+KL( p⋆∥ˆp⋆) ≤ ∥X⋆∥2
+
+> L2(p⋆)
+
+2σ2
+
+> T
+
+J⋆
+
+JT
+
+e−λT + hdλ 2T. 
+
+The first order optimality condition is evaluated by differentiating with respect to λ, whose condition expressed using n = T /h is 
+
+(λ∗T )eλ∗T = Cσ2
+
+> T
+
+· J⋆
+
+JT
+
+· ∥X⋆∥2
+
+> L2
+
+d · n. 
+
+The solution λ∗ can be expressed using the Lambert-W function W. Recall W(z) is the solution w
+
+to we w = z. We solve for λ∗, whose expression evaluates to 
+
+λ∗ = 1
+
+T W
+
+ Cσ2
+
+> T
+
+· J⋆
+
+JT
+
+· ∥X⋆∥2
+
+> L2
+
+d · n
+
+
+
+. (68) Let z be defined as 
+
+z = Cσ2
+
+> T
+
+· J⋆
+
+JT
+
+· ∥X⋆∥2
+
+> L2
+
+d · n (69) so that λ∗ = T −1W(z), or equivalently e−λ∗T = z−1W(z). When z ≥ e so that W(z) ≤ log z,
+
+KL( p⋆∥ˆp⋆) ≲ e−λ∗T + hd (λ∗)2T ≤ W(z)
+
+z + dn log 2 z ≤ log zz + dn log 2 z. (70) Instead of the JT ≍ d/σ 2 
+
+> T
+
+used to obtain (11), we may instead use the lower bound 
+
+JT ≥ 1
+
+σ2
+
+> T
+
+
+
+d − α2
+
+> T
+
+σ2
+
+> T
+
+∥X⋆∥2
+
+> L2
+
+
+
+,
+
+from (49). Substituting for (69), we obtain 
+
+z ≤ C ∥X⋆∥2
+
+> L2
+
+d · 11 − α2
+
+> T
+> σ2
+> T
+
+· ∥X⋆∥2
+
+> L2
+> d
+
+· J⋆
+
+d n. 
+
+For any αT such that 
+
+α2 
+
+> T
+
+< σ2
+
+> T
+
+2 · d
+
+∥X⋆∥2
+
+> L2
+
+,
+
+we have by the inequality 1/(1 − x) ≤ 1 + 2 x which holds for x ∈ (0 , 1/2) the bound 
+
+z ≤ 2C
+
+
+
+2 + α2
+
+> T
+
+σ2
+
+> T
+
+· ∥X⋆∥2
+
+> L2
+
+d
+
+
+
+· ∥X⋆∥2
+
+> L2
+
+d · J⋆
+
+d n. 
+
+In particular, we obtain the compute budget-dependent λ∗:
+
+λ∗ 
+
+> n
+
+= 1
+
+T W (Kn ) , K = 2 C
+
+
+
+2 + α2
+
+> T
+
+σ2
+
+> T
+
+· ∥X⋆∥2
+
+> L2
+
+d
+
+
+
+· ∥X⋆∥2
+
+> L2
+
+d · J⋆
+
+d . (71) Any bound (e.g., 1) on the terminal SNR α2 
+
+> T
+
+/σ 2 
+
+> T
+
+can be used to further simplify K. From the expression (71), it is seen that tuning K can be understood as estimating quantities associated with the data distribution. 
+
+D.4 Discretization Step Size Proposition 2. Under Assumption 1, it holds for any (f, g ) ∈ Θ that any h satisfying 
+
+h ≤ gmin 
+
+f 2max 
+
+min  
+
+> t∈[0 ,T ]
+
+1
+
+α2 
+
+> t
+
+∥X⋆∥2 
+
+> L2
+
+/d + σ2
+
+> t
+
+(72) 
+
+necessarily satisfies for any {τk}nk=0 with h = τk+1 − τk and τn = T the inequality (60) .
+
+25 Proof. Recall the inequality (60): 
+
+h ≤ min  
+
+> k
+
+min   
+
+> τ∈[τk,τ k+1 ]
+
+R ττk g(˜ t)∥∇ s˜t(X← 
+
+> ˜τ
+
+)∥2 
+
+> L2
+
+d˜τ
+
+R ττk f (˜ t)2J˜td˜τ
+
+We obtain a lower bound on R ττk g(˜ t)∥∇ s˜t(X← 
+
+> ˜τ
+
+)∥2 
+
+> L2
+
+d˜τ
+
+R ττk f (˜ t)2J˜td˜τ ,
+
+such that any h chosen to be smaller than the lower bound necessarily satisfies (60). By Lemma 5, it holds that ∥∇ st∥L2 ≥ Jt√d , and we have 
+
+R ττk g(˜ t)∥∇ s˜t∥2 
+
+> L2
+
+d˜τ
+
+R ττk f (˜ t)2J˜td˜τ ≥ 1
+
+d
+
+R ττk g(˜ t)∥∇ s˜t∥L2 J˜td˜τ
+
+R ττk f (˜ t)2∥∇ s˜t∥L2 d˜τ
+
+≥
+
+ min ˜t∈[τk ,τ ] J˜t
+
+d
+
+ R ττk g(˜ t)∥∇ s˜t∥L2 d˜τ
+
+R ττk f (˜ t)2∥∇ s˜t∥L2 d˜τ . (73) The Cram´ er-Rao lower bound (CRLB) states that a random variable X whose density p is defined against the Lebesgue measure satisfies 
+
+Cov( X) ⪰  E∇ log p∇ log p†−1 .
+
+Let A ∈ Rd×d be a positive definite matrix with eigenvalues {λi}. By the arithmetic-harmonic mean (AM-HM) inequality, 
+
+1
+
+d
+
+> d
+
+X
+
+> i=1
+
+λi ≥ d
+
+Pdi=1 1
+
+> λi
+
+.
+
+Rearranging, we obtain that (Tr A)(Tr A−1) ≥ d2. Using the above property, we have the inequality 
+
+∥X∥2 
+
+> L2
+
+J (p) = TrCov( X)Tr E∇ log p∇ log p† ≥ d2.
+
+Rearranging, we obtain the following form of the CRLB: 
+
+J (p) ≥ d2
+
+∥X∥2
+
+> L2
+
+. (74) Substituting for the denominator in (73), we obtain 
+
+R ττk g(˜ t)∥∇ s˜t∥2 
+
+> L2
+
+d˜τ
+
+R ττk f (˜ t)2J˜td˜τ ≥
+
+
+
+min   
+
+> ˜t∈[τk,τ ]
+
+d
+
+∥Xt∥2
+
+> L2
+
+ R ττk g(˜ t)∥∇ s˜t∥L2 d˜τ
+
+R ττk f (˜ t)2∥∇ s˜t∥L2 d˜τ
+
+≥ gmin 
+
+f 2max 
+
+min   
+
+> ˜t∈[τk,τ ]
+
+d
+
+∥Xt∥2
+
+> L2
+
+.
+
+Minimizing both sides over k and τ , we obtain that a sufficient condition for h to satisfy (60) is 
+
+h ≤ gmin 
+
+f 2max 
+
+min  
+
+> t∈[0 ,T ]
+
+d
+
+∥Xt∥2
+
+> L2
+
+.
+
+## E Proofs of Proposition 1 and Corollary 1 (Section 3.2) 
+
+E.1 Higher Order Score and Fisher Information 
+
+Under the strong log-concavity (SLC) condition in Assumption 2(i), we have the reverse inequality of Lemma 5, 26 Lemma 6. Under Assumption 2(i), it holds that 
+
+∥∇ s⋆∥2 
+
+> L2
+
+≤ 1
+
+d
+
+ M⋆
+
+m⋆
+
+2
+
+J 2 
+
+> ⋆
+
+.
+
+Recall the integration by parts formula E∥s⋆∥2 = −ETr ∇s⋆ By the log-concavity assumption, it holds that −Tr E∇s⋆ ≥ m⋆d. Moreover, the upper bound implies ∥∇ s⋆∥2 
+
+> L2
+
+= ETr( ∇s⋆)2 ≤ M 2 
+
+> ⋆
+
+d.Combining, we obtain 
+
+∥∇ s⋆∥2
+
+> L2
+
+J 2
+
+> ⋆
+
+= ETr( ∇s⋆)2
+
+(Tr E∇s⋆)2 ≤ M 2 
+
+> ⋆
+
+d
+
+(m⋆d)2 = 1
+
+d
+
+ M⋆
+
+m⋆
+
+2
+
+.
+
+E.2 Pr´ ekopa–Leindler inequality 
+
+The constants (mt, M t) of the SLC condition in Assumption 2(i) are evaluated along the SDE (1). For the following, denote by pZ the standard Gaussian density (of the random variable Z). 
+
+Lemma 7. Suppose the density p⋆ satisfies (13) . For any positive constants (αt, σ t), it holds that the density pt of Xt = αtX⋆ + σtZ satisfies 
+
+PS 
+
+ m(p⋆)
+
+α2
+
+> t
+
+, m(pZ )
+
+σ2
+
+> t
+
+
+
+I ⪯ −∇ 2 log pt ⪯ PS 
+
+ M (p⋆)
+
+α2
+
+> t
+
+, M (pZ )
+
+σ2
+
+> t
+
+
+
+I. (75) 
+
+Proof. We recall some properties of the cumulant generating function and duality theory from [8]. Let ΛX (θ) denote the cumulant generating function ΛX (θ) = log Ee⟨θ,X ⟩ so that Xt = αtX⋆ +σtZ
+
+has the CGF 
+
+ΛXt (θ) = Λ αtX⋆ (θ) + Λ σtZ (θ) = Λ X⋆ (αtθ) + σ2
+
+> t
+
+2 ∥θ∥2. (76) For a density pX (x) ∝ e−V (x), recall that ∇2ΛX (θ) is the covariance matrix associated with the density proportional to e⟨θ,x ⟩− V (x), which equates to ∇2V (x). Therefore, ΛX and V are related through the Fenchel-Legendre transform. By duality, the potential V⋆ defined as p⋆(x) ∝ e−V⋆(x) is 
+
+(m⋆, M ⋆)-SLC if and only if 
+
+1
+
+M⋆
+
+I ⪯ ∇ 2ΛX⋆ (θ) ⪯ 1
+
+m⋆
+
+I. 
+
+Taking the second derivatives of (76), we obtain 
+
+ α2
+
+> t
+
+M⋆
+
++ σ2
+
+> t
+
+
+
+I ⪯ ∇ 2ΛXt (θ) ⪯
+
+ α2
+
+> t
+
+m⋆
+
++ σ2
+
+> t
+
+
+
+I
+
+Applying duality once more, we obtain 
+
+ α2
+
+> t
+
+m⋆
+
++ σ2
+
+> t
+
+−1
+
+I ⪯ −∇ 2 log pt(x) ⪯
+
+ α2
+
+> t
+
+M⋆
+
++ σ2
+
+> t
+
+−1
+
+I. 
+
+E.3 Equivalence Between Score Function’s Jacobian and Fisher Information Lemma 8. Suppose Assumptions 1 and 2 hold. Then 
+
+dκ2 ≤ J 2
+
+> t
+
+∥∇ st∥2
+
+> L2
+
+≤ d, ∀t ∈ [0 , T ], (77) 
+
+where the constant κ is defined as follows: 
+
+• When p⋆ is SLC under Assumption 2(i): κ = M⋆ 
+
+> m⋆
+
+;
+
+27 • When p⋆ is a GMM under Assumption 2(ii): 
+
+κ = 1 + ∆2
+
+> μ
+
+4ν2
+
+!1/2
+
+1 + 1
+
+ν2 · 1
+
+d
+
+> L
+
+X
+
+> i=1
+
+πi∥μi − ¯μ∥2
+
+!
+
+, (78) 
+
+where ¯μ = PLi=1 πiμi and ∆μ = max 1≤i,ℓ ≤L∥μi − μℓ∥.In particular, if max 1≤i,ℓ ≤L∥μi − ¯μ∥ ≤ Rμ for some Rμ > 0, then 
+
+κ ≤ 1 + R2
+
+> μ
+
+ν2
+
+!
+
+1 + 1
+
+dR2
+
+> μ
+
+ν2
+
+!
+
+. (79) 
+
+Proof. The upper bound J 2
+
+> t
+> ∥∇ st∥2
+> L2
+
+≤ d directly follows from Lemma 5, and it does not require Assumption 2. In the remainder of the proof, we focus on proving the lower bound J 2
+
+> t
+> ∥∇ st∥2
+> L2
+
+≥ dκ2 , or equivalently,  
+
+> ∥∇ st∥2
+> L2
+> J2
+> t
+
+≤ κ2 
+
+> d
+
+.
+
+Log-Concave Distributions. Because pt remains log-concave for all t, its Hessian can be bounded in the positive-definite (L¨ owner) order ≺: mtI ⪯ −∇ 2 log pt ⪯ MtI. We define κt = Mt/m t as the condition number of this log-concave density. Adding Gaussian noise decreases the condition number and hence, the time-varying condition number is bounded by that associated with the target density: κ = sup t Mt/m t = M⋆/m ⋆.The above remark is described formally. By Lemma 6, there exists some (m⋆, M ⋆) such that 
+
+∥∇ s⋆∥2 
+
+> L2
+
+≤ 1
+
+d
+
+ M⋆
+
+m⋆
+
+2
+
+J 2 
+
+> ⋆
+
+.
+
+By Lemma 7, for any t ∈ [0 , T ], the condition number of the smoothed density pt can be bounded pointwise. Using m(γd) = M (γd) = 1 and mt, M t defined the lower and upper bounds of (75), the condition number κt = Mt/m t evaluates to 
+
+κt := Mt
+
+mt
+
+=
+
+ M⋆
+
+m⋆
+
+ 1 + m⋆σ2 
+
+> t
+
+/α 2
+
+> t
+
+1 + M⋆σ2 
+
+> t
+
+/α 2
+
+> t
+
+.
+
+The condition number κt is bounded uniformly over time (over all values of SNR α2 
+
+> t
+
+/σ 2 
+
+> t
+
+), and consequently there exists a global constant κ = M⋆/m ⋆ such that: 
+
+∥∇ st∥2 
+
+> L2
+
+≤ κ2 J 2
+
+> t
+
+d , ∀t ∈ [0 , T ].
+
+Gaussian Mixture Models. Recall that we assume that the data distribution is a mixture of L
+
+Gaussian components. Specifically, p⋆(x) = PLi=1 πiφ(x; μi, ν 2I), where φ(x; μi, ν 2I) is the density of N (μi, ν 2I).From the solution of the forward process Xtd
+
+= αtX⋆ + σtZ, it holds that the law of Xt is a GMM with density 
+
+pt(x) = 
+
+> L
+
+X
+
+> i=1
+
+πiφ(x; αtμi, v 2 
+
+> t
+
+I), v2 
+
+> t
+
+= α2 
+
+> t
+
+ν2 + σ2 
+
+> t
+
+. (80) Define the random variable M which takes the value μi with probability πi. Let ˜Z be a standard Gaussian vector independent of Z and M , so that 
+
+Xtd
+
+= αtM + vt ˜Z. (81) Observe that (αtM | Xt = x) takes values in {αtμ1, · · · , α tμL}, where (αtM | Xt = x) is αtμi
+
+with probability 
+
+πiφ(x; αtμi, v 2 
+
+> t
+
+I)
+
+PLj=1 πj φ(x; αtμj , v 2 
+
+> t
+
+I) . (82) 28 The score function for GMMs can be evaluated using Tweedie’s formula as in [19, Section 3.2], where 
+
+∇ log pXt (x) = 1
+
+v2
+
+> t
+
+(E[αtM | Xt = x] − x) .
+
+The Jacobian of the conditional expectation with respect to x is then 
+
+∇E[αtM | Xt = x] = 1
+
+v2
+
+> t
+
+Cov( αtM | Xt = x) = α2
+
+> t
+
+v2
+
+> t
+
+Cov( M | Xt = x).
+
+Therefore, the second order Tweedie’s formula evaluates to 
+
+−∇ 2 log pt(x) = 1
+
+v2
+
+> t
+
+I − α2
+
+> t
+
+v2
+
+> t
+
+Cov( M | Xt = x)
+
+and we use integration by parts as in the proof of Lemma 5 to obtain 
+
+Jt = −ETr ∇2 log pt(Xt) = dv2
+
+> t
+
+− α2
+
+> t
+
+v4
+
+> t
+
+ETrCov( M | Xt).
+
+From Jt ≥ 0, we have 
+
+α2
+
+> t
+
+v2
+
+> t
+
+ETrCov( M | Xt) ≤ d. (83) Using the integration by parts E∥st∥2 = −ETr ∇st, we obtain 
+
+∥∇ st∥2 
+
+> L2(pt)
+
+= ETr  −∇ 2 log pt
+
+2
+
+= dv4
+
+> t
+
+− 2α2
+
+> t
+
+v6
+
+> t
+
+ETrCov( M | Xt) + α4
+
+> t
+
+v8
+
+> t
+
+ETr (Cov( M | Xt)) 2
+
+≤ dv4
+
+> t
+
++ α4
+
+> t
+
+v8
+
+> t
+
+ETr (Cov( M | Xt)) 2 . (84) By the semi-positive definiteness of Cov( M | Xt = x), there exists some λmax such that Cov( M |
+
+Xt = x) ⪯ λmax I. Multiplying both sides by Cov( M | Xt = x) and taking the trace, we obtain 
+
+Tr (Cov( M | Xt = x)) 2 ≤ λmax TrCov( M | Xt = x).
+
+which implies 
+
+ETr (Cov( M | Xt = x)) 2 ≤ λmax d v2
+
+> t
+
+α2
+
+> t
+
+. (85) We next obtain an upper bound on λmax . Define ¯μx = E[M | Xt = x]. For any unit vector u ∈ Rd,
+
+u†Cov( M | Xt = x)u =
+
+> L
+
+X
+
+> i=1
+
+P (M = μi | Xt = x) u†(μi − ¯μx)( μi − ¯μx)†u
+
+= Var( u†M | Xt = x).
+
+The random variable u†M takes values in the set {u†μ1, u †μ2, · · · , u †μL}, and 
+
+|u†(μi − μℓ)| ≤ ∥ u∥∥ μi − μℓ∥ ≤ ∆μ.
+
+Using the definition λmax = sup ∥u∥2=1 u†Cov( M | Xt = x)u, we have 
+
+λmax = max  
+
+> u:∥u∥2=1
+
+u†Cov( M | Xt = x)u ≤ 14 ∆2
+
+> μ
+
+.
+
+Substituting for (85), we obtain 
+
+ETr (Cov( M | Xt = x)) 2 ≤ d
+
+4
+
+v2
+
+> t
+
+α2
+
+> t
+
+∆2
+
+> μ
+
+.
+
+29 Substituting for (84), we obtain 
+
+∥∇ st∥2 
+
+> L2
+
+≤ dv4
+
+> t
+
++ α4
+
+> t
+
+v8
+
+> t
+
+d
+
+4
+
+v2
+
+> t
+
+α2
+
+> t
+
+∆2 
+
+> μ
+
+= dv4
+
+> t
+
+
+
+1 + 14
+
+α2
+
+> t
+
+v2
+
+> t
+
+∆2
+
+> μ
+
+
+
+. (86) A lower bound on Jt is obtained using the CRLB (74): 
+
+Jt ≥ d2
+
+TrCov( Xt) = d2
+
+Tr {α2 
+
+> t
+
+Cov( M ) + v2 
+
+> t
+
+I} .
+
+Substituting 
+
+Cov( M ) = 
+
+> L
+
+X
+
+> i=1
+
+πi(μi − ¯μ)( μi − ¯μ)†,
+
+we obtain 
+
+Jt ≥ d2
+
+α2
+
+> t
+
+PLi=1 πi∥μi − ¯μ∥2 + v2 
+
+> t
+
+d . (87) Combining (86) and (87), we obtain 
+
+d∥∇ st∥2
+
+> L2
+
+J 2
+
+> t
+
+≤ d2
+
+v4
+
+> t
+
+
+
+1 + 14
+
+α2
+
+> t
+
+v2
+
+> t
+
+∆2
+
+> μ
+
+
+
+· α2
+
+> t
+
+PLi=1 πi∥μi − ¯μ∥2 + v2 
+
+> t
+
+dd2
+
+=
+
+
+
+1 + 14
+
+α2
+
+> t
+
+v2
+
+> t
+
+∆2
+
+> μ
+
+
+
+1 + α2
+
+> t
+
+v2
+
+> t
+
+1
+
+d
+
+> L
+
+X
+
+> i=1
+
+πi∥μi − ¯μ∥2
+
+!
+
+.
+
+The bound is further simplified by using v2 
+
+> t
+
+≥ α2 
+
+> t
+
+ν2, which yields 
+
+d∥∇ st∥2
+
+> L2
+
+J 2
+
+> t
+
+≤
+
+
+
+1 + 14ν2 ∆2
+
+> μ
+
+
+
+1 + 1
+
+ν2
+
+1
+
+d
+
+> L
+
+X
+
+> i=1
+
+πi∥μi − ¯μ∥2
+
+!
+
+.
+
+The upper bound in (79) is obtained by observing that max 1≤i,ℓ ≤L∥μi − ¯μ∥ ≤ Rμ implies ∆2 
+
+> μ
+
+≤
+
+4R2
+
+> μ
+
+.
+
+E.4 Proof of Proposition 1: Part 1 
+
+Recall from (66) that the optimal schedule g∗ is such that λ∗ = 2 f (t) − ˙Jt/Jt is a constant for all 
+
+t and 
+
+g∗(t) = λ∗Jt
+
+∥∇ st∥2
+
+> L2
+
+.
+
+By (27), we obtain the certificate 
+
+1
+
+κ2
+
+λ∗d
+
+J ∗
+
+> t
+
+≤ g∗(t) ≤ λ∗d
+
+J ∗
+
+> t
+
+. (88) Recall the ODE (8), where using the optimal control g∗ we obtain 
+
+˙J ∗ 
+
+> t
+
+= 2 f (t)Jt − g∗(t)∥∇ st∥2 
+
+> L2
+
+= (2 f (t) − λ∗) J ∗ 
+
+> t
+
+,
+
+whose solution is 
+
+J ∗ 
+
+> t
+
+= J⋆ exp 
+
+Z t
+
+> 0
+
+ 2f (˜ t) − λ∗ d˜t
+
+
+
+. (89) Substituting back for (88), we obtain 
+
+1
+
+κ2
+
+λ∗d
+
+J⋆
+
+exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+ 2f (˜ t) − λ∗ d˜t
+
+
+
+≤ g(t) ≤ λ∗d
+
+J⋆
+
+exp 
+
+
+
+−
+
+Z t
+
+> 0
+
+ 2f (˜ t) − λ∗ d˜t
+
+
+
+.
+
+30 E.5 Proof of Proposition 1: Part 2 
+
+We derive an error bound that holds for the approximated optimal schedule g◦ in (15). 
+
+Proposition 3. Under Assumption 2, it holds that the choice (15) yields the error bound 
+
+KL( p⋆∥ˆp⋆) ≲ α2
+
+> T
+
+2σ2
+
+> T
+
+∥X⋆∥2 
+
+> L2(p⋆)
+
++ hdT κ 4
+
+
+
+max 
+
+
+
+λ∗, g0J⋆
+
+d
+
+ 2
+
+, (90) 
+
+where κ depends on f through (75) .Proof. By Lemma 4, we have the identity 2f (t) − ˙Jt 
+
+> Jt
+
+= g(t) ∥∇ st∥2 
+
+> L2
+> Jt
+
+. For any choice of g ∈ G ,we have under Assumption 2 the upper bound in (27), and the discretization error in Theorem 2 is bounded by 
+
+hd 
+
+Z T
+
+> 0
+
+"
+
+2f (t) − ˙Jt
+
+Jt
+
+#2
+
+dt = hd 
+
+Z T
+
+> 0
+
+
+
+g(t) ∥∇ st∥2
+
+> L2
+
+Jt
+
+2
+
+dt ≤ hd κ4
+
+Z T
+
+> 0
+
+[g(t)Jt]2 dt. (91) Using ∥∇ st∥2 
+
+> L2
+
+≥ J 2 
+
+> t
+
+/d from Lemma 5, we have the bound 
+
+˙Jt ≤ 2f (t)Jt − 1
+
+d g(t)J 2 
+
+> t
+
+. (92) Using the change of variables vt = 1 /Jt which satisfies ˙vt = − ˙Jt/J 2 
+
+> t
+
+that 
+
+˙vt ≥ − 2f (t)vt + 1
+
+d g(t) ⇒ ddt 
+
+
+
+vt exp 
+
+Z t
+
+> 0
+
+2f (˜ t)d˜t
+
+ 
+
+≥ g(t)
+
+d exp 
+
+Z t
+
+> 0
+
+2f (˜ t)d˜t
+
+
+
+.
+
+When g(t) = g◦(t) = g0e− R T  
+
+> 0(2 f(˜ t)−λ∗)d˜t
+
+, we have that the corresponding v◦ 
+
+> t
+
+satisfies 
+
+ddt 
+
+
+
+v◦ 
+
+> t
+
+exp 
+
+Z t
+
+> 0
+
+2f (˜ t)d˜t
+
+ 
+
+≥ g0
+
+d eλ∗t. (93) Solving, we obtain that J ◦ 
+
+> t
+
+induced by g◦ satisfies the inequality 
+
+J ◦ 
+
+> t
+
+≤
+
+exp 
+
+
+
+2 R t 
+
+> 0
+
+f (˜ t)d˜t
+
+ 
+
+> 1
+> J⋆
+
++ g0 
+
+> λ∗d
+
+(eλ∗t − 1) 
+
+When λ∗d/g 0J⋆ − 1 < 0, the upper bound is decreasing in t and the maximum is g0J⋆. When 
+
+λ∗d/g 0J⋆ − 1 ≥ 0, the bound is increasing and the supremum is λ∗d (at t → ∞ ). Therefore, we obtain 
+
+g◦(t)J ◦ 
+
+> t
+
+≤ max {λ∗d, g 0J⋆} = d max 
+
+
+
+λ∗, g 0
+
+J⋆
+
+d
+
+
+
+.
+
+Substituting for the discretization error (91), we obtain 
+
+hd κ4
+
+Z T
+
+> 0
+
+[g◦(t)J ◦ 
+
+> t
+
+]2 dt ≤ hT dκ 4
+
+
+
+max 
+
+
+
+λ∗, g 0
+
+J⋆
+
+d
+
+ 2
+
+.
+
+By setting g0 = d/ J⋆, we obtain the bound hT d (λ∗)2. Recalling that λ∗ was defined to balance the initialization error and the discretization error to obtain the ˜O(d/n ) rate in Theorem 2, we obtain that g◦ achieves the same rate. This concludes the proof of Proposition 3. 
+
+E.6 Proof of Corollary 1 
+
+Observe that g(t) = g◦(t) in (15) satisfies the ODE 
+
+ddt g(t) = −(2 f (t) − λ∗)g(t). (94) 31 Substituting the ACS constraint f (t) = θg (t) + ω, we obtain 
+
+ddt g(t) = −(2 θg (t) + 2 ω − λ∗)g(t) ⇔ − g′(t)
+
+g(t)2 − 2ω − λ∗
+
+g(t) = 2 θ
+
+⇔
+
+ 1
+
+g(t) e−(2 ω−λ∗)t
+
+′
+
+= 2 θe −(2 ω−λ∗)t.
+
+Integrating, we obtain for 2ω̸ = λ∗ that 
+
+g(t) = g0(2 ω − λ∗)(2 θg 0 + 2 ω − λ∗)e(2 ω−λ∗)t − 2θg 0
+
+.
+
+Substituting for f (t) = θg (t) + ω, we obtain 
+
+f (t) = θg 0(2 ω − λ∗)(2 θg 0 + 2 ω − λ∗)e(2 ω−λ∗)t − 2θg 0
+
++ ω. 
+
+When 2ω = λ∗, the ODE for g(t) = g◦(t) under the ACS constraint is 
+
+ddt g(t) = −2θg (t)2
+
+whose solution is g(t) = g0/[1 + 2 θg 0t]. By f (t) = θg (t) + ω, it holds that f (t) = θg 0/[1 + 2θg 0t] + ω.
+
+## F Error Bounds for Linear and Constant Schedules 
+
+The linear schedule [23] is widely used, but is not of the form (15) and therefore Proposition 3 does not apply. For constant schedules, the bound in Proposition 3 can be refined to obtain a tighter bound. The corresponding error bounds for VP-linear and VP-constant schedules are established in the following statement by analyzing the discretization error (91). 
+
+Proposition 4. Suppose Assumption 2(i) holds. 1. The VP-linear schedule (flin , g lin ) described by flin (t) = glin (t)/2 and glin (t) = gmin +(gmax − gmin )t/T achieves the error bound 
+
+KL( p⋆∥ˆp⋆) ≲ α2
+
+> T
+
+2σ2
+
+> T
+
+∥X⋆∥2 
+
+> L2
+
++ hdκ 4gmax [T g max + 1] max 
+
+
+
+1, J⋆
+
+d
+
+
+
+. (95) 
+
+2. The VP-constant schedule (fconst , g const ) with fconst = gconst /2 achieves the error bound 
+
+KL( p⋆∥ˆp⋆) ≲ α2
+
+> T
+
+2σ2
+
+> T
+
+∥X⋆∥2 
+
+> L2
+
++ hdκ 4gconst 
+
+ J⋆
+
+d + log 
+
+
+
+1 + J⋆
+
+d
+
+ egconst T − 1 
+
+(96) 
+
+Proof. See Section F.1. As discussed earlier, the best bounds [11, 15] available for VP-constant schedules grow linearly with 
+
+J⋆/d . Proposition 4 shows an explicit dependence on the parameter gconst , and also extends this bound to VP-linear schedules. We show that the schedule (f, g ◦) achieves a better trade-off when 
+
+J⋆/d ≫ 1.Let T = 1 for simplicity. Under the VP constraint f = g/ 2, the initialization error is strictly a function of E = R T 
+
+> 0
+
+f (t)dt . For the constant schedule, a given tolerance E on the initialization error implies gconst = 2 E, and the bound in Proposition 4 yields a discretization error bound that scales as dκ 4
+
+n · E 
+
+ J⋆
+
+d + log 
+
+
+
+1 + J⋆
+
+d (eE − 1) 
+
+ 
+
+= O
+
+ dκ 4
+
+n ·
+
+
+
+E J⋆
+
+d + E2
+
+ 
+
+. (97) For the VP-linear schedule, we have R 10 f (t)dt = gmin + gmax = E or gmax ≈ E when gmin ≈ 0 is negligible. The corresponding discretization error scales with 
+
+dκ 4
+
+n · 2E [2 E + 1] J⋆
+
+d = O
+
+ dκ 4
+
+n · E 2 J⋆
+
+d
+
+
+
+.
+
+32 For the schedule (f, g ◦) with the VP constraint (θ, ω ) = (1 /2, 0) , the bound in Proposition 3 can be minimized by setting c = log(1 + ( eE − 1)( J⋆/d )) to obtain the bound 
+
+dκ 4
+
+n · log 2
+
+
+
+1 +  eE − 1 J⋆
+
+d
+
+
+
+= O
+
+ dκ 4
+
+n ·
+
+
+
+E2 + log 2 J⋆
+
+d
+
+ 
+
+.
+
+Compared to the EJ ⋆/d + E2 and E2J⋆/d dependence achieved by VP-constant and VP-linear schedules, the schedule (f, g ◦) achieves a better trade-off with the dependence E2 + log 2 J⋆.
+
+F.1 Proof of Proposition 4 
+
+Rearranging (92), we obtain that for f (t) = g(t)/2,
+
+1
+
+d (g(t)Jt)2 ≤ g(t)2Jt − g(t) ˙J 2 
+
+> t
+
+.
+
+Integrating from t = 0 to T , we obtain 
+
+1
+
+d
+
+Z T
+
+> 0
+
+(g(t)Jt)2dt ≤
+
+Z T
+
+> 0
+
+g(t)2Jtdt −
+
+Z T
+
+> 0
+
+g(t) ˙Jtdt 
+
+=
+
+Z T
+
+> 0
+
+g(t)2Jtdt −
+
+"
+
+−[g(t)Jt]T 
+
+> 0
+
++
+
+Z T
+
+> 0
+
+g′(t)Jtdt 
+
+#
+
+= g(0) J0 − g(T )JT +
+
+Z T
+
+> 0
+
+g′(t)Jtdt, 
+
+where the first equality is obtained using integration by parts. Using g(T )JT > 0, we obtain 
+
+Z T
+
+> 0
+
+(g(t)Jt)2dt ≤ d · g(0) J⋆ + d
+
+Z T
+
+> 0
+
+Jt
+
+g(t)2 + g′(t) dt. (98) The upper bound is evaluated for the VP-linear and VP-constant schedules. 
+
+VP-Linear: The linear schedule satisfies g(0) = gmin , g(t) ≤ gmax , and g′(t) = T −1(gmax −gmin ),which then yields 
+
+Z T
+
+> 0
+
+(g(t)Jt)2dt ≤ d · gmin J⋆ + dT Jmax 
+
+
+
+g2max + gmax − gmin 
+
+T
+
+
+
+Next we show Jmax = max {d, J⋆}. Recall from Lemma 4 and (27) that 
+
+˙Jt ≤ 2f (t)Jt − g(t)
+
+d J 2 
+
+> t
+
+.
+
+Under the VP constraint 2f (t) = g(t), we have 
+
+˙Jt ≤ g(t)Jt − g(t)
+
+d J 2 
+
+> t
+
+= g(t)Jt
+
+
+
+1 − Jt
+
+d
+
+
+
+. (99) Therefore, Jt can never grow beyond max {J ⋆, d }. Substituting for Jmax , we obtain 
+
+hd κ4
+
+Z T
+
+> 0
+
+[g(t)Jt]2 dt ≤ hd κ4
+
+
+
+d · gmin J⋆ + dT max {d, J⋆}
+
+
+
+g2max + gmax − gmin 
+
+T
+
+ 
+
+= hκ 4d
+
+
+
+T g 2max max {1, J⋆
+
+d } + max 
+
+
+
+1, J⋆
+
+d
+
+
+
+gmax 
+
+
+
++ hκ 4dg min 
+
+ J⋆
+
+d − max 
+
+
+
+1, J⋆
+
+d
+
+ 
+
+≤ hκ 4dg max [T g max + 1] max 
+
+
+
+1, J⋆
+
+d
+
+
+
+.
+
+Substituting for (91), we obtain the result. 33 VP-Constant: The VP-constant schedule (fconst , g const ) can be substituted for the bound (98): 
+
+Z T
+
+> 0
+
+(gconst (t)Jt)2dt ≤ dg const J⋆ + dg 2
+
+> const
+
+Z T
+
+> 0
+
+Jtdt. (100) As in (99), we have 
+
+˙Jt ≤ gconst Jt
+
+
+
+1 − Jt
+
+d
+
+
+
+⇒ J t ≤ d · egconst t
+
+egconst t − (1 − d/ J⋆) .
+
+Integrating over time with vt = egconst t − (1 − d/ J⋆), we obtain 
+
+Z T
+
+> 0
+
+Jtdt ≤ dgconst 
+
+log vT
+
+v0
+
+= dgconst 
+
+log egconst T − 1 + d
+
+> J⋆
+
+d/ J⋆
+
+!
+
+= dgconst 
+
+log 
+
+
+
+1 + J⋆
+
+d (egconst T − 1) 
+
+
+
+.
+
+Substituting for (100), we obtain the discretization error bound 
+
+hd κ4
+
+Z T
+
+> 0
+
+(g(t)Jt)2dt ≤ hκ 4
+
+"
+
+gconst J⋆ + g2
+
+> const
+
+Z T
+
+> 0
+
+Jtdt 
+
+#
+
+≤ hκ 4gconst 
+
+
+
+J⋆ + d · log 
+
+
+
+1 + J⋆
+
+d
+
+ egconst T − 1 
+
+,
+
+Substituting for (91), we obtain the result. 
+
+## G Supplement to Experiments (Section 5) 
+
+G.1 Choosing ACS Parameters 
+
+Recall the choice of g◦ in (32). While Proposition 1 provides closed-form expressions for the ACS framework, deploying these schedules in practice requires properly configuring the hyperparameters 
+
+(θ, ω, γ, g 0). A constraint common in existing widely-used schedules is that the forward process must inject noise monotonically ( g′(t) > 0). The bound in (11) is obtained by setting the terminal energy E = R T 
+
+> 0
+
+f (t)dt to balance the initialization and discretization errors. The proof of Proposi-tion 1 shows how the parameters (g0, γ ) should scale with problem constants. In this section, we set 
+
+T = 1 .
+
+Proposition 5. Consider the schedule g◦ in (32) . Given any E > 0, the constraints in ΘACS and 
+
+g′(t) > 0 are satisfied for all (θ, ω, γ ) when 
+
+θ ∈ (0 , ∞), ω ∈ [0 , E), γ ∈
+
+
+
+2 E
+
+λ∗ , ∞
+
+
+
+, g0 = 2ω − γλ ∗
+
+2θ · e2( E− ω)−1 − 11 − e−(2 ω−γλ ∗) .
+
+Proof. The constraints on (g0, γ, θ, ω ) are derived for the case T = 1 and 2ω̸ = γλ ∗. Recall the expression for g◦ in (32), where we use c = γλ ∗:
+
+g(t) = g0(2 ω − c)(2 θg 0 + 2 ω − c)e(2 ω−c)t − 2θg 0
+
+= g0(2 ω − c)e−(2 ω−c)t
+
+(2 θg 0 + 2 ω − c) − 2θg 0e−(2 ω−c) .. 
+
+Using the change of variables u(t) = (2 θg 0 + 2 ω − c) − 2θg 0e−(2 ω−c)t, we have 
+
+Z 10
+
+g(t)dt = 12θ
+
+Z 10
+
+du u = 12θ log 2θg 0 + (2 ω − c) − 2θg 0e−(2 ω−c)
+
+2ω − c . (101) Using the ACS relation f (t) = θg (t) + ω, we obtain 
+
+Z 10
+
+f (t)dt = θ
+
+Z 10
+
+g(t)dt + ω = E,
+
+34 which implies Z 10
+
+g(t)dt = E − ωθ . (102) Equating (101) and (102) and solving for g0, we obtain 
+
+g0 = 2ω − c
+
+2θ · e2( E− ω) − 11 − e−(2 ω−c) .
+
+The condition ω < E is ensures g0 > 0. To see this, observe that the (2 ω − c)/(1 − e−(2 ω−c)) term in g0 is of the form x/ (1 − e−x). This function is strictly positive for all x̸ = 0 . Therefore, 
+
+ω < E ⇒ 2( E − ω) > 0 ⇒ g0 ∝ e2( E− ω) − 1 > 0.
+
+The condition c ≥ 2E is described next. Evaluating g′(t) and substituting for the inequality g′(t) ≥
+
+0, we obtain 
+
+2θg 0 + 2 ω − c ≤ 0.
+
+Substituting the expression for g0, this inequality becomes 
+
+2ω − c
+
+1 − e−(2 ω−c)
+
+h
+
+e2( E− ω) − e−(2 ω−c)i
+
+≤ 0.
+
+As established earlier, the first term in the parentheses is strictly positive for 2ω̸ = c and we have 
+
+e2( E− ω) − e−(2 ω−c) ≤ 0 ⇔ e2( E− ω) ≤ ec−2ω .
+
+This is equivalent to the requirement c ≥ 2E, which in turn is γ ≥ 2E/λ ∗.As established in Theorem 2 and discussed in Section D.3, the signal’s decay rate λ∗ defined in (26) must scale dynamically with the number of discretization steps (i.e., the Neural Function Evaluation or NFE budget) to optimally balance the initialization and discretization errors. To operational-ize this theory, we define the parameters so that they scale adaptively with n. Specifically, we parametrize the base decay rate using the Lambert-W function as dictated by our optimal trajectory analysis, and couple the remaining variables to this rate: 
+
+λn = W (Kn ) , En = λn
+
+2 , cn = γλ n, (103) where K and γ act as “learnable” or tunable problem constants that depend on the intrinsic Fisher information and condition number of the unknown data distribution p⋆. By selecting structural vari-ables θ and ω, and tuning K and γ, the target energy En and constant cn are dynamically determined for any chosen NFE budget n. Proposition 5 then fixes the final parameter g0.
+
+G.2 Experimental Details 
+
+All generation experiments in this section were initialized with X← 
+
+> 0
+
+∼ N (0 , σ 2 
+
+> T
+
+). In this setup, we utilize a pre-trained score function [26] as the reference checkpoint, utilizing the statistical equiva-lence described in Section B.1. To strictly align the empirical evaluation with our theoretical anal-ysis, generation was performed using a custom implementation of the EI sampler that exactly in-tegrates the linear drift of the analyzed SDEs. Generation quality was evaluated by computing the FID score using 50k generated samples. For CIFAR-10, the 50k real images were acquired from the CIFAR-10 training set as is standard in the cleanfid library we used to evaluate CIFAR-10 FID scores. For ImageNet experiments, we evaluated performance against the pre-computed statistics reported by Karras et al. [26] using the pre-processing code provided by the authors. Hyperparameters for all four schedules were tuned under an identical computational budget: 120 trials utilizing the Tree-structured Parzen Estimator (TPE) sampler in Optuna [1] on a NVIDIA H200 Grace Hopper Superchip with a warmup phase of 25 trials, over the search space defined in Table 2. The optimization objective was to minimize the average Fr´ echet Inception Distance (FID, measured on 10k generated samples) evaluated at NFE 10 and NFE 50. Trials were pruned early if the performance at NFE=10 was low relative to prior trials, and the tuning trials were run on a high performance cluster with at most 8 concurrent jobs to ensure accurate tuning. Because the TPE 35 Table 2: Hyperparameters used for CIFAR-10 experiments. The values chosen from the tuning phase are rounded up to 3rd floating point decimals. Schedule Parameter Search Space CIFAR-10 ImageNet Linear βmin [10 −4, 10 −3] 7.58 · 10 −4 1.46 · 10 −4
+
+βmax [10 −2, 50] 9.002 11 .356 
+
+Cosine s [10 −3, 5 · 10 −2] 0.001 0.001 
+
+Sigmoid θmin [−5, −1] −4.105 −2.570 
+
+θmax [1 , 5] 4.243 4.505 
+
+τsig [0 .5, 2] 0.834 0.743 
+
+ACS K [0 .01 , 10 2] 37 .323 24 .359 
+
+γ [1 , 10 2] 1.997 2.164 
+
+θ [10 −3, 1] 0.564 0.159 
+
+ρ := ω/ En [0 , 0.99] 0.178 0.430 
+
+sampler requires a static hyperparameter search space acorss trials, we accomodate the dynamic boundary constraint ω < En from Proposition 5 by introducing a static fractional hyperparameter 
+
+ρ ∈ (0 , 1) and setting ω = ρEn.We plot in Section G.2 the schedules (f (t), g (t)) and in Section G.2 (αt, σ t) color-coded by (red) 
+
+N = 20 worst and (blue) highest performing schedules throughout the hyperparameter search. The figure illustrates how high-performant parameters give rise to schedules (f, g ) which start to increase at time t0 that is neither too small or large. 0.0 0.2 0.4 0.6 0.8 1.0Time t                     
+
+> 0
+> 5
+> 10
+> 15
+> 20
+> f (t)
+> 0.00.20.40.60.81.0Time t
+> 0
+> 20
+> 40
+> 60
+> 80
+> 100
+> g(t)
+> Low FID High FID 0.00.20.40.60.81.0Time t
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> α(t)
+> 0.00.20.40.60.81.0Time t
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> σ(t)
+> Low FID High FID Low FID High FID
+
+Figure 1: Comparison of noise schedules for the N = 20 top (Low FID, blue) and bottom (High FID, red) parameter sets. Darker regions indicate high-density paths where multiple trials overlap. 36 Table 3: Sample standard deviations of FID scores for different noise schedules across various NFEs. Dataset CIFAR10 ImageNet NFE 10 20 30 40 50 10 20 30 40 50 Linear [23] 0.05 0.08 0.06 0.02 0.12 0.20 0.07 0.06 0.08 0.07 Cosine [30] 0.05 0.15 0.08 0.11 0.04 0.11 0.07 0.03 0.05 0.07 Sigmoid [13] 0.07 0.09 0.10 0.07 0.07 0.18 0.07 0.02 0.04 0.05 ACS 0.10 0.08 0.07 0.04 0.09 0.20 0.06 0.07 0.01 0.06 The standard deviation accompanying Table 1 is reported in Table 3. Note that the average FID scores in Table 1 are lower for ImageNet than for CIFAR-10, which is an expected consequence of utilizing a class-conditional model for the former and an unconditional model for the latter. A comparison of 64 × 64 ImageNet images sampled using each of the schedules is included in Figure 2. To provide a standardized qualitative assessment of each schedule, we used 
+
+Gemini 3.1 Pro Preview as a judge to assess the ranking of the highest-to-lowest quality im-ages using the following prompt: 
+
+LLM Assessment Prompt 
+
+Act as an expert in image synthesis. Evaluate the attached images generated by different diffu-sion models based on the criteria: photorealism and absence of artifacts. Rank the models from best to worst and provide a concise justification for each rank. We attached the grid images in order listed in Tables 1 and 3, and we did not provide the names of the schedules. 
+
+LLM Qualitative Assessment 
+
+Based on the criteria of photorealism and the absence of artifacts (such as anatomical warping, “melting” textures, and incoherent subject matter), here is the ranking: 
+
+1. Best: Image 4 (ACS) 
+
+This model demonstrates the highest level of structural integrity and photorealism. The ani-mals (birds, frogs, reptiles) consistently feature anatomically correct proportions, sharp textures (feathers, scales), and realistic lighting. While minor artifacts exist in highly complex scenes (like human hands), it has the fewest severe hallucinations and produces distinct, recognizable subjects across almost all panels. 
+
+2. Second Best: Image 1 (Linear) 
+
+This model produces generally passable results but struggles significantly more with coherence than Image 4. Artifacts are noticeable upon closer inspection; for example, snakes appear as disjointed floating segments, and human hands/faces interacting with animals are heavily distorted or melted. It achieves decent textures but fails on complex anatomical structures. 
+
+3. Third Place: Image 3 (Sigmoid) 
+
+This model suffers from severe ”melting” and blending artifacts. When generating limbs, hands, or complex shapes (such as the person in the top right or the creatures in row 5), the geome-try collapses into unnatural, fleshy blobs. While the color palettes and lighting are somewhat realistic, the structural failure of the subjects makes them highly unrealistic. 
+
+4. Worst: Image 2 (Cosine) 
+
+This model exhibits the most severe failures in both photorealism and coherence. Many panels do not resemble identifiable subjects, resulting in abstract, morphed, or heavily glitched outputs (e.g., the white mass in row 2, the blue blob in row 4, or the severely mangled human figures). The generation frequently breaks down into unrecognizable textures and shapes. 
+
+37 (a) VP-Linear (b) VP-Cosine  
+
+> (c) VP-Sigmoid (d) ACS
+
+Figure 2: Comparison of 64 × 64 samples generated using four different noise schedules. 38 (a) VP-Linear (b) VP-Cosine  
+
+> (c) VP-Sigmoid (d) ACS
+
+Figure 3: ImageNet samples conditioned on “flamingo”, “sports car”, “balloon”, “lemon”, “kite”, “castle”, “valley”. 39 G.3 Constant Noise Schedules Achieve Poor Trade-Offs 
+
+A VP-constant schedule can be obtained from Proposition 1 by setting 
+
+θ = 0 , 2ω = c, g0 = c, 
+
+which implies f = ω, g = 2 ω. Because c = g0 ≈ E /T is necessarily a constant for the VP-constant schedule, it is forced to maintain a high diffusion rate across the reverse process. We proved in Proposition 4 and (97) that constant noise schedules are highly sensitive to the specific choice of constant. The bound shows that the discretization error bound scales linearly with the data conditioning parameter as O(EJ ⋆/d ). When the target distribution is highly anisotropic, this linear penalty results in a large discretization error unless extremely small step sizes are used. Here we demonstrate through numerical experiments that the bound in (97) accurately describes the severity. Figure 4 illustrates the sampling error suffered by the VP-constant schedule. For these experiments, we set T = 1 and sweeped through the constant schedules f = E and g = 2 E over various values of E. The plots were generated in d = 2 dimensions with n = 100 discretization steps. Figure 4 illustrates the sensitivity of constant noise schedules when generating an anisotropic 
+
+Figure 4: KL divergence curves and generated 2σ covariance ellipses illustrating the sensitivity of constant noise schedules ( f = E, g = 2 E) to parameters of the target Gaussian distribution. The leftmost panel plots the true initialization error and the true empirical sampling error (as opposed to upper bounds), confirming that success is bottlenecked by the sensitivity with respect to E.2D Gaussian target distribution (variances m = 0 .01 , M = 1 ). The leftmost panel plots the KL divergence alongside the initialization error as a function of the scaling constant E. The initialization error in the leftmost panel of Figure 4 is the true initialization error KL( pT ∥N (0 , σ 2 
+
+> T
+
+I)) . The total sampling error exhibits a U-shaped profile, precisely validating the quadratic dependence on 
+
+E in (97). For small values of E, the forward process lacks sufficient energy to reach the standard Gaussian prior, and the total error is heavily dominated by the initialization mismatch (dashed blue line). The three rightmost panels provide a visualization of these distinct regimes by comparing the 2σ
+
+covariance ellipses of the generated distributions (dashed blue) against the true target (solid red). When E is poorly scaled, the reverse process suffers from large initialization error when E is small or large discretization error when E is large. These empirical results highlight the danger of utilizing data-agnostic constant schedules in practice. A practitioner must guess the parameter E within a remarkably narrow window dictated by the intrinsic Fisher information and condition number of the data distribution. A slight mis-estimation forces the sampler into catastrophic failure. 40

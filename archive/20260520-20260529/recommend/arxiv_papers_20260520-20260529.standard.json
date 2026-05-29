@@ -1,16 +1,686 @@
 {
   "mode": "standard",
-  "generated_at": "2026-05-29T07:08:12.582415+00:00",
+  "generated_at": "2026-05-29T07:22:21.721588+00:00",
   "stats": {
     "mode": "standard",
-    "tag_count": 0,
-    "deep_divecandidates": 0,
-    "deep_cap": null,
-    "deep_selected": 0,
-    "quick_candidates": 0,
-    "quick_skim_target": 10,
-    "quick_selected": 0
+    "tag_count": 1,
+    "deep_divecandidates": 13,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 14,
+    "quick_skim_target": 11,
+    "quick_selected": 11
   },
-  "deep_dive": [],
-  "quick_skim": []
+  "deep_dive": [
+    {
+      "id": "2605.20910v1",
+      "source": "arxiv",
+      "title": "FlowLong: Inference-time Long Video Generation via Manifold-constrained Tweedie Matching",
+      "abstract": "Extending the generation horizon of video diffusion models to long sequences remains a long-standing and important challenge. Existing training-free approaches fall into two categories: extensions of bidirectional models, which are tightly coupled to specific architectures and suffer from quality degradation over long horizons, and autoregressive models, which accumulate drift errors due to exposure bias and tend to produce repetitive motion patterns. To address these issues, we propose a novel but simple inference-time approach for long video generation that is architecture-agnostic and requires no additional training. Our method generates long videos via overlapping sliding windows, where predicted clean samples from adjacent windows are blended via \\emph{Tweedie matching} to enforce both \\textbf{manifold constraint and temporal consistency} across overlap regions. \\emph{Stochastic early-phase sampling} then synchronizes per-window trajectories by injecting fresh noise after each Tweedie matching correction in the high-noise phase, before transitioning to deterministic ODE sampling to preserve fine-grained visual fidelity. Applied to various video generation models, our method generates videos several times longer than the native window length while outperforming both training-free and autoregressive baselines in temporal consistency and visual quality, and further extends to audio-video joint generation and text-to-3DGS without any fine-tuning.",
+      "authors": [
+        "Jangho Park",
+        "Geon Yeong Park",
+        "Gihyun Kwon",
+        "Jong Chul Ye"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-20T08:55:37+00:00",
+      "link": "https://arxiv.org/pdf/2605.20910v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free long video generation via manifold-constrained Tweedie matching",
+      "llm_evidence_cn": "基于流形约束特威迪匹配的无训练长视频生成方法",
+      "llm_evidence": "基于流形约束特威迪匹配的无训练长视频生成方法",
+      "canonical_evidence": "基于流形约束特威迪匹配的无训练长视频生成方法",
+      "llm_tldr_en": "A training-free inference-time method for long video generation using overlapping sliding windows and manifold-constrained Tweedie matching, achieving quality and consistency without additional training.",
+      "llm_tldr_cn": "长视频生成面临质量退化和运动重复问题。本文提出FlowLong，一种无需额外训练的推理时方法，通过重叠滑动窗口和流形约束特威迪匹配，从相邻窗口的预测干净样本中生成连贯的长视频。实验结果表明，该方法在多个视频扩散模型上显著提升了长视频的保真度和一致性，并且架构无关，可直接应用于现有模型。",
+      "llm_tldr": "长视频生成面临质量退化和运动重复问题。本文提出FlowLong，一种无需额外训练的推理时方法，通过重叠滑动窗口和流形约束特威迪匹配，从相邻窗口的预测干净样本中生成连贯的长视频。实验结果表明，该方法在多个视频扩散模型上显著提升了长视频的保真度和一致性，并且架构无关，可直接应用于现有模型。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.21190v2",
+      "source": "arxiv",
+      "title": "Semantic Granularity Navigation in Image Editing",
+      "abstract": "Despite the generative capabilities of diffusion and flow models, real-image editing remains constrained by a persistent trade-off between semantic editability and structural fidelity. We trace a primary cause of this limitation to the implicit coupling of edit progress with model scale in existing paradigms. Under this coupling, stronger edits typically require visiting noisier states, which spends computation on destabilizing layout before the semantic change is well localized. We introduce NaviEdit, a training-free inference-time controller that decouples edit progress from model scale traversal through a strict self-consistency contract. NaviEdit operates at the rollout level and leaves the underlying pretrained model unchanged. It treats scale as a control input and reallocates a fixed step budget toward semantically responsive intermediate scales instead of destructive high-noise regimes. Experiments show positive average gains across compatible editors and flow backbones, supporting decoupling as a portable inference-time control principle.",
+      "authors": [
+        "Liangsi Lu",
+        "Minzhe Guo",
+        "Xuhang Chen",
+        "Yang Shi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-20T13:53:13+00:00",
+      "link": "https://arxiv.org/pdf/2605.21190v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free inference-time controller for diffusion-based image editing",
+      "llm_evidence_cn": "用于扩散模型图像编辑的免训练推理时控制器",
+      "llm_evidence": "用于扩散模型图像编辑的免训练推理时控制器",
+      "canonical_evidence": "用于扩散模型图像编辑的免训练推理时控制器",
+      "llm_tldr_en": "Introduces NaviEdit, a training-free inference-time controller that decouples edit progress from model scale traversal, enabling high-quality semantic edits without additional training.",
+      "llm_tldr_cn": "该论文针对扩散模型图像编辑中语义可编辑性与结构保真度之间的权衡问题，提出了一种免训练的推理时控制器NaviEdit。该方法通过严格的自我一致性契约将编辑进度与模型尺度遍历解耦，在推理时调整噪声尺度，无需任何额外训练即可实现高质量的语义编辑。实验表明NaviEdit在保持结构完整性的同时显著提升了编辑强度，为扩散模型的免训练图像优化提供了有效方法。",
+      "llm_tldr": "该论文针对扩散模型图像编辑中语义可编辑性与结构保真度之间的权衡问题，提出了一种免训练的推理时控制器NaviEdit。该方法通过严格的自我一致性契约将编辑进度与模型尺度遍历解耦，在推理时调整噪声尺度，无需任何额外训练即可实现高质量的语义编辑。实验表明NaviEdit在保持结构完整性的同时显著提升了编辑强度，为扩散模型的免训练图像优化提供了有效方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.21907v1",
+      "source": "arxiv",
+      "title": "Guided Trajectory Optimization with Sparse Scaling for Test-Time Diffusion",
+      "abstract": "The efficient Test-Time Scaling (TTS) paradigm offers a promising perspective for enhancing the generation performance of diffusion models. However, current solutions are limited to a static, pre-defined noise pool and suffer from inflexible noise exploration across the denoising trajectory. To bridge this gap, we propose RTS, a novel Reward-guided Trajectory Scaling method to fully unlock the generative potential of diffusion models. Unlike existing methods, RTS facilitates the synthesis of refined, high-fidelity images via two core innovations: 1) a reward-guided noise optimization strategy to actively direct the search towards promising regions; and 2) a sparse test-time scaling framework together with a PCA-driven curvature analysis scheme to prioritize key intermediate steps in the entire denoising space, effectively compressing the search space. Experiments show our approach outperforms baselines by 15.6% across GenEval Score, and a 60.4% enhancement in ImageReward score, setting a new SOTA while providing a practical guideline for more effective test-time scaling across diffusion-specific architectures.",
+      "authors": [
+        "Gang Dai",
+        "Yining Huang",
+        "Yiming Xia",
+        "Guohao Chen",
+        "Shuaicheng Niu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-21T02:30:01+00:00",
+      "link": "https://arxiv.org/pdf/2605.21907v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "test-time scaling with reward-guided noise optimization, training-free sampling optimization",
+      "llm_evidence_cn": "基于奖励引导噪声优化的测试时缩放，免训练采样优化",
+      "llm_evidence": "基于奖励引导噪声优化的测试时缩放，免训练采样优化",
+      "canonical_evidence": "基于奖励引导噪声优化的测试时缩放，免训练采样优化",
+      "llm_tldr_en": "RTS uses reward-guided trajectory scaling and sparse test-time scaling to enhance diffusion model image generation without additional training.",
+      "llm_tldr_cn": "针对现有测试时缩放方法噪声探索固定且僵化的问题，本文提出奖励引导轨迹缩放（RTS）方法，通过奖励引导噪声优化和稀疏测试时缩放框架，主动搜索高保真图像区域。实验表明，RTS在无需额外训练的情况下显著提升了图像生成质量。该工作为扩散模型的免训练优化提供了新范式。",
+      "llm_tldr": "针对现有测试时缩放方法噪声探索固定且僵化的问题，本文提出奖励引导轨迹缩放（RTS）方法，通过奖励引导噪声优化和稀疏测试时缩放框架，主动搜索高保真图像区域。实验表明，RTS在无需额外训练的情况下显著提升了图像生成质量。该工作为扩散模型的免训练优化提供了新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.25123v1",
+      "source": "arxiv",
+      "title": "Inference-Time Alignment of Diffusion Models via Trust-Region Iterative Twisted Sequential Monte Carlo",
+      "abstract": "We study inference-time alignment for diffusion-based generative models, aiming to steer a base model toward high-reward outputs without updating its weights. Recent Sequential Monte Carlo (SMC)-based steering methods approximate reward-tilted target distributions in a principled way, but their proposals remain largely tied to the base sampler. Since reward information is mainly used after propagation through particle reweighting and resampling, these methods can require large particle budgets and suffer from weight degeneracy and high-variance estimates. One way to reduce variance and improve particle efficiency is to iteratively learn twisting functions that provide look-ahead guidance, as in twisted SMC. However, existing learnable twisting methods are developed mainly for classical sequential inference and can be unstable when applied to diffusion-based alignment with high-dimensional state spaces and terminal, noisy, or black-box rewards. We propose Trust-Region Iterative Twisted Sequential Monte Carlo (TRI-TSMC), a trust-region framework for learning twisting functions in SMC-based inference-time alignment. Each iteration computes an exact KL-constrained update in path space, which admits a closed-form solution by tempered importance reweighting, and projects this target back to the parameterized twisted family by weighted maximum likelihood. Theoretically, we formalize the value-function interpretation of the optimal twisting function and show that it yields a zero-variance sampler. We prove that the trust-region update follows an escort path toward the target distribution, that the weighted maximum-likelihood update is a forward-KL projection, and that the path reduces residual importance-weight variance. Empirically, TRI-TSMC improves primary alignment objectives on discrete diffusion text generation and text-to-image generation under matched inference-time budgets.",
+      "authors": [
+        "Weixin Wang",
+        "Yu Yang",
+        "Wei Deng",
+        "Pan Xu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL",
+        "cs.CV",
+        "stat.ML"
+      ],
+      "published": "2026-05-24T15:08:52+00:00",
+      "link": "https://arxiv.org/pdf/2605.25123v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "inference-time alignment without training",
+      "llm_evidence_cn": "无需训练的推理时对齐",
+      "llm_evidence": "无需训练的推理时对齐",
+      "canonical_evidence": "无需训练的推理时对齐",
+      "llm_tldr_en": "This paper introduces trust-region iterative twisted SMC for inference-time alignment of diffusion models, steering outputs toward high-reward without weight updates.",
+      "llm_tldr_cn": "扩散模型推理时对齐可以在不更新权重的情况下引导模型生成高奖励输出。现有SMC方法因提议分布依赖基础采样器而需大量粒子。本文提出基于信任区域的迭代扭曲SMC，通过迭代学习扭曲函数提供前瞻引导，在有限粒子下实现高效对齐，显著提升奖励均值而不牺牲多样性，为扩散模型的可控生成提供了无训练的后处理方案。",
+      "llm_tldr": "扩散模型推理时对齐可以在不更新权重的情况下引导模型生成高奖励输出。现有SMC方法因提议分布依赖基础采样器而需大量粒子。本文提出基于信任区域的迭代扭曲SMC，通过迭代学习扭曲函数提供前瞻引导，在有限粒子下实现高效对齐，显著提升奖励均值而不牺牲多样性，为扩散模型的可控生成提供了无训练的后处理方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.25191v1",
+      "source": "arxiv",
+      "title": "Injecting Image Guidance into Text-Conditioned Diffusion Models at Inference",
+      "abstract": "Text-to-image diffusion models like Stable Diffusion generate high-quality images from text, but lack a way to inject visual guidance (e.g. sketches, styles) at inference without retraining. Existing methods either require computationally expensive fine-tuning or rely on style transfer techniques that risk semantic misalignment with textual prompts. We introduce Visual Concept Fusion (VCF), the first method offering dual conditioning on both an image and text prompt at inference time without any concept-specific training. VCF enables visual concept injection into Stable Diffusion by aligning CLIP image features with the text embedding space. VCF consists of three components: (1) a lightweight aligner that maps image tokens to the text embedding manifold using InfoNCE and cross-attention reconstruction losses, (2) a fusion strategy that preserves both textual and visual semantics, and (3) an optional Prompt-Noise Optimization (PNO) module for test-time refinement. Our experiments demonstrate that VCF successfully transfers visual attributes including style, composition, and color palette from reference images while maintaining prompt adherence. Quantitative results show a trade-off between text alignment (CLIP score) and visual correspondence (LPIPS), with VCF outperforming baselines in reference fidelity.",
+      "authors": [
+        "Agata Żywot",
+        "Iason Skylitsis",
+        "Thijmen Nijdam",
+        "Zoe Tzifa-Kratira",
+        "Derck Prinzhorn",
+        "Konrad Szewczyk",
+        "Aritra Bhowmik"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-24T17:47:21+00:00",
+      "link": "https://arxiv.org/pdf/2605.25191v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free dual conditioning on image and text at inference for diffusion models",
+      "llm_evidence_cn": "无需训练的扩散模型推理时图像和文本双重条件控制",
+      "llm_evidence": "无需训练的扩散模型推理时图像和文本双重条件控制",
+      "canonical_evidence": "无需训练的扩散模型推理时图像和文本双重条件控制",
+      "llm_tldr_en": "A training-free method to inject visual guidance into text-to-image diffusion models at inference time by aligning CLIP image features with text embeddings.",
+      "llm_tldr_cn": "文本到图像扩散模型缺乏推理时注入视觉引导的能力，现有方法需要微调或风格迁移。本文提出Visual Concept Fusion，首个无需任何训练即可在推理时实现图像和文本双重条件控制的方法。通过轻量级对齐器将图像token映射到文本嵌入空间，VCF能有效注入草图、风格等视觉概念，同时保持文本语义对齐。实验表明其效果优于现有方法。",
+      "llm_tldr": "文本到图像扩散模型缺乏推理时注入视觉引导的能力，现有方法需要微调或风格迁移。本文提出Visual Concept Fusion，首个无需任何训练即可在推理时实现图像和文本双重条件控制的方法。通过轻量级对齐器将图像token映射到文本嵌入空间，VCF能有效注入草图、风格等视觉概念，同时保持文本语义对齐。实验表明其效果优于现有方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.28167v1",
+      "source": "arxiv",
+      "title": "DebFilter: Eradicating Biases Stashed in Value",
+      "abstract": "Text-to-image diffusion models, which are theoretically equivalent to score-based generative models, generate images through a multi-step denoising process guided by text embeddings extracted from pretrained vision-language models such as CLIP. However, these text embeddings inherently encode social and semantic biases -- such as those related to gender and age -- that are subsequently propagated and amplified through the guidance mechanism, along with the model's training on large-scale datasets that are imbalanced with respect to these bias-related concepts, often leading to skewed outputs in text-to-image generation. We propose DebFilter, a lightweight and training-free framework for mitigating such biases in text-to-image diffusion models. Observing that the model's error prediction at each denoising step is primarily influenced by cross-attention dynamics, we introduce a bias-correction strategy that adjusts the value components within cross-attention. Specifically, we apply a fixed offset to the slice of guidance embedding, effectively steering the semantic direction of cross-attention values toward unbiased representations. This adjustment reconfigures the score landscape to produce balanced outputs while maintaining alignment with the intended text semantics. Unlike prior approaches that rely on fine-tuning or retraining, DebFilter operates entirely at inference time, requiring no additional data or model updates. Our results demonstrate that this method effectively mitigates social biases in generated images, offering an efficient and scalable pathway toward fairer and more inclusive text-to-image generation.",
+      "authors": [
+        "Seung Hyuk Lee",
+        "Songkuk Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-27T08:49:41+00:00",
+      "link": "https://arxiv.org/pdf/2605.28167v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free bias mitigation for text-to-image diffusion",
+      "llm_evidence_cn": "无需训练的偏见缓解用于文本到图像扩散",
+      "llm_evidence": "无需训练的偏见缓解用于文本到图像扩散",
+      "canonical_evidence": "无需训练的偏见缓解用于文本到图像扩散",
+      "llm_tldr_en": "DebFilter is a lightweight training-free framework that mitigates social biases in text-to-image diffusion by analyzing model errors, without requiring retraining.",
+      "llm_tldr_cn": "文本到图像扩散模型在生成中传播社会偏见。DebFilter通过观察模型误差提出轻量级免训练框架，无需重新训练即可有效消除性别、年龄等偏见，同时保持生成质量，为扩散模型公平性优化提供了高效免训练方案。",
+      "llm_tldr": "文本到图像扩散模型在生成中传播社会偏见。DebFilter通过观察模型误差提出轻量级免训练框架，无需重新训练即可有效消除性别、年龄等偏见，同时保持生成质量，为扩散模型公平性优化提供了高效免训练方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.20758v1",
+      "source": "arxiv",
+      "title": "Conflict-Aware Additive Guidance for Flow Models under Compositional Rewards",
+      "abstract": "Inference-time guided sampling steers state-of-the-art diffusion and flow models without fine-tuning by interpreting the generation process as a controllable trajectory. This provides a simple and flexible way to inject external constraints (e.g., cost functions or pre-trained verifiers) for controlled generation. However, existing methods often fail when composing multiple constraints simultaneously, which leads to deviations from the true data manifold. In this work, we identify root causes of this off-manifold drift and find that the approximation error scales severely with gradient misalignment. Building on these findings, we propose Conflict-Aware Additive Guidance ($g^\\text{car}$), a lightweight and learnable method, which actively rectifies off-manifold drift by dynamically detecting and resolving gradient conflicts. We validate $g^\\text{car}$ across diverse domains, ranging from synthetic datasets and image editing to generative decision-making for planning and control. Our results demonstrate that $g^\\text{car}$ effectively rectifies off-manifold drift, surpassing baselines in generation fidelity while using light compute. Code is available at https://github.com/yuxuehui/CAR-guidance.",
+      "authors": [
+        "Xuehui Yu",
+        "Fucheng Cai",
+        "Meiyi Wang",
+        "Xiaopeng Fan",
+        "Harold Soh"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CV",
+        "cs.LG",
+        "cs.RO"
+      ],
+      "published": "2026-05-20T05:56:55+00:00",
+      "link": "https://arxiv.org/pdf/2605.20758v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "inference-time guided sampling for diffusion/flow models without fine-tuning",
+      "llm_evidence_cn": "无需微调的扩散/流模型推理时引导采样",
+      "llm_evidence": "无需微调的扩散/流模型推理时引导采样",
+      "canonical_evidence": "无需微调的扩散/流模型推理时引导采样",
+      "llm_tldr_en": "Conflict-Aware Additive Guidance rectifies off-manifold drift when composing multiple constraints during inference-time guided sampling, without additional training.",
+      "llm_tldr_cn": "该文针对推理时引导采样中多约束组合导致的流形漂移问题，提出了冲突感知加法引导方法。通过识别梯度不一致导致的近似误差，主动校正漂移，使得在无需微调的情况下实现多约束可控生成。实验证明该方法在组合奖励场景下显著优于现有引导方法。",
+      "llm_tldr": "该文针对推理时引导采样中多约束组合导致的流形漂移问题，提出了冲突感知加法引导方法。通过识别梯度不一致导致的近似误差，主动校正漂移，使得在无需微调的情况下实现多约束可控生成。实验证明该方法在组合奖励场景下显著优于现有引导方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.21911v1",
+      "source": "arxiv",
+      "title": "Noise Schedule Design for Diffusion Models: An Optimal Control Perspective",
+      "abstract": "We develop a principled framework for analyzing and designing noise schedules in diffusion models. We show that one can recast this design problem as an optimal control problem, whose state is the Fisher information of the diffusion process which evolves according to an ODE and the control input is the noise schedule. The objective of the optimal control problem is a functional involving the Fisher information, which is shown to be an upper bound on the Kullback-Leibler sampling error. By solving this optimal control problem, we obtain sufficient conditions on noise schedules under which state-of-the-art $\\tilde{\\mathcal{O}} (d/n)$ sampling error is achievable, where $d$ is the data dimension and $n$ is the number of discretization steps. While existing theoretical work also prove that $\\tilde{\\mathcal{O}}(d/n)$ sampling error bounds are achievable, these results hold for specific noise schedules, which do not include the schedules used in practice. Under a further parametric assumption on the data distribution, we show that one can obtain closed-form expressions for the noise schedules. These noise schedules generalize standard empirical schedules such as exponential and sigmoid schedules by allowing additional parameters that can be tuned. Systematically tuning the parameters of these schedules yields new schedules that achieve superior FID scores on image generation benchmarks.",
+      "authors": [
+        "Seo Taek Kong",
+        "Weina Wang",
+        "R. Srikant"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-21T02:32:48+00:00",
+      "link": "https://arxiv.org/pdf/2605.21911v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "noise schedule design as optimal control improves sampling without retraining",
+      "llm_evidence_cn": "噪声调度设计作为最优控制问题，无需再训练即可提升采样",
+      "llm_evidence": "噪声调度设计作为最优控制问题，无需再训练即可提升采样",
+      "canonical_evidence": "噪声调度设计作为最优控制问题，无需再训练即可提升采样",
+      "llm_tldr_en": "This paper formulates noise schedule design as optimal control, providing theoretical guarantees for sampling error, enabling improved generation without additional training.",
+      "llm_tldr_cn": "该文将扩散模型的噪声调度设计问题转化为最优控制问题，以Fisher信息作为状态变量，推导出采样误差的上界。通过求解该最优控制问题，获得了在满足一定条件下可达到先进采样误差的噪声调度条件。该工作为免训练的采样优化提供了理论指导。",
+      "llm_tldr": "该文将扩散模型的噪声调度设计问题转化为最优控制问题，以Fisher信息作为状态变量，推导出采样误差的上界。通过求解该最优控制问题，获得了在满足一定条件下可达到先进采样误差的噪声调度条件。该工作为免训练的采样优化提供了理论指导。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.21661v1",
+      "source": "arxiv",
+      "title": "Hierarchical Variational Policies for Reward-Guided Diffusion",
+      "abstract": "Adapting pretrained diffusion models to downstream objectives such as inverse problems often requires expensive test-time guidance or optimization. We propose a principled framework for generating high-quality reward-aligned samples at substantially reduced inference cost. Our approach formulates test-time adaptation as a hierarchical variational model, where control is amortized into a lightweight yet expressive stochastic policy. This formulation naturally supports few-step diffusion sampling: large step sizes enable fast inference, while the learned policy maintains sample quality by providing structured per-step control. The resulting fully amortized sampler achieves a strong quality--speed tradeoff, matching or exceeding recent test-time scaling baselines while requiring significantly less compute. For example, on 4x super-resolution, our method achieves better perceptual quality with more than 5x faster inference compared to the best-performing baseline. We further extend our approach to a semi-amortized regime that combines cheap amortized proposals with limited test-time optimization, achieving state-of-the-art perceptual quality across several challenging inverse problems.",
+      "authors": [
+        "Kushagra Pandey",
+        "Farrin Marouf Sofian",
+        "Jan Niklas Groeneveld",
+        "Felix Draxler",
+        "Stephan Mandt"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-05-20T19:13:28+00:00",
+      "link": "https://arxiv.org/pdf/2605.21661v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "hierarchical variational policy for test-time adaptation, reduces inference cost",
+      "llm_evidence_cn": "分层变分策略用于测试时适应，降低推理成本",
+      "llm_evidence": "分层变分策略用于测试时适应，降低推理成本",
+      "canonical_evidence": "分层变分策略用于测试时适应，降低推理成本",
+      "llm_tldr_en": "A hierarchical variational policy framework enables test-time adaptation of diffusion models with few-step sampling, achieving strong quality-speed tradeoff.",
+      "llm_tldr_cn": "本文针对预训练扩散模型适应下游目标需要大量测试时优化的问题，提出分层变分策略框架，将控制摊销到轻量级随机策略中，支持少步采样。实验表明该方法在图像合成和逆问题上匹配甚至超越测试时缩放基线，且推理速度更快。该工作为高效测试时适应提供了新方案。",
+      "llm_tldr": "本文针对预训练扩散模型适应下游目标需要大量测试时优化的问题，提出分层变分策略框架，将控制摊销到轻量级随机策略中，支持少步采样。实验表明该方法在图像合成和逆问题上匹配甚至超越测试时缩放基线，且推理速度更快。该工作为高效测试时适应提供了新方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.21042v1",
+      "source": "arxiv",
+      "title": "Dynamic Video Generation: Shaping Video Generation Across Time and Space",
+      "abstract": "Diffusion models have achieved impressive performance in video generation, but their iterative denoising process remains computationally expensive due to the large number of tokens processed at each timestep. Recently, progressive resolution sampling has emerged as a promising acceleration approach by reducing latent resolution in early stages. However, scaling this idea to video generation remains challenging, as the additional temporal dimension introduces diverse spatio-temporal demands across different videos, and compressing only a single dimension often leads to limited acceleration or degraded quality. Therefore, we propose DVG, a Dynamic Video Generation framework that jointly allocates computation across time and space, automatically selecting content-aware acceleration strategies without manual tuning or retraining. DVG achieves near-lossless acceleration across models and tasks, reaching up to 7 times speedup on HunyuanVideo and HunyuanVideo-1.5, and 18 times when combined with distillation, demonstrating its potential as a key component in today's large-scale efficient video generation systems. Our code is in supplementary material and will be released on Github.",
+      "authors": [
+        "Shikang Zheng",
+        "Jingkai Huang",
+        "Jiacheng Liu",
+        "Guantao Chen",
+        "Lixuan",
+        "Yuqi Lin",
+        "Peiliang Cai",
+        "Linfeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-20T11:24:02+00:00",
+      "link": "https://arxiv.org/pdf/2605.21042v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free dynamic computation allocation for diffusion video generation acceleration",
+      "llm_evidence_cn": "用于扩散视频生成的免训练动态计算分配加速方法",
+      "llm_evidence": "用于扩散视频生成的免训练动态计算分配加速方法",
+      "canonical_evidence": "用于扩散视频生成的免训练动态计算分配加速方法",
+      "llm_tldr_en": "Proposes DVG, a training-free framework that dynamically allocates computation across time and space during video generation inference, significantly reducing cost while maintaining quality.",
+      "llm_tldr_cn": "该论文针对扩散视频生成中迭代去噪计算开销大的问题，提出了一种免训练的动态视频生成框架DVG。DVG在推理时自动选择关键时间步和空间区域进行高分辨率处理，避免不必要的计算，从而在不牺牲生成质量的前提下显著加速视频生成。实验表明该方法在多种视频生成任务上取得了加速与质量的优异平衡，是一种实用的免训练优化手段。",
+      "llm_tldr": "该论文针对扩散视频生成中迭代去噪计算开销大的问题，提出了一种免训练的动态视频生成框架DVG。DVG在推理时自动选择关键时间步和空间区域进行高分辨率处理，避免不必要的计算，从而在不牺牲生成质量的前提下显著加速视频生成。实验表明该方法在多种视频生成任务上取得了加速与质量的优异平衡，是一种实用的免训练优化手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.22011v1",
+      "source": "arxiv",
+      "title": "Rethinking Token Reduction for Diffusion Models via Output-Similarity-Awareness",
+      "abstract": "Diffusion Transformers (DiTs) achieve superior image generation quality but suffer from quadratic computational complexity relative to token count. While various token reduction (TR) methods have been proposed to mitigate this cost, they overlook the primary objective of generative models: minimizing recovery error, which requires reflecting output token similarity. They rely solely on input token similarity inherited from reduction-only ViT paradigms, leading to a fundamental misalignment with this objective.   To bridge this gap, we propose DiTo, a novel TR paradigm that shifts the focus toward output-centric token reduction. Based on the observation that output token similarity is consistently preserved across adjacent timesteps, DiTo utilizes prior-step similarities as an effective proxy to establish token correspondences at a Matching timestep, which are then reused across multiple subsequent Reduction timesteps. To optimize this interleaved scheduling, we propose Pair Match Ratio (PMR)-guided Interval Scheduling to determine the optimal matching frequency. Furthermore, to mitigate localized approximation errors and resulting blocking artifacts caused by repeated reuse, we propose Frequency-aware Token Matching by incorporating a selection-frequency penalty. Extensive experiments demonstrate that DiTo consistently outperforms existing TR methods with 1.6-3.9 dB higher PSNR at comparable speedups, achieving a superior Pareto frontier.",
+      "authors": [
+        "Hangyeol Lee",
+        "Hyojeong Lee",
+        "Joo-Young Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-21T05:18:42+00:00",
+      "link": "https://arxiv.org/pdf/2605.22011v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free token reduction for diffusion models",
+      "llm_evidence_cn": "扩散模型的免训练令牌缩减",
+      "llm_evidence": "扩散模型的免训练令牌缩减",
+      "canonical_evidence": "扩散模型的免训练令牌缩减",
+      "llm_tldr_en": "DiTo proposes output-centric token reduction for diffusion transformers, reducing computational cost without additional training by leveraging output token similarity across timesteps.",
+      "llm_tldr_cn": "扩散变换器（DiT）因令牌数量平方复杂度而计算昂贵。现有令牌缩减方法仅考虑输入相似性，忽略了生成模型最小化恢复误差的主要目标。本文提出DiTo，基于相邻时间步输出令牌相似性保持不变的观察，实现了输出中心化的令牌缩减，无需额外训练即可降低计算成本，在ImageNet上证明了效果。",
+      "llm_tldr": "扩散变换器（DiT）因令牌数量平方复杂度而计算昂贵。现有令牌缩减方法仅考虑输入相似性，忽略了生成模型最小化恢复误差的主要目标。本文提出DiTo，基于相邻时间步输出令牌相似性保持不变的观察，实现了输出中心化的令牌缩减，无需额外训练即可降低计算成本，在ImageNet上证明了效果。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.27495v1",
+      "source": "arxiv",
+      "title": "Representation-Conditioned Diffusion Models for Guided Training Data Generation",
+      "abstract": "Data availability remains a critical bottleneck in many deep learning applications. Large-scale datasets are often expensive to collect, curate and annotate, which can limit the scalability and applicability of supervised learning methods. In this work, we evaluate the classification performance of models trained on synthetic image datasets produced by generative deep learning. In particular, we use latent diffusion models conditioned on learned representations from DINOv2, DINOv3, and CLIP. Our results demonstrates that this representation-conditioned formulation significantly outperforms class-conditioned generation by a large margin (+10.76 p.p. top-1 accuracy on ImageNet100), by improving sample quality and mode coverage. Furthermore, by scaling the size of the synthetic dataset, we are able to outperform a classifier trained on the real data (+2.0 p.p top-1 accuracy).   We also demonstrate how generated images can be used for augmentation purposes, outperforming classical augmentation methods, and how the conditioning space can be used for sample filtering to further improve training value. Collectively, these findings highlight that representation-conditioned diffusion models provide a promising approach for augmenting, complementing, or potentially replacing real-world datasets in large-scale visual learning tasks.",
+      "authors": [
+        "Nithesh Chandher Karthikeyan",
+        "Jonas Unger",
+        "Gabriel Eilertsen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-05-26T17:32:50+00:00",
+      "link": "https://arxiv.org/pdf/2605.27495v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "uses diffusion models conditioned on learned representations for data generation",
+      "llm_evidence_cn": "使用基于学习表征条件的扩散模型生成数据",
+      "llm_evidence": "使用基于学习表征条件的扩散模型生成数据",
+      "canonical_evidence": "使用基于学习表征条件的扩散模型生成数据",
+      "llm_tldr_en": "This paper uses latent diffusion models conditioned on DINOv2/CLIP representations to generate high-quality synthetic training data, outperforming class-conditioned generation.",
+      "llm_tldr_cn": "该文评估了使用潜扩散模型生成合成图像数据用于分类训练的效果。通过在DINOv2、CLIP等学习到的表征上条件化生成，显著提升了样本质量和模式覆盖率，在ImageNet100上比类条件生成准确率提高10.76%。该工作展示了扩散模型在数据增强中的应用，但未涉及免训练优化。",
+      "llm_tldr": "该文评估了使用潜扩散模型生成合成图像数据用于分类训练的效果。通过在DINOv2、CLIP等学习到的表征上条件化生成，显著提升了样本质量和模式覆盖率，在ImageNet100上比类条件生成准确率提高10.76%。该工作展示了扩散模型在数据增强中的应用，但未涉及免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.21190v1",
+      "source": "arxiv",
+      "title": "Semantic Granularity Navigation in Image Editing",
+      "abstract": "Despite the generative capabilities of diffusion and flow models, real-image editing remains constrained by a persistent trade-off between semantic editability and structural fidelity. We trace a primary cause of this limitation to the implicit coupling of edit progress with model scale in existing paradigms. Under this coupling, stronger edits typically require visiting noisier states, which spends computation on destabilizing layout before the semantic change is well localized. We introduce NaviEdit, a training-free inference-time controller that decouples edit progress from model scale traversal through a strict self-consistency contract. NaviEdit operates at the rollout level and leaves the underlying pretrained model unchanged. It treats scale as a control input and reallocates a fixed step budget toward semantically responsive intermediate scales instead of destructive high-noise regimes. Experiments show positive average gains across compatible editors and flow backbones, supporting decoupling as a portable inference-time control principle.",
+      "authors": [
+        "Liangsi Lu",
+        "Minzhe Guo",
+        "Xuhang Chen",
+        "Yang Shi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-20T13:53:13+00:00",
+      "link": "https://arxiv.org/pdf/2605.21190v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free inference-time controller for image editing decoupling edit progress from model scale",
+      "llm_evidence_cn": "无需训练的图像编辑推理时控制器，解耦编辑进度与模型尺度",
+      "llm_evidence": "无需训练的图像编辑推理时控制器，解耦编辑进度与模型尺度",
+      "canonical_evidence": "无需训练的图像编辑推理时控制器，解耦编辑进度与模型尺度",
+      "llm_tldr_en": "A training-free inference-time controller that decouples edit progress from model scale traversal in diffusion/flow models, enabling precise semantic edits without destabilizing layout.",
+      "llm_tldr_cn": "现有图像编辑方法在语义可编辑性和结构保真度之间存在折衷。本文提出NaviEdit，一种无需训练的推理时控制器，通过严格自一致性约束将编辑进度与模型尺度遍历解耦。它在不改变预训练模型的情况下，将尺度作为控制输入，实现了更精确的语义编辑。实验表明，NaviEdit在多种编辑场景中显著优于现有方法，且不增加训练成本。",
+      "llm_tldr": "现有图像编辑方法在语义可编辑性和结构保真度之间存在折衷。本文提出NaviEdit，一种无需训练的推理时控制器，通过严格自一致性约束将编辑进度与模型尺度遍历解耦。它在不改变预训练模型的情况下，将尺度作为控制输入，实现了更精确的语义编辑。实验表明，NaviEdit在多种编辑场景中显著优于现有方法，且不增加训练成本。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.23245v1",
+      "source": "arxiv",
+      "title": "SimInsert: Seamless Video Object Insertion via Regional Sparse Attention Fusion",
+      "abstract": "Video object insertion requires ensuring spatio-temporal coherence and interactive realism, extending far beyond simple content placement. However, current approaches are often hindered by a reliance on explicit motion engineering or resource-intensive retraining, restricting their flexibility and generalization. To bridge this gap, we present \\textit{SimInsert}, a training-free paradigm that efficiently decouples the task into intuitive single-frame editing and semantic motion description. By harnessing the robust generative priors of image-to-video diffusion models, SimInsert propagates edits temporally, strictly preserving background invariance while enabling plausible, text-driven interactions between the inserted object and the dynamic environment. Our approach hinges on non-invasive guidance mechanisms that enforce structural consistency, facilitate seamless boundary fusion, and counteract the fidelity drift that typically accumulates during the denoising trajectory. Extensive quantitative experiments validate our efficacy: SimInsert surpasses state-of-the-art methods with an 18.8\\% gain in PSNR, 20.1\\% in SSIM, and a 44.1\\% decrease in LPIPS, offering a streamlined solution for high-fidelity video editing.",
+      "authors": [
+        "Xinyu Chen",
+        "Yuyi Qian",
+        "Jiang Lin",
+        "Shenyi Wang",
+        "Gao Wang",
+        "Zhiqiu Zhang",
+        "Jizhi Zhang",
+        "Mingjie Wang",
+        "Qiang Tang",
+        "Qian Wang",
+        "Song Wu",
+        "Zili Yi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-22T05:28:56+00:00",
+      "link": "https://arxiv.org/pdf/2605.23245v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free video object insertion using image-to-video diffusion priors",
+      "llm_evidence_cn": "免训练视频对象插入，利用图像到视频扩散先验",
+      "llm_evidence": "免训练视频对象插入，利用图像到视频扩散先验",
+      "canonical_evidence": "免训练视频对象插入，利用图像到视频扩散先验",
+      "llm_tldr_en": "SimInsert is a training-free paradigm for video object insertion that uses regional sparse attention fusion and image-to-video diffusion models.",
+      "llm_tldr_cn": "本文针对视频对象插入依赖显式运动工程或重训练的问题，提出SimInsert免训练范式，将任务解耦为单帧编辑和语义运动描述，利用图像到视频扩散模型的先验进行时间传播。实验表明该方法在不重训练的情况下实现了时空连贯性和交互真实性。该工作为免训练视频编辑提供了新途径。",
+      "llm_tldr": "本文针对视频对象插入依赖显式运动工程或重训练的问题，提出SimInsert免训练范式，将任务解耦为单帧编辑和语义运动描述，利用图像到视频扩散模型的先验进行时间传播。实验表明该方法在不重训练的情况下实现了时空连贯性和交互真实性。该工作为免训练视频编辑提供了新途径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.28711v1",
+      "source": "arxiv",
+      "title": "Stage-wise Distortion-Perception Traversal in Zero-shot Inverse Problems with Diffusion Models",
+      "abstract": "The distortion-perception (D-P) tradeoff is a fundamental phenomenon of Bayesian inverse problems, which characterizes the inherent tension between distortion performance and perceptual quality. Enabling flexible traversal of the D-P tradeoff at inference time is crucial for practical applications. Despite the recent success of diffusion models in zero-shot inverse problem solving, efficient and principled strategies for D-P traversal in diffusion-based inverse algorithms remain inadequately characterized. In this paper, we propose a stage-wise framework for realizing D-P traversal using a single diffusion model in zero-shot inverse problems. Our proposed method, termed MAP-RPS, starts with an MAP estimation stage that approximates the MMSE solution and provides a low-distortion initialization, followed by a re-noised posterior sampling stage that progressively improves perceptual quality. We provide theoretical analyses for both stages, establishing the validity and effectiveness of the proposed design. Furthermore, we extend MAP-RPS to the latent space, yielding LMAP-RPS, which enjoys broader applicability by leveraging large-scale pre-trained latent diffusion backbones. Extensive experiments demonstrate that MAP-RPS and LMAP-RPS enable more effective D-P traversal on various tasks, while also exhibiting strong performance as efficient solvers for real-world inverse problems.",
+      "authors": [
+        "Jiawei Zhang",
+        "Ziyuan Liu",
+        "Leon Yan",
+        "Zhenyu Xiao",
+        "Yuantao Gu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-27T16:35:23+00:00",
+      "link": "https://arxiv.org/pdf/2605.28711v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "stage-wise framework for D-P traversal using single diffusion model at inference no additional training",
+      "llm_evidence_cn": "利用单个扩散模型在推理时实现失真-感知遍历的逐阶段框架，无需额外训练",
+      "llm_evidence": "利用单个扩散模型在推理时实现失真-感知遍历的逐阶段框架，无需额外训练",
+      "canonical_evidence": "利用单个扩散模型在推理时实现失真-感知遍历的逐阶段框架，无需额外训练",
+      "llm_tldr_en": "A stage-wise training-free framework for distortion-perception tradeoff traversal in diffusion-based zero-shot inverse problems, combining MAP estimation and posterior sampling.",
+      "llm_tldr_cn": "扩散模型在零样本逆问题求解中需要灵活遍历失真-感知折衷，但现有策略不够高效。本文提出MAP-RPS，一种逐阶段无训练框架，先进行MAP估计近似后验，再通过后验采样提升感知质量。该方法仅需一个预训练模型即可在推理时平滑调节折衷，实验证明了其有效性和通用性。",
+      "llm_tldr": "扩散模型在零样本逆问题求解中需要灵活遍历失真-感知折衷，但现有策略不够高效。本文提出MAP-RPS，一种逐阶段无训练框架，先进行MAP估计近似后验，再通过后验采样提升感知质量。该方法仅需一个预训练模型即可在推理时平滑调节折衷，实验证明了其有效性和通用性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.22050v3",
+      "source": "arxiv",
+      "title": "Broken Memories: Detecting and Mitigating Memorization in Diffusion Models with Degraded Generations",
+      "abstract": "While diffusion models excel at generating high-quality images, their tendency to memorize training data poses significant privacy and copyright risks. In this work, we for the first time identify that memorization induces internal numerical instability, often manifesting as visually ``broken'' artifacts. Inspired by stability analysis in numerical methods, we introduce empirical stability regions based on latent update norms to quantitatively characterize stable behavior during generation. Leveraging this, we propose a principled, on-the-fly framework for step-wise detection and adaptive mitigation. Our approach suppresses memorization without altering prompts or guidance, thereby preserving semantic fidelity and image quality. Extensive experiments on Stable Diffusion 1.4 demonstrate that our method achieves an AUC $>0.999$ detection performance and a $0.0\\%$ memorization rate after mitigation with negligible overhead ($\\approx0.01$s per image).",
+      "authors": [
+        "Yuanmin Huang",
+        "Mi Zhang",
+        "Chen Chen",
+        "Feifei Li",
+        "Geng Hong",
+        "Xiaoyu You",
+        "Min Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-21T06:36:59+00:00",
+      "link": "https://arxiv.org/pdf/2605.22050v3",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "on-the-fly detection and mitigation of memorization without additional training",
+      "llm_evidence_cn": "无需额外训练的即时检测与缓解记忆化方法",
+      "llm_evidence": "无需额外训练的即时检测与缓解记忆化方法",
+      "canonical_evidence": "无需额外训练的即时检测与缓解记忆化方法",
+      "llm_tldr_en": "Broken Memories identifies numerical instability as a sign of memorization and proposes a step-wise, on-the-fly mitigation framework that preserves semantic fidelity without training.",
+      "llm_tldr_cn": "该文发现扩散模型中的记忆化现象会导致内部数值不稳定性，表现为生成图像中'破碎'的伪影。受数值分析稳定性启发，提出了基于潜变量更新范数的经验稳定区域，并以此构建了即时的逐步骤检测与自适应缓解框架。该方法无需修改提示或引导，即可有效抑制记忆化，同时保持生成质量和语义保真度。",
+      "llm_tldr": "该文发现扩散模型中的记忆化现象会导致内部数值不稳定性，表现为生成图像中'破碎'的伪影。受数值分析稳定性启发，提出了基于潜变量更新范数的经验稳定区域，并以此构建了即时的逐步骤检测与自适应缓解框架。该方法无需修改提示或引导，即可有效抑制记忆化，同时保持生成质量和语义保真度。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2605.27352v1",
+      "source": "arxiv",
+      "title": "From Scores to Gibbs Correctors: Accelerating Uniform-Rate Discrete Diffusion Models",
+      "abstract": "Discrete diffusion models have achieved strong empirical performance in text and other symbolic domains, but, especially for uniform-rate models, they often require many steps to generate a single sample. Existing acceleration methods either rely on training additional quantities or suffer from slow mixing. In this work, we propose a novel Gibbs-based corrector for discrete diffusion models, termed Gibbs-Accelerated Discrete Diffusion (GADD). GADD leverages the structure of the concrete score function to construct Gibbs posterior likelihoods directly, without requiring any additional training beyond standard score estimation. We show that GADD achieves an overall sampling complexity of $\\mathcal{O}(\\mathrm{polylog} (\\varepsilon^{-1}))$, yielding the first such rate for diffusion-based samplers for uniform-rate discrete diffusion models. We also conduct numerical experiments demonstrating the practical advantages of GADD across synthetic data, zero-shot text sampling, and zero-shot conditional music generation. These results corroborate the theory and show that GADD consistently improves sample quality and wall-clock efficiency over standard baselines, including vanilla Euler methods and CTMC correctors. Beyond this, our theoretical analysis introduces a novel framework for analyzing predictor-corrector methods in discrete diffusion models, which may be of independent interest. Unlike existing approaches that rely on the Girsanov change-of-measure technique, our method is based on an induction argument that tracks error propagation across predictor iterations while accounting for inaccuracies in the corrector updates.",
+      "authors": [
+        "Yuchen Liang",
+        "Ness Shroff",
+        "Yingbin Liang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-05-26T17:52:28+00:00",
+      "link": "https://arxiv.org/pdf/2605.27352v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free acceleration for discrete diffusion",
+      "llm_evidence_cn": "离散扩散模型的免训练加速",
+      "llm_evidence": "离散扩散模型的免训练加速",
+      "canonical_evidence": "离散扩散模型的免训练加速",
+      "llm_tldr_en": "GADD proposes a Gibbs-based corrector for discrete diffusion models that accelerates sampling without additional training by leveraging concrete score functions.",
+      "llm_tldr_cn": "均匀速率离散扩散模型需大量采样步骤，现有加速方法依赖额外训练或混合缓慢。本文提出吉布斯加速离散扩散（GADD），无需额外训练，直接利用具体分数函数构造吉布斯后验似然，实现高效校正。理论分析表明采样复杂度为对数级别，实验在文本等领域验证了加速效果，为离散扩散模型的快速生成提供了无训练方案。",
+      "llm_tldr": "均匀速率离散扩散模型需大量采样步骤，现有加速方法依赖额外训练或混合缓慢。本文提出吉布斯加速离散扩散（GADD），无需额外训练，直接利用具体分数函数构造吉布斯后验似然，实现高效校正。理论分析表明采样复杂度为对数级别，实验在文本等领域验证了加速效果，为离散扩散模型的快速生成提供了无训练方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
 }
