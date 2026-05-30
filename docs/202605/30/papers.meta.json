@@ -1,0 +1,24 @@
+{
+  "label": "2026-05-30",
+  "date": "2026-05-30",
+  "generated_at": "2026-05-30T19:57:38",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202605/30/2605.30174v1-livesvg-zero-shot-svg-animation-via-video-generation",
+      "section": "quick",
+      "title_en": "LiveSVG: Zero-Shot SVG Animation via Video Generation",
+      "authors": "Matan Levy, Ran Margolin, Bar Cavia, Dvir Samuel, Yael Pritch, Shmuel Peleg, Alex Rav Acha, Ariel Shamir, Dani Lischinski",
+      "date": "2026-05-28",
+      "pdf": "https://arxiv.org/pdf/2605.30174v1",
+      "score": "6.0",
+      "evidence": "零样本SVG动画利用冻结视频扩散模型，免训练拟合",
+      "tldr": "现有SVG动画方法在复杂运动上表现不佳，LLM代码合成难以表达非刚性变形，SDS产生噪声梯度且需类别先验。LiveSVG提出零样本方案，先用冻结的视频生成模型生成目标视频，再通过可微分渲染将SVG拟合到视频。该方法采用双级运动表示（粗粒度单应性和细粒度贝塞尔偏移）与球体填充重着色解决对应模糊。在AniClipart和新基准ChallengeSVG上显著超越前人，确立了直接参考视频拟合的实用鲁棒路线。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We introduce LiveSVG, a zero-shot approach for generating Scalable Vector Graphics (SVG) animations using video diffusion models. Current SVG animation methods struggle with complex motions: LLM-based code synthesis fails to express fine, non-rigid Bézier deformations, while Score Distillation Sampling (SDS) provides noisy gradients and often requires category-specific priors like skeletons. In contrast, LiveSVG fits vector geometry directly to an explicitly generated target video. Given an input SVG image and a motion prompt, we generate a previewable target video using a frozen image-to-video model, then fit the original SVG to this video via differentiable rendering. Our fitting stage is skeleton-free, utilizing a dual-level motion representation that combines per-group homographies for coarse articulation with per-path Bézier control-point offsets for local deformations. To resolve color-induced correspondence ambiguities during pixel-wise fitting, we introduce a novel sphere-packing recolorization strategy. We also present ChallengeSVG, a benchmark of complex, multi-object scenes that exposes the limitations of prior work. Evaluations demonstrate that LiveSVG significantly outperforms existing methods on both AniClipart and ChallengeSVG, establishing direct reference-video fitting as a practical, robust route to prompt-aligned and fully editable vector animation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

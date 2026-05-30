@@ -1,0 +1,60 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-30T19:56:39.109224+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2605.30174v1",
+      "source": "arxiv",
+      "title": "LiveSVG: Zero-Shot SVG Animation via Video Generation",
+      "abstract": "We introduce LiveSVG, a zero-shot approach for generating Scalable Vector Graphics (SVG) animations using video diffusion models. Current SVG animation methods struggle with complex motions: LLM-based code synthesis fails to express fine, non-rigid Bézier deformations, while Score Distillation Sampling (SDS) provides noisy gradients and often requires category-specific priors like skeletons. In contrast, LiveSVG fits vector geometry directly to an explicitly generated target video. Given an input SVG image and a motion prompt, we generate a previewable target video using a frozen image-to-video model, then fit the original SVG to this video via differentiable rendering. Our fitting stage is skeleton-free, utilizing a dual-level motion representation that combines per-group homographies for coarse articulation with per-path Bézier control-point offsets for local deformations. To resolve color-induced correspondence ambiguities during pixel-wise fitting, we introduce a novel sphere-packing recolorization strategy. We also present ChallengeSVG, a benchmark of complex, multi-object scenes that exposes the limitations of prior work. Evaluations demonstrate that LiveSVG significantly outperforms existing methods on both AniClipart and ChallengeSVG, establishing direct reference-video fitting as a practical, robust route to prompt-aligned and fully editable vector animation.",
+      "authors": [
+        "Matan Levy",
+        "Ran Margolin",
+        "Bar Cavia",
+        "Dvir Samuel",
+        "Yael Pritch",
+        "Shmuel Peleg",
+        "Alex Rav Acha",
+        "Ariel Shamir",
+        "Dani Lischinski"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-28T16:23:34+00:00",
+      "link": "https://arxiv.org/pdf/2605.30174v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "zero-shot SVG animation using frozen video diffusion model, training-free fitting",
+      "llm_evidence_cn": "零样本SVG动画利用冻结视频扩散模型，免训练拟合",
+      "llm_evidence": "零样本SVG动画利用冻结视频扩散模型，免训练拟合",
+      "canonical_evidence": "零样本SVG动画利用冻结视频扩散模型，免训练拟合",
+      "llm_tldr_en": "Zero-shot SVG animation via video diffusion model; uses frozen model and differentiable rendering, training-free fitting.",
+      "llm_tldr_cn": "SVG动画面临复杂运动表达问题。提出LiveSVG，利用冻结的图像到视频扩散模型生成目标视频，再通过可微渲染将SVG拟合到视频。拟合阶段免训练，无需骨架或类别先验。该方法利用免训练的视频生成能力实现动画，但侧重于矢量图形而非直接改进视频生成本身。",
+      "llm_tldr": "SVG动画面临复杂运动表达问题。提出LiveSVG，利用冻结的图像到视频扩散模型生成目标视频，再通过可微渲染将SVG拟合到视频。拟合阶段免训练，无需骨架或类别先验。该方法利用免训练的视频生成能力实现动画，但侧重于矢量图形而非直接改进视频生成本身。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

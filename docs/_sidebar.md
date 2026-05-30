@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-05-30 <!--dpr-date:20260530-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202605/30/2605.30174v1-livesvg-zero-shot-svg-animation-via-video-generation" data-sidebar-item="{&quot;title&quot;: &quot;LiveSVG: Zero-Shot SVG Animation via Video Generation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2605.30174v1-livesvg-zero-shot-svg-animation-via-video-generation&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;零样本SVG动画利用冻结视频扩散模型，免训练拟合&quot;}">LiveSVG: Zero-Shot SVG Animation via Video Generation</a>
   * 2026-05-29 <!--dpr-date:20260529-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202605/29/2605.23610v1-em-vid-training-free-entity-centric-memory-for-efficient-and-consistent-multi-shot-video-generation" data-sidebar-item="{&quot;title&quot;: &quot;EM-Vid: Training-Free Entity-Centric Memory for Efficient and Consistent Multi-Shot Video Generation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2605.23610v1-em-vid-training-free-entity-centric-memory-for-efficient-and-consistent-multi-shot-video-generation&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;免训练的视频生成，基于实体中心记忆&quot;}">EM-Vid: Training-Free Entity-Centric Memory for Efficient and Consistent Multi-Shot Video Generation</a>
