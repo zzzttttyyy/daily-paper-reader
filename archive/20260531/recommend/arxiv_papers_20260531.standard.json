@@ -1,0 +1,330 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-31T20:41:16.104022+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2605.27006v1",
+      "source": "arxiv",
+      "title": "Sampling Data with Chains of Forward-Backward Diffusion Steps",
+      "abstract": "Sampling from learned high-dimensional distributions is a foundational computational problem. We introduce U-turn chains: Markov chains obtained by iterating short forward-backward steps of a diffusion model, in which each step proposes a move that remains on the learned data manifold and, paired with a Metropolis-Hastings correction, samples from energy-modified targets. For synthetic languages, we show that minimal U-turn dynamics undergoes an ergodicity-breaking phase transition driven by fragmentation of the data manifold; ergodicity is restored at larger U-turn magnitude. In the non-ergodic regime, low-level features relax faster than high-level ones, an ordering that inverts only at sufficiently large U-turn magnitude. We test these predictions on natural language and natural images. In both modalities, minimal U-turns relax slowly, especially for high-level features approximated by deep representations in CNNs or LLMs. The layer-ordering inversion appears only at large noise when mixing is efficient -- signatures consistent with strongly constrained, weakly mixing local dynamics. We discuss the implications of these results for sampling with diffusion models.",
+      "authors": [
+        "Hyunmo Kang",
+        "Noam Itzhak Levi",
+        "Corinna Elena Wegner",
+        "Daniel J. Korchinski",
+        "Matthieu Wyart"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cond-mat.dis-nn",
+        "stat.ML"
+      ],
+      "published": "2026-05-26T13:26:36+00:00",
+      "link": "https://arxiv.org/pdf/2605.27006v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free sampling with forward-backward steps",
+      "llm_evidence_cn": "使用前向-后向步的免训练采样方法",
+      "llm_evidence": "使用前向-后向步的免训练采样方法",
+      "canonical_evidence": "使用前向-后向步的免训练采样方法",
+      "llm_tldr_en": "Proposes U-turn chains for sampling from diffusion models using short forward-backward steps with Metropolis-Hastings correction, enabling training-free sampling from energy-modified targets.",
+      "llm_tldr_cn": "该论文提出U-turn链，通过迭代短前向-后向扩散步骤并配合Metropolis-Hastings校正，实现从能量修改目标中采样，无需额外训练。在合成语言上，展示了最小U-turn动力学经历遍历性破缺相变，低层特征比高层特征更快松弛，而足够大的U-turn幅度可恢复遍历性。该方法为扩散模型的免训练采样优化提供了新思路。",
+      "llm_tldr": "该论文提出U-turn链，通过迭代短前向-后向扩散步骤并配合Metropolis-Hastings校正，实现从能量修改目标中采样，无需额外训练。在合成语言上，展示了最小U-turn动力学经历遍历性破缺相变，低层特征比高层特征更快松弛，而足够大的U-turn幅度可恢复遍历性。该方法为扩散模型的免训练采样优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.27075v1",
+      "source": "arxiv",
+      "title": "SoftCap: Soft-Budget Control for Diffusion Transformer Acceleration",
+      "abstract": "Diffusion Transformers (DiTs) achieve strong visual quality, but their iterative denoising process requires many costly Transformer evaluations. Training-free acceleration methods reduce this cost by caching, forecasting, or verifying intermediate features, yet the runtime decision of when to execute a Full step is often driven by fixed schedules or hand-tuned thresholds. We propose \\textbf{SoftCap}, a training-free control layer for cache-based DiT inference. SoftCap couples a Trajectory Drift Observer, which estimates local cache risk from lightweight hidden-state statistics, with a Soft-Budget PI Controller, which adjusts the Full-triggering threshold from realized compute relative to a fixed reference profile. The budget is a soft ceiling: it shapes the threshold but does not require a run to spend a prescribed number of Full evaluations. On FLUX.1-dev, SoftCap improves over SpeCa at a comparable middle-compute operating point, raising ImageReward from 0.967 to 0.981 and reducing LPIPS-Full from 0.518 to 0.498 at nearly identical FLOPs, while target-sweep diagnostics show the intended soft-ceiling behavior as the budget is relaxed.",
+      "authors": [
+        "Yuhang Zhang",
+        "Junxiang Qiu",
+        "Huixia Ben",
+        "Zhenhua Tang",
+        "Shuo Wang",
+        "Yanbin Hao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-26T14:24:48+00:00",
+      "link": "https://arxiv.org/pdf/2605.27075v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free acceleration for diffusion models",
+      "llm_evidence_cn": "扩散模型的免训练加速",
+      "llm_evidence": "扩散模型的免训练加速",
+      "canonical_evidence": "扩散模型的免训练加速",
+      "llm_tldr_en": "SoftCap is a training-free control layer for cache-based DiT inference using trajectory drift observer and soft-budget PI controller to reduce compute.",
+      "llm_tldr_cn": "SoftCap提出了一种无训练的控制层，用于缓存驱动的扩散Transformer推理。它通过轨迹漂移观测器估计缓存风险，并利用软预算PI控制器动态调整全步触发阈值，在不牺牲质量的前提下显著减少计算开销。实验表明该方法在图像生成任务上实现了高效的加速。",
+      "llm_tldr": "SoftCap提出了一种无训练的控制层，用于缓存驱动的扩散Transformer推理。它通过轨迹漂移观测器估计缓存风险，并利用软预算PI控制器动态调整全步触发阈值，在不牺牲质量的前提下显著减少计算开销。实验表明该方法在图像生成任务上实现了高效的加速。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.28811v1",
+      "source": "arxiv",
+      "title": "HarmoVid: Relightful Video Portrait Harmonization",
+      "abstract": "We present a method for harmonizing the lighting of a foreground video to match a target background scene, adjusting shadows, color tone, and illumination intensity (relightful harmonization). Unlike images, acquiring labeled data for videos, where identical motions are recorded under different lighting conditions, is practically infeasible and non-scalable. While one way to create such paired data is to apply existing image-based harmonization models frame by frame to a video, the resulting outputs often suffer from significant temporal jitters. We overcome this problem by introducing a novel lighting deflickering model that can stabilize the global and local lighting flickering artifacts. Our video diffusion model learns from these upgraded deflickered data with a volume of real and synthetic videos to generate high-quality video harmonization results. We further propose an asymmetric alpha mask conditioning technique to learn the clean boundaries from real videos. Experiments demonstrate that our model achieves strong temporal coherence, naturalness, cleaner boundaries, and physically meaningful lighting behavior, while maintaining strong relighting expressiveness compared to prior image-based and video-based harmonization methods.",
+      "authors": [
+        "Jun Myeong Choi",
+        "Jae Shin Yoon",
+        "Luchao Qi",
+        "Roni Sengupta",
+        "Joon-Young Lee"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-27T17:59:02+00:00",
+      "link": "https://arxiv.org/pdf/2605.28811v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "video diffusion model for harmonization; relates to video generation with diffusion",
+      "llm_evidence_cn": "使用视频扩散模型进行光照协调，属于视频生成相关任务",
+      "llm_evidence": "使用视频扩散模型进行光照协调，属于视频生成相关任务",
+      "canonical_evidence": "使用视频扩散模型进行光照协调，属于视频生成相关任务",
+      "llm_tldr_en": "Proposes a video diffusion model with a lighting deflickering model to achieve temporally stable relightful harmonization of foreground video to match target background, overcoming temporal jitters in frame-wise methods.",
+      "llm_tldr_cn": "该论文针对视频光照协调缺乏配对训练数据且逐帧处理方法时序抖动严重的问题，提出一种视频扩散模型结合光照消闪模型。通过学习去闪数据，模型实现了前景视频与目标背景的稳定重新光照协调，无需配对数据即可生成时序一致、视觉逼真的结果。该方法为视频扩散模型在光照编辑任务中提供了有效解决方案。",
+      "llm_tldr": "该论文针对视频光照协调缺乏配对训练数据且逐帧处理方法时序抖动严重的问题，提出一种视频扩散模型结合光照消闪模型。通过学习去闪数据，模型实现了前景视频与目标背景的稳定重新光照协调，无需配对数据即可生成时序一致、视觉逼真的结果。该方法为视频扩散模型在光照编辑任务中提供了有效解决方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.29012v1",
+      "source": "arxiv",
+      "title": "Trajectory Constraints for Imaging Inverse Problems",
+      "abstract": "Diffusion-based and iterative methods have become effective tools for solving imaging inverse problems. Their reconstruction process naturally forms a trajectory of intermediate estimates. Although these intermediate estimates define a reconstruction trajectory, most methods do not explicitly regularize the transitions between consecutive states. To address this limitation, we introduce TRACE, a training-free TRAjectory-Constrained rEconstruction framework that stabilizes the reconstruction path by coupling adjacent states along the trajectory. This gives a trajectory-level model that can be interpreted as a sequence of proximal updates. Since the exact proximal update is generally intractable, we approximate it with a neural mapping. This yields a diffusion-like reconstruction process with an explicit coupling between neighboring states. We provide a stability analysis showing that temporal coupling bounds trajectory variation and that this control is preserved under untrained network updates. Experiments on linear and nonlinear image reconstruction tasks show that TRACE improves reconstruction quality. Trajectory-level analyses and ablations confirm that temporal coupling directly affects state transitions along the reconstruction path.",
+      "authors": [
+        "Chaoyan Huang",
+        "Haijie Yuan",
+        "Saiprasad Ravishankar"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-27T19:08:44+00:00",
+      "link": "https://arxiv.org/pdf/2605.29012v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free trajectory-constrained reconstruction framework for inverse problems using diffusion",
+      "llm_evidence_cn": "无需训练的轨迹约束重建框架，适用于扩散模型",
+      "llm_evidence": "无需训练的轨迹约束重建框架，适用于扩散模型",
+      "canonical_evidence": "无需训练的轨迹约束重建框架，适用于扩散模型",
+      "llm_tldr_en": "Introduces TRACE, a training-free framework that imposes trajectory-level constraints on diffusion processes for imaging inverse problems, stabilizing reconstruction by coupling adjacent states.",
+      "llm_tldr_cn": "该论文针对扩散模型重建过程中缺乏显式轨迹正则化的问题，提出TRACE框架，一种无需训练的轨迹约束重建方法。通过耦合相邻状态，将重建路径视为序列近端更新，有效稳定了重建过程。在多种成像逆问题中，该方法在不额外训练的情况下显著提升了重建质量，为扩散模型的免训练优化提供了新思路。",
+      "llm_tldr": "该论文针对扩散模型重建过程中缺乏显式轨迹正则化的问题，提出TRACE框架，一种无需训练的轨迹约束重建方法。通过耦合相邻状态，将重建路径视为序列近端更新，有效稳定了重建过程。在多种成像逆问题中，该方法在不额外训练的情况下显著提升了重建质量，为扩散模型的免训练优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.24631v1",
+      "source": "arxiv",
+      "title": "Beyond Generative Priors: Minority Sampling with JEPA-Guided Diffusion",
+      "abstract": "Minority sampling aims to generate low-density instances on a data manifold and is of central importance in applications such as medical diagnosis, anomaly detection, and creative AI. Existing approaches, however, define minority samples relative to generative priors learned from training data, confining rarity to model-specific notions that may poorly reflect real-world semantics. In this work, we propose a world-centric perspective on minority sampling, which defines rarity with respect to real-world priors rather than generator-induced densities. To this end, we introduce JEPA guidance, a diffusion sampling framework guided by a Joint-Embedding Predictive Architecture (JEPA) -- a class of world models that encode broad, semantically rich representations. JEPA guidance steers diffusion trajectories toward low-density regions under the implicit density induced by the JEPA, thereby aligning generated minorities with real-world semantic rarity. To make JEPA guidance computationally practical, we develop principled approximation strategies accompanied by theoretical error bounds, significantly reducing the overhead of guidance computation. Extensive experiments across unconditional, class-conditional, and text-to-image generation demonstrate that JEPA guidance consistently improves the fidelity and semantic validity of minority samples, outperforming generator-centric baselines in capturing real-world notions of rarity. Code is available at https://github.com/soobin-um/jepa-guidance.",
+      "authors": [
+        "Sol Park",
+        "Soobin Um"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-05-23T15:40:56+00:00",
+      "link": "https://arxiv.org/pdf/2605.24631v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free JEPA-guided diffusion sampling",
+      "llm_evidence_cn": "免训练的JEPA引导扩散采样",
+      "llm_evidence": "免训练的JEPA引导扩散采样",
+      "canonical_evidence": "免训练的JEPA引导扩散采样",
+      "llm_tldr_en": "Proposes JEPA-guided diffusion for minority sampling, using world model guidance without additional training, outperforming generative prior-based methods.",
+      "llm_tldr_cn": "本文提出JEPA引导的扩散采样框架，用于少数样本生成。JEPA作为世界模型提供真实世界先验，替代生成先验，无需额外训练。该方法在异常检测和创意AI中表现优越，为扩散模型的免训练引导提供了新范式。",
+      "llm_tldr": "本文提出JEPA引导的扩散采样框架，用于少数样本生成。JEPA作为世界模型提供真实世界先验，替代生成先验，无需额外训练。该方法在异常检测和创意AI中表现优越，为扩散模型的免训练引导提供了新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.26032v1",
+      "source": "arxiv",
+      "title": "Everything at Every Scale: Scale-Invariant Diffusion with Continuous Super-Resolution",
+      "abstract": "Creating images from noise is image generation; reconstructing fine details from coarse inputs is super-resolution. Despite their practical differences, both can be understood as reversing information loss across scales. We introduce $\\textbf{SKILD}$, a $\\textbf{S}$cale-invariant $\\textbf{K}$-Space $\\textbf{I}$mage $\\textbf{L}$earning $\\textbf{D}$iffusion model that unifies generation and continuous super-resolution within a single unconditional framework. Both natural images and critical physical systems exhibit scale invariance, and we leverage it to design a forward process that attenuates image content from fine to coarse scales while injecting spectrum-matched Gaussian noise, making scale an explicit coordinate of the diffusion dynamics. The same trained reverse process performs generation and continuous super-resolution by varying only the starting timestep: $\\textit{no task-specific architecture, no conditioning branch, no classifier-free guidance, no retraining per scale factor}$. Empirically, SKILD reaches FID $2.65$ and Inception Score $9.63$ on unconditional CIFAR-10, performs $2\\times$--$8\\times$ super-resolution on ImageNet from a single unconditional checkpoint while outperforming conditional models across perceptual metrics, and reconstructs critical Ising models whose connected four-point correlations closely track the ground truth.",
+      "authors": [
+        "Zixin Jessie Chen",
+        "Zhuo Chen",
+        "Archer Wang",
+        "Jeff Gore",
+        "William T. Freeman",
+        "Congyue Deng",
+        "Marin Soljačić"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cond-mat.stat-mech",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-05-25T17:01:21+00:00",
+      "link": "https://arxiv.org/pdf/2605.26032v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "image generation using diffusion models with scale-invariant framework",
+      "llm_evidence_cn": "使用尺度不变扩散模型的图像生成",
+      "llm_evidence": "使用尺度不变扩散模型的图像生成",
+      "canonical_evidence": "使用尺度不变扩散模型的图像生成",
+      "llm_tldr_en": "Introduces SKILD, a scale-invariant diffusion model that unifies image generation and continuous super-resolution within a single unconditional framework.",
+      "llm_tldr_cn": "本文提出尺度不变扩散模型SKILD，将图像生成与连续超分辨率统一在单一无条件下。通过设计前向过程从细到粗衰减图像内容并注入匹配的高斯噪声，使尺度成为显式坐标。该模型在图像生成任务上实现了高质量结果，但方法本身并非针对免训练优化，而是模型架构创新。",
+      "llm_tldr": "本文提出尺度不变扩散模型SKILD，将图像生成与连续超分辨率统一在单一无条件下。通过设计前向过程从细到粗衰减图像内容并注入匹配的高斯噪声，使尺度成为显式坐标。该模型在图像生成任务上实现了高质量结果，但方法本身并非针对免训练优化，而是模型架构创新。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.27476v1",
+      "source": "arxiv",
+      "title": "Balancing Fidelity and Diversity in Diffusion Models via Symmetric Attention Decomposition: Hopfield Perspective",
+      "abstract": "We characterize the pre-softmax attention matrix $\\mathbf{QK^\\top}$ in transformers as an associative memory matrix encoding pairwise associations between input features. By decomposing this matrix into its symmetric and skew-symmetric parts, we interpret the symmetric component as governing the structure of the energy landscape, and the skew-symmetric component as driving circulation on that landscape. Leveraging the energy formulation induced by the symmetric component, we derive Hopfield-style stability measures that quantify the stability of retrieved features. We observe meaningful correlations between Hopfield-style stability measures and the fidelity-diversity trade-offs in generation. Finally, we propose a controllable knob to modulate this trade-off by modifying the circulation of the underlying dynamics. Code is available at our GitHub (https://github.com/hyeon-cho/Attention-Symmetric-Decomposition).",
+      "authors": [
+        "Hyunmin Cho",
+        "Woo Kyoung Han",
+        "Kyong Hwan Jin"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-26T11:56:37+00:00",
+      "link": "https://arxiv.org/pdf/2605.27476v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free attention modification for diffusion models",
+      "llm_evidence_cn": "扩散模型的免训练注意力修改",
+      "llm_evidence": "扩散模型的免训练注意力修改",
+      "canonical_evidence": "扩散模型的免训练注意力修改",
+      "llm_tldr_en": "Proposes symmetric attention decomposition for diffusion models to balance fidelity and diversity, deriving Hopfield-style stability measures correlated with generation quality.",
+      "llm_tldr_cn": "本文将Transformer注意力矩阵分解为对称和反对称部分，对称部分对应能量景观，反对称部分驱动循环。基于对称部分导出Hopfield稳定性度量，与生成保真度-多样性权衡相关。该方法为理解和改进扩散模型生成质量提供了免训练的理论指导。",
+      "llm_tldr": "本文将Transformer注意力矩阵分解为对称和反对称部分，对称部分对应能量景观，反对称部分驱动循环。基于对称部分导出Hopfield稳定性度量，与生成保真度-多样性权衡相关。该方法为理解和改进扩散模型生成质量提供了免训练的理论指导。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.26470v1",
+      "source": "arxiv",
+      "title": "Triadic Dynamics Aware Diffusion Posterior Sampling for Inverse Problems: Optimizing Guidance and Stochasticity Schedules",
+      "abstract": "Generative posterior sampling using diffusion models has emerged as a dominant paradigm for solving inverse problems in imaging, which usually consists of three main components: data consistency (DC) guidance, classifier-free guidance (CFG) and stochasticity. While prior arts have focused on how to develop each or all components, less attention has given to how to schedule them, leading to heuristically fixed or partially adjusted suboptimal schedules. In this work, we argue that the interactions among all three components in terms of scheduling are crucial for significantly improved performance in solving inverse problems in imaging. Our analysis shows that aggressive CFG early in sampling conflict with DC guidance, while stochasticity brings the trajectory back to higher-probability regions. Based on these findings, we propose Triadic Dynamics Aware Posterior Sampling (TriPS), which reformulates posterior sampling as a time-varying control problem and optimizes schedules following a triadic trend of decreasing DC and stochasticity scales alongside increasing CFG scale. TriPS achieves this through two strategies: template-based search over functional priors for reliable baseline schedules, and Group Relative Policy Optimization (GRPO)-based reinforcement learning for more flexible temporal curves. Experiments demonstrate TriPS outperforms state-of-the-art baselines in data fidelity and perceptual realism.",
+      "authors": [
+        "Junseo Bang",
+        "Dong Ju Mun",
+        "Hoigi Seo",
+        "Seongmin Hong",
+        "Se Young Chun"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-26T02:27:30+00:00",
+      "link": "https://arxiv.org/pdf/2605.26470v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free optimization of guidance and stochasticity schedules",
+      "llm_evidence_cn": "免训练优化引导和随机性调度",
+      "llm_evidence": "免训练优化引导和随机性调度",
+      "canonical_evidence": "免训练优化引导和随机性调度",
+      "llm_tldr_en": "Proposes scheduling of DC guidance, CFG, and stochasticity for diffusion posterior sampling, improving inverse problems without extra training.",
+      "llm_tldr_cn": "本文针对扩散后验采样中引导和噪声调度固定、次优的问题，提出三元动态感知方法，通过动态调度数据一致性、无分类器引导和随机性，显著提升逆问题求解性能，且无需额外训练。该方法为免训练优化提供了新思路。",
+      "llm_tldr": "本文针对扩散后验采样中引导和噪声调度固定、次优的问题，提出三元动态感知方法，通过动态调度数据一致性、无分类器引导和随机性，显著提升逆问题求解性能，且无需额外训练。该方法为免训练优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
