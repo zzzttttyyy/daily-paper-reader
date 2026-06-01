@@ -6,46 +6,38 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-05-31
-- 运行时间：2026-05-31 20:47:14 UTC
+- 最新运行日期：2026-06-01
+- 运行时间：2026-06-01 22:38:37 UTC
 - 运行状态：成功
-- 本次总论文数：8
+- 本次总论文数：6
 - 精读区：4
-- 速读区：4
+- 速读区：2
 
 ### 今日简报（AI）
-1) 今日推荐8篇扩散模型研究，其中前向后向扩散链采样与SoftCap加速方案获评8.0分精读。  
-2) 最值得关注两个方向：基于对称注意力分解的保真度-多样性平衡（Hopfield视角）与JEPA引导的少数采样。  
-3) 建议优先精读精读列表中的两篇高分工作，再浏览速读列表以拓宽对扩散模型采样加速与尺度泛化的理解。
-- 详情：[/202605/31/README](/202605/31/README)
+今日精选6篇论文，精读占比高，涵盖视频生成与超分辨率前沿。最值得关注的是TunerDiT的无训练多事件视频生成，以及DTG-Restore的生成式视频超分辨率技术。建议新手优先阅读这两篇无训练方法的实现思路，降低入门门槛。
+- 详情：[/202606/01/README](/202606/01/README)
 
 ### 精读区论文标签
-1. [Sampling Data with Chains of Forward-Backward Diffusion Steps](/202605/31/2605.27006v1-sampling-data-with-chains-of-forward-backward-diffusion-steps)  
+1. [TunerDiT: Training-free Progressive Steering of Diffusion Transformer for Multi-Event Video Generation](/202606/01/2605.31590v1-tunerdit-training-free-progressive-steering-of-diffusion-transformer-for-multi-event-video-generation)  
+   标签：评分：10.0/10、query:tfree-diff
+   evidence：免训练渐进式引导的多事件视频生成
+2. [DTG-Restore: Training-Free Diffusion Refinement for Generative Video Super-Resolution](/202606/01/2605.30431v1-dtg-restore-training-free-diffusion-refinement-for-generative-video-super-resolution)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：使用扩散模型的免训练视频超分辨率细化
+3. [LVSA: Training-Free Sparse Attention for Long Video Diffusion](/202606/01/2605.31057v1-lvsa-training-free-sparse-attention-for-long-video-diffusion)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：用于长视频扩散的免训练稀疏注意力
+4. [Guidance for Low-Level Perceptual Editing in Unconditional Diffusion Models](/202606/01/2605.31162v1-guidance-for-low-level-perceptual-editing-in-unconditional-diffusion-models)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：使用前向-后向步的免训练采样方法
-2. [SoftCap: Soft-Budget Control for Diffusion Transformer Acceleration](/202605/31/2605.27075v1-softcap-soft-budget-control-for-diffusion-transformer-acceleration)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：扩散模型的免训练加速
-3. [HarmoVid: Relightful Video Portrait Harmonization](/202605/31/2605.28811v1-harmovid-relightful-video-portrait-harmonization)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：使用视频扩散模型进行光照协调，属于视频生成相关任务
-4. [Trajectory Constraints for Imaging Inverse Problems](/202605/31/2605.29012v1-trajectory-constraints-for-imaging-inverse-problems)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：无需训练的轨迹约束重建框架，适用于扩散模型
+   evidence：无条件扩散模型的免训练推理编辑框架，与图像生成优化相关
 
 ### 速读区论文标签
-1. [Beyond Generative Priors: Minority Sampling with JEPA-Guided Diffusion](/202605/31/2605.24631v1-beyond-generative-priors-minority-sampling-with-jepa-guided-diffusion)  
+1. [Pantheon360: Taming Digital Twin Generation via 3D-Aware 360° Video Diffusion](/202606/01/2605.25449v1-pantheon360-taming-digital-twin-generation-via-3d-aware-360-video-diffusion)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：免训练的JEPA引导扩散采样
-2. [Balancing Fidelity and Diversity in Diffusion Models via Symmetric Attention Decomposition: Hopfield Perspective](/202605/31/2605.27476v1-balancing-fidelity-and-diversity-in-diffusion-models-via-symmetric-attention-decomposition-hopfield-perspective)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：扩散模型的免训练注意力修改
-3. [Everything at Every Scale: Scale-Invariant Diffusion with Continuous Super-Resolution](/202605/31/2605.26032v1-everything-at-every-scale-scale-invariant-diffusion-with-continuous-super-resolution)  
+   evidence：用于数字孪生的360度视频扩散生成
+2. [On the Error-Correcting Effects of Stochasticity in Discrete Diffusion](/202606/01/2605.26582v1-on-the-error-correcting-effects-of-stochasticity-in-discrete-diffusion)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：使用尺度不变扩散模型的图像生成
-4. [Triadic Dynamics Aware Diffusion Posterior Sampling for Inverse Problems: Optimizing Guidance and Stochasticity Schedules](/202605/31/2605.26470v1-triadic-dynamics-aware-diffusion-posterior-sampling-for-inverse-problems-optimizing-guidance-and-stochasticity-schedules)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：免训练优化引导和随机性调度
+   evidence：研究离散扩散采样中的随机性，与免训练优化相关
 
 
 <div class="dpr-home-promo-card">

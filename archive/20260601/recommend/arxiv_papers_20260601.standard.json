@@ -1,0 +1,261 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-01T22:34:46.159235+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2605.31590v1",
+      "source": "arxiv",
+      "title": "TunerDiT: Training-free Progressive Steering of Diffusion Transformer for Multi-Event Video Generation",
+      "abstract": "Text-to-video (T2V) generation faces challenging questions when generating videos with long horizons containing multiple events. Inspired by the intrinsics of the diffusion process, we probe video diffusion transformers (DiTs) and uncover intrinsic turning points in the DiT denoising trajectory where conditioning text affects generation from global layout to fine-grained details. Building on this finding, we present TunerDiT, a simple yet effective progressive steering method that requires no additional training for multi-event generation. TunerDiT comprises two steering handles: (1) Event-Partitioned Masking that enforces event boundaries while allowing cross-event transition bands; (2) Cross-Event Prompt Fusion that injects neighboring event semantics for late-stage refinement. We contribute a self-curated prompt suite for benchmarking multi-event generation, i.e., Meve. TunerDiT achieves state-of-the-art performance across 8 metrics and offers a tunable trade-off between video consistency and event separation, compared with other training-free methods. The improvement in text alignment increases with the event count, indicating a scaling possibility with increasing event count.",
+      "authors": [
+        "Ruotong Liao",
+        "Guowen Huang",
+        "Qing Cheng",
+        "Guangyao Zhai",
+        "Lei Zhang",
+        "Xun Xiao",
+        "Thomas Seidl",
+        "Daniel Cremers",
+        "Volker Tresp"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-29T17:56:09+00:00",
+      "link": "https://arxiv.org/pdf/2605.31590v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "training-free progressive steering for multi-event video generation with DiT",
+      "llm_evidence_cn": "免训练渐进式引导的多事件视频生成",
+      "llm_evidence": "免训练渐进式引导的多事件视频生成",
+      "canonical_evidence": "免训练渐进式引导的多事件视频生成",
+      "llm_tldr_en": "Proposes TunerDiT, a training-free method that progressively steers diffusion transformers for multi-event video generation using event masking and prompt fusion.",
+      "llm_tldr_cn": "本文针对扩散模型生成包含多事件长视频时效果不佳的问题，提出了免训练渐进式引导方法TunerDiT。通过事件分区掩码和跨事件提示融合，在无需额外训练的条件下显著提升了多事件视频的时间一致性和情节连贯性。实验表明该方法简单有效，适用于多种视频扩散Transformer结构。",
+      "llm_tldr": "本文针对扩散模型生成包含多事件长视频时效果不佳的问题，提出了免训练渐进式引导方法TunerDiT。通过事件分区掩码和跨事件提示融合，在无需额外训练的条件下显著提升了多事件视频的时间一致性和情节连贯性。实验表明该方法简单有效，适用于多种视频扩散Transformer结构。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.30431v1",
+      "source": "arxiv",
+      "title": "DTG-Restore: Training-Free Diffusion Refinement for Generative Video Super-Resolution",
+      "abstract": "Recent progress in video diffusion models has enabled remarkable generative fidelity, yet leveraging these priors for restoration remains limited by the strong coupling between conditional and unconditional branches in standard classifier-free guidance. We introduce a training-free framework that enhances distorted and low-resolution videos by decoupling these signals in time. Our proposed Decoupled Time Guidance (DTG) evaluates the unconditional branch at a cleaner diffusion timestep, providing a lookahead prior that preserves geometry while suppressing replication of warped content. This temporal bias is annealed throughout sampling, allowing the model to transition from structure correction to detail refinement without retraining. Combined with any off-the-shelf restoration module in a plug-and-play manner, our approach improves perceptual coherence and restores plausible structure in AIgenerated and real-world videos alike. To facilitate evaluation, we curate GenWarp480, a benchmark of 4,400 distorted 480p videos synthesized from diverse text-to-video models. GenWarp480 focuses on characteristic generative degradations such as warped faces, body misalignments, and spatial artifacts, providing a purpose-built testbed for assessing robustness to generative errors. Extensive experiments demonstrate that our method achieves significant improvements in structural fidelity and temporal stability without any model training.",
+      "authors": [
+        "Hidir Yesiltepe",
+        "Koutilya PNVR",
+        "Gaurav Pathak",
+        "Navaneeth Bodla",
+        "Bharat Singh",
+        "Pinar Yanardag",
+        "Jinrong Xie"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-28T18:00:14+00:00",
+      "link": "https://arxiv.org/pdf/2605.30431v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free video super-resolution refinement using diffusion",
+      "llm_evidence_cn": "使用扩散模型的免训练视频超分辨率细化",
+      "llm_evidence": "使用扩散模型的免训练视频超分辨率细化",
+      "canonical_evidence": "使用扩散模型的免训练视频超分辨率细化",
+      "llm_tldr_en": "DTG-Restore offers a training-free refinement framework for video super-resolution by decoupling conditional/unconditional guidance in time.",
+      "llm_tldr_cn": "本文提出DTG-Restore，一个免训练框架，用于视频超分辨率。通过解耦分类器自由引导中的条件和无条件分支，利用时间偏置逐步从结构修正过渡到细节细化。无需重新训练，即可提升低分辨率视频质量。",
+      "llm_tldr": "本文提出DTG-Restore，一个免训练框架，用于视频超分辨率。通过解耦分类器自由引导中的条件和无条件分支，利用时间偏置逐步从结构修正过渡到细节细化。无需重新训练，即可提升低分辨率视频质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.31057v1",
+      "source": "arxiv",
+      "title": "LVSA: Training-Free Sparse Attention for Long Video Diffusion",
+      "abstract": "Dense self-attention is the compute and quality bottleneck of long-video diffusion inference: cost grows quadratically with the sequence length, and beyond the training horizon the model converges to near-static output, that is, \"frozen\" repetitive video. State of the art approaches are either too costly, e.g., they require retraining, or fail to satisfy both performance and quality objectives in a scalable manner. To this end, we introduce Long Video Sparse Attention (LVSA), a training-free model-agnostic block-sparse attention for video diffusion transformers that combines a structured window pattern with rotating global anchors, thus removing the fixed-grid bias which causes long-range temporal artifacts. LVSA, combined with a FlashInfer kernel, reduces compute up to 3.17x on Wan 2.1 1.3B at a 6x horizon, 2.98x on Wan 2.1 14B at a 6x horizon, and 3.33x on HunyuanVideo 1.5 at a 1.5x horizon, compared to dense attention. Beyond reducing compute, LVSA enables HunyuanVideo 1.5 generation at a 2x horizon, which is otherwise out-of-memory on a single GPU. Moreover, LVSA provides speedups up to 2.41x compared to RIFLEx and 3.27x compared to UltraViCo on Wan 2.1 1.3B. To demonstrate applicability across diverse platforms, we apply LVSA on NPUs and achieve speedups up to 2.71x on Wan 2.2 A14B and 3.24x on Wan 2.1 1.3B compared to dense attention. To evaluate quality in a fair way, we introduce VQeval, a tool properly scoring loopy video failures, which instead are rewarded in state of the art evaluators like VBench-Long. LVSA is quality-neutral for generation at training horizon length and quality-positive at extended lengths.",
+      "authors": [
+        "Gael Glorian",
+        "Ioannis Lamprou",
+        "Zhen Zhang",
+        "Yujie Yuan",
+        "Hongsheng Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-05-29T09:28:49+00:00",
+      "link": "https://arxiv.org/pdf/2605.31057v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sparse attention for long video diffusion",
+      "llm_evidence_cn": "用于长视频扩散的免训练稀疏注意力",
+      "llm_evidence": "用于长视频扩散的免训练稀疏注意力",
+      "canonical_evidence": "用于长视频扩散的免训练稀疏注意力",
+      "llm_tldr_en": "LVSA introduces a training-free block-sparse attention for video diffusion transformers, reducing cost and artifacts in long video generation.",
+      "llm_tldr_cn": "论文提出LVSA，一种免训练、模型无关的块稀疏注意力机制，用于视频扩散Transformer。它结合结构化窗口和旋转全局锚点，消除长距离伪影，显著降低计算成本。实验表明在长视频生成中保持高质量，无需重新训练。",
+      "llm_tldr": "论文提出LVSA，一种免训练、模型无关的块稀疏注意力机制，用于视频扩散Transformer。它结合结构化窗口和旋转全局锚点，消除长距离伪影，显著降低计算成本。实验表明在长视频生成中保持高质量，无需重新训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.31162v1",
+      "source": "arxiv",
+      "title": "Guidance for Low-Level Perceptual Editing in Unconditional Diffusion Models",
+      "abstract": "Unconditional diffusion models offer powerful generative priors, yet steering them toward aesthetically enhanced outputs remains largely unexplored. We show that h-space patching, the dominant paradigm for training-free diffusion editing, systematically fails for global, low-level transformations required for aesthetic and perceptual refinement. We introduce a novel, generalized framework for image-editing in unconditional diffusion models without explicit training. This inference-time mechanism operates on low-level features by extracting degradation concept vectors and combining bottleneck patching with classifier-free guidance to guide sampling away from the degraded manifold, producing consistently improved images without any model retraining.",
+      "authors": [
+        "Shreyansh Modi",
+        "Akshat Tomar",
+        "Aarush Aggarwal"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-29T11:11:04+00:00",
+      "link": "https://arxiv.org/pdf/2605.31162v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free inference-time editing framework for unconditional diffusion models, relevant to image generation optimization",
+      "llm_evidence_cn": "无条件扩散模型的免训练推理编辑框架，与图像生成优化相关",
+      "llm_evidence": "无条件扩散模型的免训练推理编辑框架，与图像生成优化相关",
+      "canonical_evidence": "无条件扩散模型的免训练推理编辑框架，与图像生成优化相关",
+      "llm_tldr_en": "Proposes a training-free inference-time mechanism for low-level perceptual editing in unconditional diffusion models, using degradation concept vectors and bottleneck patching with CFG.",
+      "llm_tldr_cn": "本文针对无条件扩散模型难以进行全局低层感知编辑的问题，提出了一种免训练推理框架。该框架通过提取退化概念向量，结合瓶颈修补和无分类器引导，引导采样远离退化流形，从而在不重新训练的情况下持续生成改进图像。方法无需任何训练，可视为一种图像生成质量的免训练优化技术。",
+      "llm_tldr": "本文针对无条件扩散模型难以进行全局低层感知编辑的问题，提出了一种免训练推理框架。该框架通过提取退化概念向量，结合瓶颈修补和无分类器引导，引导采样远离退化流形，从而在不重新训练的情况下持续生成改进图像。方法无需任何训练，可视为一种图像生成质量的免训练优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.25449v1",
+      "source": "arxiv",
+      "title": "Pantheon360: Taming Digital Twin Generation via 3D-Aware 360° Video Diffusion",
+      "abstract": "Generating complete digital twins from videos requires precise camera control, global scene coverage, and strict spatial-temporal consistency constraints that remain challenging for perspective video generators due to their limited field of view (FoV). Their narrow FoV forces long or multi-view trajectories, amplifying cross-view inconsistency and temporal drift. We argue that 360° video generation offers a natural solution: panoramic coverage simplifies trajectory design and provides a strong global context for maintaining coherence. We introduce Pantheon360: Taming Digital Twin Generation via 3D-Aware 360° Video Diffusion, a controllable 360° video generation framework that synthesizes high-fidelity videos from sparse 360° inputs. The key idea is an explicit 3D Cache, reconstructed from the input, which serves as a geometric scaffold for any user-defined camera path. This allows the diffusion model to focus on photorealistic texture refinement while the 3D Cache enforces global geometric consistency. Experiments show that Pantheon360 achieves superior visual quality and unmatched geometric coherence, enabling reliable and flexible 360° scene generation for downstream simulation and digital-twin applications.",
+      "authors": [
+        "Ting-Hsuan Chen",
+        "Ying-Huan Chen",
+        "Tao Tu",
+        "Jie-Ying Lee",
+        "Cho-Ying Wu",
+        "Fangzhou Lin",
+        "Hengyuan Zhang",
+        "David Paz",
+        "Xinyu Huang",
+        "Yuliang Guo",
+        "Yu-Lun Liu",
+        "Yue Wang",
+        "Liu Ren"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-25T06:00:01+00:00",
+      "link": "https://arxiv.org/pdf/2605.25449v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "360 degree video diffusion for digital twin generation",
+      "llm_evidence_cn": "用于数字孪生的360度视频扩散生成",
+      "llm_evidence": "用于数字孪生的360度视频扩散生成",
+      "canonical_evidence": "用于数字孪生的360度视频扩散生成",
+      "llm_tldr_en": "Introduces Pantheon360, a controllable 360-degree video diffusion framework for generating high-fidelity digital twins from sparse 360-degree inputs.",
+      "llm_tldr_cn": "针对从视频生成完整数字孪生中视角受限和时空不一致的问题，提出Pantheon360，一个可控制的360度视频扩散框架，利用全景覆盖简化轨迹设计并增强全局一致性，从稀疏输入合成高质量360度视频。该方法需要训练，但聚焦于视频生成。",
+      "llm_tldr": "针对从视频生成完整数字孪生中视角受限和时空不一致的问题，提出Pantheon360，一个可控制的360度视频扩散框架，利用全景覆盖简化轨迹设计并增强全局一致性，从稀疏输入合成高质量360度视频。该方法需要训练，但聚焦于视频生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.26582v1",
+      "source": "arxiv",
+      "title": "On the Error-Correcting Effects of Stochasticity in Discrete Diffusion",
+      "abstract": "Discrete diffusion models achieve strong performance in text and image generation, but their inference remains slow and must inherently balance sampling efficiency and sample quality. In this work, we present a systematic study of how the \\emph{degree of stochasticity} in Markov transitions governs the sampling tradeoff. We show that highly deterministic transitions converge rapidly but suffer from error accumulation, while more stochastic transitions converge more slowly yet can achieve higher final sample quality. Using an information-theoretic analysis, we identify the underlying mechanism as an error-correcting effect induced by \\emph{redundant transitions} that symmetrically exchange mass between states, and show that these transitions can provably contract sampling errors. Motivated by this analysis, we propose \\emph{Discrete Churn and Restart Sampling} (DCRS), a novel inference algorithm that injects controlled stochasticity by alternating between forward and reverse diffusion processes. Experiments on synthetic datasets and large-scale benchmarks show that DCRS improves the speed-quality tradeoff in the low number of function evaluations regime. On image datasets, DCRS achieves up to a $10\\times$ reduction in sampling steps compared to standard samplers while maintaining competitive sample quality, whereas on language benchmarks, we observe more nuanced behavior depending on the corruption process and sampling procedure.",
+      "authors": [
+        "William Yuan",
+        "Sungwon Jeong",
+        "Amirali Aghazadeh"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-26T05:58:46+00:00",
+      "link": "https://arxiv.org/pdf/2605.26582v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "studies stochasticity in discrete diffusion sampling, relevant to optimization without training",
+      "llm_evidence_cn": "研究离散扩散采样中的随机性，与免训练优化相关",
+      "llm_evidence": "研究离散扩散采样中的随机性，与免训练优化相关",
+      "canonical_evidence": "研究离散扩散采样中的随机性，与免训练优化相关",
+      "llm_tldr_en": "Systematically analyzes how stochasticity degree in Markov transitions affects the speed-quality tradeoff in discrete diffusion sampling, revealing error-correcting effects.",
+      "llm_tldr_cn": "本文系统研究了离散扩散模型中马尔可夫转移随机性程度对采样效率与质量权衡的影响。通过信息论分析发现高度确定性转移快速但误差累积，而更随机的转移具有纠错效果，可提升最终样本质量。该发现可用于改进免训练采样策略。",
+      "llm_tldr": "本文系统研究了离散扩散模型中马尔可夫转移随机性程度对采样效率与质量权衡的影响。通过信息论分析发现高度确定性转移快速但误差累积，而更随机的转移具有纠错效果，可提升最终样本质量。该发现可用于改进免训练采样策略。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
