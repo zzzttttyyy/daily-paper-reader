@@ -1,0 +1,539 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-02T21:36:51.413883+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2606.00954v1",
+      "source": "arxiv",
+      "title": "COLLAR: Cascaded Object-Level Latent Refinement for High-Fidelity Conditional Generation",
+      "abstract": "Achieving high-fidelity object-level control in Diffusion Transformers remains a significant challenge despite the introduction of structural priors like depth and Canny maps. Current object-level conditional generation methods frequently suffer from visual artifacts and struggle to maintain precise control over objects within small localized regions. To address these limitations, we propose Cascaded Object-Level Latent Refinement (COLLAR), a training-free framework that progressively optimizes object-level features via the Field-of-View (FoV) expansion. First, we propose the Cross-Scale Semantic Alignment (CSSA) module to address spatial-semantic gaps by injecting object-level features into extended-FoV branches via attention mechanisms. To further optimize these features, the Cyclic Feature Injection (CFI) module introduces a reciprocal background feedback mechanism. It leverages a frequency-based adaptive strategy to selectively update the global backbone with context-aligned local information. Finally, the extended-FoV branch serves as a hub for feature optimization, ensuring that object-level features are integrated into the global generation process without compromising final image quality. Extensive experiments on the COCO-MIG and COCO-POS benchmarks demonstrate that our approach consistently outperforms state-of-the-art methods across semantic alignment, image quality, and spatial fidelity.",
+      "authors": [
+        "Xinlong Zhang",
+        "Jia Wei",
+        "Xiaoyu Zhang",
+        "Teng Zhou",
+        "Chengyu Lin",
+        "Yongchuan Tang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-31T02:10:34+00:00",
+      "link": "https://arxiv.org/pdf/2606.00954v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free latent refinement for diffusion conditional generation",
+      "llm_evidence_cn": "免训练的潜在优化实现扩散模型条件生成",
+      "llm_evidence": "免训练的潜在优化实现扩散模型条件生成",
+      "canonical_evidence": "免训练的潜在优化实现扩散模型条件生成",
+      "llm_tldr_en": "COLLAR proposes a training-free framework that progressively refines object-level features via Field-of-View expansion to achieve high-fidelity object-level control in Diffusion Transformers, addressing artifacts and imprecise control.",
+      "llm_tldr_cn": "针对扩散Transformer在高保真对象级条件生成中的视觉伪影和控制不精确问题，本文提出COLLAR，一种免训练框架。该方法通过视野扩展逐步优化对象级特征，利用跨尺度语义对齐模块注入对象信息。实验表明，COLLAR无需额外训练即可显著提升生成质量。该工作为扩散模型的条件生成提供了一种实用的免训练优化方案。",
+      "llm_tldr": "针对扩散Transformer在高保真对象级条件生成中的视觉伪影和控制不精确问题，本文提出COLLAR，一种免训练框架。该方法通过视野扩展逐步优化对象级特征，利用跨尺度语义对齐模块注入对象信息。实验表明，COLLAR无需额外训练即可显著提升生成质量。该工作为扩散模型的条件生成提供了一种实用的免训练优化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.01380v1",
+      "source": "arxiv",
+      "title": "Training-free image inversion for one-step diffusion models",
+      "abstract": "In this work, we introduce a novel training-free inversion (TFinv) framework for one-step diffusion models,addressing key challenges in real image inversion and editing. We first identify two critical factors hamperingreal-image inversion and editing: (1) Initial Latent Editability, which is related to the distance between theinitial noise and the ideal Gaussian distribution, and (2) Caption Gap, which means the alignment betweentext captions and image representations. Both factors influence inversion efficiency and the editability ofone-step diffusion models. Then, we propose two novel techniques: iterative noise alignment (iterNA), whichminimizes the distribution gap to align with the normal Gaussian distribution, and suffix learning (suffL),which enhances text-to-image caption alignment by introducing learned suffix prompt tokens. These techniquesenable precise inversion of input images into their initial noise representations and facilitate image editing.Furthermore, we propose a mask-based editing technique for localized edits while preserving backgroundintegrity. Comprehensive experiments on the PIE-Bench dataset validate that our method TFinv not onlyachieves state-of-the-art performance in one-step diffusion editing, but also significantly outperforms existingmultistep approaches in efficiency. The code is available at https://github.com/tttao-uwu/TFinv.git.",
+      "authors": [
+        "Tao Wu",
+        "Senmao Li",
+        "Yaxing Wang",
+        "Shiqi Yang",
+        "Kai Wang",
+        "Joost van de Weijer"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-31T18:10:23+00:00",
+      "link": "https://arxiv.org/pdf/2606.01380v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free inversion for one-step diffusion models for image editing",
+      "llm_evidence_cn": "用于图像编辑的单步扩散模型免训练反演",
+      "llm_evidence": "用于图像编辑的单步扩散模型免训练反演",
+      "canonical_evidence": "用于图像编辑的单步扩散模型免训练反演",
+      "llm_tldr_en": "Proposes TFinv, a training-free inversion framework for one-step diffusion models with iterative noise alignment and suffix learning.",
+      "llm_tldr_cn": "单步扩散模型在真实图像反演和编辑中面临初始潜变量可编辑性和文本描述差距的挑战。本文提出免训练反演框架TFinv，通过迭代噪声对齐（iterNA）最小化分布差距以匹配标准高斯分布，并通过后缀学习（suffL）增强文本对齐。该方法无需重新训练即可高效实现真实图像反演与编辑，为单步扩散模型提供了实用的免训练优化技术。",
+      "llm_tldr": "单步扩散模型在真实图像反演和编辑中面临初始潜变量可编辑性和文本描述差距的挑战。本文提出免训练反演框架TFinv，通过迭代噪声对齐（iterNA）最小化分布差距以匹配标准高斯分布，并通过后缀学习（suffL）增强文本对齐。该方法无需重新训练即可高效实现真实图像反演与编辑，为单步扩散模型提供了实用的免训练优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.01493v1",
+      "source": "arxiv",
+      "title": "Splatshot: 3D Face Avatar Generation from a Single Unconstrained Photo",
+      "abstract": "Reconstructing a photorealistic 3D face avatar from a single unconstrained photograph is challenging: feed-forward 3D Gaussian Splatting (3DGS) models degrade on out-of-distribution inputs, while pretrained diffusion models produce high-fidelity images but lack multi-view consistency. We observe that these paradigms are fundamentally complementary: explicit 3D representations guarantee geometric consistency, whereas 2D diffusion priors ensure photorealism. Building on this, we propose SplatShot, a training-free framework that couples these representations directly within the denoising process. Given a base 3DGS face model and a single reference image, we jointly denoise all target views using a per-step 3D feedback loop. At each timestep, we predict clean images from the noisy latents, refit the 3DGS to these multi-view predictions, and back-propagate the photometric discrepancy between the 3DGS re-renderings and 2D predictions into the noise estimate. This steers the sampling trajectory toward strictly 3D-coherent, identity-faithful outputs. Experiments on diverse in-the-wild images demonstrate that SplatShot produces 3D avatars with superior identity preservation, photorealism, and multi-view consistency.",
+      "authors": [
+        "Hao Liang",
+        "Zhixuan Ge",
+        "Soumendu Majee",
+        "Joanna Li",
+        "Ashok Veeraraghavan",
+        "Guha Balakrishnan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-31T23:19:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.01493v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free framework coupling 3DGS and diffusion priors for 3D face generation",
+      "llm_evidence_cn": "将3DGS与扩散先验耦合的免训练3D人脸生成框架",
+      "llm_evidence": "将3DGS与扩散先验耦合的免训练3D人脸生成框架",
+      "canonical_evidence": "将3DGS与扩散先验耦合的免训练3D人脸生成框架",
+      "llm_tldr_en": "SplatShot proposes a training-free framework that couples 3D Gaussian Splatting with diffusion priors in the denoising process for 3D face avatar generation from a single photo.",
+      "llm_tldr_cn": "从单张照片生成3D人脸化身面临几何一致性与真实感的权衡。本文提出SplatShot，一种无需训练的框架，在去噪过程中将显式3DGS表示与扩散先验直接耦合，通过每步3D反馈循环联合去噪所有目标视角。实验表明该方法在保持几何一致性的同时实现了高真实感。该工作为3D生成提供了免训练范例。",
+      "llm_tldr": "从单张照片生成3D人脸化身面临几何一致性与真实感的权衡。本文提出SplatShot，一种无需训练的框架，在去噪过程中将显式3DGS表示与扩散先验直接耦合，通过每步3D反馈循环联合去噪所有目标视角。实验表明该方法在保持几何一致性的同时实现了高真实感。该工作为3D生成提供了免训练范例。",
+      "llm_tags": [
+        "query:tfree-diff:composite"
+      ],
+      "matched_query_tag": "query:tfree-diff:composite",
+      "matched_query_text": "Papers central to 请帮我查找扩散模型图像/视频生成的免训练优化相关论文, especially work that connects or combines: diffusion models for generative tasks; image generation using diffusion models; video generation with diffusion models; optimization methods that do not require training for diffusion models; What are training free sampling optimization techniques for diffusion model image generation?; How to improve diffusion model video generation without additional training?; Survey of training free methods for diffusion models in image and video generation..",
+      "matched_requirement_id": "req-composite-tfree-diff",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.27336v1",
+      "source": "arxiv",
+      "title": "PARE: Pruning and Adaptive Routing for Efficient Video Generation",
+      "abstract": "Video Diffusion Transformers (DiTs) generate high-quality videos but demand substantial compute due to wide blocks, deep architectures, and iterative sampling. Recent methods reduce cost by compressing width, depth, or sampling steps, but typically commit to a fixed architecture that cannot adapt to individual inputs or denoising stages. We propose PARE (Pruning and Adaptive Routing for Efficient video generation), which jointly compresses width and depth with structure-aware pruning and input-adaptive routing. For width, we observe that attention heads specialize into spatial and temporal roles, and design importance scoring that accounts for this distinction to prevent motion-critical temporal heads from being pruned prematurely. For depth, we train a lightweight router conditioned on denoising timestep and visual content to dynamically select which blocks to execute at each step, enabling per-input compute adaptation rather than static block removal. A progressive pipeline first recovers width-pruned quality via distillation, then jointly optimizes the student and router to decouple the two learning objectives. Experiments on Wan2.1-14B for both image-to-video and text-to-video generation show that PARE substantially reduces per-step computation while preserving quality across VBench dimensions, and composes with step distillation for further acceleration.",
+      "authors": [
+        "Yutong Wang",
+        "Yunke Wang",
+        "Tianfan Xue",
+        "Yu Qiao",
+        "Yaohui Wang",
+        "Xinyuan Chen",
+        "Chang Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-26T17:43:25+00:00",
+      "link": "https://arxiv.org/pdf/2605.27336v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "efficient video diffusion transformer with pruning and routing",
+      "llm_evidence_cn": "基于剪枝和路由的高效视频扩散Transformer",
+      "llm_evidence": "基于剪枝和路由的高效视频扩散Transformer",
+      "canonical_evidence": "基于剪枝和路由的高效视频扩散Transformer",
+      "llm_tldr_en": "PARE jointly prunes width and depth of video diffusion transformers using structure-aware importance scoring and input-adaptive routing to reduce compute.",
+      "llm_tldr_cn": "视频扩散Transformer计算量巨大，现有压缩方法采用固定架构无法适应输入。本文提出PARE，结合剪枝（宽度）和自适应路由（深度），通过结构感知重要性评分保留时空关键注意力头，并训练轻量路由网络动态选择深度。实验表明PARE在保持视频质量的同时显著降低计算成本。该工作为视频扩散模型的高效推理提供了可适应的压缩方案。",
+      "llm_tldr": "视频扩散Transformer计算量巨大，现有压缩方法采用固定架构无法适应输入。本文提出PARE，结合剪枝（宽度）和自适应路由（深度），通过结构感知重要性评分保留时空关键注意力头，并训练轻量路由网络动态选择深度。实验表明PARE在保持视频质量的同时显著降低计算成本。该工作为视频扩散模型的高效推理提供了可适应的压缩方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.30116v1",
+      "source": "arxiv",
+      "title": "SGMD: Score Gradient Matching Distillation for Few-Step Video Diffusion Distillation",
+      "abstract": "Distribution Matching Distillation (DMD) is a widely used paradigm for accelerating inference in few-step video diffusion models. However, DMD-style video distillation faces two coupled challenges: the fake score must track a continuously evolving generator, making training costly when frequent updates are required, while reverse-KL-style matching can be mode-seeking and conservative for preserving strong motion dynamics. To address these issues, we propose \\textbf{Score Gradient Matching Distillation (SGMD)}. SGMD adopts a fake-score perspective by directly optimizing the fake score toward the teacher, while using teacher stop-gradient Fisher as a stable distribution-matching objective. We provide a gradient analysis that motivates this objective choice under ideal tracking. Building on this, SGMD introduces a pair of dual potentials: negative-residual (NR) for outer-loop correction and residual-contraction (RC) for inner-loop tracking. Empirically, compared to DMD2, SGMD achieves an approximately $\\sim 3\\times$ training speedup and substantially improves motion dynamics for 4-step distilled models while preserving temporal consistency. A human study confirms that SGMD is preferred in motion quality and overall preference, while visual quality and text alignment remain comparable. Code is available at https://github.com/ModelTC/LightX2V.",
+      "authors": [
+        "Zhuguanyu Wu",
+        "Ruihao Gong",
+        "Yang Yong",
+        "Yushi Huang",
+        "Xiangyu Fan",
+        "Lei Yang",
+        "Dahua Lin",
+        "Xianglong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-05-28T15:50:55+00:00",
+      "link": "https://arxiv.org/pdf/2605.30116v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "video diffusion distillation",
+      "llm_evidence_cn": "视频扩散蒸馏",
+      "llm_evidence": "视频扩散蒸馏",
+      "canonical_evidence": "视频扩散蒸馏",
+      "llm_tldr_en": "Proposes SGMD for few-step video diffusion distillation, improving motion dynamics while reducing training cost.",
+      "llm_tldr_cn": "针对视频扩散模型蒸馏中假分数跟踪成本高、反向KL匹配保守的问题，提出分数梯度匹配蒸馏（SGMD），通过直接优化假分数使其接近教师模型，并利用教师停止梯度Fisher作为稳定的分布匹配目标，在保持运动动态的同时加速推理。实验表明SGMD在视频生成质量和蒸馏效率上均优于现有方法。",
+      "llm_tldr": "针对视频扩散模型蒸馏中假分数跟踪成本高、反向KL匹配保守的问题，提出分数梯度匹配蒸馏（SGMD），通过直接优化假分数使其接近教师模型，并利用教师停止梯度Fisher作为稳定的分布匹配目标，在保持运动动态的同时加速推理。实验表明SGMD在视频生成质量和蒸馏效率上均优于现有方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.01048v1",
+      "source": "arxiv",
+      "title": "Decoupled Residual Denoising Diffusion Models for Unified and Data Efficient Image-to-Image Translation",
+      "abstract": "We propose Decoupled Residual Denoising Diffusion models (DRDD) for unified and data-efficient image-to-image (I2I) translation. While diffusion models have advanced I2I translation in terms of quality and diversity, we uncover a previously under-explored property in diffusion models. Crucially, beyond its conventional role of manifold lifting (i.e., moving data off low-dimensional manifolds), injecting Gaussian noise facilitates domain harmonization by implicitly aligning feature distributions across domains, a property particularly advantageous for unified I2I translation. However, existing diffusion models prematurely erode this harmonization effect, as noise and residuals are simultaneously removed in a single coupled diffusion process. To address this, DRDD decouples the diffusion process into two sequential and independent diffusion stages: (1) a stochastic noise diffusion for domain harmonization and manifold lifting, and (2) a deterministic residual diffusion that learns the core semantic mapping entirely within the fixed-noise domain. This decoupling preserves harmonization and manifold lifting effects throughout the transformation, substantially simplifying the learning of unified mappings across diverse tasks and domains. Notably, the noise diffusion stage is trained exclusively on abundant, unpaired target-domain images, greatly improving data efficiency. Comprehensive theoretical and empirical analysis demonstrates that DRDD is broadly compatible with mainstream diffusion models and consistently delivers robust, unified I2I translation, even under limited paired data. Our code is available at https://github.com/HKU-HealthAI/DRDD.",
+      "authors": [
+        "Ziyue Lin",
+        "Jiahe Hou",
+        "Hongyu Xia",
+        "Xinrui Xie",
+        "Feifei Wang",
+        "Yuyin Zhou",
+        "Wei Wang",
+        "Jiawei Liu",
+        "Liangqiong Qu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-31T06:38:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.01048v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "diffusion model for image-to-image translation",
+      "llm_evidence_cn": "用于图像翻译的扩散模型",
+      "llm_evidence": "用于图像翻译的扩散模型",
+      "canonical_evidence": "用于图像翻译的扩散模型",
+      "llm_tldr_en": "DRDD introduces decoupled residual denoising in diffusion models for efficient and unified image-to-image translation, leveraging noise injection for domain harmonization.",
+      "llm_tldr_cn": "现有扩散模型在图像到图像翻译中提前破坏了噪声的域协调效果。本文提出解耦残差去噪扩散模型（DRDD），通过将噪声和残差解耦去除来保留域协调特性，实现统一且数据高效的图像翻译。实验表明DRDD在多个翻译任务上表现优异。该工作揭示了扩散模型噪声注入的新作用。",
+      "llm_tldr": "现有扩散模型在图像到图像翻译中提前破坏了噪声的域协调效果。本文提出解耦残差去噪扩散模型（DRDD），通过将噪声和残差解耦去除来保留域协调特性，实现统一且数据高效的图像翻译。实验表明DRDD在多个翻译任务上表现优异。该工作揭示了扩散模型噪声注入的新作用。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.26111v1",
+      "source": "arxiv",
+      "title": "Squeezing Capacity from Multimodal Large Language Models for Subject-driven Generation",
+      "abstract": "Subject-driven image generation aims to synthesize new images that preserve the identity of the given subject while following textual instructions. Existing approaches often encode text and reference images separately. This limits cross-modal reasoning abilities and causes copy-paste artifacts. Recent frameworks that connect multimodal models and diffusion models improve instruction following, but largely overlook identity preservation. To address these limitations, we condition diffusion models on Multimodal Large Language Models (MLLMs) that jointly encode text and reference images, and augment it with VAE-based identity conditioning. A novel Dual Layer Aggregation (DLA) module is designed to aggregate multi-level MLLM features for optimal conditioning, and a multi-stage denoising strategy is applied to progressively balance the semantic information from MLLM and fine-detail identity from VAE during inference. Extensive experiments demonstrate that our approach harmonizes multimodal understanding with identity preservation, mitigates copy-paste issues, and achieves superior performance regarding human preference on subject-driven image generation. Our project website is available at https://zsh2000.github.io/squeeze-mllm-subject-gen/.",
+      "authors": [
+        "Shuhong Zheng",
+        "Aashish Kumar Misraa",
+        "Yu-Teng Li",
+        "Yu-Jhe Li",
+        "Igor Gilitschenski"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.GR",
+        "cs.LG",
+        "cs.MM"
+      ],
+      "published": "2026-05-25T17:59:35+00:00",
+      "link": "https://arxiv.org/pdf/2605.26111v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "subject-driven image generation with diffusion",
+      "llm_evidence_cn": "基于扩散模型的主题驱动图像生成",
+      "llm_evidence": "基于扩散模型的主题驱动图像生成",
+      "canonical_evidence": "基于扩散模型的主题驱动图像生成",
+      "llm_tldr_en": "Improves subject-driven image generation by conditioning diffusion on MLLM features with identity preservation.",
+      "llm_tldr_cn": "针对主题驱动图像生成中身份保持不足的问题，提出将扩散模型与多模态大语言模型联合编码，并设计双层层聚合模块增强跨模态推理，同时引入VAE身份条件，有效提高身份保持和指令跟随能力。",
+      "llm_tldr": "针对主题驱动图像生成中身份保持不足的问题，提出将扩散模型与多模态大语言模型联合编码，并设计双层层聚合模块增强跨模态推理，同时引入VAE身份条件，有效提高身份保持和指令跟随能力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.27343v1",
+      "source": "arxiv",
+      "title": "Towards Controllable Image Generation through Representation-Conditioned Diffusion Models",
+      "abstract": "Diffusion models have emerged as powerful tools for high-quality image generation and editing, but guiding these models to produce specific outputs remains a challenge. Conventional approaches rely on conditioning mechanisms, such as text prompts or semantic maps, which require extensively annotated datasets. In this preliminary work, we explore diffusion models conditioned on representations from a pre-trained self-supervised model. The self-conditioning mechanism not only improves the quality of unconditional image generation, but also provides a representation space that can be used to control the generation. We explore this conditioning space by identifying directions of variations, and demonstrate promising properties in terms of smoothness and disentanglement.",
+      "authors": [
+        "Nithesh Chandher Karthikeyan",
+        "Jonas Unger",
+        "Gabriel Eilertsen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-05-26T17:46:25+00:00",
+      "link": "https://arxiv.org/pdf/2605.27343v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "representation-conditioned diffusion for image generation",
+      "llm_evidence_cn": "基于表征条件的图像生成扩散模型",
+      "llm_evidence": "基于表征条件的图像生成扩散模型",
+      "canonical_evidence": "基于表征条件的图像生成扩散模型",
+      "llm_tldr_en": "Explores diffusion models conditioned on self-supervised representations for controllable image generation without annotations.",
+      "llm_tldr_cn": "针对图像生成中条件控制需要大量标注数据的问题，探索使用自监督模型表征作为扩散模型的条件，通过识别表征空间中的变化方向实现控制。初步实验表明该方法能提升无条件生成质量并允许一定程度的控制。",
+      "llm_tldr": "针对图像生成中条件控制需要大量标注数据的问题，探索使用自监督模型表征作为扩散模型的条件，通过识别表征空间中的变化方向实现控制。初步实验表明该方法能提升无条件生成质量并允许一定程度的控制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.26632v2",
+      "source": "arxiv",
+      "title": "RT-Lynx: Putting the GEMM Sparsity In a Right Way for Diffusion Models",
+      "abstract": "Diffusion Transformers (DiT) achieve strong performance in image generation but incur substantial inference costs. While prior work has reduced this cost via quantization and distillation, semi-structured sparsity, which can nearly halve FLOPs, remains underexplored. A key reason is that most existing approaches focus on weight sparsification, and pruning 50% of the weights can remove critical model capacity and degrade generation quality. Our study, however, shows that DiT activations are intrinsically sparse and significantly more robust to N:M semi-structured sparsification than weights. Motivated by this observation, we advocate a paradigm shift from weight sparsification to activation sparsification. We propose RT-Lynx, which applies N:M sparsification to activations and incorporates error-compensation techniques to mitigate accuracy loss. We further implement highly optimized CUDA kernels tailored to this setting, achieving up to a 1.55x speedup on average in linear layers. Extensive experiments across multiple diffusion models demonstrate that our method preserves the generation quality of the original models while substantially accelerating inference.",
+      "authors": [
+        "Xing Cong",
+        "Hanlin Tang",
+        "Kan Liu",
+        "Lan Tao",
+        "Lin Qu",
+        "Chenhao Xie"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-26T07:09:49+00:00",
+      "link": "https://arxiv.org/pdf/2605.26632v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "activation sparsification for efficient diffusion model inference",
+      "llm_evidence_cn": "扩散模型推理的激活稀疏化",
+      "llm_evidence": "扩散模型推理的激活稀疏化",
+      "canonical_evidence": "扩散模型推理的激活稀疏化",
+      "llm_tldr_en": "RT-Lynx proposes activation sparsification for diffusion transformers, achieving efficient inference by exploiting intrinsic activation sparsity without weight pruning.",
+      "llm_tldr_cn": "扩散Transformer推理成本高昂，现有权重稀疏化方法会损害生成质量。本文发现DiT激活具有内在稀疏性且更适合稀疏化，提出RT-Lynx专门对激活应用N:M半结构化稀疏化，大幅减少FLOPs同时保持生成质量。该方法为扩散模型推理加速提供了新思路。",
+      "llm_tldr": "扩散Transformer推理成本高昂，现有权重稀疏化方法会损害生成质量。本文发现DiT激活具有内在稀疏性且更适合稀疏化，提出RT-Lynx专门对激活应用N:M半结构化稀疏化，大幅减少FLOPs同时保持生成质量。该方法为扩散模型推理加速提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.30349v1",
+      "source": "arxiv",
+      "title": "AdaState: Self-Evolving Anchors for Streaming Video Generation",
+      "abstract": "Autoregressive video diffusion models generate streaming video by producing frames sequentially, conditioning each chunk on previously generated content. These models are structurally anchored to the first frame: its key-value representation occupies a privileged position in the attention cache and serves as the primary scene reference throughout generation. As the cleanest and most error-free position in the cache, this anchor draws disproportionate attention, suppressing video dynamics, and locking scene composition to the initial viewpoint even as the scene naturally evolves. The result is a temporally shallow video in which motion, camera movement, and scene progression are dampened in favor of static consistency. To address this, we replace the static anchor with an adaptive state, a hidden latent that the model denoises alongside content at every chunk but never renders. Rather than referencing a frozen first frame, the model generates its own scene anchor at each step by attending to both the previous state and the current content, producing a reference that evolves with the generated content. Unlike standard video generation, which encodes an absolute notion of time, our formulation treats time as relative: every generation step sees the same positional structure regardless of how far generation has progressed, and the state transition is identical at every chunk. Together, these properties introduce a recurrence into the generation process, where denoising serves as the transition function, and the KV cache serves as the carrier, requiring no external module. Experiments demonstrate that the adaptive state substantially improves video dynamics, enabling richer motion and natural scene progression within generated videos.",
+      "authors": [
+        "Yusuf Dalva",
+        "Pinar Yanardag"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-28T17:59:53+00:00",
+      "link": "https://arxiv.org/pdf/2605.30349v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "streaming video generation with diffusion",
+      "llm_evidence_cn": "流式视频扩散生成",
+      "llm_evidence": "流式视频扩散生成",
+      "canonical_evidence": "流式视频扩散生成",
+      "llm_tldr_en": "Proposes AdaState with self-evolving anchors to improve dynamics in streaming video diffusion.",
+      "llm_tldr_cn": "针对自回归视频扩散模型因静态锚点导致运动动态不足的问题，提出自适应状态锚点机制，使锚点随生成过程演化，从而增强场景运动和相机视角变化，生成时间上更丰富的视频。",
+      "llm_tldr": "针对自回归视频扩散模型因静态锚点导致运动动态不足的问题，提出自适应状态锚点机制，使锚点随生成过程演化，从而增强场景运动和相机视角变化，生成时间上更丰富的视频。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.02000v1",
+      "source": "arxiv",
+      "title": "Towards 3D-Aware Video Diffusion Models: Render-Free Human Motion Control with Mesh Tokenization",
+      "abstract": "Diffusion models have shown remarkable success in video generation. However, whether such models are truly aware of the 3D structure underlying visual observations, rather than simply reproducing plausible 2D projections, remains an open question. In this work, we investigate this question through human motion control, a task that requires precise modelling of 3D human geometry, motion, camera viewpoint, and scene context. Unlike prior methods that rely on rendered 2D motion guidance videos, we propose a render-free framework that conditions video generation directly on compressed 3D human mesh tokens. This representation preserves full 3D geometric information while enabling a unified token-based generation pipeline that processes video tokens jointly with motion tokens in a DiT-based architecture. This design requires the model to reason jointly about appearance, 3D structure, and camera viewpoint during video generation. Experimental results demonstrate strong performance on human motion control benchmarks, while reducing artifacts induced by view-dependent 2D guidance and trajectory-pose mismatches during editing. These findings suggest that video diffusion models, when equipped with mesh tokenization, can better capture complex 3D human structures and their interactions with the surrounding environment.",
+      "authors": [
+        "Jingyun Liang",
+        "Min Wei",
+        "Shikai Li",
+        "Yizeng Han",
+        "Hangjie Yuan",
+        "Lei Sun",
+        "Weihua Chen",
+        "Fan Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "eess.IV"
+      ],
+      "published": "2026-06-01T09:56:48+00:00",
+      "link": "https://arxiv.org/pdf/2606.02000v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "video diffusion model for human motion control",
+      "llm_evidence_cn": "用于人体运动控制的视频扩散模型",
+      "llm_evidence": "用于人体运动控制的视频扩散模型",
+      "canonical_evidence": "用于人体运动控制的视频扩散模型",
+      "llm_tldr_en": "This work proposes a render-free framework for 3D-aware video diffusion that conditions on compressed 3D human mesh tokens for motion control.",
+      "llm_tldr_cn": "现有视频扩散模型在人体运动控制中依赖渲染的2D引导视频，难以保证3D一致性。本文提出无渲染框架，直接将压缩的3D人体网格标记作为条件，在统一标记生成流水线中保留完整3D几何信息。实验表明该方法实现了精确的运动控制。该工作推动了视频扩散模型对3D结构的理解。",
+      "llm_tldr": "现有视频扩散模型在人体运动控制中依赖渲染的2D引导视频，难以保证3D一致性。本文提出无渲染框架，直接将压缩的3D人体网格标记作为条件，在统一标记生成流水线中保留完整3D几何信息。实验表明该方法实现了精确的运动控制。该工作推动了视频扩散模型对3D结构的理解。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.00377v1",
+      "source": "arxiv",
+      "title": "Score-Control for Hallucination Reduction in Diffusion Models",
+      "abstract": "Diffusion models have emerged as the backbone of modern generative AI, powering advances in vision, language, audio and other modalities. Despite their success, they suffer from hallucinations, implausible samples that lie outside the support of true data distribution, which degrade reliability and trust. In this work, we first empirically confirm previously proposed hypothesis that score smoothness causes hallucinations in Image Generation diffusion models and provide a density-based perspective. We further formalize this notion by linking the hallucinations probability mass to lipschitz constant of the learned score function. Motivated by this, we introduce a Variance-Guided Score Modulation (VSM) strategy that controls the score Jacobian, in turn reducing score smoothness and better approximating the ground truth score that decreases hallucinations. Empirical results on synthetic and real-world datasets demonstrate that our approach reduces hallucinations (up to ~25%) while maintaining high fidelity and diversity, providing a principled step toward more reliable diffusion-based image generation. We also propose two benchmark datasets with extreme semantic variation for systematic hallucination evaluation. Code and Datasets are publicly available at https://github.com/bhosalems/VSM.",
+      "authors": [
+        "Mahesh Bhosale",
+        "Naresh Kumar Devulapally",
+        "Abdul Wasi",
+        "Chau Pham",
+        "Vishnu Suresh Lokhande",
+        "David Doermann"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-29T21:35:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.00377v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free score modulation for image generation",
+      "llm_evidence_cn": "无需训练的分数调制技术用于图像生成",
+      "llm_evidence": "无需训练的分数调制技术用于图像生成",
+      "canonical_evidence": "无需训练的分数调制技术用于图像生成",
+      "llm_tldr_en": "Proposes Variance-Guided Score Modulation (VSM) to reduce hallucinations in diffusion image generation, a training-free sampling optimization.",
+      "llm_tldr_cn": "该论文针对扩散模型图像生成中的幻觉问题，提出了一种无需训练的方差引导分数调制（VSM）策略，通过控制分数Jacobian来减少模型生成不可信样本的概率，实验证实了该方法能有效降低幻觉，为提升扩散模型图像生成的可靠性提供了一种轻量级推理优化手段。",
+      "llm_tldr": "该论文针对扩散模型图像生成中的幻觉问题，提出了一种无需训练的方差引导分数调制（VSM）策略，通过控制分数Jacobian来减少模型生成不可信样本的概率，实验证实了该方法能有效降低幻觉，为提升扩散模型图像生成的可靠性提供了一种轻量级推理优化手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.02553v1",
+      "source": "arxiv",
+      "title": "LongLive-RAG: A General Retrieval-Augmented Framework for Long Video Generation",
+      "abstract": "Autoregressive (AR) video diffusion enables variable-length synthesis, but long-horizon generation often suffers from accumulated errors and identity drift. For efficiency, existing methods commonly adopt sliding-window attention during generation. This creates an irreversible generation trajectory: once the active window accumulates appearance errors, subsequent generations can only condition on this degraded trajectory and drift further away. We address this limitation by formulating long video generation as a retrieval-augmented generation (RAG) problem. Rather than relying solely on the recent window, we treat previously generated latents as a dynamic, searchable history. We propose LongLive-RAG, a general retrieval framework for AR video generation. At each new block, LongLive-RAG uses a query embedding to retrieve relevant historical latents. This lightweight retrieval step adds only a small overhead relative to generation and lets the generator condition on non-local context instead of only the recent window. To make retrieval more discriminative, we introduce the Window Temporal Delta Loss that suppresses redundant local similarity and encourages embeddings to capture meaningful temporal changes. Together, these components help reduce error accumulation caused by sliding-window attention. Experiments across multiple AR backbones and generation lengths show improved long-video quality and the best average VBench-Long rank. To our knowledge, among open-ended AR long video generation methods, LongLive-RAG is the first to formulate self-generated latent history as content-addressable retrieval memory. Code is available at https://github.com/qixinhu11/LongLive-RAG.",
+      "authors": [
+        "Qixin Hu",
+        "Shuai Yang",
+        "Wei Huang",
+        "Song Han",
+        "Yukang Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-01T17:50:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.02553v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free retrieval-augmented framework for long video generation",
+      "llm_evidence_cn": "无需训练的检索增强长视频生成框架",
+      "llm_evidence": "无需训练的检索增强长视频生成框架",
+      "canonical_evidence": "无需训练的检索增强长视频生成框架",
+      "llm_tldr_en": "Proposes LongLive-RAG, a retrieval-augmented framework for autoregressive video diffusion that requires no additional training to improve long video generation.",
+      "llm_tldr_cn": "该论文将长视频生成建模为检索增强生成问题，提出LongLive-RAG框架，在推理过程中通过检索历史潜变量来改善自回归视频扩散的误差累积，无需额外训练即可提升长视频的一致性和质量，属于一种训练自由优化方法，直接面向视频生成。",
+      "llm_tldr": "该论文将长视频生成建模为检索增强生成问题，提出LongLive-RAG框架，在推理过程中通过检索历史潜变量来改善自回归视频扩散的误差累积，无需额外训练即可提升长视频的一致性和质量，属于一种训练自由优化方法，直接面向视频生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
