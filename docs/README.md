@@ -6,59 +6,43 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-02
-- 运行时间：2026-06-02 21:45:43 UTC
+- 最新运行日期：2026-06-03
+- 运行时间：2026-06-03 22:50:18 UTC
 - 运行状态：成功
-- 本次总论文数：13
-- 精读区：6
-- 速读区：7
+- 本次总论文数：7
+- 精读区：4
+- 速读区：3
 
 ### 今日简报（AI）
-今日日报聚焦13篇论文，精读6篇，重点关注高保真条件生成与一步扩散模型突破。最值得精读的是COLLAR级联对象级潜在精化（9.0分）和Training-free图像反演（9.0分），引领生成质量与效率前沿。建议优先消化这两篇论文，再结合RT-Lynx等速读研究补充稀疏计算实践。
-- 详情：[/202606/02/README](/202606/02/README)
+今日聚焦多概念LoRA免训练组合与掩码区域分层图像生成两大突破。
+最值得关注的是无需训练的LoRA多概念权重提示融合，以及可扩展的分层图像生成编辑框架。
+建议下次优先精读这两篇高分论文以掌握最新图像合成技术。
+- 详情：[/202606/03/README](/202606/03/README)
 
 ### 精读区论文标签
-1. [COLLAR: Cascaded Object-Level Latent Refinement for High-Fidelity Conditional Generation](/202606/02/2606.00954v1-collar-cascaded-object-level-latent-refinement-for-high-fidelity-conditional-generation)  
+1. [Training-Free Multi-Concept LoRA Composition with Prompt-Aware Weighting](/202606/03/2606.03792v1-training-free-multi-concept-lora-composition-with-prompt-aware-weighting)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练的潜在优化实现扩散模型条件生成
-2. [Training-free image inversion for one-step diffusion models](/202606/02/2606.01380v1-training-free-image-inversion-for-one-step-diffusion-models)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：用于图像编辑的单步扩散模型免训练反演
-3. [Splatshot: 3D Face Avatar Generation from a Single Unconstrained Photo](/202606/02/2606.01493v1-splatshot-3d-face-avatar-generation-from-a-single-unconstrained-photo)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：将3DGS与扩散先验耦合的免训练3D人脸生成框架
-4. [PARE: Pruning and Adaptive Routing for Efficient Video Generation](/202606/02/2605.27336v1-pare-pruning-and-adaptive-routing-for-efficient-video-generation)  
+   evidence：免训练的多概念LoRA组合用于文本到图像生成
+2. [MRT: Masked Region Transformer for Layered Image Generation and Editing at Scale](/202606/03/2605.27235v1-mrt-masked-region-transformer-for-layered-image-generation-and-editing-at-scale)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：基于剪枝和路由的高效视频扩散Transformer
-5. [SGMD: Score Gradient Matching Distillation for Few-Step Video Diffusion Distillation](/202606/02/2605.30116v1-sgmd-score-gradient-matching-distillation-for-few-step-video-diffusion-distillation)  
+   evidence：用于分层图像生成的扩散模型
+3. [Real2SAM2Real: Generative 3D Caches as Complementary Context for Video Diffusion](/202606/03/2606.00299v1-real2sam2real-generative-3d-caches-as-complementary-context-for-video-diffusion)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：视频扩散蒸馏
-6. [Decoupled Residual Denoising Diffusion Models for Unified and Data Efficient Image-to-Image Translation](/202606/02/2606.01048v1-decoupled-residual-denoising-diffusion-models-for-unified-and-data-efficient-image-to-image-translation)  
+   evidence：利用3D缓存提升视频扩散生成，无需额外训练
+4. [Splatshot: 3D Face Avatar Generation from a Single Unconstrained Photo](/202606/03/2606.01493v1-splatshot-3d-face-avatar-generation-from-a-single-unconstrained-photo)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：用于图像翻译的扩散模型
+   evidence：免训练的单照片3D人脸头像生成，使用扩散模型
 
 ### 速读区论文标签
-1. [Squeezing Capacity from Multimodal Large Language Models for Subject-driven Generation](/202606/02/2605.26111v1-squeezing-capacity-from-multimodal-large-language-models-for-subject-driven-generation)  
+1. [Veda: Scalable Video Diffusion via Distilled Sparse Attention](/202606/03/2605.30325v1-veda-scalable-video-diffusion-via-distilled-sparse-attention)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：基于扩散模型的主题驱动图像生成
-2. [RT-Lynx: Putting the GEMM Sparsity In a Right Way for Diffusion Models](/202606/02/2605.26632v2-rt-lynx-putting-the-gemm-sparsity-in-a-right-way-for-diffusion-models)  
+   evidence：蒸馏稀疏注意力用于扩展视频扩散
+2. [Collaborative Few-Step Distillation and Low-Bit Quantization for Wan2.2 Dual-Expert Video Diffusion Models](/202606/03/2606.00658v1-collaborative-few-step-distillation-and-low-bit-quantization-for-wan22-dual-expert-video-diffusion-models)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：扩散模型推理的激活稀疏化
-3. [Towards 3D-Aware Video Diffusion Models: Render-Free Human Motion Control with Mesh Tokenization](/202606/02/2606.02000v1-towards-3d-aware-video-diffusion-models-render-free-human-motion-control-with-mesh-tokenization)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：用于人体运动控制的视频扩散模型
-4. [LongLive-RAG: A General Retrieval-Augmented Framework for Long Video Generation](/202606/02/2606.02553v1-longlive-rag-a-general-retrieval-augmented-framework-for-long-video-generation)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：无需训练的检索增强长视频生成框架
-5. [Towards Controllable Image Generation through Representation-Conditioned Diffusion Models](/202606/02/2605.27343v1-towards-controllable-image-generation-through-representation-conditioned-diffusion-models)  
+   evidence：通过蒸馏和量化压缩视频扩散模型
+3. [Alignment-Guided Score Matching for Text-to-Image Alignment in Diffusion Models](/202606/03/2605.30038v1-alignment-guided-score-matching-for-text-to-image-alignment-in-diffusion-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：基于表征条件的图像生成扩散模型
-6. [AdaState: Self-Evolving Anchors for Streaming Video Generation](/202606/02/2605.30349v1-adastate-self-evolving-anchors-for-streaming-video-generation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：流式视频扩散生成
-7. [Score-Control for Hallucination Reduction in Diffusion Models](/202606/02/2606.00377v1-score-control-for-hallucination-reduction-in-diffusion-models)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：无需训练的分数调制技术用于图像生成
+   evidence：改善扩散模型中的文本-图像对齐
 
 
 <div class="dpr-home-promo-card">

@@ -1,0 +1,298 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-03T22:45:31.259485+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.03792v1",
+      "source": "arxiv",
+      "title": "Training-Free Multi-Concept LoRA Composition with Prompt-Aware Weighting",
+      "abstract": "Low-Rank Adaptation (LoRA) successfully enables personalization in text-to-image generation by adapting pre-trained diffusion models to specific visual concepts and styles. However, extending such models to multi-concept customization remains challenging. Naively combining multiple LoRA weights or their outputs often leads to interference among concepts, resulting in degraded visual quality and reduced fidelity to the reference images of individual concepts. This paper proposes a simple yet effective approach for multi-concept customization by optimally combining the outputs of multiple LoRA modules. We leverage the relative importance of each concept during generation, as inferred from its corresponding prompt tokens and introduce two methods, W-Switch and W-Composite, that employ a prompt-aware importance weighting strategy in which each LoRA is weighted according to the semantic influence of its trigger words in the target prompt. In addition, we extend existing quantitative evaluation metrics by proposing a new image-based similarity evaluation framework that assesses image fidelity and identity preservation through comparisons between real-world reference images and automatically segmented concept regions from generated images. We evaluate our approach on the ComposLoRA testbed and demonstrate consistent improvements over existing state-of-the-art methods in terms of visual quality, identity preservation and compositionality. Qualitative evaluations, including a Large Language Model (LLM) based assessment and a user study, further validate the effectiveness of the proposed methods and align with the newly introduced quantitative image-based metrics. Our code is available at https://github.com/GeorgeTsoumplekas/Prompt-Aware-Multi-LoRA-Composition.",
+      "authors": [
+        "Georgios Tsoumplekas",
+        "Stella Bounareli",
+        "Vasileios Argyriou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-02T15:42:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.03792v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free multi-concept LoRA composition for text-to-image",
+      "llm_evidence_cn": "免训练的多概念LoRA组合用于文本到图像生成",
+      "llm_evidence": "免训练的多概念LoRA组合用于文本到图像生成",
+      "canonical_evidence": "免训练的多概念LoRA组合用于文本到图像生成",
+      "llm_tldr_en": "This paper proposes a training-free approach that optimally combines multiple LoRA outputs using prompt-aware weighting to achieve high-quality multi-concept customization in text-to-image generation.",
+      "llm_tldr_cn": "多概念LoRA组合时存在概念干扰问题。本文提出一种免训练的简单有效方法，通过提示感知权重优化多个LoRA模块的输出组合。引入W-Swi和W-Cos两种方法，根据提示令牌推断各概念的重要性，实现了高质量的多概念定制，无需额外训练。",
+      "llm_tldr": "多概念LoRA组合时存在概念干扰问题。本文提出一种免训练的简单有效方法，通过提示感知权重优化多个LoRA模块的输出组合。引入W-Swi和W-Cos两种方法，根据提示令牌推断各概念的重要性，实现了高质量的多概念定制，无需额外训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.27235v1",
+      "source": "arxiv",
+      "title": "MRT: Masked Region Transformer for Layered Image Generation and Editing at Scale",
+      "abstract": "Layered image generation and editing is a fundamental capability that enables layer-wise reuse, editing, and composition of generated visual content, analogous to word-level editing in natural language. Despite its importance, this remains an underexplored area at scale. To address this gap, we present MRT, a 20B-parameter masked region diffusion model tailored for multi-layer transparent image generation and editing, trained on over 10M multilingual design samples spanning diverse aspect ratios and textual prompts. To fully leverage this scale, we make two key technical contributions. First, we unify three complementary tasks including text-to-layers, image-to-layers, and layers-to-layers within a shared masked region diffusion framework, where selective token masking enables flexible layer-wise generation and editing. Second, to enable overflow layer generation, we introduce an overflow-aware canvas layer that handles boundary inconsistencies and supports semi-transparent background synthesis, enabling complete editable layers extending beyond visible canvas boundaries. Additionally, we apply diffusion distillation to achieve 8-step, real-time multi-layer generation with minimal quality degradation. Extensive experiments demonstrate that our framework substantially outperforms prior state-of-the-art approaches, including various commercial systems, across all three tasks, establishing a new benchmark for multi-layer transparent image generation. Notably, our model significantly outperforms the concurrent Qwen-Image-Layered model in image-to-layers quality according to user-study results, while achieving 10-100\\times faster inference and reducing activation GPU memory consumption by 50-90\\% during image-to-layer inference.",
+      "authors": [
+        "Zhicong Tang",
+        "Zhao Zhang",
+        "Jingye Chen",
+        "Mohan Zhou",
+        "Yifan Pu",
+        "Yuchi Liu",
+        "Yalong Bai",
+        "Ethan Smith",
+        "Yuhui Yuan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-26T16:16:19+00:00",
+      "link": "https://arxiv.org/pdf/2605.27235v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "diffusion model for layered image generation",
+      "llm_evidence_cn": "用于分层图像生成的扩散模型",
+      "llm_evidence": "用于分层图像生成的扩散模型",
+      "canonical_evidence": "用于分层图像生成的扩散模型",
+      "llm_tldr_en": "MRT presents a 20B-parameter masked region diffusion model for multi-layer transparent image generation and editing at scale, unifying text-to-layers, image-to-layers, and layers-to-layers tasks.",
+      "llm_tldr_cn": "分层图像生成与编辑是重要但未充分探索的能力。本文提出MRT，一个200亿参数的掩蔽区域扩散模型，统一了文本到图层、图像到图层和图层到图层三个任务。该模型在超过1000万多语言设计样本上训练，支持多样化的宽高比和文本提示，实现了大规模的多层透明图像生成与编辑。",
+      "llm_tldr": "分层图像生成与编辑是重要但未充分探索的能力。本文提出MRT，一个200亿参数的掩蔽区域扩散模型，统一了文本到图层、图像到图层和图层到图层三个任务。该模型在超过1000万多语言设计样本上训练，支持多样化的宽高比和文本提示，实现了大规模的多层透明图像生成与编辑。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.00299v1",
+      "source": "arxiv",
+      "title": "Real2SAM2Real: Generative 3D Caches as Complementary Context for Video Diffusion",
+      "abstract": "While Video Diffusion Models (VDMs) excel at synthesizing high-fidelity videos, enabling precise camera and scene control remains challenging. Existing methods predominantly rely on implicit diffusion priors to generate unobserved regions, inevitably leading to structural collapse during high-dynamic movements or complex occlusions. To address this challenge, we propose Real2SAM2Real, a framework that leverages 3D lifting models (e.g., SAM3D) to extract an explicitly editable 3D cache, serving as a robust geometric scaffold for the VDM. By capturing the entire 3D volume of foreground entities rather than just their visible shells, this cache injects holistic spatial priors into the VDM, providing dependable 3D-aware guidance for complex scene dynamics. To effectively leverage this 3D guidance while preserving pre-trained priors, we design a Soft Spatial-Aligned Injection mechanism alongside a minimally invasive fine-tuning strategy tailored for VDMs. Furthermore, we employ masked normal maps as a cross-modal bridge to construct a 3D-free data curation and perturbation pipeline. Extensive experiments demonstrate that Real2SAM2Real enables precise, decoupled control over both camera trajectories and multi-entity motions. By utilizing the complementary context from generative 3D caches, our framework overcomes typical breakdowns caused by over-reliance on diffusion priors, maintaining exceptional spatiotemporal consistency under large camera shifts and severe occlusions. Crucially, by decoupling geometry from appearance, our VDM-tailored 3D cache eradicates perspective ambiguities caused by structural holes and erroneous facades, as well as misleading cues from reflections and refractions. Project website is available at https://jiayi-wu-leo.github.io/real2sam2real",
+      "authors": [
+        "Jiayi Wu",
+        "Haoming Cai",
+        "Cornelia Fermuller",
+        "Christopher Metzler",
+        "Yiannis Aloimonos"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-29T19:28:07+00:00",
+      "link": "https://arxiv.org/pdf/2606.00299v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "improves video diffusion generation without additional training by using 3D cache",
+      "llm_evidence_cn": "利用3D缓存提升视频扩散生成，无需额外训练",
+      "llm_evidence": "利用3D缓存提升视频扩散生成，无需额外训练",
+      "canonical_evidence": "利用3D缓存提升视频扩散生成，无需额外训练",
+      "llm_tldr_en": "Real2SAM2Real enhances video diffusion models by injecting an explicit 3D cache from 3D lifting models, providing 3D-aware guidance for complex scenes without retraining the VDM.",
+      "llm_tldr_cn": "针对视频扩散模型在高动态运动或复杂遮挡下结构崩溃的问题，本文提出Real2SAM2Real框架。它利用3D提升模型（如SAM3D）提取显式可编辑的3D缓存，作为几何支架注入视频扩散模型，无需重新训练即可提供可靠的3D感知引导。实验表明该方法显著提升视频生成的时空一致性，尤其适用于复杂场景。",
+      "llm_tldr": "针对视频扩散模型在高动态运动或复杂遮挡下结构崩溃的问题，本文提出Real2SAM2Real框架。它利用3D提升模型（如SAM3D）提取显式可编辑的3D缓存，作为几何支架注入视频扩散模型，无需重新训练即可提供可靠的3D感知引导。实验表明该方法显著提升视频生成的时空一致性，尤其适用于复杂场景。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.01493v1",
+      "source": "arxiv",
+      "title": "Splatshot: 3D Face Avatar Generation from a Single Unconstrained Photo",
+      "abstract": "Reconstructing a photorealistic 3D face avatar from a single unconstrained photograph is challenging: feed-forward 3D Gaussian Splatting (3DGS) models degrade on out-of-distribution inputs, while pretrained diffusion models produce high-fidelity images but lack multi-view consistency. We observe that these paradigms are fundamentally complementary: explicit 3D representations guarantee geometric consistency, whereas 2D diffusion priors ensure photorealism. Building on this, we propose SplatShot, a training-free framework that couples these representations directly within the denoising process. Given a base 3DGS face model and a single reference image, we jointly denoise all target views using a per-step 3D feedback loop. At each timestep, we predict clean images from the noisy latents, refit the 3DGS to these multi-view predictions, and back-propagate the photometric discrepancy between the 3DGS re-renderings and 2D predictions into the noise estimate. This steers the sampling trajectory toward strictly 3D-coherent, identity-faithful outputs. Experiments on diverse in-the-wild images demonstrate that SplatShot produces 3D avatars with superior identity preservation, photorealism, and multi-view consistency.",
+      "authors": [
+        "Hao Liang",
+        "Zhixuan Ge",
+        "Soumendu Majee",
+        "Joanna Li",
+        "Ashok Veeraraghavan",
+        "Guha Balakrishnan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-31T23:19:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.01493v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free 3D face avatar generation from a single photo using diffusion models",
+      "llm_evidence_cn": "免训练的单照片3D人脸头像生成，使用扩散模型",
+      "llm_evidence": "免训练的单照片3D人脸头像生成，使用扩散模型",
+      "canonical_evidence": "免训练的单照片3D人脸头像生成，使用扩散模型",
+      "llm_tldr_en": "SplatShot proposes a training-free framework that couples 3DGS and diffusion priors within the denoising process, enabling photorealistic 3D face avatar generation from a single unconstrained photo without extra training.",
+      "llm_tldr_cn": "单张非约束照片重建3D人脸头像面临几何一致性与真实感难以兼得的问题。本文提出SplatShot，一种免训练框架，在去噪过程中直接耦合3D高斯溅射与2D扩散先验。通过每步3D反馈循环联合去噪所有目标视图，利用3DGS保证几何一致性、扩散先验保证真实感，无需额外训练即可生成高质量3D人脸头像。",
+      "llm_tldr": "单张非约束照片重建3D人脸头像面临几何一致性与真实感难以兼得的问题。本文提出SplatShot，一种免训练框架，在去噪过程中直接耦合3D高斯溅射与2D扩散先验。通过每步3D反馈循环联合去噪所有目标视图，利用3DGS保证几何一致性、扩散先验保证真实感，无需额外训练即可生成高质量3D人脸头像。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.30325v1",
+      "source": "arxiv",
+      "title": "Veda: Scalable Video Diffusion via Distilled Sparse Attention",
+      "abstract": "Scaling Diffusion Transformers to generate high-resolution, long videos is constrained by the quadratic cost of self-attention, and existing sparse attention methods degrade under high sparsity. We show empirically that generation quality is determined not by the sparsity ratio itself, but by how well the sparse mask aligns with the tile-wise geometry of full attention. Based on this insight, we propose Veda, a distilled sparse attention framework that formulates tile selection as an explicit reconstruction problem from full attention. Veda integrates statistics-aware tile scoring with head-aware tiling to reduce estimation error and structural mismatch, enabling aggressive sparsity. A hardware-efficient tile-skipping kernel converts theoretical sparsity into practical wall-clock speedups. Experiments on large video diffusion models, including Waver and Wan2.1, demonstrate substantial acceleration with no noticeable degradation in generation quality. To generate 720P 10-second videos on Waver-T2V-12B, Veda achieves a 5.1$\\times$ end-to-end speedup and a 10.5$\\times$ self-attention speedup, reducing attention overhead from 92% to 50%. Notably, the gains increase with sequence length, indicating that Veda scales favorably with spatiotemporal resolution across models.",
+      "authors": [
+        "Shihao Han",
+        "Hao Yang",
+        "Xinting Hu",
+        "Xiaofeng Mei",
+        "Yi Jiang",
+        "Xiaojuan Qi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-28T17:57:07+00:00",
+      "link": "https://arxiv.org/pdf/2605.30325v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "distilled sparse attention for scaling video diffusion",
+      "llm_evidence_cn": "蒸馏稀疏注意力用于扩展视频扩散",
+      "llm_evidence": "蒸馏稀疏注意力用于扩展视频扩散",
+      "canonical_evidence": "蒸馏稀疏注意力用于扩展视频扩散",
+      "llm_tldr_en": "Veda proposes a distilled sparse attention framework for video diffusion, formulating tile selection as reconstruction from full attention and enabling aggressive sparsity with a hardware-efficient kernel.",
+      "llm_tldr_cn": "高分辨率长视频生成受限于注意力二次成本。本文提出Veda蒸馏稀疏注意力框架，将瓦片选择视为对完整注意力的重构问题，结合统计感知瓦片评分与头感知瓦片化，减少估计误差。硬件高效的瓦片跳过核将理论稀疏性转化为实际加速，实现可扩展的视频扩散。",
+      "llm_tldr": "高分辨率长视频生成受限于注意力二次成本。本文提出Veda蒸馏稀疏注意力框架，将瓦片选择视为对完整注意力的重构问题，结合统计感知瓦片评分与头感知瓦片化，减少估计误差。硬件高效的瓦片跳过核将理论稀疏性转化为实际加速，实现可扩展的视频扩散。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.30038v1",
+      "source": "arxiv",
+      "title": "Alignment-Guided Score Matching for Text-to-Image Alignment in Diffusion Models",
+      "abstract": "Diffusion models generate highly realistic images but often struggle with precise text-image alignment. While recent post-training methods improve alignment using external rewards or human preference signals, their performance heavily depends on reward quality and does not directly address alignment within the diffusion process itself. Recent reward-free approaches such as SoftREPA demonstrate that optimizing soft text tokens via contrastive learning can effectively improve text-image representation alignment, outperforming standard parameter-efficient fine-tuning baselines. However, the contrastive formulation can excessively penalize negative pairs, which manifests as characteristic failure cases such as over-counting and repetition. To address this issue, we propose a lightweight, reward-free post-training method that refines soft tokens by integrating contrastive alignment guidance directly into the score-matching objective of diffusion models. By assigning alignment directions at the score level, our approach mitigates these limitations and yields more coherent and semantically faithful generations. Experiments show that our method matches SoftREPA while substantially improving its failure cases, achieving over 35% improvement in counting accuracy on the GenEval benchmark. Our method is seamlessly applicable to existing diffusion backbones (SD1.5, SDXL, and SD3), and is complementary to existing RL-based diffusion post-training methods. Project page: https://jaayeon.github.io/AGSM",
+      "authors": [
+        "Jaa-Yeon Lee",
+        "Yeobin Hong",
+        "Taesung Kwon",
+        "Jong Chul Ye"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-05-28T14:57:01+00:00",
+      "link": "https://arxiv.org/pdf/2605.30038v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "improving text-to-image alignment in diffusion models",
+      "llm_evidence_cn": "改善扩散模型中的文本-图像对齐",
+      "llm_evidence": "改善扩散模型中的文本-图像对齐",
+      "canonical_evidence": "改善扩散模型中的文本-图像对齐",
+      "llm_tldr_en": "This paper proposes alignment-guided score matching to improve text-image alignment in diffusion models, addressing limitations of contrastive methods by using a reweighted objective that reduces false negatives.",
+      "llm_tldr_cn": "扩散模型生成图像时文本-图像对齐不准确。本文提出对齐引导分数匹配方法，通过重加权目标函数减少对比学习中负样本惩罚过度的问题，从而避免重复和过度计数等失败模式，提升生成图像与文本的一致性。",
+      "llm_tldr": "扩散模型生成图像时文本-图像对齐不准确。本文提出对齐引导分数匹配方法，通过重加权目标函数减少对比学习中负样本惩罚过度的问题，从而避免重复和过度计数等失败模式，提升生成图像与文本的一致性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.00658v1",
+      "source": "arxiv",
+      "title": "Collaborative Few-Step Distillation and Low-Bit Quantization for Wan2.2 Dual-Expert Video Diffusion Models",
+      "abstract": "Large video diffusion models achieve strong visual quality but remain expensive to deploy because each sample requires many denoising steps and a large resident parameter footprint. This paper studies a deployment-oriented compression pipeline for Wan2.2-T2V-A14B by combining few-step distribution-matching distillation with low-bit quantization. The pipeline follows the model's dual-expert denoising route, calibrates the high-noise and low-noise branches separately, protects sensitive entrance layers, and uses HiF4-style low-bit representation to improve dynamic-range coverage. Quantization is calibrated on the distilled few-step student rather than on the original long-step trajectory, reducing activation-distribution mismatch during inference. The proposed co-design keeps the quantized model close to the same-step full-precision model and surpasses the original full-precision baseline at 8 and 20 steps on average. The 20-step setting gives the best quality-efficiency trade-off in the tested configurations.",
+      "authors": [
+        "Jinyang Du",
+        "Shenghao Jin",
+        "Ziqian Xu",
+        "Ruihao Gong",
+        "Shiqiao Gu",
+        "Yang Yong",
+        "Jinyang Guo",
+        "Xianglong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-30T10:15:26+00:00",
+      "link": "https://arxiv.org/pdf/2606.00658v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "video diffusion model compression via distillation and quantization",
+      "llm_evidence_cn": "通过蒸馏和量化压缩视频扩散模型",
+      "llm_evidence": "通过蒸馏和量化压缩视频扩散模型",
+      "canonical_evidence": "通过蒸馏和量化压缩视频扩散模型",
+      "llm_tldr_en": "This paper combines few-step distribution-matching distillation with low-bit quantization to compress Wan2.2-T2V-A14B video diffusion model, achieving deployment efficiency with minimal quality loss.",
+      "llm_tldr_cn": "大型视频扩散模型部署成本高。本文提出结合少步分布匹配蒸馏与低位量化的压缩流程，针对Wan2.2双专家去噪路径分别校准，保护敏感层并采用HiF4低比特表示。在蒸馏后的少步学生模型上进行量化校准，减少了激活分布偏移，实现了高效的视频生成部署。",
+      "llm_tldr": "大型视频扩散模型部署成本高。本文提出结合少步分布匹配蒸馏与低位量化的压缩流程，针对Wan2.2双专家去噪路径分别校准，保护敏感层并采用HiF4低比特表示。在蒸馏后的少步学生模型上进行量化校准，减少了激活分布偏移，实现了高效的视频生成部署。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
