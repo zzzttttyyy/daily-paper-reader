@@ -1,0 +1,137 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-04T21:04:28.391273+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 0,
+    "quick_skim_target": 11,
+    "quick_selected": 0
+  },
+  "deep_dive": [
+    {
+      "id": "2606.03119v1",
+      "source": "arxiv",
+      "title": "GuidedBridge: Training-freely Improving Bridge Models with Prior Guidance",
+      "abstract": "Guidance methods, such as classifier-free guidance (CFG) and auto-guidance (AG), have advanced noise-to-data generation in diffusion models. Recently, bridge models have introduced a data-to-data generative process that can exploit an instructive clean prior. In this work, inspired by previous methods creating quality difference between denoising results as guidance, we propose a training-free bridge guidance method, termed Prior Guidance (PG). Specifically, we introduce a weak prior, which is unseen during bridge pre-training, hindering prior exploitation and thereby degrading denoising result. Then, we contrast it with the seen prior to highlight and enhance prior exploitation via a scaling factor. Moreover, we analyze the underlying mechanism of prior exploitation in the bridge process and design frequency-modulated prior guidance (FMPG), which tailors the guidance scale to low- and high-frequency bands coherent with bridge generative dynamics. To address prior exploitation in image in-painting, we develop a cascaded framework, CFG-FMPG, which first generates a noisy hidden representation via CFG and then exploits it as a generative prior with FMPG, fulfilling their complementary strengths without compromising inference efficiency. Experiments demonstrate that our PG methods consistently improve pre-trained bridge models across diverse image translation tasks.",
+      "authors": [
+        "Zehua Chen",
+        "Yucheng Yang",
+        "Binjie Yuan",
+        "Kaiwen Zheng",
+        "Jun S. Liu",
+        "Jun Zhu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-02T04:04:23+00:00",
+      "link": "https://arxiv.org/pdf/2606.03119v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "training-free prior guidance for bridge/diffusion models",
+      "llm_evidence_cn": "对桥接/扩散模型的免训练先验引导方法",
+      "llm_evidence": "对桥接/扩散模型的免训练先验引导方法",
+      "canonical_evidence": "对桥接/扩散模型的免训练先验引导方法",
+      "llm_tldr_en": "Proposes Prior Guidance (PG), a training-free method that uses a weak prior to create quality difference and enhance bridge model generation, improving sample quality without retraining.",
+      "llm_tldr_cn": "桥接模型是一种数据到数据的生成模型，可以利用清洁先验。然而现有方法无法在免训练条件下利用先验提升质量。本文提出免训练先验引导（PG）方法，通过引入一个弱先验（训练时未见过的先验）来降低生成质量，再与强先验对比，通过缩放因子突出先验利用，从而提升样本质量。实验表明，PG在多个桥接模型上显著改善生成效果，且无需任何训练。该方法为扩散模型家族提供了一种有效的免训练优化手段。",
+      "llm_tldr": "桥接模型是一种数据到数据的生成模型，可以利用清洁先验。然而现有方法无法在免训练条件下利用先验提升质量。本文提出免训练先验引导（PG）方法，通过引入一个弱先验（训练时未见过的先验）来降低生成质量，再与强先验对比，通过缩放因子突出先验利用，从而提升样本质量。实验表明，PG在多个桥接模型上显著改善生成效果，且无需任何训练。该方法为扩散模型家族提供了一种有效的免训练优化手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.04299v1",
+      "source": "arxiv",
+      "title": "Efficient and Training-Free Single-Image Diffusion Models",
+      "abstract": "We consider the problem of generating images whose internal structure -- defined by the distribution of patches across multiple scales -- matches that of a single reference image. Recent approaches address this problem by training a diffusion model on a single image. But even in this setting, training is computationally expensive and requires hours of optimization. Instead, we model the image using a dataset of its patches at different scales. As this dataset is finite and the dimensionality of its patches is small, the score function for a noisy patch can be computed tractably using an optimal, closed-form denoiser, eliminating the need for neural network training. We integrate this patch-based denoiser into an efficient, training-free image diffusion model, and we describe how our method connects to classical patch-based image restoration techniques. Our approach achieves state-of-the-art generation quality and diversity compared to trained single-image diffusion models, and we demonstrate applications, including unconditional image generation, text-guided stylization, image symmetrization, and retargeting. Further, we show that our approach is compatible with latent space diffusion, and we show multiple additional acceleration techniques to achieve megapixel single-image generation in one second, and gigapixel generation in minutes.",
+      "authors": [
+        "Haojun Qiu",
+        "Kiriakos N. Kutulakos",
+        "David B. Lindell"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-03T00:05:36+00:00",
+      "link": "https://arxiv.org/pdf/2606.04299v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free single-image diffusion model using closed-form denoiser",
+      "llm_evidence_cn": "使用闭式去噪器的免训练单图像扩散模型",
+      "llm_evidence": "使用闭式去噪器的免训练单图像扩散模型",
+      "canonical_evidence": "使用闭式去噪器的免训练单图像扩散模型",
+      "llm_tldr_en": "Presents a training-free single-image diffusion model using a patch-based closed-form denoiser, eliminating the need for neural network training and hours of optimization.",
+      "llm_tldr_cn": "针对单图像扩散模型训练计算成本高的问题，提出一种免训练方法：通过不同尺度上的图像块数据集构建闭式去噪器，从而避免神经网络训练。该模型在无需训练的情况下即可生成结构匹配参考图像的新图像，为免训练扩散图像生成提供了高效方案。",
+      "llm_tldr": "针对单图像扩散模型训练计算成本高的问题，提出一种免训练方法：通过不同尺度上的图像块数据集构建闭式去噪器，从而避免神经网络训练。该模型在无需训练的情况下即可生成结构匹配参考图像的新图像，为免训练扩散图像生成提供了高效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.04775v1",
+      "source": "arxiv",
+      "title": "Activation Steering of Video Generation Models via Reduced-Order Linear Optimal Control",
+      "abstract": "Text-to-video (T2V) models trained on large-scale web data can generate undesired content, motivating interventions that reduce harmful outputs without sacrificing visual quality. Activation steering offers an attractive mechanistic alternative to finetuning and prompt filtering, but existing T2V steering methods remain limited, typically applying coarse, non-anticipative interventions that can lead to oversteering and content degradation. To close this gap, we propose Latent Activation Linear-Quadratic Regulator (LA-LQR), a reduced-order optimal control framework for minimally invasive T2V steering. LA-LQR formulates T2V inference as a dynamical system and computes closed-loop feedback interventions that steer activations toward desired feature setpoints while penalizing unnecessary perturbations. To make optimal control feasible for high-dimensional video activations, we project activations onto a low-dimensional, task-relevant subspace derived from contrastive prompt pairs, estimate local linear dynamics in this latent space, and solve a latent LQR problem to obtain timestep- and layer-specific steering signals. We provide theoretical bounds relating latent setpoint tracking to raw activation-space feature control, and empirically validate the fidelity of the reduced latent dynamics. On concept steering and video safety benchmarks, LA-LQR reduces unsafe generations relative to baselines, while preserving prompt fidelity and visual quality.",
+      "authors": [
+        "Jihoon Hong",
+        "Alice Chan",
+        "Qiyue Dai",
+        "Julian Skifstad",
+        "Glen Chou"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV",
+        "eess.SY",
+        "math.OC"
+      ],
+      "published": "2026-06-03T11:58:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.04775v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free activation steering for video generation using optimal control",
+      "llm_evidence_cn": "基于最优控制的免训练视频生成激活引导",
+      "llm_evidence": "基于最优控制的免训练视频生成激活引导",
+      "canonical_evidence": "基于最优控制的免训练视频生成激活引导",
+      "llm_tldr_en": "LA-LQR applies reduced-order optimal control for training-free activation steering of T2V models, minimally invasively reducing harmful outputs.",
+      "llm_tldr_cn": "本文针对视频生成模型可能产生有害内容的问题，提出LA-LQR框架，将视频扩散推理视为动力系统并使用降阶最优控制进行激活引导，无需额外训练即能最小干扰地抑制不良输出，同时保持视觉质量，为视频生成中的安全干预提供了高效方案。",
+      "llm_tldr": "本文针对视频生成模型可能产生有害内容的问题，提出LA-LQR框架，将视频扩散推理视为动力系统并使用降阶最优控制进行激活引导，无需额外训练即能最小干扰地抑制不良输出，同时保持视觉质量，为视频生成中的安全干预提供了高效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": []
+}

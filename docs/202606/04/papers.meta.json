@@ -1,0 +1,54 @@
+{
+  "label": "2026-06-04",
+  "date": "2026-06-04",
+  "generated_at": "2026-06-04T21:08:26",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202606/04/2606.03119v1-guidedbridge-training-freely-improving-bridge-models-with-prior-guidance",
+      "section": "deep",
+      "title_en": "GuidedBridge: Training-freely Improving Bridge Models with Prior Guidance",
+      "authors": "Zehua Chen, Yucheng Yang, Binjie Yuan, Kaiwen Zheng, Jun S. Liu, Jun Zhu",
+      "date": "2026-06-02",
+      "pdf": "https://arxiv.org/pdf/2606.03119v1",
+      "score": "10.0",
+      "evidence": "对桥接/扩散模型的免训练先验引导方法",
+      "tldr": "桥模型的数据到数据生成利用先验，但现有引导方法需训练。本文提出无训练Prior Guidance方法，通过引入弱先验与强先验对比来增强先验利用，并针对桥生成动态设计频率调制先验引导，进一步提出级联CFG-FMPG用于图像修复。实验在多种图像翻译任务上显著提升预训练桥模型性能。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Guidance methods, such as classifier-free guidance (CFG) and auto-guidance (AG), have advanced noise-to-data generation in diffusion models. Recently, bridge models have introduced a data-to-data generative process that can exploit an instructive clean prior. In this work, inspired by previous methods creating quality difference between denoising results as guidance, we propose a training-free bridge guidance method, termed Prior Guidance (PG). Specifically, we introduce a weak prior, which is unseen during bridge pre-training, hindering prior exploitation and thereby degrading denoising result. Then, we contrast it with the seen prior to highlight and enhance prior exploitation via a scaling factor. Moreover, we analyze the underlying mechanism of prior exploitation in the bridge process and design frequency-modulated prior guidance (FMPG), which tailors the guidance scale to low- and high-frequency bands coherent with bridge generative dynamics. To address prior exploitation in image in-painting, we develop a cascaded framework, CFG-FMPG, which first generates a noisy hidden representation via CFG and then exploits it as a generative prior with FMPG, fulfilling their complementary strengths without compromising inference efficiency. Experiments demonstrate that our PG methods consistently improve pre-trained bridge models across diverse image translation tasks.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/04/2606.04299v1-efficient-and-training-free-single-image-diffusion-models",
+      "section": "deep",
+      "title_en": "Efficient and Training-Free Single-Image Diffusion Models",
+      "authors": "Haojun Qiu, Kiriakos N. Kutulakos, David B. Lindell",
+      "date": "2026-06-03",
+      "pdf": "https://arxiv.org/pdf/2606.04299v1",
+      "score": "9.0",
+      "evidence": "使用闭式去噪器的免训练单图像扩散模型",
+      "tldr": "针对单图像生成需训练扩散模型、计算昂贵的问题，本文提出一种无训练的高效方法。该方法利用参考图像的多尺度块数据集，通过闭式最优去噪器直接计算得分函数，摒弃神经网络训练。在生成质量和多样性上达到或超越现有训练模型，支持无条件生成、文本引导风格化等多种任务，并能在秒级生成百万像素图像、分钟级生成十亿像素图像。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We consider the problem of generating images whose internal structure -- defined by the distribution of patches across multiple scales -- matches that of a single reference image. Recent approaches address this problem by training a diffusion model on a single image. But even in this setting, training is computationally expensive and requires hours of optimization. Instead, we model the image using a dataset of its patches at different scales. As this dataset is finite and the dimensionality of its patches is small, the score function for a noisy patch can be computed tractably using an optimal, closed-form denoiser, eliminating the need for neural network training. We integrate this patch-based denoiser into an efficient, training-free image diffusion model, and we describe how our method connects to classical patch-based image restoration techniques. Our approach achieves state-of-the-art generation quality and diversity compared to trained single-image diffusion models, and we demonstrate applications, including unconditional image generation, text-guided stylization, image symmetrization, and retargeting. Further, we show that our approach is compatible with latent space diffusion, and we show multiple additional acceleration techniques to achieve megapixel single-image generation in one second, and gigapixel generation in minutes.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/04/2606.04775v1-activation-steering-of-video-generation-models-via-reduced-order-linear-optimal-control",
+      "section": "deep",
+      "title_en": "Activation Steering of Video Generation Models via Reduced-Order Linear Optimal Control",
+      "authors": "Jihoon Hong, Alice Chan, Qiyue Dai, Julian Skifstad, Glen Chou",
+      "date": "2026-06-03",
+      "pdf": "https://arxiv.org/pdf/2606.04775v1",
+      "score": "8.0",
+      "evidence": "基于最优控制的免训练视频生成激活引导",
+      "tldr": "文本到视频（T2V）模型可能生成不良内容。现有激活引导方法因粗粒度非预期干预易导致过度引导和内容退化。为此提出LA-LQR框架，将推理视为动态系统，通过对比提示对构建低维任务相关子空间，估计局部线性动力学并求解潜LQR以计算闭环反馈干预。在安全基准上该方法减少了不安全生成，且保持提示保真度与视觉质量，实现最小侵入式引导。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Text-to-video (T2V) models trained on large-scale web data can generate undesired content, motivating interventions that reduce harmful outputs without sacrificing visual quality. Activation steering offers an attractive mechanistic alternative to finetuning and prompt filtering, but existing T2V steering methods remain limited, typically applying coarse, non-anticipative interventions that can lead to oversteering and content degradation. To close this gap, we propose Latent Activation Linear-Quadratic Regulator (LA-LQR), a reduced-order optimal control framework for minimally invasive T2V steering. LA-LQR formulates T2V inference as a dynamical system and computes closed-loop feedback interventions that steer activations toward desired feature setpoints while penalizing unnecessary perturbations. To make optimal control feasible for high-dimensional video activations, we project activations onto a low-dimensional, task-relevant subspace derived from contrastive prompt pairs, estimate local linear dynamics in this latent space, and solve a latent LQR problem to obtain timestep- and layer-specific steering signals. We provide theoretical bounds relating latent setpoint tracking to raw activation-space feature control, and empirically validate the fidelity of the reduced latent dynamics. On concept steering and video safety benchmarks, LA-LQR reduces unsafe generations relative to baselines, while preserving prompt fidelity and visual quality.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
