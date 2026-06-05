@@ -1,0 +1,251 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-05T21:44:22.736743+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.06309v1",
+      "source": "arxiv",
+      "title": "RhymeFlow: Training-Free Acceleration for Video Generation with Asynchronous Denoising Flow Scheduling",
+      "abstract": "Video generation models based on Diffusion Transformers (DiTs) have achieved remarkable performance in video synthesis, yet they suffer from high inference latency and computational costs due to the quadratic complexity of 3D attention. Existing acceleration methods primarily reduce computational complexity within each individual denoising steps through techniques such as sparse attention and KV-caching. However, they rigidly adhere to the inherent constraint of the standard diffusion pipeline: every frame in the target video sequence must be subjected to a complete, dense denoising process across all diffusion timesteps. We observe that due to the corresponding contents and motions among adjacent frames, when keyframes with critical semantic transitions are anchored, the intermediate states of others often follow more predictable trajectories, which indicates that such uniform, dense denoising process is inherently redundant for natural video data. To this end, we introduce \\textbf{RhymeFlow}, a training-free framework that decouples the denoising trajectories of different frames. Specifically, we first identify a sparse set of pivotal key frames that dominate the latent semantic evolution. Then, only these keyframes undergo dense, step-by-step denoising to ensure structural integrity, while non-keyframes progressively skip denoising steps to minimize computational cost. Since skipped intermediate states of non-keyframes break the temporal coherence in keyframe denoising steps, leading to visual degradation, we further introduce a latent trajectory projection module, which enables keyframes to interact with a complete and temporally consistent sequence representation. Extensive experiments on current DiT-based video generation models demonstrate our method outperforms existing baselines with higher inference speed and better visual quality.",
+      "authors": [
+        "Chensheng Dai",
+        "Shengjun Zhang",
+        "Yifan Li",
+        "Zhang Zhang",
+        "Zheng Zhu",
+        "Yueqi Duan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-04T15:49:37+00:00",
+      "link": "https://arxiv.org/pdf/2606.06309v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free acceleration for video generation using asynchronous denoising flow scheduling",
+      "llm_evidence_cn": "基于异步去噪流调度的视频生成免训练加速",
+      "llm_evidence": "基于异步去噪流调度的视频生成免训练加速",
+      "canonical_evidence": "基于异步去噪流调度的视频生成免训练加速",
+      "llm_tldr_en": "Proposes RhymeFlow, a training-free method that schedules denoising asynchronously across frames to accelerate video diffusion models.",
+      "llm_tldr_cn": "本文提出RhymeFlow，一种免训练的视频扩散模型加速方法。通过异步去噪流调度，让关键帧完成完整去噪过程，其他帧进行稀疏更新，大幅减少计算量。该方法无需额外训练，直接应用于现有扩散变换器模型，在保持视频质量的同时显著降低推理延迟。",
+      "llm_tldr": "本文提出RhymeFlow，一种免训练的视频扩散模型加速方法。通过异步去噪流调度，让关键帧完成完整去噪过程，其他帧进行稀疏更新，大幅减少计算量。该方法无需额外训练，直接应用于现有扩散变换器模型，在保持视频质量的同时显著降低推理延迟。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.06361v1",
+      "source": "arxiv",
+      "title": "Physics in 2-Steps: Locking Motion Priors Before Visual Refinement Erases Them",
+      "abstract": "Image-to-Video diffusion models leverage input images to generate visually stunning content, yet frequently produce motion that violates physical laws. We reveal a surprising finding: a 2-step generation often exhibits better physical consistency than a 50-step output from the same model. Through spectral analysis, we trace this to phase erosion during denoising; the phase degrades significantly (dropping by $\\approx 18\\%$ from step 2 to step 50), whereas the magnitude remains relatively stable. Building on this insight, we propose PhaseLock, a training-free framework that preserves the valid motion priors from few-step inference throughout the denoising trajectory. Rather than relying on full-step inference for physical consistency, PhaseLock extracts a motion prior from just 2 steps and enforces it onto high-fidelity generation via Latent Delta Guidance. Our approach effectively mitigates phase degradation, improving physical consistency by an average of 6.2 points across diverse models while largely maintaining visual fidelity, with negligible overhead ($1.06\\times$ time, $1.02\\times$ memory) and reduced reliance on expensive external guidance methods ($\\sim5\\times$ time).",
+      "authors": [
+        "Woojung Han",
+        "Seil Kang",
+        "Youngjun Jun",
+        "Min-Hung Chen",
+        "Fu-En Yang",
+        "Seong Jae Hwang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-04T16:30:39+00:00",
+      "link": "https://arxiv.org/pdf/2606.06361v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free framework for improving video diffusion physical consistency",
+      "llm_evidence_cn": "用于提升视频扩散物理一致性的免训练框架",
+      "llm_evidence": "用于提升视频扩散物理一致性的免训练框架",
+      "canonical_evidence": "用于提升视频扩散物理一致性的免训练框架",
+      "llm_tldr_en": "PhaseLock is a training-free framework that preserves motion priors from early denoising steps to improve physical consistency in video diffusion.",
+      "llm_tldr_cn": "图像到视频扩散模型常产生违反物理定律的运动，而2步生成反而比完整50步具有更好的物理一致性。本文发现相位在去噪过程中会退化，并提出PhaseLock——一种免训练框架，通过在去噪轨迹中锁定早期步的有效运动先验，来保持物理一致性。实验证明PhaseLock能显著提升视频的物理合理性，且无需重新训练。",
+      "llm_tldr": "图像到视频扩散模型常产生违反物理定律的运动，而2步生成反而比完整50步具有更好的物理一致性。本文发现相位在去噪过程中会退化，并提出PhaseLock——一种免训练框架，通过在去噪轨迹中锁定早期步的有效运动先验，来保持物理一致性。实验证明PhaseLock能显著提升视频的物理合理性，且无需重新训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.06303v1",
+      "source": "arxiv",
+      "title": "Plug-and-Play Guidance for Discrete Diffusion Models via Gradient-Informed Logit Correction",
+      "abstract": "Controllable generation with discrete diffusion models is often hindered by high computational overhead or the need for retraining. In this paper, we present \\underline{\\textbf{G}}radient-\\underline{\\textbf{I}}nformed \\underline{\\textbf{L}}ogit \\underline{\\textbf{C}}orrection (\\textbf{GILC}), a plug-and-play framework that efficiently estimates guidance signals by repurposing the pretrained denoising network as a variational proxy. To circumvent the gradient instability inherent in high-dimensional discrete spaces, we introduce a Jacobian-free mechanism that directly corrects the clean prediction logits, facilitating stable and effective guidance. Our method accommodates both differentiable and non-differentiable reward functions. Extensive experiments across DNA, protein sequence, and molecular generation tasks demonstrate that GILC achieves state-of-the-art performance without additional training, frequently outperforming fine-tuning approaches.",
+      "authors": [
+        "Hongkun Dou",
+        "Zike Chen",
+        "Fengji Li",
+        "Hongjue Li",
+        "Yue Deng"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-04T15:41:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.06303v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "plug-and-play training-free guidance for discrete diffusion models",
+      "llm_evidence_cn": "离散扩散模型的即插即用无需训练引导",
+      "llm_evidence": "离散扩散模型的即插即用无需训练引导",
+      "canonical_evidence": "离散扩散模型的即插即用无需训练引导",
+      "llm_tldr_en": "GILC presents a plug-and-play training-free guidance framework for discrete diffusion models by using gradient-informed logit correction, avoiding retraining and handling both differentiable and non-differentiable rewards.",
+      "llm_tldr_cn": "该论文提出GILC，一种即插即用的无需训练引导框架，通过梯度信息对数修正来估计引导信号，采用无雅可比机制稳定离散空间中的引导，支持可微和不可微奖励函数，实现高效的可控生成。",
+      "llm_tldr": "该论文提出GILC，一种即插即用的无需训练引导框架，通过梯度信息对数修正来估计引导信号，采用无雅可比机制稳定离散空间中的引导，支持可微和不可微奖励函数，实现高效的可控生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.06066v1",
+      "source": "arxiv",
+      "title": "FontFusion: Enhancing Generative Text in Diffusion Models with Typographic Conditioning",
+      "abstract": "Typography generation in diffusion models faces a persistent trade-off: enabling precise font control typically degrades text legibility, while maintaining readability often sacrifices typographic fidelity. We present FontFusion, a plug-and-play conditioning framework for Diffusion Transformer (DiT) architectures that resolves this dilemma through three core innovations: (1) a hierarchical token representation establishing explicit text-font relationships at multiple granularities, (2) position-aware embeddings creating spatial bindings between typography and image content, and (3) a multi-level token dropping strategy improving both computational efficiency and generalization to unseen fonts. Our systematic evaluation of font embedding spaces reveals that a dual encoder combining DeepFont and DINOv2 outperforms any single encoder for typography tasks. FontFusion demonstrates 76% relative improvement on challenging decorative fonts over single-encoder baselines and font consistency gains exceeding approximately 68-76% over unconditioned models, while integrating into existing DiT architectures without retraining.",
+      "authors": [
+        "Marian Lupascu",
+        "Nipun Jindal",
+        "Ionut Mironica",
+        "Zhaowen Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-06-04T12:07:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.06066v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "plug-and-play training-free typography conditioning for image generation",
+      "llm_evidence_cn": "即插即用且无需训练的字体条件化图像生成方法",
+      "llm_evidence": "即插即用且无需训练的字体条件化图像生成方法",
+      "canonical_evidence": "即插即用且无需训练的字体条件化图像生成方法",
+      "llm_tldr_en": "FontFusion is a plug-and-play conditioning framework for Diffusion Transformers that enables precise font control without additional training, using hierarchical token representation and multi-level token dropping.",
+      "llm_tldr_cn": "该论文提出FontFusion，一种无需训练即插即用的文字生成框架，通过层次化词元表示和位置感知嵌入解决了字体控制与可读性之间的权衡，在保持文本清晰度的同时实现精确字体样式生成。",
+      "llm_tldr": "该论文提出FontFusion，一种无需训练即插即用的文字生成框架，通过层次化词元表示和位置感知嵌入解决了字体控制与可读性之间的权衡，在保持文本清晰度的同时实现精确字体样式生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.01238v1",
+      "source": "arxiv",
+      "title": "Training-Free Imitation Learning with Closed-Form Diffusion Policies",
+      "abstract": "While diffusion-based policies have impressive performance and expressivity, their long offline training slows down the data collection and policy deployment loop. We introduce Closed-Form Diffusion Policies, a class of training-free diffusion-based policies for imitation learning using the closed-form score derived from the demonstration dataset. We deploy CFDP with real-time inference with a mobile CPU in hardware experiments, showing it can successfully perform imitation directly from the dataset in milliseconds and with faster inference than neural diffusion policies. In experiments on imitation learning benchmarks, we show that CFDP is competitive against neural baselines that require hours of training, providing a favorable tradeoff between training time and performance. Finally, we show how closed-form diffusion policies act as a composable primitive that enables data-driven inference-time editing of pre-trained neural diffusion policies, including policy guidance and novel demonstration augmentation.",
+      "authors": [
+        "Raghav Mishra",
+        "Ian R. Manchester"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.LG"
+      ],
+      "published": "2026-05-31T13:40:47+00:00",
+      "link": "https://arxiv.org/pdf/2606.01238v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free closed-form diffusion policies",
+      "llm_evidence_cn": "免训练闭式扩散策略",
+      "llm_evidence": "免训练闭式扩散策略",
+      "canonical_evidence": "免训练闭式扩散策略",
+      "llm_tldr_en": "Closed-Form Diffusion Policies enable training-free imitation learning by using closed-form scores from data, achieving competitive performance with zero training time.",
+      "llm_tldr_cn": "现有扩散策略虽性能优异，但训练时间长，阻碍了快速迭代。本文提出闭式扩散策略（CFDP），利用演示数据集的闭式得分进行免训练模仿学习，无需任何训练即可部署。在硬件实验中，CFDP在毫秒级完成推理，性能与训练数小时的神经网络相当。这为扩散模型的免训练应用提供了新思路。",
+      "llm_tldr": "现有扩散策略虽性能优异，但训练时间长，阻碍了快速迭代。本文提出闭式扩散策略（CFDP），利用演示数据集的闭式得分进行免训练模仿学习，无需任何训练即可部署。在硬件实验中，CFDP在毫秒级完成推理，性能与训练数小时的神经网络相当。这为扩散模型的免训练应用提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.02331v1",
+      "source": "arxiv",
+      "title": "Hallucination-Aware Diffusion Sampling for Inverse Problems via Robust Prior Updates",
+      "abstract": "Diffusion-based inverse problem solvers can produce realistic reconstructions, but realism alone does not ensure that the recovered details are supported by the measurement. We study this failure as measurement-conditioned hallucination: visually meaningful content that is either implausible or inconsistent with the measured instance. Our analysis separates Bayes-rule-based diffusion inverse solvers into a prior update and a measurement-conditioning step, showing that hallucinated content can enter through the prior-side proposal before the measurement correction is applied. Motivated by this view, we propose Robust Prior Update (RPU), a solver-level module that probes the local stability of the diffusion prior update, re-anchors the resulting displacement at the current iterate, and leaves the measurement update unchanged. We instantiate RPU in DPS and evaluate it on FFHQ and ImageNet inverse problems using automatic metrics and human faithfulness studies. On FFHQ, RPU improves PSNR and LPIPS over DPS across box inpainting, Gaussian deblurring, and motion deblurring. In human judgments, RPU receives 91.9% of blind non-tie majority preferences and 91.1% of ground-truth-assisted non-tie preferences on FFHQ box inpainting, while the ImageNet Gaussian reader study is tie-heavy but favors RPU among non-tie cases. These results support a targeted claim: robustifying the prior update can improve instance faithfulness in diffusion inverse solvers, especially when the prior shapes weakly constrained content.",
+      "authors": [
+        "Pengfei Jin",
+        "Yiqi Tian",
+        "Kailong Fan",
+        "Bingjie Qi",
+        "Quanzheng Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-01T14:41:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.02331v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free robust prior update for diffusion sampling",
+      "llm_evidence_cn": "提出免训练的鲁棒先验更新模块用于扩散采样",
+      "llm_evidence": "提出免训练的鲁棒先验更新模块用于扩散采样",
+      "canonical_evidence": "提出免训练的鲁棒先验更新模块用于扩散采样",
+      "llm_tldr_en": "Proposes Robust Prior Update (RPU), a training-free solver-level module for diffusion-based inverse problem solvers that reduces hallucinated content by probing local stability of the prior update.",
+      "llm_tldr_cn": "该论文提出鲁棒先验更新（RPU），一种免训练的求解器级模块，用于基于扩散的逆问题求解。RPU通过探测扩散先验更新的局部稳定性并重新锚定结果，减少与测量不一致的幻觉内容。该方法无需训练即可改善采样质量，可视为扩散模型免训练优化技术的一种，但针对逆问题而非直接图像生成。",
+      "llm_tldr": "该论文提出鲁棒先验更新（RPU），一种免训练的求解器级模块，用于基于扩散的逆问题求解。RPU通过探测扩散先验更新的局部稳定性并重新锚定结果，减少与测量不一致的幻觉内容。该方法无需训练即可改善采样质量，可视为扩散模型免训练优化技术的一种，但针对逆问题而非直接图像生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
