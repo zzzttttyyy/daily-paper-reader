@@ -6,40 +6,28 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-05
-- 运行时间：2026-06-05 21:50:05 UTC
+- 最新运行日期：2026-06-06
+- 运行时间：2026-06-06 20:57:42 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：3
-- 速读区：3
+- 本次总论文数：2
+- 精读区：1
+- 速读区：1
 
 ### 今日简报（AI）
-今日推荐6篇前沿论文，重点聚焦视频生成加速与运动先验锁定两个方向，各获9.0高分。  
-最值得关注的是《RhymeFlow》提出的无训练异步去噪流调度，以及《Physics in 2-Steps》揭示的视觉细化前锁定运动先验的重要性。  
-对于普通读者，建议优先精读这两篇高分论文，速读部分可关注《FontFusion》在扩散模型中的排版条件控制。
-- 详情：[/202606/05/README](/202606/05/README)
+今日精读《Real-Time Generation of Streamable Talking Portrait Video》（9分）与速读《Are we really tilting?》（6分），聚焦实时视频生成与扩散模型奖励引导机制。  
+最值得关注的是参考引导深度压缩VAE实现可流式说话人视频的实时生成，突破压缩与保真度瓶颈。  
+建议下一步深入精读论文的压缩框架设计，并留意其在直播、虚拟助手等场景的应用潜力。
+- 详情：[/202606/06/README](/202606/06/README)
 
 ### 精读区论文标签
-1. [RhymeFlow: Training-Free Acceleration for Video Generation with Asynchronous Denoising Flow Scheduling](/202606/05/2606.06309v1-rhymeflow-training-free-acceleration-for-video-generation-with-asynchronous-denoising-flow-scheduling)  
+1. [Real-Time Generation of Streamable Talking Portrait Video with Reference-Guided Deep Compression VAEs](/202606/06/2606.01620v1-real-time-generation-of-streamable-talking-portrait-video-with-reference-guided-deep-compression-vaes)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：基于异步去噪流调度的视频生成免训练加速
-2. [Physics in 2-Steps: Locking Motion Priors Before Visual Refinement Erases Them](/202606/05/2606.06361v1-physics-in-2-steps-locking-motion-priors-before-visual-refinement-erases-them)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：用于提升视频扩散物理一致性的免训练框架
-3. [Plug-and-Play Guidance for Discrete Diffusion Models via Gradient-Informed Logit Correction](/202606/05/2606.06303v1-plug-and-play-guidance-for-discrete-diffusion-models-via-gradient-informed-logit-correction)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：离散扩散模型的即插即用无需训练引导
+   evidence：基于视频扩散模型的肖像视频生成
 
 ### 速读区论文标签
-1. [FontFusion: Enhancing Generative Text in Diffusion Models with Typographic Conditioning](/202606/05/2606.06066v1-fontfusion-enhancing-generative-text-in-diffusion-models-with-typographic-conditioning)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：即插即用且无需训练的字体条件化图像生成方法
-2. [Training-Free Imitation Learning with Closed-Form Diffusion Policies](/202606/05/2606.01238v1-training-free-imitation-learning-with-closed-form-diffusion-policies)  
+1. [Are we really tilting? The mechanics of reward guidance in flow and diffusion models](/202606/06/2606.02884v1-are-we-really-tilting-the-mechanics-of-reward-guidance-in-flow-and-diffusion-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：免训练闭式扩散策略
-3. [Hallucination-Aware Diffusion Sampling for Inverse Problems via Robust Prior Updates](/202606/05/2606.02331v1-hallucination-aware-diffusion-sampling-for-inverse-problems-via-robust-prior-updates)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：提出免训练的鲁棒先验更新模块用于扩散采样
+   evidence：分析扩散模型中奖励指导的机制，与推理时优化相关
 
 
 <div class="dpr-home-promo-card">

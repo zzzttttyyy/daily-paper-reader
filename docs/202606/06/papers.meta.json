@@ -1,0 +1,39 @@
+{
+  "label": "2026-06-06",
+  "date": "2026-06-06",
+  "generated_at": "2026-06-06T20:57:52",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202606/06/2606.01620v1-real-time-generation-of-streamable-talking-portrait-video-with-reference-guided-deep-compression-vaes",
+      "section": "deep",
+      "title_en": "Real-Time Generation of Streamable Talking Portrait Video with Reference-Guided Deep Compression VAEs",
+      "authors": "Sicheng Xu, Yu Deng, Shoukang Hu, Yichuan Wang, Yizhong Zhang, Zhan Chen, Jiaolong Yang, Baining Guo",
+      "date": "2026-06-01",
+      "pdf": "https://arxiv.org/pdf/2606.01620v1",
+      "score": "9.0",
+      "evidence": "基于视频扩散模型的肖像视频生成",
+      "tldr": "视频扩散模型生成说话肖像视频计算量大，难以实时。本文提出流式生成框架，使用因果视频VAE集成参考图像引导压缩，关注动态信息提升效率；结合自回归潜去噪与Rectified Flow Transformer，实现块状流式生成。方法实时生成高质量视频，速度显著快于基线，在真实感和视频质量上与大型模型相当或更优。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Video diffusion models have significantly advanced portrait video generation, yet their high computational demands limit their use in interactive applications. This work presents a framework for streamable talking portrait video generation conditioned on speech audio and reference images. Designed meticulously for streaming scenarios, it features a causal video VAE for deep latent compression and an autoregressive latent denoising model. Our causal VAE integrates a variable number of reference images as guidance, allowing the network to focus on dynamic information rather than static appearance, thereby enhancing compression efficacy and reconstruction quality. Additionally, we extend the residual auto-encoding paradigm to improve spatial-temporal causality handling in our VAE. The generator is based on a Rectified Flow Transformer architecture and produces video latents in a blockwise auto-regressive manner. Our method enables the real-time generation of high-quality talking portrait videos, achieving speeds significantly faster than baseline models. Furthermore, comprehensive experiments demonstrate that it is on par with or even outperforms these large models in realism, vividness, and video quality.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/06/2606.02884v1-are-we-really-tilting-the-mechanics-of-reward-guidance-in-flow-and-diffusion-models",
+      "section": "quick",
+      "title_en": "Are we really tilting? The mechanics of reward guidance in flow and diffusion models",
+      "authors": "Sanjit Dandapanthula, Nicholas M. Boffi",
+      "date": "2026-06-01",
+      "pdf": "https://arxiv.org/pdf/2606.02884v1",
+      "score": "6.0",
+      "evidence": "分析扩散模型中奖励指导的机制，与推理时优化相关",
+      "tldr": "奖励引导算法在扩散模型中易出现奖励黑客问题，即过度优化奖励而牺牲保真度。理论分析表明，这源于有限粒子插件估计Doob h函数导致的近似误差，在简单高斯混合目标下可解析地分解为两种失败模式：模式内偏差和模式选择失败。提出一种闭式奖励衰减调度，无需额外计算即可纠正模式内偏差，并阐明最佳-of-n采样如何补偿模式选择失败。实验验证了理论在FLUX.1文本到图像生成等实际设置中的有效性。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Reward guidance algorithms steer a learned generative process toward the reward-tilted measure at inference time. While empirically powerful, these methods are prone to reward hacking: the guided model over-optimizes the reward at the cost of fidelity to the learned distribution. Prior work has attributed this to the complexity of neural reward functions or implicit biases in diffusion training, but its fundamental origins remain poorly understood. We show that reward hacking arises from an approximation made in most practical implementations of reward-guided diffusion -- finite-particle plug-in estimation of the Doob h-function -- even in the simplest non-trivial settings of Gaussian and Gaussian mixture targets with quadratic rewards. In closed form, we isolate two distinct failure modes of the plug-in estimator: it leads to reward hacking within each mode and it cannot select high-reward modes. We propose a closed-form reward damping schedule that corrects the within-mode bias with no additional compute, and clarify the role of best-of-n sampling in compensating for the mode selection failure. Experiments on Gaussian mixture targets, a 2D checkerboard, and FLUX.1 text-to-image generation confirm that our theoretical insights carry over to practical settings.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
