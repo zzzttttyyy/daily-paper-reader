@@ -1,0 +1,981 @@
+Title: MemoGen: Can Past Experience Improve Future Text-to-Image Generation?
+
+URL Source: https://arxiv.org/pdf/2606.03243v1
+
+Published Time: Wed, 03 Jun 2026 00:43:11 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+Research Article 
+
+# MemoGen: Can Past Experience Improve Future Text-to-Image Generation? 
+
+Wenshuo Chen †1,2,6 , Kuimou Yu †1, Bowen Tian †1,2 , Jianfei Song †6, Shaofeng Liang 1, Haozhe Jia 1, Kan Cheng 1,3 , Haosen Li 1, Kaishen Yuan 1, Lei Wang 4,5 , Jiemin Wu 1,2 , Songning Lai 1 and Yutao Yue *1,7 
+
+> 1The Hong Kong University of Science and Technology (Guangzhou)
+> 2Scholarly, Guangzhou Ziyan Technology Co., Ltd.
+> 3Shandong University
+> 4Data61/CSIRO
+> 5Griffith University
+> 6LimX Dynamics Technology Co., Ltd.
+> 7Institute of Deep Perception Technology, Jiangsu Industrial Technology Research Institute (JITRI)
+
+Abstract 
+
+Modern text-to-image models have achieved strong visual synthesis, yet remain unreliable when prompts require implicit visual constraints, relational reasoning, or external knowledge. Existing retrieval-augmented and agentic generation methods mitigate this issue by acquiring external knowledge, references, or refined prompts for the current request, yet they typically treat each generation as an isolated episode and do not systematically preserve past successes or failures for future use. In this work, we ask whether a text-to-image system can continually improve from its own generation experience without updating the underlying generator. We propose MemoGen , a training-free framework that augments existing image generators with an agentic evolution layer. For each task, MemoGen explicitly infers visual requirements, retrieves external evidence and references when necessary, translates them into executable generation constraints, evaluates the generated result, and stores task understanding, reference choices, visual feedback, successful strategies, and failure lessons as reusable experience memory. Across evolution rounds, the agent retrieves relevant experience to improve similar future generations, selectively repairing previously failed cases while preserving successful ones, thereby enabling test-time self-evolution without parameter updates. Extensive experiments on knowledge-intensive and reasoning-oriented benchmarks demonstrate the effectiveness of this paradigm: after only two evolution rounds, MemoGen built upon the open-source Qwen-Image backbone surpasses strong proprietary systems such as Nano Banana Pro and GPT-Image-1 on WISE and Mind-Bench, showing that explicit experience memory can serve as a powerful continual learning signal for reliable text-to-image generation. Code will be released at https://github.com/Chatonz/MemoGen. 
+
+Keywords: Text-to-image generation, Agentic generation, Experience memory, Self-evolving agents   
+
+> *Corresponding author: Yutao Yue.
+> †Equal contribution.
+
+1. INTRODUCTION 
+
+Recent advances in text-to-image generation have substantially low-ered the barrier to visual content creation, enabling users to translate natural language descriptions into high-quality images[4, 5, 8, 10, 17, 30, 31, 47]. With the rapid development of diffusion models, unified multimodal understanding-generation models, and large-scale im-age generation systems, modern image generators have demonstrated increasingly strong visual synthesis capabilities. A growing body of research and system-level practice suggests that, when provided with clear, sufficiently detailed, and visually executable prompts, or appro-priate reference images, current image generation models are often capable of producing outputs that closely match user expectations[48, 49, 52] .In this sense, many generation failures do not necessarily stem from insufficient low-level image synthesis capability [2, 14, 15, 19], but rather from the lack of accurate task understanding, external knowledge, visual references, and explicit generation constraints. As a result, the central challenge for future image generation sys-tems is shifting. The question is no longer only how to train more powerful generative models, but also how to automatically construct better generation conditions for already capable models. In real-world scenarios, user instructions are often brief, implicit, and underspec-ified. A user may describe an abstract goal without specifying the key visual cues required for faithful rendering; request a cultural, scientific, or geographical scene without providing the necessary back-ground knowledge; or describe a task involving temporal, spatial, or physical relations that must be further reasoned about before they can be translated into visible image content. Under such conditions, an image generation system must actively acquire external information, retrieve relevant references, infer implicit visual constraints, and or-ganize them into inputs that the underlying generator can effectively execute. This trend has already begun to emerge in recent image generation systems. Systems such as Gen Searcher and Mind-Brush indicate[48, 49] that augmenting image generation with web resources, visual ref-erences, and external knowledge is becoming an effective paradigm. Unlike conventional text-to-pixel models, these systems no longer treat generation as a single-step mapping process. Instead, they in-troduce retrieval, understanding, reasoning, and planning into the generation pipeline, making image generation closer to the workflow of human creators. When facing a complex visual subject, a human artist rarely starts from a single sentence and immediately produces a final artwork. Instead, the artist first understands the intent, searches for materials, studies references, summarizes key visual characteris-tics, and then creates. In an image generation system, local RAG and dynamic web search play the role of learning and information seeking: the former provides stable, efficient, and low-cost knowledge sup-port through high-quality local databases, reducing dependence on online search, while the latter supplements open-world information when local knowledge is insufficient. Reasoning and planning then serve as summarization and conceptualization, converting external information into executable generation constraints. However, existing retrieval-augmented or agentic image generation methods largely remain confined to single-task enhancement [9, 11, 12, 54]. Whether the information comes from local knowledge bases, reference images, or dynamic web search, the system primarily focuses on constructing better generation conditions for the current task. Once the generation is completed, successful strategies and failure cases are rarely preserved in a systematic way, nor are they reused to improve 
+
+1–11 
+
+> arXiv:2606.03243v1 [cs.CV] 2 Jun 2026 MemoGen: Can Past Experience Improve Future Text-to-Image Generation?
+
+future generations. In other words, prior work has demonstrated the importance of external learning for image generation, but it has not fully answered a more fundamental question: can an image generation system continually improve from its past generation experience? Motivated by this view, we propose MemoGen , a training-free con-tinual learning framework for text-to-image generation agents [9, 11, 12]. The key insight is that a generation system can improve over time without updating the parameters of the underlying image generator. Instead, improvement can happen at the agent layer: each generation episode produces not only an image, but also task understanding, retrieved evidence, reference choices, visual feedback, and success or failure experience. These records are stored as explicit memory and later retrieved to help construct better generation conditions for similar future tasks. At a high level, Memo turns image generation into a continual cycle of understanding, evidence acquisition, visual grounding, feed-back, and experience reuse. For each prompt, the agent first makes the implicit task requirements explicit, acquires useful knowledge and references when needed, and uses them to guide an existing image generator. After generation, the system reviews whether the result satisfies the task and converts the outcome into reusable experi-ence. Across evolution rounds, previously successful strategies can be reused, while failed cases become lessons that help avoid recurring errors. This allows the system to selectively improve difficult samples while preserving successful ones, enabling test-time self-evolution without model training. We conduct extensive experiments to evaluate the effectiveness of MemoG en. Remarkably, after only the second evolution round, our method, built upon the open-source Qwen-Image backbone[44], already surpasses strong state-of-the-art proprietary models such as Nano Banana Pro[33] and GPT-Image-1[40]. On WISE[37], MemoGen achieves an overall score of 0.91, outperforming Nano Banana Pro (0.87) and GPT-Image-1 (0.80), while obtaining the best results in most knowledge-intensive categories, including Cultural, Time, Chem, and Overall. Beyond WISE, we further evaluate MemoGen on Mind-Bench [49], where our method reaches an overall score of 0.52, substantially exceeding Nano Banana Pro (0.41) and Mind-Brush (0.31). These results demonstrate that MemoGen can effectively improve image generation through test-time self-evolution without updating the un-derlying generator, enabling an open-source model to outperform leading closed-source systems in challenging knowledge-driven and reasoning-driven image generation tasks. 
+
+Our contributions are summarized as follows: 
+
+• We propose MemoGen , a training-free continual learning frame-work for text-to-image generation agents. Instead of updating the parameters of the underlying image generator, MemoGen improves generation performance at the agent layer by storing and reusing task understanding, retrieved evidence, reference choices, visual feedback, and success or failure experiences. 
+
+• We formulate image generation as a test-time self-evolution process consisting of understanding, evidence acquisition, vi-sual grounding, reflection, memory, and re-creation. This design enables the system to reuse successful strategies for similar future tasks while converting failed generations into lessons, thereby continuously improving difficult samples without model train-ing. 
+
+• We conduct extensive experiments on WISE and Mind-Bench .After only the second evolution round, MemoGen built on the open-source Qwen-Image backbone achieves strong perfor-mance, surpassing state-of-the-art proprietary models such as Nano Banana Pro and GPT-Image-1. In particular, MemoGen achieves an overall score of 0.91 on WISE and 0.52 on Mind-Bench, demonstrating the effectiveness of training-free evolution for knowledge-driven and reasoning-driven image generation. 
+
+2. RELATED WORK  
+
+> Text-to-image generation and controllable conditioning.
+
+Text-to-image generation has made rapid progress in recent years, driven by large-scale diffusion and autoregressive models. Latent Diffusion Models (LDMs) significantly reduce the computational cost of high-resolution synthesis by operating in a compressed latent space [4], while Imagen demonstrates the importance of strong language en-coders for text-image alignment [5]. Parti further scales autoregres-sive generation to content-rich prompts involving complex composi-tions and world knowledge [7], and SDXL improves latent diffusion with larger backbones and multi-aspect-ratio training [10]. These advances show that modern generators already possess strong visual synthesis capabilities. Alongside model scaling, ControlNet intro-duces spatial conditioning to pretrained diffusion models, enabling precise control with edges, depth maps, and poses [15], while T2I-Adapter learns lightweight adapters to align external control signals [19] and IP-Adapter adds image-prompt capability in a text-compatible manner [14]. Retrieval-augmented methods such as kNN-Diffusion [6], RA-CM3 [13], and Re-Imagen [2] further supplement parametric knowledge with external memory. These methods collectively suggest that, given appropriate prompts, references, or control signals[2, 14, 15, 19], existing generators can often produce high-quality results [42]. In contrast, our work focuses on how an agent can automatically con-struct and improve such generation conditions over time, rather than assuming they are already provided by the user or a static retrieval. 
+
+> Agentic, feedback-driven, and memory-augmented image generation.
+
+Another line of work uses language or multimodal agents to plan, refine, and evaluate the generation process. T2I-Copilot introduces a training-free multi-agent system for prompt interpretation and quality evaluation [29], while GenArtist coordinates multiple generation and editing tools with a multimodal LLM agent, decomposing complex requests into sub-problems with step-by-step verification [22]. Sev-eral methods introduce feedback or self-refinement into generation: VisualPrompter uses visual feedback to identify missing concepts and refine prompts accordingly [57], RichHF shows that fine-grained human feedback improves generation quality [18], and Idea2Img supports multimodal iterative self-refinement via GPT-4V [23]. On the search-augmented front, Gen-Searcher trains an agent via rein-forcement learning to perform multi-hop search and reference selec-tion before generation [48], while Mind-Brush formulates generation as a “think-research-create” cognitive workflow that retrieves mul-timodal evidence and reasons over implicit visual constraints [49]. More recently, GEMS introduces memory and reusable skills into multimodal generation [50], RationalRewards proposes a “generate-critique-refine” test-time loop with structured textual critiques before scoring [56], and Maestro achieves prompt self-improvement through agent orchestration [43]. These works improve generation through planning, feedback, search, or memory. [53]In contrast, MemoGen emphasizes cross-task and cross-round experience reuse: feedback and repair knowledge from previous tasks are written into memory and later recalled to improve similar future tasks, with both successes and failures explicitly labeled for retrieval—a dimension absent from existing methods that retain only successful strategies within single-task boundaries.  
+
+> Self-evolving agents and experience memory.
+
+The idea of learning from feedback without updating model parameters has been widely studied in language and embodied agents. Reflexion enables language agents to verbally reflect on task feedback and store reflective text in episodic memory, improving subsequent decision-making without gradient-based training [11]. Voyager demonstrates lifelong learning in Minecraft through an ever-growing skill library, iterative prompting, and environmental feedback [12]. While these works establish the importance of memory and reflection for language or embodied agents, T2I systems face a distinctive challenge: feedback must be converted 
+
+> 2–11 MemoGen: Can Past Experience Improve Future Text-to-Image Generation?
+
+# Prompt 
+
+# Inputs Workspace 
+
+# Memory 
+
+# Agent 
+
+# Episode Loop 
+
+# VLM 
+
+# Agent 
+
+1.Relation 
+
+Memory Tools 
+
+2.Web Search 
+
+3.Reference Retrieval 
+
+4.Write / Update Rubric 
+
+5.Select /Adjust References 
+
+# Generate 
+
+# Image 
+
+# Review Gap 
+
+Compare 
+
+Actual Pixels 
+
+Against Rubric 
+
+# Fail 
+
+# Judge Phase 
+
+Isolated 
+
+Evaluation 
+
+# MemoGe n
+
+# Round 
+
+# Report 
+
+Pass/Fail 
+
+and Metrics 
+
+# Memory Tool 
+
+# Generation 
+
+# Loop 
+
+# Evolving 
+
+# Loop 
+
+# Agent Actions Index Write 
+
+Candidate 
+
+Samples 
+
+# Best  
+
+> Figure 1. Overview of MemoGen. MemoGen formulates image generation as a test-time self-evolution process. This framework enables the system to continuously improve future generations by storing and reusing task understanding, retrieved evidence, reference choices, visual feedback, and success or failure experiences, all without updating the underlying model.
+
+into future visual constraints—missing objects, incorrect temporal states, ambiguous spatial relations, or insufficient domain-specific visual cues. GenEvolve, a concurrent work, first brought the self-evolution paradigm to image generation by distilling best-vs.-worst trajectory comparisons into policy parameters via visual experience distillation [46]. Unlike MemoGen, which keeps the generator and controller frozen, GenEvolve requires multi-stage training and its experience is implicitly dissolved in model weights, making it difficult to audit or retrieve specific past cases. EPIC addresses the feedback-to-constraint problem by compiling instructions into typed-predicate visual programs and performing targeted reconstruction on unsatisfied predicates [55]. RewardHarness validates that evolving an external tool-set while keeping the core VLM frozen can surpass fine-tuning methods requiring massive training data [58], establishing the viability of training-free harness evolution that MemoGen extends to generative tasks. MemoGen adapts the self-evolution idea to image generation through a training-free path: the generator and controller remain fully frozen, experience is stored as polarity-labeled instance-level records in an external memory bank, and all improvement emerges from test-time accumulation and retrieval without any parameter updates. 
+
+3. METHOD 
+
+3.1. Overview 
+
+We propose MemoGen , a self-evolving image generation agent that models text-to-image generation as an experience-driven autonomous control process with tool use, visual observation, and memory write-back. Given a user instruction, an LLM/VLM-based autonomous controller manages the full generation trajectory. The controller reads the task state, visual observations, retrieval results, and past experi-ences; selects tool actions such as knowledge retrieval, web search, reference selection, image generation or editing, visual inspection, and memory writeback; and writes tool outputs into the next state. Each image generation request is represented as a task 
+
+𝑥 𝑖 = ( 𝑝 𝑖 , 𝐼 ref ,𝑖 ),
+
+where 𝑝 𝑖 is the natural-language instruction and 𝐼 ref ,𝑖 denotes an op-tional set of user-provided reference images. Instead of treating 𝑥 𝑖 as an isolated prompt-to-image mapping, MemoGen models its execution in evolution round 𝑟 as a learnable agent trajectory: 
+
+𝜏 (𝑟 ) 
+
+> 𝑖
+
+= ( 𝑠 (𝑟 ) 
+
+> 𝑖, 0
+
+, 𝑎 (𝑟 ) 
+
+> 𝑖, 0
+
+, 𝑜 (𝑟 ) 
+
+> 𝑖, 0
+
+, … , 𝑠 (𝑟 ) 
+
+> 𝑖,𝑇 𝑖
+
+, 𝑎 (𝑟 ) 
+
+> 𝑖,𝑇 𝑖
+
+, 𝑜 (𝑟 ) 
+
+> 𝑖,𝑇 𝑖
+
+),
+
+where 𝑠 (𝑟 ) 
+
+> 𝑖,𝑡
+
+is the agent state, 𝑎 (𝑟 ) 
+
+> 𝑖,𝑡
+
+is a tool action selected by the con-troller, and 𝑜 (𝑟 ) 
+
+> 𝑖,𝑡
+
+is the corresponding tool observation. The trajectory records the original prompt, retrieved evidence, reference images, gen-eration configuration, generated image, visual observation, internal feedback, and success or failure experience. The final image selected from this trajectory is denoted by ̂ 𝐼 (𝑟 ) 
+
+> 𝑖
+
+. In later rounds, MemoGen retrieves relevant past experiences to improve prompt construction, reference selection, tool invocation order, and failure avoidance. The system therefore accumulates test-time experience while keeping the underlying image generator frozen. MemoGen exposes four classes of capabilities to the controller: (i) intent understanding and generation planning, which parses the in-struction and identifies implicit visual constraints; (ii) knowledge and reference acquisition, which provides access to local RAG, dy-namic web search, and experience memory; (iii) image generation and visual inspection, which generates candidate images and checks visible gaps; and (iv) experience memory management, which stores successful strategies, failure lessons, and reusable generation-control information. These capabilities are provided as tool interfaces to the LLM/VLM controller, and the controller determines the tool invoca-tion order from the current state and observations. Figure 1 illustrates the overall framework. Unless otherwise specified, we use 𝑖 to index tasks, 𝑟 to index evo-lution rounds, 𝑘 to index generation attempts within an episode, and 
+
+𝑡 to index tool-interaction steps within an agent trajectory. We use a zero-based attempt index, where 𝑘 = 0 denotes the initial generation attempt. 
+
+3.2. Intent Understanding and Generation Planning 
+
+At the beginning of each episode, MemoGen first retrieves task-relevant experience from the current memory bank: 
+
+𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+= Retrieve( ℳ(𝑟 ), 𝑝 𝑖 ),
+
+where ℳ(𝑟 ) is the memory bank available at evolution round 𝑟 , and 
+
+𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+denotes the retrieved memory context for task 𝑖 . Given the prompt 
+
+𝑝 𝑖 and retrieved memory context 𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+, MemoGen first constructs a structured representation of the user intent: 
+
+𝑧 (𝑟 )intent ,𝑖 = 𝐹 𝜃 (𝑝 𝑖 , 𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+).
+
+> 3–11
+
+MemoGen: Can Past Experience Improve Future Text-to-Image Generation? 
+
+The intent representation includes visible objects, attributes, spatial relations, temporal states, style requirements, negative constraints, ambiguous elements, and potential knowledge dependencies. The autonomous controller then selects or acquires a reference set: 
+
+𝑅 (𝑟, 0)  
+
+> 𝑖
+
+= 𝑆 𝜃 (𝑝 𝑖 , 𝑧 (𝑟 )intent ,𝑖 , 𝐼 ref ,𝑖 , 𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+),
+
+and maintains a generation plan, an initial working prompt, and an initial generation configuration: 
+
+(𝑧 (𝑟 )plan ,𝑖 , 𝑞 (𝑟, 0) work ,𝑖 , 𝜂 (𝑟, 0)  
+
+> 𝑖
+
+) = 𝑃 𝜃 (𝑝 𝑖 , 𝑧 (𝑟 )intent ,𝑖 , 𝑅 (𝑟, 0)  
+
+> 𝑖
+
+, 𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+).
+
+The plan is a runtime control state that is updated as new tool observa-tions, visual inspections, and memory retrieval results become avail-able. During repair, the controller may update the working prompt and reference set as 
+
+(𝑞 (𝑟,𝑘 +1) work ,𝑖 , 𝑅 (𝑟,𝑘 +1)  
+
+> 𝑖
+
+, 𝜂 (𝑟,𝑘 +1)  
+
+> 𝑖
+
+) = 𝑈 𝜃 
+
+(
+
+𝑞 (𝑟,𝑘 )work ,𝑖 , 𝑅 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝜂 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝑓 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝑐 (𝑟 )
+
+> ℳ,𝑖
+
+)
+
+,
+
+where 𝑈 𝜃 denotes the controller’s repair/update policy. The origi-nal prompt 𝑝 𝑖 defines the task target throughout the process. The working prompt, retrieved evidence, selected references, and mem-ory summaries serve as auxiliary agent states that make the original instruction more visually executable. This design targets intent execution failures in T2I tasks. Many failures arise when implicit visual constraints in underspecified user requests are left ungrounded. For example, prompts involving tem-poral reasoning, scientific phenomena, or cultural knowledge often require additional background knowledge before they can be trans-lated into executable generation conditions. 
+
+3.3. Knowledge and Reference Acquisition 
+
+MemoGen uses three complementary tools to construct better genera-tion conditions. 
+
+Local RAG. Local RAG is a tool interface for image retrieval. General terminal retrieval tools target text search; image-reference retrieval requires an additional visual index. MemoGen therefore provides a visual-text RAG tool built on the WIT image-text corpus [1, 36], which contains large-scale entity-rich image-text examples from Wikipedia. Given a query, this tool searches the local visual database and returns candidate images, related captions, and similarity signals. It provides the controller with stable and low-cost visual references, especially for common entities, scientific concepts, visual states, object appearances, and recurring benchmark concepts. 
+
+Dynamic web search. When local evidence is insufficient, MemoGen invokes dynamic web or image search to acquire open-world infor-mation. This is useful for long-tail entities, real-time concepts, novel cultural references, and tasks with low local-index coverage. The use of retrieved evidence and visual references is motivated by prior retrieval-augmented generation methods, which show that external image-text examples or multimodal neighbors can improve grounding for rare, unseen, or out-of-distribution concepts [2, 6]. 
+
+Experience memory retrieval. The experience memory pool stores historical generation processes as searchable text trajectories, tool logs, feedback records, and concise experience summaries. MemoGen provides find/grep-style terminal retrieval tools to the VLM controller, allowing the controller to directly search the experience memory pool and locate relevant failure modes, successful strategies, reference choices, and repair records. This retrieval mode follows the file-level search pattern commonly used by tool-using agents: the controller can iterate on queries, read local snippets, and select interpretable evidence before generation. This design is also inspired by memory-based agent learning, where previous feedback or experience is stored externally and later reused without parameter updates [11, 12]. These information sources are exposed as callable tools to the LLM/VLM controller. Textual experience is retrieved through find/grep-style tools, while visual references are retrieved through local RAG or web image search. Based on the task description, current retrieval results, visual observations, and past memory, the controller decides when additional knowledge is needed, when web search should be invoked, when reference images should be supplemented, and when retrieval should stop before generation. The resulting con-text is summarized into 𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+and the selected reference set 𝑅 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, which are then used by the planner and generator. This tool-selection mech-anism leverages the visual understanding and cross-modal reasoning capability of current VLMs, enabling flexible context completion and evidence integration in open-world generation tasks. 
+
+3.4. Image Generation and Visual Inspection 
+
+Given the current working prompt, reference set, and generation con-figuration, MemoGen calls an image generation or editing backend: 
+
+𝐼 (𝑟,𝑘 ) 
+
+> 𝑖
+
+= 𝐺 𝜙 
+
+(
+
+𝑞 (𝑟,𝑘 )work ,𝑖 , 𝑅 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝜂 (𝑟,𝑘 )
+
+> 𝑖
+
+)
+
+,
+
+where 𝐼 (𝑟,𝑘 ) 
+
+> 𝑖
+
+is the 𝑘 -th generated attempt for task 𝑖 in round 𝑟 . The generated image enters a visual inspection stage: 
+
+𝑂 (𝑟,𝑘 ) 
+
+> 𝑖
+
+= 𝐻 𝜓 
+
+(
+
+𝐼 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝑝 𝑖 , 𝑧 (𝑟 )intent ,𝑖 , 𝑞 (𝑟,𝑘 )work ,𝑖 
+
+)
+
+,
+
+where 𝑂 (𝑟,𝑘 ) 
+
+> 𝑖
+
+contains visible objects, attributes, spatial relations, miss-ing elements, uncertain regions, and obvious artifacts. When neces-sary, the system may create resized views or cropped regions to inspect fine-grained details. These visual inspection operations support run-time attention allocation and help the agent estimate task satisfaction and select repair actions. The gap review module produces an internal feedback record: 
+
+𝑓 (𝑟,𝑘 ) 
+
+> 𝑖
+
+= 𝑉 𝜃 
+
+(
+
+𝑝 𝑖 , 𝑧 (𝑟 )intent ,𝑖 , 𝑧 (𝑟 )plan ,𝑖 , 𝑞 (𝑟,𝑘 )work ,𝑖 , 𝐼 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝑂 (𝑟,𝑘 )
+
+> 𝑖
+
+)
+
+.
+
+Each feedback record summarizes the satisfied requirements, violated constraints, incorrect or extra visual elements, reference-use issues, and a repair recommendation. We denote its discrete outcome as 
+
+𝑦 int ,(𝑟,𝑘 ) 
+
+> 𝑖
+
+∈ {sat , unsat , uncertain} ,
+
+where sat indicates that the generated image satisfies the current rubric, unsat indicates that one or more task constraints are violated, and uncertain indicates that additional visual inspection is required. This feedback provides the control signal for local repair, additional inspection, and memory writeback. 
+
+3.5. Experience Memory 
+
+The key component of MemoGen is experience memory. After valid internal feedback is produced, the system writes the current episode into memory: 
+
+𝑐 int ,(𝑟 ) 
+
+> 𝑖
+
+= 𝑊 int (𝜏 (𝑟 ) 
+
+> 𝑖
+
+, {𝑓 (𝑟,𝑘 ) 
+
+> 𝑖
+
+}𝐾 (𝑟 )  
+
+> 𝑖 −1
+> 𝑘 =0
+
+) .
+
+Each memory case stores the original prompt 𝑝 𝑖 , working prompts 
+
+{𝑞 (𝑟,𝑘 )work ,𝑖 }, retrieved memory context 𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+, selected references {𝑅 (𝑟,𝑘 ) 
+
+> 𝑖
+
+},generation configurations {𝜂 (𝑟,𝑘 ) 
+
+> 𝑖
+
+}, generated image path, visual ob-servations {𝑂 (𝑟,𝑘 ) 
+
+> 𝑖
+
+}, internal feedback {𝑓 (𝑟,𝑘 ) 
+
+> 𝑖
+
+}, and a concise experience 
+
+4–11 MemoGen: Can Past Experience Improve Future Text-to-Image Generation? 
+
+Algorithm 1 MemoGen : Training-free Self-Evolution                                   
+
+> Require: Dataset 𝒟 ={( 𝑝 𝑖 , 𝐼 ref ,𝑖 )} 𝑁 𝑖 =1 ;memory ℳ(0) ;frozen generator 𝐺 𝜙 ;modules
+> 𝐹 𝜃 , 𝑆 𝜃 , 𝑃 𝜃 , 𝐻 𝜓 , 𝑉 𝜃 , 𝑈 𝜃 ;independent memory judge 𝐽 mem ;rounds 𝑁 round ;max attempts
+> 𝐾 max .
+> Ensure: Final images {̂𝐼 (𝑁 round −1)
+> 𝑖 }𝑁 𝑖 =1 and memory ℳ(𝑁 round ).
+
+1: for 𝑟 = 0 , … , 𝑁 round − 1 do 
+
+2: 𝒞 (𝑟 ) ← ∅
+
+3: for each 𝑥 𝑖 = ( 𝑝 𝑖 , 𝐼 ref ,𝑖 ) ∈ 𝒟 do 
+
+4: 𝑐 ℳ ← Retrieve( ℳ(𝑟 ), 𝑝 𝑖 )
+
+5: 𝑧 intent ← 𝐹 𝜃 (𝑝 𝑖 , 𝑐 ℳ )
+
+6: 𝑅 0 ← 𝑆 𝜃 (𝑝 𝑖 , 𝑧 intent , 𝐼 ref ,𝑖 , 𝑐 ℳ )
+
+7: (𝑧 plan , 𝑞 0, 𝜂 0) ← 𝑃 𝜃 (𝑝 𝑖 , 𝑧 intent , 𝑅 0, 𝑐 ℳ )
+
+8: 𝑘 ← 0, f inished ← f alse 
+
+9: while 𝑘 < 𝐾 max and ¬f inished do 
+
+10: 𝐼 𝑘 ← 𝐺 𝜙 (𝑞 𝑘 , 𝑅 𝑘 , 𝜂 𝑘 )
+
+11: 𝑂 𝑘 ← 𝐻 𝜓 (𝐼 𝑘 , 𝑝 𝑖 , 𝑧 intent , 𝑞 𝑘 )
+
+12: 𝑓 𝑘 ← 𝑉 𝜃 (𝑝 𝑖 , 𝑧 intent , 𝑧 plan , 𝑞 𝑘 , 𝐼 𝑘 , 𝑂 𝑘 )
+
+13: if finish or 𝑘 = 𝐾 max − 1 then 
+
+14: f inished ← true 
+
+15: else 
+
+16: (𝑞 𝑘 +1 , 𝑅 𝑘 +1 , 𝜂 𝑘 +1 ) ← 𝑈 𝜃 (𝑞 𝑘 , 𝑅 𝑘 , 𝜂 𝑘 , 𝑓 𝑘 , 𝑐 ℳ )
+
+17: 𝑘 ← 𝑘 + 1 
+
+18: end if 
+
+19: end while 
+
+20: 𝐾 (𝑟 )   
+
+> 𝑖 ←𝑘 + 1
+
+21: Select 𝑘 ⋆𝑖 ∈ {0 , … , 𝐾 (𝑟 ) 
+
+> 𝑖 − 1}
+
+22: ̂ 𝐼 (𝑟 )  
+
+> 𝑖 ←𝐼 𝑘 ⋆𝑖
+
+23: 𝑐 int ,(𝑟 )       
+
+> 𝑖 ←𝑊 int (𝜏 (𝑟 )
+> 𝑖 ,{𝑓 𝑘 }𝐾 (𝑟 )
+> 𝑖 −1
+> 𝑘 =0 )
+
+24: (𝑦 mem ,(𝑟 )          
+
+> 𝑖 , 𝑑 mem ,(𝑟 )
+> 𝑖 )←𝐽 mem (𝑝 𝑖 ,̂ 𝐼 (𝑟 )
+> 𝑖 , 𝐼 ref ,𝑖 , 𝑅 𝑘 ⋆𝑖 , 𝑐 ℳ, 𝑧 intent , 𝑧 plan )
+
+25: 𝑐 judge ,(𝑟 )      
+
+> 𝑖 ←𝑊 judge (𝑦 mem ,(𝑟 )
+> 𝑖 , 𝑑 mem ,(𝑟 )
+> 𝑖 , 𝜏 (𝑟 )
+> 𝑖 , 𝑐 int ,(𝑟 )
+> 𝑖 )
+
+26: 𝒞 (𝑟 ) ← 𝒞 (𝑟 ) ∪ { 𝑐 int ,(𝑟 )  
+
+> 𝑖 , 𝑐 judge ,(𝑟 )
+> 𝑖 }
+
+27: end for 
+
+28: ℳ(𝑟 +1) ← ℳ(𝑟 ) ∪ 𝒞 (𝑟 )
+
+29: end for 
+
+30: return {̂𝐼 (𝑁 round −1)   
+
+> 𝑖 }𝑁 𝑖 =1 ,ℳ(𝑁 round )
+
+summary. Rather than storing raw free-form reflections as unstruc-tured prompt text, MemoGen converts feedback into reusable experi-ence records that can later be retrieved as relation-level guidance for similar tasks. We denote the attempt-level records in round 𝑟 as 
+
+𝒬 (𝑟 ) 
+
+> 𝑖
+
+= { 𝑞 (𝑟,𝑘 )work ,𝑖 }𝐾 (𝑟 )  
+
+> 𝑖 −1
+> 𝑘 =0
+
+, ℛ(𝑟 ) 
+
+> 𝑖
+
+= { 𝑅 (𝑟,𝑘 ) 
+
+> 𝑖
+
+}𝐾 (𝑟 )  
+
+> 𝑖 −1
+> 𝑘 =0
+
+,
+
+ℰ(𝑟 ) 
+
+> 𝑖
+
+= { 𝜂 (𝑟,𝑘 ) 
+
+> 𝑖
+
+}𝐾 (𝑟 )  
+
+> 𝑖 −1
+> 𝑘 =0
+
+, 𝒪 (𝑟 ) 
+
+> 𝑖
+
+= { 𝑂 (𝑟,𝑘 ) 
+
+> 𝑖
+
+}𝐾 (𝑟 )  
+
+> 𝑖 −1
+> 𝑘 =0
+
+, ℱ(𝑟 ) 
+
+> 𝑖
+
+= { 𝑓 (𝑟,𝑘 ) 
+
+> 𝑖
+
+}𝐾 (𝑟 )  
+
+> 𝑖 −1
+> 𝑘 =0
+
+.
+
+A memory record can then be abstractly represented as 
+
+𝑐 int ,(𝑟 ) 
+
+> 𝑖
+
+= {𝑝 𝑖 , 𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+, 𝒬 (𝑟 ) 
+
+> 𝑖
+
+, ℛ(𝑟 ) 
+
+> 𝑖
+
+, ℰ(𝑟 ) 
+
+> 𝑖
+
+,̂ 𝐼 (𝑟 ) 
+
+> 𝑖
+
+,
+
+𝒪 (𝑟 ) 
+
+> 𝑖
+
+, ℱ(𝑟 ) 
+
+> 𝑖
+
+, 𝓁 (𝑟 ) 
+
+> 𝑖
+
+, 𝜌 (𝑟 ) 
+
+> 𝑖
+
+, 𝜋 (𝑟 )
+
+> 𝑖
+
+}.
+
+where 𝓁 (𝑟 ) 
+
+> 𝑖
+
+is the textual lesson, 𝜌 (𝑟 ) 
+
+> 𝑖
+
+∈ {positive , negative} is the mem-ory polarity, and 𝜋 (𝑟 ) 
+
+> 𝑖
+
+∈ {reuse _as _strategy , use _as _warning} is the retrieval policy. The polarity is assigned from the internal feedback 
+
+𝑓 (𝑟,𝑘 ) 
+
+> 𝑖
+
+and the independent memory-judge signal 𝑦 mem ,(𝑟 ) 
+
+> 𝑖
+
+, not from official benchmark labels or hidden checklist annotations. Each experience record is associated with a polarity that determines how it is used in future episodes. Positive records capture visual constraints, reference choices, prompt formulations, and retrieved evidence that led to a satisfactory generation under the memory judge. They can be reused as candidate strategies for constructing future gen-eration conditions. Negative records capture violated constraints and recurring failure patterns, such as missing visual cues, incorrect temporal states, ambiguous object relations, reference misuse, insuffi-cient domain-specific depiction, or a critical failure detected by the memory judge. They are retrieved as warnings or repair constraints, preventing the controller from treating failed cases as positive prompt templates. 
+
+3.6. Two-Stage Feedback Memory 
+
+MemoGen constructs experience memory from two feedback stages. The first stage is internal visual feedback produced within the gener-ation episode. After a generated image is returned to the controller as visual context, the controller compares the actual image against the original instruction, the inferred intent, the current plan, and the current working prompt. This produces the attempt-level feedback 
+
+𝑓 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, which records visible constraint satisfaction, missing elements, reference-use issues, artifacts, and possible repair directions. Since this feedback is derived only from controller-visible information, it can be used for within-episode control, such as additional inspection, prompt repair, or memory writeback. The second stage is an independent memory-judge feedback sig-nal produced after an episode is completed. Instead of using official benchmark correctness labels, official judge rationales, hidden anno-tations, or checklist-level ground truth, we introduce an independent episode-level multimodal memory evaluator 𝐽 mem dedicated to mem-ory writing. It evaluates only the original instruction, the final gen-erated image, optional user-provided references, selected reference images, retrieved evidence, intent analysis, and generation plan: 
+
+(
+
+𝑦 mem ,(𝑟 ) 
+
+> 𝑖
+
+, 𝑑 mem ,(𝑟 )
+
+> 𝑖
+
+)
+
+= 𝐽 mem (𝑝 𝑖 ,̂ 𝐼 (𝑟 ) 
+
+> 𝑖
+
+, 𝐼 ref ,𝑖 , 𝑅 (𝑟,𝑘 ⋆𝑖 ) 
+
+> 𝑖
+
+, 𝑐 (𝑟 ) 
+
+> ℳ,𝑖
+
+, 𝑧 (𝑟 )intent ,𝑖 , 𝑧 (𝑟 )plan ,𝑖 ) .
+
+Here 𝑦 mem ,(𝑟 ) 
+
+> 𝑖
+
+∈ {0 , 1} indicates whether the final image is accepted by the memory judge, and 𝑑 mem ,(𝑟 ) 
+
+> 𝑖
+
+is a structured diagnosis used for writing interpretable memory. The memory evaluator follows five task-visible criteria: original-instruction faithfulness, intent-requirement satisfaction, reasoning or knowledge correctness, visual decidability and reference fidelity, and the presence of any critical failure. A generation is marked positive only when the judge can verify from the visible image and allowed context that the core task requirements are satisfied. If the image vio-lates the original instruction, misses a key inferred intent, contradicts retrieved knowledge, fails to preserve required references, or contains a critical visible failure, the memory signal is negative. This design makes the memory signal independent from benchmark-specific an-notations while still providing useful success/failure supervision for self-evolution. Given 𝑦 mem ,(𝑟 ) 
+
+> 𝑖
+
+, 𝑑 mem ,(𝑟 ) 
+
+> 𝑖
+
+, the agent-visible trajectory, and the internal feedback memory, MemoGen writes a judge-conditioned memory record: 
+
+𝑐 judge ,(𝑟 ) 
+
+> 𝑖
+
+= 𝑊 judge 
+
+(
+
+𝑦 mem ,(𝑟 ) 
+
+> 𝑖
+
+, 𝑑 mem ,(𝑟 ) 
+
+> 𝑖
+
+, 𝜏 (𝑟 ) 
+
+> 𝑖
+
+, 𝑐 int ,(𝑟 )
+
+> 𝑖
+
+)
+
+.
+
+The resulting record preserves or revises the control experience accu-mulated in the episode, including prompt strategies, reference choices, tool-use patterns, failure diagnoses, and failure-avoidance rules. This interface can be viewed as a lightweight feedback channel for image generation agents. Unlike standard RLHF[3] or preference optimization, MemoGen does not update the parameters of the image generator or controller. Instead, the memory-judge outcome is con-verted into explicit memory that influences future test-time behavior through retrieval. In interactive deployment, 𝐽 mem can be replaced or supplemented by user acceptance, rejection, or preference feedback, but in benchmark evaluation the official benchmark evaluator is used only for offline reporting and is never exposed to the self-evolution memory. 
+
+3.7. Self-Evolving Generation Loop 
+
+MemoGen operates over multiple evolution rounds. In the initial round, the agent performs cold-start generation without task-specific experience memory. Each episode produces an image, internal visual feedback, and an internal experience record. After the episode is 
+
+5–11 MemoGen: Can Past Experience Improve Future Text-to-Image Generation?   
+
+> Table 1. Comparison with existing image generation models on WISE. The best performing model in each column is highlighted in bold .
+
+# Model Name WISE 
+
+# Cultural Time Space Bio Phys Chem Overall GPT-Image-1 [40] 0.81 0.71 0.89 0.83 0.79 0.74 0.80 Nano Banana [34] 0.89 0.87 0.95 0.89 0.89 0.79 0.89 Nano Banana Pro [33] 0.89 0.80 0.89 0.88 0.86 0.85 0.87 FLUX.1-dev [16] 0.48 0.58 0.62 0.42 0.51 0.35 0.50 SD-XL-base [10] 0.43 0.48 0.47 0.44 0.45 0.27 0.43 SD-3.5-medium [21] 0.43 0.50 0.52 0.41 0.53 0.33 0.45 SD-3.5-large [20] 0.44 0.50 0.58 0.44 0.52 0.31 0.46 BAGEL (w/ CoT) [32] 0.76 0.69 0.75 0.65 0.75 0.58 0.70 BAGEL [32] 0.44 0.55 0.68 0.44 0.60 0.39 0.52 Qwen-Image [44] 0.62 0.63 0.77 0.57 0.75 0.40 0.62 GenAgent [51] 0.78 0.67 0.78 0.72 0.77 0.55 0.72 Gen-Searcher-8B + Qwen-Image [48] 0.80 0.71 0.82 0.76 0.74 0.75 0.77 Mind-Brush [49] 0.83 0.69 0.84 0.71 0.85 0.68 0.78 
+
+# MemoGen (Ours) 0.96 0.90 0.94 0.82 0.83 0.85 0.91 
+
+completed, the independent memory judge 𝐽 mem produces a memory-writing signal and structured diagnosis, which are converted into judge-conditioned memory. In later rounds, the controller retrieves relevant experience records before constructing the generation plan. Positive records provide can-didate strategies, such as effective visual constraints, reference choices, prompt formulations, and useful evidence. Negative records provide warnings or repair constraints that help avoid recurring failure modes. The agent then executes a new generation episode under the same con-trolled tool interface, and the newly produced internal feedback and memory-judge feedback are written back into the experience memory. The update across a complete evolution round is 
+
+𝒞 (𝑟 ) =
+
+> 𝑁
+
+⋃
+
+> 𝑖 =1
+
+{
+
+𝑐 int ,(𝑟 ) 
+
+> 𝑖
+
+, 𝑐 judge ,(𝑟 )
+
+> 𝑖
+
+}
+
+, ℳ(𝑟 +1) = ℳ(𝑟 ) ∪ 𝒞 (𝑟 ).
+
+This loop enables training-free self-evolution: the image generator remains fixed, while the agent changes its future behavior through memory retrieval and memory writeback. Learning therefore occurs through updates to the external experience state rather than through model-parameter updates. In our benchmark implementation, each evolution round reruns the same task set under the autonomous control framework. The original prompt is always kept as the task target across rounds; re-trieved evidence, enhanced prompts, plans, and memory records serve only as auxiliary agent states. Reusing the same task set lets us mea-sure whether accumulated experience improves future generations under a controlled and comparable setting. Crucially, the cross-round signal is produced by internal visual feedback and the independent memory judge, not by official benchmark correctness labels, hidden annotations, official rationales, or checklist-level ground truth. Algorithm 1 summarizes the full procedure. For compact-ness, within each task and round, Algorithm 1 abbreviates 
+
+𝑞 (𝑟,𝑘 )work ,𝑖 , 𝑅 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝜂 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝐼 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝑂 (𝑟,𝑘 ) 
+
+> 𝑖
+
+, 𝑓 (𝑟,𝑘 ) 
+
+> 𝑖
+
+as 𝑞 𝑘 , 𝑅 𝑘 , 𝜂 𝑘 , 𝐼 𝑘 , 𝑂 𝑘 , 𝑓 𝑘 , respec-tively. 
+
+3.8. Scalable Benchmark Instantiation 
+
+For large-scale evaluation, we instantiate MemoGen as a reproducible autonomous control framework. The framework provides a unified tool interface to the LLM/VLM controller, including prompt reasoning, memory retrieval, local RAG, web search, reference-image acquisi-tion, image generation or editing, visual inspection, memory-judge feedback, and memory writeback. For each sample, the controller autonomously determines the order of tool calls from the current state and sends the generated image to the independent memory judge 
+
+𝐽 mem . The memory judge outputs only a binary memory signal and a structured diagnosis based on allowed inputs. We do not use official benchmark correctness labels, official judge rationales, hidden annotations, or checklist-level ground truth as self-evolution signals. The memory signal is produced by the in-dependent calibrated multimodal judge, which evaluates only the original instruction, generated image, optional references, selected references, retrieved evidence, intent analysis, and generation plan. Official benchmark evaluators are invoked only after each round for offline reporting of final metrics, and their labels, rationales, checklist decisions, or category-wise correctness signals are never written into the harness memory or shown to the controller. This benchmark instantiation preserves the core self-evolving mech-anism while placing unstable text-to-image and image-to-image back-ends under the control of an explicit harness memory. Each round reruns the autonomous control process for all samples and writes both internal feedback memory and independent judge-conditioned reflec-tion memory, allowing the system to continually update prompt strate-gies, reference selection, visual inspection experience, and failure-avoidance rules over the full distribution. Across benchmarks, the original prompt or instruction is always kept as the task target; en-hanced prompts, plans, retrieved knowledge, and memory summaries serve only as auxiliary agent states. 
+
+4. EXPERIMENTS 
+
+4.1. Benchmarks and Evaluation Protocols 
+
+We evaluate MemoGen on two knowledge-intensive and reasoning-oriented image generation benchmarks: WISE and Mind-Bench.   
+
+> 6–11 MemoGen: Can Past Experience Improve Future Text-to-Image Generation?
+> Table 2. Quantitative comparison of different models on Mind-Bench. The table is divided into proprietary (top) and open-source (bottom) models. The best performing model is highlighted in bold . The symbol “–” indicates that the model is not applicable to certain tasks.
+
+Model Name Knowledge-Driven Reasoning-Driven Overall 
+
+SE Weather MC IP WK SL Poem Life Reason GU Math GPT-Image-1 [40] 0.32 0.06 0.22 0.02 0.16 0.32 0.10 0.24 0.10 0.12 0.17 GPT-Image-1.5 [38] 0.36 0.18 0.22 0.04 0.30 0.34 0.08 0.34 0.10 0.02 0.21 FLUX 2 Pro [26] 0.38 0.12 0.08 0.00 0.20 0.44 0.64 0.18 0.04 0.02 0.21 FLUX 2 Max [25] 0.44 0.12 0.10 0.04 0.38 0.40 0.50 0.20 0.02 0.06 0.23 Nano Banana [34] 0.30 0.10 0.12 0.00 0.30 0.32 0.36 0.20 0.04 0.08 0.18 Nano Banana Pro [33] 0.50 0.36 0.40 0.16 0.56 0.62 0.68 0.30 0.16 0.46 0.41 SDXL [10] 0.04 0.00 0.04 0.00 0.00 0.00 0.00 – – – 0.01 SD-3.5 M [21] 0.02 0.00 0.00 0.00 0.02 0.00 0.00 – – – 0.01 SD-3.5 L [20] 0.04 0.00 0.02 0.00 0.02 0.00 0.06 – – – 0.01 FLUX 1 dev [16] 0.04 0.00 0.00 0.00 0.02 0.02 0.04 – – – 0.02 FLUX 1 Kontext [24] 0.02 0.00 0.00 0.00 0.02 0.00 0.00 – – – 0.01 FLUX 1 Krea [16] 0.04 0.00 0.04 0.00 0.02 0.00 0.02 – – – 0.02 BAGEL [32] 0.02 0.00 0.00 0.00 0.00 0.02 0.02 0.02 0.00 0.08 0.02 Echo-4o [45] 0.04 0.00 0.00 0.00 0.00 0.02 0.06 0.02 0.02 0.02 0.02 DraCo [35] 0.02 0.00 0.02 0.00 0.00 0.02 0.02 0.04 0.02 0.06 0.02 Z-Image [28] 0.02 0.00 0.08 0.02 0.00 0.00 0.00 – – – 0.02 Qwen-Image [44] 0.08 0.00 0.04 0.00 0.00 0.04 0.00 0.04 0.00 0.00 0.02 Mind-Brush [49] 0.54 0.16 0.62 0.18 0.40 0.26 0.54 0.10 0.16 0.14 0.31 
+
+MemoGen (Ours) 0.60 0.30 0.52 0.72 0.82 0.74 0.60 0.42 0.20 0.30 0.52 
+
+WISE focuses on complex semantic understanding and world-knowledge integration, covering categories such as cultural knowl-edge, temporal reasoning, spatial reasoning, biology, physics, and chemistry. We report category-level accuracy and overall accuracy following the official evaluation protocol. Mind-Bench further evalu-ates image generation under dynamic external knowledge and multi-step reasoning requirements, including both knowledge-driven and reasoning-driven tasks. Following the benchmark protocol, we report Checklist-based Strict Accuracy (CSA) for each subcategory and the overall score. For both benchmarks, we report the results after the second evolution round, where MemoGen has access to experience memory accumulated from the previous round while keeping the underlying image generator fixed. 
+
+4.2. Experimental Settings  
+
+> Baselines.
+
+We compare MemoGen with current mainstream propri-etary image generation systems, including GPT-Image-1 [38], GPT-Image-1.5[38], Nano Banana [34], Nano Banana Pro [33], FLUX-2 Pro [26], and FLUX-2 Max [25]. We also compare with state-of-the-art open-source text-to-image or unified multimodal models, including FLUX.1-dev [16], FLUX 1 Kontext[24], FLUX 1 Krea[27], Stable Dif-fusion 3.5 Large [20], Stable Diffusion 3.5 Medium [21], SDXL [10], BAGEL [32], Echo-4o[45] , DraCo[35], Z-Image[28], GenAgent [51], and Qwen-Image [44]. In addition, we include two closely related agentic generation systems, Mind-Brush[49] and Gen-Searcher[48] , to compare MemoGen against retrieval-augmented and search-augmented image generation frameworks. All baselines are evaluated using their official default settings or reported numbers when avail-able.  
+
+> Implementation details.
+
+Unless otherwise specified, MemoGen uses Qwen-Image-Edit-2509[44] as the reference-guided generation back-end and Qwen-Image as the text-only generation backend. GPT-5.5[39] is used as the VLM controller for intent analysis, tool plan-ning, visual inspection, and memory-guided feedback. For external retrieval, we use Serper[41] as the search interface. The local visual RAG module is built on the WIT image-text corpus [1], which provides large-scale image-caption pairs for efficient local reference retrieval. The agent is equipped with local visual RAG, dynamic web search, reference retrieval, experience memory retrieval, image generation, visual inspection, and memory writeback tools. For WISE and Mind-Bench, we report the second-round evolution results, where the agent retrieves experience records accumulated from the first round and per-forms memory-guided generation without updating the parameters of the image generator or controller. All experiments are conducted on 8 NVIDIA A100 80GB GPUs. Importantly, all evolution is performed at test time through memory retrieval and memory writeback; neither the image generator nor the VLM controller is fine-tuned during the evolution process. 
+
+4.3. Comparison with State of the Art 
+
+We evaluate MemoGen on Mind-Bench and WISE, two complemen-tary benchmarks for knowledge-intensive and reasoning-oriented im-age generation. Mind-Bench stresses dynamic external knowledge and multi-step reasoning, while WISE focuses on translating world knowl-edge into faithful visual content across cultural, temporal, spatial, biological, physical, and chemical scenarios. For both benchmarks, we report second-round results with the image generator kept fixed; thus, any improvement comes from retrieving and reusing experience accumulated from previous generation episodes. Table 2 shows that MemoGen achieves the best overall performance on Mind-Bench, reaching an overall CSA of 0.52 . This outperforms the strongest proprietary baseline, Nano Banana Pro ( 0.41 ), and substan-tially exceeds Mind-Brush ( 0.31 ). The comparison with Mind-Brush is especially informative: both methods use external knowledge and agentic reasoning, but MemoGen additionally reuses past successes and failures as explicit experience. The 0.21 absolute gain therefore suggests that experience memory provides benefits beyond single-round retrieval and prompt refinement. At the category level, Mem-oGen performs strongly on both Knowledge-Driven tasks, such as SE, 
+
+> 7–11
+
+MemoGen: Can Past Experience Improve Future Text-to-Image Generation? Kobe Bryant 
+
+endorses iced 
+
+black tea 
+
+Potassium 
+
+permanganate 
+
+dissolved in 
+
+water 
+
+A candle in space 
+
+A craft that 
+
+celebrates the 
+
+beauty of natural 
+
+elements through 
+
+its use of fine 
+
+Qwen Image Nano Banana Nano Banana Pro Ours GPT Image -2Prompt 
+
+Figure 2. Qualitative comparison. The results in illustrate that MemoGen ("Ours") effectively follows complex prompts and adheres to implicit constraints where other models struggle, such as correctly depicting an unlit candle in space or specific product endorsements. 
+
+IP, and WK ( 0.60 , 0.72 , and 0.82 ), and Reasoning-Driven tasks, such as SL, Life Reasoning, and GU ( 0.74 , 0.42 , and 0.20 ). This indicates that memory records do not merely recall facts, but help convert past generation outcomes into reusable visual constraints, repair hints, and failure-avoidance signals. Table 1 further confirms this trend on WISE. MemoGen achieves the best overall score of 0.91 , outperforming strong proprietary sys-tems such as GPT-Image-1, Nano Banana, and Nano Banana Pro, as well as agentic baselines including Gen-Searcher and Mind-Brush. Compared with Mind-Brush ( 0.78 ) and Gen-Searcher ( 0.77 ), Mem-oGen improves the overall score by 0.13 and 0.14 absolute points, respectively. The category-level results show that MemoGen reaches 
+
+0.96 on Cultural, 0.90 on Time, and 0.85 on Chemistry. These cat-egories are prone to recurring visual errors: a model may infer the correct answer textually, yet still render the wrong time of day, physical state, or intermediate concept. By retrieving relation-level experience from previous episodes, MemoGen turns such recurring failures into concrete generation constraints. Overall, the two benchmarks support the same conclusion from dif-ferent angles: search-augmented systems improve the current prompt by acquiring external knowledge, while MemoGen treats each gen-eration episode as a source of future experience. Successful records provide candidate strategies, and failed or rejected records become warnings and repair constraints. As a result, the system improves through training-free continual learning at the agent layer, rather than through fine-tuning the image generator. Figure 2 presents qualitative comparisons between MemoGen and representative baseline models across personality, chemistry, physics, and cultural/geographical reasoning scenarios. In the first example, “Kobe Bryant endorses iced black tea,” baseline models either fail to correctly ground the celebrity identity or misunderstand the visual concept of iced black tea as a Chinese beverage. In contrast, Mem-oGen successfully preserves both key elements and further infers the Base R1 R2 R3                                 
+
+> 40%
+> 60%
+> 80%
+> 100%
+> 62%
+> 93% 97% 96%
+> Culture 62% -> 96%
+> Base R1 R2 R3
+> 40%
+> 60%
+> 80%
+> 100%
+> 63%
+> 88% 90%
+> 95%
+> Time 63% -> 95%
+> Base R1 R2 R3
+> 40%
+> 60%
+> 80%
+> 100%
+> 77% 84% 94%
+> 88%
+> Space 77% -> 88%
+> Base R1 R2 R3
+> 40%
+> 60%
+> 80%
+> 100%
+> 57%
+> 76% 82% 87%
+> Bio 57% -> 87%
+> Base R1 R2 R3
+> 40%
+> 60%
+> 80%
+> 100%
+> 75% 71%
+> 82% 81%
+> Phys 75% -> 81%
+> Base R1 R2 R3
+> 40%
+> 60%
+> 80%
+> 100%
+> 40%
+> 79% 85% 81%
+> Chem 40% -> 81%
+
+Figure 3. Category-wise WISE pass rates from the Qwen Image baseline to three evolving rounds. The dashed gray line indicates the overall score trend. 
+
+underlying Internet-meme association, rendering the result in a rec-ognizable meme-like visual form. In the chemistry example, only MemoGen correctly captures the color and physical state of potassium permanganate dissolved in water, producing a homogeneous purple solution rather than undissolved crystals or an incorrect precipitate-like state. In the physics example, “A candle in space,” most baselines follow the strong visual prior that candles are naturally associated with flames, and therefore generate physically implausible images of a burning candle in space. By reasoning that combustion cannot be sustained in vacuum and by incorporating prior failure experience, MemoGen applies explicit negative constraints to suppress the candle– flame association, ultimately generating a physically consistent unlit candle with an inert wick. These examples show that MemoGen improves not only factual grounding but also the visual realization of implicit reasoning, especially when the task requires combining external knowledge, commonsense constraints, and failure-avoidance experience. 
+
+8–11 MemoGen: Can Past Experience Improve Future Text-to-Image Generation?  
+
+> Evolution analysis.
+
+We further analyze the effect of evolution rounds in Figure 3. The improvement from the base generator to Round 1 mainly reflects the benefit of our agentic generation architecture: even without task-specific experience memory, the controller can ac-tively decompose the prompt, retrieve external knowledge and visual references, construct explicit generation constraints, and review the generated image. This already leads to substantial gains over the base model. The further improvement from Round 1 to Round 2 demonstrates the value of experience-driven evolution. By retrieving relation-level memories accumulated in the first round, the agent can better exploit the strengths of the underlying generator while avoiding previously observed failure modes, such as missing key visual cues, incorrect temporal states, ambiguous object relations, or physically implausible renderings. The performance of Round 3 is largely compa-rable to Round 2, with small category-level fluctuations. We attribute this saturation to two factors: some remaining cases are limited by the intrinsic capability of the fixed image generator, while others are affected by noise or misjudgments from the automatic evaluator. Over-all, the evolution curve shows that self-evolution is beneficial: the largest gain comes from introducing agentic control, and experience memory further stabilizes and improves generation in later rounds without updating model parameters. 
+
+5. CONCLUSION 
+
+We introduced MemoGen, a training-free continual learning frame-work for text-to-image generation agents. The central insight is that future image generation systems need not improve only by scaling or fine-tuning the underlying generator; they can also improve by ac-cumulating and reusing experience at the agent layer. By converting each generation episode into explicit memory, including task under-standing, retrieved evidence, visual feedback, successful strategies, and failure constraints, MemoGen turns image generation from an iso-lated prompt-to-image inference process into an experience-evolving cycle. Experiments on knowledge-intensive and reasoning-oriented benchmarks show that past generation experience can serve as an effective test-time learning signal, helping the system construct better generation conditions, avoid recurring errors, and improve reliabil-ity without parameter updates. We believe this experience-evolving paradigm complements retrieval-augmented generation and points toward future visual generation systems that continuously improve through interaction, feedback, and accumulated experience. 
+
+> 9–11 MemoGen: Can Past Experience Improve Future Text-to-Image Generation?
+
+REFERENCES 
+
+[1] K. Srinivasan, K. Raman, J. Chen, M. Bendersky, and M. Na-jork, “WIT: Wikipedia-based image text dataset for multimodal multilingual machine learning”, in Proceedings of the 44th Inter-national ACM SIGIR Conference on Research and Development in Information Retrieval , 2021, pp. 2443–2449. [2] W. Chen, H. Hu, C. Saharia, and W. W. Cohen, “Re-imagen: Retrieval-augmented text-to-image generator”, arXiv preprint arXiv:2209.14491 , 2022. [3] L. Ouyang et al., “Training language models to follow instruc-tions with human feedback”, Advances in neural information processing systems , vol. 35, pp. 27 730–27 744, 2022. [4] R. Rombach, A. Blattmann, D. Lorenz, P. Esser, and B. Om-mer, High-resolution image synthesis with latent diffusion models ,2022. [5] C. Saharia et al., Photorealistic text-to-image diffusion models with deep language understanding , 2022. [6] S. Sheynin et al., “kNN-Diffusion: Image generation via large-scale retrieval”, arXiv preprint arXiv:2204.02849 , 2022. [7] J. Yu et al., Scaling autoregressive models for content-rich text-to-image generation , 2022. [8] J. Betker et al., Improving image generation with better captions ,https : / / cdn . openai . com / papers / dall - e - 3 . pdf, Accessed: 2026-05-21, 2023. [9] J. S. Park, J. C. O’Brien, C. J. Cai, M. R. Morris, P. Liang, and M. S. Bernstein, Generative agents: Interactive simulacra of human behavior , 2023. [10] D. Podell et al., Sdxl: Improving latent diffusion models for high-resolution image synthesis , 2023. [11] N. Shinn, F. Cassano, A. Gopinath, K. Narasimhan, and S. Yao, “Reflexion: Language agents with verbal reinforcement learn-ing”, arXiv preprint arXiv:2303.11366 , 2023. [12] G. Wang et al., “Voyager: An open-ended embodied agent with large language models”, arXiv preprint arXiv:2305.16291 , 2023. [13] M. Yasunaga et al., “Retrieval-augmented multimodal language modeling”, in International Conference on Machine Learning ,2023. [14] H. Ye, J. Zhang, S. Liu, X. Han, and W. Yang, Ip-adapter: Text compatible image prompt adapter for text-to-image diffusion models , 2023. [15] L. Zhang, A. Rao, and M. Agrawala, Adding conditional control to text-to-image diffusion models , 2023. [16] Black Forest Labs, FLUX.1 , https://github.com/black-forest-labs/flux, Accessed: 2026-05-21, 2024. [17] W. Chen et al., “Sato: Stable text-to-motion framework”, in 
+
+Proceedings of the 32nd ACM International Conference on Multi-media , 2024, pp. 6989–6997. doi : 10.1145/3664647.3681034 [18] Y. Liang et al., Rich human feedback for text-to-image generation ,2024. [19] C. Mou et al., T2i-adapter: Learning adapters to dig out more controllable ability for text-to-image diffusion models , 2024. [20] Stability AI, Stable diffusion 3.5 large , https://stability.ai/news-updates/introducing-stable-diffusion-3-5, Accessed: 2026-05-21, 2024. [21] Stability AI, Stable diffusion 3.5 medium , https://huggingface. co/stabilityai/stable-diffusion-3.5-medium, Accessed: 2026-05-21, 2024. [22] Z. Wang, A. Li, Z. Li, and X. Liu, Genartist: Multimodal llm as an agent for unified image generation and editing , 2024. [23] Z. Yang et al., Idea2img: Iterative self-refinement with gpt-4v(ision) for automatic image design and generation , 2024. [24] Black Forest Labs, FLUX.1 Kontext , https://bfl.ai/models/flux-kontext, Accessed: 2026-05-21, May 2025. [25] Black Forest Labs, FLUX.2 [max] , https://bfl.ai/blog, Accessed: 2026-05-21, Dec. 2025. [26] Black Forest Labs, FLUX.2 [pro] , https://bfl.ai/blog, Accessed: 2026-05-21, Nov. 2025. [27] Black Forest Labs and Krea AI, FLUX.1 Krea , https://bfl.ai/ blog/flux-1-krea-dev, Accessed: 2026-05-21, 2025. [28] H. Cai et al., “Z-Image: An efficient image generation founda-tion model with single-stream diffusion transformer”, arXiv preprint arXiv:2511.22699 , 2025. [29] C. -Y. Chen, M. Shi, G. Zhang, and H. Shi, T2i-copilot: A training-free multi-agent text-to-image system for enhanced prompt inter-pretation and interactive generation , 2025. [30] W. Chen et al., “Ant: Adaptive neural temporal-aware text-to-motion model”, in Proceedings of the 33rd ACM International Conference on Multimedia , 2025, pp. 9852–9861. doi : 10.1145/ 3746027.3755168 [31] W. Chen et al., Free-t2m: Robust text-to-motion generation for humanoid robots via frequency-domain , 2025. [32] C. Deng et al., “Emerging properties in unified multimodal pretraining”, arXiv preprint arXiv:2505.14683 , 2025. [33] Google DeepMind, Gemini 3 pro image: Nano banana pro , https: //deepmind.google/models/gemini- image/pro/, Accessed: 2026-05-21, 2025. [34] Google DeepMind, Gemini image: Nano banana , https : / / deepmind . google / models / gemini - image/, Accessed: 2026-05-21, 2025. [35] D. Jiang et al., “DraCo: Draft as CoT for text-to-image preview and rare concept generation”, arXiv preprint arXiv:2512.05112 ,2025. [36] M. Ning et al., Dctdiff: Intriguing properties of image generative modeling in the dct space , 2025. [37] Y. Niu et al., WISE: A world knowledge-informed semantic eval-uation for text-to-image generation , 2025. [38] OpenAI, GPT Image 1.5 , https://platform.openai.com/docs/ models/gpt-image-1.5, Accessed: 2026-05-21, Dec. 2025. [39] OpenAI, GPT-5.5 , https://openai.com/index/gpt- 5- 5/, Ac-cessed: 2026-06-02, 2025. [40] OpenAI, Introducing our latest image generation model in the api ,https://openai.com/index/image-generation-api/, Accessed: 2026-05-21, Apr. 2025. [41] Serper, Serper API , https://serper.dev/, Accessed: 2026-06-02, 2025. [42] B. Tian, W. Chen, Z. Li, S. Lai, J. Wu, and Y. Yue, Text2weight: Bridging natural language and neural network weight spaces ,https://doi.org/10.1145/3746027.3755441, 2025. [43] X. Wan et al., Maestro: Self-improving text-to-image generation via agent orchestration , 2025. [44] C. Wu et al., “Qwen-image technical report”, arXiv preprint arXiv:2508.02324 , 2025. [45] J. Ye et al., “Echo-4o: Harnessing the power of GPT-4o syn-thetic images for improved image generation”, arXiv preprint arXiv:2508.09987 , 2025. [46] S. Chen et al., Genevolve: Self-evolving image generation agents via tool-orchestrated visual experience distillation , 2026. 
+
+> 10–11 MemoGen: Can Past Experience Improve Future Text-to-Image Generation?
+
+[47] W. Chen, H. Jia, K. Yu, S. Lai, L. Wang, and Y. Yue, “Towards better evaluation metrics for text-to-motion generation”, in The Second International Workshop on Transformative Insights in Multifaceted Evaluation at The Web Conference 2026 , 2026. [48] K. Feng et al., “Gen-searcher: Reinforcing agentic search for image generation”, arXiv preprint arXiv:2603.28767 , 2026. [49] J. He et al., “Mind-Brush: Integrating agentic cognitive search and reasoning into image generation”, arXiv preprint arXiv:2602.01756 , 2026. [50] Z. He et al., Gems: Agent-native multimodal generation with memory and skills , 2026. [51] K. Jiang et al., “Genagent: Scaling text-to-image gener-ation via agentic multimodal reasoning”, arXiv preprint arXiv:2601.18543 , 2026. [52] S. Kou et al., Think-then-generate: Reasoning-aware text-to-image diffusion with llm encoders , 2026. [53] H. Li, W. Chen, L. Wang, S. Liang, H. Jia, and Y. Yue, Oracle noise: Faster semantic spherical alignment for interpretable latent optimization , 2026. [54] H. Li et al., Delta score matters! spatial adaptive multi guidance in diffusion models , 2026. [55] S. Mun, S. Cho, and C. Kim, Epic: Efficient predicate-guided inference-time control for compositional text-to-image generation ,2026. [56] H. Wang, C. Wei, W. Ren, J. Liu, F. Lin, and W. Chen, Rational-rewards: Reasoning rewards scale visual generation both training and test time , 2026. [57] S. Wu, M. Sun, W. Wang, Y. Wang, and J. Liu, Visualprompter: Semantic-aware prompt optimization with visual feedback for text-to-image synthesis , 2026. [58] Y. Zhang et al., Rewardharness: Self-evolving agentic post-training , 2026.

@@ -1,0 +1,258 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-07T20:42:45.081477+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2606.03243v1",
+      "source": "arxiv",
+      "title": "MemoGen: Can Past Experience Improve Future Text-to-Image Generation?",
+      "abstract": "Modern text-to-image models have achieved strong visual synthesis, yet remain unreliable when prompts require implicit visual constraints, relational reasoning, or external knowledge. Existing retrieval-augmented and agentic generation methods mitigate this issue by acquiring external knowledge, references, or refined prompts for the current request, yet they typically treat each generation as an isolated episode and do not systematically preserve past successes or failures for future use. In this work, we ask whether a text-to-image system can continually improve from its own generation experience without updating the underlying generator. We propose MemoGen, a training-free framework that augments existing image generators with an agentic evolution layer. For each task, MemoGen explicitly infers visual requirements, retrieves external evidence and references when necessary, translates them into executable generation constraints, evaluates the generated result, and stores task understanding, reference choices, visual feedback, successful strategies, and failure lessons as reusable experience memory. Across evolution rounds, the agent retrieves relevant experience to improve similar future generations, selectively repairing previously failed cases while preserving successful ones, thereby enabling test-time self-evolution without parameter updates. Extensive experiments on knowledge-intensive and reasoning-oriented benchmarks demonstrate the effectiveness of this paradigm: after only two evolution rounds, MemoGen built upon the open-source Qwen-Image backbone surpasses strong proprietary systems such as Nano Banana Pro and GPT-Image-1 on WISE and Mind-Bench, showing that explicit experience memory can serve as a powerful continual learning signal for reliable text-to-image generation.",
+      "authors": [
+        "Wenshuo Chen",
+        "Kuimou Yu",
+        "Bowen Tian",
+        "Jianfei Song",
+        "Shaofeng Liang",
+        "Haozhe Jia",
+        "Kan Cheng",
+        "Haosen Li",
+        "Kaishen Yuan",
+        "Lei Wang",
+        "Jiemin Wu",
+        "Songning Lai",
+        "Yutao Yue"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-02T07:04:51+00:00",
+      "link": "https://arxiv.org/pdf/2606.03243v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "training-free framework for text-to-image generation improvement",
+      "llm_evidence_cn": "免训练文本到图像生成优化",
+      "llm_evidence": "免训练文本到图像生成优化",
+      "canonical_evidence": "免训练文本到图像生成优化",
+      "llm_tldr_en": "Proposes a training-free framework that accumulates past generation experience to improve future text-to-image generation without updating the generator, using an agentic evolution layer.",
+      "llm_tldr_cn": "本文提出MemoGen，一种免训练框架，通过智能体进化机制积累生成经验。无需更新生成器，即可利用过往成功与失败案例改善后续文本到图像生成质量。实验表明该方法在复杂提示下显著提升了生成可靠性与知识利用能力。",
+      "llm_tldr": "本文提出MemoGen，一种免训练框架，通过智能体进化机制积累生成经验。无需更新生成器，即可利用过往成功与失败案例改善后续文本到图像生成质量。实验表明该方法在复杂提示下显著提升了生成可靠性与知识利用能力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.06228v1",
+      "source": "arxiv",
+      "title": "SAM-Flow: Source-Anchored Masked Flow for Training-Free Image Editing",
+      "abstract": "Training-free image editing has recently attracted increasing attention due to its ability to modify real images using powerful pre-trained diffusion and flow-matching models without additional training. However, existing inversion-based and differential-flow-based methods usually perform global latent transport, which inevitably propagates editing effects to non-target regions and leads to background leakage. To address this problem, we propose SAM-Flow, a source-anchored masked flow framework for localized training-free image editing. Instead of updating the whole latent representation, SAM-Flow first uses a scout image and token-grounded attention maps to localize the editable semantic regions. It then applies differential velocity updates only within these regions, while anchoring the remaining areas to the source-image latent trajectory. To further improve spatial stability and boundary naturalness, we introduce a time-varying source-anchored projection mechanism with dynamic soft masks, transition regions, and temporal mask accumulation. The proposed method is plug-and-play and can be integrated with mainstream flow-matching backbones such as Stable Diffusion 3 and FLUX without any fine-tuning. Extensive qualitative and quantitative experiments demonstrate that SAM-Flow achieves accurate semantic editing while significantly improving background preservation, providing a simple and general localized editing paradigm for training-free image editing. Code is available at: https://github.com/chwbob/Sam-Flow.",
+      "authors": [
+        "Haowang Cui",
+        "Rui Chen",
+        "Tao Luo",
+        "Tao Guo",
+        "Zheng Qin",
+        "Jiaze Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-04T14:36:19+00:00",
+      "link": "https://arxiv.org/pdf/2606.06228v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "training-free image editing with localized masked flow",
+      "llm_evidence_cn": "免训练图像编辑，局部掩码流",
+      "llm_evidence": "免训练图像编辑，局部掩码流",
+      "canonical_evidence": "免训练图像编辑，局部掩码流",
+      "llm_tldr_en": "Proposes a training-free localized image editing framework using source-anchored masked flow that applies differential velocity updates only within editable semantic regions, preventing background leakage.",
+      "llm_tldr_cn": "本文提出SAM-Flow，一种免训练图像编辑框架。通过侦察图像和令牌注意力图定位可编辑语义区域，仅在该区域内应用差分速度更新，从而避免背景泄漏。该方法利用预训练扩散/流匹配模型，无需额外训练即可实现精确局部编辑。",
+      "llm_tldr": "本文提出SAM-Flow，一种免训练图像编辑框架。通过侦察图像和令牌注意力图定位可编辑语义区域，仅在该区域内应用差分速度更新，从而避免背景泄漏。该方法利用预训练扩散/流匹配模型，无需额外训练即可实现精确局部编辑。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.06042v1",
+      "source": "arxiv",
+      "title": "LoomVideo: Unifying Multimodal Inputs into Video Generation and Editing",
+      "abstract": "Developing unified video generation and editing models capable of interpreting interleaved multimodal inputs is a promising yet challenging frontier field. Existing unified frameworks predominantly rely on massive models (typically 13B parameters or more) and incorporate source video conditions for editing by concatenating sequence tokens. This concatenation inevitably doubles the sequence length, quadrupling the computational complexity of the self-attention mechanism and introducing prohibitive overhead. To address these bottlenecks, we present LoomVideo, a highly efficient 5B-parameter unified architecture for both video generation and editing. LoomVideo replaces the standard text encoder with a Multimodal Large Language Model (MLLM) and employs Deepstack injection mechanism to align multi-layer MLLM features with the Diffusion Transformer (DiT). Crucially, we introduce a zero-overhead Scale-and-Add conditioning approach for video editing. By scaling and directly adding the clean source video latent to the noised target latent, this elegant design eliminates the need for token concatenation, drastically reducing computational cost while maintaining robust capabilities for complex, non-rigid edits. Furthermore, a Negative Temporal RoPE strategy is seamlessly integrated to handle multiple reference images. Extensive experiments demonstrate that our compact 5B model achieves state-of-the-art or highly competitive performance across comprehensive benchmarks, exhibiting exceptional superiority in e-commerce and fashion generation scenarios. Benefiting from the zero-overhead conditioning mechanism, LoomVideo achieves at least a 5.41x acceleration in inference speed compared to models of similar capabilities, paving the way for highly practical and efficient video foundation models.",
+      "authors": [
+        "Jianzong Wu",
+        "Hao Lian",
+        "Jiongfan Yang",
+        "Dachao Hao",
+        "Ye Tian",
+        "Yunhai Tong",
+        "Jingyuan Zhu",
+        "Biaolong Chen",
+        "Qiaosong Qi",
+        "Aixi Zhang",
+        "Wanggui He",
+        "Mushui Liu",
+        "Jinlong Liu",
+        "Hao Jiang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-04T11:35:26+00:00",
+      "link": "https://arxiv.org/pdf/2606.06042v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "video generation with diffusion models",
+      "llm_evidence_cn": "扩散模型视频生成",
+      "llm_evidence": "扩散模型视频生成",
+      "canonical_evidence": "扩散模型视频生成",
+      "llm_tldr_en": "Presents a unified architecture for video generation and editing that efficiently handles interleaved multimodal inputs using a 5B-parameter model with MLLM and de-embedding.",
+      "llm_tldr_cn": "本文提出LoomVideo，一种5B参数的高效统一架构，用于视频生成与编辑。通过引入多模态大语言模型和反嵌入技术，避免了序列拼接带来的计算开销，能够处理交错多模态输入，在视频生成和编辑任务上展示了高效率与高性能。",
+      "llm_tldr": "本文提出LoomVideo，一种5B参数的高效统一架构，用于视频生成与编辑。通过引入多模态大语言模型和反嵌入技术，避免了序列拼接带来的计算开销，能够处理交错多模态输入，在视频生成和编辑任务上展示了高效率与高性能。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.00957v1",
+      "source": "arxiv",
+      "title": "Boundary-Protection W8A8 HiFloat8 Quantization for Large-Scale Text-to-Video Diffusion Transformers",
+      "abstract": "We present a post-training quantization (PTQ) approach for Wan2.1-T2V-14B, a 14-billion-parameter text-to-video diffusion transformer, targeting the W8A8 HiFloat8 (HiF8) format on Ascend 910B NPUs. A central challenge in quantizing video DiT models is the heterogeneous activation distribution across transformer blocks: boundary blocks (the first and last few blocks) exhibit fundamentally different statistical properties from middle blocks, making uniform quantization ineffective. We conduct a systematic per-block activation analysis across all 40 WanAttentionBlocks and use the findings to motivate a boundary-protection strategy that retains the first two and last three blocks in BF16 while quantizing the remaining 35 blocks with W8A8 HiF8. The proposed PTQ method matches or marginally exceeds the BF16 baseline on all five VBench dimensions evaluated, indicating no measurable accuracy loss within the 5-prompt evaluation set. An ablation study over four protection configurations confirms that full boundary protection yields the highest average VBench score, validating the data-driven block selection. We additionally investigate quantization-aware training (QAT) as a complementary fine-tuning stage and analyze the conditions under which it fails to outperform plain PTQ on single-card hardware.",
+      "authors": [
+        "Yiming Zhao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-31T02:17:31+00:00",
+      "link": "https://arxiv.org/pdf/2606.00957v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "post-training quantization for text-to-video diffusion transformers, no additional training needed",
+      "llm_evidence_cn": "文本到视频扩散变压器的后训练量化，无需额外训练",
+      "llm_evidence": "文本到视频扩散变压器的后训练量化，无需额外训练",
+      "canonical_evidence": "文本到视频扩散变压器的后训练量化，无需额外训练",
+      "llm_tldr_en": "Proposes a boundary-protection post-training quantization method for large-scale video diffusion transformers, achieving efficient inference without retraining.",
+      "llm_tldr_cn": "该论文针对14B参数的文本到视频扩散模型Wan2.1-T2V，提出了一种后训练量化方法。通过分析各层激活分布，发现边界块与中间块统计特性不同，从而采用边界块保留高精度、内部块量化为HiFloat8的策略。该方法无需任何重新训练即可大幅降低模型显存和计算开销，在Ascend 910B NPU上实现高效推理。",
+      "llm_tldr": "该论文针对14B参数的文本到视频扩散模型Wan2.1-T2V，提出了一种后训练量化方法。通过分析各层激活分布，发现边界块与中间块统计特性不同，从而采用边界块保留高精度、内部块量化为HiFloat8的策略。该方法无需任何重新训练即可大幅降低模型显存和计算开销，在Ascend 910B NPU上实现高效推理。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.05703v1",
+      "source": "arxiv",
+      "title": "Parallel Jacobi Decoding for Fast Autoregressive Image Generation",
+      "abstract": "Autoregressive (AR) models have demonstrated remarkable performance in generating high-fidelity images. However, their inherently sequential next-token prediction leads to significantly slower inference. Recent studies have introduced Jacobi-style decoding to accelerate autoregressive image generation. Extending the draft sequence initially improves efficiency, yet the acceleration quickly saturates as error propagation in the one-dimensional sequence hinders convergence. Observing that images exhibit strong local spatial correlations, we propose Parallel Jacobi Decoding (PJD), a training-free decoding approach that expands draft tokens in the two-dimensional spatial domain to enable efficient spatially parallel refinement. PJD adjusts the attention mask to mitigate error accumulation and improve convergence stability. Extensive experiments on diverse datasets show that PJD achieves 4.8x-6.4x acceleration across multiple autoregressive image generation models while maintaining competitive generation quality.",
+      "authors": [
+        "Boya Liao",
+        "Ying Li",
+        "Siyong Jian",
+        "Huan Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-04T04:50:22+00:00",
+      "link": "https://arxiv.org/pdf/2606.05703v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free decoding for fast autoregressive image generation",
+      "llm_evidence_cn": "用于快速自回归图像生成的免训练解码",
+      "llm_evidence": "用于快速自回归图像生成的免训练解码",
+      "canonical_evidence": "用于快速自回归图像生成的免训练解码",
+      "llm_tldr_en": "Introduces a training-free parallel Jacobi decoding method that expands draft tokens in 2D spatial domain to accelerate autoregressive image generation.",
+      "llm_tldr_cn": "自回归图像生成顺序预测导致推理缓慢，现有Jacobi解码加速因一维错误传播而饱和。本文提出并行Jacobi解码（PJD），一种免训练方法，将草案令牌在二维空间域扩展，利用图像局部空间相关性实现高效并行精化。通过调整注意力掩码，PJD在无额外训练下显著减少了推理步数，同时保持了生成质量。",
+      "llm_tldr": "自回归图像生成顺序预测导致推理缓慢，现有Jacobi解码加速因一维错误传播而饱和。本文提出并行Jacobi解码（PJD），一种免训练方法，将草案令牌在二维空间域扩展，利用图像局部空间相关性实现高效并行精化。通过调整注意力掩码，PJD在无额外训练下显著减少了推理步数，同时保持了生成质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.02884v1",
+      "source": "arxiv",
+      "title": "Are we really tilting? The mechanics of reward guidance in flow and diffusion models",
+      "abstract": "Reward guidance algorithms steer a learned generative process toward the reward-tilted measure at inference time. While empirically powerful, these methods are prone to reward hacking: the guided model over-optimizes the reward at the cost of fidelity to the learned distribution. Prior work has attributed this to the complexity of neural reward functions or implicit biases in diffusion training, but its fundamental origins remain poorly understood. We show that reward hacking arises from an approximation made in most practical implementations of reward-guided diffusion -- finite-particle plug-in estimation of the Doob h-function -- even in the simplest non-trivial settings of Gaussian and Gaussian mixture targets with quadratic rewards. In closed form, we isolate two distinct failure modes of the plug-in estimator: it leads to reward hacking within each mode and it cannot select high-reward modes. We propose a closed-form reward damping schedule that corrects the within-mode bias with no additional compute, and clarify the role of best-of-n sampling in compensating for the mode selection failure. Experiments on Gaussian mixture targets, a 2D checkerboard, and FLUX.1 text-to-image generation confirm that our theoretical insights carry over to practical settings.",
+      "authors": [
+        "Sanjit Dandapanthula",
+        "Nicholas M. Boffi"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-01T20:56:24+00:00",
+      "link": "https://arxiv.org/pdf/2606.02884v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "analyzes reward guidance at inference time for diffusion models",
+      "llm_evidence_cn": "分析扩散模型推理时的奖励引导机制",
+      "llm_evidence": "分析扩散模型推理时的奖励引导机制",
+      "canonical_evidence": "分析扩散模型推理时的奖励引导机制",
+      "llm_tldr_en": "Reveals that reward hacking arises from finite-particle approximation of the Doob h-function, offering theoretical insight into training-free inference steering.",
+      "llm_tldr_cn": "该论文揭示了奖励引导扩散模型中奖励破解（reward hacking）的根本原因：实际实现中广泛使用的有限粒子近似估计Doob h函数。即使在最简单的高斯和高斯混合目标下，这种近似也会导致模型过度优化奖励而牺牲保真度。该理论分析为理解推理时无需额外训练的引导方法提供了重要基础。",
+      "llm_tldr": "该论文揭示了奖励引导扩散模型中奖励破解（reward hacking）的根本原因：实际实现中广泛使用的有限粒子近似估计Doob h函数。即使在最简单的高斯和高斯混合目标下，这种近似也会导致模型过度优化奖励而牺牲保真度。该理论分析为理解推理时无需额外训练的引导方法提供了重要基础。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
