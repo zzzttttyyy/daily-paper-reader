@@ -1,0 +1,1024 @@
+Title: Chameleon: Style-Content Disentangled Framework for Cross-Domain Object Compositing
+
+URL Source: https://arxiv.org/pdf/2606.01079v1
+
+Published Time: Tue, 02 Jun 2026 01:38:26 GMT
+
+Number of Pages: 29
+
+Markdown Content:
+# Chameleon: Style-Content Disentangled Framework for Cross-Domain Object Compositing 
+
+Sukhun Ko 1 Soo Ye Kim †,2 Jihyong Oh †,11 CMLab, Chung-Ang University 2 Adobe Research 
+
+{looloo330,jihyongoh}@cau.ac.kr sooyek@adobe.com 
+
+https://cmlab-korea.github.io/Chameleon/ (a) Identity (drifting vs preserved)   
+
+> TALE (ACM MM’24)
+> ❌Identity Drifting
+> Input References
+> (FG/BG)
+> Ours
+> ✓Identity Preserved
+
+(b) Style (inconsistent vs consistent)     
+
+> AIComposer (ICCV ’25)
+> ❌Inconsistent Style
+> Ours
+> ✓Consistent Style
+> AIComposer (ICCV ’25)
+> ❌Misaligned Geometry
+> Ours
+> ✓Aligned Geometry
+
+(d) Shadow (absent vs grounded)    
+
+> TF-ICON (ICCV ’23)
+> ❌Absent Shadow
+> Ours
+> ✓Grounded Shadow
+> Ours
+> ✓Mask Respected
+
+(e) Comparison with Diverse Baselines (sequential pipelines, commercial models)     
+
+> GPT Image 2
+> ❌Inconsistent background
+> Nano Banana 2
+> ❌Mask Ignored
+> Ours
+> ✓Natural Appearance
+> StyleSSP (CVPR’25) => InsertAnything (AAAI’26)
+> ❌Overstylized
+
+Figure 1: Cross-domain compositing results by our Chameleon: (a) shows that Chameleon preserves foreground identity, while (b) maintains consistent style. (c) and (d) demonstrate compositional plausibility via aligned geometry and grounded shadows, respec-tively. (e) shows that Chameleon outperforms two-stage cascaded pipelines that combine style transfer and object insertion, which tend to over-stylize the foreground, as well as commercial models (GPT-Image-2 [1], Nano-Banana-2 [2]) that shift background tone or ignore the input mask. 
+
+Abstract 
+
+Image compositing aims to seamlessly insert a foreground object into a background image, and recent advances in diffusion models have signif-icantly enhanced the quality, especially when the foreground and back-ground images come from the same domain (e.g., natural images). However, 
+
+cross-domain compositing, where the foreground and background come from different domains, is relatively underexplored and remains challeng-ing because the model must preserve the foreground object’s identity while stylizing it to match the background domain. Existing cross-domain com-positing approaches largely rely on training-free blending and refinement strategies. This is partly due to the lack of large-scale paired datasets for cross-domain compositing, limiting the development of training-based so-
+
+> ∗
+
+Co-Corresponding authors. Preprint. 
+
+> arXiv:2606.01079v1 [cs.CV] 31 May 2026
+
+lutions. As a result, they are limited to tone-level alignment and often produce style-inconsistent or overstylized results. To overcome such limita-tions, we construct ChameleonDataset, the first large-scale training dataset for cross-domain compositing, with a comprehensive evaluation benchmark, built through a scalable data construction pipeline. Building on this, we propose Chameleon, a novel two-stage training-based cross-domain com-positing framework. In the first stage, we propose Joint Hard Contrastive Learning (JHCL) to train ChameleonEncoder, which effectively disentan-gles style and content representations. In the second stage, we introduce Spatio-Temporal Attention Gating (STAG) into a diffusion transformer for effective stylization, adaptively regulating how style tokens from the first-stage encoder are injected across spatial and temporal dimensions. Our method outperforms state-of-the-art in-domain and cross-domain composit-ing models, sequential pipelines and commercial models, achieving improve-ments in both compositional plausibility and stylistic fidelity. 
+
+1 Introduction 
+
+Image compositing [3, 4] aims to place a reference object(s) in a foreground image (i.e., reference image) at a desired location within a background image (i.e., target image) such that the inserted object appears natural within the background canvas. With recent ad-vances in diffusion models [5, 6], image compositing (i.e., generative object compositing) has significantly improved by re-synthesizing the composite region through learned genera-tive priors [7, 8], rather than merely adjusting pixel values near the boundary [9, 10]. This enables more natural integration in terms of appearance, geometry, and semantics, allowing the foreground to better align with the background. These advances have made image compositing practical for real-world applications such as digital content creation and advertising, where the foreground and background typically come from the same photorealistic visual domain. However, another line of use cases is in creative ideation, where a user may wish to insert an asset coming from a different domain. For instance, a user may have a specific car photograph in mind that they imagine inserting into a rough first sketch, as shown in Fig. 1 (b). Rather than needing to manually draw the car in a similar style, cross-domain compositing can help directly transform this car into a similar sketch style while inserting it to the desired background, making the ideation process more efficient and creative by expanding the pool of object and background assets to any 
+
+stylistic domain. Nevertheless, cross-domain compositing is a challenging research problem that involves mul-tiple requirements, as shown in Fig. 1: (a) preserving the identity of the foreground reference, (b) adapting its appearance to the style of the background, (c) maintaining geometric and contextual plausibility within the scene, and (d) synthesizing realistic shadows for visual coherence. Among prior work in cross-domain compositing, early methods such as TF-ICON [11] apply DDIM inversion [12] and integrate foreground and background via latent-space blending and attention injection. TALE [13] leverages intermediate latents instead of pure noise, im-proving structural and stylistic preservation. More recent methods such as AIComposer [14] instead perform pixel-space blending and leverage CLIP features [15] for foregroundback-ground fusion. Despite these attempts, existing methods fall short of fully solving this challenging problem, as they share a common paradigm that freezes a pre-trained text-to-image (T2I) diffusion model [16] and performs compositing solely through blending-style refinement, leading to several limitations. First, these methods depend on user-provided prompts to drive a frozen T2I diffusion backbone, yet such prompts are difficult to craft and cannot fully match the foreground, leading to identity drift (Fig. 1 (a)), where the prompt “a goblin” fails to capture the specific identity of the foreground. Second, these blending-based methods apply statistical matching such as AdaIN [17] to align the foreground with the background distribution, yet this approach is limited to tone-level alignment and cannot bridge large domain gaps, resulting in style inconsistency (Fig. 1 (b)). Third, these methods lack training 2Table 1: Comparison with existing stylization and compositing datasets. Unlike prior datasets that support either stylization or compositing in isolation, ours is the only dataset that jointly supports both as well as view augmentation, while providing real-image super-vision (200K samples).                               
+
+> Dataset Stylization Compositing View Augmentation Supervision #Samples
+> OmniConsistency ✓××Synthetic 2.6K OmniStyle ✓××Synthetic 150K DreamFuse ×✓×Synthetic 84K AnyInsertion ×✓△Real 159K
+> Ours ✓✓✓Real 200K
+
+for cross-domain compositing, resulting in geometry misalignment and absence of shadows 
+
+(Fig. 1 (c,d)). These limitations stem from the lack of suitable training data for cross-domain compositing. To address these limitations, we construct ChameleonDataset tr , the first large-scale train-ing set for cross-domain compositing. Unlike prior datasets that rely on synthetic-image supervision (Table 1), we adopt a reverse pipeline driven by real-image supervision. This mitigates artifacts in stylized generations induced in the prior datasets, and exposes the model to diverse compositional scenarios, enabling natural geometry alignment and shadow grounding. We further introduce ChameleonDataset ev that evaluates both compositional plausibility and stylistic fidelity under diverse real-world scenarios. Furthermore, we propose ChameleonEncoder, a style-content disentangled encoder trained with Joint Hard Contrastive Learning (JHCL). It extends hard contrastive learning [18] to DINOv3 [19], a widely used semantic encoder, explicitly disentangling its features into style and content tokens. These tokens are then injected into the DiT via a novel spatio-temporal attention gating mechanism (STAG), adaptively regulating style injection in both space and time for effective cross-domain compositing. In summary, our contributions are as follows: 
+
+• We construct ChameleonDataset tr , the first large-scale dataset for cross-domain im-age compositing, built via a reverse data generation pipeline that can be applied on any images. It provides real-image supervision rather than synthetic-image super-vision, mitigating generative artifacts and enabling faithful stylization. 
+
+• We introduce ChameleonDataset ev , a comprehensive benchmark that jointly evalu-ates compositional plausibility (grounding, reflection, lighting) and stylistic fidelity (pixel art, stylized-to-stylized, text stylization). 
+
+• We propose a novel two-stage training-based cross-domain compositing framework, called Chameleon, consisting of (i) ChameleonEncoder, a style-content disentan-gled encoder trained with Joint Hard Contrastive Learning (JHCL), which extends hard contrastive learning to DINOv3, and (ii) a Spatio-Temporal Attention Gating (STAG) mechanism that adaptively regulates style injection into a DiT for effective cross-domain compositing. 
+
+2 Related Work 
+
+Image compositing. Naturally inserting a foreground image into a background image has long been a challenging problem in image editing [20, 21]. Classical tenchniques [9, 22, 23] improved visual quality but remain limited to pixel-level operations, lacking semantic aware-ness. Recently, diffusion models have significantly improved object insertion by leveraging priors learned from large-scale data, enabling more realistic and context-aware results. For example, Paint-by-Example [24] fills masked regions using a reference image but fails to preserve object identity. AnyDoor [7] addresses this by leveraging an ID extractor and a high-frequency map, improving identity preservation. However, such methods struggle when the reference and background image belong to het-erogeneous domains. To overcome this limitation, cross-domain compositing methods such as TF-ICON [11], TALE [13], and AIComposer [14] have been proposed, performing latent-or pixel-level blending based on a frozen text-to-image backbone [16]. Despite improved cross-domain harmonization, these approaches still exhibit several limitations. For instance, 3without explicit supervision, it remains unclear how much blending should be applied. Un-der large domain gaps, the foreground often fails to fully adapt (Fig. 1 (b)). Furthermore, reliance on a frozen text-to-image backbone necessitates precise prompts, complicating prac-tical usage. Even with carefully designed prompts, instance-level mismatch persists (e.g., a generic dog versus the foreground reference), leading to degraded fidelity [25]. In contrast to these methods, we adopt a learning-based approach trained on data generated via the proposed reverse data generation pipeline and employ null-prompt training to eliminate reliance on text prompts. 
+
+Style transfer. Transferring style from one image to another while preserving content has been widely studied and is closely related to cross-domain compositing, as both tasks involve integrating content and style across two different domains. Gatys et al. [26] introduce neural style transfer using a pre-trained VGG network [27], capturing style via Gram matrices of feature correlations. However, such VGG-based approaches capture style only through low-level statistics of color and texture, lacking semantic understanding of the reference. With the advent of diffusion models, IP-Adapter [15] has been widely adopted as an alternative, leveraging a CLIP image encoder [28] whose representations are aligned with the text em-bedding space of diffusion models. This enables reference-guided synthesis that captures higher-level stylistic concepts (e.g., Van Gogh’s style), beyond low-level color and texture statistics. While CLIP [28] offers semantic alignment through weak supervision from natural language, it often exhibits semantic ambiguity. This has led to a shift toward self-supervised vision transformers [29] such as DINO [30], which provide more robust and structurally consistent representations. Building on this property, prior works [31, 32] leverage DINO features [33] as semantic priors for tasks such as appearance transfer [31]. However, these approaches either treat DINO merely as a semantic prior [32] or directly adopt raw DINO tokens for conditioning [31], overlooking that DINO features inherently entangle style and content information. To address this limitation, we explicitly disentangle DINO features [19] into style and content via our joint hard contrastive learning, modified from [18], enabling their independent injection and unlocking the full potential of DINO as a flexible conditioning mechanism for cross-domain compositing. 
+
+3 Method 
+
+3.1 ChameleonDataset Reverse Pipeline            
+
+> “Concise Label ”
+> Desk, book, lion
+> VLM-Scored Top–K Filtering (K=3)
+> Bounding Box Seg Mask Detected Object
+> ✓Valid Object
+> “Lion”
+> ❌Low-quality Mask
+> “Book”
+> ❌Incomplete Object
+> “Desk ”
+> (5) Appearance Variation Seg Mask
+> Foreground
+> !!",!!""
+> Bounding Box Background
+> !#
+> Dataset ChameleonDataset
+> Random
+> Crop & Pad
+> (4) Reference Generation
+> Data Filtering
+> Stylized Composite Image
+> !!
+> (1) Object Label Generation (2) Object Segmentation (3) Data Filtering
+> Real-Image
+> Foreground
+> !!"
+> Supervision Target !#
+> faithful supervision artifact-free
+> degraded supervision generative artifacts
+> Real-Image
+> Synthetic-Image
+> Triplet
+> Stylized Composite Image !!
+
+Figure 2: Our reverse data generation pipeline. Our reverse data generation pipeline starts from real stylized composite images Ic, ensuring faithful, artifact-free supervision .Cross-domain compositing can be formulated over triplets (If , I b, I c), where a foreground image If is placed at a target location in a background image Ib and harmonized to the style of Ib, yielding the final stylized composite Ic. The supervision is applied to Ic, so whether 
+
+Ic follows a synthetic- or real-image distribution becomes critical. Throughout the paper, 4Ic denotes a real-image composite, and I′ 
+
+> c
+
+or I′′  
+
+> c
+
+its synthetic-image counterpart, where ′
+
+denotes the synthetic output of a generative model. 
+
+Forward pipeline. Prior approaches [8, 24, 34] adopt a forward data generation pipeline that constructs the supervision target I′ 
+
+> c
+
+or I′′  
+
+> c
+
+from synthetic generations (Fig. 8 in Appendix ). Using such degraded supervisions leads to the model learning to reproduce that synthetic distribution rather than the real-image one, yielding an inherently suboptimal mapping regardless of model capacity. 
+
+Reverse pipeline. We address these limitations by inverting the construction process. Rather than generating stylized composites, our reverse pipeline (Fig. 2) starts from stylized real-image composites Ic drawn from curated stylization datasets [35–37] and treats them as ground-truth Ic. Given each Ic, we segment its salient foreground objects and, for each, synthesize a foreground image I′ 
+
+> f
+
+, yielding one training triplet {I′ 
+
+> f
+
+, I b, I c} per object. Here, 
+
+Ic is a real image preserved from the source, Ib is the background image obtained by masking foreground regions from Ic, and I′ 
+
+> f
+
+is a synthetic image. Crucially, generative artifacts in I′
+
+> f
+
+do not affect the output distribution of the learned model, since supervision is applied only to Ic, which remains free of generative artifacts by construction. Our pipeline consists of five stages (Fig. 2). (1) Object label generation. We first employ Qwen3-VL [38] as a concise noun generator that produces object labels compatible with SAM3 [39]. For each Ic, Qwen3-VL enumerates the salient foreground objects and assigns a confidence score to each. We retain the top-3 candidates ( > 0.85 ), yielding up to three object labels (e.g., “Lion, Book, Desk” ). This cap prevents scene-level over-representation, as multiple objects sharing an identical Ib and differing only in If would limit the variety of Ic. (2) Object segmentation. 
+
+Using the filtered labels, SAM3 produces foreground candidates from Ic, each represented as a segmented region with a corresponding mask. (3) Data filtering. We then prompt Qwen3-VL [38] again with a filtering instruction to score each candidate along multiple criteria and produce a binary keep/reject decision (see Appendix for details). (4) Reference generation. 
+
+Each valid candidate is random-cropped, padded, and passed through a reference generation model [40] to obtain I′ 
+
+> f
+
+. Although I′ 
+
+> f
+
+is itself a synthetic-image, it is only used as input. Supervision thus remains faithful and artifact-free on the real-image Ic. (5) Appearance variation. Finally, we apply appearance variation generation using [40] to roughly 10 % of the resulting I′ 
+
+> f
+
+, perturbing camera parameters (e.g., azimuth, elevation) to obtain I′′  
+
+> f
+
+with diverse poses and lighting. This forces the model to learn to match I′′  
+
+> f
+
+with the pose and lighting of Ic rather than naively pasting it. For instance, given a top-view lion as I′′  
+
+> f
+
+, the model must render it in side-view depending on Ic.(c) ChameleonEncoder (Ours) (b) Naive DINO (a) Input References (FG/BG) 
+
+Query 
+
+> Content leakage
+
+Figure 3: We visualize attention from the query region (a) to the background, where red indicates higher attention. (b) Naive DINO focuses on human regions, causing content leakage . (c) ChameleonEncoder ( style head) globally distributes attention, capturing back-ground style rather than content , and inserts the foreground. 
+
+3.2 Cross-Domain Compositing Framework (Chameleon) Overview. Our goal is to train Chameleon , a cross-domain compositing framework that composites If onto Ib across heterogeneous domains, preserving the identity of If while transferring the style of Ib. This demands role-specific representations: a pure-content sig-nal from If and a pure-style signal from Ib. Yet off-the-shelf encoders [28, 41] entangle the two, leaking foreground style or background content into the composite. We address this 5with a two-stage learning framework. Stage 1 (Sec. 3.2.1) pre-trains ChameleonEncoder , a style and content disentangled encoder built on a DINOv3 backbone via Joint Hard Con-trastive Learning (JHCL). Stage 2 (Sec. 3.2.2) leverages ChameleonEncoder’s disentangled representations as conditions for a diffusion transformer (DiT), whose attention layers must jointly integrate the DINO style and content tokens, VAE latents, and text tokens. The cen-tral difficulty lies in calibrating, through the DINO style tokens, how much , where , and when 
+
+to inject style. We therefore introduce Spatio-Temporal Attention Gating (STAG), which modulates style attention in a region-aware and timestep-aware manner, without disturbing other tokens. ℒ_JHCL Shared 
+
+> DINOv3 Encoder
+
+❄
+
+> Style Head
+> !
+> DINOv3 Encoder
+
+❄
+
+> Content Head
+> !
+
+ChameleonEncoder                                                                   
+
+> Anchor (!!"# )
+> Hard Negative ( "#!$% )Normal Negative ( ##)
+> Positive (!&"# )
+> !!"# $─!&"# :same content, di-style
+> !!"# ─$" #!$% :di-content, same style
+> !!"# $─$##:di-content, di-style
+> Positive (!&"# )
+> Hard Negative ( "#&'( )Normal Negative ( ##)
+> Anchor (!!"# )
+> !&"# $─!!"# :same content, di-style
+> !&"# ─$" #&'( :di-content, same style
+> !&"# $─$##:di% content, di-style
+> Content Set: JHCLSampler(D,C,S) [Alg. 1]
+> Anchor (!!"# )
+> Hard Negative ( "#!$% )Normal Negative ( ##)
+> Positive (!&"# )
+> !!") ─$!&") :same style, di-content
+> !!") $─")!$% :di-style, same content
+> !!") $─#):di-style, di-content
+> Positive (!&"# )
+> Hard Negative ( "#&'( )Normal Negative ( ##)
+> Anchor (!!"# )
+> !&") ─$!!") :same style, di-content
+> !&") $─")&'( :di-style, same content
+> !&") $─#):di-style, di-content
+> Style Set: JHCLSampler(D,S,C) [Alg. 1]
+
+Figure 4: Stage 1. ChameleonEncoder training via Joint Hard Contrastive Learning (JHCL). Two heads (style and content) on a shared DINOv3 backbone are trained with the JHCL loss to disentangle style and content embeddings. 
+
+3.2.1 Stage 1 -- ChameleonEncoder: Style-Content Disentengled Encoder Leveraging Semantic Encoders for Style and Content Embeddings. Recent self-supervised encoders such as DINOv3 [19] have demonstrated transferability across classifica-tion, retrieval, detection, and segmentation, making them a compelling source of semantic 
+
+features. While their effectiveness on these recognition tasks is well established, their capac-ity as a style encoder remains largely underexplored. To probe this, we feed If (Fig. 3 (a) top-left) and Ib to the DiT as VAE latents, and condition on off-the-shelf (raw) DINOv3 tokens extracted from Ib. As shown in Fig. 3, the model generates background people in the insertion region instead of the foreground object due to the content information in the DINOv3 embeddings. We term this phenomenon content leakage , where content from the background leaks into the target region along with style. To prevent this, we propose Joint Hard Contrastive Learning (JHCL), which yields pure-style and pure-content disentangled representations from a single encoder, which are suitable for our task. We then inject these features into the diffusion model, enabling seamless cross-domain compositing of foreground (If ) and background ( Ib) images. 
+
+Joint Hard Contrastive Learning (JHCL). Hard Contrastive Learning (HCL) [18] improves representation learning via hardness-aware weighting, assigning larger importance to more similar (i.e., harder) negatives within an InfoNCE [42]-style objective ( Appendix ). However, HCL constructs positive pairs from different augmentations of the same image. Transfor-mations such as color jittering perturb style-related factors (e.g., brightness, contrast, and color), yet are treated as equivalent, leading the model to ignore style variations. Hence, instead of relying on augmented views, we define two sets, a style set and a content set, using explicit style and content relationships. Building upon a task-specific dataset [43], we reorganize the data into one-to-many correspondences, ensuring that style is preserved without perturbation in the style set, in contrast to HCL, where transformations such as color jittering perturb style-related factors. This allows our proposed ChameleonEncoder 
+
+to disentangle style and content, rather than entangling them. Concretely, we construct training samples along two sets centered on a randomly sam-pled anchor: the style set (S), where positives share the anchor’s style, and the content set (C), where positives share the anchor’s content. For the style set ( S), we invoke 
+
+JHCLSampler (D, S, C ) (Alg. 1 in Appendix ): the anchor Ia,S and positive Ip,S share the 6Style A Style B Style C Style D Style E Style F Style G Style H Figure 5: Style disentanglement in encoder embeddings. t-SNE of 8 styles with 10 samples each. Naive DINO and HCL yield entangled style representations, while our JHCL produces clearly disentangled style clusters. same style but differ in content, where hard negatives H(anc ) 
+
+> S
+
+and H(pos ) 
+
+> S
+
+are sampled rela-tive to the anchor and the positive, respectively, each sharing the same content but differing in style. Normal negatives SS differ in both. The content set is constructed symmetri-cally by invoking JHCLSampler (D, C, S ). The resulting data construction is illustrated in Fig. 4 (left). To effectively enable disentanglement of style and content, we train ChameleonEncoder 
+
+using Joint Hard Contrastive Learning (JHCL), which extends HCL [18] with a dual-query 
+
+formulation based on the above components: at each training iteration ℓi, both the anchor and the positive serve as queries, each paired with its own conditioned negative set obtained by our JHCLSampler (Alg. 1). Two task-specific projection heads are trained jointly, one for style and one for content, each optimized with its own contrastive objective. 
+
+Lv = − 1
+
+B
+
+> B
+
+∑
+
+> i=1
+
+log exp (ℓ(v) 
+
+> i,i +
+
+)
+
+exp (ℓ(v) 
+
+> i,i +
+
+) + ∑ 
+
+> j∈N (v)
+> i
+
+w(v) 
+
+> ij
+
+exp (ℓ(v) 
+
+> ij
+
+) , v ∈ { S, C}, (1) where B denotes the mini-batch size, and S and C denote the style and content sets, respec-tively. N (v) 
+
+> i
+
+denotes the set of negative samples for set v.The final objective jointly optimizes the style and content components as LJHCL = LS + LC.Under this objective, the style loss LS improves style disentanglement compared to naive DINO features and standard HCL (Fig. 5), while the content loss LC improves content disentanglement. 
+
+Differences to the original HCL algorithm: First, instead of computing similarity from image-level global embeddings, we redefine the pairwise similarity ℓij = 1 
+
+> τ·M
+
+∑Mm=1 z⊤
+
+> i,m
+
+zj,m , where 
+
+zi,m denotes the m-th patch token, M is the number of tokens, and τ is the temperature. This leverages spatially distributed representations to preserve local correspondence, yielding 
+
+M token-level alignment terms per pair. Patch tokens are extracted from intermediate layers of a frozen DINOv3 encoder (layers 18–20 for content and 12–14 for style, see Appendix for details). Second, dual-query sampling induces distinct hard-negative distributions for the anchor and the positive, each conditioned on the attribute shared with its own query, so the single shared weighting in the original HCL cannot capture both. We therefore apply a hardness-aware weighting that aggregates the negative sets induced by the two queries (see 
+
+Appendix for details). 
+
+3.2.2 Stage 2 -- Cross-Domain Compositing Model 
+
+Fig. 6 illustrates our framework, trained on triplets {If , I b, I c} from ChameleonDataset (Sec. 3.1), where Ic provides real-image supervision during training and Zt is initialized from Gaussian noise at inference. The foreground If and masked background Ib are encoded into latents Zf , Z b and concatenated with Zt and fed into the DiT. In parallel, ChameleonEn-coder (Sec. 3.2.1) encodes content tokens from the foreground image ( CT (If )) extracting 7Mask-guided A-ine        
+
+> DINOv3 Encoder
+> Style Projection
+> ! Content Projection
+> !
+> Style Head
+> Content Head
+> VAE Decoder
+> !" # $%& '!(
+> VAE Encoder
+> Text Encoder
+> "
+> Di#usion Transformer
+> !
+> Index Warping
+> Spatio-Temporal Attention Gating (STAG)
+> "
+> "
+> !!(
+> I!)
+> N x Transformer Blocks
+> !
+> !! !" !#!$
+> !!Style tokens
+> ChameleonEncoder
+> "
+> ""!(
+> I")
+> "
+> "!Content tokens Decoder #:Denoised latent $%":
+> &':Generated Image
+> Pre-trained from Stage 1
+> !
+> GT Composite
+> %
+> )"(
+> !!"#$
+
+Figure 6: Stage 2. Cross-domain compositing model. Our model injects disentangled con-tent and style tokens from ChameleonEncoder (Stage 1) into a DiT, with style tokens regulated by STAG. Content tokens are extracted from If while style tokens are extracted from Ib.object identity and style tokens from the background image ( ST (Ib)) extracting style infor-mation, which are injected into the DiT. To regulate style influence in a time-aware and spatially modulated manner, we apply Spatio-Temporal Attention Gating (STAG), detailed in the next subsection. We adopt a null prompt Cnull since text is ambiguous for instance-level conditioning, relying instead fully on If and Ib. For spatial placement, rather than using Mf as a condition token, we exploit Mf and the copy-and-paste mask Mcp to com-pute a positional affine transformation that warps foreground latent indices to their target placement, following [8]. Spatio-Temporal Attention Gating (STAG). To effectively har-monize heterogeneous domains between the foreground and background images, the style token extracted from the background, ST (Ib), must be properly injected into the main DiT architecture. Since the foreground requires style adaptation, while the background already preserves its own appearance statistics encoded in the VAE latent Ib, naively allowing the background style token to attend to all latent tokens, including those of the background, is suboptimal. Accordingly, we adopt spatially focused style injection on foreground tokens, where region-aware adaptation is required for seamless integration with the background. Moreover, diffusion model inference evolves from noise to structured representations over timesteps, making style injection at early noisy stages less effective as meaningful stylization should occur when semantic structure begins to emerge [44]. These observations suggest that style injection should be modulated not only spatially but also temporally across diffu-sion timesteps. While prior approaches [44, 45] rely on fixed timestep schedules to control the timing of injection, we instead propose adaptive style injection conditioned on the dif-fusion timestep. To unify these spatial and temporal considerations, we introduce a novel Spatio-Temporal Attention Gating (STAG), which adaptively regulates style injection in both space and time for effective cross-domain compositing. Specifically, we map the diffusion timestep t to a sinusoidal time embedding, which is fed into two separate two-layer MLPs to produce layer-wise gating coefficients for foreground and background regions. Each query token is assigned a coefficient based on its spatial location via the foreground mask, and this gating is applied as an attention bias exclusively on keys corresponding to ST (Ib), modulating the standard softmax attention at every transformer block (full derivation in Appendix ). We observe that with STAG, queries in the foreground region attend strongly to background style tokens ST (Ib), indicating spatially focused style injection. Analyses (attention map visualizations, per-timestep attention value plot, and per-block amplification ratio plot) comparing with and without STAG are provided in Fig. 10 in Appendix .84 Experiments 
+
+4.1 Experimental Set-up Evaluation Metrics. Following [11, 14], we measure style consistency with CSD [46], and foreground preservation with LPIPS [47] and CLIP-I [48]. We further report a VLM-based score [49, 50] adapted from [51] for cross-domain compositing. Benchmarks. Cross-domain compositing task lacks a dedicated benchmark. Existing ones [11, 14] pair N back-grounds with N foregrounds ( N ×N samples), limiting diversity. We therefore introduce 
+
+ChameleonDataset ev , covering diverse styles and challenging cases ( e.g. , reflections and unique styles such as pixel art), and evaluate on both. Implementation. Stage 1 trains ChameleonEncoder on a frozen DINOv3 ViT-L/16. Stage 2 fine-tunes a DiT with LoRA [52]. Full details in Appendix .
+
+4.2 Experimental Results Qualitative Comparison. In Fig. 11, we compare our method with various baselines, in-cluding cross-domain methods [14, 13, 53, 11] and in-domain methods [54, 55] (two columns on the right). In the first row, the in-domain methods show good identity preservation, but retain the original foreground appearance regardless of the background style. Among the cross-domain methods, PrimeComposer [53] and TF-ICON [11] generate results with only coarse identity similarity, while TALE [13] produces the correct fox category but al-ters its instance-level identity. AIComposer [14] partially follows the background style and preserves identity reasonably well, yet still lacks seamless integration with the monochrome background. Our results naturally blend the foreground object into backgrounds with dif-ferent styles, while preserving the object identity. More results are in Appendix .
+
+Quantitative Comparison. Quantitative results on TF-ICON and AIComposer benchmarks reported in Tab. 4. In-domain methods generally exhibit low scores on CSD, which measures style consistency, while cross-domain methods tend to achieve lower semantic alignment scores, such as CLIP-I. 2-stage cascaded pipeline with a stylization method and a composit-ing method [55] results in high CSD due to over-stylization (see Fig. 1 (e)). In contrast, our method simultaneously achieves good identity preservation and consistent stylization with best or second-best results across all metrics, which is further supported by a user study on ChameleonDataset ev (Tab. 3). Full results for each dataset including additional metrics (CLIP-T [28] and AES [56]) are provided in Appendix .
+
+Ablation Study. Tab. 2 presents a component-wise analysis of our method. We use naive LoRA fine-tuning of the DiT on ChameleonDataset tr as the baseline. Although this baseline produces plausible composites, it fails to fully capture the target style, resulting in relatively lower CSD scores. Replacing the training objective with JHCL, which disentangles and separately injects content and style representations, consistently improves both CLIP-I and CSD, validating the benefit of explicit representation disentanglement. 
+
+Table 2: Ablation study on the AIComposer benchmark, accumulatively adding JHCL and STAG.                     
+
+> Method LPIPS ↓CLIP-I ↑CSD ↑AES ↑
+> Baseline 0.4869 0.8495 0.3992 6.8267 + JHCL 0.4673 0.8645 0.4527 6.9209 + JHCL + STAG (Ours) 0.4580 0.8614 0.4885 7.0304
+
+Table 3: User study (15 participants) win rate (%) on ChameleonDataset ev .            
+
+> Criteria TF-ICON AI-Composer Ours
+> Identity ( ↑)4.7 23.8 71.5
+> Style ( ↑)6.2 36.1 57.7
+> Overall ( ↑)5.4 30.9 63.7
+
+9Table 4: Quantitative comparison on TF-ICON and AIComposer benchmarks. Reference-based metrics (LPIPS, CLIP-I, CSD) are reported per benchmark, while VLM-based scores (Identity, Style, Composition, Avg_total) are reported as pooled sample-level averages across the two benchmarks. Bold and underline denote the best and second-best results. Each method is evaluated at its backbone’s native resolution. TF-ICON AIComposer VLM (avg.) Method Res LPIPS ↓ CLIP-I ↑ CSD ↑ LPIPS ↓ CLIP-I ↑ CSD ↑ Identity ↑ Style ↑ Composition ↑ Avg_total ↑                                                                                                                                                                     
+
+> In-domain compositing
+> BLD (SIGGRAPH’23) 512 0.7540 0.7331 0.4619 0.6821 0.7905 0.3624 2.07 2.71 2.08 6.86 Paint by Example (CVPR’23) 512 0.7501 0.7658 0.3138 0.6754 0.8042 0.3287 2.19 2.45 2.14 6.78 Insert Anything (AAAI’26) 1024 0.7281 0.7719 0.3821 0.5418 0.8487 0.3956 2.33 2.56 2.20 7.09 Dreamfuse (ICCV’25) 1024 0.6892 0.7894 0.4035 0.5290 0.8603 0.3941 2.36 2.51 2.07 6.94 SHINE (ICLR’26) 512 0.7654 0.7155 0.4362 0.6892 0.8214 0.3387 1.97 2.62 2.10 6.69 SHINE (ICLR’26) 1024 0.7737 0.7165 0.4627 0.6513 0.8377 0.3512 2.04 2.56 2.11 6.70
+> Two-stage compositing
+> StyleSSP (CVPR’25) + Insert Anything (AAAI’26) 1024 0.8410 0.7223 0.5535 0.4682 0.8438 0.4898 2.31 2.85 2.01 7.20
+> Cross-domain compositing
+> TF-ICON (ICCV’23) 512 0.7740 0.7551 0.4103 0.6640 0.7493 0.3536 1.88 2.61 1.97 6.46 TF-ICON (ICCV’23) 768 0.7440 0.7581 0.4073 0.6539 0.7700 0.3464 1.95 2.56 2.02 6.52 TALE (MM’24) 512 0.7990 0.5395 0.4982 0.6164 0.7830 0.4681 1.91 2.84 2.14 6.89 PrimeComposer (MM’24) 512 0.7762 0.7510 0.4285 0.6438 0.7682 0.4124 2.10 2.71 1.95 6.78 AIComposer (ICCV’25) 512 0.5025 0.7946 0.4674 0.4895 0.8412 0.4729 2.21 2.80 2.04 7.15 AIComposer (ICCV’25) 1024 0.4966 0.8264 0.4826 0.4648 0.8575 0.4848 2.40 2.84 2.09 7.33
+> Ours 512 0.5024 0.7991 0.4722 0.4721 0.8487 0.4793 2.46 2.90 2.26 7.62
+> Ours 1024 0.4876 0.8294 0.4992 0.4550 0.8635 0.4885 2.52 2.89 2.30 7.71
+
+AIComposer (ICCV’25) TALE (MM’24) 
+
+Ours TF-ICON (ICCV’23) PrimeComposer (MM’24) SHINE (ICLR’26) InsertAnything (AAAI’26) 
+
+Figure 7: Qualitative comparison on AIComposer benchmark. 
+
+Adding STAG further enhances stylization while maintaining stable CLIP-I scores and im-proving LPIPS, indicating preserved content fidelity. More detailed ablation studies and analyses of individual components are provided in Appendix .
+
+5 Conclusion 
+
+We address the challenging problem of cross-domain compositing, which requires preserving foreground identity while adapting to background style. We propose Chameleon, a two-stage training-based framework built on ChameleonDataset, the first large-scale dataset for this task. Our JHCL loss effectively disentangles style and content, and STAG enables adaptive injection into a DiT for stylization. Unlike prior training-free blending-based approaches, our method achieves both strong identity preservation and background-consistent stylization. 
+
+References 
+
+[1] OpenAI. Introducing ChatGPT Images 2.0. https://openai.com/index/ introducing-chatgpt-images-2-0/ , April 2026. Accessed: 2026-05-07. [2] Google DeepMind. Gemini 3.1 flash image (nano banana 2). https://deepmind. google/models/gemini-image/ , 2026. Model ID: gemini-3.1-flash-image-preview. 10 [3] Yizhi Song, Zhifei Zhang, Zhe Lin, Scott Cohen, Brian Price, Jianming Zhang, Soo Ye Kim, and Daniel Aliaga. Objectstitch: Object compositing with diffusion model. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pages 18310–18319, 2023. [4] Gemma Canet Tarrés, Zhe Lin, Zhifei Zhang, Jianming Zhang, Yizhi Song, Dan Ruta, Andrew Gilbert, John Collomosse, and Soo Ye Kim. Thinking outside the bbox: Uncon-strained generative object compositing. In European Conference on Computer Vision ,pages 476–495. Springer, 2024. [5] Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusion probabilistic models. 
+
+Advances in neural information processing systems , 33:6840–6851, 2020. [6] Yang Song, Jascha Sohl-Dickstein, Diederik P Kingma, Abhishek Kumar, Stefano Er-mon, and Ben Poole. Score-based generative modeling through stochastic differential equations. arXiv preprint arXiv:2011.13456 , 2020. [7] Xi Chen, Lianghua Huang, Yu Liu, Yujun Shen, Deli Zhao, and Hengshuang Zhao. Anydoor: Zero-shot object-level image customization. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 6593–6602, 2024. [8] Junjia Huang, Pengxiang Yan, Jiyang Liu, Jie Wu, Zhao Wang, Yitong Wang, Liang Lin, and Guanbin Li. Dreamfuse: Adaptive image fusion with diffusion transformer. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 17292–17301, 2025. [9] Patrick Pérez, Michel Gangnet, and Andrew Blake. Poisson image editing. In Seminal Graphics Papers: Pushing the Boundaries, Volume 2 , pages 577–582. 2003. [10] Anat Levin, Dani Lischinski, and Yair Weiss. A closed-form solution to natural image matting. IEEE transactions on pattern analysis and machine intelligence , 30(2):228– 242, 2007. [11] Shilin Lu, Yanzhu Liu, and Adams Wai-Kin Kong. Tf-icon: Diffusion-based training-free cross-domain image composition. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 2294–2305, 2023. [12] Ron Mokady, Amir Hertz, Kfir Aberman, Yael Pritch, and Daniel Cohen-Or. Null-text inversion for editing real images using guided diffusion models. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 6038–6047, 2023. [13] Kien T Pham, Jingye Chen, and Qifeng Chen. Tale: Training-free cross-domain image composition via adaptive latent manipulation and energy-guided optimization. In Pro-ceedings of the 32nd ACM International Conference on Multimedia , pages 3160–3169, 2024. [14] Haowen Li, Zhenfeng Fan, Zhang Wen, Zhengzhou Zhu, and Yunjin Li. Aicomposer: Any style and content image composition via feature integration. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 16840–16850, 2025. [15] Hu Ye, Jun Zhang, Sibo Liu, Xiao Han, and Wei Yang. Ip-adapter: Text com-patible image prompt adapter for text-to-image diffusion models. arXiv preprint arXiv:2308.06721 , 2023. [16] Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Björn Om-mer. High-resolution image synthesis with latent diffusion models. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 10684–10695, 2022. [17] Xun Huang and Serge Belongie. Arbitrary style transfer in real-time with adaptive in-stance normalization. In Proceedings of the IEEE international conference on computer vision , pages 1501–1510, 2017. 11 [18] Joshua Robinson, Ching-Yao Chuang, Suvrit Sra, and Stefanie Jegelka. Contrastive learning with hard negative samples. arXiv preprint arXiv:2010.04592 , 2020. [19] Oriane Siméoni, Huy V Vo, Maximilian Seitzer, Federico Baldassarre, Maxime Oquab, Cijo Jose, Vasil Khalidov, Marc Szafraniec, Seungeun Yi, Michaël Ramamonjisoa, et al. Dinov3. arXiv preprint arXiv:2508.10104 , 2025. [20] Tim Brooks, Aleksander Holynski, and Alexei A Efros. Instructpix2pix: Learning to follow image editing instructions. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 18392–18402, 2023. [21] Chenlin Meng, Yutong He, Yang Song, Jiaming Song, Jiajun Wu, Jun-Yan Zhu, and Stefano Ermon. Sdedit: Guided image synthesis and editing with stochastic differential equations. arXiv preprint arXiv:2108.01073 , 2021. [22] Thomas Porter and Tom Duff. Compositing digital images. In Proceedings of the 11th annual conference on Computer graphics and interactive techniques , pages 253–259, 1984. [23] Peter J Burt and Edward H Adelson. A multiresolution spline with application to image mosaics. ACM Transactions on Graphics (ToG) , 2(4):217–236, 1983. [24] Binxin Yang, Shuyang Gu, Bo Zhang, Ting Zhang, Xuejin Chen, Xiaoyan Sun, Dong Chen, and Fang Wen. Paint by example: Exemplar-based image editing with diffusion models. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 18381–18391, 2023. [25] Nataniel Ruiz, Yuanzhen Li, Varun Jampani, Yael Pritch, Michael Rubinstein, and Kfir Aberman. Dreambooth: Fine tuning text-to-image diffusion models for subject-driven generation. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 22500–22510, 2023. [26] Leon A Gatys, Alexander S Ecker, and Matthias Bethge. Image style transfer using convolutional neural networks. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 2414–2423, 2016. [27] Karen Simonyan and Andrew Zisserman. Very deep convolutional networks for large-scale image recognition. arXiv preprint arXiv:1409.1556 , 2014. [28] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et al. Learning transferable visual models from natural language supervision. In International confer-ence on machine learning , pages 8748–8763. PmLR, 2021. [29] Kaiming He, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Dollár, and Ross Girshick. Masked autoencoders are scalable vision learners. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 16000–16009, 2022. [30] Mathilde Caron, Hugo Touvron, Ishan Misra, Hervé Jégou, Julien Mairal, Piotr Bo-janowski, and Armand Joulin. Emerging properties in self-supervised vision transform-ers. In Proceedings of the IEEE/CVF international conference on computer vision ,pages 9650–9660, 2021. [31] Narek Tumanyan, Omer Bar-Tal, Shai Bagon, and Tali Dekel. Splicing vit features for semantic appearance transfer. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 10748–10757, 2022. [32] Yang Zhou, Zichong Chen, and Hui Huang. Deformable one-shot face stylization via dino semantic guidance. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7787–7796, 2024. [33] Maxime Oquab, Timothée Darcet, Théo Moutakanni, Huy Vo, Marc Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa, Alaaeldin El-Nouby, et al. Dinov2: Learning robust visual features without supervision. arXiv preprint arXiv:2304.07193 , 2023. 12 [34] Alper Canberk, Maksym Bondarenko, Ege Ozguroglu, Ruoshi Liu, and Carl Vondrick. Erasedraw: Learning to insert objects by erasing them from images. In European Conference on Computer Vision , pages 144–160. Springer, 2024. [35] Wen Li, Muyuan Fang, Cheng Zou, Biao Gong, Ruobing Zheng, Meng Wang, Jingdong Chen, and Ming Yang. Styletokenizer: Defining image style by a single instance for controlling diffusion models. In European Conference on Computer Vision , pages 110– 126. Springer, 2024. [36] Peiyuan Liao, Xiuyu Li, Xihui Liu, and Kurt Keutzer. The artbench dataset: Bench-marking generative models with artworks. arXiv preprint arXiv:2206.11404 , 2022. [37] Xuan Ju, Ailing Zeng, Jianan Wang, Qiang Xu, and Lei Zhang. Human-art: A ver-satile human-centric dataset bridging natural and artificial scenes. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 618–629, 2023. [38] Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Liang-hao Deng, Wei Ding, Chang Gao, Chunjiang Ge, et al. Qwen3-vl technical report. arXiv preprint arXiv:2511.21631 , 2025. [39] Nicolas Carion, Laura Gustafson, Yuan-Ting Hu, Shoubhik Debnath, Ronghang Hu, Didac Suris, Chaitanya Ryali, Kalyan Vasudev Alwala, Haitham Khedr, Andrew Huang, et al. Sam 3: Segment anything with concepts. arXiv preprint arXiv:2511.16719 , 2025. [40] Chenfei Wu, Jiahao Li, Jingren Zhou, Junyang Lin, Kaiyuan Gao, Kun Yan, Sheng-ming Yin, Shuai Bai, Xiao Xu, Yilei Chen, et al. Qwen-image technical report. arXiv preprint arXiv:2508.02324 , 2025. [41] Michael Tschannen, Alexey Gritsenko, Xiao Wang, Muhammad Ferjad Naeem, Ibrahim Alabdulmohsin, Nikhil Parthasarathy, Talfan Evans, Lucas Beyer, Ye Xia, Basil Mustafa, et al. Siglip 2: Multilingual vision-language encoders with improved seman-tic understanding, localization, and dense features. arXiv preprint arXiv:2502.14786 ,2025. [42] Aaron van den Oord, Yazhe Li, and Oriol Vinyals. Representation learning with con-trastive predictive coding. arXiv preprint arXiv:1807.03748 , 2018. [43] Ye Wang, Ruiqi Liu, Jiang Lin, Fei Liu, Zili Yi, Yilin Wang, and Rui Ma. Omnistyle: Filtering high quality style transfer data at scale. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 7847–7856, 2025. [44] Ying Hu, Chenyi Zhuang, and Pan Gao. Diffusest: Unleashing the capability of the dif-fusion model for style transfer. In Proceedings of the 6th ACM International Conference on Multimedia in Asia , pages 1–1, 2024. [45] Dasol Jeong, Donggoo Kang, Jiwon Park, Hyebean Lee, and Joonki Paik. Structure-preserving zero-shot image editing via stage-wise latent injection in diffusion models. 
+
+arXiv preprint arXiv:2504.15723 , 2025. [46] Gowthami Somepalli, Anubhav Gupta, Kamal Gupta, Shramay Palta, Micah Goldblum, Jonas Geiping, Abhinav Shrivastava, and Tom Goldstein. Measuring style similarity in diffusion models. arXiv preprint arXiv:2404.01292 , 2024. [47] Richard Zhang, Phillip Isola, Alexei A Efros, Eli Shechtman, and Oliver Wang. The unreasonable effectiveness of deep features as a perceptual metric. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 586–595, 2018. [48] Jack Hessel, Ari Holtzman, Maxwell Forbes, Ronan Le Bras, and Yejin Choi. Clipscore: A reference-free evaluation metric for image captioning. In Proceedings of the 2021 conference on empirical methods in natural language processing , pages 7514–7528, 2021. 13 [49] Max Ku, Dongfu Jiang, Cong Wei, Xiang Yue, and Wenhu Chen. Viescore: Towards explainable metrics for conditional image synthesis evaluation. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 12268–12290, 2024. [50] Yuang Peng, Yuxin Cui, Haomiao Tang, Zekun Qi, Runpei Dong, Jing Bai, Chunrui Han, Zheng Ge, Xiangyu Zhang, and Shu-Tao Xia. Dreambench++: A human-aligned benchmark for personalized image generation. arXiv preprint arXiv:2406.16855 , 2024. [51] Xuan Ju, Tianyu Wang, Yuqian Zhou, He Zhang, Qing Liu, Nanxuan Zhao, Zhifei Zhang, Yijun Li, Yuanhao Cai, Shaoteng Liu, et al. Editverse: Unifying image and video editing and generation with in-context learning. arXiv preprint arXiv:2509.20360 ,2025. [52] Edward J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Liang Wang, Weizhu Chen, et al. Lora: Low-rank adaptation of large language models. 
+
+Iclr , 1(2):3, 2022. [53] Yibin Wang, Weizhong Zhang, Jianwei Zheng, and Cheng Jin. Primecomposer: Faster progressively combined diffusion for image composition with attention steering. In 
+
+Proceedings of the 32nd ACM International Conference on Multimedia , pages 10824– 10832, 2024. [54] Shilin Lu, Zhuming Lian, Zihan Zhou, Shaocong Zhang, Chen Zhao, and Adams Wai-Kin Kong. Does flux already know how to perform physically plausible image compo-sition? arXiv preprint arXiv:2509.21278 , 2025. [55] Wensong Song, Hong Jiang, Zongxin Yang, Zheqiao Cheng, Ruijie Quan, and Yi Yang. Insert anything: Image insertion via in-context editing in dit. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 40, pages 9097–9105, 2026. [56] Christoph Schuhmann. Improved Aesthetic Predictor. https://github.com/ christophschuhmann/improved-aesthetic-predictor , 2022. [57] Black Forest Labs. FLUX.1 [dev]. https://huggingface.co/black-forest-labs/ FLUX.1-dev , 2024. [58] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer Whitehead, Alexander C Berg, Wan-Yen Lo, et al. Seg-ment anything. In Proceedings of the IEEE/CVF international conference on computer vision , pages 4015–4026, 2023. [59] Roman Suvorov, Elizaveta Logacheva, Anton Mashikhin, Anastasia Remizova, Arsenii Ashukha, Aleksei Silvestrov, Naejin Kong, Harshith Goka, Kiwoong Park, and Victor Lempitsky. Resolution-robust large mask inpainting with fourier convolutions. In Pro-ceedings of the IEEE/CVF winter conference on applications of computer vision , pages 2149–2159, 2022. [60] Jiwoo Chung, Sangeek Hyun, and Jae-Pil Heo. Style injection in diffusion: A training-free approach for adapting large-scale diffusion models for style transfer. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 8795– 8805, 2024. [61] Jie An, Siyu Huang, Yibing Song, Dejing Dou, Wei Liu, and Jiebo Luo. Artflow: Unbi-ased image style transfer via reversible neural flows. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 862–871, 2021. [62] Junyao Gao, Yanan Sun, Yanchen Liu, Yinhao Tang, Yanhong Zeng, Ding Qi, Kai Chen, and Cairong Zhao. Styleshot: A snapshot on any style. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2025. [63] Peng Xing, Haofan Wang, Yanpeng Sun, Qixun Wang, Xu Bai, Hao Ai, Renyuan Huang, and Zechao Li. Csgo: Content-style composition in text-to-image generation. 
+
+arXiv preprint arXiv:2408.16766 , 2024. 14 [64] Pixabay. Pixabay. https://pixabay.com , 2026. [65] Unsplash. Unsplash. https://unsplash.com , 2026. [66] Pexels. Pexels. https://www.pexels.com , 2026. [67] Diederik P Kingma and Max Welling. Auto-encoding variational bayes. arXiv preprint arXiv:1312.6114 , 2013. [68] Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J Liu. Exploring the limits of transfer learning with a unified text-to-text transformer. Journal of machine learning research , 21(140): 1–67, 2020. 15 Appendix 
+
+In this supplementary material, we first provide details of ChameleonDataset in Sec. A, including statistics of ChameleonDataset tr and example results from ChameleonDataset ev .In Sec. B, we present preliminaries on the Diffusion Transformer (DiT), the derivation of our DINO feature disentanglement objective, and derivations of the existing hard contrastive learning (HCL) objective, along with the full formulation of the proposed Spatio-Temporal Attention Gating (STAG) mechanism. Sec. C reports implementation details, user study details, and licenses of existing assets. Sec. D provides ablation studies on the encoder design and the STAG mechanism. Sec. E presents full quantitative results on ChameleonBench, and Sec. F shows additional qualitative comparisons. Sec. G provides the VLM prompts used for both evaluation and data construction filtering. Finally, Sec. H discusses limitations and broader impact. 
+
+A Dataset Details: ChameleonDataset 
+
+A.1 Previous Construction Paradigms Text Prompts               
+
+> “Retriever dog” “Sunny park” “Retriever dog sitting on the grass in a sunny park”
+> FLUX
+> ❄
+> Foreground !" !"
+> Background !" !"
+> Composite Image !" #"
+> (1) Joint Generation (!" !"#!" #","$"$
+> Ref. Style Image
+> Foreground !" !"
+> StyleID StyleShot ArtFlow CSGO
+> Style Transfer Models
+> (2) Style Transfer
+> !%" #"" ,"$"" $
+> Stylized Background !" #""
+> Stylized Composite Image !" !""
+> Synthetic-Image
+> Triplet
+> (1) Object detection
+> Composite Image "$
+> Ref. Style Image
+> (3) Inpainting model
+> Foreground !" !
+> Composite Image "$
+> Background !" #"
+> ❌Background Inconsistency
+> StyleID StyleShot ArtFlow CSGO (4) Style Transfer (!# $"" $!# %"%
+> (2) Masking
+> Stylized Composite Image !" $"
+> Stylized Background !" #""
+> Synthetic-Image
+> Triplet
+> Style Transfer Models
+> Supervision Target "!
+> faithful supervision artifact-free
+> degraded supervision generative artifacts
+> Real-Image
+> Synthetic-Image
+
+Figure 8: Forward pipeline. Prior approaches construct triplets through sequential gener-ation and stylization, producing a synthetic-image supervision target I′
+
+c or I′′ 
+
+c , where each ′
+
+denotes a stage of synthetic degradation .
+
+Forward pipeline (top of Fig. 8) instantiates the synthetic construction through a sequential pipeline that couples compositing and stylization. It admits two entry points. In the first variant (left in Fig. 8), a compositing model [8] jointly denoises the foreground I′
+
+f ,background I′
+
+b, and composite I′
+
+c using a text-to-image backbone [57], so that generative artifacts already arise in I′
+
+c. In the second variant (top-right in Fig. 8), the pipeline starts from a real composite Ic [24]. A foreground If is extracted by object detection [58], and the corresponding region is filled by an inpainting model [59] to obtain a synthetic background 
+
+I′
+
+b for the subsequent stylization stage. A stylization model [60–63] then transforms the input, conditioned on a reference style image, into a stylized composite and a stylized background, yielding I′
+
+c and I′
+
+b in the first variant, and I′′ 
+
+c and I′′ 
+
+b in the second. The fundamental issue is that the stylized composite, whether I′
+
+c or I′′ 
+
+c , is a synthetic-image ,inheriting artifacts accumulated across both stages and ultimately following a synthetic-image distribution. Using such a composite as degraded supervision trains the model to reproduce this distribution rather than the real-image distribution, yielding an inherently suboptimal mapping regardless of model capacity. 16 Table 5: ChameleonDataset tr construction specification. 
+
+Component Specification Details Categories Total categories 2,000 object categories spanning diverse semantic domains Category domains Main groups Human, Animal, Plant, Food, Clothing/Accessories, House-hold/Object, Vehicle, Building/Structure, Nature/Scene Category examples Human-related person, man, woman, child, baby, face, hand, hair, eye Food-related fruit, vegetable, cake, bread, pizza, burger, drink Animal-related dog, cat, horse, bird, fish, butterfly, elephant Vehicle-related car, bus, truck, bicycle, motorcycle, train, airplane Clothing/Accessory-related dress, t-shirt, jacket, coat, hat, shoes, bag, necklace Styles Total styles 1,171 artistic and illustrative styles Style domains Art movements impressionism, baroque, surrealism, cubism Eastern media woodblock print, ink wash painting Western media oil painting, watercolor, pastel painting Non-painting styles sculpture, pencil sketch, engraving Illustrative styles cartoon, comics, kids’ drawing Reference augmentation Viewpoint front-right quarter view (40 ◦) and related azimuth varia-tions Distance close-up, medium-shot, and wide-shot compositions Elevation eye-level, high-angle, and low-angle views Resolution multi-resolution generation at 512 , 768 , and 1024 
+
+Buckets Resolution buckets 896 ×1152 , 384 ×640 , 576 ×960 , 672 ×864 , 1024 ×1024 ,
+
+448 ×576 , 768 ×1280 , 320 ×704 , 512 ×512 , 640 ×1536 ,
+
+768 ×768 , 480 ×1056 , 256 ×768 , 384 ×1152 , 640 ×1408 ,
+
+320 ×768 , 480 ×1152 , 512 ×1536 
+
+A.2 ChameleonDataset ev 
+
+Our ChameleonDataset ev is constructed from publicly available license-free images [64–66]. (a) Stair-climbing   
+
+> (b) Lighting-aware shadows (c) Reflective surfaces (d) Motion blur
+> (e) Mosaic-style
+> (f) Pixel-art style (g) Grayscale style
+
+Figure 9: Examples of ChameleonDataset ev . Our benchmark includes challenging compo-sitional scenarios, including (a) stair-climbing, (b) lighting-aware shadows, and (c) reflective surfaces, as well as diverse styles such as (d) motion blur and (e) mosaic-style artwork. 
+
+A.3 ChameleonDataset tr 
+
+Our ChameleonDataset tr contains diverse foreground object categories (2,000) and stylized backgrounds (1,171), as summarized in Tab. 5. This diversity is enabled by our reverse pipeline (Fig. 6), which starts from curated real-image composites Ic rather than relying on multiple style-specific LoRAs or stylization model zoos [61, 44], which are typically limited to predefined style categories. As a result, the dataset covers a broad range of visual domains, styles, and compositional scenarios, enabling the model to learn diverse cross-domain compositing patterns from data. 17 B Preliminaries, Derivation, and Algorithm 
+
+B.1 Preliminaries: Diffusion Transformer 
+
+Our framework (Sec. 3.2.2) builds on FLUX.1-dev [57], operating in the latent space. AVAE [67] encodes an image into a latent Z0 ∈ RH×W ×C , and a T5 encoder [68] produces text embeddings Zc ∈ RL×D . The model is trained under a flow matching formulation [ ? ], which predicts the velocity field along a linear interpolation between Gaussian noise Z1 ∼ N (0 , I )
+
+and the target latent Z0. Specifically, we consider the path Zt = tZ 0 + (1 − t)Z1, where 
+
+t ∈ [0 , 1] , and the target velocity v∗ = Z0 − Z1. The training objective is: 
+
+Lflow = Et,Z 0,Z 1
+
+[∥vθ (Zt, Z c, t ) − v∗∥22
+
+] . (2) 
+
+B.2 HCL Derivation 
+
+Hard Contrastive Learning (HCL) [18] improves representation learning via hardness-aware weighting, assigning larger importance to more similar (i.e., harder) negatives. Formally, it follows an InfoNCE-style objective: 
+
+L = − log exp (s(q, k +)/ τ )
+
+exp (s(q, k +)/ τ ) + ∑ 
+
+> k−∈N
+
+w(k−) exp (s(q, k −)/ τ ) , (3) where q, k+, and k− denote the embeddings of the anchor, positive, and negative samples. And N denotes the set of negative samples. s(·, ·) denotes cosine simi-larity, and τ is a temperature parameter. The hardness-aware weight is defined as 
+
+w(k−) = exp (βs (q, k −))/ 1
+
+> |N |
+
+∑ 
+
+> k′∈N
+
+exp (βs (q, k ′)) , where β controls the concentration on hard negatives. Our proposed JHCL objective (Eq. 1) extends the standard HCL formula-tion with style and content sets, patch-level similarity, and dual-query hard-negative weight-ing. 
+
+B.3 STAG: Full Formulation 
+
+Specifically, we map the diffusion timestep t to a sinusoidal embedding ϕ(t), which is fed into two separate foreground and background MLP branches to produce spatially distinct gating signals. The resulting features are linearly projected to obtain layer-wise gating logits: 
+
+zc(t) = H(c) MLP c(ϕ(t)) + β(c)0 ∈ RL, c ∈ { f, b}, (4) where H(c) ∈ RL×h, MLP c(ϕ(t)) ∈ Rh, β(c)0 ∈ RL, and L denotes the number of transformer blocks. Each entry zc(t, ℓ ) denotes the gating logit for the ℓ-th block. The logits are converted to gating coefficients via 
+
+βc(t, ℓ ) = σ(zc(t, ℓ )), (5) where σ(·) denotes the sigmoid function. Given a binary foreground mask m(q) ∈ { 0, 1},each query token q is assigned a gating coefficient according to its spatial location: 
+
+g(q, t, ℓ ) = 
+
+{βf(t, ℓ ) if m(q) = 1 ,βb(t, ℓ ) if m(q) = 0 . (6) The attention keys at each layer consist of text tokens, condition tokens (CT (Xf), S T (Xb)) ,and latent tokens. We apply the gating bias exclusively to the subset corresponding to 
+
+ST (Xb), whose key indices are denoted by Kb:
+
+B(ℓ)
+
+> q,k
+
+(t) = 
+
+{g(q, t, ℓ ) if k ∈ K b,
+
+0 otherwise , (7) 18 where B(ℓ)(t) denotes the resulting attention bias matrix. The final attention at layer ℓ is computed as 
+
+˜A(ℓ) = softmax 
+
+( Q(ℓ)K(ℓ)⊤
+
+√dk
+
++ B(ℓ)(t)
+
+)
+
+, (8) where Q(ℓ), K(ℓ) denote the query and key matrices, and dk is the key dimension. This formulation enables spatio-temporal attention gating, as illustrated in Fig. 10. 
+
+B.4 The JHCLSampler Algorithm 
+
+In the main paper, we introduced JHCLSampler as a set-conditioned sampling procedure that constructs anchor and positive pairs together with hard and normal negatives along a chosen set axis. Here, we provide its full procedural description. 
+
+Algorithm 1 JHCLSampler : Set-Conditioned Sampling for Style–Content Disentanglement 
+
+Require: Dataset D = {Ik} with style/content labels (ϕS , ϕ C ); set axis A ∈ { S, C }, con-trasting axis B = ¯A
+
+Hyperparameters: #hard negatives Kh, #normal negatives Kn
+
+Ensure: Anchor Ia, positive Ip, hard-negative sets H(anc ), H(pos ), normal-negative set S,conditioned negative sets N (anc ), N (pos ) 
+
+> 1:
+
+function JHCLSampler (D, A, B ) 
+
+> 2:
+
+Ia ∼ U (D) ▷ anchor  
+
+> 3:
+
+(α, β ) ← (ϕA(Ia), ϕ B (Ia)) 
+
+> 4:
+
+D′ ← D \ { Ia} 
+
+> 5:
+
+P ← { I ∈ D ′ : ϕA(I) = α ∧ ϕB (I)̸ = β} ▷ same α, diff β 
+
+> 6:
+
+Ip ∼ U (P) 
+
+> 7:
+
+β′ ← ϕB (Ip) ▷ positive’s contrasting attribute  
+
+> 8:
+
+Q(anc ) 
+
+> h
+
+← { I ∈ D ′ : ϕA(I)̸ = α ∧ ϕB (I) = β} ▷ anchor-based, diff α, same β 
+
+> 9:
+
+H(anc ) ∼ U Nh (Q(anc ) 
+
+> h
+
+) ▷ without replacement  
+
+> 10:
+
+Q(pos ) 
+
+> h
+
+← { I ∈ D ′ : ϕA(I)̸ = α ∧ ϕB (I) = β′} ▷ positive-based, diff α, same β′ 
+
+> 11:
+
+H(pos ) ∼ U Nh (Q(pos ) 
+
+> h
+
+) ▷ without replacement  
+
+> 12:
+
+Qn ← { I ∈ D ′ : ϕA(I)̸ = α ∧ ϕB (I)̸ = β} ▷ diff α, diff β 
+
+> 13:
+
+S ∼ U Nn (Qn) ▷ without replacement  
+
+> 14:
+
+N (anc ) ← S ∪ H (anc ) ▷ conditioned negatives for anchor query  
+
+> 15:
+
+N (pos ) ← S ∪ H (pos ) ▷ conditioned negatives for positive query  
+
+> 16:
+
+return (Ia, I p, H(anc ), H(pos ), S, N (anc ), N (pos )) 
+
+> 17:
+
+end function  
+
+> 18:
+
+Two sets per training step (shared encoder fθ ).  
+
+> 19:
+
+(Ia,S , I p,S , H(anc ) 
+
+> S
+
+, H(pos ) 
+
+> S
+
+, SS , N (anc ) 
+
+> S
+
+, N (pos ) 
+
+> S
+
+) ← JHCLSampler (D, S, C ) 
+
+> 20:
+
+(Ia,C , I p,C , H(anc ) 
+
+> C
+
+, H(pos ) 
+
+> C
+
+, SC , N (anc ) 
+
+> C
+
+, N (pos ) 
+
+> C
+
+) ← JHCLSampler (D, C, S )
+
+19 C Implementation Details 
+
+C.1 Training Details 
+
+Stage 1 uses a frozen DINOv3 ViT-L/16 backbone with two-layer MLP projection heads (Linear-GELU-Linear) for style and content, where the input, hidden, and output dimen-sions are all 1024. Our proposed JHCL is applied on top of the DINOv3 features through these style and content heads using a set-conditioned negative construction strategy. For each anchor Ia and positive Ip, we precompute three disjoint negative pools: a shared normal-negative pool S, and two query-specific hard-negative pools H(anc ) and H(pos ) corre-sponding to the anchor and positive queries, respectively. At each iteration, we construct a total of K=8 negatives per query. The number of hard negatives is controlled by a ratio ρe.Following the observation of [18] that excessive hard negatives can destabilize training in the early stage, ρe is fixed at 0.15 during the first two epochs and is then linearly annealed from 
+
+0.15 to 0.5 over training, progressively enabling more challenging discrimination. The re-maining normal negatives are sampled from S and shared across the two symmetric queries, while hard negatives are sampled independently from H(anc ) and H(pos ). This design pre-serves gradient symmetry for normal negatives while preventing hard negatives mined for one query from acting as inappropriate or conflicting negatives in the opposite symmetric InfoNCE direction. We optimize with Adam (learning rate 1e−3) for 20 epochs with a batch size of 32. Stage 2 fine-tunes FLUX.1-dev [57] on ChameleonBench tr using bucketed resolutions (512, 768, 1024). We use LoRA (rank 16) with Prodigy (learning rate 1.0) and jointly optimize lightweight modules including the projection layers and STAG. The projection layers map 1024-dimensional features to 3072. Foreground and background DINO features are extracted from layers [18,20] and [12,14], respectively. STAG consists of two three-layer MLPs for foreground and background, each taking a 256-dimensional sinusoidal time embedding as input and producing block-wise gating logits for 19 transformer blocks ( 256 → 128 → 128 →
+
+19 ). Training uses bf16 mixed precision with a total batch size of 4 on 4 ×H100 GPUs. We train for 50000 iterations. Total training takes approximately 22 hours. 
+
+C.2 Compute and Efficiency Analysis Table 6: Trainable parameter budget. Percentages are relative to the frozen DiT back-bone. LoRA adapters account for most trainable parameters, while STAG introduces only a negligible overhead.            
+
+> Module Params Backbone ratio LoRA adapters 18 .7M0.16 %
+> STAG 0.1M<0.01 %
+> Projection heads 6.3M0.05 %
+> Total trainable 25 .1M0.21 %
+
+Table 7: Inference overhead of dual-anchor DINO conditioning. Adding 392 DINO tokens introduces a modest increase in inference latency. All measurements use FP16 on a single GPU with a 28 -step sampler.                                 
+
+> Sequence length Per-step latency 28-step runtime Resolution Base +DINO Base +DINO Base +DINO
+> 512 ×512 1,280 1,672 35 .1ms 42 .9ms 0.98 s1.20 s
+> 1024 ×1024 4,352 4,744 92 .2ms 111 .8ms 2.58 s3.13 s
+
+20 C.3 User Study and Asset Details 
+
+We conduct the user study with 15 participants who have AI-related research backgrounds. No monetary compensation is provided. The study measures pairwise win rates across competing methods. In total, five models are evaluated. In Tab. 3, we report only three methods because TALE [13] and PrimeComposer [53] consistently receive zero votes due to their low generation quality and are therefore omitted for clarity. All external models and assets used in this work, including FLUX.1-dev [57], Qwen [38, 40], SAM3 [39], and DINOv3 [19], are publicly available and properly credited in the main paper. In particular, FLUX.1-dev is released under the FLUX.1 [dev] Non-Commercial License, and our use is restricted to non-commercial research purposes. 
+
+D Ablation Studies 
+
+D.1 Encoder 
+
+In this section, we ablate various semantic encoders, including CLIP [28], SigLIP2 [41], and CSD [46], to analyze the choice of DINOv3 in Tab. 8. Although CSD is trained for understanding and extracting style descriptors from images, its representations still exhibit noticeable style-content entanglement. In contrast, the stronger semantic representations of DINOv3 provide a more favorable starting point for disentanglement prior to training the projection heads. We further analyze the effect of different DINOv3 layers in Tab. 9. The results justify our selection of separate layer ranges for the style and content heads. Larger margins between style and content similarity indicate representations that are easier to disentangle, which justifies our selection of different layer ranges for the style and content heads in ChameleonEncoder. 
+
+Table 8: Why DINOv3? Disentanglement margin ∆ = ⟨a, p ⟩ − ⟨ a, hn ⟩ on dual-anchor test splits (200 samples each), comparing frozen off-the-shelf encoders without any projection head. Here, a denotes the anchor feature, p the positive feature, and hn the hard-negative feature. On the style-paired split, p shares the same style as a, while hn shares the same content but a different style. On the content-paired split, the roles are reversed. A larger 
+
+∆ indicates better separation of the target attribute from the confounding one. DINOv3 achieves the strongest overall disentanglement margin, particularly on the content-paired split, indicating that its representation provides the most suitable foundation for applying JHCL.                                  
+
+> Style-paired split Content-paired split Encoder ⟨a, p ⟩ ↑ ⟨a, hn ⟩ ↓ ∆↑⟨a, p ⟩ ↑ ⟨a, hn ⟩ ↓ ∆↑
+> CLIP ViT-L/14 [28] 0.848 0.950 −0.102 0.949 0.844 +0 .105
+> SigLIP2 L/16-256 [41] 0.755 0.923 −0.168 0.927 0.757 +0 .170
+> CSD ViT-L [46] 0.836 0.906 −0.071 0.906 0.838 +0 .068
+> DINOv3 [19] 0.871 0.903 -0.032 0.916 0.660 +0.257
+
+21 Table 9: Layer selection for the style and content heads. Disentanglement margin ∆ = 
+
+⟨a, p ⟩−⟨ a, hn ⟩ on dual-anchor test splits (200 samples each), comparing different layer groups from frozen DINOv3 ViT-L/16. Here, a denotes the anchor feature, p the positive feature, and hn the hard-negative feature. On the style-paired split, p shares the same style as a,while hn shares the same content but a different style. On the content-paired split, the roles are reversed. Since all layer groups produce negative margins on the style-paired split, we select the mid-level layers (12–14), which yield the smallest negative margin. In contrast, late layers (18–20) provide substantially stronger content separation on the content-paired split. Accordingly, we use layers 12–14 for the style head Es and layers 18–20 for the content head Ec in JHCL.                          
+
+> Style-paired split Content-paired split DINOv3 layers ⟨a, p ⟩ ↑ ⟨a, hn ⟩ ↓ ∆↑⟨a, p ⟩ ↑ ⟨a, hn ⟩ ↓ ∆↑
+> 12–14 (mid, →Es)0.874 0.902 −0.028 0.903 0.879 +0 .024
+> 18–20 (late, →Ec)0.655 0.911 −0.257 0.919 0.672 +0.247
+
+D.2 STAG 
+
+We ablate STAG by comparing models with and without STAG in Fig. 10. In (a), we visualize attention maps to show that STAG effectively concentrates style attention on the foreground object region (Eiffel Tower). Although the gating is derived from a coarse binary bounding-box mask, the modulation remains spatially aligned with the object, achieving the intended foreground-focused style injection. Moreover, (c) visualizes the timestep-adaptive behavior of STAG across the diffusion process. We observe that stronger stylization emerges at later timesteps after the coarse structure is formed, which aligns with prior observations in diffusion-based style transfer [44]. This indicates that STAG learns a meaningful temporal injection schedule conditioned on the denoising stage. Finally, (d) shows the per-block gating behavior. Rather than collapsing into uniformly open or closed states across all blocks, the gating dynamically activates and suppresses style injection depending on the transformer block, indicating stable and non-collapsed modulation behavior. We also visualize generation results with and without STAG in Fig. 13, where STAG improves style consistency while preserving foreground identity. (c) Per-step style-token attention (d) Per-block amplification ratio (b) STAG-o; (a) STAG-on 
+
+Figure 10: Effect of Spatio-Temporal Attention Gating (STAG). Attention from the fore-ground query (white box) to ST (Ib). Comparing (a) STAG-on vs (b) STAG-off, STAG concentrates attention on the foreground. (c) STAG temporally amplifies style injection at later denoising steps. (d) Per-block amplification ratios show that STAG activates and deactivates block-by-block without collapse. 
+
+E Full Quantitative Results 
+
+Beyond the three primary metrics reported in the main paper, we additionally report the Aes score [56], which measures the overall aesthetic quality of the generated scene, and CLIP-T [48], which evaluates alignment between the generated image and the text prompt, on both the AIComposer and TF-ICON benchmarks in Tab. 10 and Tab. 11, respectively. 22 Table 10: Quantitative comparison on the AIComposer benchmark. 
+
+Method Res LPIPS ↓ CLIP-I ↑ CLIP-T ↑ CSD ↑ Aes ↑ Identity ↑ Style ↑ Composition ↑ Avg_total ↑
+
+In-domain compositing 
+
+Dreamfuse (ICCV’25) 1024 0.5290 0.8603 0.2134 0.3941 6.9515 2.35 2.53 2.05 6.93 SHINE (ICLR’26) 1024 0.6513 0.8377 0.1999 0.3512 6.9160 2.05 2.40 1.99 6.44 
+
+Two-stage compositing 
+
+StyleSSP (CVPR’25) + InsertAnything (AAAI’26) 1024 0.4682 0.8438 0.2083 0.4898 6.7638 2.26 2.83 1.97 7.07 
+
+Cross-domain compositing 
+
+TF-ICON (ICCV’23) 512 0.6640 0.7493 0.1736 0.3536 6.4443 1.56 2.45 1.81 5.82 TF-ICON (ICCV’23) 768 0.6539 0.7700 0.1809 0.3464 6.4217 1.67 2.40 1.84 5.91 TALE (MM’24) 512 0.6164 0.7830 0.1893 0.4681 6.9477 1.72 2.724 2.00 6.44 AIComposer (ICCV’25) 1024 0.4648 0.8575 0.2006 0.4848 6.8638 2.42 2.77 2.10 7.30 
+
+Ours 1024 0.4550 0.8635 0.2182 0.4885 7.0380 2.59 2.80 2.21 7.61 Table 11: Quantitative comparison on TF-ICON benchmark. Method Res LPIPS ↓ CLIP-I ↑ CSD ↑ CLIP-T ↑ Aes ↑ Identity ↑ Style ↑ Composition ↑ Avg_total ↑
+
+In-domain compositing 
+
+BLD (SIGGRAPH’23) 512 0.7540 0.7331 0.4619 0.2959 6.6360 2.04 2.83 2.11 6.98 Paint by Example (CVPR’23) 512 0.7501 0.7658 0.3138 0.2969 6.7032 2.17 2.46 2.18 6.81 Insert Anything (AAAI’26) 1024 0.7281 0.7719 0.3821 0.3007 6.7440 2.31 2.59 2.24 7.14 SHINE (ICLR’26) 512 0.7654 0.7155 0.4362 0.2889 6.7360 1.93 2.74 2.16 6.83 SHINE (ICLR’26) 1024 0.7737 0.7165 0.4627 0.2891 6.7540 2.02 2.71 2.22 6.95 
+
+Cross-domain compositing 
+
+TF-ICON (ICCV’23) 512 0.7740 0.7551 0.4103 0.2895 6.7080 2.20 2.77 2.13 7.10 TF-ICON (ICCV’23) 768 0.7440 0.7581 0.4073 0.2902 6.7240 2.22 2.71 2.19 7.12 TALE (MM’24) 512 0.7990 0.5395 0.4982 0.2422 6.8194 2.09 2.96 2.27 7.33 PrimeComposer (MM’24) 512 0.7762 0.7510 0.4285 0.2851 6.3930 2.12 2.74 1.93 6.79 AI-Composer (ICCV’25) 512 0.5025 0.7946 0.4674 0.2853 6.6661 2.19 2.83 1.98 7.00 AI-Composer (ICCV’25) 1024 0.4966 0.8264 0.4826 0.2908 6.8174 2.37 2.91 2.07 7.36 
+
+Ours 512 0.5024 0.7991 0.4722 0.2872 6.7959 2.33 2.99 2.30 7.62 
+
+Ours 1024 0.4876 0.8294 0.4992 0.2983 6.8340 2.44 2.98 2.38 7.80 
+
+F Additional Qualitative Results 
+
+We provide additional qualitative comparisons on ChameleonDataset ev in Fig. 11, which includes diverse foreground objects and challenging styles such as pixel-art scenes. Our Chameleon consistently adapts foreground objects to the target background style while preserving natural appearance and compositional plausibility. We also provide additional qualitative results on the TF-ICON benchmark in Fig. 12 across all three domains, including sketch, cartoon, and painting. Across diverse domains, our method demonstrates robust cross-domain adaptation and seamless integration with the background. 23 AIComposer (ICCV’25) TALE (MM’24) Ours 
+
+> TF-ICON (ICCV’23) Prime Composer (MM’24)
+
+Figure 11: Qualitative comparison with cross-domain baselines on our ChameleonDataset ev . Our benchmark includes diverse foreground objects and chal-lenging styles, including pixel art. 24 AIComposer  
+
+> (ICCV’25 )
+> TALE
+> (MM’24)
+> Ours TF -ICON
+> (ICCV’23 )
+> Paint by example
+> (CVPR’23)
+> SHINE
+> (ICLR’26)
+> InsertAnything
+> (AAAI’26 )
+
+Figure 12: Qualitative comparison with baselines on the TF-ICON benchmark. The benchmark consists of three cross-domain categories: real-to-cartoon, real-to-sketch, and real-to-painting. We visualize representative scenes from each domain. Our method con-sistently achieves seamless integration and plausible compositing across diverse background domains and styles. w/o STAG w/ STAG 
+
+Figure 13: Generation results with and without STAG. STAG effectively injects the back-ground style while preserving foreground identity. 25 G VLM-based Protocols 
+
+G.1 VLM-based Evaluation Metric System / Role. 
+
+You are a meticulous cross-domain image compositing evaluation assistant. Your task is to evaluate a model output for cross-domain compositing using criterion-specific image priorities. 
+
+Provided Inputs. The evaluator is given the following images: 1. f_seg full image : a clean object-centric reference on a white background. 2. background_image full image : the target scene whose overall style should guide stylization. 3. model_output full image : the final generated/composited result. 4. model_output_crop : the cropped region inside the provided bounding box from the model output. 5. background_mask image : the source used to define the target region. Its white region is resized to the model output resolution before extracting the bounding box. 
+
+Criterion-specific Image Priority. 
+
+• For Identity Preservation , focus primarily on the f_seg full image and the model_output_crop. 
+
+• For Style Transfer Consistency , focus primarily on the background_image full image and the model_output_crop. 
+
+• For Composition and Harmonization , focus primarily on the model_output_crop, and use the model_output full image as secondary context. 
+
+Evaluation Rules. 
+
+• Use the stated priority images for each criterion. 
+
+• Do not require the same image pair for every criterion. 
+
+• For Identity Preservation, judge whether the cropped output object preserves the same object identity as the clean f_seg reference. 
+
+• For Style Transfer Consistency, judge whether the cropped output object reflects the style of the full background scene appropriately. 
+
+• For Composition and Harmonization, judge whether the cropped output region looks naturally integrated and visually plausible, while using the full output only as secondary global context. 
+
+• Do not penalize based on regions unrelated to the provided bounding box. 
+
+• Do not let style transfer alone override identity preservation. 
+
+• Do not let identity similarity alone override poor harmonization. 
+
+Identity Preservation. Question. Does the object inside the provided bounding box in the model output preserve the same identity as the object in the f_seg reference image, despite the stylization? Consider whether the object remains recognizably the same in terms of its essential structure, shape, distinctive parts, and overall visual identity. 
+
+Scoring Guide (0--3). 
+
+• 3: The object clearly preserves the same identity as the f_seg reference. Its struc-ture, distinctive parts, and overall appearance remain highly recognizable despite stylization. 26 • 2: The object mostly preserves the same identity, but there are minor ambiguities or slight structural/detail changes. 
+
+• 1: The object weakly preserves the identity. Major parts or structure are altered, making it difficult to confidently match. 
+
+• 0: The object does not preserve the identity. It appears as a different object or is unrecognizable. 
+
+Style Transfer Consistency. Question. Does the object inside the provided bounding box in the model output receive the background style consistently and appropriately? Consider whether the stylization reflects the full background style well, not just blending background color, while avoiding excessive style leakage that unnaturally distorts the object or weakens its visual coherence. 
+
+Scoring Guide (0--3). 
+
+• 3: The object is stylized in a way that strongly and consistently reflects the back-ground style. The style transfer is clear and appropriate, and there is no noticeable excessive style leakage or unnatural distortion. 
+
+• 2: The object mostly reflects the background style, but the style transfer is slightly incomplete, uneven, or accompanied by minor style leakage that slightly affects coherence. 
+
+• 1: The object shows weak or inconsistent style transfer from the background. The stylization is limited, patchy, or noticeably affected by style leakage that harms the object’s coherence. 
+
+• 0: The object does not meaningfully reflect the background style, or the result is severely corrupted by excessive style leakage, making the object visually incoherent or unnaturally distorted. 
+
+Composition and Harmonization. Question. Does the object inside the provided bound-ing box in the model output look naturally integrated and visually plausible? Focus primar-ily on the cropped output region, and use the full model output only as secondary global context. Consider whether the insertion looks natural rather than pasted, and whether local lighting, shadow consistency, texture transition, and overall harmonization appear convinc-ing. Also consider physical plausibility, such as whether the object interacts naturally with its surroundings (e.g., ground or supporting surfaces), whether spatial relationships and depth ordering are coherent, whether the object is fully and coherently rendered without missing parts, and whether occlusion relationships with surrounding elements are handled realistically. 
+
+Scoring Guide (0--3). 
+
+• 3: The cropped output region looks very natural and well integrated. The insertion does not appear pasted, and local lighting, shadow consistency, texture transition, and overall harmonization are convincing. 
+
+• 2: The region is mostly natural, but there are minor issues in local consistency or harmonization. Slight artificiality may be noticeable. 
+
+• 1: The region looks noticeably unnatural. Pasted appearance or weak local harmo-nization make the insertion feel inconsistent. 
+
+• 0: The region clearly fails. It strongly looks like an artificial copy-and-paste inser-tion, with severe artifacts or implausible local appearance. 
+
+Task Description. 
+
+Evaluate how well the generated object is preserved, stylized, and harmo-nized inside the target region. Use the criterion-specific image priorities described above. 27 Output Format. 
+
+Identity Preservation: [score, 0–3] – [brief justification] Style Transfer Consistency: [score, 0–3] – [brief justification] Composition and Harmonization: [score, 0–3] – [brief justification] Total Score: [sum of the three scores] 
+
+G.2 VLM-based Filtering System / Role. 
+
+You are a strict visual evaluator. 
+
+Setup. After candidate generation, each candidate is associated with two images: Image A ,the original crop containing the target object together with surrounding occluders, and 
+
+Image B , the segmented foreground produced by SAM 3, where occluders such as hands are intentionally removed. The segmented region can therefore be small or fragmented, but a small region alone is not a reason for rejection. We use Qwen3-VL-8B-Instruct as the filter with greedy decoding ( do_sample=False ) and max_new_tokens = 512 . Both images are resized so that the longer side is at most 256 px before being passed to the model. 
+
+Provided Inputs. The model receives: 1. Image A : the original crop image containing the target object and surrounding occluders. 2. Image B : the segmented foreground image of the target object. 3. Target label : the semantic category associated with the candidate. 
+
+Task Description. The filtering objective is to determine whether Image B provides a useful partial observation of the target object under occlusion. The model evaluates whether the remaining visible evidence supports plausible restoration or completion in later stages. 
+
+Evaluation Rules. 
+
+• The segmentation intentionally excludes occluders, so Image B may contain only a partial object region. 
+
+• A small segmented region alone should not trigger rejection. 
+
+• The evaluation should focus on semantic consistency, occlusion plausibility, and recoverability from the visible evidence. 
+
+• The model must return only a valid JSON object. 
+
+• Markdown formatting and code fences are explicitly forbidden. 
+
+• We apply up to two retries on JSON parse failure. 
+
+Criteria. Each candidate is evaluated using four criteria: 
+
+label_consistency. Does Image B still depict the target semantic class? 
+
+identity_preservation. Is the same object instance recognisable across Image A and Im-age B? 
+
+occlusion_plausibility. Is the missing region physically consistent with a realistic occluder? 
+
+recoverability. Can the full object be plausibly reconstructed from the visible evidence in Image B? 28 Aggregation. We aggregate the four scores into a single keep score s ∈ [0 , 100] :
+
+sem = 0 .35 · label_consistency + 0 .65 · identity_preservation ,s =
+
+⌊
+
+100 ·
+
+(
+
+0.60 · recoverability + 0 .25 · occlusion_plausibility + 0 .15 · sem 
+
+)⌉ 
+
+.
+
+Recoverability receives the largest weight because the downstream task requires plausible amodal completion from partial observations. 
+
+Binary Decision. We convert the continuous score into a binary keep/reject label: 
+
+keep (s, recoverability ) = ⊮ [s ≥ 70 ∧ recoverability ≥ 0.35] .
+
+Candidates with low recoverability are rejected regardless of the final aggregated score be-cause their visible regions do not provide sufficient evidence for plausible completion. 
+
+Output Format. The model returns a single JSON object containing: 
+
+• label_consistency 
+
+• identity_preservation 
+
+• occlusion_plausibility 
+
+• recoverability 
+
+• final_score 
+
+• short_reason 
+
+For each candidate, we store the four sub-scores, the aggregated keep score, and the final binary decision in the per-scene result.json .
+
+H Limitations and Broader Impacts 
+
+H.1 Limitations 
+
+Finally, while our framework focuses on image-level cross-domain compositing, extending it to video compositing remains a challenging problem. In videos, the background scene, lighting, and object geometry may change continuously over time, making it difficult to maintain temporally consistent style adaptation and scene-level harmonization. We leave this direction as future work. 
+
+H.2 Broader Impacts 
+
+Our work advances cross-domain image compositing by enabling more seamless and stylis-tically consistent integration between foreground objects and heterogeneous background do-mains. This capability may benefit creative applications such as digital art, visual content creation, and stylized media editing. However, the proposed framework may also be mis-used to generate misleading or deceptive visual content. In particular, realistic cross-domain compositing could be applied to create fabricated images that appear visually plausible, po-tentially contributing to misinformation or unauthorized image manipulation. In addition, generated results may raise concerns regarding copyright and artistic style imitation when specific visual styles are closely replicated. 29

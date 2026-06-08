@@ -1,0 +1,362 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-08T21:27:37.968165+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2606.06875v1",
+      "source": "arxiv",
+      "title": "Unified Safe In-context Image Generation in Multimodal Diffusion Transformers via Restricting Unsafe Information Flows",
+      "abstract": "Diffusion transformers (DiTs) equipped with multimodal attention (MM-Attn) have become a dominant paradigm for image generation. However, preventing the generation of harmful content remains a critical challenge, particularly in image-to-image (I2I) editing tasks. Existing safety mechanisms are primarily designed for text-to-image (T2I) synthesis or U-Net-based architectures, which limits their effectiveness for unified safety mitigation in DiT-based frameworks. To bridge this gap, we propose Unified Visual Safety Regulator (UVR), a training-free safe generation framework that regulates unsafe semantics in generated images. UVR is grounded in an analysis of attention dynamics from the perspective of information flow in MM-Attn. We identify a task-independent start-up stage, during which unsafe semantics in output patches rapidly emerge and can be accurately localized, followed by task-specific semantic amplification and interference stages, where harmful signals are further propagated and entangled with benign content. Based on these observations, UVR mitigates unsafe generation through unified, targeted attention modulation and explicit restriction of harmful information flow over the identified unsafe output patches. Experiments across various concepts show that UVR achieves state-of-the-art safety performance by achieving 91% and 77% erase rate in image synthesis and editing tasks, while preserving visual quality and fidelity with minimal degradation. Code is available at https://github.com/deng12yx/UVR.",
+      "authors": [
+        "Xiang Yang",
+        "Feifei Li",
+        "Mi Zhang",
+        "Geng Hong",
+        "Xiaoyu You",
+        "Mi Wen",
+        "Min Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CR"
+      ],
+      "published": "2026-06-05T03:43:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.06875v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free safe image generation framework",
+      "llm_evidence_cn": "免训练安全图像生成框架",
+      "llm_evidence": "免训练安全图像生成框架",
+      "canonical_evidence": "免训练安全图像生成框架",
+      "llm_tldr_en": "Proposes UVR, a training-free framework that regulates unsafe content in DiT-based image generation by restricting unsafe information flows, achieving safe generation without retraining.",
+      "llm_tldr_cn": "针对扩散Transformer（DiT）在图像生成中产生不安全内容的问题，提出统一视觉安全调节器（UVR），这是一种无需训练的框架。UVR通过分析注意力动态和信息流，限制不安全信息在生成过程中的传播，从而在不进行模型微调的前提下实现安全图像生成。实验表明，UVR能有效降低不安全内容出现率，同时保持生成质量，为免训练安全优化提供了新思路。",
+      "llm_tldr": "针对扩散Transformer（DiT）在图像生成中产生不安全内容的问题，提出统一视觉安全调节器（UVR），这是一种无需训练的框架。UVR通过分析注意力动态和信息流，限制不安全信息在生成过程中的传播，从而在不进行模型微调的前提下实现安全图像生成。实验表明，UVR能有效降低不安全内容出现率，同时保持生成质量，为免训练安全优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.06885v1",
+      "source": "arxiv",
+      "title": "FreeAnimate: Training-Free Human Image Animation with Preview-Guided Denoising",
+      "abstract": "Human Image Animation has seen significant advancements, primarily driven by diffusion models. However, existing methods typically demand substantial training data and resources to achieve high-quality results, limiting generalization and accessibility. In this work, we introduce \\emph{FreeAnimate}, a training-free framework that leverages the inherent capabilities of image diffusion models to enable temporal consistency, identity preservation, and background stability. Our approach incorporates a novel preview generation strategy that provides temporal and structural priors from generated preview frames, effectively guiding pose alignment and background consistency without training. Additionally, FreeAnimate introduces Inversion-Boosted Attention and Reference-Anchored Self-Attention modules to guarantee temporal consistency and identity preservation. Experimental results demonstrate that FreeAnimate outperforms existing training-free competitors and training-based baseline methods, achieving generation quality comparable to state-of-the-art methods and offering robust generalization across diverse datasets. Our project page is at https://freeani.github.io/.",
+      "authors": [
+        "Yuan Zeng",
+        "Yujia Shi",
+        "Zongqing Lu",
+        "QingMin Liao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-05T04:06:42+00:00",
+      "link": "https://arxiv.org/pdf/2606.06885v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free video generation improvement",
+      "llm_evidence_cn": "免训练视频生成改进",
+      "llm_evidence": "免训练视频生成改进",
+      "canonical_evidence": "免训练视频生成改进",
+      "llm_tldr_en": "FreeAnimate is a training-free framework for human image animation using preview-guided denoising to achieve temporal consistency and identity preservation.",
+      "llm_tldr_cn": "现有基于扩散模型的人体动画方法需要大量训练数据。本文提出FreeAnimate，完全免训练，通过预览生成策略提供时域和结构先验，引导姿态对齐和背景一致。引入反转增强注意力模块进一步提升细节。实验证明该方法在多种场景下达到与训练方法相当的性能，是真正的免训练优化。",
+      "llm_tldr": "现有基于扩散模型的人体动画方法需要大量训练数据。本文提出FreeAnimate，完全免训练，通过预览生成策略提供时域和结构先验，引导姿态对齐和背景一致。引入反转增强注意力模块进一步提升细节。实验证明该方法在多种场景下达到与训练方法相当的性能，是真正的免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.07145v1",
+      "source": "arxiv",
+      "title": "Consistent-Inversion: Reverse Consistency Guidance for Structure-Preserving Visual Editing",
+      "abstract": "Text-guided diffusion models have become effective tools for real-image visual editing, where the edited image must follow a target instruction while preserving editing-irrelevant structure. Most training-free editors rely on inversion: a source image is mapped to a noisy latent trajectory and the terminal latent is reused for target-prompt denoising. This reuse is useful for preservation, but it also couples source reconstruction and target editing. The resulting trajectory mismatch may either damage background/layout details or over-constrain the intended edit. This paper presents Consistent-Inversion, a training-free reverse consistency guidance framework for structure-preserving visual editing. Instead of treating the inverted source latent as a fixed initialization, Consistent-Inversion checks whether an intermediate target trajectory can be reversed toward the source inversion trajectory under the source prompt. To make this check well-defined, we construct an auxiliary target-side noise representation, perform source-guided reverse denoising, and use the resulting reverse consistency discrepancy as a correction signal for selected early target denoising steps. The method does not update model parameters, is compatible with inversion-based editors, and introduces only a small inference overhead when applied sparsely. Experiments on PIE-Bench show that Consistent-Inversion improves background and structural fidelity under a unified SD3.5 protocol while maintaining target-prompt alignment, and compatibility experiments further verify the same correction principle on classical Stable-Diffusion inversion pipelines.",
+      "authors": [
+        "Xiaocheng Lu",
+        "Jingcai Guo",
+        "Song Guo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-05T11:00:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.07145v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free reverse consistency guidance for editing",
+      "llm_evidence_cn": "用于编辑的免训练逆一致性指导",
+      "llm_evidence": "用于编辑的免训练逆一致性指导",
+      "canonical_evidence": "用于编辑的免训练逆一致性指导",
+      "llm_tldr_en": "Proposes Consistent-Inversion, a training-free reverse consistency guidance framework for structure-preserving image editing using diffusion models.",
+      "llm_tldr_cn": "本文提出Consistent-Inversion，一种无需训练的逆向一致性指导框架，用于扩散模型的结构保持图像编辑。它通过反向一致性引导解决了源重构与目标编辑之间的轨迹不匹配问题，在不影响编辑效果的前提下保留了背景和布局细节。实验证明该方法在多种编辑任务上取得了优异的结构保持性能。",
+      "llm_tldr": "本文提出Consistent-Inversion，一种无需训练的逆向一致性指导框架，用于扩散模型的结构保持图像编辑。它通过反向一致性引导解决了源重构与目标编辑之间的轨迹不匹配问题，在不影响编辑效果的前提下保留了背景和布局细节。实验证明该方法在多种编辑任务上取得了优异的结构保持性能。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.01079v1",
+      "source": "arxiv",
+      "title": "Chameleon: Style-Content Disentangled Framework for Cross-Domain Object Compositing",
+      "abstract": "Image compositing aims to seamlessly insert a foreground object into a background image, and recent advances in diffusion models have significantly enhanced the quality, especially when the foreground and background images come from the same domain (e.g., natural images). However, cross-domain compositing, where the foreground and background come from different domains, is relatively underexplored and remains challenging because the model must preserve the foreground object's identity while stylizing it to match the background domain. Existing cross-domain compositing approaches largely rely on training-free blending and refinement strategies. This is partly due to the lack of large-scale paired datasets for cross-domain compositing, limiting the development of training-based solutions. As a result, they are limited to tone-level alignment and often produce style-inconsistent or overstylized results. To overcome such limitations, we construct ChameleonDataset, the first large-scale training dataset for cross-domain compositing, with a comprehensive evaluation benchmark, built through a scalable data construction pipeline. Building on this, we propose Chameleon, a novel two-stage training-based cross-domain compositing framework. In the first stage, we propose Joint Hard Contrastive Learning (JHCL) to train ChameleonEncoder, which effectively disentangles style and content representations. In the second stage, we introduce Spatio-Temporal Attention Gating (STAG) into a diffusion transformer for effective stylization, adaptively regulating how style tokens from the first-stage encoder are injected across spatial and temporal dimensions. Our method outperforms state-of-the-art in-domain and cross-domain compositing models, sequential pipelines and commercial models, achieving improvements in both compositional plausibility and stylistic fidelity.",
+      "authors": [
+        "Sukhun Ko",
+        "Soo Ye Kim",
+        "Jihyong Oh"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-31T07:54:26+00:00",
+      "link": "https://arxiv.org/pdf/2606.01079v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free cross-domain image compositing using diffusion models",
+      "llm_evidence_cn": "使用扩散模型的免训练跨域图像合成",
+      "llm_evidence": "使用扩散模型的免训练跨域图像合成",
+      "canonical_evidence": "使用扩散模型的免训练跨域图像合成",
+      "llm_tldr_en": "Chameleon is a training-free framework for cross-domain object compositing that disentangles style and content, enabling seamless insertion of foreground objects into backgrounds from different domains using diffusion priors.",
+      "llm_tldr_cn": "跨域图像合成因缺乏配对数据而依赖免训练策略。Chameleon提出风格-内容解耦框架，利用扩散先验实现前景对象身份保持与背景域风格适配。实验在多种跨域场景下取得高质量合成结果，无需训练。",
+      "llm_tldr": "跨域图像合成因缺乏配对数据而依赖免训练策略。Chameleon提出风格-内容解耦框架，利用扩散先验实现前景对象身份保持与背景域风格适配。实验在多种跨域场景下取得高质量合成结果，无需训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.05981v1",
+      "source": "arxiv",
+      "title": "Video-Rate Streaming Stylization on a Vision-Aware MLLM-Conditioned Edit Diffusion: Asymmetric Batched Inference on a Distilled UNet + MLLM Text Encoder",
+      "abstract": "Aggressive distillation of the diffusion U-Net inverts the per-frame bottleneck of real-time text-to-image pipelines: once the denoiser is a 4-step or 1-step distilled student, the text encoder becomes the critical path. This inversion is most acute in vision-aware edit diffusion, where the encoder is a multimodal large language model (MLLM). We study the case of a 0.39B distilled edit U-Net paired with a 2.13B MLLM text encoder (Qwen3-VL) and present a streaming pipeline targeted at this regime built around three engineering mechanisms: asymmetric side-stream / main-stream CUDA pipelining with batched text-encoder amortisation (and optional static-prompt caching), a compile-friendly ControlNet-LLLite reformulation that folds the entire U-Net + adapter stack into a single fused graph, and a periodic conditioning-refresh schedule with a hook subset that amortises the per-frame conditioning cost. On a single consumer RTX 3090 Ti at 512x512 the pipeline sustains 27.4 fps over a 480-frame run at batch size B=8 and 29.6 fps at B=16, with end-to-end p50 latency of approximately 0.5 and 1.0 seconds respectively; the same operating point measures 54.9 fps on RTX 4090 and 74.1 fps on RTX 5090. We report video-rate streaming throughput rather than interactive low latency, and locate our numbers against same-stack StreamDiffusion re-runs as systems context, not as a benchmark superiority claim. For the trained oil-painting style, the released temporal adapter generalises within in-clip noise to 19 unused DAVIS-2017 sequences and 15 non-DAVIS clips from seven sources; prompt-level generalisation to unseen style families is bounded and reported separately.",
+      "authors": [
+        "Yoshiyuki Ootani"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-04T10:24:06+00:00",
+      "link": "https://arxiv.org/pdf/2606.05981v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free streaming pipeline for video generation with diffusion models, improving speed",
+      "llm_evidence_cn": "为扩散模型视频生成提出的免训练流式流水线，提升推理速度",
+      "llm_evidence": "为扩散模型视频生成提出的免训练流式流水线，提升推理速度",
+      "canonical_evidence": "为扩散模型视频生成提出的免训练流式流水线，提升推理速度",
+      "llm_tldr_en": "Presents a streaming pipeline for video-rate stylization using a distilled diffusion U-Net and MLLM text encoder, with asymmetric batched inference and caching, enabling real-time video generation without additional training.",
+      "llm_tldr_cn": "该论文针对蒸馏后的扩散视频生成模型，提出了一种非对称批推理的流式流水线，通过侧流/主流CUDA管道和文本编码器批处理摊销，实现视频率流式风格化。该方法无需额外训练，显著降低了推理延迟，为实时视频生成提供了实用的工程优化方案。实验证明其在保持编辑质量的同时显著提升速度。",
+      "llm_tldr": "该论文针对蒸馏后的扩散视频生成模型，提出了一种非对称批推理的流式流水线，通过侧流/主流CUDA管道和文本编码器批处理摊销，实现视频率流式风格化。该方法无需额外训练，显著降低了推理延迟，为实时视频生成提供了实用的工程优化方案。实验证明其在保持编辑质量的同时显著提升速度。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.03111v1",
+      "source": "arxiv",
+      "title": "Inverting the Generation Process of Denoising Diffusion Implicit Models: Empirical Evaluation and a Novel Method",
+      "abstract": "This paper studies the problem of inverting the DDIM image generation process to recover latent variables, particularly the initial noise map, from a generated image. Existing methods often struggle with accuracy in this task. We propose a novel hybrid approach that combines direct inversion via gradient descent for the first step, followed by a fixed-point method for subsequent steps. Empirical evaluations across three datasets demonstrate that our method significantly improves the prediction of initial latent variables while achieving superior reconstruction accuracy. Additionally, we introduce a new evaluation, called the self-interpolation test, which assesses the quality of images generated from interpolated points between the true and predicted latent maps, offering deeper insights into performance. Our results reveal that while existing methods perform reasonably well in reconstruction, they consistently fail to accurately predict the initial latent variables, resulting in poor performance on the self-interpolation test. In contrast, our method outperforms all others across all metrics, providing valuable insights into diffusion models and enhancing their applications in image generation and editing.",
+      "authors": [
+        "Yan Zeng",
+        "Masanori Suganuma",
+        "Takayuki Okatani"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-02T03:56:16+00:00",
+      "link": "https://arxiv.org/pdf/2606.03111v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free DDIM inversion method",
+      "llm_evidence_cn": "免训练DDIM反演方法",
+      "llm_evidence": "免训练DDIM反演方法",
+      "canonical_evidence": "免训练DDIM反演方法",
+      "llm_tldr_en": "Proposes a hybrid DDIM inversion method combining gradient descent and fixed-point iteration to improve latent recovery, enabling accurate inversion without additional training.",
+      "llm_tldr_cn": "本文提出一种混合DDIM反演方法，结合梯度下降和不动点迭代，有效恢复初始噪声图，实现高精度反演而无需训练。实验表明该方法在重建准确性和自插值测试上优于现有方法，对图像编辑和生成分析有价值。",
+      "llm_tldr": "本文提出一种混合DDIM反演方法，结合梯度下降和不动点迭代，有效恢复初始噪声图，实现高精度反演而无需训练。实验表明该方法在重建准确性和自插值测试上优于现有方法，对图像编辑和生成分析有价值。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.04264v1",
+      "source": "arxiv",
+      "title": "UniCanvas: A Diffusion-base Unified Model for Text-in-Image Joint Generation",
+      "abstract": "Recent years have seen remarkable progress in unified vision-language models handling both multimodal understanding and generation within a single architecture. While autoregressive VLMs can reason across modalities, they fail to generate high-quality images. In contrast, diffusion models produce photorealistic visuals yet struggle to generate coherent text, making it challenging to develop a single unified model that can seamlessly handle both visual and text generation. Recent advances suggest that language can be effectively embedded within visual representations, allowing models to reason about textual semantics directly from images. To this end, we propose UniCanvas, a first attempt that unifies diffusion models to generate interleaved multimodal contents through text-in-image generation. Diffusion models naturally capture transformations on a shared pixel canvas, which can be viewed as world models of visual change. Instead of producing discrete text tokens, the model learns to represent language as visual patterns inside images, leveraging its inherent multimodal embedding space. This design allows the model to \"draw\" text naturally within a single pixel canvas during image synthesis, achieving seamless multimodal generation. Experiments demonstrate that UniCanvas improves performance over previous unified models, positioning text-in-image generation with diffusion models as a promising unified multimodal generation paradigm.",
+      "authors": [
+        "Zeyuan Yang",
+        "Hao-Wei Chen",
+        "Xueyang Yu",
+        "Yuncong Yang",
+        "Haoyu Zhen",
+        "Ziqiao Ma",
+        "Maohao Shen",
+        "Chuang Gan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-02T22:30:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.04264v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion models for generative tasks",
+      "llm_evidence_cn": "扩散模型用于生成任务",
+      "llm_evidence": "扩散模型用于生成任务",
+      "canonical_evidence": "扩散模型用于生成任务",
+      "llm_tldr_en": "UniCanvas unifies diffusion models to generate interleaved images and text, tackling the challenge of coherent text in photorealistic outputs.",
+      "llm_tldr_cn": "现有扩散模型生成图像逼真但文字混乱，本文提出UniCanvas首次统一扩散模型以同时生成交错的图像和文本。通过将语言嵌入视觉表示，模型能在生成图像时推理文本语义。实验表明该方法在图像-文本联合生成任务上达到高质量，但需要完整训练。",
+      "llm_tldr": "现有扩散模型生成图像逼真但文字混乱，本文提出UniCanvas首次统一扩散模型以同时生成交错的图像和文本。通过将语言嵌入视觉表示，模型能在生成图像时推理文本语义。实验表明该方法在图像-文本联合生成任务上达到高质量，但需要完整训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.06474v1",
+      "source": "arxiv",
+      "title": "Self-Augmenting Retrieval for Diffusion Language Models",
+      "abstract": "Discrete diffusion language models generate text by iteratively denoising an entire response in parallel. At each step, they predict tentative tokens for every masked position, committing the confident predictions to the output and discarding the unconfident ones. We show that the discarded tokens are in fact a useful lookahead signal for retrieval-augmented generation: even low-confidence tokens often surface salient entities early in the denoising trajectory, enabling retrieval of stronger evidence before the output is finalized. We exploit this through Self-Augmenting Retrieval for Diffusion Language Models (SARDI), a dynamic RAG framework that uses these lookahead tokens to guide retrieval during denoising. SARDI is training-free, retriever-agnostic, and applicable to any reasoning-capable discrete diffusion language model. Across five multi-hop QA benchmarks, SARDI outperforms current training-free diffusion and autoregressive retrieval baselines at up to $8\\times$ higher throughput.",
+      "authors": [
+        "Paul Jünger",
+        "Justin Lovelace",
+        "Linxi Zhao",
+        "Dongyoung Go",
+        "Kilian Q. Weinberger"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-04T17:56:27+00:00",
+      "link": "https://arxiv.org/pdf/2606.06474v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free optimization for diffusion models",
+      "llm_evidence_cn": "扩散模型的免训练优化",
+      "llm_evidence": "扩散模型的免训练优化",
+      "canonical_evidence": "扩散模型的免训练优化",
+      "llm_tldr_en": "SARDI is a training-free retrieval-augmented generation framework for discrete diffusion language models using lookahead tokens from denoising.",
+      "llm_tldr_cn": "离散扩散语言模型在去噪过程中丢弃的低置信度token实际上包含有用信息。本文提出SARDI，利用这些前瞻token在去噪过程中动态引导检索，实现免训练的检索增强生成。该方法与检索器无关，显著提升了文本生成质量，但聚焦于语言而非图像/视频。",
+      "llm_tldr": "离散扩散语言模型在去噪过程中丢弃的低置信度token实际上包含有用信息。本文提出SARDI，利用这些前瞻token在去噪过程中动态引导检索，实现免训练的检索增强生成。该方法与检索器无关，显著提升了文本生成质量，但聚焦于语言而非图像/视频。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.06813v1",
+      "source": "arxiv",
+      "title": "Breaking the Lock-in: Diversifying Text-to-Image Generation via Representation Modulation",
+      "abstract": "Recent text-to-image models built on large-scale Transformer backbones and flow-based objectives deliver strong text-image alignment and high visual quality, yet often produce overly similar samples under a fixed prompt. Existing diversity-enhancement methods alleviate this issue, but typically require expensive sampling or auxiliary optimization, incurring non-trivial overhead. To investigate the root cause of this homogeneity, we examine intermediate Transformer features and observe that the zero-frequency spatial average (DC) component rapidly converges across seeds early in generation, causing early trajectory lock-in that limits downstream variation. Building on this observation, we propose DC Attenuation for diVersity Enhancement (DAVE), a training-free representation-level intervention that selectively attenuates this component in the early regime. DAVE preserves the sampling pipeline with negligible overhead, improving prompt-consistent diversity while maintaining competitive image quality.",
+      "authors": [
+        "Dahee Kwon",
+        "Haeun Lee",
+        "Jaesik Choi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-05T01:27:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.06813v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "text-to-image generation diversity method",
+      "llm_evidence_cn": "文本到图像生成多样性方法",
+      "llm_evidence": "文本到图像生成多样性方法",
+      "canonical_evidence": "文本到图像生成多样性方法",
+      "llm_tldr_en": "Proposes DC Attenuation for Diversity Enhancement (DADE) to break seed lock-in in transformer-based text-to-image generation by modulating spatial average components, achieving diverse outputs without expensive sampling.",
+      "llm_tldr_cn": "本文提出DC衰减多样性增强方法（DADE），通过调制空间平均成分打破基于Transformer的文本到图像生成中的种子锁定现象，无需昂贵的采样即可生成多样化的图像。实验表明DADE在保持图像质量的同时显著提升了生成多样性。",
+      "llm_tldr": "本文提出DC衰减多样性增强方法（DADE），通过调制空间平均成分打破基于Transformer的文本到图像生成中的种子锁定现象，无需昂贵的采样即可生成多样化的图像。实验表明DADE在保持图像质量的同时显著提升了生成多样性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
