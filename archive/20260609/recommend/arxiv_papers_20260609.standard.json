@@ -1,0 +1,173 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-09T21:45:56.991573+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.07835v1",
+      "source": "arxiv",
+      "title": "Mitigating the Contractivity Trap in Diffusion ODEs via Stein Stabilization",
+      "abstract": "A fundamental tension exists in the large-step inference of diffusion models via their deterministic probability flow ordinary differential equation (PF-ODE) trajectories, which we identify as the contractivity trap: efficient inference favors large step sizes, while aggressive steps and highly expressive denoisers can undermine contraction-based stability certificates for error suppression. To address this, we propose SteinDiff, a step-wise inference-time stabilization framework that employs Stein-derived corrections without requiring reference samples. Specifically, SteinDiff introduces a geometry-aware residual correction mechanism that regularizes large-step solver updates without retraining. To this end, we derive a closed-form Stein correction coefficient for step-wise solver adjustment, enabling reference-free adaptation to local data geometry. We further establish a score-controlled perturbation bound under distributional shifts and provide a complementary Stein perspective on EDM-style parameterizations. Extensive experiments demonstrate that SteinDiff mitigates severe artifacts and improves generative quality across large-step inference settings.",
+      "authors": [
+        "Shigui Li",
+        "Delu Zeng"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-05T20:54:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.07835v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free inference-time stabilization for diffusion ODEs",
+      "llm_evidence_cn": "扩散ODE的免训练推理时稳定化",
+      "llm_evidence": "扩散ODE的免训练推理时稳定化",
+      "canonical_evidence": "扩散ODE的免训练推理时稳定化",
+      "llm_tldr_en": "Proposes SteinDiff, a training-free framework using Stein-derived corrections to stabilize large-step diffusion ODE inference, addressing the contractivity trap without retraining.",
+      "llm_tldr_cn": "扩散模型在快速采样时面临收缩性陷阱，即大步长推理会破坏稳定性。本文提出SteinDiff，一种无需训练的推理时稳定化框架，通过闭式Stein校正来正则化大步长求解器更新，避免重新训练。实验表明该方法能有效提升采样质量并保持效率，为扩散模型的高效推理提供了新的训练-free优化手段。",
+      "llm_tldr": "扩散模型在快速采样时面临收缩性陷阱，即大步长推理会破坏稳定性。本文提出SteinDiff，一种无需训练的推理时稳定化框架，通过闭式Stein校正来正则化大步长求解器更新，避免重新训练。实验表明该方法能有效提升采样质量并保持效率，为扩散模型的高效推理提供了新的训练-free优化手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.06060v1",
+      "source": "arxiv",
+      "title": "ReCache: Learning Budget-Aware Caching Schedules for Diffusion Models via REINFORCE",
+      "abstract": "Modern diffusion models generate high-quality images and videos, but their iterative denoising process makes inference expensive. Feature caching accelerates sampling by reusing or predicting intermediate activations across neighboring denoising steps, exploiting the redundancy of computations along the reverse trajectory. In this work, we focus on the caching schedule: selecting which denoising steps should be fully recomputed. Existing schedules are either fixed (e.g. uniform) or chosen adaptively from per-step error heuristics; in both cases, the actual compute cost is a side-effect of hand-tuned thresholds rather than a quantity the user can specify. We propose ReCache, which inverts this: given a target budget k, it learns the recomputation schedule that maximizes generation quality, turning compute into a directly controllable input. ReCache trains via policy gradients, sidestepping backpropagation through full diffusion inference, and uses no labelled data. Generations from uncached inference serve as matching targets, paired with a reward for generation quality. ReCache is compatible with any caching mechanism, including feature reuse and feature forecasting; for each mechanism, a single trained policy adapts across computational budgets at inference time. ReCache consistently outperforms scheduling baselines: under a $\\times5.04$ FLOPs reduction on FLUX, it reduces LPIPS by 31% (from 0.456 to 0.316) compared to DiCache; on Wan 2.1 at a $\\sim \\times2.6$ speedup, it drops LPIPS by 65% (from 0.480 to 0.169) and boosts the VBench score by 7% (5.6 points, from 70.4 to 76.0) over uniform HiCache. Code is available at https://github.com/thecrazymage/ReCache.",
+      "authors": [
+        "Mishan Aliev",
+        "Eva Neudachina",
+        "Ilya Bykov",
+        "Aleksandr Oganov",
+        "Kirill Struminsky",
+        "Aibek Alanov",
+        "Denis Rakitin"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-04T11:59:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.06060v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "optimization method for diffusion models using caching schedules",
+      "llm_evidence_cn": "扩散模型缓存调度优化方法",
+      "llm_evidence": "扩散模型缓存调度优化方法",
+      "canonical_evidence": "扩散模型缓存调度优化方法",
+      "llm_tldr_en": "ReCache learns a budget-aware caching schedule for diffusion models, reducing compute cost, but requires training (REINFORCE), not fully training-free.",
+      "llm_tldr_cn": "扩散模型迭代去噪过程计算昂贵。现有缓存调度依赖固定规则或启发式，无法指定计算预算。本文提出ReCache，利用REINFORCE学习给定预算下的缓存调度策略。但该方法需要训练，不属于严格免训练优化。对图像/视频生成推理加速有启发，但非免训练方法。",
+      "llm_tldr": "扩散模型迭代去噪过程计算昂贵。现有缓存调度依赖固定规则或启发式，无法指定计算预算。本文提出ReCache，利用REINFORCE学习给定预算下的缓存调度策略。但该方法需要训练，不属于严格免训练优化。对图像/视频生成推理加速有启发，但非免训练方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.02090v1",
+      "source": "arxiv",
+      "title": "FocusDiT: Masking Queries in Diffusion Transformers for Fine-grained Image Generation",
+      "abstract": "Diffusion transformer (DiT) has been widely adopted in the generative diffusion field, advancing the denoising of query tokens through attention and Feed-Forward (\\text{FFN}) layers. FFN actually acts as the key-value vocabulary for decoding visual contents where the value embeds the visual semantical knowledge. We present that focusing on critical query tokens corresponding to more complex details and encouraging the model to improve these tokens is essential for fine-grained visual generation. To this end, we propose FocusDiT, which applies a Masking scheme to focus on critical query tokens that are exclusively fed into FFN. The masked queries can retrieve visual tokens from the FFN vocabularies, and use them to decode their visual details. Extensive text-to-image experiments validate the effectiveness of token masking in enhancing generative performance.",
+      "authors": [
+        "Xueji Fang",
+        "Liyuan Ma",
+        "Jianhao Zeng",
+        "Jinjin Cao",
+        "Mingyuan Zhou",
+        "Guo-Jun Qi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-01T11:18:11+00:00",
+      "link": "https://arxiv.org/pdf/2606.02090v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion transformer for fine-grained image generation",
+      "llm_evidence_cn": "扩散变压器用于细粒度图像生成",
+      "llm_evidence": "扩散变压器用于细粒度图像生成",
+      "canonical_evidence": "扩散变压器用于细粒度图像生成",
+      "llm_tldr_en": "FocusDiT applies a masking scheme to focus on critical query tokens in Diffusion Transformers for fine-grained visual generation.",
+      "llm_tldr_cn": "扩散变压器（DiT）中的前馈层扮演着解码视觉内容的词库角色。本文提出FocusDiT，通过掩码机制仅将关键查询令牌输入前馈层，使其专注于复杂细节的生成。该方法在保持效率的同时提升了细粒度视觉生成质量。",
+      "llm_tldr": "扩散变压器（DiT）中的前馈层扮演着解码视觉内容的词库角色。本文提出FocusDiT，通过掩码机制仅将关键查询令牌输入前馈层，使其专注于复杂细节的生成。该方法在保持效率的同时提升了细粒度视觉生成质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.06120v1",
+      "source": "arxiv",
+      "title": "Diff-CA: Separating Common and Salient Factors with Diffusion Models",
+      "abstract": "Contrastive Analysis aims to separate factors that are common between two data distributions from those that are salient to only one of them. Existing contrastive methods are based on generative models (e.g., VAEs or GANs) that often suffer from limited reconstruction and image quality, which hampers effective latent factor separation and limits their applicability to high-fidelity image generation and edition. We propose a novel conditioning framework for diffusion models that enables contrastive decomposition without compromising generation quality. We first train a prompt-free, image-conditioned diffusion model, and then learn to decompose the conditioning into a common and a salient factor, using weak supervision. We prove that the additive contrastive factorization, commonly assumed in prior work, is identifiable under mild conditions. This factorization enables targeted operations by swapping or interpolating only the salient factor.",
+      "authors": [
+        "Michaël Soumm",
+        "Alexandre Fournier Montgieux",
+        "Yunlong He",
+        "Pietro Gori",
+        "Alasdair Newson"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-04T13:07:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.06120v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion model for image generation with contrastive decomposition",
+      "llm_evidence_cn": "使用扩散模型进行图像生成和对比分解",
+      "llm_evidence": "使用扩散模型进行图像生成和对比分解",
+      "canonical_evidence": "使用扩散模型进行图像生成和对比分解",
+      "llm_tldr_en": "Diff-CA proposes a conditioning framework for diffusion models to separate common and salient factors for contrastive analysis without compromising generation quality.",
+      "llm_tldr_cn": "对比分析旨在分离两个数据分布之间的共同因素和特有因素。现有方法基于VAE或GAN，生成质量有限。本文提出一种扩散模型的条件框架，先训练无提示的图像条件扩散模型，再通过弱监督学习将条件分解为共同和特有因素，在不牺牲生成质量的前提下实现对比分解。",
+      "llm_tldr": "对比分析旨在分离两个数据分布之间的共同因素和特有因素。现有方法基于VAE或GAN，生成质量有限。本文提出一种扩散模型的条件框架，先训练无提示的图像条件扩散模型，再通过弱监督学习将条件分解为共同和特有因素，在不牺牲生成质量的前提下实现对比分解。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
