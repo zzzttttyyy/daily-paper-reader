@@ -1,0 +1,7551 @@
+Title: Higher-order Diffusion Sampling via Chebyshev Interpolation and Gauss–Seidel Iterations
+
+URL Source: https://arxiv.org/pdf/2606.10353v1
+
+Published Time: Wed, 10 Jun 2026 00:28:44 GMT
+
+Number of Pages: 39
+
+Markdown Content:
+# HIGHER -ORDER DIFFUSION SAMPLING VIA CHEBYSHEV 
+
+# INTERPOLATION AND GAUSS –S EIDEL ITERATIONS 
+
+Bingyuan Wei ∗ Meng Huang †
+
+ABSTRACT 
+
+Higher-order ODE solvers have shown strong empirical promise for accelerating diffusion models through the probability flow ODE, but rigorous non-asymptotic guarantees for such acceleration remain limited. In this paper, we develop a Chebyshev–Gauss–Seidel higher-order sampler and establish a non-asymptotic convergence guarantee that allows the approximation order to grow logarithmically with the number of outer iterations. In the exact-score setting, up to logarithmic factors, the proposed sampler requires at most 
+
+d1+ oT (1) ε−1/K 1
+
+score functions to approximate the target distribution on Rd within total variation distance ε, where 
+
+oT (1) → 0 as T → ∞ and K1 > 0 is a sufficiently large constant. The analysis assumes only a polynomial second-moment bound on the target distribution, thereby relaxing the bounded-support condition imposed in existing higher-order theory. Moreover, the guarantee is robust to score and Jacobian estimation errors and does not require higher-order smoothness assumptions on the score estimates. Numerical experiments on anisotropic Gaussian mixture benchmarks support the predicted improvement in the accuracy–cost tradeoff under finite score-evaluation budgets. 
+
+Keywords diffusion models, probability flow ODE, higher-order sampler, Chebyshev–Lobatto interpolation 
+
+1 Introduction 
+
+1.1 Diffusion models 
+
+Diffusion models have emerged as a central paradigm in modern generative modeling, achieving strong empirical performance across image synthesis, text generation, audio generation, and related tasks [ 1, 2 , 3, 4, 5 , 6, 7, 8 ]. Two of the most influential diffusion frameworks are denoising diffusion probabilistic models (DDPM) [ 3] and denoising diffusion implicit models (DDIM) [ 4]. These methods generate high-quality samples by approximately reversing a progressive noising process. In contrast to alternative generative paradigms, such as generative adversarial networks (GANs) [ 9], variational autoencoders (VAEs) [ 10 ], and normalizing flows [ 11 ], which typically permit sample generation in a single forward pass or with substantially fewer iterative steps, diffusion samplers require a sequence of reverse-time updates, each of which generally involves evaluating a pretrained neural network for denoising or score estimation. More specifically, a diffusion model is built on two stochastic processes in Rd. The first is a forward process 
+
+X0
+
+> add noise
+
+−−−−−→ X1
+
+> add noise
+
+−−−−−→ · · · add noise 
+
+−−−−−→ XT ,
+
+which begins with a sample drawn from the target data distribution and gradually transforms it into a noise-like distribution according to a prescribed variance schedule {βt}Tt=1 ; see, e.g., [ 3 , 5 ]. When T is sufficiently large, the distribution of XT is typically close to a standard Gaussian distribution. The goal of diffusion generative modeling is then to construct a reverse process 
+
+YT
+
+> denoise
+
+−−−−→ YT −1
+
+> denoise
+
+−−−−→ · · · denoise 
+
+−−−−→ Y0,
+
+> ∗
+
+Computational Mathematics, Beihang University, Beijing, China. Email: BingyuanWei@buaa.edu.cn 
+
+> †
+
+School of Mathematical Sciences, Beihang University, Beijing, 100191, China. Email: menghuang@buaa.edu.cn 
+
+> arXiv:2606.10353v1 [math.NA] 9 Jun 2026
+
+which starts from pure noise and progressively recovers a sample whose distribution is close to that of the target data, ideally so that 
+
+Ytd
+
+≈ Xt, t = T, . . . , 0.
+
+The reverse-time dynamics are determined by the score functions of the forward marginals, thereby linking diffusion sampling to score-based generative modeling and reverse-time diffusion theory [ 2 , 12 , 13 , 14 , 15 ]. Within this framework, DDPM is commonly viewed as a discretization of the reverse-time stochastic dynamics [ 3 ], whereas DDIM is closely connected to the deterministic probability flow ODE [ 4, 5]. Both formulations require repeated evaluation of pretrained score or denoising networks during sampling. Consequently, even after training, generation can remain computationally expensive, making it a central goal of accelerated diffusion sampling to reduce the number of score function evaluations while maintaining sampling accuracy. 
+
+1.2 Training-free acceleration and the higher-order theory gap 
+
+Training-free acceleration has become a central approach to fast diffusion sampling. Rather than introducing an additional distillation or consistency-training stage, it keeps the pretrained score estimates fixed and improves the accuracy–cost tradeoff through more effective discretizations of the reverse-time dynamics. For probability flow ODE samplers, this naturally leads to higher-order ODE discretizations. Methods such as DPM-Solver [ 16 ], DEIS [ 17 ], UniPC [ 18 ], and DPM-Solver++ for guided sampling [ 19 ] have demonstrated substantial empirical speedups while maintaining high sample quality; see also classifier-free guidance [ 20 ]. These empirical successes make higher-order probability flow ODE sampling a compelling target for rigorous non-asymptotic analysis. The theoretical understanding of such acceleration, however, remains relatively limited. For SDE-based diffusion sampling, polynomial-time guarantees under weak assumptions were first established in [ 21 , 22 , 23 , 24 ]. For determin-istic samplers based on the probability flow ODE, [ 25 ] gave the first provable convergence guarantee, and [ 26 ] later established a sharp first-order benchmark. Since the present work focuses on training-free higher-order acceleration, we summarize in Table 1 the deterministic probability flow ODE guarantees most relevant to our setting, with all displayed iteration complexities suppressing logarithmic factors. In particular, Runge–Kutta analyses [ 27 ] improve the dependence on ε, but require compact support and higher-order smoothness assumptions. Meanwhile, [ 28 ] proves acceleration under comparatively weak distributional and score-estimation assumptions, but still treats the approximation order K as a constant and assumes bounded support of the target distribution. This suggests that the current complexity theory for higher-order probability flow ODE sampling remains improvable under weak assumptions, which is precisely the motivation for this paper. Table 1: Comparison of deterministic probability flow ODE sampling guarantees in total variation. Here sτ and ∇sτ
+
+denote the estimated score function and its Jacobian, while s⋆τ and ∇s⋆τ denote their exact counterparts, D represents the radius of the data support and L bounds certain higher-order derivatives of the score estimates.                                                                  
+
+> paper target assumption score / regularity assumption iteration complexity higher-order solver [26] P(∥X0∥2≤TcR) = 1 sτ≈s⋆τ,∇sτ≈ ∇ s⋆τmax {d2, d/ε }×
+> [27] P(∥X0∥2≤D) = 1 sτ≈s⋆τ,sτ∈Cp+1 (LDd )1+1 /p ε−1/p ✓p-th order [28] P(∥X0∥2≤TcR) = 1 sτ≈s⋆τ,∇sτ≈ ∇ s⋆τmax {d2, d 1+2 /K ε−1/K }✓K-th order(fixed K)this work E∥X0∥22≤T2cRsτ≈s⋆τ,∇sτ≈ ∇ s⋆τd1+ oT(1) ε−1/K 1✓K-th order( K≍log T)
+
+1.3 Main contributions 
+
+As noted above, existing complexity guarantees for higher-order probability flow ODE sampling rely on two key restrictions: the interpolation order K on each reverse-time interval is treated as a fixed constant, and the target distribution is assumed to satisfy the bounded-support condition P(∥X0∥2 ≤ T cR ) = 1 . Under these assumptions, the iteration complexity required to achieve ε-accuracy in total variation scales as d1+2 /K ε−1/K . In this paper, we show that this complexity can be further improved under the substantially weaker moment condition E∥X0∥22 ≤ T 2cR . Specifically, by developing a Chebyshev–Gauss–Seidel higher-order sampler within the probability flow ODE framework of [ 28 ], we obtain the improved complexity bound d1+ oT (1) ε−1/K 1 , where K1 is a sufficiently large constant. Our approach has two main ingredients. First, we replace the equi-spaced nodes used in [ 28 ] with Chebyshev–Lobatto nodes, which allow the interpolation order K to grow as log T while preserving control of error propagation. Second, we replace the Jacobi iteration in [ 28 ] with a Gauss–Seidel-type refinement scheme to approximate the probability flow 2ODE solution more effectively. As a result, the number of score function evaluations required to achieve a prescribed total variation accuracy is reduced to 
+
+d1+ oT (1) ε−1/K 1 ,
+
+up to logarithmic factors, where oT (1) → 0 as T → ∞ .In addition, our theory is robust to inexact score estimation: it requires only score and Jacobian accuracy along the iterates and does not impose higher-order smoothness assumptions on the learned score. Finally, numerical experiments on anisotropic Gaussian mixture benchmarks support the predicted improvement in the accuracy–cost tradeoff. 
+
+1.4 Other related work 
+
+Beyond the probability flow ODE literature discussed above, non-asymptotic convergence theory for score-based diffusion sampling has been developed for DDPM-type samplers and reverse-SDE methods under increasingly general assumptions on the data distribution and score estimation error. These works establish guarantees in total variation, Kullback–Leibler divergence, and Wasserstein distance [22, 23, 21, 29, 24, 30, 31, 32]. For probability flow ODE samplers, recent studies have established polynomial-time convergence with a corrector step, nearly dimension-linear convergence for discrete-time implementations, prediction–correction guarantees, Wasserstein convergence, and adaptation to intrinsic low-dimensional structure [ 25 , 26 , 33 , 34 , 35 , 36 ]. Provable acceleration has further been investigated through training-free accelerated DDIM/DDPM samplers, higher-order Runge–Kutta discretizations of the probability flow ODE, higher-order Lagrange interpolation with successive refinement, operator-splitting samplers, and first-order forward-value evaluation [ 37 , 27 , 28 , 38 , 39 ]. Recent work has also established high-accuracy diffusion sampling guarantees with polylogarithmic dependence on the inverse accuracy under a variety of algorithmic and structural assumptions [40, 41]. 
+
+1.5 Notations 
+
+Throughout this paper, we write f = O(g) or f ≲ g if |f | ≤ C|g| for some universal constant C > 0. We write f ≍ g
+
+if both f ≲ g and g ≲ f hold. The notation eO(·) suppresses logarithmic factors in the relevant parameters, and oT (1) 
+
+denotes a quantity that tends to zero as T → ∞ . For any two probability measures P and Q, their total variation distance is defined by TV( P, Q ) := 12
+
+R |dP − dQ|. In addition, pX (·) and pX|Y (· | · ) denote the probability density functions of X and of X conditional on Y , respectively. For any matrix A, we use ∥A∥ and ∥A∥F to denote its spectral norm and Frobenius norm, respectively. Finally, for any vector-valued function f , we let ∂f ∂x denote the Jacobian matrix of f .
+
+1.6 Organization 
+
+The remainder of this paper is organized as follows. Section 2 presents the preliminaries on diffusion models and the probability flow ODE, and Section 3 introduces the proposed Chebyshev–Gauss–Seidel higher-order sampler. Section 4 states the main result, and Section 5 contains its proof. Section 6 reports the numerical experiments, while Section 7 concludes the paper with further discussion. The appendix collects the auxiliary lemmas used in the analysis, as well as the detailed proofs of the lemmas used in Section 5. 
+
+2 Preliminaries 
+
+In this section, we review the basic framework of diffusion generative models based on (Stein) score functions. The goal of a generative model is to produce samples whose distribution is close to an unknown target distribution pdata on 
+
+Rd, given access to data drawn from pdata . A diffusion generative model typically involves two stochastic processes: a forward process and a reverse process, which we describe below. 
+
+Forward process. Starting from an initial sample X0 drawn from the target distribution pdata on Rd, the forward process is defined by 
+
+Xt = √αt Xt−1 + √1 − αt Wt, t = 1 , . . . , T, (1) where 0 < α t < 1 are prescribed noise-scheduling parameters, and {Wt}Tt=1 is a sequence of independent standard Gaussian random vectors in Rd, that is, 
+
+Wt
+
+> i.i.d.
+
+∼ N (0 , I d).
+
+3Define 
+
+¯αt := 
+
+> t
+
+Y
+
+> k=1
+
+αk, t = 1 , . . . , T. (2) Then, for each t = 1 , . . . , T , it is straightforward to verify that 
+
+Xt = √¯αt X0 + √1 − ¯αt ¯Wt, where ¯Wt ∼ N (0 , I d). (3) In particular, when ¯αT is sufficiently small, the distribution of XT is close to N (0 , I d) for a broad class of data distributions: 
+
+Law( XT ) ≈ N (0 , I d). (4) Diffusion models are closely connected to the framework of stochastic differential equations (SDEs), and it is therefore useful to introduce a continuous-time version ( ¯Xτ )τ ∈[0 ,1] of the forward diffusion process. Specifically, consider the SDE 
+
+d ¯Xτ = − 12(1 − τ ) ¯Xτ dτ + 1
+
+√1 − τ dBτ , ¯X0 ∼ pdata , 0 ≤ τ < 1, (5) where Bτ is a standard Brownian motion in Rd. One can verify that the solution to this SDE satisfies 
+
+¯Xτ = √1 − τ X 0 + √τ Z, X0 ∼ pdata , Z ∼ N (0 , I d), (6) where X0 and Z are independent. In particular, 
+
+¯X1− ¯αt
+
+> d
+
+= Xt, t = 1 , . . . , T. (7) 
+
+Reverse process. A central goal of diffusion models is to construct a time-reversed process whose marginal distri-butions coincide with, or closely approximate, those of the forward process. More precisely, we seek a reverse-time process 
+
+YT → YT −1 → · · · → Y1
+
+such that 
+
+Yt
+
+> d
+
+≈ Xt, t = 1 , . . . , T. 
+
+Using the relation between Xt and ¯Xτ in (7) , we can design a discrete reverse-time process {Yt}Tt=1 through the time-reversal of the continuous-time process ¯Xτ . Specifically, for the forward process (5) , classical results on reverse-time SDEs [ 5] show that the corresponding probability flow ODE is given as follows: for any τ0 ∈ (0 , 1) , the process 
+
+{Y ode  
+
+> τ
+
+}τ ∈[0 ,τ 0) satisfies 
+
+dY ode  
+
+> τ
+
+= − 12(1 − τ )
+
+ Y ode  
+
+> τ
+
++ ∇ log p ¯Xτ
+
+ Y ode 
+
+> τ
+
+ dτ, Y ode  
+
+> τ0
+
+∼ ¯Xτ0 , 0 ≤ τ < τ 0,
+
+or equivalently, 
+
+d
+
+ Y ode 
+
+> τ
+
+√1 − τ
+
+
+
+= − 12(1 − τ )3/2 ∇ log p ¯Xτ
+
+ Y ode 
+
+> τ
+
+ dτ, Y ode  
+
+> τ0
+
+∼ ¯Xτ0 , 0 ≤ τ < τ 0, (8) and has the same marginal distributions as { ¯Xτ }τ ∈[0 ,τ 0).Importantly, the reverse process depends only on the gradient of the log-density ∇ log p ¯Xτ , known as the score function 
+
+of p ¯Xτ . For the continuous-time forward process { ¯Xτ }τ ∈[0 ,1] , the exact score function at time τ ∈ (0 , 1] is defined by 
+
+s⋆τ (x) := ∇ log p ¯Xτ (x), x ∈ Rd. (9) If these score functions were available, one could initialize YT ∼ N (0 , I d) in view of (4) , and then generate samples by numerically solving the probability flow ODE (8) . In practice, however, the true score functions are unknown and must be learned from data, typically using neural networks trained on samples from the target distribution [ 3, 4 ]. Consequently, the practical reverse process YT → YT −1 → · · · → Y1 is obtained by approximately solving (8) using estimated score functions, giving rise to a broad class of diffusion sampling algorithms [25, 42, 26, 28]. 43 Gauss–Seidel Refinement with Higher-Order Diffusion Sampling 
+
+In this section, we present the main ideas and the detailed procedure of our proposed algorithm. At a high level, the method is a Gauss–Seidel-type higher-order iterative scheme for approximately solving the ODE (8) . To motivate the construction, recall that Xt
+
+> d
+
+= ¯X1− ¯αt . According to the probability flow ODE (8) , the ideal reverse update from Yt
+
+to Yt−1 is given by Yt−1 = Y ode 1− ¯αt−1 , where Y ode  
+
+> τ
+
+denotes the solution to (8) with terminal condition Y ode 1− ¯αt = Yt. In particular, we have 
+
+Yt−1
+
+√¯αt−1
+
+= Yt
+
+√¯αt
+
+−
+
+Z 1− ¯αt−1 
+
+> 1−¯αt
+
+12(1 − τ )3/2 s⋆τ
+
+ Y ode 
+
+> τ
+
+ dτ. (10) Directly implementing this update is, however, computationally prohibitive, since the integral depends on a continuum of score evaluations, whereas in practice we only have access to a finite collection of estimated score functions. To address this issue, on each interval 1 − ¯αt, 1 − ¯αt−1
+
+ we approximate s⋆τ
+
+ Y ode 
+
+> τ
+
+ by polynomial interpolation. In this paper, we employ a higher-order approximation based on K score evaluations at Chebyshev–Lobatto nodes, where 
+
+K ≥ 2. Specifically, for the interval 1 − ¯αt, 1 − ¯αt−1
+
+, define 
+
+τt, 0 = 1 − ¯αt, τt,K −1 = 1 − ¯αt−1, (11) and choose the Chebyshev–Lobatto nodes by 
+
+τt,j = τt, 0 + τt,K −1
+
+2 + τt, 0 − τt,K −1
+
+2 cos 
+
+ jπ K − 1
+
+
+
+, 0 ≤ j ≤ K − 1. (12) Then 
+
+τt,K −1 < τ t,K −2 < · · · < τ t, 0.
+
+Given the collection of points 
+
+
+
+τt,j , (1 − τt,j )−3/2s⋆τt,j 
+
+ Y ode 
+
+> τt,j
+
+
+
+, 0 ≤ j ≤ K − 1,
+
+we approximate (1 − τ )−3/2s⋆τ
+
+ Y ode 
+
+> τ
+
+ by the degree-(K − 1) Lagrange interpolating polynomial through these K
+
+points, namely, 
+
+1(1 − τ )3/2 s⋆τ
+
+ Y ode 
+
+> τ
+
+ ≈
+
+> K−1
+
+X
+
+> j=0
+
+ψt,j (τ )
+
+s⋆τt,j 
+
+
+
+Y ode 
+
+> τt,j
+
+
+
+(1 − τt,j )3/2 , ∀τ ∈ [τt,K −1, τ t, 0], (13) where ψt,j (τ ) are the Lagrange basis polynomials defined by 
+
+ψt,j (τ ) := 
+
+Q  
+
+> j′̸=j
+
+(τ − τt,j ′ )
+
+Q  
+
+> j′̸=j
+
+(τt,j − τt,j ′ ) , 0 ≤ j ≤ K − 1. (14) A closer inspection shows that the approximation in (13) still cannot be used directly, because the values {Y ode  
+
+> τt,j
+
+}K−1
+
+> j=0
+
+are generally unavailable. To overcome this difficulty, we propose a Gauss–Seidel refinement procedure that alter-nates between estimating {Y ode  
+
+> τt,j
+
+}K−1 
+
+> j=0
+
+and approximating (1 − τ )−3/2s⋆τ
+
+ Y ode 
+
+> τ
+
+. More precisely, starting from an initial sequence {x(0)  
+
+> τt,j
+
+}K−1 
+
+> j=0
+
+as an approximation to {Y ode  
+
+> τt,j
+
+}K−1 
+
+> j=0
+
+, the Gauss–Seidel scheme updates this estimate to 
+
+{x(n+1)  
+
+> τt,j
+
+}K−1 
+
+> j=0
+
+at iteration n = 0 , 1, . . . , N − 1 as follows: for each j = 1 , . . . , K − 1,
+
+x(n+1) 
+
+> τt,j
+
+p1 − τt,j 
+
+= x(0) 
+
+> τt, 0
+
+p1 − τt, 0
+
++
+
+> j−1
+
+X
+
+> k=0
+
+γt,k (τt,j )2(1 − τt,k )3/2 sτt,k 
+
+
+
+x(n+1) 
+
+> τt,k
+
+
+
++
+
+> K−1
+
+X
+
+> k=j
+
+γt,k (τt,j )2(1 − τt,k )3/2 sτt,k 
+
+
+
+x(n)
+
+> τt,k
+
+
+
+, (15) where x(n) 
+
+> τt, 0
+
+= x(0)  
+
+> τt, 0
+
+for all n = 1 , . . . , N , sτt,k is the estimated score functions, and 
+
+γt,k (τt,j ) := 
+
+Z τt, 0
+
+> τt,j
+
+ψt,k (τ ) d τ. (16) We now summarize our higher-order method for diffusion models; the detailed procedure is given in Algorithm 1. (i) Initialization. Sample YT ∼ N (0 , I d), and set x(0)  
+
+> τT ,j
+
+:= YT for all j = 0 , . . . , K − 1, where τT,j are defined in (12). 5(ii) Iterative update rule. For t = T, T − 1, . . . , 2, compute {x(n+1)  
+
+> τt,j
+
+}K−1 
+
+> j=0
+
+according to the update rule (15) for 
+
+n = 0 , 1, . . . , N − 1. After N iterations at step t, set Yt−1 := x(N ) 
+
+> τt,K −1
+
+and initialize the next step by setting 
+
+x(0)  
+
+> τt−1,j
+
+:= Yt−1 for all j = 0 , . . . , K − 1.
+
+Algorithm 1 Gauss–Seidel Refinement with Higher-Order Diffusion Sampling 
+
+Require: T, K, N , interpolation nodes {τt,i }, coefficients {γt,j (τt,i )}, score estimator sτ (·)
+
+Ensure: Y1 
+
+> 1:
+
+Sample YT ∼ N (0 , I d) 
+
+> 2:
+
+for t = T, T − 1, . . . , 2 do  
+
+> 3:
+
+Set x(0)  
+
+> τt,j
+
+← Yt for all j = 0 , . . . , K − 1 
+
+> 4:
+
+for n = 0 , . . . , N − 1 do  
+
+> 5:
+
+Compute x(n+1)  
+
+> τt,j
+
+via (15) sequentially for j = 1 , . . . , K − 1 
+
+> 6:
+
+end for  
+
+> 7:
+
+Set Yt−1 ← x(N ) 
+
+> τt,K −1
+> 8:
+
+end for  
+
+> 9:
+
+return Y1
+
+Algorithm 1 shows that, once the initial value YT is sampled, all intermediate iterates {x(n) 
+
+> τt,i
+
+} are fully determined by the prescribed update rule together with the available score estimator. The total number of score function evaluations is O(T K (N + 1)) . Since, as shown later, K ≤ c log T and N = ⌈C3K log T ⌉, it follows that the overall number of score function evaluations is eO(T ).
+
+4 Main Results 
+
+In this section, we establish convergence guarantees for Algorithm 1. Throughout, let qt := distribution ( Xt)
+
+denote the target distribution at time t, where Xt is the forward process initialized from the data distribution, and let 
+
+pt := distribution ( Yt) denote the distribution at time t generated by our algorithm. We begin by introducing several assumptions on the learning-rate schedule, the target distribution, and the estimated score functions. 
+
+4.1 Assumptions 
+
+For the forward process given in (1), the learning rates {αt}Tt=1 are chosen as follows: 
+
+β1 = 1 − α1 = T −c0 , (17) and for t ≥ 2,
+
+βt = 1 − αt = c1 log TT min 
+
+(
+
+β1
+
+
+
+1 + c1 log TT
+
+t
+
+, 1
+
+)
+
+, (18) where c0, c 1 > 0 are sufficiently large numerical constants. This choice of learning-rate schedule is standard in recent diffusion theory; see, for example, [ 24 , 43 , 28 , 44 ]. Next, we impose a mild assumption on the target distribution pdata .
+
+Assumption 1 (Target data distribution) . The target distribution pdata has a bounded second moment, namely, 
+
+EX0∼pdata 
+
+∥X0∥22
+
+ ≤ T 2cR
+
+for some sufficiently large constant cR > 0.
+
+Remark 1. Assumption 1 requires only that the second moment of the target distribution grow at most polynomially with the iteration number T . Since T itself typically scales polynomially with the dimension d, this condition allows the second moment to remain fairly large. In contrast, the closely related work [ 28 ] assumes the bounded-support condition 
+
+P ∥X0∥2 ≤ T cR  = 1 ,
+
+which is strictly stronger than Assumption 1. Furthermore, our assumption is more consistent with standard conditions in sampling theory and more plausible for empirical data encountered in practice. 
+
+As described in Section 3, the true score function appearing in the integral is approximated by a finite collection of estimated score functions. Accordingly, the convergence behavior of our proposed algorithm is intrinsically tied to the accuracy of these score estimates. 6Assumption 2 (Score accuracy) . Assume that the score estimates satisfy 
+
+1
+
+T (N + 1) K
+
+> T
+
+X
+
+> t=1
+
+EYt∼qt
+
+ε2score ,t (Yt) ≤ ε2score ,
+
+where 
+
+ε2score ,t (Yt) := 
+
+> K−1
+
+X
+
+> i=0
+> N
+
+X
+
+> n=0
+
+sτt,i 
+
+
+
+x(n)
+
+> τt,i
+
+
+
+− s⋆τt,i 
+
+
+
+x(n)
+
+> τt,i
+
+ 22
+
+and x(n) 
+
+> τt,i
+
+are the points generated by (15) , with x(n) 
+
+> τt, 0
+
+= Yt for all n = 0 , 1, . . . , N .
+
+For ODE-based samplers, an ℓ2 bound on the score estimation error alone is generally insufficient for convergence analysis. We therefore impose an additional assumption on the Jacobian estimation error. 
+
+Assumption 3 (Jacobian accuracy) . Assume that, for all 1 ≤ t ≤ T and 0 ≤ i ≤ K − 1, each score function sτt,i (·) is continuously differentiable. Moreover, assume that 
+
+1
+
+T (N + 1) K
+
+> T
+
+X
+
+> t=1
+
+EYt∼qt
+
+ε2Jacobi ,t (Yt) ≤ ε2Jacobi ,
+
+where 
+
+ε2Jacobi ,t (Yt) := 
+
+> K−1
+
+X
+
+> i=0
+> N
+
+X
+
+> n=0
+
+∂s τt,i 
+
+
+
+x(n)
+
+> τt,i
+
+
+
+∂x −
+
+∂s ⋆τt,i 
+
+
+
+x(n)
+
+> τt,i
+
+
+
+∂x 
+
+> 2
+
+and x(n) 
+
+> τt,i
+
+denotes the sequence of points generated by (15) , with x(n) 
+
+> τt, 0
+
+= Yt for every n = 0 , 1, . . . , N .
+
+4.2 Convergence guarantees 
+
+We now state the main convergence result for Algorithm 1. 
+
+Theorem 1. Suppose that Assumptions 1, 2, 3 hold. Then there exist sufficiently large constants C2, C 3, K 1, M 0 > 1
+
+and a sufficiently small constant c > 0 such that, whenever 
+
+T ≥ C2d log 4 T, N = ⌈C3K log T ⌉, 2 ≤ K ≤ c log T, 
+
+the output of Algorithm 1 satisfies 
+
+TV( q1, p 1) ≲ d2K log 2 T
+
+ M0Kd log 2 TT
+
+K
+
++ d log 5/2 T plog K ε Jacobi + d3/2 log 7/2 T log K ε score + T −K1 .
+
+Remark 2. Theorem 1 shows that the total variation error consists of four components: the discretization error arising from the higher-order approximation of the continuous reverse process, the Jacobian estimation error, the score estimation error, and the initialization error. We next compare our result with the most closely related existing work. 1. Iteration complexity. Given the Jacobian estimation error εJacobi and the score estimation error εscore ,for any target accuracy ε ≥ d log 5/2 T √log K ε Jacobi + d3/2 log 7/2 T log K ε score , Algorithm 1 achieves 
+
+TV( q1, p 1) ≲ ε within 
+
+T = eO
+
+
+
+max 
+
+n
+
+d1+2 /K ε−1/K , ε −1/K 1
+
+o 
+
+. (19) 
+
+In particular, our analysis allows K ≍ log T . In this regime, d1+2 /K = d1+ oT (1) , and ε−1/K = ε−oT (1) , so that T can be small as eO d1+ oT (1) ε−1/K 1 
+
+which significantly improves upon the best known result eO  max d2, d 1+2 /K ε−1/K  in [ 28 ], where K is treated as a fixed constant.. 2. Mild target distribution and score assumptions. Our convergence guarantee requires only a finite second-moment condition on the target distribution, and therefore applies to a broad class of data distributions. In particular, it avoids the bounded-support assumption P(∥X0∥2 ≤ T cR ) = 1 imposed in [ 28 ], as well as other restrictive assumptions such as smoothness or log-concavity. Moreover, compared to other higher-order ODE-based analyses (e.g., [ 27 ]), our framework does not require bounded higher-order derivatives or higher-order Lipschitz continuity of the score function. Instead, it relies only on first-order accuracy of the score and its Jacobian along the sampler trajectory. 
+
+7Remark 3. We note that the bounds on the Jacobian estimation error and the score estimation error in Theorem 1 are larger than those reported in [ 28 ]. This difference arises because our analysis only requires T ≳ d log 4 T , whereas [ 28 ] assumes the stronger condition T ≳ d2 log 3 T . In fact, if one imposes the stronger requirement T ≳ d2 log 4 T ,our bounds on both the Jacobian and score estimation errors match those in [28]. 
+
+5 Proof of the main result 
+
+In this section, we present the proofs of the main results. Throughout, we assume that 
+
+εscore ≲ (d3/2 log 9/2 T )−1 and εJacobi ≲ (d log 3 T )−1. (20) Otherwise, Theorem 1 follows immediately, since the total variation distance is always bounded above by 1. Recall from (4) that Law( XT ) is close to N (0 , I d), and that Algorithm 1 is initialized with YT ∼ N (0 , I d). The following lemma shows that the distributions of XT and YT are indeed close in total variation distance, with an error that can be controlled explicitly. 
+
+Lemma 1. [42, Lemma 2] Suppose that T is sufficiently large, and let K1 > 0 be any fixed constant. Then 
+
+ TV( qT , p T )2 ≤ 12 KL( qT ∥pT ) ≲ 1
+
+T 2K1 . (21) 
+
+5.1 Main steps for proving Theorem 1 
+
+Before proceeding, we introduce some notation. Fix an initial value YT ∈ Rd in Algorithm 1, and for each 1 ≤ t ≤ T ,define 
+
+xt := x(0)  
+
+> τt, 0
+
+,
+
+where x(0)  
+
+> τt, 0
+
+is generated by Algorithm 1. On each interval 1 − ¯αt, 1 − ¯αt−1
+
+, let {x⋆τ }τ ∈[τt,K −1,τ t, 0] denote the exact probability flow ODE trajectory associated with (8), with τ0 := 1 − ¯αt and initial condition Y ode  
+
+> τ0
+
+:= xt, and set 
+
+x⋆t−1 := x⋆τt,K −1 .
+
+Likewise, let Y ⋆t−1 denote the solution to (8) at τ = 1 − ¯αt−1 with τ0 := 1 − ¯αt and initial condition Y ode  
+
+> τ0
+
+:= Yt. With this notation, we now outline the proof strategy, which consists of several steps. 
+
+Step 1: controlling the density ratio. With Lemma 1 in hand, the basic idea to establish the convergence rate is to connect the density ratio pXt−1 (xt−1)  
+
+> pYt−1(xt−1)
+
+at the (t − 1) -th step with its counterpart part pXt (xt)  
+
+> pYt(xt)
+
+at the t-th step. To this end, we begin with the identity 
+
+pXt−1 (xt−1)
+
+pYt−1 (xt−1) = p√αtXt−1 (√αtxt−1)
+
+p√αtXt−1 (√αtx⋆t−1) · p√αtXt−1 (√αtx⋆t−1)
+
+pXt (xt)
+
+·
+
+" p√αtYt−1 (√αtxt−1)
+
+p√αtY ⋆t−1 (√αtx⋆t−1) · p√αtY ⋆t−1 (√αtx⋆t−1)
+
+pYt (xt)
+
+#−1
+
+· pXt (xt)
+
+pYt (xt) . (22) Since Y ⋆t−1 is obtained by transporting Yt through the exact probability-flow ODE (10) on [τt,K −1, τ t, 0], it implies 
+
+p√αtY ⋆t−1 (√αtx⋆t−1)
+
+pYt (xt) = p√αtXt−1 (√αtx⋆t−1)
+
+pXt (xt) . (23) Substituting (23) into (22) gives 
+
+pXt−1 (xt−1)
+
+pYt−1 (xt−1) = p√αtXt−1 (√αtxt−1)
+
+p√αtXt−1 (√αtx⋆t−1) · p√αtY ⋆t−1 (√αtx⋆t−1)
+
+p√αtYt−1 (√αtxt−1) · pXt (xt)
+
+pYt (xt) .
+
+It has been shown in Lemma 6 in [ 28 ] that the right hand side can be well controlled by the distance between xt−1 and 
+
+x⋆t−1 and their Jacobian matrices, as stated below. 
+
+Lemma 2 (Lemma 6 in [28]) . For each t = 2 , . . . , T , it holds 
+
+8(a) 
+
+p√αtXt−1
+
+ √αt xt−1
+
+
+
+p√αtXt−1
+
+ √αt x⋆t−1
+
+ = exp O ∥xt−1 − x⋆t−1∥22
+
+1 − ¯αt−1
+
++
+
+s
+
+d log T
+
+1 − ¯αt−1
+
+∥xt−1 − x⋆t−1∥2
+
+!! 
+
+. (24) 
+
+(b) Assume that 
+
+∥(J(N ) 
+
+> τt,K −1
+
+)−1∥ ≲ 1, (25) 
+
+then p√αtY ⋆t−1
+
+ √αt x⋆t−1
+
+
+
+p√αtYt−1
+
+ √αt xt−1
+
+ = exp 
+
+
+
+O
+
+
+
+d ∥J(N ) 
+
+> τt,K −1
+
+− J⋆τt,K −1 ∥
+
+ 
+
+. (26) 
+
+Here, J(n) 
+
+> τt,i
+
+:= ∂(x(n) 
+
+> τt,i /
+
+√1−τt,i ) 
+
+> ∂(xτt, 0/
+
+√1−τt, 0) , J ⋆τt,i := ∂(x⋆τt,i /√1−τt,i ) 
+
+> ∂(x⋆τt, 0/
+
+√1−τt, 0) and we regard x(n) 
+
+> τt,i
+
+and x⋆τt,i as functions of xτt, 0 , since the Gauss–Seidel iterates and the exact ODE trajectory are determined by the rescaled initial value xτt, 0 /p1 − τt, 0.
+
+In view of Lemma 2, we obtain 
+
+pXt−1 (xt−1)
+
+pYt−1 (xt−1) = exp O ∥xt−1 − x⋆t−1∥22
+
+1 − ¯αt−1
+
++
+
+s
+
+d log T
+
+1 − ¯αt−1
+
+∥xt−1 − x⋆t−1∥2 + d ∥J(N ) 
+
+> τt,K −1
+
+− J⋆τt,K −1 ∥
+
+!! 
+
+pXt (xt)
+
+pYt (xt) .
+
+(27) By Algorithm 1, we know xt−1 = x(0)  
+
+> τt−1,0
+
+= x(N ) 
+
+> τt,K −1
+
+. Therefore, it suffices to control 
+
+∥x(N ) 
+
+> τt,K −1
+
+− x⋆τt,K −1 ∥2 and ∥J(N ) 
+
+> τt,K −1
+
+− J⋆τt,K −1 ∥.
+
+A key observation is that, for the probability ODE flow, once YT in Algorithm 1 is fixed, all quantities x(n) 
+
+> τt,i
+
+, x⋆τt,i , and 
+
+x⋆τ are fully determined. In the initialization stage, we take YT ∼ N (0 , I d). We will show that for “typical” points 
+
+YT ∈ Rd, the above two quantities are sufficiently small. We say that a point YT ∈ Rd is typical if 
+
+YT ∈ Et := E1,t ∩ E2,t ∩ E3,t , (28) where the events E1,t , E2,t , and E3,t are defined as follows: 
+
+E1,t := 
+
+YT : d√log K log TT
+
+vuutK−1X
+
+> i=0
+> N
+
+X
+
+> n=0
+
+
+
+ε(n)Jacobi ,t,i (x(n) 
+
+> τt,i
+
+)
+
+2
+
++ d3/2 log K log 2 TT
+
+vuutK−1X
+
+> i=0
+> N
+
+X
+
+> n=0
+
+
+
+ε(n)score ,t,i (x(n) 
+
+> τt,i
+
+)
+
+2
+
+≤ c3
+
+
+
+E2,t := 
+
+n
+
+YT ∈ Rd : − log p ¯Xτt,i 
+
+
+
+λx (n) 
+
+> τt,i
+
++ (1 − λ)x⋆τt,i 
+
+
+
+≤ C4d log T, for all 0 ≤ i ≤ K − 1, 0 ≤ n ≤ N, λ ∈ [0 , 1] 
+
+o
+
+E3,t := YT ∈ Rd : − log p ¯Xτ (x⋆τ ) ≤ C4d log T, for all τ ∈ [τt,K −1, τ t, 0] .
+
+Here, C4 > 0 is a sufficiently large absolute constant, c3 > 0 is a sufficiently small constant, and we denote 
+
+ε(n)score ,t,i 
+
+ x(n)
+
+> τt,i
+
+ := sτt,i 
+
+
+
+x(n)
+
+> τt,i
+
+
+
+− s⋆τt,i 
+
+
+
+x(n)
+
+> τt,i
+
+
+
+> 2
+
+, ε(n)Jacobi ,t,i 
+
+ x(n)
+
+> τt,i
+
+ := 
+
+∂s τt,i 
+
+
+
+x(n)
+
+> τt,i
+
+
+
+∂x −
+
+∂s ⋆τt,i 
+
+
+
+x(n)
+
+> τt,i
+
+
+
+∂x . (29) The next lemma shows that under the event Et, the terms ∥xt−1 − x⋆τt,K −1 ∥2 are well controlled. 
+
+Lemma 3. For each t, on the event Et, when K ≲ log T and T ≥ C2d log 4 T for some sufficiently large constant 
+
+C2 > 0, it holds 
+
+∥x(N ) 
+
+> τt,i
+
+− x⋆τt,i ∥22 ≲ log K τ 2
+
+> t, 0
+
+log 2 TT 2
+
+> N
+
+X
+
+> n=0
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(n)score ,t,j (x(n) 
+
+> τt,j
+
+)
+
+2
+
++ dτ t, 0 log 3 TT 2
+
+ M0Kd log 2 TT
+
+2K
+
+for all 0 ≤ i ≤ K − 1 and where M0 > 1 is a large enough constant. Proof. See Section B.1. Similarly, under the event Et, the terms ∥J(N ) 
+
+> τt,i
+
+− J⋆τt,i ∥2 are well controlled. 9Lemma 4. For each t, on the event Et, when K ≲ log T and T ≥ C2d log 4 T for some sufficiently large constant 
+
+C2 > 0, the Jacobian satisfies 
+
+(J(N ) 
+
+> τt,K −1
+
+)−1 ≲ 1 (30) 
+
+and 
+
+∥J(N ) 
+
+> τt,i
+
+− J⋆τt,i ∥2 ≲ K log 2 K d3 log 7 TT 4
+
+> N
+
+X
+
+> n=0
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(n)score ,t,j (x(n) 
+
+> τt,j
+
+)
+
+2
+
++ log Kτ 2
+
+> t, 0
+
+log 2 TT 2
+
+> N
+
+X
+
+> n=0
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(n)Jacobi ,t,j (x(n) 
+
+> τt,j
+
+)
+
+2
+
++
+
+ M0Kd log 2 TT
+
+2K+2 
+
+(31) 
+
+for all 0 ≤ i ≤ K − 1 and where M0 > 1 is a large enough constant. Proof. See Section B.1. Putting Lemma 3 and Lemma 4 into (27), we obtain that on the Event Et, it holds 
+
+pXt−1 (xt−1)
+
+pYt−1 (xt−1) = exp O eξt(xt) + d
+
+ M0Kd log 2 TT
+
+K+1 !! 
+
+pXt (xt)
+
+pYt (xt) , (32) provided that T ≳ d log 4 T , where 
+
+eξt(xt) := d√log K log TT
+
+vuutK−1X
+
+> i=0
+> N
+
+X
+
+> n=0
+
+
+
+ε(n)Jacobi ,t,i (x(n) 
+
+> τt,i
+
+)
+
+2
+
++ d3/2 log K log 2 TT
+
+vuutK−1X
+
+> i=0
+> N
+
+X
+
+> n=0
+
+
+
+ε(n)score ,t,i (x(n) 
+
+> τt,i
+
+)
+
+2
+
+. (33) 
+
+Step 2: decomposing the total variation distance. Define 
+
+E := x ∈ Rd : q1(x) > max p1(x), exp( −c6d log T ) . (34) Informally, the set E collects those typical points x ∈ Rd at which q1(x) is not exponentially small. The next lemma shows that the total variation distance between q1 and p1 is primarily controlled by their discrepancy on E.
+
+Lemma 5. Assume that Assumption 1 holds. Then, for any fixed constant K1 > 0, if c6 in (34) is chosen sufficiently large, it holds that 
+
+TV( q1, p 1) ≤ EY1∼p1
+
+ q1(Y1)
+
+p1(Y1) − 1
+
+
+
+1{Y1 ∈ E} 
+
+
+
++ CT −2K1 + exp( −c2d log T ),
+
+where C > 0 is an absolute constant and c2 > 0 is a constant depending on c6, cR.Proof. The proof is deferred to Appendix B.3. Define 
+
+eSt(YT ) := 
+
+> t
+
+X
+
+> k=2
+
+eξk(xk), t ≥ 2, eS1(YT ) := 0 , (35) where {xk} are generated by Algorithm 1 with initial sample YT , and eξk(xk) is defined in (33). Next, define 
+
+I1 := 
+
+n
+
+YT ∈ Rd : eST (YT ) ≤ c3
+
+o
+
+, (36) where c3 > 0 is a sufficiently small constant. Thus, I1 represents the set of initial points for which the accumulated score error along the backward trajectory is well controlled. With the above notation, Lemma 5 immediately yields 
+
+TV( q1, p 1) ≤ EY1∼p1
+
+ q1 (Y1)
+
+p1 (Y1) − 1
+
+
+
+1 {Y1 ∈ E} 
+
+
+
++ CT −2K1 + exp( −c2 d log T )= EYT ∼pT
+
+ q1(Y1)
+
+p1(Y1) − 1
+
+
+
+1{Y1 ∈ E , Y T ∈ I 1}
+
+| {z }
+
+> α1
+
++ EYT ∼pT
+
+ q1(Y1)
+
+p1(Y1) − 1
+
+
+
+1{Y1 ∈ E , Y T ∈ I 2}
+
+| {z }
+
+> α2
+
++CT −2K1 + exp( −c2 d log T ), (37) 10 where the second equality follows from the fact that Y1 is determined entirely by YT through the deterministic update rule, and I2 := Rd \ I 1. As we will show later, for any YT ∈ I 1 such that x1 ∈ E , or equivalently Y1 ∈ E , one can conclude that YT is a typical point in Et. In this case, we may apply (32) to control α1. On the other hand, for any 
+
+YT ∈ I 2 with Y1 ∈ E , we will show that its contribution to the total variation distance is negligible, so that α2 is also well controlled. 
+
+Step 3: bounding α1 and α2. For any fixed point YT ∈ Rd, define 
+
+τ (YT ) := max 
+
+n
+
+2 ≤ t ≤ T + 1 : eSt−1(YT ) ≤ c3
+
+o
+
+. (38) The next lemma shows that we can control the density ratio up to the (τ (YT ) − 1) -th iteration. 
+
+Lemma 6. For any YT ∈ I 1 such that x1 ∈ E , the following hold. For every 2 ≤ t ≤ τ (YT ) − 1,
+
+q1(x1)
+
+p1(x1) =
+
+1 + O
+
+ X  
+
+> t<τ (YT)
+
+eξt(xt) + d2 log 2 T K 
+
+ M0Kd log 2 TT
+
+K  qτ (YT )−1(xτ (YT )−1)
+
+pτ (YT )−1(xτ (YT )−1) , (39) 
+
+and qℓ(xℓ)2pℓ(xℓ) ≤ q1(x1)
+
+p1(x1) ≤ 2qℓ(xℓ)
+
+pℓ(xℓ) , ∀ ℓ ≤ τ (YT ) − 1. (40) 
+
+Here, M0 > 1 is a sufficiently large constant. Proof. The result follows from Lemmas 14 and 15 by the same argument as in the proof of Lemma 10 of [ 28 ]. We therefore omit the details for brevity. By definition, for every YT ∈ I 1, we have τ (YT ) = T + 1 . Combining this with Lemma 6, we obtain 
+
+α1 = EYT ∼pT
+
+" 
+
+1 + 
+
+> T
+
+X
+
+> t=2
+
+eξt(xt) + d2 log 2 T K 
+
+ M0Kd log 2 TT
+
+K  qT (YT )
+
+pT (YT ) − 1
+
+!
+
+1{Y1 ∈ E , Y T ∈ I 1}
+
+#
+
+=
+
+Z " 
+
+1 + 
+
+> T
+
+X
+
+> t=2
+
+eξt(xt) + d2 log 2 T K 
+
+ M0Kd log 2 TT
+
+K 
+
+qT (xT ) − pT (xT )
+
+!
+
+1{x1 ∈ E , x T ∈ I 1}
+
+#
+
+dxT
+
+≤
+
+Z
+
+|qT (xT ) − pT (xT )| dxT +
+
+Z TX
+
+> t=2
+
+eξt(xt) qT (xT ) 1{x1 ∈ E , x T ∈ I 1} dxT + d2 log 2 T K 
+
+ M0Kd log 2 TT
+
+K
+
+.
+
+For the first term on the right-hand side, Lemma 1 yields 
+
+Z
+
+|qT (xT ) − pT (xT )| dxT = 2 TV ( qT , p T ) ≲ 1
+
+T K1 .
+
+For the second term, observe that 
+
+ZeST (xT ) qT (xT ) 1{x1 ∈ E , x T ∈ I 1} dxT
+
+=
+
+> T
+
+X
+
+> t=2
+
+EYT ∼pT
+
+ log TT
+
+
+
+dplog K ε Jacobi ,t (Yt) + d3/2 log K log T ε score ,t (Yt)
+
+ qT (YT )
+
+pT (YT ) 1{Y1 ∈ E , Y T ∈ I 1}
+
+
+
+> (40)
+
+≤ 4
+
+> T
+
+X
+
+> t=2
+
+EYT ∼pT
+
+ log TT
+
+
+
+dplog K ε Jacobi ,t (Yt) + d3/2 log K log T ε score ,t (Yt)
+
+ qt(Yt)
+
+pt(Yt) 1{Y1 ∈ E , Y T ∈ I 1}
+
+
+
+≤4
+
+> T
+
+X
+
+> t=2
+
+EYt∼pt
+
+ log TT
+
+
+
+dplog K ε Jacobi ,t (Yt) + d3/2 log K log T ε score ,t (Yt)
+
+ qt(Yt)
+
+pt(Yt)
+
+
+
+=4 
+
+> T
+
+X
+
+> t=2
+
+EYt∼qt
+
+ log TT
+
+
+
+dplog K ε Jacobi ,t (Yt) + d3/2 log K log T ε score ,t (Yt)
+
+
+
+≲ d log 5/2 T plog K ε Jacobi + d3/2 log 7/2 T log Kε score ,
+
+11 where the last inequality follows from Assumptions 2 and 3, together with the bounds 
+
+1
+
+T
+
+X
+
+> t
+
+EYt∼qt
+
+εscore ,t (Yt) ≤
+
+s 1
+
+T
+
+X
+
+> t
+
+EYt∼qt
+
+ε2score ,t (Yt) ≲ p(N + 1) K ε score ≍ εscore log 3/2 T, 
+
+1
+
+T
+
+X
+
+> t
+
+EYt∼qt
+
+εJacobi ,t (Yt) ≤
+
+s 1
+
+T
+
+X
+
+> t
+
+EYt∼qt
+
+ε2Jacobi ,t (Yt) ≲ p(N + 1) K ε Jacobi ≍ εJacobi log 3/2 T. 
+
+Combining the above estimates, we arrive at 
+
+α1 ≲ 1
+
+T K1 + d2 log 2 T K 
+
+ M0Kd log 2 TT
+
+K
+
++ d log 5/2 T plog K ε Jacobi + d3/2 log 7/2 T log Kε score .
+
+Using techniques similar to those in [ 26 ], the term α2 can also be controlled effectively, as stated in the following lemma. 
+
+Lemma 7. Suppose that Assumptions 1, 2, and 3 hold. If K ≲ log T and T ≥ C2d log 4 T , where M0, K 1 > 0 are sufficiently large constants and c2 is the constant appearing in Lemma 5, then 
+
+α2 ≲ d2 log 2 T K 
+
+ M0Kd log 2 TT
+
+K
+
++ d log 5/2 T plog K ε Jacobi + d3/2 log 7/2 T log Kε score + e−c2d log T + 1
+
+T K1 .
+
+Proof. The proof follows arguments similar to those of Lemma 11 in [ 26 ], with minor modifications. Specifically, the proof in [ 26 ] relies on a bounded-support assumption on X0. However, a careful inspection shows that this condition can be replaced by Assumption 1 combined with Markov’s inequality. This yields the similar result up to an additional negligible error T −K1 + exp( −c2d log T ). We therefore omit the proof for brevity. 
+
+Step 4: controlling TV( q1, p 1). Substituting the bounds for α1 and α2 into (37), we obtain the desired result 
+
+TV( q1, p 1)
+
+≲ d2 log 2 T K 
+
+ M0Kd log 2 TT
+
+K
+
++ d log 5/2 T plog K ε Jacobi + d3/2 log 7/2 T log Kε score + e−c2d log T + 1
+
+T K1
+
+≍ d2 log 2 T K 
+
+ M0Kd log 2 TT
+
+K
+
++ d log 5/2 T plog K ε Jacobi + d3/2 log 7/2 T log Kε score + 1
+
+T K1 .
+
+6 Numerical experiments 
+
+In this section, we numerically compare our method with the Li-HEROISM baseline [ 28 ]. Following Huang et al. [ 27 ], we consider a finite Gaussian mixture target distribution of the form 
+
+pdata (x) = 
+
+> M
+
+X
+
+> ℓ=1
+
+wℓN (x; mℓ, C ℓ),
+
+> M
+
+X
+
+> ℓ=1
+
+wℓ = 1 , (41) where M denotes the number of mixture components, x ∈ Rd, mℓ ∈ Rd, and Cℓ ∈ Rd×d. Under the forward process (6), the marginal density of ¯Xτ remains a Gaussian mixture, as observed in [27]: 
+
+p ¯Xτ (x) = 
+
+> M
+
+X
+
+> ℓ=1
+
+wℓN  x; √1 − τ m ℓ, (1 − τ )Cℓ + τ I d
+
+ . (42) Consequently, for each x ∈ Rd, the exact score function used in the experiments is available in closed form: 
+
+s⋆τ (x) = −
+
+> M
+
+X
+
+> ℓ=1
+
+wℓN  x; √1 − τ m ℓ, (1 − τ )Cℓ + τ I d
+
+
+
+p ¯Xτ (x) ((1 − τ )Cℓ + τ I d)−1  x − √1 − τ m ℓ
+
+ . (43) In practice, the score function is typically trained by a neural network via score matching on progressively corrupted data. In the present numerical study, however, we bypass the training stage and instead evaluate the samplers using an imperfect analytical score parameterized by a scalar δ:
+
+sτ (x) = s⋆τ (x) + δη (x). (44) 12 Following the artificial-error protocol of Huang et al. [27], we consider the perturbations 
+
+ηconst (x) = 1
+
+√d 1, ηlin (x) = x − m0
+
+√d , ηsin (x) = sin( x) ⊙ (x − m0)
+
+√d ∈ Rd,
+
+where m0 = E[X0], the sine function is applied coordinatewise, ⊙ denotes coordinatewise multiplication, and 1 ∈ Rd
+
+is the all-ones vector. The reverse dynamics are governed by the probability flow ODE (8) . We use the same two-phase schedule (17) – (18) as in the theoretical analysis, with c0 = 1 and c1 = 0 .5, and linearly rescale the raw endpoints τt = 1 − ¯αt to the fixed numerical interval [τmin , τ max ] = [10 −3, 0.999] . Thus, τmax = 0 .999 is used as a numerical approximation to the fully noised endpoint τ = 1 , whereas τmin = 10 −3 serves as a numerical approximation to the data endpoint τ = 0 . To initialize the reverse sampler, we draw J particles from YT ∼ N (0 , I d) at τmax and evolve the deterministic reverse process down to τmin .With T outer iterations, K interpolation nodes, N refinement rounds, and cached score evaluations, the total numbers of score function evaluations are 
+
+SFE Li = T  1 + ( K − 1) N , SFE Ours = T  K + ( K − 1) N . (45) Here, SFE denotes the total number of score function evaluations over all outer iterations. For each fixed time point τ ,one batched evaluation of sτ (·) over all J particles is counted as a single score function evaluation. The goal of the experiments is to compare the finite-budget performance of the two methods under the same target distribution, score perturbation, and total score-evaluation budget. 
+
+Figure 1: One-dimensional total variation (TV) comparison with δ = 0 .05 . From left to right: ηconst , ηlin , and ηsin 
+
+score perturbations. Each panel plots TV distance versus total SFE for Li-HEROISM and the proposed GS sampler. 
+
+6.1 Test d = 1 
+
+We first consider the one-dimensional three-component Gaussian mixture (41) with 
+
+w = [0 .1; 0 .4; 0 .5] , m = [ −6.0; 4 .0; 6 .0] , C = [0 .25; 0 .25; 0 .25] .
+
+This target follows the one-dimensional setting of Huang et al. [ 27 ] and is used to assess whether the samplers can accurately recover the locations and relative weights of well-separated modes. We sample J = 5 × 10 4 particles from 
+
+N (0 , 1) , fix K = 6 and N = 3 , and vary the number of outer iterations T . Under the SFE convention in (45) , this yields SFE Li = 16 T and SFE Ours = 21 T .For density visualization, we estimate the empirical density of the generated samples at τmin , denoted by bpτmin , using a kernel density estimator (KDE) with bandwidth selected according to Silverman’s rule [ 45 ]. Since τmin = 10 −3
+
+approximates the data endpoint, p ¯Xτmin 
+
+and bpτmin serve as numerical proxies for q1 and p1, respectively. Following the evaluation protocol of Huang et al. [ 27 ], we approximate the total variation distance on [−10 , 10] using a composite midpoint quadrature with 1000 subintervals. Figure 1 shows that, under the same SFE budget, the proposed Gauss-Seidel sampler achieves a faster reduction in total variation distance than Li-HEROISM across all three score-perturbation settings. Figure 2 compares the estimated densities with the reference density p ¯Xτmin 
+
+. Table 2 further shows that our method often attains smaller total variation errors even when Li-HEROISM is allowed twice as many SFEs , demonstrating the efficiency of the proposed sampler. 13 Figure 2: One-dimensional density comparison under the ηconst score perturbation with δ = 0 .05 . Left: matched SFE .Right: Li-HEROISM with twice the SFE of the proposed Gauss-Seidel sampler. Table 2: One-dimensional experiment with ηconst score perturbation, where Li-HEROISM is allowed twice as many 
+
+SFEs as the proposed Gauss-Seidel method. The perturbation is η(x) = 1/√d with δ = 0 .05 .                    
+
+> TOurs SFE Ours TLi SFE Li TV Li TV Ours
+> 8168 21 336 0.5446 0.3689
+> 16 336 42 672 0.3901 0.3401
+> 24 504 63 1008 0.2131 0.2367
+
+Figure 3: High-dimensional experiment for d = 128 under the ηlin artificial score perturbation with δ = 0 .05 . Error versus total SFE. Left: first-coordinate marginal total variation (TV). Middle: full-dimensional relative mean error. Right: full-dimensional relative covariance error. 
+
+6.2 Test d = 128 
+
+Following the high-dimensional Gaussian-mixture setting in Huang et al. [ 27 ], we next test a d = 128 anisotropic Gaussian mixture (41) with M = 5 components. The mixture weights wℓ are sampled from Uniform(0 , 1) and normalized. The distribution means and covariance matrices are generated by 
+
+mℓ ∼ N (0 , 32Id), Cℓ = 18
+
+ W ⊤ 
+
+> ℓ
+
+Wℓ
+
+d + Id
+
+
+
+, (Wℓ)ij ∼ N (0 , 1) , Wℓ ∈ Rd×d
+
+with d = 128 . We use the same algorithmic setup as in the one-dimensional test, except that the number of particles is 
+
+J = 2 × 10 4. Since full-dimensional total variation (TV) estimation from particles is unreliable in high dimension, we follow Huang et al. [ 27 ] and compute the first-coordinate marginal TV, estimated with the same KDE bandwidth and fixed-grid quadrature rule as in the one-dimensional test. To complement this one-dimensional marginal metric, we also compute the full-dimensional relative mean error and relative covariance error: 
+
+Err mean = ∥ bm − mτmin ∥2
+
+∥mτmin ∥2
+
+, Err cov = ∥bΣ − Στmin ∥F
+
+∥Στmin ∥F
+
+.
+
+14 Here bm ∈ Rd and bΣ ∈ Rd×d are the empirical mean and covariance computed directly from the generated particles, while mτmin and Στmin are the exact mean and covariance of p ¯Xτmin 
+
+. Figure 3 shows that the proposed sampler reduces the marginal TV more steadily and substantially faster than Li-HEROISM, with more stable covariance behavior. Although the relative mean error is mixed, it is only an auxiliary moment diagnostic. Table 3 further shows that our method attains smaller marginal TV in all tested cases even when Li-HEROISM uses twice as many SFEs ,demonstrating its finite-budget efficiency. Table 3: High-dimensional experiment when Li-HEROISM uses twice as many score function evaluations as the proposed Gauss–Seidel sampler. The score perturbation is ηlin with δ = 0 .05 .
+
+TOurs SFE Ours TLi SFE Li TV 1,Li TV 1,Ours MeanErr Li MeanErr Ours CovErr Li / CovErr Ours 
+
+8 168 21 336 0.4911 0.3936 0.3271 0.7598 0.8456 / 0.6556 
+
+16 336 42 672 0.3248 0.3056 0.3600 0.5010 0.3434 / 0.4695 24 504 63 1008 0.2624 0.1971 0.5911 0.2132 0.5244 / 0.3365 
+
+32 672 84 1344 0.4251 0.1528 0.1688 0.1415 0.1491 / 0.2121 
+
+7 Discussion and future directions 
+
+In this paper, we develop a Chebyshev–Gauss–Seidel higher-order sampler for training-free acceleration of diffusion models through the probability flow ODE, and establish a convergence guarantee that allows the approximation order 
+
+K to grow with the number of iterations T . In the exact-score setting, by taking K ≍ log T , the proposed sampler achieves a target total variation accuracy ε using at most 
+
+eO
+
+
+
+d1+ oT (1) ε−1/K 1
+
+
+
+score function evaluations, where oT (1) → 0 as T → ∞ and K1 > 0 is an absolute constant. Our guarantee holds under a polynomial second-moment condition on the target distribution and accommodates inexact score estimation, without imposing higher-order smoothness assumptions on the score estimates. Several questions remain open. First, it would be interesting to understand whether the intrinsic low-dimensional structure of the target distribution can be leveraged to further accelerate the proposed sampler. Second, although our analysis avoids higher-order smoothness assumptions on the score estimates, it still requires control of the Jacobian estimation error; an important direction for future work is to determine whether this requirement can be weakened. Finally, our numerical results indicate that interpolation nodes and successive-refinement schemes play a significant role in the performance of higher-order samplers. This naturally raises the question of whether a unified non-asymptotic theory can rigorously explain the impact of these algorithmic design choices. 
+
+A Auxiliary Lemmas 
+
+This section gathers the auxiliary estimates that will be used repeatedly in the theoretical analysis and in the subsequent density-ratio propagation arguments. 
+
+Lemma 8. Assume that K ≥ 2, and let 
+
+zj = cos 
+
+ jπ K − 1
+
+
+
+, 0 ≤ j ≤ K − 1,
+
+denote the Chebyshev–Lobatto nodes on [−1, 1] . Let τt,j be defined as in (12) , and let ψt,j be given by (14) . Then 
+
+sup  
+
+> τ∈[τt,K −1,τ t, 0]
+> K−1
+
+X
+
+> j=0
+
+|ψt,j (τ )| ≤ 2
+
+π log K + 1 .
+
+Proof. The proof is given in Section C.1. 
+
+Lemma 9. For large enough T , one has 
+
+αt ≥ 1 − c1 log TT ≥ 12 , 1 ≤ t ≤ T. (46a) 15 121 − αt
+
+1 − ¯αt
+
+≤ 121 − αt
+
+αt − ¯αt
+
+≤ 1 − αt
+
+1 − ¯αt−1
+
+≤ 4c1 log TT , 2 ≤ t ≤ T. (46b) 
+
+1 ≤ 1 − ¯αt
+
+1 − ¯αt−1
+
+≤ 1 + 4c1 log TT , 2 ≤ t ≤ T. (46c) 
+
+¯αT ≤ 1
+
+T C1 . (46d) 
+
+¯αt+1 
+
+1 − ¯αt+1 
+
+≤ ¯αt
+
+1 − ¯αt
+
+≤ 4¯ αt+1 
+
+1 − ¯αt+1 
+
+, 1 ≤ t < T. (46e) 
+
+τt,i 1 − τt,i 2
+
+τt,i 3 (1 − τt,i 4 ) ≤ 8c1
+
+log TT , 2 ≤ t ≤ T, 0 ≤ i1, i 2, i 3, i 4 ≤ K − 1. (46f) 
+
+|γt,j (τt,i )| ≤ 2( τt, 0 − τt,i ), 0 ≤ i, j ≤ K − 1. (46g) 
+
+1 − τt,i ≍ 1 − τt,j , τt,i ≍ τt,j , 0 ≤ i, j ≤ K − 1, 2 ≤ t ≤ T. (46h) 
+
+> K−1
+
+X
+
+> j=0
+
+|γt,j (τt,i )| ≤ C4(τt, 0 − τt,i ) log K, 0 ≤ i ≤ K − 1. (46i) 
+
+> K−1
+
+X
+
+> j=0
+
+|A(t) 
+
+> ji
+
+| ≤ C4
+
+(τt, 0 − τt,i ) log K
+
+(1 − τt, 0)3/2 , 0 ≤ i ≤ K − 1, 2 ≤ t ≤ T. (46j) 
+
+> K−1
+
+X
+
+> j=0
+
+|A(t) 
+
+> ji
+
+|2 ≤ C5
+
+(τt, 0 − τt,i )2 log K
+
+(1 − τt, 0)3 , 0 ≤ i ≤ K − 1, 2 ≤ t ≤ T. (46k) 
+
+Here, γt,j (τt,i ) is given in (16) , c1 is defined in (18) , C1 > 0 is a sufficiently large constant, C4, C 5 > 0 are universal constants, and A(t) 
+
+> ji
+
+:= 12 γt,j (τt,i ) (1 − τt,j )−3/2 for convenience. Proof. See Section C.2. Define 
+
+θτ (x) := max 
+
+
+
+− log p ¯Xτ (x)
+
+d log T , c 6
+
+
+
+, (47) where c6 > 0 is a sufficiently large constant. The next lemma provides a quantitative tail estimate for the conditional distribution of X0 given the continuous-time forward variable ¯Xτ , where ¯Xτ is given in (6). 
+
+Lemma 10. Suppose that τ ≥ T −c0 where c0 is defined in (17) . Assume that Assumption 1 holds. Then for any constant c5 ≥ 2, one has 
+
+P
+
+ √1 − τ X 0 − y 2 > 5c5
+
+pθτ (y) d τ log T ¯Xτ = y
+
+
+
+≤ exp  −c25θτ (y)d log T  .
+
+Moreover, there exist absolute constants C6, C 7, C 8, C 9 > 0 such that 
+
+E √1 − τ X 0 − y 2 ¯Xτ = y ≤ C6
+
+pθτ (y) d τ log T , (48) 
+
+E
+
+h √1 − τ X 0 − y 22 ¯Xτ = y
+
+i
+
+≤ C7 θτ (y) d τ log T, (49) 
+
+E
+
+h √1 − τ X 0 − y 32 ¯Xτ = y
+
+i
+
+≤ C8
+
+ θτ (y) d τ log T 3/2, (50) 
+
+E
+
+h √1 − τ X 0 − y 42 ¯Xτ = y
+
+i
+
+≤ C9
+
+ θτ (y) d τ log T 2. (51) 
+
+Proof. See Section C.3. By Tweedie’s formula [46], the score function (9) can also be expressed as 
+
+s⋆τ (x) = − 1
+
+τ
+
+ x − √1 − τ E X0 | ¯Xτ = x , (52) which further implies 
+
+s⋆τ (√1 − τ x ) = −√1 − ττ
+
+Z
+
+> x0
+
+pX0| ¯Xτ
+
+ x0 | √1 − τ x  (x − x0) d x0.
+
+Based on Lemma 10, it is straightforward to obtain the following results. 16 Lemma 11. For any τ ≥ T −c0 where c0 is defined in (17) , one has 
+
+∥s⋆τ (x)∥2 ≲
+
+r d θ τ (x) log Tτ , (53) 
+
+∂s ⋆τ (x)
+
+∂x ≲ d θ τ (x) log Tτ . (54) 
+
+Moreover, under the condition 
+
+− log p ¯Xτ
+
+ λx 1 + (1 − λ)x2
+
+ ≲ d log T, ∀λ ∈ [0 , 1] ,
+
+one has 
+
+∂s ⋆τ (x1)
+
+∂x − ∂s ⋆τ (x2)
+
+∂x ≲
+
+s
+
+d3 log 3 Tτ 3 ∥x1 − x2∥2. (55) 
+
+Proof. The first estimate follows directly from Tweedie’s formula and the first-moment bound in Lemma 10. The second estimate follows from the (52) together with the second-moment bound in Lemma 10. The third estimate is standard and follows, for instance, from the argument of [26, Claim (88)]. 
+
+Lemma 12. [28 , Lemma 4] Suppose that − log p ¯Xτe (x⋆τe ) ≤ θd log T for some T −c0 ≤ τe < 1 where c0 is defined in 
+
+(17) and some θ > 1, then for every τ ′ satisfying |τ ′ − τe| ≤ c4τe(1 − τe), one has 
+
+− log p ¯Xτ ′ (x⋆τ ′ ) ≤ 2θd log T. 
+
+Here, ¯Xτ is given in (6) and c4 > 0 is some sufficiently small constant. 
+
+Lemma 13. Assume that τ ∈ [τt,K −1, τ t, 0] and − log p ¯Xτ (x⋆τ ) ≤ θ d log T for some θ ≥ c6 where c6 is defined in 
+
+(47) . Set 
+
+u⋆τ := x⋆τ
+
+√1 − τ and J⋆τ := ∂u ⋆τ
+
+∂u ⋆τt, 0
+
+= ∂(x⋆τ /√1 − τ )
+
+∂(x⋆τt, 0 /p1 − τt, 0) .
+
+Then there exist universal constants M, C s, C J > 0, independent of k, K, τ, d, T, θ where M = max {M1, M 2} in proof, such that for every integer 0 ≤ k ≤ K,
+
+∂k
+
+∂τ k
+
+ s⋆τ (x⋆τ )(1 − τ )3/2
+
+
+
+> 2
+
+≤ Cs (M K )kk!
+
+s
+
+dθ log Tτ (1 − τ )3
+
+ dθ log Tτ (1 − τ )
+
+k
+
+, (56) 
+
+∂k
+
+∂τ k
+
+ 1(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂u ⋆τ
+
+J⋆τ
+
+
+
+≤ CJ (M K )k+1 k!
+
+ dθ log Tτ (1 − τ )
+
+k+1 
+
+. (57) 
+
+Proof. See Section C.4. 
+
+Lemma 14. Let θt := θτt, 0 (xτt, 0 ), where θτt, 0 (xτt, 0 ) is defined in (47) . Assume that 
+
+C10 
+
+
+
+θtd log 2 TT +
+
+r
+
+θtd log 3 T log K P
+
+> m,j
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+> τt,j
+
+ 2
+
+T
+
+
+
+≤ 1 (58) 
+
+for some sufficiently large constant C10 > 0, where P 
+
+> m,j
+
+:= PNm=0 
+
+PK−1 
+
+> j=0
+
+and ε(m)score ,t,j (·) is defined in (29) . Then for all 0 ≤ i ≤ K − 1, 0 ≤ n ≤ N − 1, and all λ ∈ [0 , 1] ,
+
+− log p ¯Xτt,i 
+
+
+
+λx (n+1)  
+
+> τt,i
+
++ (1 − λ)x⋆τt,i 
+
+
+
+≤ 2.1 dθ t log T, (59) 
+
+and 
+
+log 
+
+pr 1−τt, 01−τt,i 
+
+> ¯Xτt,i
+
+q 1−τt, 0 
+
+> 1−τt,i
+
+x(n+1) 
+
+> τt,i
+
+
+
+p ¯Xτt, 0 (xτt, 0 ) ≤ 4c1d log TT +C10 
+
+
+
+d2θ2 
+
+> t
+
+log 4 T K T 2 +
+
+r
+
+dθ t log 3 T log K P
+
+> m,j
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+> τt,j
+
+ 2
+
+T
+
+
+
+.
+
+17 Proof. See Section C.5. 
+
+Lemma 15. Recall that qt is the distribution of Xt, where Xt in (7) . If − log q1(x1) ≤ c6d log T where c6 is defined in 
+
+(47) and T ≥ C2d log 4 T , then for all integers 1 ≤ ℓ < τ (xT ) where τ (xT ) is defined in (38) , one has 
+
+− log qℓ(xℓ) ≤ 2c6d log T, (60) 
+
+provided that c6 > 5c1.Proof. The proof of Lemma 15 follows the same argument as that of Lemma 9 in [ 28 ], with the only modification being that we invoke Lemma 14 in place of the corresponding estimate used there. This change requires the conditions 
+
+T ≥ C2d log 4 T and K ≲ log T to obtain the desired conclusion. We omit the details for brevity. 
+
+B Proofs of lemmas in Section 5 
+
+For τt−1,0 ≤ τ < τ t, 0, we let x⋆τ denote the solution of (8) with the initial condition x⋆τt, 0 = xτt, 0 . In particular, with iteration (15) we obtain 
+
+x(n) 
+
+> τt, 0
+
+= x⋆τt, 0 = xτt, 0 , for all n ≥ 0.
+
+For convenience, we define A(t) 
+
+> ji
+
+:= 12 γt,j (τt,i ) (1 − τt,j )−3/2, where γt,j (τt,i ) is defined in (16). 
+
+B.1 Proof of Lemma 3 
+
+Proof. Fix 0 ≤ i ≤ K − 1. By the Gauss–Seidel update (15), 
+
+x(n+1) 
+
+> τt,i
+
+p1 − τt,i 
+
+= xτt, 0
+
+p1 − τt, 0
+
++ X
+
+> j<i
+
+A(t) 
+
+> ji
+
+sτt,j 
+
+
+
+x(n+1) 
+
+> τt,j
+
+
+
++ X
+
+> j≥i
+
+A(t) 
+
+> ji
+
+sτt,j 
+
+
+
+x(n)
+
+> τt,j
+
+
+
+.
+
+On the other hand, by integrating the rescaled probability flow ODE along the exact path, we obtain 
+
+x⋆τt,i 
+
+p1 − τt,i 
+
+= x⋆τt, 0
+
+p1 − τt, 0
+
++
+
+Z τt, 0
+
+> τt,i
+
+s⋆τ (x⋆τ )2(1 − τ )3/2 dτ. 
+
+Subtracting the above two identities yields 
+
+x(n+1)  
+
+> τt,i
+
+− x⋆τt,i = p1 − τt,i 
+
+"X
+
+> j<i
+
+A(t)
+
+> ji
+
+
+
+sτt,j 
+
+
+
+x(n+1) 
+
+> τt,j
+
+
+
+− s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+ 
+
++ X
+
+> j≥i
+
+A(t)
+
+> ji
+
+
+
+sτt,j 
+
+
+
+x(n)
+
+> τt,j
+
+
+
+− s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+ #| {z }
+
+> := G1
+
++ p1 − τt,i 
+
+"K−1X
+
+> j=0
+
+A(t) 
+
+> ji
+
+s⋆τt,j (x⋆τt,j ) −
+
+Z τt, 0
+
+> τt,i
+
+s⋆τ (x⋆τ )2(1 − τ )3/2 dτ 
+
+#| {z }
+
+> := G2
+
+. (61) 
+
+Bound for G1. A simple calculation gives 
+
+G1 = p1 − τt,i 
+
+"X
+
+> j<i
+
+A(t)
+
+> ji
+
+
+
+sτt,j 
+
+
+
+x(n+1) 
+
+> τt,j
+
+
+
+− s⋆τt,j 
+
+
+
+x(n+1) 
+
+> τt,j
+
+ 
+
++ X
+
+> j≥i
+
+A(t)
+
+> ji
+
+
+
+sτt,j 
+
+
+
+x(n)
+
+> τt,j
+
+
+
+− s⋆τt,j 
+
+
+
+x(n)
+
+> τt,j
+
+ #| {z }
+
+> := G11
+
++ p1 − τt,i 
+
+"X
+
+> j<i
+
+A(t)
+
+> ji
+
+
+
+s⋆τt,j 
+
+
+
+x(n+1) 
+
+> τt,j
+
+
+
+− s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+ 
+
++ X
+
+> j≥i
+
+A(t)
+
+> ji
+
+
+
+s⋆τt,j 
+
+
+
+x(n)
+
+> τt,j
+
+
+
+− s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+ #| {z }
+
+> := G12
+
+. (62) 18 For the term G11 , the triangle inequality and Cauchy–Schwarz yield 
+
+∥G11 ∥22 ≤ (1 − τt,i )
+
+K−1X
+
+j=0 
+
+|A(t)
+
+ji |2"X
+
+j<i 
+
+
+
+ε(n+1) score ,t,j (x(n+1) 
+
+τt,j )
+
+2
+
++ X
+
+j≥i
+
+
+
+ε(n)score ,t,j (x(n)
+
+τt,j )
+
+2
+
+#
+
+≲ log K · (τt, 0 − τt,i )2
+
+(1 − τt, 0)2
+
+"K−1X
+
+j=0 
+
+
+
+ε(n)score ,t,j (x(n)
+
+τt,j )
+
+2
+
++
+
+K−1X
+
+j=0 
+
+
+
+ε(n+1) score ,t,j (x(n+1) 
+
+τt,j )
+
+2
+
+#
+
+≲ log K τ 2
+
+t,i 
+
+log 2 TT 2
+
+"K−1X
+
+j=0 
+
+
+
+ε(n)score ,t,j (x(n)
+
+τt,j )
+
+2
+
++
+
+K−1X
+
+j=0 
+
+
+
+ε(n+1) score ,t,j (x(n+1) 
+
+τt,j )
+
+2
+
+#
+
+,
+
+where the second inequality follows from (46k) and the fact 1 − τt,i ≍ 1 − τt, 0, the last inequality comes from (46f) that by setting i1 = 0 , i2 = i, i3 = i, and i4 = 0 .For the term G12 , on the event Et, it holds 
+
+∥G12 ∥22 ≤2 (1 − τt,i )
+
+X
+
+j<i 
+
+A(t)
+
+ji 
+
+
+
+s⋆τt,j 
+
+
+
+x(n+1) 
+
+τt,j 
+
+
+
+− s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+ 22
+
++ X
+
+j≥i
+
+A(t)
+
+ji 
+
+
+
+s⋆τt,j 
+
+
+
+x(n)
+
+τt,j 
+
+
+
+− s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+ 22
+
+
+
+≲(1 − τt,i )
+
+
+
+K−1X
+
+j=0 
+
+A(t)
+
+ji 
+
+
+
+2  d log Tτt, 0
+
+2 
+
+max 
+
+0≤ℓ≤i−1 x(n+1) 
+
+τt,ℓ − x⋆τt,ℓ 
+
+22
+
++ max 
+
+0≤ℓ≤K−1 x(n)
+
+τt,ℓ − x⋆τt,ℓ 
+
+22
+
+
+
+≲ log 2 K
+
+ d log 2 TT
+
+2 
+
+max 
+
+0≤ℓ≤i−1 x(n+1) 
+
+τt,ℓ − x⋆τt,ℓ 
+
+22
+
++ max 
+
+0≤ℓ≤K−1 x(n)
+
+τt,ℓ − x⋆τt,ℓ 
+
+22
+
+
+
+,
+
+where the third line follows from the typical region that − log p ¯Xτt,j 
+
+
+
+λx (n)
+
+τt,j + (1 − λ)x⋆τt,j 
+
+
+
+≤ C4d log T , for all j, n 
+
+together with Lemma 11, namely s⋆τt,j 
+
+
+
+x(n)
+
+τt,j 
+
+
+
+− s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+
+
+2
+
+≤ C d log Tτt,j x(n)
+
+τt,j − x⋆τt,j 2
+
+, and the last line holds by PK−1
+
+j=0 A(t)
+
+ji ≤ C4 (τt, 0−τt,i ) log K
+
+(1 −τt, 0)3/2 in Lemma 9 and τt, 0 ≍ τt,i .
+
+Bound for G2. For any τt,i , the Lagrange remainder bound gives 
+
+∥G2∥22 ≤ (1 − τt,i ) ·
+
+Z τt, 0
+
+τt,i 
+
+1
+
+K! sup 
+
+τt,i ≤τ ≤τt, 0
+
+∂K
+
+∂τ K
+
+s⋆τ (x⋆τ )2(1 − τ )3/2 2
+
+K−1Y
+
+j=0 
+
+(τ − τt,j ) dτ 
+
+
+
+2
+
+. (63) For all τt,i ≤ τ ≤ τt, 0, according to Lemma 13, it holds 
+
+sup 
+
+τt,i ≤τ ≤τt, 0
+
+∂K
+
+∂τ K
+
+s⋆τ (x⋆τ )2(1 − τ )3/2 2
+
+≤ Cs(M K )K K!
+
+s
+
+dθ log Tτt,i (1 − τt,i )3
+
+ dθ log Tτt,i (1 − τt,i )
+
+K
+
+.
+
+Next, set 
+
+τ = τt, 0 + τt,K −1
+
+2 + τt, 0 − τt,K −1
+
+2 z, z ∈ [−1, 1] ,
+
+then K−1Y
+
+j=0 
+
+(τ − τt,j ) = 
+
+ τt, 0 − τt,K −1
+
+2
+
+K K −1Y
+
+j=0 
+
+(z − zj ),
+
+where 
+
+zj = cos 
+
+ jπ K − 1
+
+
+
+, 0 ≤ j ≤ K − 1.
+
+Using the fact that 
+
+K−1Y
+
+j=0 
+
+(z − zj ) = 2 2−K (z2 − 1) UK−2(z) and sup 
+
+z∈[−1,1] 
+
+(z2 − 1) UK−2(z) ≤ 1,
+
+19 where UK−2 is the Chebyshev polynomial of the second kind, we obtain 
+
+sup  
+
+> τt,K −1≤τ≤τt, 0
+> K−1
+
+Y
+
+> j=0
+
+(τ − τt,j ) ≤ 41−K (τt, 0 − τt,K −1)K . (64) Substituting the preceding two estimates into (63) yields 
+
+∥G2∥22 ≲ (τt, 0 − τt,i )2 dθ log Tτt,i (1 − τt,i )2
+
+ M Kdθ (τt, 0 − τt,K −1) log T
+
+4τt,i (1 − τt,i )
+
+2K
+
+≲ dθ τ t,i log 3 TT 2
+
+ c1M Kdθ log 2 T
+
+4T
+
+2K
+
+≲ dτ t,i log 3 TT 2
+
+ M0Kd log 2 TT
+
+2K
+
+,
+
+where the second inequality comes from the fact that τt, 0 − τt,i ≤ c1τt,i (1 − τt,i ) log TT and τt, 0 − τt,K −1 ≤ c1τt,i (1 −
+
+τt,i ) log TT , and the last inequality follows from the typical condition that θ ≤ Cθ for an absolute constant Cθ > 0 and 
+
+M0 ≥ c1M C θ 
+
+> 4
+
+.Putting the estimates of G11 , G12 , and G2 into (61), with τt, 0 ≥ τt,i , 0 ≤ i ≤ K − 1 we arrive at 
+
+∥x(n+1)  
+
+> τt,i
+
+− x⋆τt,i ∥22 ≤ ¯C log 2 K
+
+ d log 2 TT
+
+2 "
+
+max  
+
+> 0≤ℓ≤i−1
+
+∥x(n+1)  
+
+> τt,ℓ
+
+− x⋆τt,ℓ ∥22 + max  
+
+> 0≤ℓ≤K−1
+
+∥x(n) 
+
+> τt,ℓ
+
+− x⋆τt,ℓ ∥22
+
+#
+
++ ¯C log K τ 2
+
+> t, 0
+
+log 2 TT 2
+
+
+
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(n) 
+
+> score ,t,j
+
+
+
+x(n)
+
+> τt,j
+
+ 2
+
++
+
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(n+1)  
+
+> score ,t,j
+
+
+
+x(n+1) 
+
+> τt,j
+
+ 2
+
+
+
++ ¯C dτ t, 0 log 3 TT 2
+
+ M0Kd log 2 TT
+
+2K
+
+(65) for any fixed 0 ≤ i ≤ K − 1. Here, ¯C is an universal constant. Note that K ≤ c log T and T ≥ C2d log 4 T for a sufficiently large constant C2 > 0. Therefore, it holds 
+
+¯C log 2 K
+
+ d log 2 TT
+
+2
+
+≤ 14 .
+
+By induction, one can easily check that for every 0 ≤ i ≤ K − 1,
+
+∥x(n+1)  
+
+> τt,i
+
+− x⋆τt,i ∥22 ≤ 13 max  
+
+> 0≤ℓ≤K−1
+
+∥x(n) 
+
+> τt,ℓ
+
+− x⋆τt,ℓ ∥22 + 4 ¯C
+
+3 log K τ 2
+
+> t, 0
+
+log 2 TT 2
+
+> n+1
+
+X
+
+> m=nK−1
+
+X
+
+> j=0
+
+
+
+ε(m)score ,t,j (x(m) 
+
+> τt,j
+
+)
+
+2
+
++ 4 ¯C
+
+3
+
+dτ t, 0 log 3 TT 2
+
+ M0Kd log 2 TT
+
+2K
+
+. (66) Indeed, for i = 0 , (66) holds immediate since x(n+1)  
+
+> τt, 0
+
+= x⋆τt, 0 = xτt, 0 . Next, assume that (66) holds for all 0 ≤ i ≤ k0,where 0 ≤ k0 ≤ K − 2. Using the hypothesis conditions, one can see that (66) holds for i = k0 + 1 . With (66) in place, we obtain 
+
+max  
+
+> 0≤r≤K−1
+
+∥x(N ) 
+
+> τt,r
+
+− x⋆τt,r ∥22 ≤ 3−N max  
+
+> 0≤r≤K−1
+
+∥x(0)  
+
+> τt,r
+
+− x⋆τt,r ∥22 + C log K τ 2
+
+> t, 0
+
+log 2 TT 2
+
+> N
+
+X
+
+> m=0
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(m)score ,t,j (x(m) 
+
+> τt,j
+
+)
+
+2
+
++ C dτ t, 0 log 3 TT 2
+
+ M0Kd log 2 TT
+
+2K
+
+. (67) Here, C = 3 ¯C. Finally, as shown in [28], one has 
+
+∥x⋆τt,i − x(0)  
+
+> τt,i
+
+∥22 ≤ ¯αt−1
+
+√1 − αt
+
+s
+
+1 − αt
+
+1 − ¯αt−1
+
+pd log T
+
+!2
+
+≤ 4c21d log 3 TT 2 , 0 ≤ i ≤ K − 1.
+
+20 Since T ≥ C2d log 4 T , K ≤ c log T , and N ≥ C3K log T for a sufficiently large constant C3 > 0 , it holds 
+
+3−N max 
+
+0≤r≤K−1 ∥x(0) 
+
+τt,r − x⋆τt,r ∥22 ≤ C dτ t, 0 log 3 TT 2
+
+ M0Kd log 2 TT
+
+2K
+
+.
+
+Substituting this into (67) yields 
+
+max 
+
+0≤r≤K−1 ∥x(N )
+
+τt,r − x⋆τt,r ∥22 ≤ C log K τ 2
+
+t, 0
+
+log 2 TT 2
+
+NX
+
+m=0 
+
+K−1X
+
+j=0 
+
+
+
+ε(m)score ,t,j (x(m)
+
+τt,j )
+
+2
+
++ C dτ t, 0 log 3 TT 2
+
+ M0Kd log 2 TT
+
+2K
+
+.
+
+This completes the proof. 
+
+B.2 Proof of Lemma 4 
+
+Proof. Recall that 
+
+J(n)
+
+τt,i := ∂(x(n)
+
+τt,i /p1 − τt,i )
+
+∂(xτt, 0 /p1 − τt, 0) , J⋆τt,i := ∂(x⋆τt,i /p1 − τt,i )
+
+∂(x⋆τt, 0 /p1 − τt, 0) .
+
+It then follows from (15) that 
+
+J(n+1) 
+
+τt,i = I + X
+
+j<i 
+
+A(t)
+
+ji 
+
+∂s τt,j 
+
+
+
+x(n+1) 
+
+τt,j 
+
+
+
+∂
+
+
+
+x(n+1) 
+
+τt,j /p1 − τt,j 
+
+ J(n+1) 
+
+τt,j + X
+
+j≥i
+
+A(t)
+
+ji 
+
+∂s τt,j 
+
+
+
+x(n)
+
+τt,j 
+
+
+
+∂
+
+
+
+x(n)
+
+τt,j /p1 − τt,j 
+
+ J(n)
+
+τt,j . (68) Similarly, note that the exact rescaled probability flow ODE is 
+
+x⋆τt,i 
+
+p1 − τt,i 
+
+= x⋆τt, 0
+
+p1 − τt, 0
+
+−
+
+Z τt,i 
+
+τt, 0
+
+s⋆τ (x⋆τ )2(1 − τ )3/2 dτ. 
+
+Therefore, 
+
+J⋆τt,i = I −
+
+Z τt,i 
+
+τt, 0
+
+12(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂  x⋆τ /√1 − τ  J⋆τ dτ. (69) Combining the two previous equations, we can obtain 
+
+J(n+1) 
+
+τt,i − J⋆τt,i 
+
+= X
+
+j<i 
+
+A(t)
+
+ji 
+
+" ∂s τt,j (x(n+1) 
+
+τt,j )
+
+∂(x(n+1) 
+
+τt,j /p1 − τt,j ) J(n+1) 
+
+τt,j − ∂s ⋆τt,j (x⋆τt,j )
+
+∂(x⋆τt,j /p1 − τt,j ) J⋆τt,j 
+
+#
+
++ X
+
+j≥i
+
+A(t)
+
+ji 
+
+" ∂s τt,j (x(n)
+
+τt,j )
+
+∂(x(n)
+
+τt,j /p1 − τt,j ) J(n)
+
+τt,j − ∂s ⋆τt,j (x⋆τt,j )
+
+∂(x⋆τt,j /p1 − τt,j ) J⋆τt,j 
+
+#
+
++
+
+Z τt,i 
+
+τt, 0
+
+"
+
+12(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂(x⋆τ /√1 − τ ) J⋆τ −
+
+K−1X
+
+j=0 
+
+ψt,j (τ ) 12(1 − τt,j )3/2
+
+∂s ⋆τt,j (x⋆τt,j )
+
+∂(x⋆τt,j /p1 − τt,j ) J⋆τt,j 
+
+#
+
+dτ 
+
+= X
+
+j<i 
+
+A(t)
+
+ji 
+
+∂s τt,j (x(n+1) 
+
+τt,j )
+
+∂(x(n+1) 
+
+τt,j /p1 − τt,j ) − ∂s ⋆τt,j (x⋆τt,j )
+
+∂(x⋆τt,j /p1 − τt,j )
+
+!
+
+J(n+1) 
+
+τt,j 
+
+| {z }
+
+H1
+
++ X
+
+j<i 
+
+A(t)
+
+ji 
+
+∂s ⋆τt,j 
+
+
+
+x⋆τt,j 
+
+
+
+∂
+
+
+
+x⋆τt,j /p1 − τt,j 
+
+
+
+J(n+1) 
+
+τt,j − J⋆τt,j 
+
+| {z }
+
+H2
+
++ X
+
+j≥i
+
+A(t)
+
+ji 
+
+ ∂s τt,j 
+
+
+
+x(n)
+
+τt,j 
+
+
+
+∂
+
+
+
+x(n)
+
+τt,j /p1 − τt,j 
+
+ −
+
+∂s ⋆τt,j 
+
+
+
+x⋆τt,j 
+
+
+
+∂
+
+
+
+x⋆τt,j /p1 − τt,j 
+
+ J(n)
+
+τt,j 
+
+| {z }
+
+H3
+
+21 + X
+
+j≥i
+
+A(t)
+
+ji 
+
+∂s ⋆τt,j 
+
+
+
+x⋆τt,j 
+
+
+
+∂
+
+
+
+x⋆τt,j /p1 − τt,j 
+
+
+
+J(n)
+
+τt,j − J⋆τt,j 
+
+| {z }
+
+H4
+
++
+
+Z τt,i 
+
+τt, 0
+
+"
+
+12(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂(x⋆τ /√1 − τ ) J⋆τ −
+
+K−1X
+
+j=0 
+
+ψt,j (τ ) 12(1 − τt,j )3/2
+
+∂s ⋆τt,j (x⋆τt,j )
+
+∂(x⋆τt,j /p1 − τt,j ) J⋆τt,j 
+
+#
+
+dτ 
+
+| {z }
+
+H5
+
+.
+
+To begin with, we claim that on the event Et, for all 0 ≤ n ≤ N and 0 ≤ j ≤ K − 1, it holds 
+
+∥J(n)
+
+τt,j ∥ ≤ eC (70) for some universal constant eC > 0.
+
+Bound for H1 and H3. Observe that 
+
+H1 = X
+
+j<i 
+
+A(t)
+
+ji 
+
+ ∂s τt,j 
+
+
+
+x(n+1) 
+
+τt,j 
+
+
+
+∂
+
+
+
+x(n+1) 
+
+τt,j /p1 − τt,j 
+
+ −
+
+∂s ⋆τt,j 
+
+
+
+x(n+1) 
+
+τt,j 
+
+
+
+∂
+
+
+
+x(n+1) 
+
+τt,j /p1 − τt,j 
+
+ J(n+1) 
+
+τt,j 
+
+| {z }
+
+H11 
+
++ X
+
+j<i 
+
+A(t)
+
+ji 
+
+∂s ⋆τt,j (x(n+1) 
+
+τt,j )
+
+∂(x(n+1) 
+
+τt,j /p1 − τt,j ) − ∂s ⋆τt,j (x⋆τt,j )
+
+∂(x⋆τt,j /p1 − τt,j )
+
+!
+
+J(n+1) 
+
+τt,j 
+
+| {z }
+
+H12 
+
+,
+
+Note that from (70) that ∥J(n)
+
+τt,j ∥ ≤ eC. This gives 
+
+∥H11 ∥2 ≲
+
+
+
+K−1X
+
+j=0 
+
+A(t)
+
+ji 
+
+2
+
+ (1 − τt, 0)
+
+X
+
+j<i 
+
+
+
+ε(n+1) 
+
+Jacobi ,t,j 
+
+
+
+x(n+1) 
+
+τt,j 
+
+ 2
+
++ X
+
+j≥i
+
+
+
+ε(n)
+
+Jacobi ,t,j 
+
+
+
+x(n)
+
+τt,j 
+
+ 2
+
+
+
+≤ C log Kτ 2
+
+t,i 
+
+log 2 TT 2
+
+n+1 X
+
+m=nK−1X
+
+ℓ=0 
+
+
+
+ε(m)Jacobi ,t,ℓ (x(m)
+
+τt,ℓ )
+
+2
+
+,
+
+where the first inequality follows from the Cauchy-Schwarz inequality and the second inequality follows by (46k) in Lemma 9. For the term H12 , since Et holds, Lemma 11 yields 
+
+∂s ⋆τt,j (x)
+
+∂(x/ p1 − τt,j ) − ∂s ⋆τt,j (y)
+
+∂(y/ p1 − τt,j ) ≤ Cp1 − τt,j 
+
+s
+
+d3 log 3 Tτ 3
+
+t,j 
+
+∥x − y∥.
+
+Therefore, we have 
+
+∥H12 ∥2 ≲
+
+
+
+K−1X
+
+j=0 
+
+|A(t)
+
+ji |2
+
+ X
+
+j<i 
+
+(1 − τt,j ) d3 log 3 Tτ 3
+
+t,j 
+
+∥x(n+1) 
+
+τt,j − x⋆τt,j ∥22
+
+≲ log K log 2 TT 2
+
+d3 log 3 Tτt,K −1
+
+X
+
+j<i 
+
+∥x(n+1) 
+
+τt,j − x⋆τt,j ∥22,
+
+Applying Lemma 3, one has 
+
+∥H12 ∥2 ≤ C′ d3 log 5 T K log KT 2τt,K −1
+
+ 13n 4c21
+
+d log 3 TT 2 + C log Kτ 2
+
+t, 0
+
+log 2 TT 2
+
+n+1 X
+
+m=0 
+
+K−1X
+
+j=0 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
++C dτ t, 0 log 3 TT 2
+
+ M0Kd log 2 TT
+
+2K !
+
+.
+
+Combining the bounds for H11 and H12 , we get an upper bound for H1. A similar bound for H3 can be given, and we omit it. 22 Bound for H2 and H4. Again by Lemma 11 and the fact that τt,j ≍ τt,i , one has 
+
+∂s ⋆τt,j (x⋆τt,j )
+
+∂(x⋆τt,j /p1 − τt,j ) ≲ p1 − τt,i 
+
+d log Tτt,i 
+
+.
+
+Therefore, 
+
+∥H2∥2 ≤ C′
+
+X
+
+> j<i
+
+|A(t) 
+
+> ji
+
+|2
+
+ X
+
+> j<i
+
+(1 − τt,j ) d2 log 2 Tτ 2
+
+> t,j
+
+∥J(n+1)  
+
+> τt,j
+
+− J⋆τt,j ∥2
+
+≤ C′ log K
+
+ d log 2 TT
+
+2
+
+K max  
+
+> 0≤j≤i−1
+
+∥J(n+1)  
+
+> τt,j
+
+− J⋆τt,j ∥2,
+
+Similarly, we have 
+
+∥H4∥2 ≤ C′ log K
+
+ d log 2 TT
+
+2
+
+K max  
+
+> 0≤j≤K−1
+
+∥J(n) 
+
+> τt,j
+
+− J⋆τt,j ∥2.
+
+Bound for H5. According to the Lagrange interpolation, one has 
+
+∥H5∥2 ≤
+
+Z τt, 0
+
+> τt,i
+
+1
+
+K! sup  
+
+> τt,i ≤τ≤τt, 0
+
+∂K
+
+∂τ K
+
+∂s ⋆τ (x⋆τ )
+
+∂(x⋆τ /√1 − τ ) J⋆τ
+
+> K−1
+
+Y
+
+> j=0
+
+(τ − τt,j ) dτ 
+
+
+
+> 2
+
+≲
+
+ M0Kd log 2 TT
+
+2K+2 
+
+,
+
+where the second inequality comes from (64), the fact that τ ≍ τt,i and 1 − τ ≍ 1 − τt,i , and Lemma 13 that 
+
+sup  
+
+> τt,K −1≤τ≤τt, 0
+
+∂K
+
+∂τ K
+
+ 12(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂(x⋆τ /√1 − τ ) J⋆τ
+
+
+
+≤ CJ(M K )K+1 K!
+
+ dθ log Tτt,i (1 − τt,i )
+
+K+1 
+
+.
+
+Collect all the bounds. Combining the estimates for H1, H 2, H 3, H 4 and H5 with τt, 0 ≥ τt,i , 0 ≤ i ≤ K − 1, we obtain that for any fixed 0 ≤ i ≤ K − 1, it holds 
+
+∥J(n+1)  
+
+> τt,i
+
+− J⋆τt,i ∥2 ≤ C′K log K
+
+ d log 2 TT
+
+2 "
+
+max  
+
+> 0≤j≤i−1
+
+∥J(n+1)  
+
+> τt,j
+
+− J⋆τt,j ∥2 + max  
+
+> 0≤j≤K−1
+
+∥J(n) 
+
+> τt,j
+
+− J⋆τt,j ∥2
+
+#
+
++ C′ d3 log 5 T K log KT 2τt,K −1
+
+ 13n 4c21
+
+d log 3 TT 2 + C log Kτ 2
+
+> t, 0
+
+log 2 TT 2
+
+> n+1
+
+X
+
+> m=0
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+> τt,j
+
+ 2
+
++C dτ t, 0 log 3 TT 2
+
+ M0Kd log 2 TT
+
+2K !
+
++ C′
+
+ M0Kd log 2 TT
+
+2K+2 
+
++ C′ log Kτ 2
+
+> t, 0
+
+log 2 TT 2
+
+"K−1X
+
+> ℓ=0
+
+
+
+ε(n)Jacobi ,t,ℓ (x(n) 
+
+> τt,ℓ
+
+)
+
+2
+
++
+
+> K−1
+
+X
+
+> ℓ=0
+
+
+
+ε(n+1) Jacobi ,t,ℓ (x(n+1)  
+
+> τt,ℓ
+
+)
+
+2
+
+#
+
+.
+
+By the same arguments to (66) and (67), we obtain 
+
+max  
+
+> 0≤i≤K−1
+
+∥J(N ) 
+
+> τt,i
+
+− J⋆τt,i ∥2 ≤ 7−N max  
+
+> 0≤i≤K−1
+
+∥J(0)  
+
+> τt,i
+
+− J⋆τt,i ∥2 + C d3τt, 0 log 7 T log 2 KT 4
+
+> N
+
+X
+
+> m=0
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+> τt,j
+
+ 2
+
++2 C log K τ 2
+
+> t, 0
+
+log 2 TT 2
+
+> N
+
+X
+
+> m=0
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(m)Jacobi ,t,j 
+
+
+
+x(m)
+
+> τt,j
+
+ 2
+
++ C
+
+ M0Kd log 2 TT
+
+2K+2 
+
+. (71) We claim that 
+
+max  
+
+> 0≤j≤K−1
+
+J(0)  
+
+> τt,j
+
+− J⋆τt,j 
+
+> 2
+
+≤ C
+
+ dK log 2 TT
+
+2
+
+. (72) 23 Note that T ≥ C2d log 4 T , K ≤ c log T and N ≥ C3K log T for some sufficiently large constant C3 > 0. Combining (71) and (72) gives 
+
+∥J(N ) 
+
+> τt,i
+
+− J⋆τt,i ∥2 ≤ CK log 2 K d3 log 7 TT 4
+
+> N
+
+X
+
+> n=0
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(n)score ,t,j (x(n) 
+
+> τt,j
+
+)
+
+2
+
++ C log Kτ 2
+
+> t, 0
+
+log 2 TT 2
+
+> N
+
+X
+
+> n=0
+> K−1
+
+X
+
+> j=0
+
+
+
+ε(n)Jacobi ,t,j (x(n) 
+
+> τt,j
+
+)
+
+2
+
++ C
+
+ M0Kd log 2 TT
+
+2K+2 
+
+. (73) This proves (31). It remains to prove the claims (70) and (72). 
+
+Proof of claim (72) . Note that x(0)  
+
+> τt,j
+
+= xτt, 0 , 0 ≤ j ≤ K − 1. It immediately gives 
+
+J(0)  
+
+> τt,j
+
+= ∂(x(0)  
+
+> τt,j
+
+/p1 − τt,j )
+
+∂(xτt, 0 /p1 − τt, 0) =
+
+s
+
+1 − τt, 0
+
+1 − τt,j 
+
+I. 
+
+Using 1 − τt,j ≍ 1 − τt,i , one has 
+
+∥J(0)  
+
+> τt,j
+
+∥ ≤ c7, ∥J(0)  
+
+> τt,j
+
+− I∥ = 1 − τt, 0
+
+1 − τt,j 
+
+− 1 = τt, 0 − τt,j 
+
+1 − τt,j 
+
+≤ c8
+
+log TT , (74) where c7, c 8 > 0 are universal constants. For convenience, define 
+
+A(τ ) := 12(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂(x⋆τ /√1 − τ ) .
+
+Similar to (69), we have 
+
+J⋆τ = I +
+
+Z τt, 0
+
+> τ
+
+A(u)J⋆u du, τ ∈ [τt,K −1, τ t, 0]. (75) According to Lemma 13 with k = 0 , one has 
+
+∥A(u)∥ ≤ CJ M dK log Tu(1 − u) , u ∈ [τt,K −1, τ t, 0].
+
+Therefore, we obtain, for every τ ∈ [τt,K −1, τ t, 0],
+
+∥J⋆τ ∥ ≤ 1 + 
+
+Z τt, 0
+
+> τ
+
+CJ M dK log Tu(1 − u) ∥J⋆u ∥ du ≤ exp 
+
+
+
+CJ M
+
+Z τt, 0
+
+> τ
+
+dK log Tu(1 − u) du 
+
+
+
+,
+
+where the last inequality comes from Gronwall’s inequality. Using the fact that u ≍ τt, 0 and 1 − u ≍ 1 − τt, 0 on 
+
+[τt,K −1, τ t, 0], together with (46f) in Lemma 9, we have 
+
+Z τt, 0
+
+> τ
+
+dK log Tu(1 − u) du ≤ c1
+
+dK log 2 TT .
+
+Since T ≥ C2d log 4 T and K ≤ c log T , it implies 
+
+sup  
+
+> τ∈[τt,K −1,τ t, 0]
+
+∥J⋆τ ∥ ≤ exp 
+
+
+
+CJ M c 1
+
+dK log 2 TT
+
+
+
+≤ c8. (76) Substituting (76) into (75) gives 
+
+∥J⋆τt,j − I∥ ≤ 
+
+Z τt, 0
+
+> τt,j
+
+∥A(u)∥ ∥ J⋆u ∥ du ≤ c8
+
+Z τt, 0
+
+> τt,j
+
+CJ M dK log Tu(1 − u) du ≤ c9
+
+dK log 2 TT ≤ 12 (77) for all 0 ≤ j ≤ K − 1, where c9 is an universal constant. Finally, by the triangle inequality and using (74), 
+
+∥J(0)  
+
+> τt,j
+
+− J⋆τt,j ∥ ≤ ∥ J(0)  
+
+> τt,j
+
+− I∥ + ∥J⋆τt,j − I∥ ≤ c8
+
+log TT + c9
+
+dK log 2 TT ≤ c10 
+
+dK log 2 TT
+
+holds for all 0 ≤ j ≤ K − 1, where c10 > 0 is an universal constant. This proves the claim (72). 24 Proof of claim (70) . The proof is inductive in nature. When n = 0 , through (74) , it holds ∥J(0) 
+
+τt,i ∥ ≤ eC for any 
+
+0 ≤ i ≤ K − 1. Next, assume that ∥J(n0)
+
+τt,i ∥ ≤ eC holds for all 0 ≤ i ≤ K − 1. We then prove ∥J(n0+1) 
+
+τt,i ∥ ≤ eC holds for all 0 ≤ i ≤ K − 1 by induction again. For the case i = 0 , we know J(n0+1) 
+
+τt, 0 = I. Now assume that ∥J(n0+1) 
+
+τt,i ∥ ≤ eC
+
+holds for all 1 ≤ i ≤ k0. According to (68) and using the same approaches as before, we have 
+
+∥J(n0+1) 
+
+τt,k 0+1 − I∥ ≤ X
+
+j<k 0+1 
+
+A(t)
+
+ji 
+
+∂s ⋆τt,j (x(n0+1) 
+
+τt,j )
+
+∂(x(n0+1) 
+
+τt,j /p1 − τt,j ) J(n0+1) 
+
+τt,j + X
+
+j≥k0+1 
+
+A(t)
+
+ji 
+
+∂s ⋆τt,j (x(n0)
+
+τt,j )
+
+∂(x(n0)
+
+τt,j /p1 − τt,j ) J(n0)
+
+τt,j 
+
++ X
+
+j<k 0+1 
+
+A(t)
+
+ji 
+
+∂s τt,j (x(n0+1) 
+
+τt,j )
+
+∂(x(n0+1) 
+
+τt,j /p1 − τt,j ) − ∂s ⋆τt,j (x(n0+1) 
+
+τt,j )
+
+∂(x(n0+1) 
+
+τt,j /p1 − τt,j )
+
+!
+
+J(n0+1) 
+
+τt,j 
+
++ X
+
+j≥k0+1 
+
+A(t)
+
+ji 
+
+∂s τt,j (x(n0)
+
+τt,j )
+
+∂(x(n0)
+
+τt,j /p1 − τt,j ) − ∂s ⋆τt,j (x(n0)
+
+τt,j )
+
+∂(x(n0)
+
+τt,j /p1 − τt,j )
+
+!
+
+J(n0)
+
+τt,j 
+
+≲ d log 2 T log KT + plog K τ t,i 
+
+log TT
+
+n0+1 X
+
+m=n0
+
+K−1X
+
+j=0 
+
+
+
+ε(m)Jacobi ,t,j (x(m)
+
+τt,j )
+
+2
+
+!1/2
+
+.
+
+On the event Et and note that T ≥ C2d log 4 T , one has ∥J(n0+1) 
+
+τt,k 0+1 − I∥ ≤ c′ for a sufficiently small absolute constant 
+
+c′ > 0, which gives ∥J(n0+1) 
+
+τt,k 0+1 ∥ ≤ eC. By induction, we have 
+
+∥J(n)
+
+τt,i ∥ ≤ eC, 0 ≤ i ≤ K − 1, 0 ≤ n ≤ N, 
+
+which gives claim (70). Next, we turn to prove the second part of Lemma 4, namely, to prove (30). From (73), and on the event Et, we have 
+
+∥J(N )
+
+τt,K −1 − J⋆τt,K −1 ∥ ≤ 14
+
+Combining this with (77), we obtain 
+
+∥J(N )
+
+τt,K −1 − I∥ ≤ ∥ J(N )
+
+τt,K −1 − J⋆τt,K −1 ∥ + ∥J⋆τt,K −1 − I∥ ≤ 34 .
+
+Hence J(N )
+
+τt,K −1 is invertible, and by the Neumann-series bound, 
+
+
+
+J(N )
+
+τt,K −1
+
+−1
+
+≤ 11 − ∥ J(N )
+
+τt,K −1 − I∥ ≤ 4.
+
+This proves (30) and completes the proof. 
+
+B.3 Proof of Lemma 5 
+
+Proof. From the definition of the total variation distance and set E in (34), we have 
+
+TV( q1, p 1) =
+
+Z
+
+{x∈Rd:q1(x)>p 1(x)}
+
+(q1(x) − p1(x)) dx 
+
+=
+
+Z
+
+E
+
+(q1(x) − p1(x)) dx +
+
+Z
+
+{x∈Rd:p1(x)<q 1(x)≤exp( −c6d log T )}
+
+(q1(x) − p1(x)) dx 
+
+≤
+
+Z
+
+E
+
+(q1(x) − p1(x)) dx +
+
+Z
+
+{x∈Rd:q1(x)≤exp( −c6d log T )}
+
+q1(x) dx 
+
+=: EY1∼p1
+
+ q1(Y1)
+
+p1(Y1) − 1
+
+
+
+1{Y1 ∈ E} 
+
+
+
++ rT .
+
+For the term rT , let K1 > 0 be any fixed constant, one has 
+
+rT ≤
+
+Z
+
+{x∈Rd: ∥x∥2≤T cR+K1
+
+√d, q 1(x)≤exp( −c6d log T )}
+
+q1(x) dx +
+
+Z
+
+{x∈Rd: ∥x∥2>T cR+K1
+
+√d}
+
+q1(x) dx 
+
+≤ exp( −c6d log T ) Vol 
+
+n 
+
+x ∈ Rd : ∥x∥2 ≤ T cR+K1
+
+√d
+
+o 
+
++ PX1∼q1
+
+
+
+∥X1∥2 > T cR+K1
+
+√d
+
+
+
+, (78) 25 where cR is the constant defined in Assumption 1, and Vol( ·) denotes the d-dimensional Lebesgue measure. Recall that 
+
+X1 = √¯α1 X0 + √1 − ¯α1 Z, Z ∼ N (0 , I d),
+
+and hence 
+
+E∥X1∥22
+
+ ≤ 2¯ α1E∥X0∥22
+
+ + 2(1 − ¯α1)E∥Z∥22
+
+ ≤ 2T 2cR + 2 d, 
+
+where we used Assumption 1 in the last inequality. Therefore, by Markov’s inequality, 
+
+PX1∼q1
+
+
+
+∥X1∥2 > T cR+K1
+
+√d
+
+
+
+≤ E∥X1∥22
+
+
+
+d · T 2cR+2 K1 ≤ 2T 2cR + 2 dd · T 2cR+2 K1 ≲ T −2K1 . (79) By the standard formula for the volume of the d-dimensional Euclidean ball, 
+
+Vol   x ∈ Rd : ∥x∥2 ≤ r  = πd/ 2
+
+Γ( d/ 2 + 1) rd,
+
+see, e.g., [ 47 , Lecture 1]. Moreover, by the Stirling-type lower bound for the Gamma function, see [ 48 , p. 257, Eq. (6.1.38)], there exists an absolute constant c > 0 such that 
+
+Γ( z + 1) ≥ c√z
+
+ ze
+
+z
+
+, z ≥ 1.
+
+Taking z = d/ 2, we obtain, for all d ≥ 2,
+
+Vol   x ∈ Rd : ∥x∥2 ≤ r  ≤√2
+
+c√d
+
+ 2πe d
+
+d/ 2
+
+rd ≤
+
+ Cr 
+
+√d
+
+d
+
+.
+
+Hence, taking r = T cR+K1
+
+√d, we get 
+
+Vol 
+
+
+
+{x ∈ Rd : ∥x∥2 ≤ T cR+K1
+
+√d}
+
+
+
+≤  CT cR+K1 d.
+
+Consequently, 
+
+exp( −c6d log T ) Vol 
+
+
+
+{x ∈ Rd : ∥x∥2 ≤ T cR+K1
+
+√d}
+
+
+
+≤ exp  − c6 − cR − K1
+
+d log T + d log C
+
+≤ exp( −c2 d log T ), (80) where the last inequality follows by choosing c6 sufficiently large so that c6 > c R + K1 + 1 , and c2 is a constant. Putting (79) and (80) into (78), we obtain 
+
+rT ≤ CT −2K1 + exp( −c2 d log T ),
+
+where C is a constant. This completes the proof. 
+
+C Proofs of auxiliary lemmas 
+
+C.1 Proof of Lemma 8 
+
+Proof. Let 
+
+ϕ(z) := τt, 0 + τt,K −1
+
+2 + τt, 0 − τt,K −1
+
+2 z, z ∈ [−1, 1] .
+
+Then ϕ maps [−1, 1] bijectively onto [τt,K −1, τ t, 0], and ϕ(zj ) = τt,j for all 0 ≤ j ≤ K − 1. Let ℓj denote the Lagrange basis polynomials associated with the standard Chebyshev–Lobatto nodes {zj }K−1 
+
+> j=0
+
+on [−1, 1] , namely, 
+
+ℓj (z) := 
+
+Q   
+
+> j′:j′̸=j
+
+(z − zj′ )
+
+Q   
+
+> j′:j′̸=j
+
+(zj − zj′ ) , 0 ≤ j ≤ K − 1. (81) By the definition of ψt,j as in (14), a direct calculation gives 
+
+ψt,j (ϕ(z)) = ℓj (z), 0 ≤ j ≤ K − 1. (82) Therefore, 
+
+sup  
+
+> τ∈[τt,K −1,τ t, 0]
+> K−1
+
+X
+
+> j=0
+
+|ψt,j (τ )| = sup 
+
+> z∈[−1,1]
+> K−1
+
+X
+
+> j=0
+
+|ℓj (z)|.
+
+For the standard Chebyshev–Lobatto nodes on [−1, 1] , the classical bound 
+
+sup 
+
+> z∈[−1,1]
+> K−1
+
+X
+
+> j=0
+
+|ℓj (z)| ≤ 2
+
+π log K + 1 
+
+holds; see [49, Chapter 15, Theorem 15.2]. This completes the proof. 26 C.2 Proof of Lemma 9 
+
+Proof. We prove the lemma one by one. First, (46a)–(46e) follow directly from Lemma 1 in [28]. 
+
+Proof of (46f) . For any fixed 2 ≤ t ≤ T , it holds τt,K −1 = 1 − ¯αt−1 ≤ τt,i ≤ τt, 0 = 1 − ¯αt for all i = 0 , 1, . . . , K −1.Therefore, for any 0 ≤ i1, i 2, i 3, i 4 ≤ K − 1,
+
+τt,i 1 − τt,i 2
+
+τt,i 3 (1 − τt,i 4 ) ≤ ¯αt−1 − ¯αt
+
+(1 − ¯αt−1)¯ αt
+
+= 1
+
+αt
+
+· 1 − αt
+
+1 − ¯αt−1
+
+≤ 8c1
+
+log TT ,
+
+where the last inequality comes from (46a) and (46b). This proves (46f). 
+
+Proof of (46g) . In the following, cause K ≥ 2 and 0 ≤ j ≤ K − 1. From the definition of γt,j (·) in (16), one has 
+
+|γt,j (τt,i )| ≤ 
+
+Z τt, 0
+
+> τt,i
+
+|ψt,j (τ )| dτ ≤ (τt, 0 − τt,i ) sup  
+
+> τ∈[τt,K −1, τ t, 0]
+
+|ψt,j (τ )| = ( τt, 0 − τt,i ) sup 
+
+> z∈[−1,1]
+
+|ℓj (z)|, (83) where the last equation comes from (82). It then suffices to upper bound sup z∈[−1,1] |ℓj (z)|. Let 
+
+ωK (z) := 
+
+> K−1
+
+Y
+
+> j=0
+
+(z − zj ), zj = cos 
+
+ jπ K − 1
+
+
+
+, 0 ≤ j ≤ K − 1.
+
+Then with (81), we obtain 
+
+ℓj (z) = ωK (z)
+
+ω′ 
+
+> K
+
+(zj )( z − zj ) .
+
+According to [50, Chapter 1, §1.2.2], one has 
+
+ωK (z) = 2 1−(K−1) (z2 − 1) UK−2(z),
+
+where UK−2 is the Chebyshev polynomial of the second kind, characterized by UK−2(cos θ) = sin(( K−1) θ)sin θ , θ ∈ [0 , π ].A direct computation gives 
+
+|ℓ0(z)| = (1 + z)|UK−2(z)|
+
+2( K − 1) , |ℓK−1(z)| = (1 − z)|UK−2(z)|
+
+2( K − 1) ,
+
+and, for 1 ≤ j ≤ K − 2,
+
+|ℓj (z)| = (1 − z2)|UK−2(z)|
+
+(K − 1) |z − zj | .
+
+Now write z = cos θ, z j = cos θj , θ ∈ [0 , π ], θ j = jπ K−1 . Using 
+
+UK−2(cos θ) = sin(( K − 1) θ)sin θ ,
+
+we estimate sup z∈[−1,1] |ℓj (z)| separately: 
+
+Endpoint case j = 0 . We have 
+
+|ℓ0(z)| = (1 + cos θ)| sin(( K − 1) θ)|
+
+2( K − 1) sin θ ≤ (1 + cos θ) ( K − 1) sin θ
+
+2( K − 1) sin θ = 1 + cos θ
+
+2 ≤ 1.
+
+Endpoint case j = K − 1. Similarly, 
+
+|ℓK−1(z)| = (1 − cos θ)| sin(( K − 1) θ)|
+
+2( K − 1) sin θ ≤ 1 − cos θ
+
+2 ≤ 1.
+
+Interior case 1 ≤ j ≤ K − 2. In this case, 
+
+|ℓj (z)| = sin θ | sin(( K − 1) θ)|
+
+(K − 1) | cos θ − cos θj | ≤ sin θ | sin( θ − θj )|| cos θ − cos θj | ≤
+
+sin θ cos θ−θj
+
+> 2
+
+sin θ+θj
+
+> 2
+
+.
+
+27 where the first inequality follows from the fact that (K − 1) θj = jπ , and hence 
+
+| sin(( K − 1) θ)| = | sin(( K − 1)( θ − θj )) | ≤ (K − 1) | sin( θ − θj )|.
+
+On the other hand, note that 
+
+sin θ + sin θj = 2 sin θ + θj
+
+2 cos θ − θj
+
+2 ≥ sin θ, 
+
+because θ, θ j ∈ [0 , π ] implies cos θ−θj 
+
+> 2
+
+≥ 0, sin θj ≥ 0. This immediately gives 
+
+|ℓj (z)| ≤ 2 cos 2 θ − θj
+
+2 ≤ 2.
+
+Putting it into (83), we have 
+
+|γt,j (τt,i )| ≤ 2( τt, 0 − τt,i ),
+
+which proves (46g) 
+
+Proof of (46h) . For every 0 ≤ i ≤ K − 1 and 2 ≤ t ≤ T , since τt,K −1 = 1 − ¯αt−1 ≤ τt,i ≤ τt, 0 = 1 − ¯αt, we have 
+
+¯αt = 1 − τt, 0 ≤ 1 − τt,i ≤ 1 − τt,K −1 = ¯ αt−1, and 1 − ¯αt−1 = τt,K −1 ≤ τt,i ≤ τt, 0 = 1 − ¯αt. Therefore, it suffices to show 
+
+¯αt ≍ ¯αt−1 and 1 − ¯αt−1 ≍ 1 − ¯αt,
+
+which follow directly from (46a)and (46c). This proves (46h). 
+
+Proof of (46i) . For K ≥ 2, by Lemma 8, we have 
+
+> K−1
+
+X
+
+> j=0
+
+|ψt,j (τ )| ≤ 2
+
+π log K + 1 ≤ C4 log K. 
+
+Hence, for any 0 ≤ i ≤ K − 1,
+
+> K−1
+
+X
+
+> j=0
+
+|γt,j (τt,i )| ≤ 
+
+Z τt, 0
+
+> τt,i
+> K−1
+
+X
+
+> j=0
+
+|ψt,j (τ )| dτ ≤ C4(τt, 0 − τt,i ) log K, 
+
+where γt,j is defined in(16). This proves(46i). 
+
+Proof of (46j) . Using the definition of A(t) 
+
+> ji
+
+= 12 γt,j (τt,i ) (1 − τt,j )−3/2 together with (46h) and (46i), we obtain 
+
+> K−1
+
+X
+
+> j=0
+
+|A(t) 
+
+> ji
+
+| = 12
+
+> K−1
+
+X
+
+> j=0
+
+|γt,j (τt,i )|
+
+(1 − τt,j )3/2 ≤ 121(1 − τt, 0)3/2
+
+> K−1
+
+X
+
+> j=0
+
+|γt,j (τt,i )| ≤ C4
+
+(τt, 0 − τt,i ) log K
+
+(1 − τt, 0)3/2 .
+
+This proves (46j). 
+
+Proof of (46k) . According to (46g), one has |γt,j (τt,i )| ≤ 2( τt, 0 − τt,i ). Therefore, 
+
+|A(t) 
+
+> ji
+
+| = 12
+
+|γt,j (τt,i )|
+
+(1 − τt,j )3/2 ≤ C4
+
+τt, 0 − τt,i 
+
+(1 − τt, 0)3/2 ,
+
+which implies 
+
+> K−1
+
+X
+
+> j=0
+
+|A(t) 
+
+> ji
+
+|2 ≤
+
+
+
+max  
+
+> 0≤j≤K−1
+
+|A(t) 
+
+> ji
+
+|
+
+ K−1X
+
+> j=0
+
+|A(t) 
+
+> ji
+
+| ≤ C5
+
+(τt, 0 − τt,i )2 log K
+
+(1 − τt, 0)3 .
+
+This proves (46k). 28 C.3 Proof of Lemma 10 
+
+Proof. For any r > 0, Bayes’ rule gives 
+
+P  √1 − τ X 0 − y 2 ≥ r ¯Xτ = y =
+
+R 
+
+> {∥ √1−τ x 0−y∥2≥r}
+
+pX0 (x0) p ¯Xτ |X0 (y | x0) dx 0
+
+p ¯Xτ (y)
+
+≤ 1
+
+p ¯Xτ (y) · 1(2 πτ )d/ 2 exp 
+
+
+
+− r2
+
+2τ
+
+
+
+≤ exp 
+
+
+
+θτ (y)d log T + c0
+
+2 d log T − r2
+
+2τ
+
+
+
+, (84) where the first inequality follows from the fact that 
+
+p ¯Xτ |X0 (y | x0) = 1(2 πτ )d/ 2 exp 
+
+
+
+− ∥y − √1 − τ x 0∥22
+
+2τ
+
+
+
+,
+
+and the second inequality comes from the definition of θτ (y) that 1   
+
+> p¯Xτ (y)
+
+≤ exp( θτ (y)d log T ) and the fact τ ≥ T −c0 .Choosing 
+
+r = 5 c5
+
+pθτ (y) d τ log T
+
+for some constant c5 ≥ 2, then 
+
+P
+
+ √1 − τ X 0 − y 2 ≥ 5c5
+
+pθτ (y) d τ log T ¯Xτ = y
+
+
+
+≤ exp 
+
+ 
+
+1 + c0
+
+2θτ (y) − 25 2 c25
+
+
+
+θτ (y)d log T
+
+
+
+.
+
+Since θτ (y) ≥ c6 ≥ c0, we have c0
+
+2θτ (y) ≤ 12 ,
+
+and therefore 
+
+1 + c0
+
+2θτ (y) − 25 2 c25 ≤ 32 − 25 2 c25 ≤ − c25 for all c5 ≥ 2.
+
+Thus 
+
+P
+
+ √1 − τ X 0 − y 2 ≥ 5c5
+
+pθτ (y) d τ log T ¯Xτ = y
+
+
+
+≤ exp  −c25θτ (y)d log T  . (85) This gives (48). Next, note that θτ (y) ≥ c6 ≥ c0. It then follows from (84) that 
+
+P  √1 − τ X 0 − y 2 ≥ u ¯Xτ = y ≤ exp 
+
+ 32 θτ (y)d log T − u2
+
+2τ
+
+
+
+, ∀u > 0.
+
+For every integer k ≥ 1, the tail-integral identity yields 
+
+E
+
+h √1 − τ X 0 − y k 
+
+> 2
+
+¯Xτ = y
+
+i
+
+= k
+
+Z ∞
+
+> 0
+
+uk−1P  √1 − τ X 0 − y 2 ≥ u ¯Xτ = y du. 
+
+In particular, for k = 1 , we have 
+
+E √1 − τ X 0 − y 2 ¯Xτ = y
+
+≤ 10 pθτ (y) d τ log T +
+
+Z ∞
+
+> 10
+
+√θτ (y) d τ log T
+
+P  √1 − τ X 0 − y 2 ≥ u ¯Xτ = y du 
+
+≤ 10 pθτ (y) d τ log T +
+
+Z ∞
+
+> 10
+
+√θτ (y) d τ log T
+
+exp 
+
+ 32 θτ (y)d log T − u2
+
+2τ
+
+
+
+du 
+
+≲ pθτ (y) d τ log T , 
+
+where the last inequality comes from the Gaussian tail estimate 
+
+Z ∞
+
+> a
+
+e−u2/(2 τ ) du ≤ τa e−a2/(2 τ ), for all a > 0.
+
+This proves (48). For the cases k = 2 , 3, 4, the proof is similar, and so we omit it. 29 C.4 Proof of Lemma 13 
+
+Proof. The proof follows the argument used for Claims (64a) and (64b) in Appendix A of [ 28 ], while keeping track of the dependence on the order k explicitly. Define 
+
+uk := ∂k
+
+∂τ k
+
+ s⋆τ (x⋆τ )(1 − τ )3/2
+
+
+
+, θ := θτ (x⋆τ ).
+
+Then for sufficiently small δ, the Taylor expansion gives 
+
+s⋆τ +δ
+
+ x⋆τ +δ
+
+
+
+(1 − τ − δ)3/2 − s⋆τ (x⋆τ )(1 − τ )3/2 =
+
+> ∞
+
+X
+
+> k=1
+
+δk
+
+k! uk.
+
+As shown in [28, Equation (74)], and recall u⋆τ := x⋆τ /√1 − τ one has 
+
+s⋆τ +δ (x⋆τ +δ )(1 − τ − δ)3/2 = − 1(τ + δ)(1 − τ − δ)
+
+
+
+x⋆τ +δ
+
+√1 − τ − δ − x⋆τ
+
+√1 − τ +
+
+Z
+
+pX0| ¯Xτ (x0|x⋆τ ) e∆ (u⋆τ − x0) dx 0
+
+Z
+
+pX0| ¯Xτ (x0|x⋆τ ) e∆ dx 0
+
+ , (86) where 
+
+∆ := (1 − τ ) x⋆τ /√1 − τ − x0
+
+> 22
+
+τ − (1 − τ − δ) x⋆τ +δ /√1 − τ − δ − x0
+
+> 22
+
+τ + δ =: X
+
+> k≥1
+
+δk
+
+k! vk.
+
+We next prove that there exist universal constants M1 > 1 and Cs, ¯C > 0 such that 
+
+∥uk∥2 ≤ Cs(M1K)kk!
+
+s
+
+dθ log Tτ (1 − τ )3
+
+ dθ log Tτ (1 − τ )
+
+k
+
+, 0 ≤ k ≤ K, (87) and, for every C ≥ 2,
+
+|vk| ≤ ¯CC 2
+
+M1K (M1K)kk!
+
+ dθ log Tτ (1 − τ )
+
+k
+
+, 1 ≤ k ≤ K, (88) provided that 
+
+∥u⋆τ − x0∥2 ≤ 5C
+
+r dθτ log T
+
+1 − τ .
+
+Indeed, for k = 0 , the results hold directly from Lemma 10 (see [ 28 , Equation (75a)] for more details). Suppose that (87) and (88) hold for all k ≤ k0. Then, by the same arguments to [28], we have 
+
+|vk0+1 |≤ (k0 + 1)! 
+
+"
+
+τ −k0 ∥u⋆τ − x0∥22 + 1(k0 + 1)! 1 − ττ ∥u⋆τ − x0∥2 ∥uk0 ∥2 + ∥u⋆τ − x0∥2
+
+> k0
+
+X
+
+> ℓ=1
+
+τ −ℓ−1
+
+(k0 + 1 − ℓ)! ∥uk0−ℓ∥2
+
++ 1 − τ
+
+4τ
+
+> k0
+
+X
+
+> ℓ=1
+
+1
+
+ℓ!( k0 + 1 − ℓ)! ∥uℓ−1∥2∥uk0−ℓ∥2 +
+
+> k0−1
+
+X
+
+> ℓ=1
+> k0−ℓ
+
+X
+
+> j=1
+
+1
+
+j!( k0 + 1 − ℓ − j)! τ −ℓ−1∥uj−1∥2∥uk0−ℓ−j ∥2
+
+#
+
+.
+
+Using the induction hypothesis (87) and (88), we obtain 
+
+|vk0+1 | ≤ (k0 + 1)! 
+
+"
+
+25 C2 + 5CsCk0 + 1 (M1K)k0 + 5 CsC(M1K)k0 + C2s (M1K)k0−1 + 2 C2s (M1K)k0
+
+#  dθ log Tτ (1 − τ )
+
+k0+1 
+
+≤ ¯CC 2
+
+M1K (M1K)k0+1 (k0 + 1)! 
+
+ dθ log Tτ (1 − τ )
+
+k0+1 
+
+,
+
+provided ¯C > 5(1 + Cs + C2 
+
+> s
+
+) and then M1 ≥ 100 ¯Cc 27. Therefore, we have verified (88) for k = k0 + 1 . Next, we prove that (87) holds for k = k0 + 1 . Let e∆ =: P∞  
+
+> k=0 δk
+> k!
+
+wk denote the Taylor expansion of e∆. Then one can show that w0 = 1 and for all 1 ≤ k ≤ k0 + 1 ,
+
+|wk| =
+
+> k
+
+X
+
+> ℓ=1
+
+1
+
+ℓ!
+
+X
+
+> j1+··· +jℓ=k
+
+k!
+
+j1! · · · jℓ! vj1 · · · vjℓ ≤ (M1K)kk!
+
+ dθ log Tτ (1 − τ )
+
+k kX
+
+> ℓ=1
+
+1
+
+ℓ!
+
+k − 1
+
+ℓ − 1
+
+  ¯CC 2
+
+M1K
+
+ℓ
+
+≤ ¯CC 2
+
+M1K
+
+
+
+1 + ¯CC 2
+
+M1K
+
+k−1
+
+(M1K)kk!
+
+ dθ log Tτ (1 − τ )
+
+k
+
+≤ CK (M K )kk!
+
+ dθ log Tτ (1 − τ )
+
+k
+
+. (89) 30 Denote 
+
+Z
+
+> x0
+
+pX0| ¯Xτ (x0 | x⋆τ ) exp(∆) ( u⋆τ − x0) d x0 := 
+
+> ∞
+
+X
+
+> k=0
+
+δk
+
+k! ak,
+
+Z
+
+> x0
+
+pX0| ¯Xτ (x0 | x⋆τ ) exp(∆)d x0 := 
+
+> ∞
+
+X
+
+> k=0
+
+δk
+
+k! bk.
+
+Then for 0 ≤ k ≤ k0 + 1 , similar to [28], one has 
+
+a0 =
+
+Z
+
+> x0
+
+pX0| ¯Xτ (x0 | x⋆τ ) ( u⋆τ − x0) w0 dx0 =
+
+Z
+
+> x0
+
+pX0| ¯Xτ (x0 | x⋆τ ) ( u⋆τ − x0) d x0,
+
+∥ak∥2 ≤ C′(M1K)kk!
+
+r dθτ log T
+
+1 − τ
+
+ dθ log Tτ (1 − τ )
+
+k
+
+, 0 ≤ k ≤ k0 + 1 ,b0 = 1 , |bk| ≤ C′′ 
+
+K (M1K)kk!
+
+ dθ log Tτ (1 − τ )
+
+k
+
+, 1 ≤ k ≤ k0 + 1 .
+
+Here C′ = O(1 + c7) is an absolute constant, and 0 < C ′′ ≤ 1/4. Next define dk through the Taylor expansion 
+
+P∞  
+
+> m=0 δm
+> m!
+
+am
+
+P∞  
+
+> ℓ=0 δℓ
+> ℓ!
+
+bℓ
+
+=
+
+R 
+
+> x0
+
+pX0| ¯Xτ (x0 | x⋆τ ) exp(∆) ( u⋆τ − x0) d x0
+
+R 
+
+> x0
+
+pX0| ¯Xτ (x0 | x⋆τ ) exp(∆)d x0
+
+:= 
+
+> ∞
+
+X
+
+> k=0
+
+δk
+
+k! dk.
+
+Then 
+
+d0 =
+
+Z
+
+> x0
+
+pX0| ¯Xτ (x0 | x⋆τ )
+
+ x⋆τ
+
+√1 − τ − x0
+
+
+
+dx0, dk = ak −
+
+> k−1
+
+X
+
+> ℓ=0
+
+kℓ
+
+
+
+dℓbk−ℓ, 1 ≤ k ≤ k0 + 1 .
+
+Choosing C′′′ ≥ 2C′, we obtain 
+
+∥dk∥2 ≤
+
+
+
+C′ + kK C′′ C′′′ 
+
+
+
+(M1K)kk!
+
+r dθτ log T
+
+1 − τ
+
+ dθ log Tτ (1 − τ )
+
+k
+
+≤ C′′′ (M1K)kk!
+
+r dθτ log T
+
+1 − τ
+
+ dθ log Tτ (1 − τ )
+
+k
+
+, 0 ≤ k ≤ k0 + 1 . (90) Similarly to (80) in [28], through (86) we have 
+
+> ∞
+
+X
+
+> k=1
+
+δk
+
+k! uk =
+
+> ∞
+
+X
+
+> k=1
+
+1
+
+τ (1 − τ )
+
+uk−1 − 2dk
+
+2k! +
+
+> k
+
+X
+
+> ℓ=1
+
+(−τ )−ℓ−1 − (1 − τ )−ℓ−1 2dk−ℓ − uk−1−ℓ
+
+2( k − ℓ)! 
+
+!
+
+δk.
+
+By hypothesis (87) and (90) hold for 0 ≤ k < k 0, we now prove (87) for k = k0 + 1 
+
+∥uk0+1 ∥2 = 1
+
+τ (1 − τ )
+
+ uk0
+
+2 − dk0+1 
+
+
+
++
+
+> k0+1
+
+X
+
+> ℓ=1
+
+(−τ )−ℓ−1 − (1 − τ )−ℓ−1 (k0 + 1)! 2 ( k0 + 1 − ℓ)! (2 dk0+1 −ℓ − uk0−ℓ)
+
+> 2
+
+≤ C′′′ (M1K)k0+1 (k0 + 1)! 
+
+s
+
+dθ log Tτ (1 − τ )3
+
+ dθ log Tτ (1 − τ )
+
+k0+1 
+
++ Cs(M1K)k0 (k0 + 1)! 2
+
+s
+
+dθ log Tτ (1 − τ )3
+
+ dθ log Tτ (1 − τ )
+
+k0+1 
+
++ (C′′′ + Cs)KM1K (M1K)k0+1 (k0 + 1)! 
+
+s
+
+dθ log Tτ (1 − τ )3
+
+ dθ log Tτ (1 − τ )
+
+k0
+
+≤ Cs(M1K)k0+1 (k0 + 1)! 
+
+s
+
+dθ log Tτ (1 − τ )3
+
+ dθ log Tτ (1 − τ )
+
+k0+1 
+
+. (91) where the last inequality follows by choosing Cs ≥ 2 + C′′′ and M1 ≥ 100 C2s c27. Thus we proved (87) holds for any 
+
+0 ≤ k ≤ K.We next prove (57). By Tweedie’s formula [46], we have 
+
+1(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂u ⋆τ
+
+= − 1
+
+τ (1 − τ ) Id + 1
+
+τ 2 Cov 
+
+ x⋆τ
+
+√1 − τ − X0 ¯Xτ = x⋆τ
+
+
+
+.
+
+31 Denote mk := ∂k 
+
+> ∂τ k
+
+h 1(1 −τ )3/2  
+
+> ∂s ⋆τ(x⋆τ)
+> ∂u ⋆τ
+
+i
+
+. For sufficiently small δ, we write 
+
+> ∞
+
+X
+
+> k=1
+
+δk
+
+k! mk = 1(1 − τ − δ)3/2
+
+∂s ⋆τ +δ (x⋆τ +δ )
+
+∂u ⋆τ +δ
+
+− 1(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂u ⋆τ
+
+,
+
+where 
+
+1(1 − τ − δ)3/2
+
+∂s ⋆τ +δ (x⋆τ +δ )
+
+∂u ⋆τ +δ
+
+= − Id
+
+(τ + δ)(1 − τ − δ) + 1(τ + δ)2
+
+" R pX0| ¯Xτ (x0 | x⋆τ )e∆ (u⋆τ − x0) ( u⋆τ − x0)⊤ dx0
+
+R pX0| ¯Xτ (x0 | x⋆τ )e∆ dx0
+
+−
+
+R pX0| ¯Xτ (x0 | x⋆τ )e∆ (u⋆τ − x0) d x0
+
+R pX0| ¯Xτ (x0 | x⋆τ )e∆ dx0
+
+! R pX0| ¯Xτ (x0 | x⋆τ )e∆ (u⋆τ − x0) d x0
+
+R pX0| ¯Xτ (x0 | x⋆τ )e∆ dx0
+
+!⊤#
+
+,
+
+and ∆ = P  
+
+> k≥1δk
+> k!
+
+vk. Applying the same argument as above, gives 
+
+∥mk∥ = ∂k
+
+∂τ k
+
+ 1(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂u ⋆τ
+
+
+
+≤ eC(M2K)kk!
+
+ dθ log Tτ (1 − τ )
+
+k+1 
+
+, M2 ≥ 2, 0 ≤ k ≤ K. (92) On the other hand, recall that J⋆τ := ∂(x⋆τ /√1−τ ) 
+
+> ∂
+> 
+> x⋆τt, 0/
+
+√1−τt, 0 
+
+> 
+
+and (69), then the exact Jacobian satisfies 
+
+ddτ J⋆τ = − 12
+
+ 1(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂u ⋆τ
+
+
+
+J⋆τ , J⋆τt, 0 = I. 
+
+Because (76) gives ∥J⋆τ ∥ ≤ c8. Then we choose bC ≥ c8 and assume that ∂k  
+
+> ∂τ k
+
+J⋆τ ≤ bCk ! ( M2K)k  dθ log Tτ (1 −τ )
+
+k
+
+for 
+
+0 ≤ k ≤ k0. Differentiating the preceding identity k − 1 times yields 
+
+∂k
+
+∂τ k J⋆τ = − 12
+
+> k−1
+
+X
+
+> ℓ=0
+
+k − 1
+
+ℓ
+
+
+
+mℓ
+
+∂k−1−ℓ
+
+∂τ k−1−ℓ J⋆τ . (93) Using (92) and assumption above, we prove (93) for k = k0 + 1 
+
+∂k0+1 
+
+∂τ k0+1 J⋆τ ≤ 12
+
+> k0
+
+X
+
+> ℓ=0
+
+k0
+
+ℓ
+
+
+
+∥mℓ∥ ∂k0−ℓ
+
+∂τ k0−ℓ J⋆τ
+
+≤ 12 eC bC
+
+> k0
+
+X
+
+> ℓ=0
+
+k0
+
+ℓ
+
+
+
+(M2K)ℓℓ!
+
+ dθ log Tτ (1 − τ )
+
+ℓ+1 
+
+(M2K)k0−ℓ(k0 − ℓ)! 
+
+ dθ log Tτ (1 − τ )
+
+k0−ℓ
+
+≤ eC
+
+2M2K bC(k0 + 1)!( M2K)k0+1 
+
+ dθ log Tτ (1 − τ )
+
+k0+1 
+
+≤ bC(k0 + 1)!( M2K)k0+1 
+
+ dθ log Tτ (1 − τ )
+
+k0+1 
+
+.
+
+Finally, applying Leibniz’ rule to 
+
+h 1(1 −τ )3/2  
+
+> ∂s ⋆τ(x⋆τ)
+> ∂u ⋆τ
+
+i
+
+J⋆τ and combining with (92) and the bound of ∂k  
+
+> ∂τ k
+
+J⋆τ above, for any 0 ≤ k ≤ K we get 
+
+∂k
+
+∂τ k
+
+ 1(1 − τ )3/2
+
+∂s ⋆τ (x⋆τ )
+
+∂u ⋆τ
+
+J⋆τ
+
+
+
+≤
+
+> k
+
+X
+
+> ℓ=0
+
+kℓ
+
+
+
+∥mℓ∥ ∥ ∂k−ℓ
+
+∂τ k−ℓ J⋆τ ∥d ≤ CJ(M2K)k+1 k!
+
+ dθ log Tτ (1 − τ )
+
+k+1 
+
+,
+
+where the last inequality follows from CJ ≥ 2 eC bC, k + 1 ≤ K + 1 ≤ 2K and M2 ≥ 2. This proves (57). 
+
+C.5 Proof of Lemma 14 
+
+Proof. For convenience, let θt := θτt, 0 (xτt, 0 ). Recalling that x⋆τ is the solution of ODE (8) at τ with the initial condition 
+
+x⋆τt, 0 = xτt, 0 , we know from Lemma 12 that 
+
+− log p ¯Xτ (x⋆τ ) ≤ 2θtd log T, τt,K −1 ≤ τ ≤ τt, 0.
+
+32 The same argument as in [28, Eq. (91)] gives, for all 0 ≤ i ≤ K − 1 and all λ ∈ [0 , 1] ,
+
+− log p ¯Xτt,i 
+
+
+
+λx (0)  
+
+> τt,i
+
++ (1 − λ)x⋆τt,i 
+
+
+
+≤ 2.1dθ t log T. (94) Combining (94) with Lemma 11, we obtain 
+
+∂s ⋆τt,i 
+
+
+
+λx (0)  
+
+> τt,i
+
++ (1 − λ)x⋆τt,i 
+
+
+
+∂x ≲ dθ t log Tτt,i 
+
+, 0 ≤ i ≤ K − 1, λ ∈ [0 , 1] . (95) For any 0 ≤ n ≤ N − 1 and 0 ≤ i ≤ K − 1, we define 
+
+u(n+1)  
+
+> t,i
+
+:= 
+
+s
+
+1 − τt, 0
+
+1 − τt,i 
+
+x(n+1)  
+
+> τt,i
+
+− xτt, 0 = p1 − τt, 0
+
+
+
+> i−1
+
+X
+
+> j=0
+
+A(t) 
+
+> ji
+
+sτt,j 
+
+
+
+x(n+1) 
+
+> τt,j
+
+
+
++
+
+> K−1
+
+X
+
+> j=i
+
+A(t) 
+
+> ji
+
+sτt,j 
+
+
+
+x(n)
+
+> τt,j
+
+ , (96) where A(t) 
+
+> ji
+
+= 12 γt,j (τt,i ) (1 − τt,j )−3/2. Similarly, let 
+
+u⋆t,i := 
+
+s
+
+1 − τt, 0
+
+1 − τt,i 
+
+x⋆τt,i − xτt, 0 = −p1 − τt, 0
+
+Z τt,i 
+
+> τt, 0
+
+12(1 − τ )3/2 s⋆τ (x⋆τ ) dτ, (97) where the second inequality follows from (10) . Next, we shall prove the following two estimates simultaneously by induction: for each 0 ≤ n ≤ N − 1 and each 0 ≤ i ≤ K − 1, it holds 
+
+u(n+1)  
+
+> t,i
+
+− u⋆t,i 2
+
+≤ C10 
+
+τt, 0 log TT
+
+s
+
+log K X
+
+> m,j
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+> τt,j
+
+ 2
+
++ C10 
+
+s
+
+dθ tτt, 0 log 3 TT 2
+
+ dθ t log 2 T K T
+
+
+
+(98) and for all λ ∈ [0 , 1] ,
+
+− log p ¯Xτt,i 
+
+
+
+λx (n+1)  
+
+> τt,i
+
++ (1 − λ)x⋆τt,i 
+
+
+
+≤ 2.1dθ t log T. (99) Here, ε(m)score ,t,j (·) is defined in (29) and C10 > 0 is a sufficiently large constant. Moreover, with iteration (15) we have 
+
+x(n) 
+
+> τt, 0
+
+= x⋆τt, 0 = xτt, 0 , for all n ≥ 0
+
+Thus for n = 0 , i = 0 , we have 
+
+u(1)  
+
+> t, 0
+
+= u⋆t, 0 = 0 , u(1)  
+
+> t, 0
+
+− u⋆t, 0 2
+
+= 0 , (100) 
+
+− log p ¯Xτt, 0
+
+
+
+λx (1)  
+
+> τt, 0
+
++ (1 − λ)x⋆τt, 0
+
+
+
+= − log p ¯Xτt, 0
+
+
+
+x⋆τt, 0
+
+
+
+≤ 2.1dθ t log T, (101) where (101) holds due to (94). This implies (98) and (99) holds for n = 0 , i = 0 . Similar to (95), we also have 
+
+∂s ⋆τt, 0
+
+
+
+λx (1)  
+
+> τt, 0
+
++ (1 − λ)x⋆τt, 0
+
+
+
+∂x ≲ dθ t log Tτt, 0
+
+, λ ∈ [0 , 1] . (102) Assume that for all 0 ≤ i ≤ k0 and for all λ ∈ [0 , 1] , (98) and (99) hold, where 0 ≤ k0 ≤ K − 2.
+
+Prove (98) for n = 0 and i = k0 + 1 . By (96) , (97) , and the definition of A(t) 
+
+> ji
+
+= 12 γt,j (τt,i ) (1 − τt,j )−3/2, we have 
+
+u(1)  
+
+> t,k 0+1
+
+− u⋆t,k 0+1 = J(1) 1,k 0+1 + J(1) 2,k 0+1 + J(1) 3,k 0+1 ,
+
+33 where 
+
+J(1) 1,k 0+1 = p1 − τt, 0
+
+" k0X
+
+j=0 
+
+A(t)
+
+j,k 0+1 
+
+
+
+sτt,j 
+
+
+
+x(1) 
+
+τt,j 
+
+
+
+− s⋆τt,j 
+
+
+
+x(1) 
+
+τt,j 
+
+ 
+
++
+
+K−1X
+
+j=k0+1 
+
+A(t)
+
+j,k 0+1 
+
+
+
+sτt,j 
+
+
+
+x(0) 
+
+τt,j 
+
+
+
+− s⋆τt,j 
+
+
+
+x(0) 
+
+τt,j 
+
+ #
+
+,J(1) 2,k 0+1 = p1 − τt, 0
+
+" k0X
+
+j=0 
+
+A(t)
+
+j,k 0+1 
+
+
+
+s⋆τt,j 
+
+
+
+x(1) 
+
+τt,j 
+
+
+
+− s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+ 
+
++
+
+K−1X
+
+j=k0+1 
+
+A(t)
+
+j,k 0+1 
+
+
+
+s⋆τt,j 
+
+
+
+x(0) 
+
+τt,j 
+
+
+
+− s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+ #
+
+,J(1) 3,k 0+1 = p1 − τt, 0
+
+"K−1X
+
+j=0 
+
+A(t)
+
+j,k 0+1 s⋆τt,j 
+
+
+
+x⋆τt,j 
+
+
+
+−
+
+Z τt, 0
+
+τt,k 0+1 
+
+12(1 − τ )3/2 s⋆τ (x⋆τ ) dτ 
+
+#
+
+.
+
+For the first term J(1) 1,k 0+1 , the Cauchy–Schwarz yields 
+
+∥J(1) 1,k 0+1 ∥2 ≲ p1 − τt, 0
+
+
+
+K−1X
+
+j=0 
+
+|A(t)
+
+j,k 0+1 |2
+
+
+
+1/2 
+
+1X
+
+m=0 
+
+K−1X
+
+j=0 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
+
+
+1/2
+
+≲ τt, 0 log TT
+
+vuutlog K
+
+NX
+
+m=0 
+
+K−1X
+
+j=0 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
+, (103) where the last line follows from (46k) and (46f) by setting i1 = 0 , i2 = k0 + 1 , i3 = 0 and i4 = 0 . For the second term 
+
+J(1) 2,k 0+1 term, since (99) holds for all 0 ≤ i ≤ k0, similar to (95), we have 
+
+∂s ⋆τt,i 
+
+
+
+λx (1) 
+
+τt,i + (1 − λ)x⋆τt,i 
+
+
+
+∂x ≲ dθ t log Tτt,i 
+
+, λ ∈ [0 , 1] (104) for all 0 ≤ i ≤ k0. Using (104) and (95) we obtain 
+
+∥J(1) 2,k 0+1 ∥2 ≲ p1 − τt, 0
+
+k0X
+
+j=0 
+
+|A(t)
+
+j,k 0+1 | dθ t log Tτt,j 
+
+x(1) 
+
+τt,j − x⋆τt,j 2
+
++ p1 − τt, 0
+
+K−1X
+
+j=k0+1 
+
+|A(t)
+
+j,k 0+1 | dθ t log Tτt,j 
+
+x(0) 
+
+τt,j − x⋆τt,j 2
+
+≲ dθ t log 2 T log KT
+
+"
+
+max 
+
+0≤j≤k0
+
+u(1) 
+
+t,j − u⋆t,j 2
+
++ max 
+
+k0+1 ≤j≤K−1 x(0) 
+
+τt,j − x⋆τt,j 2
+
+#
+
+, (105) where the last line follows from x(m)
+
+τt,j − x⋆τt,j =
+
+q 1−τt,j 
+
+1−τt, 0
+
+
+
+u(m)
+
+t,j − u⋆t,j 
+
+
+
+, 1 ≤ m ≤ N and (46j) with the fact 
+
+τt,K −1 ≤ τt,j ,0 ≤ j ≤ K − 1, (46f) by setting i1 = 0 , i2 = k0 + 1 , i3 = K − 1 and i4 = 0 . The first term in (105) is bounded by assumption (98) holds for all 0 ≤ i ≤ k0. For the second term in (105) , the same estimate as in [ 28 , (90)] gives 
+
+max 
+
+k0+1 ≤j≤K−1 x(0) 
+
+τt,j − x⋆τt,j 2
+
+≲ τt, 0 − τt,K −1
+
+√τt, 0
+
+pdθ t log T . 
+
+34 Then we obtain 
+
+∥J(1) 2,k 0+1 ∥2 ≲ dθ t log 2 T log KT C10 
+
+τt, 0 log TT
+
+vuutlog K
+
+NX
+
+m=0 
+
+K−1X
+
+j=0 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
++ C10 
+
+s
+
+dθ tτt, 0 log 3 TT 2
+
+ dθ t log 2 T K T
+
+
+
++ τt, 0 − τt,K −1
+
+√τt, 0
+
+pdθ t log T
+
+!
+
+≲ τt, 0 log TT
+
+vuutlog K
+
+NX
+
+m=0 
+
+K−1X
+
+j=0 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
++
+
+s
+
+dθ tτt, 0 log 3 TT 2
+
+ dθ t log 2 T K T
+
+
+
+. (106) Here the last inequality follows from T ≥ C2d log 4 T and τt, 0−τt,K −1
+
+√τt, 0
+
+√dθ t log T ≤ (τt, 0−τt,K −1)(1 −τt,K −1)τt, 0
+
+pdτ t, 0θt log T
+
+with (46f) in Lemma 9. Similar to Bound for G2 (63) in Section B.1, J(1) 3,k 0+1 is easily bounded: 
+
+∥J(1) 3,k 0+1 ∥2 ≲
+
+s
+
+dθ tτt, 0 log 3 TT 2
+
+ M0Kdθ t log 2 TT
+
+K
+
+. (107) Combining (103), (106), and (107), for sufficiently large T and large enough C10 we get 
+
+u(1) 
+
+t,k 0+1 − u⋆t,k 0+1 2
+
+≤ C10 
+
+τt, 0 log TT
+
+vuutlog K
+
+NX
+
+m=0 
+
+K−1X
+
+j=0 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
++C10 
+
+s
+
+dθ tτt, 0 log 3 TT 2
+
+ dθ t log 2 T K T
+
+
+
+.
+
+(108) By induction, we prove (98) for any 0 ≤ i ≤ K − 1 at n = 0 .
+
+Prove (99) for n = 0 and i = k0 + 1 . We next derive the bound of − log p ¯Xτt,k 0+1 
+
+
+
+λx (1) 
+
+τt,k 0+1 + (1 − λ)x⋆τt,k 0+1 
+
+
+
+from (108). We first claim that for i = k0 + 1 at n = 0 , it holds by large enough C10 
+
+log 
+
+pr 1−τt, 01−τt,k 0+1 
+
+¯Xτt,k 0+1 
+
+q 1−τt, 0
+
+1−τt,k 0+1 
+
+ λx ⋆τt,k 0+1 + (1 − λ)x(1) 
+
+τt,k 0+1 
+
+
+
+p ¯Xτt, 0 (xτt, 0 )
+
+≤ C10 
+
+
+
+dθ t log 2 TT +
+
+r
+
+dθ t log 3 T log K P
+
+m,j 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
+T
+
+
+
+, (109) By the affine change of variables, 
+
+pr 1−τt, 01−τt,k 0+1 
+
+¯Xτt,k 0+1 
+
+s
+
+1 − τt, 0
+
+1 − τt,k 0+1 
+
+(λx ⋆τt,k 0+1 + (1 − λ)x(1) 
+
+τt,k 0+1 )
+
+!
+
+=
+
+ 1 − τt, 0
+
+1 − τt,k 0+1 
+
+−d/ 2
+
+p ¯Xτt,k 0+1 
+
+(λx ⋆τt,k 0+1 + (1 − λ)x(1) 
+
+τt,k 0+1 ).
+
+Therefore, 
+
+− log p ¯Xτt,k 0+1 
+
+(λx ⋆τt,k 0+1 + (1 − λ)x(1) 
+
+τt,k 0+1 )= − log pr 1−τt, 01−τt,k 0+1 
+
+¯Xτt,k 0+1 
+
+s
+
+1 − τt, 0
+
+1 − τt,k 0+1 
+
+(λx ⋆τt,k 0+1 + (1 − λ)x(1) 
+
+τt,k 0+1 )
+
+!
+
+− d
+
+2 log 
+
+ 1 − τt, 0
+
+1 − τt,k 0+1 
+
+
+
+≤ − log p ¯Xτt, 0 (xτt, 0 ) + C10 
+
+
+
+dθ t log 2 TT +
+
+r
+
+dθ t log 3 T log K P
+
+m,j 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
+T
+
+
+
++ c1
+
+d log TT
+
+≤ 2.1dθ t log T, (110) 35 where the third line follows from − d
+
+2 log 
+
+ 1−τt, 0
+
+1−τt,k 0+1 
+
+
+
+≤ − d
+
+2 log 
+
+ 1−τt, 0
+
+1−τt,K −1
+
+
+
+= − d
+
+2 log 
+
+ ¯αt
+
+¯αt−1
+
+
+
+= − d
+
+2 log ( αt) = 
+
+d
+
+2
+
+R c1 log TT
+
+011−u du ≤ d
+
+2
+
+R c1 log TT
+
+0 2du ≤ d
+
+2 · 2c1 log TT = c1d log TT using (46a) in Lemma 9 and the last line holds by 
+
+− log p ¯Xτt, 0
+
+ xτt, 0
+
+ ≤ dθ t log T with (47) and condition (58) in Lemma 14 for sufficiently large T . This proves that (99) holds for any 0 ≤ i ≤ K − 1 at n = 0 .Repeat the same arguments above at n = 1 , · · · , N − 1, we can prove (98) and (99) hold for all 0 ≤ n ≤ N − 1 and 
+
+0 ≤ i ≤ K − 1. Moreover, we have 
+
+log 
+
+pr 1−τt, 01−τt,i 
+
+¯Xτt,i 
+
+q 1−τt, 0
+
+1−τt,i x(n+1) 
+
+τt,i 
+
+
+
+p ¯Xτt, 0 (xτt, 0 ) ≤ 4c1d log TT +C10 
+
+
+
+d2θ2
+
+t log 4 T K T 2 +
+
+r
+
+dθ t log 3 T log K P
+
+m,j 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
+T
+
+
+
+,
+
+(111) holds for all 0 ≤ n ≤ N − 1 and 0 ≤ i ≤ K − 1. This gives the conclusion. It remains to prove claim (109). 
+
+Proof of claim (109) As in [28, Eq. (95)–(96)], one has 
+
+∥u⋆t,k 0+1 ∥2 ≤ C
+
+s
+
+dθ tτt, 0 log 3 TT 2 . (112) Therefore, by (108) and (112), 
+
+∥u(1) 
+
+t,k 0+1 ∥2 ≤ C10 
+
+s
+
+dθ tτt, 0 log 3 TT 2 + τt, 0 log TT
+
+vuutlog K
+
+NX
+
+m=0 
+
+K−1X
+
+j=0 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
+ . (113) As in [28, Eq. (93)], we have 
+
+pr 1−τt, 01−τt,k 0+1 
+
+¯Xτt,k 0+1 
+
+q 1−τt, 0
+
+1−τt,k 0+1 x(1) 
+
+τt,k 0+1 
+
+
+
+p ¯Xτt, 0 (xτt, 0 )= 1 + d
+
+2
+
+τt, 0 − τt,k 0+1 
+
+(1 − τt, 0)τt,k 0+1 
+
++ O d2
+
+ τt, 0 − τt,k 0+1 
+
+(1 − τt, 0)τt,k 0+1 
+
+2!! Z
+
+x0
+
+pX0| ¯Xτt, 0 (x0 | xτt, 0 )
+
+· exp 
+
+− (τt, 0 − τt,k 0+1 )∥xτt, 0 − p1 − τt, 0x0∥22
+
+2(1 − τt, 0)τt, 0τt,k 0+1 
+
+−∥u(1) 
+
+t,k 0+1 ∥22 + 2 
+
+D
+
+u(1) 
+
+t,k 0+1 , x τt, 0 − p1 − τt, 0x0
+
+E
+
+2 (1 −τt, 0)τt,k 0+1 
+
+1−τt,k 0+1 
+
+ dx 0.
+
+(114) Denote for ℓ = 1 , 2, . . . ,
+
+Etypical 
+
+ℓ := 
+
+n
+
+x0 : xτt, 0 − p1 − τt, 0x0 2 ≤ 5ℓpdθ tτt, 0 log T
+
+o
+
+.
+
+Then for any x0 ∈ Etypical 
+
+ℓ , similar to [28, Eq. (98)], by (46f) and (46h), 
+
+(τt, 0 − τt,k 0+1 ) xτt, 0 − p1 − τt, 0x0
+
+22
+
+2(1 − τt, 0)τt, 0τt,k 0+1 
+
+≲ ℓ2 dθ t log 2 TT . (115) Also, using (113), (46h), and xτt, 0 − p1 − τt, 0x0 2 ≤ 5ℓpdθ tτt, 0 log T , similar to [28, Eq. (99)] we have 
+
+∥u(1) 
+
+t,k 0+1 ∥22 + 2 
+
+D
+
+u(1) 
+
+t,k 0+1 , x τt, 0 − p1 − τt, 0x0
+
+E
+
+2 (1 −τt, 0)τt,k 0+1 
+
+1−τt,k 0+1 
+
+≲ ℓ dθ t log 2 TT + ℓ
+
+r
+
+dθ t log 3 T log K PNm=0 
+
+PK−1
+
+j=0 
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+τt,j 
+
+ 2
+
+T . (116) 36 Combining (108) , (114) , (115) , and (116) , and then repeating the same shell decomposition and Jensen argument as in [28, Eq. (100)–(106)], together with Lemma 13 and (46f), yields 
+
+log 
+
+pr 1−τt, 01−τt,k 0+1 
+
+> ¯Xτt,k 0+1
+
+q 1−τt, 0 
+
+> 1−τt,k 0+1
+
+x(1) 
+
+> τt,k 0+1
+
+
+
+p ¯Xτt, 0 (xτt, 0 )
+
+≤ 4c1d log TT + C10 
+
+
+
+d2θ2 
+
+> t
+
+log 4 T K T 2 +
+
+r
+
+dθ t log 3 T log K P
+
+> m,j
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+> τt,j
+
+ 2
+
+T
+
+
+
+. (117) Next, fix any λ ∈ [0 , 1] and define 
+
+ex(1)  
+
+> τt,k 0+1
+
+(λ) := λx ⋆τt,k 0+1 + (1 − λ)x(1)  
+
+> τt,k 0+1
+
+,
+
+and 
+
+eu(1) 
+
+> t,k 0+1
+
+(λ) := 
+
+s
+
+1 − τt, 0
+
+1 − τt,k 0+1 
+
+ex(1)  
+
+> τt,k 0+1
+
+(λ) − xτt, 0 .
+
+Then 
+
+eu(1) 
+
+> t,k 0+1
+
+(λ) = λu ⋆t,k 0+1 + (1 − λ)u(1) 
+
+> t,k 0+1
+
+.
+
+Consequently, 
+
+eu(1) 
+
+> t,k 0+1
+
+(λ) 2
+
+≤ u⋆t,k 0+1 2 + u(1)  
+
+> t,k 0+1
+
+− u⋆t,k 0+1 2
+
+.
+
+It follows that the same bounds (115) and (116) remain valid with u(1)  
+
+> t,k 0+1
+
+replaced by eu(1) 
+
+> t,k 0+1
+
+(λ). Repeating the argument used to derive (117), we obtain 
+
+log 
+
+pr 1−τt, 01−τt,k 0+1 
+
+> ¯Xτt,k 0+1
+
+q 1−τt, 0
+
+> 1−τt,k 0+1
+
+ λx ⋆τt,k 0+1 + (1 − λ)x(1) 
+
+> τt,k 0+1
+
+
+
+p ¯Xτt, 0 (xτt, 0 )
+
+≤ C10 
+
+
+
+dθ t log 2 TT +
+
+r
+
+dθ t log 3 T log K P
+
+> m,j
+
+
+
+ε(m)score ,t,j 
+
+
+
+x(m)
+
+> τt,j
+
+ 2
+
+T
+
+
+
+. (118) This proves the claim (109). 
+
+References 
+
+[1] J. S. Dickstein, E. A. Weiss, N. Maheswaranathan, and S. Ganguli. Deep unsupervised learning using nonequilib-rium thermodynamics. In International Conference on Machine Learning , pages 2256–2265, 2015. [2] Y. Song and S. Ermon. Generative modeling by estimating gradients of the data distribution. Advances in Neural Information Processing Systems , 32, 2019. [3] J. Ho, A. Jain, and P. Abbeel. Denoising diffusion probabilistic models. Advances in Neural Information Processing Systems , 33:6840–6851, 2020. [4] J. Song, C. Meng, and S. Ermon. Denoising diffusion implicit models. In International Conference on Learning Representations , 2021. [5] Y. Song, J. Sohl-Dickstein, D. P. Kingma, A. Kumar, S. Ermon, and B. Poole. Score-based generative modeling through stochastic differential equations. In International Conference on Learning Representations , 2021. [6] P. Dhariwal and A. Nichol. Diffusion models beat GANs on image synthesis. Advances in Neural Information Processing Systems , 34:8780–8794, 2021. [7] R. Rombach, A. Blattmann, D. Lorenz, P. Esser, and B. Ommer. High-resolution image synthesis with latent diffusion models. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 10684–10695, 2022. 37 [8] C. Saharia, W. Chan, S. Saxena, L. Li, J. Whang, E. Denton, S. K. Seyed Ghasemipour, B. K. Ayan, S. S. Mahdavi, R. G. Lopes, T. Salimans, J. Ho, D. J. Fleet, and M. Norouzi. Photorealistic text-to-image diffusion models with deep language understanding. Advances in Neural Information Processing Systems , 35:36479–36494, 2022. [9] I. Goodfellow, J. Pouget-Abadie, M. Mirza, B. Xu, D. Warde-Farley, S. Ozair, A. Courville, and Y. Bengio. Generative adversarial nets. Advances in Neural Information Processing Systems , 27, 2014. [10] D. P. Kingma and M. Welling. Auto-encoding variational bayes. In International Conference on Learning Representations , 2014. [11] D. J. Rezende and S. Mohamed. Variational inference with normalizing flows. In International Conference on Machine Learning , pages 1530–1538, 2015. [12] B. D. O. Anderson. Reverse-time diffusion equation models. Stochastic Processes and their Applications ,12(3):313–326, 1982. [13] U. G. Haussmann and É. Pardoux. Time reversal of diffusions. The Annals of Probability , 14(4):1188–1205, 1986. [14] A. Hyvärinen. Estimation of non-normalized statistical models by score matching. Journal of Machine Learning Research , 6:695–709, 2005. [15] P. Vincent. A connection between score matching and denoising autoencoders. Neural Computation , 23(7):1661– 1674, 2011. [16] C. Lu, Y. Zhou, F. Bao, J. Chen, C. Li, and J. Zhu. DPM-Solver: A fast ODE solver for diffusion probabilistic model sampling in around 10 steps. Advances in Neural Information Processing Systems , 35:5775–5787, 2022. [17] Q. Zhang and Y. Chen. Fast sampling of diffusion models with exponential integrator. In International Conference on Learning Representations , 2023. [18] W. Zhao, L. Bai, Y. Rao, J. Zhou, and J. Lu. UniPC: A unified predictor-corrector framework for fast sampling of diffusion models. Advances in Neural Information Processing Systems , 36:49842–49869, 2023. [19] C. Lu, Y. Zhou, F. Bao, J. Chen, C. Li, and J. Zhu. DPM-Solver++: Fast solver for guided sampling of diffusion probabilistic models. Machine Intelligence Research , 22(4):730–751, 2025. [20] J. Ho and T. Salimans. Classifier-free diffusion guidance. arXiv preprint arXiv:2207.12598 , 2022. [21] S. Chen, S. Chewi, J. Li, Y. Li, A. Salim, and A. R. Zhang. Sampling is as easy as learning the score: Theory for diffusion models with minimal data assumptions. In International Conference on Learning Representations , 2023. [22] H. Lee, J. Lu, and Y. Tan. Convergence for score-based generative modeling with polynomial complexity. 
+
+Advances in Neural Information Processing Systems , 35:22870–22882, 2022. [23] H. Lee, J. Lu, and Y. Tan. Convergence of score-based generative modeling for general data distributions. In 
+
+International Conference on Algorithmic Learning Theory , pages 946–985, 2023. [24] J. Benton, V. De Bortoli, A. Doucet, and G. Deligiannidis. Nearly d-linear convergence bounds for diffusion models via stochastic localization. In International Conference on Learning Representations , 2024. [25] S. Chen, S. Chewi, H. Lee, Y. Li, J. Lu, and A. Salim. The probability flow ODE is provably fast. Advances in Neural Information Processing Systems , 36:68552–68575, 2023. [26] G. Li, Y. Wei, Y. Chi, and Y. Chen. A sharp convergence theory for the probability flow ODEs of diffusion models. 
+
+arXiv preprint arXiv:2408.02320 , 2024. [27] D. Z. Huang, J. Huang, and Z. Lin. Convergence analysis of probability flow ODE for score-based generative models. IEEE Transactions on Information Theory , 71(6):4581–4601, 2025. [28] G. Li, Y. Zhou, Y. Wei, and Y. Chen. Faster diffusion models via higher-order approximation. arXiv preprint arXiv:2506.24042 , 2025. [29] H. Chen, H. Lee, and J. Lu. Improved analysis of score-based generative modeling: User-friendly bounds under minimal smoothness assumptions. In International Conference on Machine Learning , pages 4735–4763, 2023. [30] S. Bruno, Y. Zhang, D. Lim, O. D. Akyildiz, and S. Sabanis. On diffusion-based generative models and their error bounds: The log-concave case with full convergence estimates. Transactions on Machine Learning Research ,2025. [31] G. Conforti, A. Durmus, and M. Gentiloni Silveri. KL convergence guarantees for score diffusion models under minimal data assumptions. SIAM Journal on Mathematics of Data Science , 7(1):86–109, 2025. [32] X. Gao, H. M. Nguyen, and L. Zhu. Wasserstein convergence guarantees for a general class of score-based generative models. Journal of Machine Learning Research , 26(43):1–54, 2025. 38 [33] F. Pedrotti, J. Maas, and M. Mondelli. Improved convergence of score-based diffusion models via prediction-correction. Transactions on Machine Learning Research , 2024. [34] X. Gao and L. Zhu. Convergence analysis for general probability flow ODEs of diffusion models in wasserstein distances. In International Conference on Artificial Intelligence and Statistics , pages 1009–1017, 2025. [35] J. Tang and Y. Yan. Adaptivity and convergence of probability flow ODEs in diffusion generative models. arXiv preprint arXiv:2501.18863 , 2025. [36] E. Beyler and F. Bach. Convergence of deterministic and stochastic diffusion-model samplers: A simple analysis in wasserstein distance. arXiv preprint arXiv:2508.03210 , 2025. [37] G. Li, Y. Huang, T. Efimov, Y. Wei, Y. Chi, and Y. Chen. Accelerating convergence of score-based diffusion models, provably. In International Conference on Machine Learning , pages 27942–27954, 2024. [38] P. Liu, Z. Liu, and Y. Gu. Operator splitting based diffusion samplers and improved convergence analysis. arXiv preprint arXiv:2601.17375 , 2026. [39] Y. Jiao, N. Li, C. Cai, and G. Li. Are first-order diffusion samplers really slower? a fast forward-value approach. 
+
+arXiv preprint arXiv:2512.24927 , 2025. [40] K. Gatmiry, S. Chen, and A. Salim. High-accuracy and dimension-free sampling with diffusions. arXiv preprint arXiv:2601.10708 , 2026. [41] F. Chen, S. Chewi, C. Daskalakis, and A. Rakhlin. High-accuracy sampling for diffusion models and log-concave distributions. arXiv preprint arXiv:2602.01338 , 2026. [42] G. Li and C. Cai. Provable acceleration for diffusion models under minimal assumptions. arXiv preprint arXiv:2410.23285 , 2024. [43] G. Li and Y. Yan. O(d/T ) convergence theory for diffusion probabilistic models under minimal assumptions. 
+
+Journal of Machine Learning Research , 26(292):1–55, 2025. [44] Z. Huang, Y. Wei, and Y. Chen. Denoising diffusion probabilistic models are optimally adaptive to unknown low dimensionality. Mathematics of Operations Research , 2026. [45] B. W. Silverman. Density estimation for statistics and data analysis . Routledge, 2018. [46] B. Efron. Tweedie’s formula and selection bias. Journal of the American Statistical Association , 106(496):1602– 1614, 2011. [47] K. Ball. An elementary introduction to modern convex geometry. In S. Levy, editor, Flavors of Geometry ,volume 31 of Mathematical Sciences Research Institute Publications , pages 1–58. Cambridge University Press, Cambridge, 1997. [48] M. Abramowitz and I. A. Stegun, editors. Handbook of mathematical functions with formulas, graphs, and mathematical tables , volume 55 of Applied Mathematics Series . National Bureau of Standards, Washington, DC, 1964. [49] L. N. Trefethen. Approximation theory and approximation practice, extended edition . SIAM, 2019. [50] J. C. Mason and D. C. Handscomb. Chebyshev polynomials . Chapman and Hall/CRC, 2002. 39

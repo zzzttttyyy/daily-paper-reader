@@ -1,0 +1,170 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-10T21:11:19.883781+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2606.10617v1",
+      "source": "arxiv",
+      "title": "SSR-Merge: Subspace Signal Routing for Training-Free LoRA Merging in Diffusion Models",
+      "abstract": "Low-Rank Adaptation (LoRA) merging can efficiently combine diverse generative capabilities from multiple trained LoRAs for a diffusion model. However, existing LoRA merging techniques often suffer from severe parameter interference, causing destructive collisions in the shared parameter space. To address this, we propose Subspace Signal Routing (SSR), which resolves interference by routing internal signals instead of performing parameter-space merge. Specifically, SSR first constructs a unified subspace by concatenating candidate LoRAs along the rank dimension. Next, SSR employs an inverse correlation matrix to decorrelate mixed signals within this space. Finally, a directional guide matrix steers these purified signals into their respective task-specific subspaces. We provide a rigorous theoretical analysis proving that SSR aligns with the Ordinary Least Squares (OLS) solution, thereby ensuring mathematical optimality. We utilize the additivity of sufficient statistics to design a streaming algorithm. This enables on-the-fly updates that significantly reduce memory overhead and computation time. Extensive experiments validate that SSR significantly outperforms state-of-the-art methods while maintaining comparable efficiency. Code is available at https://github.com/nagara214/SSR-Merge.",
+      "authors": [
+        "Zhengxuan Wei",
+        "Yi Dong",
+        "Zonghui Li",
+        "Xianhui Lin",
+        "Xing Liu",
+        "Hong Gu",
+        "Shaofeng Zhang",
+        "Wenbin Li",
+        "Qi Fan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-09T09:16:17+00:00",
+      "link": "https://arxiv.org/pdf/2606.10617v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "training-free LoRA merging for diffusion models",
+      "llm_evidence_cn": "免训练LoRA合并用于扩散模型",
+      "llm_evidence": "免训练LoRA合并用于扩散模型",
+      "canonical_evidence": "免训练LoRA合并用于扩散模型",
+      "llm_tldr_en": "Proposes a training-free LoRA merging method that avoids parameter interference by routing signals in subspace.",
+      "llm_tldr_cn": "本文针对扩散模型中多个LoRA的合并问题，提出免训练的子空间信号路由方法SSR，通过沿着秩维度拼接LoRA构建统一子空间，利用逆相关矩阵解相关信号，再通过方向引导矩阵将信号导向对应路径。实验表明在多种组合任务上有效避免参数冲突，性能优于现有合并方法。",
+      "llm_tldr": "本文针对扩散模型中多个LoRA的合并问题，提出免训练的子空间信号路由方法SSR，通过沿着秩维度拼接LoRA构建统一子空间，利用逆相关矩阵解相关信号，再通过方向引导矩阵将信号导向对应路径。实验表明在多种组合任务上有效避免参数冲突，性能优于现有合并方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.10653v1",
+      "source": "arxiv",
+      "title": "STEDiff: Strengthening Text Embedding for Text-to-Image Alignment in Diffusion Model",
+      "abstract": "Although pretrained text-to-image (T2I) generation models can produce high-quality images, they often fail to faithfully reflect the semantic intent of complex prompts due to stochastic noise and inherent model limitations. This issue frequently manifests as the model overlooking specific objects or failing to correctly bind attributes to their corresponding entities, a challenge referred to as semantic alignment. Unlike existing approaches that rely on computationally expensive fine-tuning or labor-intensive layout priors, we propose STEDiff, a training-free method designed to enhance semantic representations directly within the text-embedding space. Specifically, we introduce a method that primarily leverages the [EOT] token to strengthen the relevant semantics of sub-sentences and then replaces the corresponding tokens in the original prompt. Furthermore, a novel semantic enhancement loss is incorporated to enforce spatial constraints, ensuring that the semantics of each entity are precisely mapped to their respective image regions. Extensive quantitative and qualitative evaluations on the T2I-CompBench demonstrate that our method notably improves semantic consistency and generation integrity in complex scenarios.",
+      "authors": [
+        "Hailan Zhang",
+        "Haipeng Liu",
+        "Bo Fu",
+        "Yang Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-09T09:59:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.10653v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free text embedding enhancement for text-to-image generation",
+      "llm_evidence_cn": "文本到图像生成的免训练文本嵌入增强",
+      "llm_evidence": "文本到图像生成的免训练文本嵌入增强",
+      "canonical_evidence": "文本到图像生成的免训练文本嵌入增强",
+      "llm_tldr_en": "STEDiff proposes a training-free method to strengthen text embeddings for better semantic alignment in text-to-image generation, leveraging the [EOT] token without fine-tuning.",
+      "llm_tldr_cn": "STEDiff提出一种免训练方法，通过利用[EOT] token增强文本嵌入表示，改善文本到图像生成中的语义对齐。该方法无需微调或布局先验，直接作用于文本嵌入空间，有效解决了模型忽略对象或属性绑定错误的问题。实验表明在复杂提示下显著提升生成图像的忠实度。",
+      "llm_tldr": "STEDiff提出一种免训练方法，通过利用[EOT] token增强文本嵌入表示，改善文本到图像生成中的语义对齐。该方法无需微调或布局先验，直接作用于文本嵌入空间，有效解决了模型忽略对象或属性绑定错误的问题。实验表明在复杂提示下显著提升生成图像的忠实度。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.10353v1",
+      "source": "arxiv",
+      "title": "Higher-order Diffusion Sampling via Chebyshev Interpolation and Gauss--Seidel Iterations",
+      "abstract": "Higher-order ODE solvers have shown strong empirical promise for accelerating diffusion models through the probability flow ODE, but rigorous non-asymptotic guarantees for such acceleration remain limited. In this paper, we develop a Chebyshev--Gauss--Seidel higher-order sampler and establish a non-asymptotic convergence guarantee that allows the approximation order to grow logarithmically with the number of outer iterations. In the exact-score setting, up to logarithmic factors, the proposed sampler requires at most \\[ d^{1+o_T(1)}\\varepsilon^{-1/K_1} \\] score functions to approximate the target distribution on \\(\\mathbb{R}^d\\) within total variation distance \\(\\varepsilon\\), where \\(o_T(1)\\to 0\\) as \\(T\\to\\infty\\) and \\(K_1>0\\) is a sufficiently large constant. The analysis assumes only a polynomial second-moment bound on the target distribution, thereby relaxing the bounded-support condition imposed in existing higher-order theory. Moreover, the guarantee is robust to score and Jacobian estimation errors and does not require higher-order smoothness assumptions on the score estimates. Numerical experiments on anisotropic Gaussian mixture benchmarks support the predicted improvement in the accuracy--cost tradeoff under finite score-evaluation budgets.",
+      "authors": [
+        "Bingyuan Wei",
+        "Meng Huang"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA",
+        "math.ST"
+      ],
+      "published": "2026-06-09T03:04:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.10353v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free higher-order diffusion sampler for acceleration",
+      "llm_evidence_cn": "无需训练的更高阶扩散采样器用于加速",
+      "llm_evidence": "无需训练的更高阶扩散采样器用于加速",
+      "canonical_evidence": "无需训练的更高阶扩散采样器用于加速",
+      "llm_tldr_en": "Proposes a Chebyshev-Gauss-Seidel higher-order sampler for diffusion models that is training-free and provides theoretical convergence guarantees for accelerated sampling.",
+      "llm_tldr_cn": "该论文针对扩散模型采样速度慢的问题，提出一种基于切比雪夫插值和高斯-赛德尔迭代的免训练高阶采样器。理论证明其收敛性，实验表明能以更少步骤达到相同生成质量。该方法无需额外训练，直接提升采样效率。",
+      "llm_tldr": "该论文针对扩散模型采样速度慢的问题，提出一种基于切比雪夫插值和高斯-赛德尔迭代的免训练高阶采样器。理论证明其收敛性，实验表明能以更少步骤达到相同生成质量。该方法无需额外训练，直接提升采样效率。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.09273v1",
+      "source": "arxiv",
+      "title": "EditSSC: Toward Editable Semantic Occupancy Scenes with Unconditional Diffusion Models",
+      "abstract": "3D semantic scene generation is crucial for autonomous driving applications, yet most methods rely on complex 3D-specific architectures such as triplane encoders and adapted diffusion networks, limiting both their simplicity and their editing capabilities. We propose EditSSC, an editing-ready method for 3D semantic scene generation using 2D Bird's Eye View (BEV) representations and off-the-shelf latent diffusion network. Our approach reshapes 3D semantic occupancy grids into multi-channel BEV images and leverages the quantized autoencoder and UNet from Stable Diffusion with minimal modifications. We perform diffusion on the latents after quantization, which enables training-free editing capabilities. By exploiting class-to-code correspondences in the codebook, our method supports sketch-guided generation, inpainting, and outpainting without any retraining. On SemanticKITTI, EditSSC outperforms existing 3D-specific baselines on unconditional generation, demonstrating that well-established 2D architectures can be effectively repurposed for 3D scene generation and editing.",
+      "authors": [
+        "Fatima Balde",
+        "Raoul de Charette",
+        "Alexandre Boulch"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-08T09:41:37+00:00",
+      "link": "https://arxiv.org/pdf/2606.09273v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free editing via diffusion model",
+      "llm_evidence_cn": "通过扩散模型进行免训练编辑",
+      "llm_evidence": "通过扩散模型进行免训练编辑",
+      "canonical_evidence": "通过扩散模型进行免训练编辑",
+      "llm_tldr_en": "Proposes a training-free method for 3D semantic scene editing using off-the-shelf latent diffusion model.",
+      "llm_tldr_cn": "本文针对3D语义场景生成提出EditSSC，利用2D鸟瞰图表示和预训练潜扩散模型实现免训练编辑。将3D语义占据网格转换为多通道鸟瞰图像，通过量化自编码器和稳定扩散UNet进行潜空间扩散，利用类到码的对应关系实现场景编辑。实验表明该方法在编辑灵活性和生成质量上优于需复杂3D架构的方法。",
+      "llm_tldr": "本文针对3D语义场景生成提出EditSSC，利用2D鸟瞰图表示和预训练潜扩散模型实现免训练编辑。将3D语义占据网格转换为多通道鸟瞰图像，通过量化自编码器和稳定扩散UNet进行潜空间扩散，利用类到码的对应关系实现场景编辑。实验表明该方法在编辑灵活性和生成质量上优于需复杂3D架构的方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

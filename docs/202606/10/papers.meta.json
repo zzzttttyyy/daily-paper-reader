@@ -1,0 +1,69 @@
+{
+  "label": "2026-06-10",
+  "date": "2026-06-10",
+  "generated_at": "2026-06-10T21:14:23",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202606/10/2606.10617v1-ssr-merge-subspace-signal-routing-for-training-free-lora-merging-in-diffusion-models",
+      "section": "deep",
+      "title_en": "SSR-Merge: Subspace Signal Routing for Training-Free LoRA Merging in Diffusion Models",
+      "authors": "Zhengxuan Wei, Yi Dong, Zonghui Li, Xianhui Lin, Xing Liu, Hong Gu, Shaofeng Zhang, Wenbin Li, Qi Fan",
+      "date": "2026-06-09",
+      "pdf": "https://arxiv.org/pdf/2606.10617v1",
+      "score": "10.0",
+      "evidence": "免训练LoRA合并用于扩散模型",
+      "tldr": "LoRA合并常因参数空间共享导致干扰。本文提出SSR方法，通过路由内部信号而非参数合并来解决此问题。SSR在秩维度拼接LoRA构建统一子空间，用逆相关矩阵去相关混合信号，再经方向引导矩阵将信号路由至任务特定子空间。理论证明其等价于普通最小二乘解，具有数学最优性。流式算法利用充分统计量的可加性，支持在线更新并降低内存计算开销。实验表明SSR在多个生成任务上显著优于现有方法，且效率相当。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Low-Rank Adaptation (LoRA) merging can efficiently combine diverse generative capabilities from multiple trained LoRAs for a diffusion model. However, existing LoRA merging techniques often suffer from severe parameter interference, causing destructive collisions in the shared parameter space. To address this, we propose Subspace Signal Routing (SSR), which resolves interference by routing internal signals instead of performing parameter-space merge. Specifically, SSR first constructs a unified subspace by concatenating candidate LoRAs along the rank dimension. Next, SSR employs an inverse correlation matrix to decorrelate mixed signals within this space. Finally, a directional guide matrix steers these purified signals into their respective task-specific subspaces. We provide a rigorous theoretical analysis proving that SSR aligns with the Ordinary Least Squares (OLS) solution, thereby ensuring mathematical optimality. We utilize the additivity of sufficient statistics to design a streaming algorithm. This enables on-the-fly updates that significantly reduce memory overhead and computation time. Extensive experiments validate that SSR significantly outperforms state-of-the-art methods while maintaining comparable efficiency. Code is available at https://github.com/nagara214/SSR-Merge.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/10/2606.10653v1-stediff-strengthening-text-embedding-for-text-to-image-alignment-in-diffusion-model",
+      "section": "deep",
+      "title_en": "STEDiff: Strengthening Text Embedding for Text-to-Image Alignment in Diffusion Model",
+      "authors": "Hailan Zhang, Haipeng Liu, Bo Fu, Yang Wang",
+      "date": "2026-06-09",
+      "pdf": "https://arxiv.org/pdf/2606.10653v1",
+      "score": "9.0",
+      "evidence": "文本到图像生成的免训练文本嵌入增强",
+      "tldr": "文本到图像扩散模型在复杂提示下常出现语义不对齐，如忽略对象或属性绑定错误。现有方法需昂贵微调或人工布局。本文提出STEDiff，一种无需训练的方法，利用[EOT] token增强子句语义并替换原token，同时引入语义增强损失强制空间约束。在T2I-CompBench上，该方法显著提升了语义一致性和生成完整性。其贡献在于提供了一种简单高效的训练自由方案，有效改善复杂场景下的对齐问题。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Although pretrained text-to-image (T2I) generation models can produce high-quality images, they often fail to faithfully reflect the semantic intent of complex prompts due to stochastic noise and inherent model limitations. This issue frequently manifests as the model overlooking specific objects or failing to correctly bind attributes to their corresponding entities, a challenge referred to as semantic alignment. Unlike existing approaches that rely on computationally expensive fine-tuning or labor-intensive layout priors, we propose STEDiff, a training-free method designed to enhance semantic representations directly within the text-embedding space. Specifically, we introduce a method that primarily leverages the [EOT] token to strengthen the relevant semantics of sub-sentences and then replaces the corresponding tokens in the original prompt. Furthermore, a novel semantic enhancement loss is incorporated to enforce spatial constraints, ensuring that the semantics of each entity are precisely mapped to their respective image regions. Extensive quantitative and qualitative evaluations on the T2I-CompBench demonstrate that our method notably improves semantic consistency and generation integrity in complex scenarios.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/10/2606.10353v1-higher-order-diffusion-sampling-via-chebyshev-interpolation-and-gauss--seidel-iterations",
+      "section": "deep",
+      "title_en": "Higher-order Diffusion Sampling via Chebyshev Interpolation and Gauss--Seidel Iterations",
+      "authors": "Bingyuan Wei, Meng Huang",
+      "date": "2026-06-09",
+      "pdf": "https://arxiv.org/pdf/2606.10353v1",
+      "score": "8.0",
+      "evidence": "无需训练的更高阶扩散采样器用于加速",
+      "tldr": "扩散模型加速中的高阶ODE求解器缺乏严格理论保证。本文提出切比雪夫-高斯-赛德尔高阶采样器，在精确分数设置下，仅需d^{1+o_T(1)}ε^{-1/K1}次分数函数即可实现TV距离ε的近似，且仅要求目标分布具有多项式二阶矩。该方法对分数及雅可比估计误差鲁棒，无需高阶平滑假设。实验验证了精度-成本权衡的改进。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Higher-order ODE solvers have shown strong empirical promise for accelerating diffusion models through the probability flow ODE, but rigorous non-asymptotic guarantees for such acceleration remain limited. In this paper, we develop a Chebyshev--Gauss--Seidel higher-order sampler and establish a non-asymptotic convergence guarantee that allows the approximation order to grow logarithmically with the number of outer iterations. In the exact-score setting, up to logarithmic factors, the proposed sampler requires at most \\[ d^{1+o_T(1)}\\varepsilon^{-1/K_1} \\] score functions to approximate the target distribution on \\(\\mathbb{R}^d\\) within total variation distance \\(\\varepsilon\\), where \\(o_T(1)\\to 0\\) as \\(T\\to\\infty\\) and \\(K_1>0\\) is a sufficiently large constant. The analysis assumes only a polynomial second-moment bound on the target distribution, thereby relaxing the bounded-support condition imposed in existing higher-order theory. Moreover, the guarantee is robust to score and Jacobian estimation errors and does not require higher-order smoothness assumptions on the score estimates. Numerical experiments on anisotropic Gaussian mixture benchmarks support the predicted improvement in the accuracy--cost tradeoff under finite score-evaluation budgets.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/10/2606.09273v1-editssc-toward-editable-semantic-occupancy-scenes-with-unconditional-diffusion-models",
+      "section": "quick",
+      "title_en": "EditSSC: Toward Editable Semantic Occupancy Scenes with Unconditional Diffusion Models",
+      "authors": "Fatima Balde, Raoul de Charette, Alexandre Boulch",
+      "date": "2026-06-08",
+      "pdf": "https://arxiv.org/pdf/2606.09273v1",
+      "score": "6.0",
+      "evidence": "通过扩散模型进行免训练编辑",
+      "tldr": "针对自动驾驶中3D语义场景生成依赖复杂3D架构且编辑能力有限的问题，提出EditSSC方法。将3D语义占据网格转化为多通道BEV图像，利用Stable Diffusion的量化自动编码器和UNet进行潜在扩散，实现无需训练的编辑功能。利用码本中类别与编码的对应关系支持草图引导生成、修补和外推。在SemanticKITTI数据集上，无条件生成性能超越现有3D专用方法。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "3D semantic scene generation is crucial for autonomous driving applications, yet most methods rely on complex 3D-specific architectures such as triplane encoders and adapted diffusion networks, limiting both their simplicity and their editing capabilities. We propose EditSSC, an editing-ready method for 3D semantic scene generation using 2D Bird's Eye View (BEV) representations and off-the-shelf latent diffusion network. Our approach reshapes 3D semantic occupancy grids into multi-channel BEV images and leverages the quantized autoencoder and UNet from Stable Diffusion with minimal modifications. We perform diffusion on the latents after quantization, which enables training-free editing capabilities. By exploiting class-to-code correspondences in the codebook, our method supports sketch-guided generation, inpainting, and outpainting without any retraining. On SemanticKITTI, EditSSC outperforms existing 3D-specific baselines on unconditional generation, demonstrating that well-established 2D architectures can be effectively repurposed for 3D scene generation and editing.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
