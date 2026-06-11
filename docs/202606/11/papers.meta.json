@@ -1,0 +1,54 @@
+{
+  "label": "2026-06-11",
+  "date": "2026-06-11",
+  "generated_at": "2026-06-11T20:51:30",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202606/11/2606.04535v1-dynamic-infilling-anchors-for-format-constrained-generation-in-diffusion-large-language-models",
+      "section": "quick",
+      "title_en": "Dynamic Infilling Anchors for Format-Constrained Generation in Diffusion Large Language Models",
+      "authors": "Boyan Han, Yiwei Wang, Yi Song, Yujun Cai, Chi Zhang",
+      "date": "2026-06-03",
+      "pdf": "https://arxiv.org/pdf/2606.04535v1",
+      "score": "6.0",
+      "evidence": "扩散模型的免训练方法",
+      "tldr": "扩散大语言模型支持并行生成与全局上下文，但固定锚点方法强制固定生成长度导致推理截断或冗余。本文提出无训练的动态填充锚点DIA，在迭代填充前动态估计结束锚点位置以灵活调整长度。实验表明DIA在GSM8K和MATH推理任务上显著提升格式合规性与答案准确率，为零样本结构感知生成提供了可靠方案。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion large language models (dLLMs) offer bidirectional attention and parallel generation, enabling them to exploit global context and naturally support format-constrained tasks like parseable JSON or reasoning templates. While straightforward fixed anchors can enforce such constraints, they often impose rigid spans, leading to truncated reasoning or redundant content. To overcome this, we propose Dynamic Infilling Anchors (DIA), a training-free method that dynamically estimates end-anchor positions to adjust generation length before iterative infilling. This flexible mechanism ensures structural correctness and semantic coherence, avoiding the inefficiencies of fixed-span methods. Experiments on reasoning benchmarks demonstrate that DIA substantially improves format compliance and answer accuracy, achieving significant zero-shot gains on GSM8K and MATH. These results establish DIA as a robust pathway toward reliable, structure-aware generation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/11/2606.09056v1-millivid-hierarchical-latents-for-long-range-consistency-in-video-generation",
+      "section": "quick",
+      "title_en": "MilliVid: Hierarchical Latents for Long-Range Consistency in Video Generation",
+      "authors": "Ishaan Preetam Chandratreya, David Charatan, Basile Van Hoorick, Sergey Zakharov, Vitor Guizilini, Phillip Isola, Vincent Sitzmann",
+      "date": "2026-06-08",
+      "pdf": "https://arxiv.org/pdf/2606.09056v1",
+      "score": "6.0",
+      "evidence": "使用多尺度标记的扩散模型进行视频生成",
+      "tldr": "视频生成模型面临长程一致性问题，因为长序列导致Transformer计算不可行。本文提出MilliVid，通过多尺度潜在空间的粗到细展开来缓解该问题。首先预训练自编码器将每帧压缩为层次化token，最粗层捕获场景语义，最细层保留纹理细节。然后训练扩散模型逐步生成这些token，在Minecraft长视频上生成更一致的卷展结果，同时节省计算资源。该方法有效提升了长视频中的几何和物体持久性。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Video generative models have become increasingly powerful, but long-range consistency remains challenging to achieve because even a few dozen frames require impractically long transformer sequence lengths. We show that this issue can be mitigated by generating video using coarse-to-fine rollout within a multi-scale token space. Our approach is simple: first, we pre-train an autoencoder that compresses each frame into a hierarchy of tokens, with levels ranging from the typical latent resolution to only a handful of tokens per frame. The coarsest levels capture the most consequential information, such as scene layout and semantics, while finer levels add high-frequency appearance and texture. Then, we train a video diffusion model to generate these tokens using coarse-to-fine rollout. By carefully controlling the level of detail at which frames are generated and used as context during each rollout step, we are able to preserve long-range consistency in geometry and object permanence while spending less compute on the long-range consistency of less perceptually relevant details. We validate this approach using a custom dataset of long Minecraft videos, where it produces substantially more consistent rollouts compared to existing baselines.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/11/2606.10537v1-prefilling-dllm-predictive-prefilling-for-long-context-inference-in-diffusion-language-models",
+      "section": "quick",
+      "title_en": "Prefilling-dLLM: Predictive Prefilling for Long-Context Inference in Diffusion Language Models",
+      "authors": "Jing Xiong, Qi Han, Shansan Gong, Yunta Hsieh, Chengyue Wu, Chaofan Tao, Chenyang Zhao, Ngai Wong",
+      "date": "2026-06-09",
+      "pdf": "https://arxiv.org/pdf/2606.10537v1",
+      "score": "6.0",
+      "evidence": "扩散语言模型的免训练预填充框架",
+      "tldr": "扩散语言模型在长上下文推理中会重复编码整个前缀，导致计算量随上下文长度二次增长。本文提出Prefilling-dLLM，一种无需训练的预填充-解码分离框架：将前缀分为N块，缓存其KV表示，解码时选择最相关的K块并利用块内token稀疏性，使复杂度从全序列长度的二次降为仅解码长度的二次。在LongBench和InfiniteBench上达到扩散模型加速方法中的最优质量，8K-32K上下文下获得9.1-28倍加速。此外，每块前附加BOS token作为注意力锚点，消除了“中间丢失”现象。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion large language models (dLLMs) re-encode the entire prefix at every denoising step, causing recomputation that scales   quadratically with context length and becomes prohibitive for long-context scenarios. We propose Prefilling-dLLM, a training-free   prefill-decode disaggregation framework for dLLMs that partitions the prefix into N chunks, caches their KV representations once,   and selects the top-K most relevant chunks with intra-chunk token sparsity for decoding, showing that sparse prefilling can   outperform dense attention while reducing per-step complexity from quadratic in the full sequence length to quadratic only in the   decode length. On LongBench and InfiniteBench, Prefilling-dLLM achieves state-of-the-art quality among dLLM acceleration methods,   and an attention kernel that parallelizes decoding over the non-contiguously cached chunk KV yields 9.1--28.0x speedup at 8K--32K   contexts. We further show that beginning-of-sequence tokens prepended to each chunk act as periodic attention anchors that eliminate   the lost-in-the-middle phenomenon. Code is available at https://github.com/menik1126/Prefilling-dLLM.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

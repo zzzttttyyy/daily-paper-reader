@@ -1,0 +1,141 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-11T20:49:41.047544+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2606.04535v1",
+      "source": "arxiv",
+      "title": "Dynamic Infilling Anchors for Format-Constrained Generation in Diffusion Large Language Models",
+      "abstract": "Diffusion large language models (dLLMs) offer bidirectional attention and parallel generation, enabling them to exploit global context and naturally support format-constrained tasks like parseable JSON or reasoning templates. While straightforward fixed anchors can enforce such constraints, they often impose rigid spans, leading to truncated reasoning or redundant content. To overcome this, we propose Dynamic Infilling Anchors (DIA), a training-free method that dynamically estimates end-anchor positions to adjust generation length before iterative infilling. This flexible mechanism ensures structural correctness and semantic coherence, avoiding the inefficiencies of fixed-span methods. Experiments on reasoning benchmarks demonstrate that DIA substantially improves format compliance and answer accuracy, achieving significant zero-shot gains on GSM8K and MATH. These results establish DIA as a robust pathway toward reliable, structure-aware generation.",
+      "authors": [
+        "Boyan Han",
+        "Yiwei Wang",
+        "Yi Song",
+        "Yujun Cai",
+        "Chi Zhang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-06-03T07:18:23+00:00",
+      "link": "https://arxiv.org/pdf/2606.04535v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free method for diffusion models",
+      "llm_evidence_cn": "扩散模型的免训练方法",
+      "llm_evidence": "扩散模型的免训练方法",
+      "canonical_evidence": "扩散模型的免训练方法",
+      "llm_tldr_en": "Proposes Dynamic Infilling Anchors, a training-free method for format-constrained generation in diffusion LLMs, ensuring structural correctness without additional training.",
+      "llm_tldr_cn": "本文针对扩散大语言模型在格式约束生成任务中固定锚点导致截断或冗余的问题，提出了一种免训练的动态填充锚点方法，能够动态估计锚点位置以调整生成长度，在保持结构正确的同时避免固定跨度方法的低效，实验证明了其有效性。",
+      "llm_tldr": "本文针对扩散大语言模型在格式约束生成任务中固定锚点导致截断或冗余的问题，提出了一种免训练的动态填充锚点方法，能够动态估计锚点位置以调整生成长度，在保持结构正确的同时避免固定跨度方法的低效，实验证明了其有效性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.09056v1",
+      "source": "arxiv",
+      "title": "MilliVid: Hierarchical Latents for Long-Range Consistency in Video Generation",
+      "abstract": "Video generative models have become increasingly powerful, but long-range consistency remains challenging to achieve because even a few dozen frames require impractically long transformer sequence lengths. We show that this issue can be mitigated by generating video using coarse-to-fine rollout within a multi-scale token space. Our approach is simple: first, we pre-train an autoencoder that compresses each frame into a hierarchy of tokens, with levels ranging from the typical latent resolution to only a handful of tokens per frame. The coarsest levels capture the most consequential information, such as scene layout and semantics, while finer levels add high-frequency appearance and texture. Then, we train a video diffusion model to generate these tokens using coarse-to-fine rollout. By carefully controlling the level of detail at which frames are generated and used as context during each rollout step, we are able to preserve long-range consistency in geometry and object permanence while spending less compute on the long-range consistency of less perceptually relevant details. We validate this approach using a custom dataset of long Minecraft videos, where it produces substantially more consistent rollouts compared to existing baselines.",
+      "authors": [
+        "Ishaan Preetam Chandratreya",
+        "David Charatan",
+        "Basile Van Hoorick",
+        "Sergey Zakharov",
+        "Vitor Guizilini",
+        "Phillip Isola",
+        "Vincent Sitzmann"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-08T05:46:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.09056v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video generation using diffusion models with multi-scale tokens",
+      "llm_evidence_cn": "使用多尺度标记的扩散模型进行视频生成",
+      "llm_evidence": "使用多尺度标记的扩散模型进行视频生成",
+      "canonical_evidence": "使用多尺度标记的扩散模型进行视频生成",
+      "llm_tldr_en": "MilliVid addresses long-range video consistency by generating videos in a coarse-to-fine manner within a hierarchical latent space, using a pretrained autoencoder and a video diffusion model.",
+      "llm_tldr_cn": "视频扩散模型面临长距离一致性问题，因为数帧序列就需要极长的Transformer序列长度。本文提出MilliVid，通过在多尺度标记空间中进行由粗到细的展开来缓解该问题。首先预训练一个将每帧压缩为层次化标记的自编码器，粗层捕获场景布局等关键信息，细层添加高频纹理；然后训练一个视频扩散模型在层次化潜空间中生成内容。实验表明该方法在保持长期一致性的同时生成高质量视频，显著提升视频生成的连贯性。",
+      "llm_tldr": "视频扩散模型面临长距离一致性问题，因为数帧序列就需要极长的Transformer序列长度。本文提出MilliVid，通过在多尺度标记空间中进行由粗到细的展开来缓解该问题。首先预训练一个将每帧压缩为层次化标记的自编码器，粗层捕获场景布局等关键信息，细层添加高频纹理；然后训练一个视频扩散模型在层次化潜空间中生成内容。实验表明该方法在保持长期一致性的同时生成高质量视频，显著提升视频生成的连贯性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.10537v1",
+      "source": "arxiv",
+      "title": "Prefilling-dLLM: Predictive Prefilling for Long-Context Inference in Diffusion Language Models",
+      "abstract": "Diffusion large language models (dLLMs) re-encode the entire prefix at every denoising step, causing recomputation that scales   quadratically with context length and becomes prohibitive for long-context scenarios. We propose Prefilling-dLLM, a training-free   prefill-decode disaggregation framework for dLLMs that partitions the prefix into N chunks, caches their KV representations once,   and selects the top-K most relevant chunks with intra-chunk token sparsity for decoding, showing that sparse prefilling can   outperform dense attention while reducing per-step complexity from quadratic in the full sequence length to quadratic only in the   decode length. On LongBench and InfiniteBench, Prefilling-dLLM achieves state-of-the-art quality among dLLM acceleration methods,   and an attention kernel that parallelizes decoding over the non-contiguously cached chunk KV yields 9.1--28.0x speedup at 8K--32K   contexts. We further show that beginning-of-sequence tokens prepended to each chunk act as periodic attention anchors that eliminate   the lost-in-the-middle phenomenon. Code is available at https://github.com/menik1126/Prefilling-dLLM.",
+      "authors": [
+        "Jing Xiong",
+        "Qi Han",
+        "Shansan Gong",
+        "Yunta Hsieh",
+        "Chengyue Wu",
+        "Chaofan Tao",
+        "Chenyang Zhao",
+        "Ngai Wong"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-06-09T08:06:22+00:00",
+      "link": "https://arxiv.org/pdf/2606.10537v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free prefill-decode framework for diffusion LLMs",
+      "llm_evidence_cn": "扩散语言模型的免训练预填充框架",
+      "llm_evidence": "扩散语言模型的免训练预填充框架",
+      "canonical_evidence": "扩散语言模型的免训练预填充框架",
+      "llm_tldr_en": "Proposes Prefilling-dLLM, a training-free framework that caches KV representations of prefix chunks and selects top-K relevant ones for efficient long-context inference in diffusion LLMs.",
+      "llm_tldr_cn": "本文针对扩散大语言模型在长上下文推理中每次去噪步骤都需要重新编码整个前缀导致计算量二次增长的问题，提出了一种免训练的预填充-解码分离框架，通过将前缀分块并缓存KV表示，在解码时选择最相关的块并利用内部稀疏性，实现了比稠密注意力更优的性能，同时将每步复杂度从全序列二次降低为解码长度的二次。",
+      "llm_tldr": "本文针对扩散大语言模型在长上下文推理中每次去噪步骤都需要重新编码整个前缀导致计算量二次增长的问题，提出了一种免训练的预填充-解码分离框架，通过将前缀分块并缓存KV表示，在解码时选择最相关的块并利用内部稀疏性，实现了比稠密注意力更优的性能，同时将每步复杂度从全序列二次降低为解码长度的二次。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
