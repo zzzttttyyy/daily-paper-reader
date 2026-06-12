@@ -1,0 +1,340 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-12T21:55:45.661710+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2606.08751v1",
+      "source": "arxiv",
+      "title": "Less Is More: Training-Free Acceleration Framework of 3D Diffusion Models for Low-Count PET Denoising via Global-Local Trajectory Reduction",
+      "abstract": "Accurate quantification and uptake measurement in PET are critical for assessing disease progression and supporting clinical decision-making. While high-count PET provides reliable image quality, the associated radiation dose and prolonged acquisition remain significant clinical concerns, motivating the adoption of low-count protocols. Diffusion-model-based methods have demonstrated strong potential for restoring low-count PET to near high-count quality, but their iterative sampling procedure becomes prohibitively expensive when applied to high-resolution 3D PET volumes, introducing substantial inference latency that limits practical clinical deployment. To address these challenges, we propose a training-free Global-Local Skipping Strategy that accelerates diffusion model-based 3D PET denoising while simultaneously improving reconstruction quality. The proposed method is plug-and-play and directly applicable to pre-trained diffusion models without retraining or architectural modification. Specifically, we introduce: (i) a global denoising step skipping strategy that initializes the reverse diffusion process from an intermediate denoising step using a noise-consistent transformation of the low-count input, substantially reducing the number of required denoising steps; and (ii) a local feature reuse shortcut that reuses slowly-varying high-level U-Net features across neighboring denoising steps, further reducing per-step computation while preserving image fidelity. We evaluate the proposed approach on multiple PET tracers from in-house and public datasets, including 18F-FDG PET, 68Ga-DOTATATE PET, and 18F-PSMA PET, demonstrating consistent acceleration of over an order of magnitude alongside improved or comparable reconstruction performance relative to the full-step baseline. Blinded reader studies further confirm enhanced clinical confidence and perceived diagnostic quality.",
+      "authors": [
+        "Yuhan Liu",
+        "Scott M. Leonard",
+        "Marlee Crews",
+        "Muhannad Fadhel",
+        "Jinkui Hao",
+        "Tianqi Chen",
+        "Ryan J. Avery",
+        "Bo Zhou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-07T17:51:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.08751v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sampling acceleration for 3D diffusion models",
+      "llm_evidence_cn": "针对3D扩散模型的训练免费采样加速",
+      "llm_evidence": "针对3D扩散模型的训练免费采样加速",
+      "canonical_evidence": "针对3D扩散模型的训练免费采样加速",
+      "llm_tldr_en": "Less Is More proposes a training-free acceleration framework for 3D diffusion models via global-local trajectory reduction, significantly reducing inference time while maintaining PET denoising quality.",
+      "llm_tldr_cn": "扩散模型在低计数PET去噪中效果出色，但高分辨率3D体积的迭代采样开销巨大，限制临床部署。本文提出训练免费的全局-局部轨迹缩减框架，通过减少采样步数加速推理，而无需重新训练模型。在多项PET数据集上，该方法在保持接近高计数PET图像质量的同时，推理速度提升数十倍，为低成本PET成像的临床转化提供有效方案。",
+      "llm_tldr": "扩散模型在低计数PET去噪中效果出色，但高分辨率3D体积的迭代采样开销巨大，限制临床部署。本文提出训练免费的全局-局部轨迹缩减框架，通过减少采样步数加速推理，而无需重新训练模型。在多项PET数据集上，该方法在保持接近高计数PET图像质量的同时，推理速度提升数十倍，为低成本PET成像的临床转化提供有效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.09608v1",
+      "source": "arxiv",
+      "title": "TUDSR: Twice Upsampling-Diffusion for Higher Super-Resolution",
+      "abstract": "Diffusion-based generative models have achieved remarkable success in real-world image super-resolution (SR). With tiled diffusion techniques, these models can produce high-resolution images that exceed their native-supported resolution. However, the quality of such high-resolution (e.g $2048^2$) outputs often remains extremely poor, primarily due to two factors we consider: the image upsampling ratio (e.g $\\times8$) exceeding the model's native-supported upsampling ratio (e.g $\\times4$), and the model's native-supported resolution. In practice, training a native high-resolution model requires larger architectures, which incur significant computational overhead and GPU memory costs, making it hard on limited-resource equipment. Thus, we present TUDSR, a Twice Upsampling-Diffusion framework for higher SR. The TUDSR framework mainly consists of two stages: the first involves training at $R$-resolution, and the second introduces a looped chunk-based training strategy at $NR$-resolution. Each stage adapts a one-step GAN architecture comprising a generator and a discriminator. Based on SD2.1-base, we develop TUDSR-S, which achieves state-of-the-art performance across multiple benchmarks. Extensive experiments further demonstrate that TUDSR-S generates high-quality images at the resolutions of $1024^2$ and even $2048^2$, significantly outperforming existing approaches. Code is available at https://github.com/wuer5/TUDSR.",
+      "authors": [
+        "Zhiqiang Wu",
+        "Yitong Dong",
+        "Xian Wei"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-08T15:18:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.09608v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free super-resolution using diffusion",
+      "llm_evidence_cn": "利用扩散模型进行免训练的超分辨率",
+      "llm_evidence": "利用扩散模型进行免训练的超分辨率",
+      "canonical_evidence": "利用扩散模型进行免训练的超分辨率",
+      "llm_tldr_en": "Proposes TUDSR, a training-free twice upsampling-diffusion method that improves high-resolution image quality beyond the model's native support by addressing upsampling ratio and resolution mismatches without retraining.",
+      "llm_tldr_cn": "本文针对扩散模型在生成超出原生支持分辨率的高分辨率图像时质量下降的问题，提出TUDSR方法。该方法采用两次上采样-扩散策略，在不重新训练模型的情况下，有效缓解了上采样比例和分辨率不匹配带来的质量损失。实验表明，TUDSR在多个超分辨率任务上显著提升了高分辨率输出质量，为资源受限环境下的高分辨率图像生成提供了一种免训练优化方案。",
+      "llm_tldr": "本文针对扩散模型在生成超出原生支持分辨率的高分辨率图像时质量下降的问题，提出TUDSR方法。该方法采用两次上采样-扩散策略，在不重新训练模型的情况下，有效缓解了上采样比例和分辨率不匹配带来的质量损失。实验表明，TUDSR在多个超分辨率任务上显著提升了高分辨率输出质量，为资源受限环境下的高分辨率图像生成提供了一种免训练优化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.10135v2",
+      "source": "arxiv",
+      "title": "BiWM: Advancing Open-Source Interactive Video World Models with Bidirectional Autoregression",
+      "abstract": "Transitioning bidirectional video diffusion models into an autoregressive paradigm improves the interactivity of video world models, but existing causal pipelines need many stages (control fine-tuning, autoregressive training, causal initialization, few-step distillation) and still trail bidirectional models in quality due to error accumulation. Recent world models such as Yume-1.5 and Matrix-Game-3.0 instead adopt a bidirectional autoregressive approach, gaining fidelity and stable long-horizon rollout from self-correcting error propagation, yet open-source frameworks (e.g., minWM) support only causal models. We present BiWM, the first full-stack framework for interactive video world models under the bidirectional autoregressive paradigm, jointly optimizing generation quality and inference speed. From a pretrained video backbone, BiWM injects camera control by fine-tuning, then runs a few-step Distribution Matching Distillation (DMD) stage that turns the backbone into an action/camera-controllable world model: just two training stages instead of four in minWM, converging in a few hundred steps on 8xH200 GPUs. A single recipe spans Wan2.1-1.3B, Wan2.2-5B, HunyuanVideo-1.5-8B, and LTX-2.3-22B, and also supports secondary fine-tuning of existing bidirectional models. BiWM enables real-world camera control where minWM loses controllability, integrates pluggable history compression (FramePack-style and PackForcing-style) for long rollouts, and offers an optional NVFP4 4-bit training/inference pipeline. To counter DMD's mode-seeking degradation, we add GAN and mass-covering forward-KL objectives that preserve scene dynamics. We open-source BiWM for resource-constrained research and high-fidelity environment simulation.",
+      "authors": [
+        "Shaohao Rui",
+        "Xiaofeng Mao",
+        "Zhanyu Zhang",
+        "Peijia Lin",
+        "Yansong Zhu",
+        "Yibo Zhang",
+        "Haibin Wan",
+        "Weijie Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-08T20:08:41+00:00",
+      "link": "https://arxiv.org/pdf/2606.10135v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "video generation with diffusion and bidirectional autoregression",
+      "llm_evidence_cn": "使用扩散和双向自回归进行视频生成",
+      "llm_evidence": "使用扩散和双向自回归进行视频生成",
+      "canonical_evidence": "使用扩散和双向自回归进行视频生成",
+      "llm_tldr_en": "BiWM provides an open-source framework for interactive video world models using bidirectional autoregression and diffusion models, achieving stable long-horizon rollout and surpassing causal models in quality.",
+      "llm_tldr_cn": "现有视频世界模型多采用因果结构，误差累积导致质量下降，而双向自回归方案更优但缺乏开源实现。BiWM首次提供完整的开源双向自回归框架，集成视频扩散模型，支持交互式世界建模。实验表明，双向自回归在长程视频生成稳定性和交互质量上显著优于因果基线，为研究社区提供了强大工具。",
+      "llm_tldr": "现有视频世界模型多采用因果结构，误差累积导致质量下降，而双向自回归方案更优但缺乏开源实现。BiWM首次提供完整的开源双向自回归框架，集成视频扩散模型，支持交互式世界建模。实验表明，双向自回归在长程视频生成稳定性和交互质量上显著优于因果基线，为研究社区提供了强大工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.09816v1",
+      "source": "arxiv",
+      "title": "PTL-Diffusion: Manifold-Aware Diffusion with Periodic Terminal Laws",
+      "abstract": "Standard diffusion models typically use a single time-homogeneous Gaussian terminal distribution as the reference law for generation. While this choice is analytically convenient and empirically powerful, it provides little explicit structure for data concentrated near low-dimensional manifolds, where different regions of the data distribution may correspond to distinct local geometric or semantic factors. As a result, the reverse model must recover manifold-level structure almost entirely from an unstructured terminal reference distribution.   We propose PTL-Diffusion, a proof-of-concept diffusion framework whose forward noising process converges to a nonconstant periodic family of Gaussian terminal laws rather than to a single invariant law. Unlike a phase-conditioned DDPM, where phase information only enters the denoising network while the forward process remains unchanged, PTL-Diffusion embeds phase structure directly into the forward noising dynamics.   The proposed construction remains close to standard denoising diffusion models: for a periodically forced Ornstein--Uhlenbeck-type forward process, we derive closed-form forward marginals, the limiting periodic Gaussian terminal family, and explicit Gaussian reverse posteriors, enabling standard noise-prediction training. We also introduce an invariant-average regularization term coupling the phase-conditioned reverse dynamics through the averaged periodic reference law. Experiments on torus and cylinder point-cloud benchmarks and the Olivetti face dataset show that PTL-Diffusion improves manifold-level distributional matching over matched DDPM baselines, reducing phase-conditioned errors, feature-space covariance errors, and nearest-neighbour manifold distances. These results suggest structured terminal reference laws as a promising direction, while motivating more expressive phase constructions and larger-scale evaluations.",
+      "authors": [
+        "Danqi Zhuang",
+        "Jisui Huang",
+        "Xiaoyue Xi",
+        "Andrew Kiggins",
+        "Xiaojie Wang",
+        "Ke Chen",
+        "Yue Wu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "math.PR"
+      ],
+      "published": "2026-06-08T17:56:16+00:00",
+      "link": "https://arxiv.org/pdf/2606.09816v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "periodic terminal laws diffusion framework",
+      "llm_evidence_cn": "周期终端定律扩散框架",
+      "llm_evidence": "周期终端定律扩散框架",
+      "canonical_evidence": "周期终端定律扩散框架",
+      "llm_tldr_en": "Proposes PTL-Diffusion with periodic terminal laws to improve manifold awareness in diffusion models.",
+      "llm_tldr_cn": "标准扩散模型使用单一高斯终端分布，难以捕捉低维流形结构。本文提出PTL-Diffusion，引入非恒定周期终端定律族，使正向噪声过程收敛到周期族而非单一分布。实验显示该方法能更好建模流形结构，提升生成质量。该工作为扩散模型提供了一种新的理论视角，有利于生成任务。",
+      "llm_tldr": "标准扩散模型使用单一高斯终端分布，难以捕捉低维流形结构。本文提出PTL-Diffusion，引入非恒定周期终端定律族，使正向噪声过程收敛到周期族而非单一分布。实验显示该方法能更好建模流形结构，提升生成质量。该工作为扩散模型提供了一种新的理论视角，有利于生成任务。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.06887v1",
+      "source": "arxiv",
+      "title": "ARAPDiffusion: ARAP Regularization for Diffusion-Based Deformable Shape Space Learning",
+      "abstract": "This paper introduces ARAPDiffusion, a latent diffusion model to learn the underlying continuous shape space of a deformation shape collection. The key innovation is in injecting the as-rigid-as-possible (ARAP) deformation model as regularization losses into latent diffusion (LD), releasing the requirement of having abundant 3D training data for learning generative models. In contrast to the standard LD, we show how the ARAP model can be used to improve both the encoder/decoder and the LD model. The training procedure alternates between using the synthetic distribution defined by the LD model to develop a regularization loss that enhances the shape encoder/decoder and using the shape decoder to develop a regularization loss to improve the LD model. We also show the benefit of the LD paradigm in combining a representation-free LD process and an implicit shape decoder that is applicable to unorganized point clouds. The experimental results of unconditional and conditional shape generation demonstrate the advantages of ARAPDiffusion over baseline approaches.",
+      "authors": [
+        "Haibo Liu",
+        "Jinghan Ke",
+        "Haitao Yang",
+        "Xiangru Huang",
+        "Georgios Pavlakos",
+        "Qixing Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-05T04:09:15+00:00",
+      "link": "https://arxiv.org/pdf/2606.06887v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "latent diffusion for deformable shape space",
+      "llm_evidence_cn": "用于可变形形状空间的潜扩散模型",
+      "llm_evidence": "用于可变形形状空间的潜扩散模型",
+      "canonical_evidence": "用于可变形形状空间的潜扩散模型",
+      "llm_tldr_en": "Introduces ARAPDiffusion, a latent diffusion model with as-rigid-as-possible regularization for learning continuous shape spaces from limited 3D data.",
+      "llm_tldr_cn": "针对三维形状生成数据稀缺问题，提出ARAPDiffusion，通过注入ARAP正则化损失到潜扩散模型中，减少对大量训练数据的需求。方法交替优化编码器/解码器和扩散模型。实验证明能有效学习形状空间并生成合理形状。",
+      "llm_tldr": "针对三维形状生成数据稀缺问题，提出ARAPDiffusion，通过注入ARAP正则化损失到潜扩散模型中，减少对大量训练数据的需求。方法交替优化编码器/解码器和扩散模型。实验证明能有效学习形状空间并生成合理形状。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.11289v1",
+      "source": "arxiv",
+      "title": "i1: A Simple and Fully Open Recipe for Strong Text-to-Image Models",
+      "abstract": "Diffusion models have consistently driven progress in text-to-image generation. However, it is challenging to attribute recent progress to specific modeling and data choices: state-of-the-art open-weight models provide limited ablations, and do not disclose their training data and full training details. The research community needs fully open (weights, data, and code) models as a foundation for further research; yet existing fully open models still fall significantly short of leading models in performance. In this project, we conduct a systematic investigation of the modeling and data design choices in text-to-image diffusion training and inference with 300+ controlled experiments totaling 700K+ TPU v6e hours. Our experiments highlight several empirical findings (e.g., equal weighting is a strong default for mixing curated datasets) and simple design decisions (e.g., larger text encoder adapters improve performance with minimal added parameters) for training strong models. Guided by these insights, we train i1, a 3B-parameter text-to-image diffusion model using only publicly available datasets. i1 is competitive with leading models on five representative benchmarks (GenEval, DPG, PRISM, CVTG-2K, and LongText), and outperforms the best existing fully open model by 29.5 absolute percentage points on average. We provide the i1 checkpoints, training and inference code, and the data processing pipeline. Together, our findings and the i1 recipe establish a practical foundation for future open research in text-to-image diffusion models. Our code is available at https://github.com/zlab-princeton/i1.",
+      "authors": [
+        "Boya Zeng",
+        "Tianze Luo",
+        "Shu Pu",
+        "Jucheng Shen",
+        "Taiming Lu",
+        "Gabriel Sarch",
+        "Zhuang Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-09T17:58:10+00:00",
+      "link": "https://arxiv.org/pdf/2606.11289v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "text-to-image diffusion model recipe",
+      "llm_evidence_cn": "文本到图像扩散模型配方",
+      "llm_evidence": "文本到图像扩散模型配方",
+      "canonical_evidence": "文本到图像扩散模型配方",
+      "llm_tldr_en": "Conducts systematic experiments on text-to-image diffusion training and inference, providing a fully open strong recipe.",
+      "llm_tldr_cn": "文本到图像扩散模型领域缺少完全开源的强模型。本文通过300+控制实验，系统研究训练和推理的建模与数据选择，提供完全开放的强模型配方。实验发现多个关键经验发现，推动开源社区发展。",
+      "llm_tldr": "文本到图像扩散模型领域缺少完全开源的强模型。本文通过300+控制实验，系统研究训练和推理的建模与数据选择，提供完全开放的强模型配方。实验发现多个关键经验发现，推动开源社区发展。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.08672v1",
+      "source": "arxiv",
+      "title": "Learning to Solve Generative ODEs Beyond the Linear Span",
+      "abstract": "Diffusion and flow generative models sample by integrating a learned ODE, but high quality still requires many sequential model evaluations. Solver learning reduces this cost by adapting scalar coefficients, timesteps, or both, while keeping the backbone model fixed. In this work, we identify a structural bottleneck in this update family: each step remains span-limited. Since the scalar-coefficient update lies in the span of buffered velocity evaluations, it can fit only the in-span component while leaving any out-of-span residual unreachable by scalar recombination alone. We propose SpanLift, a lightweight neural solver that augments scalar-coefficient updates with a spatial residual operator. SpanLift keeps a fixed base solver as an in-span prior and learns a spatial residual operator over the state and velocity buffer. The operator is trained by endpoint teacher matching, preserves the pretrained backbone, and adds no model NFEs. Empirically, the learned correction transfers across base solvers and is predominantly out-of-span. Across pixel-space diffusion, latent flow matching, and precipitation nowcasting, SpanLift achieves state-of-the-art few-step sampling. With only 3 NFE, it improves CIFAR-10 FID from 8.16 to 5.69 and ImageNet FID from 17.37 to 11.83.",
+      "authors": [
+        "Sihyeon Kim",
+        "Seunghun Lee",
+        "Vikas Singh",
+        "Hyunwoo J. Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-07T15:22:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.08672v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "learning generative ODE solver for diffusion models",
+      "llm_evidence_cn": "扩散模型生成ODE求解器学习",
+      "llm_evidence": "扩散模型生成ODE求解器学习",
+      "canonical_evidence": "扩散模型生成ODE求解器学习",
+      "llm_tldr_en": "Identifies span-limited bottleneck in scalar-coefficient ODE solvers for diffusion models and proposes SpanLift with spatial residual operator.",
+      "llm_tldr_cn": "扩散模型生成ODE求解器通常使用标量系数更新，受限于缓冲速度的线性组合。本文发现这种更新只能拟合速度张成的子空间分量，无法处理残差。提出SpanLift，一种轻量神经求解器，通过空间残差算子补充超出子空间的分量，保持固定基求解器作为先验。实验表明该方法能加速求解并提升质量。",
+      "llm_tldr": "扩散模型生成ODE求解器通常使用标量系数更新，受限于缓冲速度的线性组合。本文发现这种更新只能拟合速度张成的子空间分量，无法处理残差。提出SpanLift，一种轻量神经求解器，通过空间残差算子补充超出子空间的分量，保持固定基求解器作为先验。实验表明该方法能加速求解并提升质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.12213v1",
+      "source": "arxiv",
+      "title": "SHERPA: Seam-aware Harmonized ERP Adaptation for Open-Domain 360$^\\circ$ Panorama Generation",
+      "abstract": "Panoramic imagery is increasingly used in world-generation, games, and simulation, where users may need not only photorealistic scenes but also stylized and non-photorealistic environments. Large-scale text-to-image diffusion and flow models provide broad style and semantic priors for this goal, but planar image training misaligns them with the wrap-around topology and polar regions of $360^\\circ$ panoramas represented in equirectangular projection (ERP). We present SHERPA, a lightweight adaptation framework that combines frequency-selective Circular RoPE, Circular Latent Encoding/Decoding, image-side FFN adapters, and a Dual-Path Training Scheme. Circular RoPE replaces only the seam-sensitive high-frequency horizontal RoPE band with integer-periodic harmonics while preserving the pretrained lower-frequency spectrum. The Paired Panorama Path supervises geometry, while the Unpaired Style Path uses self-supervised yaw consistency for target-free stylized prompts. As a result, SHERPA generates $360^\\circ$ panoramas across both photorealistic panorama domains and open-domain stylized prompts.",
+      "authors": [
+        "Jungwoon Kang",
+        "Jaehun Kim",
+        "Yiwon Yu",
+        "Hyungyum Jang",
+        "Sanghoon Lee",
+        "Jongyoo Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-10T15:29:06+00:00",
+      "link": "https://arxiv.org/pdf/2606.12213v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "image generation with diffusion models for 360-degree panoramas",
+      "llm_evidence_cn": "使用扩散模型生成360度全景图像",
+      "llm_evidence": "使用扩散模型生成360度全景图像",
+      "canonical_evidence": "使用扩散模型生成360度全景图像",
+      "llm_tldr_en": "SHERPA adapts pretrained diffusion and flow models to 360-degree panorama generation using frequency-selective Circular RoPE and other lightweight components, enabling high-quality open-domain panoramic image synthesis.",
+      "llm_tldr_cn": "SHERPA针对360度全景图生成提出轻量级适配框架，结合频率选择圆形RoPE、圆形潜在编解码、图像侧FFN适配器和双路径训练，使预训练的2D扩散/流模型能在等距柱状投影中有效生成全景图，解决拓扑和极区对齐问题。实验表明，该方法在多种风格和内容场景下均能生成高质量全景图。",
+      "llm_tldr": "SHERPA针对360度全景图生成提出轻量级适配框架，结合频率选择圆形RoPE、圆形潜在编解码、图像侧FFN适配器和双路径训练，使预训练的2D扩散/流模型能在等距柱状投影中有效生成全景图，解决拓扑和极区对齐问题。实验表明，该方法在多种风格和内容场景下均能生成高质量全景图。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

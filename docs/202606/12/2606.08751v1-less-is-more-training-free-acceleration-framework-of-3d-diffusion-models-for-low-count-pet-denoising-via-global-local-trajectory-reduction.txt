@@ -1,0 +1,636 @@
+Title: Less Is More: Training-Free Acceleration Framework of 3D Diffusion Models for Low-Count PET Denoising via Global-Local Trajectory Reduction
+
+URL Source: https://arxiv.org/pdf/2606.08751v1
+
+Published Time: Tue, 09 Jun 2026 01:47:18 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+# Less Is More: Training-Free Acceleration Framework of 3D Di ff usion Models for Low-Count PET Denoising via Global–Local Trajectory Reduction 
+
+Yuhan Liu a,b , Scott M. Leonard a, Marlee Crews a, Muhannad Fadhel a, Jinkui Hao a, Tianqi Chen a, Ryan J. Avery a, Bo Zhou a, ∗
+
+> aDepartment of Radiology, Northwestern University, Chicago, IL, USA
+> bDepartment of Biomedical Engineering, Hefei University of Technology, Hefei, Anhui, China
+
+Abstract 
+
+Accurate quantification and uptake measurement in Positron Emission Tomography (PET) are critical for assessing disease progression and supporting clinical decision-making. While high-count PET provides reliable image quality, the associated radiation dose and prolonged acquisition remain significant clinical concerns, motivating the adoption of low-count protocols. Di ff usion-model-based methods have demonstrated strong potential for restoring low-count PET to near high-count quality, but their iterative sampling procedure becomes prohibitively expensive when applied to high-resolution 3D PET volumes, introducing substantial inference latency that limits practical clinical deployment. To address these challenges, we propose a training-free Global-Local Skipping Strategy that accelerates di ff usion model-based 3D PET denoising while simultaneously improving reconstruction quality. The proposed method is plug-and-play and directly applicable to pre-trained di ff usion models without retraining or architectural modification. Specif-ically, we introduce: (i) a global denoising step skipping strategy that initializes the reverse di ff usion process from an intermediate denoising step using a noise-consistent transformation of the low-count input, substantially reducing the number of required denoising steps; and (ii) a local feature reuse shortcut that reuses slowly-varying high-level U-Net features across neighboring denoising steps, further reducing per-step computation while preserving image fi-delity. We evaluate the proposed approach on multiple PET tracers from in-house and public datasets, including 
+
+> 18
+
+F-FDG PET, 68 Ga-DOTATATE PET, and 18 F-PSMA PET, demonstrating consistent acceleration of over an order of magnitude alongside improved or comparable reconstruction performance relative to the full-step baseline. Blinded reader studies further confirm enhanced clinical confidence and perceived diagnostic quality. Code is available at: 
+
+https://github.com/Advanced-AI-in-Medicine-and-Physics-Lab/LIM.git 
+
+Keywords: Low-count PET, 3D Di ff usion Model, Acceleration, Global-Local Skipping 
+
+1. Introduction 
+
+Positron Emission Tomography (PET) is a cornerstone imaging modality in oncology, cardiology, and neurology, enabling quantitative assessment of radiotracer uptake for disease diagnosis, treatment planning, and therapy mon-itoring. Reliable quantification typically requires high-count acquisitions to ensure adequate count statistics and image quality. However, higher count levels necessitate increased injected activity or prolonged acquisition times, leading to greater radiation exposure and reduced practi-cality for longitudinal imaging, vulnerable patient popu-lations, and population-scale screening. Low-count PET   
+
+> ⋆Part of the data used in preparation of this article was obtained from the University of Bern, Dept. of Nuclear Medicine and School of Medicine, Ruijin Hospital. As such, the investigators contributed to the design and implementation of DATA and /or provided data, but did not participate in the analysis or writing of this report. A complete listing of investigators can be found at: https://udpet-challenge.github. io/ .
+> ∗Bo Zhou: bo.zhou@northwestern.edu
+
+provides a clinically attractive alternative by reducing ad-ministered dose or shortening scan duration, but su ff ers from elevated noise, degraded image quality, and compro-mised quantitative accuracy, which can adversely a ff ect lesion detection, segmentation, and standardized uptake value (SUV) measurements. To mitigate these limitations, numerous deep learning-based PET denoising approaches have been proposed. Among them, denoising di ff usion probabilistic models (DDPMs) (Ho et al., 2020) have recently achieved state-of-the-art performance across scanners, tracers, and count levels (Yu et al., 2025), owing to their powerful generative priors and ability to progressively refine degraded images through iterative denoising. Nevertheless, the exceptional restoration capability of di ff usion models comes at a sub-stantial computational cost. Modern di ff usion models typ-ically require hundreds to thousands of reverse denoising steps during inference, and this burden becomes particu-larly severe for high-resolution 3D medical imaging. Re-cent studies have reported that denoising a single whole-body PET scan using a 3D di ff usion model may require  
+
+> Preprint submitted to Elsevier June 9, 2026
+> arXiv:2606.08751v1 [cs.CV] 7 Jun 2026
+
+tens of minutes to several hours of GPU computation (Yu et al., 2025), creating a major obstacle for clinical deploy-ment. Consequently, many existing approaches resort to reduced-dimensional approximations, such as 2.5D di ff u-sion models (Chen et al., 2025), sacrificing full volumetric modeling in exchange for computational feasibility. Considerable e ff ort has been devoted to accelerating dif-fusion models through scheduler redesign (Song et al., 2022; Lu et al., 2022, 2025), knowledge distillation (Sal-imans and Ho, 2022), learned fast samplers (Jiang et al., 2025), and architectural modifications (Chen et al., 2025). While these approaches have demonstrated promising ac-celeration, many require retraining, fine-tuning, or mod-ifications to the underlying network architecture. More-over, most recent acceleration techniques have been de-veloped for large-scale natural-image generation and are closely coupled with Di ff usion Transformers (DiTs) (Pee-bles and Xie, 2023), limiting their applicability to the U-Net-based di ff usion architectures that remain dominant in medical image restoration. More fundamentally, existing acceleration methods largely overlook an important distinction between image generation and image restoration. In natural-image gen-eration, the reverse di ff usion process must progressively synthesize image content from pure Gaussian noise. In contrast, medical image restoration is inherently a condi-tional problem: the degraded input already contains sub-stantial anatomical and functional information about the target image. In low-count PET, despite elevated noise levels, the input image preserves most anatomical struc-tures and coarse tracer uptake patterns of the correspond-ing high-count image. This observation raises an intrigu-ing question: is traversing the full di ff usion trajectory nec-essary when the desired image structure is already largely present in the conditional input? 
+
+In this work, we demonstrate that the answer is often no. We show that di ff usion-based PET denoising con-tains substantial redundancy at two complementary levels. First, the early portion of the reverse di ff usion trajectory is largely redundant because the low-count PET image already provides a structurally informative initialization. Second, intermediate representations within the di ff usion U-Net evolve smoothly across neighboring reverse denois-ing steps, resulting in considerable redundancy in network computation. These observations suggest that both the dif-fusion trajectory and the denoising network contain ex-ploitable ine ffi ciencies that can be removed without re-training the model. Motivated by these insights, we propose Less Is More (LIM) , a training-free and plug-and-play acceleration framework for 3D di ff usion-based PET denoising. LIM introduces a unified Global–Local Skipping strategy con-sisting of two complementary components. At the global level, we introduce a Q-Sampling Trajectory Short-cut , which initializes reverse di ff usion from an interme-diate noisy state derived from the low-count PET image, thereby bypassing a large portion of the reverse trajec-tory. At the local level, we introduce a Feature-Reuse Network Shortcut , which exploits the temporal smooth-ness of high-level U-Net representations by caching and reusing intermediate features across neighboring reverse denoising steps. Importantly, the proposed framework re-quires neither retraining nor architectural modification and can be directly applied to existing pre-trained di ff usion models as an inference-time acceleration strategy. We evaluate LIM on both public and in-house PET datasets spanning multiple tracers, including 18 F-FDG, 
+
+> 68
+
+Ga-DOTATATE, and 18 F-PSMA PET. Experimental re-sults demonstrate acceleration factors exceeding one or-der of magnitude while consistently improving or main-taining reconstruction fidelity relative to the original dif-fusion process. Notably, the proposed method achieves superior quantitative performance despite substantially re-ducing computational cost, suggesting that removing re-dundant portions of the di ff usion trajectory may also mit-igate cumulative denoising errors. Blinded reader studies further demonstrate improved clinical confidence and le-sion visibility. The main contributions of this work are summarized as follows: 
+
+• A training-free acceleration framework for 3D di ff usion-based PET denoising. We propose a plug-and-play inference strategy that substantially acceler-ates pre-trained di ff usion models without retraining, fine-tuning, or architectural modification. 
+
+• A unified Global–Local Skipping paradigm. 
+
+We introduce complementary trajectory-level and network-level acceleration mechanisms that exploit redundancy in both the di ff usion process and the de-noising network. 
+
+• A restoration-specific perspective on di ff usion ac-celeration. We provide empirical and theoretical ev-idence that conditional medical image restoration ex-hibits substantial trajectory and feature redundancy, fundamentally di ff ering from unconditional image generation. 
+
+• Comprehensive multi-tracer validation. We val-idate the proposed framework across multiple PET tracers and datasets, demonstrating consistent im-provements in reconstruction quality, computational effi ciency, and blinded clinical evaluation. 
+
+2. Related Works 
+
+2.1. Deep Learning for Low-Count PET Denoising 
+
+Low-count PET denoising has been extensively stud-ied as a strategy to reduce radiation exposure while main-taining clinically reliable image quality and quantitative accuracy. Most existing approaches formulate the prob-lem as supervised image-to-image restoration by learning a mapping from low-count PET to corresponding high-count PET images, typically generated through retrospec-tive list-mode downsampling. 2Q-Sampling( 𝑋 !" , 𝑡 #)                 
+
+> Caching
+> 𝐸 !
+> 𝐸 "
+> 𝐸 #
+> 𝐷 !
+> 𝐷 "
+> 𝐷 #
+> 𝑀
+> 𝐸 "
+> 𝐸 #
+> 𝐷 "
+> 𝐷 #
+> 𝑀
+> 𝐸 !𝐷 !
+> Feature
+> Reuse
+> 𝑥 $𝑥 $%!𝑥 $%"
+> 𝐷 "𝑀
+> 𝐷 "𝑀
+> Stage I . Q -Sampling Trajectory Shortcut, One Step 𝑻 ->𝒕 𝒔
+> U-Net
+> Computed
+> Blocks
+> U-Net
+> Cached
+> Blocks
+> U-Net
+> (3D)
+> Skipped
+> Process
+> Computed
+> Process
+> 𝑥 &'
+> 𝜖
+> 𝜖
+> …
+> 𝑥 $!
+> 𝑥 "$
+> Standard Diffusion, 𝑻 ->𝒕 𝒔 ->0
+> 𝑥 "#$𝑥 "#%𝑥 &
+> Stage II. Feature -Reuse Network Shortcut, 𝒕 𝒔 ->0
+
+Figure 1: Overview of the proposed Less Is More (LIM) framework for training-free acceleration of di ff usion-based PET denoising. The framework consists of two complementary acceleration stages. Stage I: Q-Sampling Trajectory Shortcut performs global trajectory reduction by initializing the reverse di ff usion process from an intermediate timestep ts instead of pure Gaussian noise at T , using a Q-sampled low-count PET image constructed from the observed low-count input and matched Gaussian perturbation. This initialization preserves image-specific anatomical and tracer uptake infor-mation while bypassing redundant early reverse denoising steps. Stage II: Feature-Reuse Network Shortcut performs local computation reduction 
+
+by caching and reusing intermediate U-Net representations across neighboring reverse denoising steps, avoiding repeated computation of temporally similar features. Together, the two stages reduce both the overall di ff usion trajectory length and per-step computational cost, enabling substantially faster inference while maintaining reconstruction fidelity. 
+
+Early deep learning approaches were primarily based on convolutional neural networks (CNNs), particularly U-Net-style encoder–decoder architectures (Ronneberger et al., 2015; Kaviani et al., 2023; Mazandarani et al., 2023), which e ff ectively capture multi-scale contextual in-formation while preserving anatomical structures through skip connections. Subsequently, generative adversarial networks (GANs) and conditional GANs were introduced to improve perceptual realism and image sharpness (Ka-plan and Zhu, 2019; Wang et al., 2018), followed by CycleGAN- and Wasserstein GAN-based variants (Zhou et al., 2020; Gong et al., 2021). Although adversar-ial learning often improves visual quality, it may intro-duce hallucinated structures or unstable training behavior, which are undesirable in quantitative PET applications. To further improve restoration fidelity under extremely low-count settings, several studies incorporated comple-mentary anatomical information from MRI, such as T1-weighted or multi-contrast images, as structural priors for PET restoration (Chen et al., 2019; Xiang et al., 2017). More recently, di ff usion models have emerged as the state-of-the-art paradigm for PET denoising and medi-cal image restoration (Yu et al., 2025, 2024; Xie et al., 2026a). By iteratively refining noisy observations through a learned reverse di ff usion process, di ff usion models achieve superior restoration fidelity and improved preser-vation of anatomical and functional details compared with earlier CNN- and GAN-based methods. In particular, both fully volumetric 3D di ff usion models and more computa-tionally e ffi cient 2.5D di ff usion frameworks have demon-strated promising results across scanners, tracers, and dose levels (Yu et al., 2025; Chen et al., 2025). However, these gains come at a substantial computational cost. The iter-ative denoising process requires hundreds to thousands of network evaluations, resulting in significantly longer infer-ence times and higher memory consumption than conven-tional restoration networks. This limitation is especially pronounced in high-resolution 3D PET imaging, where in-ference for a single whole-body scan may require tens of minutes to several hours (Yu et al., 2025), motivating the need for e ffi cient di ff usion acceleration strategies. 
+
+2.2. Acceleration of Di ff usion Models 
+
+A large body of recent work has focused on accel-erating di ff usion models (Song et al., 2024). Existing approaches can be broadly categorized into architecture-level acceleration, sampling acceleration, model compres-sion, and inference-time optimization. At the architecture level, one practical strategy for volumetric medical imag-ing is to replace fully 3D di ff usion models with 2.5D ar-chitectures (Chen et al., 2025; Hu et al., 2024; Xie et al., 2026b). By processing neighboring slices or orthogo-nal views instead of the entire volume, these methods substantially reduce memory and computational require-ments while partially preserving volumetric consistency. However, 2.5D models inherently approximate long-range three-dimensional dependencies and may be suboptimal for whole-body PET imaging, where tracer biodistribution patterns and lesion continuity extend across large spatial regions. Another major direction focuses on accelerating the reverse di ff usion trajectory. Representative examples include DDIM (Song et al., 2022), DPM-Solver (Lu et al., 2022), and DPM-Solver ++ (Lu et al., 2025), which re-duce the number of reverse denoising steps through al-3ternative numerical formulations. These methods achieve substantial acceleration without retraining and have be-come standard baselines in di ff usion generation. How-ever, they are primarily developed for image synthesis and latent-space di ff usion models. Aggressive trajectory shortening may lead to instability or fidelity degradation in conditional restoration tasks, where preserving subtle anatomical structures and quantitative image characteris-tics is critical. A third category consists of model compres-sion techniques, including distillation, pruning, and quan-tization. Progressive Distillation (Salimans and Ho, 2022), for example, compresses long di ff usion trajectories into a smaller number of reverse denoising steps by training a student network to mimic a pre-trained teacher. While ef-fective, these methods typically require additional train-ing and often introduce deployment complexity or task-specific adaptation. Recent advances in e ffi cient di ff usion inference have been largely driven by latent di ff usion models (Rombach et al., 2022) and Di ff usion Transformers (DiTs) (Peebles and Xie, 2023). Within this context, several training-free acceleration methods have been proposed. FORA (Sel-varaju et al., 2024) exploits temporal redundancy by reusing block-level features across neighboring reverse de-noising steps, while ToCa (Zou et al., 2025) selectively updates informative tokens and reuses cached representa-tions for less important tokens. Sparse attention methods such as Jenga (Zhang et al., 2025) further reduce compu-tational cost by restricting attention computation to struc-tured subsets of tokens. These methods demonstrate that significant redundancy exists within di ff usion trajectories and intermediate representations. Despite this progress, most existing acceleration tech-niques have been developed for natural-image or video generation (Rombach et al., 2021; Labs et al., 2025; Zheng et al., 2024; Wan et al., 2025) and rely on assumptions that do not directly translate to medical image restoration. First, they are often tightly coupled with latent di ff usion frameworks or transformer-based architectures, whereas U-Net-based di ff usion models remain the dominant back-bone in medical imaging. Second, they are designed for content generation from Gaussian noise rather than condi-tional restoration from an observed image. In low-count PET denoising, the input image already contains sub-stantial anatomical and functional information, suggesting that a di ff erent form of redundancy may exist within the di ff usion trajectory. To our knowledge, this restoration-specific redundancy has not been systematically exploited for accelerating 3D di ff usion-based PET denoising. The proposed method addresses this gap through a training-free Global–Local Skipping framework that leverages both trajectory-level and feature-level redundancy during infer-ence. 
+
+3. Methods 
+
+The overall framework of LIM is illustrated in Fig. 1 and is built upon a unified Global–Local Skipping 
+
+paradigm that exploits two complementary forms of re-dundancy in di ff usion-based PET denoising, as charac-terized in Sec. 3.2. Specifically, we observe that redun-dancy exists both along the di ff usion trajectory and within the denoising network itself. Based on these observa-tions, we develop two training-free acceleration strategies. First, we introduce the Q-Sampling Trajectory Shortcut 
+
+(Sec. 3.3), a global acceleration mechanism that leverages the strong structural correspondence between low-count and high-count PET images to initialize the reverse di ff u-sion process from an intermediate timestep ts, thereby by-passing a large portion of the redundant high-noise trajec-tory. Second, we introduce the Feature-Reuse Network Shortcut (Sec. 3.4), a local acceleration mechanism that exploits the smooth temporal evolution of high-level U-Net representations across neighboring reverse denoising steps, enabling cached features to be reused and reducing redundant network computation. Together, these two com-ponents accelerate inference at complementary levels: the global shortcut reduces the overall number of reverse de-noising steps, while the local shortcut decreases the com-putational cost of each remaining denoising step. A com-plete algorithmic description of the proposed framework is provided in Algorithm 1. 
+
+3.1. Preliminary: Conditional Denoising Di ff usion Prob-abilistic Models 
+
+Denoising Di ff usion Probabilistic Models (DDPMs) are generative models that learn a data distribution by invert-ing a gradual noising process. They define (i) a forward 
+
+Markov chain that progressively perturbs data into Gaus-sian noise, and (ii) a reverse-time Markov chain parame-terized by a neural network that iteratively removes noise. In conditional image restoration tasks, the reverse process is further conditioned on an observed input c. In our PET denoising setting, c denotes the low-count PET image xLC ,and the model aims to recover the corresponding high-count PET image x0 = xHC .
+
+Forward di ff usion. Let x0 ∼ q(x0) denote a clean target image. The forward di ff usion process is a fixed Gaussian Markov chain: 
+
+q(xt | xt−1) = Nxt; √αt xt−1, (1 − αt)I , t = 1, . . . , T,
+
+(1) where αt = 1 − βt and {βt}Tt=1 is a predefined variance schedule with βt ∈ (0 , 1). Define ¯ αt = Qts=1 αs. By Gaus-sian composition, the marginal distribution admits a closed form: 
+
+q(xt | x0) = Nxt; √ ¯αt x0, (1 − ¯αt)I , (2) which enables direct sampling via reparameterization: 
+
+xt = √ ¯αt x0 + p1 − ¯αt ϵ, ϵ ∼ N (0, I). (3) 4t = 0 t = 50 t = 100 t = 500 t = 999         
+
+> 𝑄 −𝑆𝑎𝑚𝑝𝑙𝑖𝑛𝑔 (𝑋 !" ,𝑡 #)
+> 𝑄 −𝑆𝑎𝑚𝑝𝑙𝑖𝑛𝑔 (𝑋 $" ,𝑡 #)
+
+(a) Redundancy in Global Denoising Trajectory (b) Redundancy in Local Denoising Trajectory                       
+
+> 𝑡 =50 𝑡 =100 𝑡 =200 𝑡 =500
+> 𝑡  − 1𝑡
+> 𝑡 =300
+> Heatmap:
+> Output of 𝐸3 Figure 2: Redundancy Analysis in 3D Di ff usion-based PET Denoising. (a) Global redundancy: pairwise cosine similarity between q-sampled HC and LC PET states at the same denoising step. Similarity remains consistently close to 1.0 across the entire di ff usion trajectory (0.97 even in the original image domain), indicating that low-count PET preserves su ffi cient structural information to support intermediate initialization of the reverse process. (b) Local redundancy: cosine similarity between features at adjacent reverse denoising steps across U-Net stages. High temporal similarity across encoder, bottleneck, and decoder stages throughout the full trajectory ( t∈[0 ,1000]) demonstrates that intermediate representations evolve smoothly between consecutive reverse denoising steps, which supports e ff ective feature reuse.
+
+Conditional reverse process. Given the condition image 
+
+c, the generative model starts from xT ∼ N(0, I) and learns a conditional reverse-time Markov chain: 
+
+pθ(xt−1 | xt, c) = N(xt−1; μθ(xt, t, c), Σt) , t = T, . . . , 1,
+
+(4) where θ parameterizes a neural network and Σt is typically fixed as σ2 
+
+> t
+
+I for stable sampling. A standard parameteri-zation predicts the injected noise ϵθ(xt, t, c), yielding: 
+
+μθ(xt, t, c) = 1
+
+√αt
+
+xt − βt
+
+√1 − ¯αt
+
+ϵθ(xt, t, c)
+
+!
+
+. (5) 
+
+Training objective. In practice, the model is commonly trained to predict the injected noise under the condition c:
+
+Lsimple (θ) = Et∼U{ 1,..., T }, x0,c, ϵ∼N (0,I)
+
+h∥ϵ − ϵθ(xt, t, c)∥22
+
+i ,
+
+(6) where xt = √ ¯αt x0 + √1 − ¯αt ϵ.
+
+Sampling. At inference time, conditioned on c, the model iteratively samples: 
+
+xt−1 = μθ(xt, t, c) + σt z, z ∼ N (0, I), (7) with z = 0 typically used at the final step. 
+
+3.2. Redundancy in Di ff usion-based PET Denoising 
+
+Although di ff usion models have shown strong poten-tial for PET denoising, their iterative reverse process introduces substantial computational overhead. In this work, we observe that di ff usion-based PET denoising contains two forms of redundancy: global redundancy along the di ff usion trajectory and local redundancy inside the denoising network. These observations motivate our training-free acceleration framework. 
+
+Global redundancy along the di ff usion trajectory . We begin by analyzing the structural relationship between the high-count PET image xHC and its corresponding low-count counterpart xLC under the DDPM forward process. For a set of five 18 F-FDG PET cases, we apply forward q-sampling (Eq. 2) independently to xHC and xLC at the same step t, and measure their cosine similarity across the full di ff usion trajectory. As shown in Fig. 2(a), the q-sampled high-count and low-count states remain highly similar throughout the en-tire forward process, with cosine similarity consistently approaching 1 across all steps. Notably, even in the orig-inal image domain ( t = 0), the cosine similarity between 
+
+xHC and xLC reaches 0.97, confirming that the low-count PET image already preserves the dominant anatomical structures and coarse tracer distribution of the high-count target. This observation is consistent with the DDPM forward formulation. Since Eq. 2 constructs xt by perturbing a clean image x0 with Gaussian noise, two structurally sim-ilar clean images are expected to produce similar noisy samples at the same step. Therefore, the noised low-count PET image can serve as a structurally faithful approxima-tion to the noised high-count PET image at an intermediate step. This suggests that the reverse process need not start from pure Gaussian noise: initializing from a q-sampled 
+
+xLC at an intermediate step ts ≪ T allows the model to bypass the redundant high-noise prefix of the denoising trajectory without discarding meaningful structural infor-mation. 
+
+Local redundancy inside the denoising network . We fur-ther examine the temporal evolution of intermediate U-Net features during the reverse process. As shown in Fig. 2, 5Algorithm 1: Accelerated Inference with LIM 
+
+Input: Low-count PET volume xLC ;pre-trained di ff usion model ϵθ(xt, t, xLC ) with L blocks 
+
+{m(l)}Ll=1;Reverse di ff usion operator RevStep( ·); Total di ff usion steps T ; starting step ts ≪ T ;Reuse boundary K;Cache interval N.
+
+Output: Reconstructed high-count PET volume ˆ x0.
+
+Stage 1: Q-Sampling Trajectory Shortcut ;Sample ϵ ∼ N (0 , I); 
+
+xts ← √ ¯αts xLC + p1 − ¯αts ϵ;
+
+Stage 2: Feature-Reuse Network Shortcut ;
+
+I ← { ts − iN | i ∈ N, 0 ≤ i ≤ ⌊ ts/N⌋ } ;Initialize F(l)cache ← ∅ for l = K, . . . , L;
+
+for t ← ts to 1 do if t ∈ I then 
+
+ˆϵ ← RefreshStep (xt, t, {F(l)cache }Ll=1); 
+
+else 
+
+ˆϵ ← ReuseStep (xt, t, {F(l)cache }Ll=1, K); 
+
+xt−1 ← RevStep( xt, t, ˆϵ); ˆx0 ← x0;
+
+return ˆx0;
+
+Function RefreshStep( xt, t, {F(l)cache }Ll=1):h(0) ← xt;
+
+for l ← 1 to L do h(l) ← m(l)(h(l−1) , t); 
+
+F(l)cache ← h(l);ˆϵ ← Head( h(L), t); 
+
+return ˆϵ;
+
+Function ReuseStep( xt, t, {F(l)cache }Ll=1, K):h(0) ← xt;
+
+for l ← 1 to K do h(l) ← m(l)(h(l−1) , t); 
+
+for l ← K + 1 to L do h(l) ← F(l)cache ;ˆϵ ← Head( h(L), t); 
+
+return ˆϵ;
+
+features extracted from the encoder, bottleneck, and de-coder stages all exhibit high cosine similarity between ad-jacent reverse denoising steps across the full di ff usion tra-jectory. This indicates that the denoising network recomputes highly similar intermediate representations at consecutive reverse denoising steps, constituting a substantial source of redundant computation. High-level decoder features, in particular, evolve smoothly along the reverse trajectory and can therefore be shared across neighboring reverse de-noising steps with minimal fidelity degradation. This local redundancy motivates a feature-caching strategy in which selected decoder representations are computed at periodic refresh steps and reused at intervening non-refresh steps, bypassing a portion of the full U-Net forward pass. 
+
+3.3. Q-Sampling Trajectory Shortcut 
+
+Motivated by the global trajectory redundancy observed in Sec. 3.2, we propose Q-Sampling Trajectory Shortcut, a global training-free acceleration strategy that shortens the reverse di ff usion trajectory by starting from an intermedi-ate step. Conditional di ff usion models for image-to-image restoration typically initialize sampling from pure Gaus-sian noise xT ∼ N (0, I) and iteratively denoise the sample over T reverse denoising steps. Although this full reverse trajectory can achieve strong reconstruction quality, it in-troduces substantial inference cost. In low-count PET de-noising, however, the conditional input xLC already pre-serves the major anatomical structure and coarse tracer distribution of the high-count target. Therefore, the early high-noise reverse denoising steps can be partially by-passed by constructing an intermediate noisy state directly from xLC .Let xLC denote the low-count PET input and ˆ x0 denote the reconstructed high-count PET output. Instead of ini-tializing the reverse process from xT ∼ N (0, I), we con-struct an intermediate noisy initialization at step ts using the forward di ff usion formulation: 
+
+xts = p ¯αts xLC + p1 − ¯αts ϵ, ϵ ∼ N (0, I). (8) Starting from xts , we apply the standard conditional re-verse update in Eq. (7) for t = ts, ts − 1, . . . , 1 to obtain ˆx0. This reduces the number of reverse denoising steps from T to ts, directly decreasing inference cost. Since xts
+
+is constructed through the same forward q-sampling for-mulation used during DDPM training, the initialization re-mains close to the noisy data distribution encountered by the denoising network. We further discuss why this global skipping strategy may generalize to other di ff usion-based image restoration tasks in Appendix A. 
+
+3.4. Feature-Reuse Network Shortcut 
+
+Motivated by the local feature redundancy observed in Sec. 3.2, we further accelerate reverse inference by reusing intermediate U-Net features across neighboring reverse denoising steps. Since high-level features evolve smoothly along the reverse trajectory, they can be cached at selected refresh steps and reused during subsequent nearby steps. This allows us to perform partial U-Net inference at non-refresh steps, thereby reducing redundant computation. 
+
+Feature reusing with a fixed refresh interval. Let Em(·)and Dm(·) denote the m-th encoder and decoder blocks of the U-Net, respectively, with a skip connection linking Em
+
+to Dm. At a cache-refresh denoising step t, we perform a full U-Net forward pass and store the output feature of a selected higher-level decoder block, e.g., Dm+1:
+
+F t 
+
+> cache
+
+= h tDm+1 , (9) where h tDm+1 denotes the output feature map of decoder block Dm+1 at denoising step t.6For the following reverse denoising steps before the next cache refresh, we reuse the most recently cached fea-ture instead of recomputing the entire U-Net. Specifically, we execute the network only up to the corresponding par-tial path and construct the input to decoder block Dm by concatenating the newly computed skip feature with the cached decoder feature: Input Dtm
+
+ = Concat h tEm , Fcache 
+
+ , (10) where h tEm denotes the skip feature from encoder block Em
+
+at denoising step t, and Fcache denotes the most recently updated cached decoder feature. In this way, the remain-ing decoder computation above the caching point can be bypassed at non-refresh steps. To control the e ffi ciency-fidelity trade-o ff , we adopt a fixed refresh interval N. The cache is updated once every 
+
+N reverse denoising steps using a full U-Net evaluation and reused during the intervening N − 1 steps with par-tial inference. Let T ′ denote the total number of executed reverse denoising steps, where T ′ = ts when Q-Sampling Trajectory Shortcut is applied. The cache-refresh step set is defined as 
+
+I =
+
+(
+
+t ∈ N t = T ′ − iN , 0 ≤ i <
+
+& T ′
+
+N
+
+') 
+
+. (11) For each t ∈ I , a full U-Net forward pass is performed and the cache is updated according to Eq. (9). For each 
+
+t < I, the most recently cached feature is reused, and only partial U-Net inference is executed according to Eq. (10). The hyperparameters ( m, N) explicitly control the trade-o ff 
+
+between inference e ffi ciency and denoising fidelity. 
+
+3.5. Dataset Description 
+
+We evaluated the proposed framework on both in-house and public PET datasets encompassing multiple tracers and acquisition protocols. The in-house dataset, collected at Northwestern Memorial Hospital, includes three clini-cally important tracers: 18 F-FDG, 68 Ga-DOTATATE, and 
+
+> 18
+
+F-PSMA. To further assess generalizability, we addition-ally evaluated the proposed method on a publicly available whole-body 18 F-FDG PET dataset from the UDPET Chal-lenge (Xue et al., 2026, 2022). Together, these datasets en-able comprehensive evaluation across di ff erent tracer dis-tributions, patient populations, and imaging systems. 
+
+In-house dataset . We retrospectively collected three clin-ical PET cohorts from Northwestern Memorial Hospital, including 15 18 F-FDG studies, 32 68 Ga-DOTATATE stud-ies, and 25 18 F-PSMA studies. For each tracer, low-count PET images were generated by uniformly down-sampling the original list-mode data with a dose reduction factor (DRF) of 10. Both low-count and corresponding high-count PET images were reconstructed using the same ordered-subsets expectation maximization (OSEM) proto-col, with consistent attenuation, scatter, and random-event corrections applied across all reconstructions. The result-ing paired low-count and high-count PET images served as the input and reference data, respectively, for quantita-tive evaluation. Reconstructed images had a matrix size of 440 × 440 in the transverse plane, while the axial dimen-sion varied according to tracer-specific acquisition proto-cols and patient characteristics. 
+
+Public dataset . To evaluate robustness on an external dataset, we further conducted experiments on the UD-PET Challenge dataset (Xue et al., 2026), a publicly available benchmark for ultra-low-count whole-body PET restoration. We randomly selected 38 18 F-FDG PET stud-ies acquired on the United Imaging uExplorer total-body PET /CT scanner. PET images were reconstructed using OSEM with three-dimensional time-of-flight (TOF) and point-spread-function (PSF) modeling. The dataset pro-vides paired low-count and high-count PET images gener-ated through retrospective list-mode subsampling at mul-tiple dose reduction factors (DRFs = 4, 10, 20, 50, and 100). Because each low-count image is reconstructed from a subset of the same acquisition used to generate the corresponding high-count reference, the image pairs are intrinsically aligned and well suited for supervised PET denoising evaluation. The reconstructed voxel size was 1.667 × 1.667 × 2.886 mm 3.
+
+3.6. Implementation Details 
+
+Our pipeline was implemented in PyTorch, and all ex-periments were conducted on a single NVIDIA A100 80GB GPU. Unless otherwise specified, inference was performed with a batch size of 1 using FP16 precision. We directly used the model with the pre-trained weights released by Yu et al. (2025), which were originally devel-oped for robust whole-body PET image denoising using 3D di ff usion models. For each PET volume x, we applied a per-volume intensity normalization scheme. Specifi-cally, we first computed a robust maximum m = P99 .99 (x), where P 99 .99 (·) denotes the 99.99th percentile of voxel in-tensities. We then clipped the volume to suppress extreme outliers and normalized it to [0 , 1]. During inference, the network predicts a normalized output ˆ xnorm , which is mapped back to the original intensity scale by ˆ x = m· ˆxnorm .The same preprocessing and inverse rescaling procedure was used for all tracers. Whole-volume inference was performed using a sliding-window strategy with overlap. Each cropped volume was decomposed into fixed-size 3D patches of size 224 × 224 × 96, which is identical to the training patch size. Each patch was processed indepen-dently by the network, and the patch-wise predictions were stitched back to the original cropped volume using linear blending in the overlapping regions. 
+
+3.7. Baselines and Evaluation Strategies 
+
+To ensure a controlled and fair comparison, all acceler-ation methods were evaluated using the same pre-trained 3D di ff usion denoising model released by Yu et al. (2025), with identical low-count PET inputs and corresponding high-count references. No additional training, fine-tuning, 7PSNR           
+
+> SSIM 40.91
+> 98.62
+> 39.98
+> 98.07 37.66
+> 93.99 43.36
+> 99.10
+> 39.49
+> 94.90
+> PSNR
+> SSIM 37.34
+> 95.11 37.65
+> 95.33 33.60
+> 64.42 38.76
+> 95.87
+> 33.89
+> 88.78
+> PSNR
+> SSIM 38.04
+> 94.92
+> 38.47
+> 95.46 34.06
+> 73.50 38.64
+> 95.18
+> 35.74
+> 89.90
+
+High -Count Low -Count Standard Diffusion DDPM − 100Steps DDIM − 250Steps Less Is More 
+
+> 68 Ga -DOTATATE  18 F-FDG 18 F-PSMA  Axial View Slice Axial View Slice Axial View Slice
+
+Figure 3: Visualization on the three in-house PET tracer cohorts acquired at Northwestern Memorial Hospital, including 18 F-FDG, 68 Ga-DOTATATE, and 18 F-PSMA PET. Representative coronal and axial views are shown for the high-count reference, low-count input, Standard Di ff usion, accelerated scheduler baselines, and the proposed LIM that was applied on top of Standard Di ff usion. Red arrows indicate representative regions with visible di ff erences in structural preservation and tracer uptake patterns. Across all tracers, LIM preserves sharper anatomical boundaries and lesion-related uptake while maintaining e ff ective noise suppression. Notably, although the pre-trained di ff usion model was originally developed using public 18 F-FDG data, the proposed acceleration strategy remains e ff ective on unseen tracer distributions ( 68 Ga-DOTATATE and 18 F-PSMA), suggesting favorable generalization without retraining. 
+
+or architectural modification was performed for any com-pared method. This experimental design isolates the e ff ect of inference-time acceleration strategies while avoiding confounding factors introduced by di ff erences in model capacity, training protocols, or optimization settings. We intentionally focus on training-free acceleration 
+
+rather than comparing against newly trained restoration models such as 3D U-Net or GAN variants. Train-8Table 1: Quantitative comparison of di ff usion acceleration strategies on three in-house PET tracer cohorts from Northwestern Memorial Hospital, including 18 F-FDG ( n = 15), 68 Ga-DOTATATE ( n = 32), and 18 F-PSMA ( n = 25). All methods were evaluated using the same pre-trained 3D di ff usion denoising model without retraining or fine-tuning. Results are reported as mean ± standard deviation. Best performance within each metric and tracer cohort is highlighted in bold .                                                                                                                      
+
+> 18 F-FDG 15 Cases 68 Ga-DOTATATE 32 Cases 18 F-PSMA 25 Cases
+> Method /Setting PSNR ↑SSIM (×10 2)↑MAE (×10 −2)↓PSNR ↑SSIM (×10 2)↑MAE (×10 −2)↓PSNR ↑SSIM (×10 2)↑MAE (×10 −2)↓
+> Input
+> 10% low-count 38.88 ±4.24 93.05 ±3.38 7.342 ±1.583 39.19 ±4.05 93.63 ±3.42 8.508 ±3.078 40.89 ±2.99 95.40 ±2.23 9.990 ±2.960
+> Baseline & Quantization
+> Standard Di ff usion 41.58 ±1.92 97.24 ±0.70 5.269 ±1.109 42.21 ±3.54 97.18 ±1.40 5.390 ±1.700 42.05 ±2.42 97.97 ±0.59 6.000 ±1.637 Standard Di ff usion (BF16) 41.50 ±2.02 97.23 ±0.70 5.273 ±1.114 42.19 ±3.52 97.17 ±1.41 5.417 ±1.674 42.04 ±2.43 97.95 ±0.83 7.081 ±1.684
+> Scheduler Replacement
+> DDPM-100 Steps 41.29 ±4.09 96.85 ±1.62 4.982 ±1.094 42.50 ±3.57 97.37 ±1.32 5.249 ±1.648 43.58 ±2.72 98.29 ±0.59 6.841 ±1.662 DDIM-250 Steps 37.40 ±3.10 81.46 ±9.53 19.168 ±13.935 34.82 ±1.26 62.26 ±5.87 24.549 ±10.722 38.01 ±1.35 86.12 ±2.84 18.896 ±4.694
+> Ours
+> Less Is More-Q 42.10 ±1.87 †97.33 ±0.68 ⋄5.110 ±1.866 ‡43 .78 ±3.71 †97 .62 ±1.20 †4.752 ±
+> 1.576 †
+> 44 .68 ±2.84 †98 .37 ±0.76 †5.793 ±1.501 †
+> Less Is More-Full 42.18 ±1.84 †97.34 ±0.68 ⋄5.147 ±1.099 *43 .85 ±3.71 †97 .65 ±1.18 †4.752 ±1.576 †44 .78 ±2.82 †98 .40 ±0.74 †5.774 ±1.473 †
+> Notes. Less Is More-Q denotes the tracer-specific optimal configuration using only the Q-Sampling Trajectory Shortcut, without feature reuse. The starting denoising step
+> tswas set to 50 for 18 F-FDG, 25 for 68 Ga-DOTATATE, and 10 for 18 F-PSMA. Less Is More-Full denotes the full configuration that combines the Q-Sampling Trajectory Shortcut with the Feature-Reuse Network Shortcut, using a feature-reuse interval of N=3. Statistical significance was assessed against Standard Di ff usion using a two-sided paired Wilcoxon signed-rank test: * p<0.05, ⋄p<0.01, ‡p<0.001, †p<0.0001.
+
+ing large-scale 3D restoration networks for whole-body PET imaging is computationally intensive due to the high spatial resolution and volumetric memory requirements. For example, Yu et al. (2025) reported that training the reference 3D DDPM required 8 NVIDIA A100 GPUs over 21 days using 302 whole-body PET cases. More-over, the original work already demonstrated superior restoration performance relative to representative restora-tion baselines, including 2.5D DDPM, 3D U-Net, and 3D GAN models. Therefore, instead of retraining additional restoration methods, this study investigates a more tar-geted and practically relevant question: whether an al-ready high-performing 3D di ff usion model can be sub-stantially accelerated at inference time while preserving reconstruction fidelity. Recent feature-reuse acceleration methods have predominantly been developed for text-to-image (Labs et al., 2025) and text-to-video (Wan et al., 2025) generation, where di ff usion backbones are com-monly implemented using Di ff usion Transformers (DiTs). These approaches often exploit transformer-specific prop-erties such as token-level redundancy (Zou et al., 2025), attention-map stability (Zhang et al., 2025), and timestep-dependent activation reuse (Chung et al., 2026). However, such assumptions are not directly applicable to our set-ting, where the denoising backbone is a volumetric 3D U-Net composed of hierarchical feature maps and encoder– decoder skip connections. Consequently, feature reuse for whole-body PET restoration requires a U-Net-specific design that accounts for volumetric representations and memory constraints. Based on this setup, we evaluated the following in-ference strategies: (1) Standard Di ff usion. The origi-nal inference procedure of the pre-trained 3D di ff usion model using the complete reverse trajectory ( T = 1000) and standard precision. This serves as the primary refer-ence for both image quality and computational cost. (2) Standard Di ff usion (BF16). The same 1000-step reverse process executed using bfloat16 mixed precision to eval-uate the benefit of numerical precision reduction alone. 
+
+(3) DDPM-100 Steps. A reduced-step baseline that uni-formly shortens the reverse trajectory to 100 stochastic DDPM reverse denoising steps without modifying the pre-trained model. (4) DDIM-250 Steps. A deterministic sampling baseline using DDIM with 250 reverse denois-ing steps, representing a commonly adopted training-free di ff usion acceleration strategy. To evaluate the trade-o ff between reconstruction fi-delity and computational e ffi ciency, we report both image-quality and e ffi ciency metrics. Image quality was assessed using peak signal-to-noise ratio (PSNR), structural sim-ilarity index (SSIM), and mean absolute error (MAE). Computational performance was evaluated using inference time and computational complexity. 
+
+Blinded Reader Study . To further assess clinical util-ity beyond quantitative image metrics, we conducted a blinded reader study using the three in-house tracer co-horts: 18 F-FDG, 68 Ga-DOTATATE, and 18 F-PSMA. For each tracer, 10 PET studies were randomly selected, re-sulting in 30 evaluated cases. Each case was reviewed together with the corresponding CT image and four PET image sets: (i) high-count PET, (ii) low-count PET, (iii) reconstruction generated by Standard Di ff usion, and (iv) reconstruction generated by the proposed LIM framework. High-count and low-count PET images were explicitly la-beled to provide clinical context, whereas the two recon-structed images were anonymized and randomly ordered such that readers remained blinded to the reconstruction method. Readers independently evaluated reconstructed PET im-ages using a 5-point Likert scale across three clinically relevant criteria: noise suppression, clinical confidence, and lesion visibility, where higher scores indicate better 9perceived image quality and diagnostic utility. In addi-tion, readers provided an overall pairwise preference be-tween the two reconstruction methods using four cate-gories: Baseline is better , Baseline is slightly better , Ours is slightly better , and Ours is better . Cases judged to be visually indistinguishable were recorded as ties and ex-cluded from preference ranking analysis. 
+
+4. Experiments and Results 
+
+4.1. Qualitative Results 
+
+We first present qualitative comparisons to assess whether the proposed acceleration strategy preserves clini-cally meaningful image characteristics while substantially shortening inference. Fig. 3 shows representative recon-struction results on the three in-house tracer cohorts, in-cluding 18 F-FDG, 68 Ga-DOTATATE, and 18 F-PSMA PET. For each tracer, we visualize both coronal and axial views and compare the high-count reference, low-count input, reconstruction generated by the original pre-trained di ff u-sion model Yu et al. (2025), and the proposed LIM frame-work using the optimal configuration ( ts and N = 3). Overall, both Standard Di ff usion and LIM substantially improve image quality relative to the low-count input. However, visual inspection reveals notable di ff erences in reconstruction characteristics. Standard Di ff usion tends to generate smoother uptake distributions, occasionally sup-pressing fine lesion boundaries and local uptake variations. In contrast, LIM preserves sharper structural details and more heterogeneous tracer uptake patterns while maintain-ing e ff ective denoising. This behavior becomes particu-larly evident for 68 Ga-DOTATATE and 18 F-PSMA PET, where the pre-trained model was originally optimized us-ing public 18 F-FDG data. Despite this cross-tracer distri-bution shift, LIM maintains favorable restoration quality and preserves clinically relevant uptake structures, sug-gesting improved robustness under unseen tracer distribu-tions. We further evaluated the proposed framework on an ex-ternal public 18 F-FDG PET dataset. Representative ex-amples are shown in Fig. 4. Since the public dataset more closely matches the training distribution of the pre-trained model, all methods produce visually plausible de-noising results. Nevertheless, LIM better preserves local lesion structures and uptake heterogeneity, particularly in the kidney region, while substantially reducing inference time. 
+
+4.2. Quantitative Results 
+
+Table 1 summarizes quantitative results across the three in-house PET datasets. Overall, the original dif-fusion model already achieves strong restoration perfor-mance across all tracers, confirming the e ff ectiveness of di ff usion-based PET denoising. Reducing numerical pre-cision alone through BF16 produces negligible changes in reconstruction quality, indicating that precision reduction mainly a ff ects hardware utilization rather than denoising behavior. Replacing the original sampling procedure with shorter di ff usion schedules yields mixed results. DDPM-100 Steps achieves substantial acceleration but does not con-sistently improve image fidelity. More aggressive sched-uler replacement using DDIM-250 Steps leads to pro-nounced degradation across all metrics, particularly for 
+
+> 68
+
+Ga-DOTATATE PET, where PSNR decreases from 42.21 to 34.82 and SSIM drops from 97.18 to 62.26. These findings suggest that naively shortening the reverse tra-jectory may alter the behavior of the pre-trained di ff u-sion process and compromise restoration quality. In con-trast, the proposed LIM framework consistently achieves the strongest quantitative performance across all tracer co-horts. LIM-Full achieves the highest PSNR and SSIM on all three datasets while maintaining competitive MAE. Compared with Standard Di ff usion, the improvements are statistically significant for multiple metrics. Interestingly, acceleration not only preserves performance but occasion-ally improves reconstruction quality, suggesting that re-moving redundant portions of the di ff usion trajectory may reduce accumulated denoising artifacts. Consistent findings are observed on the external public dataset (Table 2). LIM-Q achieves the strongest recon-struction fidelity overall, improving PSNR from 40.17 dB to 41.05 dB while simultaneously reducing inference la-tency. LIM-Full further improves computational e ffi ciency with only minor changes in quantitative performance. 
+
+4.3. Computational E ffi ciency and Complexity 
+
+We next evaluate whether acceleration translates into practical e ffi ciency gains. Inference speed on the in-house datasets is summarized in Table 3, while computational complexity and timing on the public dataset are reported in Table 2. Standard Di ff usion requires approximately 57–85 minutes per whole-body PET volume, corresponding to over 10 5 TFLOPs per inference. Although BF16 reduces latency by approximately 18%, the computational burden remains dominated by repeated di ff usion iterations. Scheduler replacement reduces runtime but introduces substantial quality degradation. In comparison, LIM provides significantly better quality–e ffi ciency tradeo ff s. LIM-Q reduces inference time to 2.83 minutes while im-proving quantitative fidelity, corresponding to approxi-mately 20 × acceleration. Further incorporating feature reuse yields LIM-Full, reducing computational complex-ity from 107149.7 TFLOPs to 2539.6 TFLOPs and short-ening inference to 1.48 minutes. Across tracer cohorts, LIM-Full achieves acceleration factors of up to 43 .5×, 84 .9×, and 188 .7×, respectively. These results demonstrate that trajectory reduction and feature reuse operate synergistically to reduce both the to-tal number of denoising steps and the computational bur-den of each remaining step. 10 PSNR                 
+
+> SSIM 34.01
+> 86.97 35.45
+> 92.66
+> 30.78
+> 84.71
+> 35.38
+> 92.71
+> 35.07
+> 92.03
+> 18 F-FDG
+> High Count Low Count Standard Diffusion DDPM −100Steps DDIM −250Steps Less Is More
+> Axial View Slice
+
+Figure 4: Visualization on the public UDPET 18 F-FDG PET dataset. The proposed Less Is More pipeline better restores lesion details in the kidney region while maintaining substantially shorter inference time. All methods achieve visually plausible denoising results in this case, suggesting that the public data are reasonably aligned with the training distribution. Nevertheless, Less Is More achieves the most favorable e ffi ciency while preserving competitive structural fidelity. Table 2: Quantitative comparison and computational analysis on the public UDPET 18 F-FDG PET dataset. All methods were evaluated using the same pre-trained 3D di ff usion denoising model without retraining or fine-tuning. Results are reported as mean ± standard deviation. Best performance within each metric is highlighted in bold .
+
+Method / Setting PSNR ↑ SSIM (×10 2)↑ MAE (×10 −2)↓ TFLOPs ↓ Inference Time ↓
+
+Input 
+
+10% low-count 37.85 ±4.71 93.43 ±3.49 4.611 ±1.340 – –
+
+Baseline & Quantization 
+
+Standard Di ff usion 40.17 ±3.61 96.44 ±2.00 3.240 ±0.865 107149.7 56.62 min Standard Di ff usion (BF16) 40.19 ±3.63 96.44 ±2.00 3.253 ±0.857 107149.7 46.23 min 
+
+Schedulers Replacement 
+
+DDPM-100 Steps 40.56 ±3.68 96.81 ±1.83 3.066 ±0.826 10714.9 5.66 min DDIM-250 Steps 36.74 ±2.22 86.14 ±2.88 7.232 ±3.664 26787.3 14.16 min 
+
+Ours 
+
+Less Is More-Q 41 .05 ± 3.93 † 96 .78 ± 1.79 † 3.044 ± 0.839 † 5357.5 2.83 min Less Is More-Full 41 .03 ± 3.79 † 96 .48 ± 1.73 ns 3.428 ± 0.958 ns 2539.6 1.48 min 
+
+Notes. Computational complexity is measured over the entire denoising process for a single PET volume. Since all methods are built upon the same pre-trained model, they share the same number of model parameters. Less Is More-Q denotes the optimal early-start configuration without feature reuse, with the starting step set to ts = 50 for 18 F-FDG. Less Is More-Full denotes the combination of the optimal early-start configuration and feature reuse with interval N = 3. Statistical significance was assessed against Standard Di ff usion using a two-sided paired Wilcoxon signed-rank test: ns p > 0.05, * p < 0.05, ⋄ p < 0.01, ‡ p < 0.001, † p < 0.0001. Baseline 
+
+Ours 
+
+Figure 5: Results of the blinded reader study comparing Standard Di ff usion (Yu et al., 2024) (Baseline) and the proposed Less Is More (LIM) 
+
+framework across tracer-specific and overall cohorts. Mean reader scores are shown for noise suppression , clinical confidence , and lesion visibility .Evaluation was performed separately on 18 F-FDG, 68 Ga-DOTATATE, and 18 F-PSMA PET and additionally aggregated across all cohorts (right). Error bars denote 95% confidence intervals. LIM achieved comparable noise suppression while improving perceived clinical confidence and lesion visibility across multiple cohorts. Statistical significance was assessed using paired two-sided t-tests. ns: p ≥ 0.05; *: p < 0.05; **: p < 0.01; ***: p < 0.001. 
+
+11 Distribution of Overall Preference    
+
+> LIM is better
+> LIM is slightly better
+> Baseline is slightly better
+> Baseline is better
+
+Figure 6: Overall preference distribution from the blinded reader study comparing Standard Di ff usion (Baseline) and the proposed Less Is More (LIM) framework. Each sector summarizes the proportion of reader evaluations favoring either method across four ordered categories: 
+
+Baseline is better , Baseline is slightly better , LIM is slightly better , and 
+
+LIM is better . Values inside the pie chart indicate counts and percentages of all non-tie evaluations, illustrating that LIM was preferred in the ma-jority of comparisons. Table 3: Inference e ffi ciency comparison across three in-house PET tracer cohorts from Northwestern Memorial Hospital, including 18 F-FDG, 68 Ga-DOTATATE, and 18 F-PSMA. All methods were evaluated using the same pre-trained 3D di ff usion denoising model without retrain-ing or fine-tuning. Best e ffi ciency within each tracer cohort is highlighted in bold .                                                             
+
+> Method 18 F-FDG 68 Ga-DOTATATE 18 F-PSMA
+> Standard Di ff usion 56.6 min /1.0 ×84.9 min /1.0 ×56.6 min /1.0 ×
+> Standard Di ff usion (BF16) 46.2 min /1.2 ×69.3 min /1.2 ×46.2 min /1.2 ×
+> DDPM-100 Steps 5.7 min /10.0 ×8.6 min /10.0 ×5.7 min /10.0 ×
+> DDIM-250 Steps 14.1 min /4.0 ×21.2 min /4.0 ×14.1 min /4.0 ×
+> Less Is More-Q 2.9 min /20.0 ×2.1 min /40.0 ×0.6 min /100.0 ×
+> Less Is More-Full 1.3 min /43.5 ×1.0 min /84.9 ×0.3 min /188.7 ×
+> Notes. Each entry reports inference time in minutes per 3D PET volume and speedup relative to Standard Di ff usion within the same tracer. LIM-Q denotes Less Is More with the tracer-specific Q-Sampling Trajectory Shortcut only. LIM-Full further combines the Feature-Reuse Network Shortcut with N=3.
+
+4.4. Blinded Reader Study 
+
+To assess clinical utility beyond image-level metrics, we conducted a blinded reader study following the protocol described in Sec. 3.7. Fig. 5 summarizes reader ratings across tracer-specific and pooled cohorts. Overall, LIM received significantly higher scores for clinical confidence and lesion visibility compared with Standard Di ff usion, whereas Standard Di ff usion achieved slightly higher noise suppression ratings. These findings align with the qualitative observations in Fig. 3 and Fig. 4. Standard Di ff usion frequently produced smoother uptake distributions and reduced visible image noise but occasionally suppressed lesion boundaries and local uptake variation. In contrast, LIM retained mod-erate physiological texture while preserving lesion con-spicuity and anatomical detail, resulting in improved per-ceived diagnostic confidence. Fig. 6 summarizes over-all reader preference. Across 90 reader-case evaluations, excluding 10 ties, LIM was preferred in the majority of comparisons, indicating favorable clinical acceptance un-der blinded evaluation. 
+
+Figure 7: Ablation study of the starting denoising timestep ts for the pro-posed Q-Sampling Trajectory Shortcut on 18 F-FDG, 68 Ga-DOTATATE, and 18 F-PSMA PET. PSNR and SSIM are evaluated across di ff erent tra-jectory initialization ratios (expressed as a percentage of the full reverse di ff usion trajectory). Performance initially improves as redundant early denoising steps are removed, reaches an optimum at intermediate starting points, and gradually degrades when the trajectory is shortened exces-sively. The optimal configurations occur at 5% ( ts = 50) for 18 F-FDG, 2.5% ( ts = 25) for 68 Ga-DOTATATE, and 1% ( ts = 10) for 18 F-PSMA, suggesting tracer-dependent redundancy in the reverse di ff usion process. 𝑡 ! = 10            
+
+> High -Count 𝑡 !=1000
+> 𝑡 !=50 𝑡 !=100 𝑡 !=400
+> 𝑡 !=600 Low -Count
+
+Figure 8: Visualization results under di ff erent starting denoising timesteps ts for 10% low-count 18 F-PSMA PET denoising. The red box indicates the zoomed region for comparison. Starting reverse di ff usion from an intermediate timestep preserves clearer structural details and le-sion morphology while reducing redundant denoising iterations. Exces-sive trajectory shortening, however, leads to degradation in anatomical fidelity. 
+
+4.5. Ablation Studies 
+
+Eff ect of Q-Sampling Trajectory Shortcut . Fig. 7 evalu-ates di ff erent starting denoising steps across tracers. The optimal starting point varies by tracer and occurs at 5%, 12 Table 4: Quantitative ablation of the feature reuse interval N for the proposed Feature-Reuse Network Shortcut on 10 randomly selected 18 F-PSMA PET cases. To isolate the e ff ect of feature reuse, the reverse dif-fusion process was initialized from the full trajectory ( ts = T = 1000), without applying the Q-Sampling Trajectory Shortcut. Results are re-ported as mean ± standard deviation. 
+
+Interval PSNR ↑ SSIM (×10 2)↑ MAE (×10 −2)↓ Time ↓
+
+Baseline 42.06 ±2.82 97.14 ±1.22 4.9862 ±1.0049 84.93 min 
+
+N = 3 42.17 ±2.88 97.15 ±1.21 4.9632 ±1.0107 48.50 min 
+
+N = 5 42.12 ±2.76 96.96 ±1.18 5.3839 ±1.0711 40.98 min 
+
+N = 10 42.06 ±2.78 96.78 ±1.17 5.5847 ±1.0897 35.81 min 
+
+N = 25 41.99 ±2.72 96.57 ±1.22 5.7681 ±1.1594 32.54 min 
+
+2.5%, and 1% of the original trajectory for 18 F-FDG, 68 Ga-DOTATATE, and 18 F-PSMA, respectively. Interestingly, performance remains nearly unchanged over a broad range of early trajectory truncation before improving near the optimal region and eventually degrading under overly ag-gressive shortening. This observation suggests that the early reverse trajectory contains substantial redundancy while excessive truncation eventually removes useful re-finement steps. High -Count Low -Count 𝑁 = 0 𝑁 = 3           
+
+> 𝑁 =5𝑁 =10 𝑁 =25 Less Is More
+
+Figure 9: Visualization results under di ff erent feature reuse intervals N
+
+for 10% low-count 68 Ga-DOTATATE PET denoising. A moderate reuse interval better preserves structural details and anatomical fidelity while reducing inference time, whereas overly large intervals may introduce visible degradation. 
+
+Eff ect of Feature-Reuse Network Shortcut . Table 4 and Fig. 9 evaluate feature reuse independently using ts = T .Moderate reuse intervals significantly reduce inference cost with minimal quality loss. In particular, N = 3 pro-vides the most favorable trade-o ff and slightly improves reconstruction metrics, suggesting that adjacent di ff usion steps contain highly redundant semantic representations. Larger intervals progressively degrade image quality and introduce oversmoothing, indicating accumulated approx-imation error. 
+
+Robustness Across Count Levels . Finally, we evaluated LIM under multiple count levels ranging from 25% to 2% (Table 5, Fig. 10). Across all count levels, LIM consis-tently matched or exceeded Standard Di ff usion in quanti-tative performance. The performance advantage becomes more noticeable under lower count conditions, suggest-ing that trajectory reduction remains e ff ective even when reconstruction becomes more challenging due to reduced count statistics. 
+
+Table 5: Quantitative robustness analysis across di ff erent low-count lev-els on the public 18 F-FDG PET dataset. Reconstruction performance of 
+
+Standard Di ff usion and the proposed Less Is More-Full (LIM-Full) is compared at 25%, 10%, 5%, and 2% count levels. Results are reported as 
+
+Standard Di ff usion / LIM-Full , with higher PSNR and SSIM and lower MAE indicating better reconstruction quality. 
+
+CountLevel PSNR ↑ SSIM (×10 2)↑ MAE (×10 −2)↓
+
+25% 47.06 / 48.74 99.04 / 99.10 2.5857 / 2.5019 10% 46.65 / 47.29 98.70 / 98.78 3.0804 / 2.9601 5% 45.54 / 46.08 98.26 / 98.36 3.6586 / 3.5691 2% 42.97 / 43.47 96.84 / 96.99 5.3196 / 5.1159 Low -Count Standard Diffusion Less Is More    
+
+> High -Count
+> 2% 5% 10% 25%
+
+Figure 10: Visualization results across di ff erent low-count levels (25%, 10%, 5%, and 2%) for PET denoising. Representative reconstructions from Standard Di ff usion and the proposed Less Is More (LIM) frame-work are compared against the high-count reference. While reconstruc-tion quality gradually decreases with reduced count statistics, LIM pre-serves local uptake structures and anatomical details across a broad range of count levels. 
+
+5. Discussion 
+
+In this study, we proposed Less Is More (LIM) , a training-free acceleration framework for di ff usion-based PET image denoising. The proposed method addresses one of the major barriers preventing practical deployment of di ff usion-based restoration models in clinical imag-ing: although di ff usion models provide strong restoration performance, iterative reverse di ff usion remains compu-tationally expensive, particularly for high-resolution vol-umetric PET reconstruction. By jointly introducing the proposed Q-Sampling Trajectory Shortcut and Feature-Reuse Network Shortcut , LIM reduces both trajectory-level and network-level redundancy during inference, en-abling substantial acceleration without retraining or archi-tectural modification. A central observation of this work is that conditional PET restoration di ff ers fundamentally from unconditional image generation. Existing di ff usion acceleration methods are primarily developed for text-to-image and video gen-eration, where reverse di ff usion must progressively syn-thesize global structures and semantic content from pure Gaussian noise. In contrast, low-count PET restoration begins from an observed image that already contains sub-stantial anatomical and tracer uptake information. Con-13 sequently, a large portion of the reverse di ff usion pro-cess may become redundant because the model no longer needs to reconstruct global image structures from scratch. This observation motivates the proposed Q-Sampling Tra-jectory Shortcut, which initializes reverse di ff usion from an intermediate state constructed from the observed low-count PET image rather than from pure noise. The quantitative and qualitative results consistently sup-port this hypothesis. Across both public and in-house datasets, trajectory shortening through the proposed ini-tialization not only substantially reduced inference time but frequently maintained or improved reconstruction quality relative to the original sampling procedure. This finding suggests that early reverse di ff usion steps may con-tribute limited practical value in conditional PET denois-ing. Importantly, this behavior di ff ers from conventional scheduler replacement approaches such as DDIM, where aggressive trajectory reduction often resulted in noticeable degradation in image quality. These observations indicate that preserving compatibility with the original di ff usion noise schedule while exploiting conditional structural pri-ors is critical for e ff ective acceleration. Beyond global trajectory redundancy, our results further demonstrate substantial local redundancy within the de-noising network itself. The proposed Feature-Reuse Net-work Shortcut exploits the observation that intermediate U-Net representations evolve smoothly across neighboring denoising steps. By caching and reusing temporally simi-lar features, LIM further reduced computational cost while preserving reconstruction fidelity. Interestingly, moderate feature reuse occasionally produced slight improvements in quantitative metrics. One possible explanation is that feature reuse behaves as a weak regularization mechanism by suppressing unstable high-frequency perturbations in-troduced through repeated iterative updates while preserv-ing dominant anatomical structures and tracer uptake pat-terns. Although this interpretation remains speculative, it suggests an interesting direction for future work toward understanding feature evolution and information redun-dancy in di ff usion-based medical image restoration. Another important finding is the robustness of the pro-posed framework across multiple tracers and count levels. Although the pretrained di ff usion model was originally developed using public 18 F-FDG data, LIM generalized favorably to unseen tracer distributions, including 68 Ga-DOTATATE and 18 F-PSMA PET, without retraining. Fur-thermore, experiments under varying count levels demon-strated that the acceleration strategy remained e ff ective un-der increasingly challenging acquisition conditions. These findings suggest that the redundancy exploited by LIM is not tracer-specific but may reflect broader properties of conditional di ff usion restoration. From a clinical perspective, accelerating di ff usion-based PET denoising may improve the practicality of low-count PET protocols. Reduced-count imaging has the potential to lower radiation exposure, shorten acquisition duration, improve scanner throughput, and enhance pa-tient comfort. However, such gains are only meaning-ful if denoising methods preserve clinically relevant in-formation. Beyond conventional image-level metrics, our blinded reader study showed that LIM achieved improved clinical confidence and lesion visibility while maintaining comparable noise suppression relative to Standard Di ff u-sion. Interestingly, Standard Di ff usion occasionally pro-duced smoother images but also tended to suppress lesion conspicuity, suggesting that lower visual noise does not necessarily translate into improved perceived diagnostic utility. Despite these encouraging results, several limitations should be acknowledged. First, the optimal starting timestep ts and feature reuse interval N were selected empirically and may vary across tracers, scanners, re-construction protocols, and pretrained di ff usion models. Future work may investigate adaptive acceleration poli-cies guided by uncertainty estimation or trajectory dynam-ics. Second, evaluation was primarily based on image-level similarity metrics and reader preference. More PET-specific analyses, including SUV bias, contrast recovery, lesion detectability, and downstream clinical tasks, should be incorporated in future studies. Third, although we val-idated the framework across multiple tracers and a public external dataset, broader multi-center evaluation remains necessary to assess robustness across vendors and acquisi-tion settings. Overall, our findings suggest that di ff usion-based PET restoration contains substantial trajectory-level and feature-level redundancy that can be exploited to dramat-ically improve inference e ffi ciency without sacrificing re-construction quality. Beyond PET denoising, the proposed Global–Local Skipping paradigm may provide a broader perspective for developing e ffi cient di ff usion inference al-gorithms for conditional medical image restoration. 
+
+6. Conclusion 
+
+In this work, we presented Less Is More , a practical training-free acceleration framework for di ff usion-based 3D PET image denoising that combines the proposed Q-Sampling Trajectory Shortcut and Feature-Reuse Net-work Shortcut to reduce both reverse trajectory length and redundant network computation. Extensive experiments across multiple PET tracers ( 18 F-FDG, 68 Ga-DOTATATE, and 18 F-PSMA), together with external validation on a public PET dataset and blinded reader evaluation, demon-strated that the proposed method substantially improves inference e ffi ciency while maintaining and in some cases improving reconstruction fidelity and perceived clinical utility. More importantly, our findings suggest that the full reverse di ff usion trajectory may contain considerable re-dundancy in conditional medical image restoration tasks, where degraded inputs already provide strong anatomi-cal and functional priors. These observations provide a restoration-oriented perspective on e ffi cient di ff usion in-ference and highlight opportunities for developing adap-14 tive trajectory control and feature reuse strategies toward practical deployment of di ff usion-based restoration mod-els in real-world 3D medical imaging applications. 
+
+7. Acknowledgments 
+
+Parts of the data used in preparation of this article were obtained from the University of Bern, Dept. of Nuclear Medicine and School of Medicine, Ruijin Hospital. As such, the investigators contributed to the design and imple-mentation of DATA and /or provided data but did not par-ticipate in analysis or writing of this report. A complete listing of investigators can be found at: “https: // udpet-challenge.github.io /”
+
+References 
+
+Chen, K.T., Gong, E., de Carvalho Macruz, F.B., Xu, J., Boumis, A., Khalighi, M., Poston, K.L., Sha, S.J., Gre-icius, M.D., Mormino, E., et al., 2019. Ultra–low-dose 18f-florbetaben amyloid pet imaging using deep learn-ing with multi-contrast mri inputs. Radiology 290, 649– 656. Chen, T., Hou, J., Zhou, Y., Xie, H., Chen, X., Liu, Q., Guo, X., Xia, M., Duncan, J.S., Liu, C., Zhou, B., 2025. 2.5d multi-view averaging di ff usion model for 3d medical image translation: Application to low-count pet reconstruction with ct-less attenuation correction. IEEE Transactions on Medical Imaging 44, 4239–4250. doi: 10.1109/TMI.2025.3570342 .Chung, J., Hyun, S., Lee, M., Han, B., Cha, G., Wee, D., Hong, Y., Heo, J.P., 2026. Seacache: Spectral-evolution-aware cache for accelerating di ff usion mod-els. URL: https://arxiv.org/abs/2602.18993 ,
+
+arXiv:2602.18993 .Gong, Y., Shan, H., Teng, Y., Tu, N., Li, M., Liang, G., Wang, G., Wang, S., 2021. Parameter-transferred wasserstein generative adversarial network (pt-wgan) for low-dose pet image denoising. IEEE Transactions on Radiation and Plasma Medical Sciences 5, 213–223. doi: 10.1109/TRPMS.2020.3025071 .Ho, J., Jain, A., Abbeel, P., 2020. Denoising Dif-fusion Probabilistic Models, in: Larochelle, H., Ranzato, M., Hadsell, R., Balcan, M.F., Lin, H. (Eds.), Advances in Neural Information Pro-cessing Systems, Curran Associates, Inc.. pp. 6840–6851. URL: https://proceedings. neurips.cc/paper_files/paper/2020/file/ 4c5bcfec8584af0d967f1ab10179ca4b-Paper. pdf .Hu, Y., Kothapalli, S.V., Gan, W., Sukstanskii, A.L., Wu, G.F., Goyal, M., Yablonskiy, D.A., Kamilov, U.S., 2024. Di ff gepci: 3d mri synthesis from mgre signals us-ing 2.5 d di ff usion model, in: 2024 IEEE International Symposium on Biomedical Imaging (ISBI), IEEE. pp. 1–4. Jiang, H., Imran, M., Zhang, T., Zhou, Y., Liang, M., Gong, K., Shao, W., 2025. Fast-DDPM: Fast Denoising Di ff usion Probabilistic Models for Med-ical Image-to-Image Generation. IEEE Journal of Biomedical and Health Informatics 29, 7326–7335. URL: https://ieeexplore.ieee.org/document/ 10979336/ , doi: 10.1109/JBHI.2025.3565183 .Kaplan, S., Zhu, Y.M., 2019. Full-dose pet image esti-mation from low-dose pet image using deep learning: a pilot study. Journal of digital imaging 32, 773–778. Kaviani, S., Sanaat, A., Mokri, M., Cohalan, C., Carrier, J.F., 2023. Image reconstruction using unet-transformer network for fast and low-dose pet scans. Computerized Medical Imaging and Graphics 110, 102315. Labs, B.F., Batifol, S., Blattmann, A., Boesel, F., Con-sul, S., Diagne, C., Dockhorn, T., English, J., English, Z., Esser, P., Kulal, S., Lacey, K., Levi, Y., Li, C., Lorenz, D., M¨ uller, J., Podell, D., Rombach, R., Saini, H., Sauer, A., Smith, L., 2025. Flux.1 kontext: Flow matching for in-context image generation and editing in latent space. URL: https://arxiv.org/abs/2506. 15742 , arXiv:2506.15742 .Lu, C., Zhou, Y., Bao, F., Chen, J., Li, C., Zhu, J., 2022. Dpm-solver: A fast ode solver for di ff usion probabilis-tic model sampling in around 10 steps. URL: https:// arxiv.org/abs/2206.00927 , arXiv:2206.00927 .Lu, C., Zhou, Y., Bao, F., Chen, J., Li, C., Zhu, J., 2025. Dpm-solver ++ : Fast solver for guided sam-pling of di ff usion probabilistic models. Machine Intelli-gence Research 22, 730–751. URL: http://dx.doi. org/10.1007/s11633-025-1562-4 , doi: 10.1007/ s11633-025-1562-4 .Mazandarani, F.N., Babyn, P., Alirezaie, J., 2023. Unext: a low-dose ct denoising unet model with the modified convnext block, in: ICASSP 2023-2023 IEEE Interna-tional Conference on Acoustics, Speech and Signal Pro-cessing (ICASSP), IEEE. pp. 1–5. Peebles, W., Xie, S., 2023. Scalable di ff usion models with transformers, in: Proceedings of the IEEE /CVF Inter-national Conference on Computer Vision (ICCV), pp. 4195–4205. Rombach, R., Blattmann, A., Lorenz, D., Esser, P., Om-mer, B., 2021. High-resolution image synthesis with latent di ff usion models. arXiv:2112.10752 .Rombach, R., Blattmann, A., Lorenz, D., Esser, P., Om-mer, B., 2022. High-resolution image synthesis with latent di ff usion models. URL: https://arxiv.org/ abs/2112.10752 , arXiv:2112.10752 .15 Ronneberger, O., Fischer, P., Brox, T., 2015. U-net: Con-volutional networks for biomedical image segmenta-tion, in: Navab, N., Hornegger, J., Wells, W.M., Frangi, A.F. (Eds.), Medical Image Computing and Computer-Assisted Intervention – MICCAI 2015, Springer Inter-national Publishing, Cham. pp. 234–241. Salimans, T., Ho, J., 2022. Progressive distillation for fast sampling of di ff usion models. URL: https://arxiv. org/abs/2202.00512 , arXiv:2202.00512 .Selvaraju, P., Ding, T., Chen, T., Zharkov, I., Liang, L., 2024. Fora: Fast-forward caching in di ff usion transformer acceleration. URL: https://arxiv.org/ abs/2407.01425 , arXiv:2407.01425 .Song, J., Meng, C., Ermon, S., 2022. Denoising dif-fusion implicit models. URL: https://arxiv.org/ abs/2010.02502 , arXiv:2010.02502 .Song, W., Ma, W., Zhang, M., Zhang, Y., Zhao, X., 2024. Lightweight di ff usion models: a survey. Artifi-cial Intelligence Review 57, 161. URL: https://doi. org/10.1007/s10462-024-10800-8 , doi: 10.1007/ s10462-024-10800-8 .Wan, T., Wang, A., Ai, B., Wen, B., Mao, C., Xie, C.W., Chen, D., Yu, F., Zhao, H., Yang, J., Zeng, J., Wang, J., Zhang, J., Zhou, J., Wang, J., Chen, J., Zhu, K., Zhao, K., Yan, K., Huang, L., Feng, M., Zhang, N., Li, P., Wu, P., Chu, R., Feng, R., Zhang, S., Sun, S., Fang, T., Wang, T., Gui, T., Weng, T., Shen, T., Lin, W., Wang, W., Wang, W., Zhou, W., Wang, W., Shen, W., Yu, W., Shi, X., Huang, X., Xu, X., Kou, Y., Lv, Y., Li, Y., Liu, Y., Wang, Y., Zhang, Y., Huang, Y., Li, Y., Wu, Y., Liu, Y., Pan, Y., Zheng, Y., Hong, Y., Shi, Y., Feng, Y., Jiang, Z., Han, Z., Wu, Z.F., Liu, Z., 2025. Wan: Open and advanced large-scale video generative mod-els. URL: https://arxiv.org/abs/2503.20314 ,
+
+arXiv:2503.20314 .Wang, Y., Yu, B., Wang, L., Zu, C., Lalush, D.S., Lin, W., Wu, X., Zhou, J., Shen, D., Zhou, L., 2018. 3d condi-tional generative adversarial networks for high-quality pet image estimation at low dose. NeuroImage 174, 550–562. URL: https://www.sciencedirect. com/science/article/pii/S1053811918302507 ,doi: https://doi.org/10.1016/j.neuroimage. 2018.03.045 .Xiang, L., Qiao, Y., Nie, D., An, L., Lin, W., Wang, Q., Shen, D., 2017. Deep auto-context convolutional neural networks for standard-dose pet image estimation from low-dose pet /mri. Neurocomputing 267, 406–416. Xie, H., Gan, W., Bayerlein, R., Zhou, B., Chen, M.K., Kulon, M., Boustani, A., Ko, K.Y., Wang, D.S., Spencer, B.A., Ji, W., Chen, X., Liu, Q., Guo, X., Xia, M., Zhou, Y., Liu, H., Guo, L., An, H., Kamilov, U.S., Wang, H., Li, B., Rominger, A., Shi, K., Wang, G., Badawi, R.D., Liu, C., 2026a. Dose-aware di ff usion model for 3d pet image denoising: Multi-institutional validation with reader study and real low-dose data. Medical Image Analysis 111, 104039. URL: 
+
+https://www.sciencedirect.com/science/ article/pii/S1361841526001088 , doi: https: //doi.org/10.1016/j.media.2026.104039 .Xie, H., Gan, W., Bayerlein, R., Zhou, B., Chen, M.K., Kulon, M., Boustani, A., Ko, K.Y., Wang, D.S., Spencer, B.A., Ji, W., Chen, X., Liu, Q., Guo, X., Xia, M., Zhou, Y., Liu, H., Guo, L., An, H., Kamilov, U.S., Wang, H., Li, B., Rominger, A., Shi, K., Wang, G., Badawi, R.D., Liu, C., 2026b. Dose-aware di ff usion model for 3d pet image denoising: Multi-institutional validation with reader study and real low-dose data. Medical Image Analysis 111, 104039. URL: 
+
+https://www.sciencedirect.com/science/ article/pii/S1361841526001088 , doi: https: //doi.org/10.1016/j.media.2026.104039 .Xue, S., Guo, R., Bohn, K.P., Matzke, J., Viscione, M., Alberts, I., Meng, H., Sun, C., Zhang, M., Zhang, M., Sznitman, R., El Fakhri, G., Rominger, A., Li, B., Shi, K., 2022. A cross-scanner and cross-tracer deep learning method for the recovery of standard-dose imaging quality from low-dose PET. European Journal of Nuclear Medicine and Molecular Imaging 49, 1843–1856. URL: https://link.springer. com/10.1007/s00259-021-05644-1 , doi: 10.1007/ s00259-021-05644-1 .Xue, S., Wang, H., Chen, Y., Liu, F., Zhu, H., Viscione, M., Guo, R., Rominger, A., Li, B., Shi, K., 2026. Ud-pet: Ultra-low dose pet imaging challenge dataset, in: Gee, J.C., Alexander, D.C., Hong, J., Iglesias, J.E., Su-dre, C.H., Venkataraman, A., Golland, P., Kim, J.H., Park, J. (Eds.), Medical Image Computing and Com-puter Assisted Intervention – MICCAI 2025, Springer Nature Switzerland, Cham. pp. 616–623. Yu, B., Ozdemir, S., Dong, Y., Shao, W., Pan, T., Shi, K., Gong, K., 2025. Robust whole-body pet image denois-ing using 3d di ff usion models: evaluation across vari-ous scanners, tracers, and dose levels. European Journal of Nuclear Medicine and Molecular Imaging 52, 2549– 2562. Yu, B., Ozdemir, S., Dong, Y., Shao, W., Shi, K., Gong, K., 2024. Pet image denoising based on 3d denois-ing di ff usion probabilistic model: Evaluations on total-body datasets, in: International Conference on Medical Image Computing and Computer-Assisted Intervention, Springer. pp. 541–550. Zhang, Y., Xing, J., Xia, B., Liu, S., Peng, B., Tao, X., Wan, P., Lo, E., Jia, J., 2025. Training-free e ffi cient video generation via dynamic token carving. arXiv preprint arXiv:2505.16864 . 16 Zheng, Z., Peng, X., Yang, T., Shen, C., Li, S., Liu, H., Zhou, Y., Li, T., You, Y., 2024. Open-sora: Democra-tizing e ffi cient video production for all. arXiv preprint arXiv:2412.20404 . Zhou, L., Schae ff erkoetter, J.D., Tham, I.W., Huang, G., Yan, J., 2020. Supervised learning with cy-clegan for low-dose fdg pet image denoising. Medical Image Analysis 65, 101770. URL: 
+
+https://www.sciencedirect.com/science/ article/pii/S1361841520301341 , doi: https: //doi.org/10.1016/j.media.2020.101770 .Zou, C., Liu, X., Liu, T., Huang, S., Zhang, L., 2025. Ac-celerating di ff usion transformers with token-wise fea-ture caching. URL: https://arxiv.org/abs/2410. 05317 , arXiv:2410.05317 .
+
+Appendix A. LIM Rational for PET Imaging 
+
+Appendix A.1. Low-count PET and high-count PET share the same underlying structures 
+
+Positron Emission Tomography (PET) records coinci-dence events arising from pairs of 511 keV photons gener-ated by positron–electron annihilation. In this study, as described in Sec. 3.7, we used the DRF =10 setting for both our in-house tracer-specific datasets and the publicly available UDPET Challenge 2025 dataset, corresponding to PET images reconstructed from approximately 10% of the original list-mode acquisition data. The down-sampled list-mode data were reconstructed using the ordered-subsets expectation maximization (OSEM) algorithm to generate low-count PET images. The corresponding high-count PET images were recon-structed from the original list-mode data without down-sampling using the same reconstruction protocol and served as high-count reference images. Because each low-count PET image and its high-count reference originate from the same list-mode acquisition, they are expected to preserve the same underlying tracer distribution and anatomical structures. The primary di ff erence between them arises from the reduced number of detected coinci-dence events used for reconstruction, which increases sta-tistical noise and degrades image quality in the low-count PET image. Therefore, the low-count PET image can be regarded as a noisy observation of the same anatomical and functional structures present in the high-count PET image, rather than an image with di ff erent underlying con-tent. Although reducing the number of PET events inevitably discards information and increases reconstruction uncer-tainty, the low-count image still retains most of the global anatomical layout, tracer uptake distribution, and lesion-related structural information. Therefore, we model the low-count and high-count PET images as noisy observa-tions of the same underlying signal, but with di ff erent noise levels. Formally, let xHC (r) and xLC (r) denote the high-count and low-count PET image intensities at voxel location 
+
+r ∈ Ω, respectively. Under the approximation that both images are reconstructed from the same underlying tracer distribution, we assume 
+
+ExHC (r) ≈ ExLC (r) = μ(r), (A.1) where μ(r) denotes the underlying expected PET signal at voxel r. The reduced number of detected events increases the uncertainty of the reconstructed image, leading to a higher noise level in the low-count image: Var xLC (r) ≥ Var xHC (r). (A.2) Equivalently, by viewing the reconstructed PET images as random vectors in RV over V voxels, we write 
+
+ExHC  ≈ ExLC  = μ, (A.3) 17 and characterize the higher noise level of the low-count image by its larger expected deviation from the underlying signal: 
+
+E
+
+
+
+xLC − μ 22
+
+
+
+≥ E
+
+
+
+xHC − μ 22
+
+
+
+. (A.4) This assumption can be intuitively understood from the list-mode acquisition process. Let {Yi}Ni=1 denote the de-tected list-mode events from a full acquisition. Ignoring reconstruction nonlinearity for the purpose of statistical intuition, the reconstructed high-count image intensity at voxel r can be idealized as an aggregation of event contri-butions: 
+
+xHC (r) = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+fr(Yi), (A.5) where fr(Yi) denotes the contribution of event Yi to voxel 
+
+r. A low-count image reconstructed from a reduced subset of list-mode events S ⊂ { 1, . . . , N}, with |S | ≈ 0.1N, can be similarly idealized as 
+
+xLC (r) = 1
+
+|S |
+
+X
+
+> i∈S
+
+fr(Yi). (A.6) Since xLC (r) is estimated from fewer detected events, it has a higher sampling variance than xHC (r), while still es-timating approximately the same underlying signal μ(r). This supports our central modeling assumption: low-count and high-count PET images share the same anatomical and functional structures in expectation, whereas the low-count image is primarily degraded by increased statistical noise and reduced perceptual image quality. 
+
+Appendix A.2. Q-sampled low-count PET as an approxi-mate intermediate initialization 
+
+We next consider the DDPM forward noising process applied to the low-count PET image. Given a denoising timestep t, the standard DDPM forward process defines the marginal distribution 
+
+q(xt | x0) = N √ ¯αt x0, (1 − ¯αt)I, (A.7) where ¯ αt = Qts=1 αs. Equivalently, a noisy sample at timestep t can be obtained by 
+
+xt = √ ¯αt x0 + p1 − ¯αt ε, ε ∼ N (0, I). (A.8) In the proposed Q-sampling Trajectory Shortcut, we replace the unknown high-count target xHC with the ob-served low-count image xLC , and construct the intermedi-ate initialization at the selected starting timestep ts as 
+
+xts = p ¯αts xLC + p1 − ¯αts ε, ε ∼ N (0, I). (A.9) This initialization can be interpreted as an approximate sample from the intermediate di ff usion state that would have been obtained by applying the forward process to the high-count PET image: 
+
+q(xts | xHC ) = N p ¯αts xHC , (1 − ¯αts )I. (A.10) Since xLC and xHC share approximately the same under-lying anatomical and tracer uptake structures, replacing 
+
+xHC with xLC mainly introduces an additional low-count noise component while preserving the global image con-tent. Therefore, xts provides a structurally informed ap-proximation to the desired intermediate di ff usion state. This design has two important advantages. First, the initialization retains task-relevant information from the low-count PET image, including global anatomical lay-out, tracer distribution, and lesion-related uptake patterns. Second, the added Gaussian perturbation matches the noise scale expected by the pre-trained di ff usion model at timestep ts. Therefore, the reverse process can start from an intermediate state that is both informative and compati-ble with the learned denoising trajectory, rather than from an unstructured Gaussian sample at timestep T .
+
+Appendix A.3. Why starting from t s can be better than full reverse sampling 
+
+Although the standard di ff usion inference procedure starts from pure Gaussian noise xT ∼ N (0, I), this strat-egy may not be optimal for paired PET denoising. In im-age generation tasks, sampling from xT is necessary be-cause no image-specific observation is available. In con-trast, PET denoising is a conditional restoration problem: as we observed from Fig. 2, the low-count PET image is already available and contains substantial structural infor-mation about the desired high-count image. Therefore, starting the reverse process from pure Gaussian noise may introduce unnecessary stochasticity and require the model to recover image structures that are already present in the low-count input. A possible explanation is that the learned reverse pro-cess may accumulate approximation errors over a long de-noising trajectory. Let pθ(xt−1 | xt) denote the learned re-verse transition and p⋆(xt−1 | xt) denote the ideal reverse kernel. Although each transition may be locally accurate, 
+
+pθ(xt−1 | xt) ≈ p⋆(xt−1 | xt), (A.11) small discrepancies can accumulate when the model re-peatedly composes many reverse transitions from T to 0. This accumulated error may be particularly relevant in 3D PET restoration, where the model must preserve subtle anatomical boundaries, tracer uptake patterns, and lesion-related details over a long reverse trajectory. By initializing the reverse process from a Q-sampled low-count PET image at timestep ts, the number of reverse transitions is reduced from T to ts. This shorter trajectory can reduce cumulative approximation error and inference cost. Meanwhile, because the initialization is constructed from the low-count image, it preserves global structures that are already close to the desired high-count image in expectation. As a result, the model is asked to solve a sim-pler restoration problem: refining and denoising a struc-turally meaningful intermediate state rather than synthe-sizing the PET image from pure Gaussian noise. 18 However, the starting timestep ts must be properly se-lected. If ts is too large, excessive Gaussian perturbation may destroy useful structural information in the low-count image, weakening the benefit of image-specific initializa-tion. If ts is too small, the reverse trajectory becomes very short, but the model may not have enough denoising ca-pacity to correct low-count noise and reconstruction arti-facts. Therefore, ts controls a trade-o ff between structural preservation, denoising capacity, and computational e ffi -ciency. This explains why an intermediate starting timestep can outperform full reverse sampling in our experiments: it avoids unnecessary early reverse denoising steps from pure noise, reduces cumulative denoising error, and lever-ages the low-count PET image as an informative initial-ization while maintaining compatibility with the di ff usion noise schedule. 
+
+Appendix A.4. Ablation studies on noise-level matching 
+
+To further validate the mechanism of the proposed Q-sampling trajectory shortcut, we conducted an ablation study by decoupling the reverse starting timestep from the noise level used for initialization. In the proposed method, the low-count PET image is noised according to the same timestep from which reverse denoising starts. That is, when the reverse process starts from timestep ts, the ini-tialization is generated using the forward noising level ¯ αts :
+
+xinit  
+
+> ts
+
+= p ¯αts xLC + p1 − ¯αts ε. (A.12) To test whether this timestep–noise-level matching is necessary, we manually changed the noise level used for initialization while keeping the reverse starting timestep fixed. Specifically, for a reverse process starting from timestep t, we generated the initial state using three di ff er-ent noise levels: 2 t, t, and 0 .5t. The t setting corresponds to the proposed matched initialization, whereas 2 t and 0 .5t
+
+intentionally introduce a mismatch between the noise level of the input and the denoising timestep expected by the model.                     
+
+> Table A.6: Ablation on timestep–noise-level matching. Each entry re-ports PSNR /SSIM.
+> Start Initialization noise level
+> 2tt0.5tt=100 22.91 /21.78 44.33 /98.47 43.51 /98.13
+> t=50 26.53 /17.43 46.66 /98.56 44.73 /98.20
+> t=10 36.47 /70.48 46.52 /98.77 46.09 /98.41
+
+As shown in Table A.6, the matched setting consis-tently achieves the best performance across di ff erent start-ing timesteps. When the initialization noise level is larger than the reverse starting timestep, such as using the 2 t
+
+noise level while starting reverse denoising from timestep 
+
+t, the input is noisier than what the model expects at that timestep. This mismatch severely degrades image qual-ity, as reflected by the large performance drop in the 2 t
+
+column. In this case, the reverse process starts from an over-corrupted image but is given too few denoising steps to recover the lost structures. Conversely, when the initialization noise level is smaller than the reverse starting timestep, such as using the 0 .5t
+
+noise level, the input contains less Gaussian noise than ex-pected by the model at timestep t. Although this setting preserves more low-count image structure, it introduces a distribution mismatch between the actual input and the timestep condition used by the denoising network. As a re-sult, the model applies a denoising operation calibrated for a noisier state, which can lead to suboptimal restoration. These results support the key design of Q-sampling tra-jectory shortcut: the reverse starting timestep and the for-ward noising level should be coupled. The low-count PET image provides image-specific structural informa-tion, while the Gaussian perturbation aligns the initial-ization with the di ff usion model’s expected noise distri-bution at timestep ts. Therefore, the proposed matched Q-sampling initialization provides a more reliable inter-mediate starting point than mismatched noise-level initial-ization. 19
