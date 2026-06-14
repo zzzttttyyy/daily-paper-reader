@@ -1,0 +1,292 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-14T20:44:12.741317+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.13035v1",
+      "source": "arxiv",
+      "title": "TetherCache: Stabilizing Autoregressive Long-Form Video Generation with Gated Recall and Trusted Alignment",
+      "abstract": "Autoregressive video diffusion models provide a natural formulation for streaming and variable-length video generation by conditioning newly generated frames on previously generated content. However, extending these models to minute-level generation remains challenging: the limited KV-cache budget prevents the model from retaining the full history, while repeatedly conditioning on self-generated frames induces a context distribution shift that accumulates over time, leading to visual artifacts, quality degradation, and temporal drift. In this paper, we propose TetherCache, a training-free and plug-and-play cache management strategy for drift-resistant long video generation. TetherCache organizes the cache into sink, memory, and recent regions, and introduces two complementary mechanisms. First, GRAB (Gated Recall with Attention-Diversity Balancing) selects long-range memory frames using a gated score that combines attention-based relevance with temporal diversity, preserving informative yet diverse historical context under a fixed cache budget. Second, TAME (Trusted Alignment via Memory Editing) lightly edits newly recalled memory tokens by aligning their statistics to a trusted context distribution, reducing the pollution caused by drifted historical features. Built on Self-Forcing, TetherCache consistently improves long-video generation quality on VBench-Long across 30s, 60s, and 240s settings. In particular, for 240s generation, it substantially improves overall and semantic scores while reducing quality drift from 7.84 to 1.33, demonstrating its effectiveness for stable long-horizon autoregressive video diffusion.",
+      "authors": [
+        "Yu Meng",
+        "Xiangyang Luo",
+        "Letian Li",
+        "Wenyuan Jiang",
+        "Chen Gao",
+        "Xinlei Chen",
+        "Yong Li",
+        "Xiao-Ping Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-11T08:16:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.13035v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free cache for long video generation",
+      "llm_evidence_cn": "用于长视频生成的免训练缓存方法",
+      "llm_evidence": "用于长视频生成的免训练缓存方法",
+      "canonical_evidence": "用于长视频生成的免训练缓存方法",
+      "llm_tldr_en": "Proposes TetherCache, a training-free cache management strategy to stabilize autoregressive long-form video diffusion, preventing drift and artifacts without extra training.",
+      "llm_tldr_cn": "针对自回归视频扩散模型在生成长视频时因缓存限制导致的漂移和伪影问题，提出TetherCache，一种免训练的即插即用缓存管理策略，通过门控召回和信任对齐组织缓存，无需额外训练即可稳定生成分钟级视频，实验证明有效抑制质量下降。",
+      "llm_tldr": "针对自回归视频扩散模型在生成长视频时因缓存限制导致的漂移和伪影问题，提出TetherCache，一种免训练的即插即用缓存管理策略，通过门控召回和信任对齐组织缓存，无需额外训练即可稳定生成分钟级视频，实验证明有效抑制质量下降。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.13303v1",
+      "source": "arxiv",
+      "title": "DuET: Dual Expert Trajectories for Diffusion Image Editing",
+      "abstract": "Recent diffusion editors perform diverse instruction-based edits while conditioning on the source image at every denoising step. Yet persistent source-image conditioning can limit how fully an edit is executed and how natural the result appears, especially when the target scene diverges substantially from the input. We introduce DuET (Dual Expert Trajectories), a training-free inference method that temporarily relaxes source-image conditioning by transitioning through a text-to-image phase before returning to edit mode, allowing the denoising trajectory to move toward the target distribution while retaining the structural benefits of image-conditioned editing. Without modifying model weights or increasing sampling cost, DuET consistently improves instruction relevance, semantic fidelity, and perceptual quality across diverse models and benchmarks. In some cases, these gains come with a modest reduction in source-image preservation, revealing a predictable trade-off between source preservation and edit fidelity.",
+      "authors": [
+        "Lidia Troeshestova",
+        "Alexander Ustyuzhanin",
+        "Sergey Kastryulin"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-11T12:58:48+00:00",
+      "link": "https://arxiv.org/pdf/2606.13303v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free inference method for diffusion image editing",
+      "llm_evidence_cn": "扩散图像编辑的免训练推理方法",
+      "llm_evidence": "扩散图像编辑的免训练推理方法",
+      "canonical_evidence": "扩散图像编辑的免训练推理方法",
+      "llm_tldr_en": "DuET is a training-free inference method that improves diffusion image editing by temporarily relaxing source-image conditioning, without modifying model weights or increasing sampling cost.",
+      "llm_tldr_cn": "现有扩散图像编辑方法在编辑目标与源图像差异较大时效果受限。DuET提出了一种免训练推理方法，通过暂时切换至纯文本到图像生成阶段再返回编辑模式，从而允许去噪轨迹更接近目标分布。该方法无需修改模型权重或增加采样成本，在多种编辑任务上一致提升指令相关性。",
+      "llm_tldr": "现有扩散图像编辑方法在编辑目标与源图像差异较大时效果受限。DuET提出了一种免训练推理方法，通过暂时切换至纯文本到图像生成阶段再返回编辑模式，从而允许去噪轨迹更接近目标分布。该方法无需修改模型权重或增加采样成本，在多种编辑任务上一致提升指令相关性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.13496v1",
+      "source": "arxiv",
+      "title": "Budget-Constrained Step-Level Diffusion Caching",
+      "abstract": "Step-level caching accelerates diffusion models by exploiting temporal redundancy across denoising steps. Existing methods make per-step cache decisions using threshold-based heuristics, without directly optimizing for final output quality. As a result, their inference latency varies across inputs and is difficult to control at deployment. In this work, we propose BudCache, which inverts this formulation: rather than letting per-step error thresholds dictate the runtime cost, we fix the compute budget in advance and search for the cache policy that best preserves the final output. To tackle the combinatorial complexity of step selection, we combine Simulated Annealing with deterministic Hill Climbing. This offline search identifies high-quality cache policies within minutes and introduces no online search or thresholding overhead during inference. When the compute budget is very tight, we further introduce cache-aware schedule alignment, which adapts the time discretization to the selected cache policy to reduce cache-induced trajectory mismatch. Experiments on FLUX.1-dev and Wan2.1 show that BudCache achieves better generation quality than heuristic caching baselines under the same inference budgets. Code is available at https://github.com/Westlake-AGI-Lab/BudCache",
+      "authors": [
+        "Mingkun Lei",
+        "Tong Zhao",
+        "Liangyu Yuan",
+        "Chi Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-11T15:45:05+00:00",
+      "link": "https://arxiv.org/pdf/2606.13496v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free budget-constrained step-level caching for diffusion",
+      "llm_evidence_cn": "免训练的预算约束步级缓存加速扩散模型",
+      "llm_evidence": "免训练的预算约束步级缓存加速扩散模型",
+      "canonical_evidence": "免训练的预算约束步级缓存加速扩散模型",
+      "llm_tldr_en": "BudCache proposes budget-constrained step-level caching for diffusion models, using simulated annealing to find optimal cache policy under fixed compute budget without additional training.",
+      "llm_tldr_cn": "针对扩散模型步级缓存加速中计算开销不确定的问题，提出BudCache，固定计算预算并离线搜索最优缓存策略，结合模拟退火和爬山算法，在数分钟内找到高质量缓存策略，实现可控加速，无需额外训练。",
+      "llm_tldr": "针对扩散模型步级缓存加速中计算开销不确定的问题，提出BudCache，固定计算预算并离线搜索最优缓存策略，结合模拟退火和爬山算法，在数分钟内找到高质量缓存策略，实现可控加速，无需额外训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.13240v1",
+      "source": "arxiv",
+      "title": "Towards More General Control of Diffusion Models Using Jeffrey Guidance",
+      "abstract": "A key strength of diffusion models lies in their flexibility, since their outputs can be controlled at sampling time through guidance. However, beyond simple cases such as conditional sampling, the target distribution is often left implicit, defined only through a sampling rule or a heuristic energy function. To address this, we propose Jeffrey guidance, a principled framework that extends diffusion-model control to applications beyond what standard guidance can express. It leverages Jeffrey's rule of conditioning to update marginal distributions towards a prescribed target, preserving the conditional structure and minimally perturbing the joint distribution. We first demonstrate Jeffrey guidance by targeting a prescribed embedding distribution. With Inception embeddings as the target, this leads to substantial reductions in FID on both CIFAR-10 and FFHQ. We further apply Jeffrey guidance to fairness on CelebA-HQ, updating an unconditional diffusion model to enforce independence between attributes.",
+      "authors": [
+        "Raphaël Razafindralambo",
+        "Rémy Sun",
+        "Frédéric Precioso",
+        "Jes Frellsen",
+        "Pierre-Alexandre Mattei"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV",
+        "stat.ME",
+        "stat.ML"
+      ],
+      "published": "2026-06-11T11:53:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.13240v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free guidance method for diffusion model control",
+      "llm_evidence_cn": "免训练的扩散模型引导方法",
+      "llm_evidence": "免训练的扩散模型引导方法",
+      "canonical_evidence": "免训练的扩散模型引导方法",
+      "llm_tldr_en": "Proposes Jeffrey guidance, a principled training-free framework to control diffusion model outputs at sampling time beyond standard conditional sampling.",
+      "llm_tldr_cn": "扩散模型采样时的引导通常局限于条件采样，本文提出Jeffrey guidance，一种基于Jeffrey条件规则的训练免费引导框架，可扩展到任意目标分布，且保持条件结构并最小扰动联合分布。实验展示其在图像生成中实现新的控制能力，无需额外训练或微调。",
+      "llm_tldr": "扩散模型采样时的引导通常局限于条件采样，本文提出Jeffrey guidance，一种基于Jeffrey条件规则的训练免费引导框架，可扩展到任意目标分布，且保持条件结构并最小扰动联合分布。实验展示其在图像生成中实现新的控制能力，无需额外训练或微调。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.13347v1",
+      "source": "arxiv",
+      "title": "Enhanced Low-Density Region Exploration in Classifier-Guided Diffusion Models Through Modified Reverse Diffusion Sampling",
+      "abstract": "Diffusion models have emerged as state-of-the-art generative models for high-fidelity image synthesis, particularly in their classifier-free guided and classifier-guided forms. However, standard classifier guidance concentrates probability mass around high-density class mean, leading to poor coverage of rare samples in the tails of the class-conditional distributions. Recent work on diffusion-based tail sampling mitigates this by training an additional low-density-seeking classifier with a synthetic-vs-real discriminator, at the cost of additional networks and training. In parallel, a number of samplers and distillation techniques accelerate or refine diffusion sampling, but do not explicitly address long-tail coverage. We propose a purely sampling-time, density-aware extension of classifier-guided conditional diffusion model that targets low-density regions without any additional training. We have applied guidance at noisy images not on predicted noise like most diffusion models. Starting from a pretrained conditional diffusion model and classifier on ImageNet, we modify the guided reverse dynamics by steering trajectories toward low-confidence regions via the modified classifier gradient, and at each time step, we also guide the sampling process toward the predicted real image. 1st guidance helps explore low-probability samples, and 2nd guidance helps to generate samples to be close to the real data manifold. The proposed sampler consistently improves ADM model recall at 64x64 resolution while maintaining a comparable FID, and with a 256x256 ADM model, we showed the results visually with different combinations of both guidance. We also showed that standard ADM classifier guidance, combined with predicted real image guidance, helps generate high perceptual quality samples with a 256x256 ADM model on ImageNet.",
+      "authors": [
+        "Jagriti Singh",
+        "Shekhar Verma",
+        "Muneendra Ojha"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-11T13:35:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.13347v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "modified reverse diffusion sampling for low-density exploration",
+      "llm_evidence_cn": "改进反向扩散采样探索低密度区域",
+      "llm_evidence": "改进反向扩散采样探索低密度区域",
+      "canonical_evidence": "改进反向扩散采样探索低密度区域",
+      "llm_tldr_en": "Proposes a training-free modification to reverse diffusion sampling to improve low-density region exploration in classifier-guided diffusion models, enhancing rare sample generation.",
+      "llm_tldr_cn": "现有分类器引导扩散模型在高密度区域集中，难以生成稀有样本。本文提出免训练的修改反向扩散采样方法，增强低密度区域探索。实验表明该方法在不额外训练的情况下提高了尾部样本的生成质量，为图像生成中的稀有类别采样提供简单有效方案。",
+      "llm_tldr": "现有分类器引导扩散模型在高密度区域集中，难以生成稀有样本。本文提出免训练的修改反向扩散采样方法，增强低密度区域探索。实验表明该方法在不额外训练的情况下提高了尾部样本的生成质量，为图像生成中的稀有类别采样提供简单有效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.11075v1",
+      "source": "arxiv",
+      "title": "Exploring the Design Space of Reward Backpropagation for Flow Matching",
+      "abstract": "Aligning text-to-image flow matching models with human preferences via direct reward backpropagation is sample-efficient but hampered by two well-known pathologies: activations cannot be stored across the full sampling trajectory at modern model scale, and chained Jacobian products across steps inflate the reward gradient as it travels back to early indices. Connector-based methods, such as LeapAlign, address these issues by replacing the full backward trajectory with a short pinned path, highlighting a useful decoupling between sampling and optimization. However, the quality of the resulting gradient depends on how accurately this short path approximates the full rollout, especially over long intervals. We propose FlowBP, a unified surrogate-trajectory framework that treats the backward trajectory itself as the design object. FlowBP keeps a no-gradient cached rollout for sampling, then builds a lightweight backward surrogate from cached and selectively re-forwarded velocities. This view separates four choices: the reward-model input, active set, integration weights, and bridge coupling, and recovers prior direct-gradient methods as particular settings. Within this framework, we instantiate three variants: FlowBP-Sparse uses sparse Euler reconstruction, FlowBP-Bridge adds controlled bridge coupling, and FlowBP-Lagrange raises the order of leap quadrature. All three bound memory by the active-set size and limit gradient chaining to at most one Jacobian factor. Across SD3.5-M, FLUX.1-dev, and FLUX.2-Klein-base on preference, quality, and compositional metrics, the three variants improve over direct-gradient baselines on most metrics.",
+      "authors": [
+        "Ruoyu Wang",
+        "Boye Niu",
+        "Xiangxin Zhou",
+        "Yushi Huang",
+        "Tongliang Liu",
+        "Chi Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-09T16:36:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.11075v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "reward backpropagation for text-to-image flow matching",
+      "llm_evidence_cn": "文本到图像流匹配的奖励反向传播",
+      "llm_evidence": "文本到图像流匹配的奖励反向传播",
+      "canonical_evidence": "文本到图像流匹配的奖励反向传播",
+      "llm_tldr_en": "FlowBP explores surrogate trajectory design for reward backpropagation in text-to-image flow matching, enabling alignment with human preferences without full storage across the sampling trajectory.",
+      "llm_tldr_cn": "该论文提出FlowBP，通过统一代理轨迹实现流匹配模型的奖励反向传播对齐。解决了大模型无法存储全轨迹激活和梯度膨胀问题，在文本到图像生成中提升与人类偏好的对齐。但该方法仍涉及训练（通过反向传播更新模型），并非免训练优化。",
+      "llm_tldr": "该论文提出FlowBP，通过统一代理轨迹实现流匹配模型的奖励反向传播对齐。解决了大模型无法存储全轨迹激活和梯度膨胀问题，在文本到图像生成中提升与人类偏好的对齐。但该方法仍涉及训练（通过反向传播更新模型），并非免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.13655v1",
+      "source": "arxiv",
+      "title": "Flex4DHuman: Flexible Multi-view Video Diffusion for 4D Human Reconstruction",
+      "abstract": "We present Flex4DHuman, a multi-view video diffusion model that transforms a monocular or sparse multi-view video of a dynamic subject into synchronized dense multi-view videos using only relative camera-pose conditioning. Unlike prior human-centric methods that rely on skeletons, depth maps, normals, or rendered target-view geometry, Flex4DHuman requires no explicit geometry priors and instead conditions generation through relative camera-pose positional encoding. The generated videos can be directly ingested by downstream reconstruction pipelines to create dynamic 4D Gaussian splats. Built on the Wan 2.1 1.3B text-to-video model, Flex4DHuman preserves the backbone architecture and encodes camera and view information through a five-axis positional encoding that extends spatio-temporal RoPE with view indices and continuous SE(3) relative camera geometry. A three-stage curriculum progressively trains the model for pose following, flexible reference-to-target view generation, and temporal rollout. To support temporal rollout, we train with clean historical target-view tokens. We also add multi-view captions to enable test-time text control. Combined with an off-the-shelf 4D Gaussian Splatting stage, our framework lifts monocular static-camera videos into dynamic 4D Gaussian splats. Experiments on DNA-Rendering and ActorsHQ show that Flex4DHuman surpasses prior state-of-the-art methods, while the same formulation generalizes to animal categories after mixed human-animal training. These capabilities make Flex4DHuman a practical step toward scalable 4D content creation from casual monocular videos for simulation, gaming, AR/VR, and video re-shooting.",
+      "authors": [
+        "Jen-Hao Cheng",
+        "Yipeng Wang",
+        "Hao Zhang",
+        "Gengshan Yang",
+        "Jenq-Neng Hwang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-06-11T17:54:05+00:00",
+      "link": "https://arxiv.org/pdf/2606.13655v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-view video diffusion for dynamic human reconstruction",
+      "llm_evidence_cn": "多视角视频扩散用于动态人体重建",
+      "llm_evidence": "多视角视频扩散用于动态人体重建",
+      "canonical_evidence": "多视角视频扩散用于动态人体重建",
+      "llm_tldr_en": "Flex4DHuman uses multi-view video diffusion to generate dense multi-view videos from monocular inputs, enabling 4D human reconstruction without geometry priors.",
+      "llm_tldr_cn": "提出Flex4DHuman，一种多视角视频扩散模型，利用相对相机姿态条件从单目或稀疏多视角视频生成同步多视角视频，无需显式几何先验，可用于下游4D人体重建，基于Wan2.1模型微调实现。",
+      "llm_tldr": "提出Flex4DHuman，一种多视角视频扩散模型，利用相对相机姿态条件从单目或稀疏多视角视频生成同步多视角视频，无需显式几何先验，可用于下游4D人体重建，基于Wan2.1模型微调实现。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
