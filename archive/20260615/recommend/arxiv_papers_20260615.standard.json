@@ -1,0 +1,457 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-15T22:48:40.119662+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2606.13964v1",
+      "source": "arxiv",
+      "title": "CaricHarmony: Contrastive Diffusion Paths for Identity-Preserving Caricature Synthesis",
+      "abstract": "Sketch-based caricature synthesis suffers from a fundamental failure mode: when identity and shape conditions are combined in diffusion models, they create destructive interference that causes inevitable collapse toward either bland portraits or unrecognizable distortions. We identify the root cause as \\emph{condition signal contamination} -- competing probability distributions in the denoising trajectory that make balanced generation impossible. We present CaricHarmony, the first training-free method that explicitly resolves this contamination through parallel uncontaminated diffusion paths. During inference, we maintain three paths: $\\mathcal{P}^{\\mathrm{i}}$ (pure identity), $\\mathcal{P}^{\\mathrm{s}}$ (pure shape), and $\\mathcal{P}^{\\mathrm{i+s}}$ (harmonized output). Novel energy functions operating on cross-attention features provide gradient guidance that steers $\\mathcal{P}^{\\mathrm{i+s}}$ toward optimal balance: $\\mathcal{E}_{\\mathrm{shape}}$ ensures sketch fidelity through layout and semantic alignment, while $\\mathcal{E}_{\\mathrm{id}}$ employs token-level correspondence matching robust to extreme distortions. Unlike DemoCaricature requiring 70 seconds per-identity fine-tuning or CaricatureBooth constrained to Bezier curves, CaricHarmony accepts any sketch format and generates in under 16 seconds. Experiments demonstrate state-of-the-art performance: 0.8615 shape CLIP score (vs. 0.8450) under comparable identity consistency score, with 7.81 overall user preference score (vs. 6.06). Our method fundamentally reconceptualizes the ID-shape conflict as conditioning signal contamination for diffusion models, enabling unprecedented creative control while preserving recognition.",
+      "authors": [
+        "Dongyu Wang",
+        "Dar-Yen Chen",
+        "Yi-Zhe Song"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-11T22:57:59+00:00",
+      "link": "https://arxiv.org/pdf/2606.13964v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free method for diffusion model image generation",
+      "llm_evidence_cn": "扩散模型图像生成的免训练方法",
+      "llm_evidence": "扩散模型图像生成的免训练方法",
+      "canonical_evidence": "扩散模型图像生成的免训练方法",
+      "llm_tldr_en": "CaricHarmony introduces a training-free method using parallel diffusion paths to resolve condition signal contamination in identity-preserving caricature synthesis.",
+      "llm_tldr_cn": "针对漫画合成中身份与形状条件干扰导致生成失败的问题，本文提出CaricHarmony，一种无需训练的扩散模型方法，通过维护三条并行的无污染扩散路径（纯身份、纯形状和融合路径），有效解决了条件信号污染。实验表明，该方法在保持身份的同时生成高质量夸张漫画，且无需额外训练，为扩散模型的免训练优化提供了新思路。",
+      "llm_tldr": "针对漫画合成中身份与形状条件干扰导致生成失败的问题，本文提出CaricHarmony，一种无需训练的扩散模型方法，通过维护三条并行的无污染扩散路径（纯身份、纯形状和融合路径），有效解决了条件信号污染。实验表明，该方法在保持身份的同时生成高质量夸张漫画，且无需额外训练，为扩散模型的免训练优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.14162v1",
+      "source": "arxiv",
+      "title": "VideoWeave: Unlocking Geometric Consistency in Video Generation via Joint Geometry-Video Modeling",
+      "abstract": "Large-scale video diffusion models often fail to preserve 3D structure over time, causing geometric drift and implausible motion under viewpoint changes. Existing methods usually enforce geometric consistency by using explicit geometry reconstructions, such as depth maps, point clouds, or reconstructed 3D structures, to define conditions, supervision, or reward signals, making the generator sensitive to errors from upstream geometry pipelines. We propose VideoWeave, a latent-space post-training framework that uses implicit geometry-model features to constrain the generative distribution, providing a more flexible and non-rigid form of guidance that mitigates the impact of reconstruction errors from geometry models. Specifically, VideoWeave adapts these features into geometry latents and jointly models them with video latents in a shared denoising space, allowing geometry to shape the generative distribution during training. To support this process, we build GeoVid-80K, an 80K-video dataset with paired appearance and geometry representations. Experiments on text-to-video and image-to-video generation show that VideoWeave improves geometric coherence while preserving strong visual quality. VideoWeave project page at https://videoweave.github.io/",
+      "authors": [
+        "Xunzhi Xiang",
+        "Zixuan Duan",
+        "Yabo Chen",
+        "Zhengxuan Wei",
+        "Guiyu Zhang",
+        "Zixiao Gu",
+        "Zhe Gao",
+        "Haibin Huang",
+        "Chi Zhang",
+        "Qi Fan",
+        "Xuelong Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-12T06:41:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.14162v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "video generation using diffusion models",
+      "llm_evidence_cn": "使用扩散模型进行视频生成",
+      "llm_evidence": "使用扩散模型进行视频生成",
+      "canonical_evidence": "使用扩散模型进行视频生成",
+      "llm_tldr_en": "VideoWeave introduces a latent-space post-training framework for video diffusion models that uses implicit geometry features to enforce geometric consistency, mitigating errors from explicit geometry pipelines.",
+      "llm_tldr_cn": "视频扩散模型在长时间生成中常出现几何漂移。VideoWeave提出一种隐空间后训练框架，利用隐式几何模型特征约束生成分布，无需显式几何重建，从而减少几何管道错误的影响。实验表明该方法能显著提升视频生成的几何一致性，同时保持生成质量。这为视频生成中的几何约束提供了更健壮的方案。",
+      "llm_tldr": "视频扩散模型在长时间生成中常出现几何漂移。VideoWeave提出一种隐空间后训练框架，利用隐式几何模型特征约束生成分布，无需显式几何重建，从而减少几何管道错误的影响。实验表明该方法能显著提升视频生成的几何一致性，同时保持生成质量。这为视频生成中的几何约束提供了更健壮的方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.13861v1",
+      "source": "arxiv",
+      "title": "Temporal Backtracking Search for Test-time Generative Video Reasoning",
+      "abstract": "While test-time scaling has revolutionized reasoning in large language models, generative video reasoning remains bottlenecked by a single-shot paradigm. We demonstrate that searching over denoising steps cannot rescue logically flawed rollouts because spatial trajectories commit early in the diffusion process. Root-level Best-of-N (BoN) sampling is similarly inefficient: reasoning errors cluster early in the temporal axis, and resampling blindly discards verified upstream progress. To unlock effective test-time scaling for video models, we introduce Temporal Backtracking Search (TBS), which shifts the search space to the temporal axis. TBS transforms video generation into an iterative generate-verify-restart loop via three core mechanisms: (1) variable-K conditioning to resume generation from arbitrary clean prefixes; (2) temporal process verification to localize failures and extract valid restart anchors; and (3) prefix-based search to reallocate compute toward extending correct trajectories rather than root resampling. Across algorithmic, navigation, and robotics domains, TBS Pareto-dominates matched-budget BoN. In a strict out-of-distribution setting where one-shot generation collapses (0.7% for BoN), TBS achieves 22.7%, with every solved episode stemming from a restarted branch. Ultimately, TBS reveals that the local reasoning competence of video models far exceeds what single-shot rollouts indicate, providing a scalable test-time framework to unlock it.",
+      "authors": [
+        "Sejoon Jun",
+        "Zheng Ding",
+        "Huangyuan Su",
+        "Weirui Ye",
+        "Yilun Du"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-11T19:41:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.13861v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free test-time scaling for generative video reasoning via temporal backtracking",
+      "llm_evidence_cn": "通过时间回溯实现生成式视频推理的免训练测试时扩展",
+      "llm_evidence": "通过时间回溯实现生成式视频推理的免训练测试时扩展",
+      "canonical_evidence": "通过时间回溯实现生成式视频推理的免训练测试时扩展",
+      "llm_tldr_en": "Introduces Temporal Backtracking Search (TBS), a training-free method that transforms video generation into an iterative generate-verify-restart loop, improving reasoning without additional training.",
+      "llm_tldr_cn": "论文指出当前生成式视频推理受限于单次生成范式，而现有测试时扩展方法在扩散模型中效率低下。为此提出时间回溯搜索（TBS），将视频生成转化为迭代的生成-验证-重启循环，通过沿时间轴搜索有效提升推理质量。该方法无需任何额外训练，在多个视频推理基准上显著优于传统Best-of-N采样和单次生成，为扩散模型视频生成的免训练优化提供了新范式。",
+      "llm_tldr": "论文指出当前生成式视频推理受限于单次生成范式，而现有测试时扩展方法在扩散模型中效率低下。为此提出时间回溯搜索（TBS），将视频生成转化为迭代的生成-验证-重启循环，通过沿时间轴搜索有效提升推理质量。该方法无需任何额外训练，在多个视频推理基准上显著优于传统Best-of-N采样和单次生成，为扩散模型视频生成的免训练优化提供了新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.13971v1",
+      "source": "arxiv",
+      "title": "Prompt2Effect: Training-Free Image-to-Video Model Specialization via LoRA Generation",
+      "abstract": "Personalizing Image-to-Video (I2V) diffusion models with specific visual effects is increasingly demanded for high-end video generation. Current practice requires training a separate Low-Rank Adaptation (LoRA) module for each effect, incurring substantial data curation and iterative optimization costs that hinder interactive control. We present Prompt2Effect, a weight-driven hypernetwork that amortizes per-effect training by directly synthesizing effect-specific LoRA weights in a single forward pass. Unlike prior hypernetworks that regress adapter weights purely from semantics, Prompt2Effect is explicitly conditioned on the frozen base model weights, grounding weight prediction in the structural geometry of each layer. Furthermore, instead of predicting raw LoRA matrices, we introduce an SVD-canonicalized parameterization that resolves factorization ambiguity and stabilizes large-scale weight synthesis. Together, these design principles enable accurate and scalable LoRA prediction for high-dimensional I2V diffusion models. Extensive experiments demonstrate that Prompt2Effect achieves on-par or superior video quality and effect alignment compared to conventional LoRA fine-tuning, while reducing the computational cost from 56 GPU training hours to 3.3 seconds of hypernetwork inference. When used as initialization for subsequent fine-tuning, our predicted weights further improve final performance and accelerate optimization by approximately 10x.",
+      "authors": [
+        "Xiaomeng Yang",
+        "Yanyu Li",
+        "Gordon Guocheng Qian",
+        "Ivan Skorokhodov",
+        "Viacheslav Ivanov",
+        "Avalon Vinella",
+        "Xuan Zhang",
+        "Yanzhi Wang",
+        "Sergey Tulyakov",
+        "Anil Kag"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-11T23:26:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.13971v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free video generation specialization via LoRA hypernetwork",
+      "llm_evidence_cn": "通过LoRA超网络实现免训练视频生成特化",
+      "llm_evidence": "通过LoRA超网络实现免训练视频生成特化",
+      "canonical_evidence": "通过LoRA超网络实现免训练视频生成特化",
+      "llm_tldr_en": "Prompt2Effect introduces a weight-driven hypernetwork that generates LoRA weights in a single forward pass for image-to-video diffusion models, enabling training-free customization of visual effects.",
+      "llm_tldr_cn": "图像到视频扩散模型的个性化特效定制通常需要为每种效果单独训练LoRA模块，成本高昂。Prompt2Effect提出一种权重驱动超网络，直接为冻结的基础模型合成效果特定的LoRA权重。该方法无需数据收集和迭代优化，一次前向即可完成特化，在保持生成质量的同时显著提升交互效率。",
+      "llm_tldr": "图像到视频扩散模型的个性化特效定制通常需要为每种效果单独训练LoRA模块，成本高昂。Prompt2Effect提出一种权重驱动超网络，直接为冻结的基础模型合成效果特定的LoRA权重。该方法无需数据收集和迭代优化，一次前向即可完成特化，在保持生成质量的同时显著提升交互效率。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.14035v1",
+      "source": "arxiv",
+      "title": "Toward 360-Degree Indoor Panorama Editing via Tuning-Free Diffusion Model with Refocusing Cross-Attention",
+      "abstract": "Zero-shot text-guided diffusion has significantly advanced image editing; however, its practical usability remains constrained by three persistent challenges: prompt brittleness that requires meticulous prompt engineering, spillover edits that unintentionally affect non-target regions, and failures on small or cluttered objects caused by limited fine-grained supervision in training data. We propose FocusDiff (Target-Aware Refocusing for Tuning-Free Diffusion Editing), a tuning-free framework for precise and region-specific image manipulation based on refocusing cross-attention. Given a target region obtained through automated segmentation or manual selection, FocusDiff applies selective blurring to non-edit areas to guide attention toward the masked region while accurately transferring the object's identity, structure, and appearance to the edited output. Integrated context-preserving modules further ensure background fidelity and global coherence, enabling accurate edits from simple text prompts in a single pass. We also extend FocusDiff to 360-degree indoor panorama editing and demonstrate its effectiveness within virtual reality environments. Extensive experiments on our localized editing benchmark LIMB, comprising 30 multi-object images and 100 annotated examples including challenging small-object cases, show that FocusDiff outperforms existing zero-shot editors in text-image alignment and background preservation, achieving superior precision, photorealism, and usability. The project page is available at https://vdkhoi20.github.io/FocusDiff.",
+      "authors": [
+        "Dinh-Khoi Vo",
+        "Nhut-Thanh Le-Hinh",
+        "Viet-Tham Huynh",
+        "Tam V. Nguyen",
+        "Minh-Triet Tran",
+        "Trung-Nghia Le"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-12T02:18:52+00:00",
+      "link": "https://arxiv.org/pdf/2606.14035v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "tuning-free diffusion editing method, matches requirement of training-free optimization",
+      "llm_evidence_cn": "免调优扩散编辑方法，匹配无需训练的优化需求",
+      "llm_evidence": "免调优扩散编辑方法，匹配无需训练的优化需求",
+      "canonical_evidence": "免调优扩散编辑方法，匹配无需训练的优化需求",
+      "llm_tldr_en": "FocusDiff is a tuning-free framework for precise image editing via refocusing cross-attention, requiring no per-instance training or fine-tuning, directly applicable to diffusion model optimization.",
+      "llm_tldr_cn": "FocusDiff提出了一个免调优的扩散图像编辑框架，通过重聚焦交叉注意力实现精确的区域编辑，无需为每个实例进行训练或微调。该方法解决了现有零样本编辑中的提示脆弱性和溢出编辑等问题。实验表明，FocusDiff能够在不额外训练的情况下显著提升编辑质量，为扩散模型的无训练优化提供了有效工具。",
+      "llm_tldr": "FocusDiff提出了一个免调优的扩散图像编辑框架，通过重聚焦交叉注意力实现精确的区域编辑，无需为每个实例进行训练或微调。该方法解决了现有零样本编辑中的提示脆弱性和溢出编辑等问题。实验表明，FocusDiff能够在不额外训练的情况下显著提升编辑质量，为扩散模型的无训练优化提供了有效工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.14317v1",
+      "source": "arxiv",
+      "title": "CausalMotion: Structured Physical Reasoning as Keyframe and Trajectory Guidance for Training-Free Video Generation",
+      "abstract": "Recent advances in diffusion-based video generation have significantly improved visual quality and short-term temporal coherence. However, existing methods still struggle to produce videos with physically consistent and causally plausible dynamics, especially in scenarios involving long-horizon interactions. This limitation arises from the fact that video diffusion models primarily learn physical consistency implicitly, while vision-language models can directly model physical laws. Based on this idea, in this work, we propose \\textbf{CausalMotion}, a training-free framework that injects explicit physical reasoning into video generation through structured intermediate representations. Our key idea is to decouple reasoning from generation by leveraging a vision-language model to decompose a text prompt into a sequence of causally consistent keyframes and object-centric motion trajectories. These representations are then aligned and integrated as soft constraints to guide a pretrained video diffusion model during inference. This design enables explicit modeling of object dynamics and causal transitions without requiring additional training or supervision. Extensive experiments show that our method consistently improves physical plausibility and temporal coherence, particularly in dynamics-intensive scenarios, while maintaining high perceptual video quality.",
+      "authors": [
+        "Sihan Zhuang",
+        "Xinyuan Chen",
+        "Tianfan Xue",
+        "Yaohui Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-12T09:57:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.14317v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free video generation with physical reasoning guidance",
+      "llm_evidence_cn": "免训练视频生成框架，注入物理推理",
+      "llm_evidence": "免训练视频生成框架，注入物理推理",
+      "canonical_evidence": "免训练视频生成框架，注入物理推理",
+      "llm_tldr_en": "CausalMotion is a training-free framework that injects explicit physical reasoning into diffusion-based video generation via structured keyframe and trajectory guidance, improving physical consistency without additional training.",
+      "llm_tldr_cn": "现有视频扩散模型生成的视频在长程交互中缺乏物理一致性。CausalMotion提出免训练框架，通过解耦关键帧和轨迹生成，利用视觉语言模型注入显式物理推理。该方法无需额外训练即可显著提升视频中物体运动的因果合理性，在多个基准上优于传统微调方法。",
+      "llm_tldr": "现有视频扩散模型生成的视频在长程交互中缺乏物理一致性。CausalMotion提出免训练框架，通过解耦关键帧和轨迹生成，利用视觉语言模型注入显式物理推理。该方法无需额外训练即可显著提升视频中物体运动的因果合理性，在多个基准上优于传统微调方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.13364v1",
+      "source": "arxiv",
+      "title": "VideoMDM: Towards 3D Human Motion Generation From 2D Supervision",
+      "abstract": "We introduce VideoMDM, a diffusion-based framework that trains 3D human motion priors directly from accurate 2D poses extracted from monocular videos, without any 3D ground truth. A pretrained 2D-to-3D lifter provides approximate 3D pose sequences that serve as a noisy teacher: these are diffused, denoised by the model in 3D, and supervised in 2D by reprojecting the prediction and comparing against accurate keypoints. We show that, under mild assumptions, a depth-weighted 2D reprojection loss is equivalent in expectation to direct 3D supervision, and we adapt standard 3D motion regularizers - velocity consistency and over-parameterized representation alignment - to this 2D setting. Unlike methods that lift 2D to 3D only at inference, VideoMDM learns a coherent 3D motion manifold during training. On HumanML3D it nearly closes the gap to fully 3D-supervised MDM (FID 0.88 vs 0.54); On real video datasets Fit3D and NBA the method learns to generate motions consistently preferred by humans, with strong quantitative results.",
+      "authors": [
+        "Amir Mann",
+        "Gal Michael Harari",
+        "Merav Keidar",
+        "Or Litany"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "published": "2026-06-11T13:49:23+00:00",
+      "link": "https://arxiv.org/pdf/2606.13364v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "3D human motion generation from video using diffusion models",
+      "llm_evidence_cn": "使用扩散模型从视频生成3D人体运动",
+      "llm_evidence": "使用扩散模型从视频生成3D人体运动",
+      "canonical_evidence": "使用扩散模型从视频生成3D人体运动",
+      "llm_tldr_en": "VideoMDM trains 3D motion priors from 2D video supervision using a diffusion framework, leveraging a depth-weighted reprojection loss to approximate 3D supervision, enabling consistent motion generation from monocular video.",
+      "llm_tldr_cn": "现有3D人体运动生成依赖3D标注，成本高昂。VideoMDM提出一种扩散框架，仅从单目视频的2D姿态中训练3D运动先验。通过深度加权重投影损失，巧妙地将3D监督等价为2D监督。实验表明，该方法无需3D真值即可生成连贯的3D运动序列，降低了数据获取门槛。",
+      "llm_tldr": "现有3D人体运动生成依赖3D标注，成本高昂。VideoMDM提出一种扩散框架，仅从单目视频的2D姿态中训练3D运动先验。通过深度加权重投影损失，巧妙地将3D监督等价为2D监督。实验表明，该方法无需3D真值即可生成连贯的3D运动序列，降低了数据获取门槛。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.10135v1",
+      "source": "arxiv",
+      "title": "BiWM: Advancing Open-Source Interactive Video World Models with Bidirectional Autoregression",
+      "abstract": "Transitioning bidirectional video diffusion models into an autoregressive paradigm improves the interactivity of video world models, but existing causal pipelines need many stages (control fine-tuning, autoregressive training, causal initialization, few-step distillation) and still trail bidirectional models in quality due to error accumulation. Recent world models such as Yume-1.5 and Matrix-Game-3.0 instead adopt a bidirectional autoregressive approach, gaining fidelity and stable long-horizon rollout from self-correcting error propagation, yet open-source frameworks (e.g., minWM) support only causal models. We present BiWM, the first full-stack framework for interactive video world models under the bidirectional autoregressive paradigm, jointly optimizing generation quality and inference speed. From a pretrained video backbone, BiWM injects camera control by fine-tuning, then runs a few-step Distribution Matching Distillation (DMD) stage that turns the backbone into an action/camera-controllable world model: just two training stages instead of four in minWM, converging in a few hundred steps on 8xH200 GPUs. A single recipe spans Wan2.1-1.3B, Wan2.2-5B, HunyuanVideo-1.5-8B, and LTX-2.3-22B, and also supports secondary fine-tuning of existing bidirectional models. BiWM enables real-world camera control where minWM loses controllability, integrates pluggable history compression (FramePack-style and PackForcing-style) for long rollouts, and offers an optional NVFP4 4-bit training/inference pipeline. To counter DMD's mode-seeking degradation, we add GAN and mass-covering forward-KL objectives that preserve scene dynamics. We open-source BiWM for resource-constrained research and high-fidelity environment simulation.",
+      "authors": [
+        "Shaohao Rui",
+        "Xiaofeng Mao",
+        "Zhanyu Zhang",
+        "Peijia Lin",
+        "Yansong Zhu",
+        "Yibo Zhang",
+        "Haibin Wan",
+        "Weijie Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-08T20:08:41+00:00",
+      "link": "https://arxiv.org/pdf/2606.10135v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video world models using bidirectional autoregression and diffusion",
+      "llm_evidence_cn": "双向自回归与扩散的视频世界模型",
+      "llm_evidence": "双向自回归与扩散的视频世界模型",
+      "canonical_evidence": "双向自回归与扩散的视频世界模型",
+      "llm_tldr_en": "Presents BiWM, a framework for interactive video world models using bidirectional autoregression, achieving fidelity and stable long-horizon rollout without multi-stage training.",
+      "llm_tldr_cn": "现有因果视频世界模型需要多阶段训练且质量不足，本文提出双向自回归框架BiWM，通过自纠正误差传播提升逼真度和长程稳定性，开源实现。",
+      "llm_tldr": "现有因果视频世界模型需要多阶段训练且质量不足，本文提出双向自回归框架BiWM，通过自纠正误差传播提升逼真度和长程稳定性，开源实现。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.13809v1",
+      "source": "arxiv",
+      "title": "Compressing Image Style Training into a Single Model Forward",
+      "abstract": "Diffusion-based style transfer must balance inference efficiency with stylization fidelity. Adapter-based methods are efficient, but they inject style as an external condition and can either weaken reference-specific appearance or copy reference semantics into the generated image. Optimization-based personalization methods such as LoRA internalize style more effectively, but require a separate training process for every new style. We introduce i2L (image-to-LoRA), a framework that amortizes style LoRA training into a single forward pass. Given one or more reference images, i2L predicts LoRA weights for a text-to-image model, enabling immediate style instantiation without per-style optimization. The architecture combines an image encoder, learnable LoRA queries, and compressed decoding heads that generate adapted matrices. Training on semantically diverse style pairs encourages the predictor to preserve appearance cues while suppressing reference-content copying. Experiments on Z-Image, FLUX.2, and Hidream-O1 show that i2L improves style fidelity, prompt alignment, and perceptual quality over existing baselines. Because i2L produces explicit LoRA weights, it also supports asymmetric classifier-free guidance, multi-reference style fusion, and composition with controllable-generation modules.",
+      "authors": [
+        "Zhongjie Duan",
+        "Yingda Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-11T18:21:26+00:00",
+      "link": "https://arxiv.org/pdf/2606.13809v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "amortized style optimization without per-style training, relevant to training-free optimization",
+      "llm_evidence_cn": "通过摊销风格优化无需每个风格单独训练，与免训练优化相关",
+      "llm_evidence": "通过摊销风格优化无需每个风格单独训练，与免训练优化相关",
+      "canonical_evidence": "通过摊销风格优化无需每个风格单独训练，与免训练优化相关",
+      "llm_tldr_en": "i2L predicts LoRA weights for style transfer in a single forward pass, amortizing per-style training but requires a trained predictor, offering a trade-off between efficiency and training requirement.",
+      "llm_tldr_cn": "i2L框架通过单次前向传播预测LoRA权重，将每个风格的优化过程摊销到一次推理中，但需要预先训练预测网络。该方法在保持风格迁移效果的同时大幅减少新风格的优化成本，但仍需一次性的元训练，不完全符合绝对免训练的要求。",
+      "llm_tldr": "i2L框架通过单次前向传播预测LoRA权重，将每个风格的优化过程摊销到一次推理中，但需要预先训练预测网络。该方法在保持风格迁移效果的同时大幅减少新风格的优化成本，但仍需一次性的元训练，不完全符合绝对免训练的要求。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.14125v1",
+      "source": "arxiv",
+      "title": "Conditioning Matters: Stabilizing Inversion and Attention in Diffusion Image Editing",
+      "abstract": "Inversion-based image editing offers flexible and training-free control but still struggles with inversion accuracy and the trade-off between editing fidelity and background preservation. While recent methods improve inversion formulations or attention interactions, the role of textual conditioning in shaping diffusion dynamics and editing behavior remains underexplored. We show both empirically and theoretically that the precision of textual conditioning influences inversion stability by modulating the geometry of the diffusion velocity field, while also affecting the consistency of cross-branch attention during editing. These effects directly impact background preservation and semantic fidelity. Building on this analysis, we propose SimEdit, a conditioning-aware framework with two complementary components: (a) conditioning refinement, which constructs conditioning signals with improved semantic precision and structural alignment to facilitate stable inversion and consistent attention manipulation, and (b) token-wise cross-branch attention control, which separates edit-relevant and structure-preserving components and modulates them asymmetrically during attention manipulation. Extensive experiments on PIE-Bench demonstrate that SimEdit consistently improves both inversion reconstruction quality and editing performance over previous attention-manipulation approaches. Our code is available at https://github.com/zju-pi/SimEdit.",
+      "authors": [
+        "Zheyuan Zhan",
+        "Hongchen Li",
+        "Can Wang",
+        "Yinfei Ma",
+        "Mingzhen Huang",
+        "Ruoshi Bai",
+        "Jiawei Chen",
+        "Siwei Lyu",
+        "Defang Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-12T05:13:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.14125v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free inversion and attention stabilization for diffusion image editing",
+      "llm_evidence_cn": "免训练的反演和注意力稳定化用于扩散图像编辑",
+      "llm_evidence": "免训练的反演和注意力稳定化用于扩散图像编辑",
+      "canonical_evidence": "免训练的反演和注意力稳定化用于扩散图像编辑",
+      "llm_tldr_en": "Proposes a training-free method to stabilize inversion and attention in diffusion image editing, improving background preservation and semantic fidelity.",
+      "llm_tldr_cn": "论文针对扩散模型图像编辑中的反演不准确和编辑保真度与背景保持的权衡问题，提出了一种免训练的文本条件优化方法，通过调节扩散速度场的几何形状和交叉分支注意力的一致性，有效提升了编辑的稳定性和图像质量。实验结果表明该方法在保持背景的同时实现了高保真的语义编辑，为扩散模型的免训练优化提供了新思路。",
+      "llm_tldr": "论文针对扩散模型图像编辑中的反演不准确和编辑保真度与背景保持的权衡问题，提出了一种免训练的文本条件优化方法，通过调节扩散速度场的几何形状和交叉分支注意力的一致性，有效提升了编辑的稳定性和图像质量。实验结果表明该方法在保持背景的同时实现了高保真的语义编辑，为扩散模型的免训练优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.14700v1",
+      "source": "arxiv",
+      "title": "RepFusion: Leveraging Multimodal Priors for Denoising in Representation Space",
+      "abstract": "Large language models (LLMs) are widely used in text-to-image (T2I) systems, but they are typically limited to text encoding, while denoising is handled by newly trained generative backbones. The emergence of representation autoencoders (RAEs) shifts the generation target toward semantically structured visual representations, creating a latent space that is more compatible with pretrained LLM priors. Inspired by multimodal LLMs (MLLMs), where an MLP projector is sufficient to align clean visual representations with a pretrained LLM, we repurpose the MLLM itself as a noisy representation encoder, extending this mechanism from clean to noisy inputs. We present RepFusion, which uses the resulting MLLM outputs as the conditioning signal for a diffusion transformer. In controlled comparisons at similar inference budgets, RepFusion outperforms baselines that devote comparable capacity to newly initialized denoisers. These results demonstrate that MLLMs provide strong priors for denoising visual representations and that, by conditioning on evolving noisy representations, test-time compute can be productively spent on repeated MLLM conditioning in modern T2I systems.",
+      "authors": [
+        "Xichen Pan",
+        "Aashu Singh",
+        "Satya Narayan Shukla",
+        "Xiangjun Fan",
+        "Shlok Kumar Mishra",
+        "Saining Xie"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-12T17:59:51+00:00",
+      "link": "https://arxiv.org/pdf/2606.14700v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multimodal priors for text-to-image diffusion, leveraging pretrained LLM",
+      "llm_evidence_cn": "利用多模态先验的文本到图像扩散",
+      "llm_evidence": "利用多模态先验的文本到图像扩散",
+      "canonical_evidence": "利用多模态先验的文本到图像扩散",
+      "llm_tldr_en": "RepFusion uses pretrained multimodal LLM as noisy representation encoder to condition diffusion, improving T2I without training new backbone.",
+      "llm_tldr_cn": "针对文本到图像生成中需要额外训练生成骨干的问题，提出RepFusion，利用预训练多模态大模型作为噪声表示编码器，仅需简单投影即可对齐，在保证生成质量的同时降低训练成本。",
+      "llm_tldr": "针对文本到图像生成中需要额外训练生成骨干的问题，提出RepFusion，利用预训练多模态大模型作为噪声表示编码器，仅需简单投影即可对齐，在保证生成质量的同时降低训练成本。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
