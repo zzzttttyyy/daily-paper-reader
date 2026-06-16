@@ -1,0 +1,1484 @@
+Title: Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models
+
+URL Source: https://arxiv.org/pdf/2606.14756v1
+
+Published Time: Tue, 16 Jun 2026 00:04:02 GMT
+
+Number of Pages: 27
+
+Markdown Content:
+# Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Abhi Gupta * 1 2 Polina Barabanshchikova * 3 4 Vikas Garg 4 5 Samuel Kaski 3 4 6 Tommi Jaakkola 1 2 
+
+# Abstract 
+
+The abundance of pre-trained diffusion models provides an opportunity for composition. Com-bining several models, however, runs the risk of one model dominating or models disagree-ing with each other. Here, we propose Divide-and-Denoise, a method for coordinating multi-ple pre-trained diffusion models during sampling. Much like managing a specialized workforce, our method creates a fair but efficient division of la-bor across models. Central to our method is the notion of an allocation which defines the respon-sibility of each model to every region of the noisy sample. At every timestep, we then denoise by (i) updating the allocation by solving a fair di-vision game, where we divide the sample into regions that maximize total utility under fairness constraints, and (ii) aligning the models with this allocation, where we guide each model to de-noise within its assigned region. This leads to a new composite denoising process that evolves in tandem with a division process. We evaluate Divide-and-Denoise on conditional image gener-ation. Across several quality metrics, including the GenEval benchmark, our method outperforms baselines and resolves common failures includ-ing missing objects and mismatched attributes. Experiments show that Divide-and-Denoise uti-lizes each model’s expertise without neglecting any other model. 
+
+# 1. Introduction 
+
+Large-scale diffusion models are changing the game for many disciplines. In robotics, models trained on expert demonstrations can act as long-horizon planners in unseen 
+
+> *
+
+Equal contribution 1MIT ORC, USA 2MIT CSAIL, USA 
+
+> 3
+
+ELLIS Institute Finland 4Department of Computer Science, Aalto University, Finland 5YaiYai Ltd 6Department of Computer Science, University of Manchester, UK. Correspondence to: Abhi Gupta 
+
+<abhig@mit.edu >.
+
+Proceedings of the 43 rd International Conference on Machine Learning , Seoul, South Korea. PMLR 306, 2026. Copyright 2026 by the author(s). 
+
+environments (Xu et al., 2024; Chi et al., 2025; Ajay et al., 2023; Pearce et al., 2023), while in biomedicine, models trained on protein structures can propose candidate thera-peutics (Jumper et al., 2021; Corso et al., 2023; Alamdari et al., 2023). These advancements build on a substantial body of work in computer vision, where diffusion models were introduced (Song & Ermon, 2019; Ho et al., 2020a), refined (Geng et al., 2024; Peebles & Xie, 2023; Nichol et al., 2022; Saharia et al., 2022; Burgert et al., 2024), and scaled (Rombach et al., 2022; Sehwag et al., 2025). How-ever, training effective diffusion models demands signifi-cant computational resources (Sehwag et al., 2025), carries a large carbon footprint (Sehwag et al., 2025), and often requires task-specific fine-tuning (Fan et al., 2023; Wallace et al., 2024; Chen et al., 2024). Given these challenges, there is a pressing need for effective model reuse, control, and composition (Dhariwal & Nichol, 2021; Ho & Salimans, 2022). Among the many available models, choosing which one to use is not always obvious. A collection of models may even be used together in order to generate data that no individual model could generate alone. Consider, as a running example, one model trained on images of dogs and another on cats. A common approach is to define a composite distribution as the product or mixture of the ’dog’ and ’cat’ densities (Liu et al., 2022; Du et al., 2023). Other analytical operations include the harmonic mean and contrast (Garipov et al., 2023), as well as logical operations such as AND (Skreta et al., 2025). Although these operations permit tractable sampling, they are often too simple to preserve the charac-teristics of each model’s distribution when there is conflict. For instance, if models are trained on images of animals appearing mainly in the center, sampling from their product density typically produces incoherent, overlapping dogs and cats. 
+
+Related Work. Recent work has explored composing text-to-image diffusion models to improve spatial control (Bar-Tal et al., 2023; Du et al., 2023). The typical strategy is to have the user segment an image into spatial regions, as-sign each region a text prompt (e.g., ’dog’ or ’cat’), and then denoise each region with the corresponding model. Al-though simple to implement, these techniques are restricted to user-defined allocations. This kind of division of labor between models is cumbersome to specify, infeasible to de-1
+
+> arXiv:2606.14756v1 [cs.CV] 8 Jun 2026 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models
+
+fine in many domains (e.g., manually partitioning proteins), and does not take into account the strengths or weaknesses of each model. Bar-Tal et al. (2023) for example assume models can faithfully follow the user-prescribed layout, an assumption that often fails and requires additional forms of guidance (Couairon et al., 2023; Manukyan et al., 2025). 
+
+Contributions. In order to address these shortcomings, we propose Divide-and-Denoise: a game-theoretic framework for coordinating multiple pre-trained diffusion models. In-stead of requiring ground-truth partitions, we infer them online by requiring a division of labor among the models that is both fair and efficient. Our method is fully compo-sitional in the sense that models need not share weights, architectures, or training data, as long as they operate in a latent space of the same dimension. We summarize our contributions below: • An inference-time algorithm for coordinating multiple pre-trained diffusion models with differing expertise. • Coupled processes: (i) a division process which solves a fair division game for assigning regions to models and (ii) a composite denoising process which aligns each model with its assigned region. • Two formulations of model utilities: a general defini-tion applicable to any conditional diffusion model, and a specific instantiation using attention maps for models with cross-attention conditioning. • Empirical validation using GenEval (Ghosh et al., 2023), CLIP-Score, VQAScore, and ImageReward metrics showing a team of single-concept models out-perform existing composition techniques and multi-concept models. 
+
+# 2. Background 
+
+2.1. Diffusion Samplers 
+
+Diffusion models define a forward probability path qt, start-ing from the data distribution q0, and gradually corrupting data with Gaussian noise. These models are typically pro-vided as time-dependent score networks st(x; θ) approxi-mating ∇x log qt(x) at each timestep t. To generate new data from diffusion models, we can simulate the denoising process with samplers including DDPM (Ho et al., 2020b), DDIM (Song et al.), and other numerical methods. All these procedures can be expressed as sampling from a sequence of Gaussian transition kernels 
+
+pt(xt−1|xt; θ) := N (μt(xt; θ), σ 2 
+
+> t
+
+I), t = 1 , . . . T − 1.
+
+Generation begins by drawing xT −1 ∼ N (0 , I ). The sam-pler then iteratively produces xT −2, xT −3, . . . , x0 by ap-plying these transition kernels until a final sample x0 is ob-tained. Notably, the family of samplers introduced in (Song et al., 2021) allows both the total number of sampling steps 
+
+T and the noise schedule σt to be varied while keeping the pre-trained model fixed. In this framework, the noise level is parameterized by a scalar η ∈ [0 , 1] , where η = 1 recovers the DDPM sampler and η = 0 yields a fully deterministic trajectory. 
+
+2.2. Diffusion Conditioning 
+
+To generate samples with specific concepts, the score 
+
+st(xt; θ) used during sampling is replaced by a surrogate function ˆst(xt, y; θ) conditioned on a concept y. Classifier guidance (Dhariwal & Nichol, 2021) leverages 
+
+∇x log qt(xt|y) = ∇x log qt(xt) + ∇x log qt(y|xt)
+
+and defines ˆst(xt, y; θ) = st(xt; θ) + ω∇x log qt(y|xt; θ),where log qt(y|xt; θ) is modeled by a pre-trained classi-fier and ω is a scaling factor. Alternatively, one can train the diffusion model conditionally so that st(xt, y; θ) ≈∇x log qt(x|y). Both of these ideas are combined in a tech-nique called classifier-free guidance (Ho & Salimans, 2022). It combines both unconditional and conditional scores to define ˆst(xt, y; θ) = st(xt; θ)+ ω(st(xt, y; θ)−st(xt; θ)) .
+
+2.3. Image Generation 
+
+Diffusion models for conditional image generation are trained on large datasets D := {z, y}, where z is a high-resolution image and y is a label or a text prompt. In prac-tice, images are encoded into compressed representations 
+
+x = ϕ(z) ∈ Rd×d×c, and the diffusion model operates in a latent space. 
+
+Attention Maps. Modern diffusion architectures rely heavily on cross-attention layers to condition generation on text prompts represented by embeddings of length k
+
+(Vaswani et al., 2017). The text-to-image model can be ex-pressed as st(xt, y; θ) = ft(xt, {A(ℓ) 
+
+> t
+
+(xt, y; θ)}; θ), where 
+
+{A(ℓ) 
+
+> t
+
+∈ Rdℓ×dℓ×k} is a set of per-layer cross-attention maps. For each spatial location, these maps describe how strongly the model attends to each token in the prompt. Gen-eration can be controlled in creative ways by substituting attention maps {A(ℓ) 
+
+> t
+
+(xt, y; θ)} with those from another pre-trained model {A(ℓ) 
+
+> t
+
+(xt, y; θ′)} (Hertz et al.). Because layers operate at different resolutions dℓ, the map sizes can vary. Upscaling and averaging these maps across layers cre-ates k saliency maps of size d × d, one for each text token, as shown by Tang et al. (2023). 
+
+2.4. Fair Division 
+
+Dividing m goods among n players is a classical problem in game theory (Amanatidis et al., 2023; Nishimura & Sumita, 2021; Dickerson et al., 2014; Cole et al., 2017; Eisenberg & Gale, 1959; Caragiannis et al., 2019). In the setting of indivisible items, each player i ∈ { 1, 2, . . . , n } is allocated 2Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models      
+
+> Figure 1. Divide-and-Denoise. A noisy image is iteratively refined by two coupled processes: (i) a division step that computes a fair and efficient division of the latent image given by the allocation Qand (ii) a composite denoising step that reconciles the proposals of several single concept diffusion models into a composite update pusing this allocation. At every timestep, models provide utilities, the image is divided into soft regions in order to maximize total utility under fairness constraints, and each region is denoised with the assigned model.
+
+a bundle of goods, represented by a binary assignment vec-tor Mi ∈ { 0, 1}m, so that no two players share any goods and all goods are allocated. Each player has a utility func-tion ui : {0, 1}m → R+ that measures the value of any bundle. Among all possible partitions, we typically seek solutions that are fair and efficient with respect to these util-ities. The three main notions of fairness are: envy-freeness 
+
+(no player prefers another player’s bundle), proportional-ity (each player receives at least 1/n of their total utility), and equitability (all players receive bundles of equal utility). Efficiency can be measured, for example, by Nash social welfare, the product of individual utilities. 
+
+Mixed Allocations. In the case of a single good, no matter who gets it, the partition is not fair to others. This highlights that fair assignments do not always exist. One way to ad-dress this challenge is to consider randomized allocations over all possible assignments: 
+
+Mn,m =
+
+(
+
+M ∈ { 0, 1}n×m :
+
+> n
+
+X
+
+> i=1
+
+Mi,j = 1 ∀1 ≤ j ≤ m
+
+)
+
+A mixed allocation Q is a discrete distribution over Mn,m .Fairness notions are defined in terms of expected utilities under Q. For example, an envy-free allocation Q satisfies 
+
+EM∼Qui(Mi) ≥ EM∼Qui(Mi′ ) for all 1 ≤ i̸ = i′ ≤ n.Note that the uniform allocation U(Mn,m ) is always fair. Therefore, in the randomized setting, efficiency is crucial to avoid trivial solutions. 
+
+Decomposable Allocations. When utilities are additive in the goods, ui(Mi) = Pmj=1 uij Mi,j , the expected util-ity of player i simplifies to Pmj=1 uij Qij , where Qij := 
+
+EM∼QMi,j is a fractional weight. We say that an alloca-tion Q is decomposable if 
+
+Q(M) = 
+
+> n
+
+Y
+
+> i=1
+> n
+
+Y
+
+> j=1
+
+QMi,j  
+
+> ij
+
+∀M ∈ Mn,m .
+
+Decomposable allocations are essentially equivalent to frac-tional allocations of m divisible goods, where player i re-ceives a fraction Qij of good j.
+
+# 3. Divide-and-Denoise 
+
+We study the problem of coordinating n pre-trained diffu-sion models, each of which operates in a common latent space. We view a latent in this space as a feature map with 
+
+m features. Each feature need not be a scalar. Without loss of generality, we denote the sequence of denoising kernels for diffusion model 1 ≤ i ≤ n as follows: 
+
+piT = N (0 , I ), pit(· | xt) = N (μit(xt), σ 2 
+
+> t
+
+I), 1 ≤ t < T. 
+
+To avoid cluttering of notation, we will often write 
+
+pi(xt−1|xt) in place of pit(xt−1|xt).Additionally, we assume that models have additive pref-erences over the latent features denoted by uij (x, t ), i.e. model i’s value for feature j of latent x at timestep t. In Section 3.5, we show that all conditional models already possess intrinsic utilities and offer alternatives as well. Our goal is to define a composite denoising process with kernels 
+
+pct (·| xt) that best accounts for the preference of each model. Models may differ from each other in many ways. In this work, we focus on the case where each model is conditioned on a concept yi. We expect samples from pct to ideally match what a single model trained on all the concepts appearing together would generate. Such a model, however, may not be available in practice. Note that we do not require the models to share the same architecture or parameters. 
+
+3.1. Simulating Two Processes 
+
+The main components of our approach are outlined in Fig-ure 1. Divide-and-Denoise generates two coupled trajecto-ries: a sampling path of the composite denoising process, 3Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+obtained by iteratively drawing xt−1 ∼ pct (xt−1|xt), and a path of the division process given by allocations Qt, also obtained by iteratively updating in time. We define each allocation Qt to be a distribution over Mn,m , the space of partitions of m latent features across n models. Since Qt
+
+specifies how the features at time t are distributed among the pre-trained models, it may be interpreted as a division of labor. We initialize with QT = U(Mn,m ) and pcT = N (0 , I ),and draw the first noisy latent as xT −1 ∼ pcT . At each of the remaining timesteps 1 ≤ t < T , we update the allocation and the composite process according to the bi-level optimization: 
+
+Qt = arg max 
+
+> Q∈Qt
+
+Gt(xt, Q ) (1) 
+
+pct (·| xt) = arg max 
+
+> p∈Pt
+
+Ft(p, Q t) (2) The choice of the optimization objectives G and F, and the constrained sets Qt and Pt will be discussed in Sections 3.2 and 3.3 respectively. The goal of the first problem (1) is to fairly and efficiently divide the latent among the individual diffusion models, while the purpose of the second problem (2) is to choose a denoising update that best aligns with this division. The optimization objectives are expressed through a common alignment score Ut with a problem-specific regularization. At the end of each timestep, we sample a denoised latent xt−1 from pct (·| xt).
+
+3.2. Computing a Fair and Efficient Division 
+
+We formulate the problem of finding the next allocation (equation 1) as a fair division game, where the goods are latent features and the players are the individual diffusion models. The efficiency of the allocation is measured in terms of the expected total utility 
+
+Ut(x, Q ) = EM∼QnX
+
+> i=1
+> m
+
+X
+
+> j=1
+
+Mi,j uij (x, t ).
+
+The objective Gt is the efficiency score regularized by a Kullback-Leibler (KL) divergence with positive weight βt:
+
+Gt(xt, Q ) = Ut(xt, Q ) − βtDKL (Q|| Qt+1 ). (3) The regularization term penalizes abrupt changes between consecutive allocations, encouraging temporally smooth allocation trajectories that provide a stable signal for the composite denoising update. A hyperparameter βt controls the trade-off between efficiency and smoothness. For ex-ample, when βt → ∞ the allocation Qt remains uniform throughout generation. A solution is constrained to lie in the set of fair allocations 
+
+Qt. We express this constraint set as 
+
+Qt =
+
+Q ∈ ∆( Mn,m ) : EM∼QnX
+
+> i=1
+> m
+
+X
+
+> j=1
+
+Mi,j ϕij (xt, t ) ⪯ b
+
+
+
+with coefficients ϕij (xt, t ) = ( ϕ1 
+
+> ij
+
+(xt, t ), . . . , ϕ lij (xt, t )) 
+
+and b = ( b1, . . . , b l), for all 1 ≤ i ≤ n and 1 ≤ j ≤ m,specifying l linear constraints. Despite this simple form, these sets are flexible enough to represent common notions of fairness under additive utilities as shown below. 
+
+Example 1. Using a single linear inequality 
+
+EM∼Q
+
+Pni=1 
+
+Pmj=1 Mi,j ϕ1 
+
+> ij
+
+(xt, t ) ⪯ b1, we can en-code the following relations: 1. Setting b1 = 0 and ϕ1 
+
+> kj
+
+(xt, t ) = −uij (xt, t )I(k =
+
+i) + uij (xt, t )I(k = i′) is equivalent to saying that player i is not envious of player i′.2. Setting b1 = 0 and ϕ1 
+
+> kj
+
+(xt, t ) = −uij (xt, t )I(k =
+
+i) + uij (xt, t )/n is equivalent to constraining player 
+
+i to be allocated at least 1/n of its total utility. Al-ternatively, for the normalized utilities, we can set 
+
+b1 = −1/n and ϕ1 
+
+> kj
+
+(xt, t ) = −uij (xt, t )I(k = i).3. Setting b1 = 0 and ϕ1 
+
+> kj
+
+(xt, t ) = −uij (xt, t )I(k =
+
+i) + ui′j (xt, t )I(k = i′) is equivalent to saying that the allocated utility of player i is greater or equal to that of player i′.Clearly, by stacking inequalities, we can represent envy-free, proportional, and equitable constraints or their combinations for any number of players. It is worth noting that the uniform allocation is always fair, so the feasible set is not empty. We conclude this section by introducing a generic solution to the optimization problem in equation 1. 
+
+Theorem 3.1. Assume that allocation Qt+1 is decompos-able with weights Qt+1  
+
+> ij
+
+. Then, the optimal allocation Qt
+
+solving the fair division game (1) is also decomposable with weights 
+
+Qtij = exp( −⟨ λ∗, ϕ ij (xt, t )⟩ + uij (xt, t )/β t)Qt+1 
+
+> ij
+
+Zj (λ∗) , (4) 
+
+where Zj (λ∗) = Pni=1 e−⟨ λ∗,ϕ ij (xt,t )⟩+uij (xt,t )/β t Qt+1  
+
+> ij
+
+is a normalization constant and λ∗ is a solution of a dual problem that reads 
+
+max  
+
+> λ≥0
+
+−⟨ b, λ ⟩ − 
+
+> m
+
+X
+
+> j=1
+
+log Zj (λ). (5) 
+
+3.3. Aligning Models with their Allocations 
+
+In this section, we address the second problem (equation 2) of selecting a composite denoising kernel pct from the set of 4Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models  
+
+> Figure 2. The role of fairness in Divide-and-Denoise using Stable Diffusion. Top: without fairness, the car model is allocated significantly fewer pixels than the bus model, resulting in a missing object. Bottom: with fairness, the allocation balances both models so the car is no longer envious of the bus. Fairness prevents a single model from dominating.
+
+feasible denoising distributions Pt. We introduce a new ob-jective that explicitly aligns each diffusion model’s proposal with its assigned region, conditioned on the given alloca-tion Q. Let pj denote the marginal of a denoising kernel p
+
+corresponding to the feature j.We define 
+
+Ft(p, Q ) = Ext−1∼pUt−1(xt−1, Q )
+
+−αtEM∼Q
+
+
+
+> n
+
+X
+
+> i=1
+> m
+
+X
+
+> j=1
+
+Mi,j DKL (pj (·| xt)|| pij (·| xt)) 
+
+ (6) The aim of the KL regularization is to keep the denois-ing update for the features allocated to model i close to its proposal. A hyperparameter αt > 0 controls the trade-off between alignment with the given allocation and adher-ence to the proposals of individual models. Notice how 
+
+uij (xt−1, t − 1) contributes to the player’s utility ui(Mi)
+
+only if M assigns feature j to model i. Maximizing Ut−1
+
+encourages each model to concentrate preference on its allocated region while suppressing preference outside it. Since the objective in 2 can be non-linear, we cannot find an explicit solution in general. However, a solution exists under simplifying assumptions. 
+
+Theorem 3.2. Consider the optimization in equation 2 with the following assumptions: (1) Pt is a set of all distributions over the latent space that factorize over features and (2) Ut
+
+is linear jointly in the first argument and t. For each 1 ≤
+
+i ≤ n, define the marginal weight vector Qi as EM∼Qt Mi.Then, the optimal composite denoising kernel is given by 
+
+pct (·| xt) = N (μct , σ 2 
+
+> t
+
+I), where 
+
+μct =
+
+> n
+
+X
+
+> i=1
+
+μit(xt) ⊙ Qi + σ2
+
+> t
+
+αt
+
+∇xt Ut(xt, Q ).
+
+Here, ⊙ denotes feature-wise product. 
+
+Remarkably, the solution naturally decomposes into two parts: a compositional update given by the first term and a guidance update given by the gradient term. Further-more, when the influence of the regularization increases (αt → ∞ ), the optimal solution converges to the standard MultiDiffusion (Bar-Tal et al., 2023) update. In practice, we propose to use a local linearization technique. Applying a first-order Taylor expansion to linearize the re-ward, we approximate pct (·| xt) with N (ˆ μct , σ 2 
+
+> t
+
+I), where 
+
+ˆμct (·| xt) = X
+
+> i
+
+μit(xt) ⊙ Qi + σ2
+
+> t
+
+αt
+
+X
+
+> i,j
+
+Qij ∇xt uij (xt, t ).
+
+We observe that performance is sensitive to the hyperparam-eter αt. Large values of αt suppress the influence of the guidance term, while overly small values may lead to out-of-distribution samples. We find it useful to reparameterize 
+
+αt as 
+
+αt = σt
+
+γ ∥∇ xt Ut(xt, Q )∥ . (7) where γ is a constant independent of time. The proposed approach is summarized in Algorithm 1. 
+
+3.4. Fictitious player 
+
+A standard approach to compositional sampling (Liu et al., 2022) combines diffusion processes by computing geomet-ric mean of their denoising kernels, which reduces to aver-aging the means of the Gaussians. Our experiments demon-strate that this process alone often fails to resolve conflicts between models with overlapping preferences, frequently producing blended concepts. Nevertheless, this behavior can be exploited to promote collaboration between models in low-utility regions. To this end, we augment the set of players with a fictitious process whose denoising kernels are given by 
+
+pn+1  
+
+> t
+
+(·| xt) = N (μn+1  
+
+> t
+
+(xt), σ 2 
+
+> t
+
+I),
+
+with μn+1  
+
+> t
+
+(xt) = 1
+
+> n
+
+Pni=1 μit(xt). We assign this player a uniform utility, namely u(n+1) j = 1 /m for each j. Impor-tantly, fairness is enforced only for non-fictitious players. 5Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models  
+
+> Figure 3. Evolution of score-based utilities on top and attention-based on bottom when generating an apple with Stable Diffusion.
+
+3.5. Defining Player Utilities Score-based Utility . We view a latent as a feature map 
+
+x ∈ Rm×c with features xj ∈ Rc (c channels for im-ages). For a, b ∈ Rm×c and a binary vector Mi ∈ { 0, 1}m,let ⟨a, b ⟩Mi = Pmj=1 Mi,j (aj )⊤bj be the inner product restricted to the features selected by Mi. Writing gi =
+
+∇xqt(yi|x; θi)/∥∇ xqt(yi|x; θi)∥ with blocks gji ∈ Rc, we define utility of a model i for a bundle Mi′ as 
+
+ui(Mi′ ) = ⟨gi, g i⟩Mi′ =
+
+> m
+
+X
+
+> j=1
+
+Mi′,j ∥gji ∥2,
+
+the energy of gi captured by its assigned features. Ap-pendix A.2 shows that under classifier-free guidance these utilities follow directly from the score: 
+
+uij (x, t ) = ∥sjt (x, yi; θi) − sjt (x; θi)∥2
+
+∥st(x, yi; θi) − st(x; θi)∥2 .
+
+These can be computed for any conditional diffusion model, without building utilities by hand or from data. 
+
+Attention-based Utility . In the text-to-image setting, cross-attention maps have been shown to be effective indicators of the relevance of each pixel to a target word or phrase. This motivates us to define attention-based utilities as 
+
+uij (x, t ) = Ajt (x, yi; θi)
+
+Pmj=1 Ajt (x, yi; θi) ,
+
+where Ajt denotes the j-th coordinate of the attention map 
+
+At aggregated across layers and text tokens. Attention-based utilities require the conditioning architec-ture of the diffusion model to include cross-attention layers. Fortunately, this requirement is met by many models in practice. Figure 3 compares the evolution of score-based and attention-based utilities when generating an image con-taining a single object. Attention-based utilities exhibit less noise and provide a temporally consistent localization signal. 
+
+# 4. Experiments 
+
+We test our coordination algorithm on image generation, choosing each diffusion model to be conditioned on a single class or prompt. 
+
+Algorithm 1 Divide-and-Denoise 
+
+Input: n pre-trained diffusion models, γ > 0, βt > 0.Initialize pcT = N (0 , I ) and QT = U(Mn+1 ,m ).Sample xT −1 ∼ pcT .
+
+for t = T − 1, . . . , 1 do 
+
+Aggregate {pit(·| xt) = N (μit(xt), σ 2 
+
+> t
+
+I)}, {uij (xt, t )}
+
+# Division Process Solve dual problem in equation 5 for λ∗
+
+Update allocation Qtij ∝ e−⟨ λ∗,ϕ ij ⟩+uij /β t Qt+1 
+
+> ij
+
+# Composite Denoising Process Update mean of the denoising kernel with 
+
+ˆμct = Pni=1 μit(xt) ⊙ Qti + γσ t ∇xt Ut(xt,Q ) 
+
+> ∥∇ xtUt(xt,Q )∥
+
+# Update Sample Sample xt−1 ∼ pct (·| xt) = N (ˆ μct (xt), σ 2 
+
+> t
+
+I)
+
+end for 4.1. Models Stable Diffusion. We use Stable Diffusion 2.0 (Rombach et al., 2022), a text-to-image latent diffusion model with cross-attention conditioning and latent dimension 64 ×64 ×4.Here, single concepts are represented by short text descrip-tions. For a model i conditioned on a single concept yi, we use the prompt “ an image with yi”. For Stable Diffu-sion experiments, we use attention-based utilities. Follow-ing (Chefer et al., 2023), we aggregate only cross-attention maps at resolution 16 . After upscaling, this produces a 
+
+64 × 64 saliency map for each text token. Out of all saliency maps, we select only the ones corresponding to the tokens associated with yi and average them to obtain At(x, yi; θi).For quantitative comparison with score-based utilities, see Appendix A.5. 
+
+DiT. We also evaluate our method using Diffusion Trans-former (DiT) (Peebles & Xie, 2023), a class-conditioned diffusion model trained on ImageNet (Russakovsky et al., 2014). In this setting, each model i is conditioned on a sin-gle class yi from ImageNet, and no multi-concept model is available. For DiT experiments, we use score-based utilities. To reduce noise in the utilities, we apply Gaussian blur with kernel size 5 and clip the utilities prior to normalization. 
+
+4.2. Coordination Strategies 
+
+In all experiments, we employ a DDIM scheduler (Song et al., 2021), setting T = 50 sampling steps and a noise scale of η = 0 .015 . We use classifier-free guided models with the guidance scale ω = 7 .5 for Stable Diffusion and ω = 4 for DiT. Divide-and-Denoise uses hyperparameters γ = η in equation 7, while in equation 3 we use constant βt = 0 .01 
+
+for score-based utilities and βt = 0 .001 for attention-based. If not specified otherwise, proportional fairness is applied: each of n models is constrained to receive at least 1/n of its total utility. Sensitivity to hyperparameters and choice of 6Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+fairness constraints are discussed in Appendices A.4 and A.5 We compare our method against the following baselines: 
+
+Averaging. We construct a composite denoising process by averaging the scores from each single-concept diffusion model at each generation step. This represents a baseline where the division of labor is uniform. 
+
+Composable Diffusion. We employ a popular approach to compositional sampling from conditional models (Liu et al., 2022). At each iteration, the scores are aggregated as 
+
+ˆst(xt; θ) = st(xt; θ)+ Xni=1 ωi(st(xt, yi; θ)−st(xt; θ)) .
+
+For this baseline, we set ωi = ω for each i. Note that setting ωi = ω/n recovers the averaging baseline. 
+
+Multi-Concept Diffusion. We construct a composite de-noising process with a single, multi-concept diffusion model. Since DiT models cannot simulatenously condition on sev-eral classes, this baseline applies only to Stable Diffusion where multiple concepts can be combined in a joint text prompt. We avoid enriching the multi-concept prompt with information beyond the concept set Y := {y1, . . . , yn},such as relationships between pairs of concepts, since a team of specialized models would not typically have access to this information. The multi-concept prompt is constructed as “ an image with y1 and y2 and ... and yn”. In this baseline the division of labor is implied by default through the output of a single Stable Diffusion model. 
+
+MultiDiffusion. We adapt the compositional sampling tech-nique proposed in (Bar-Tal et al., 2023) to the setting when user-defined allocations are not available. Fixed assign-ment M divides the latent into n equal vertical stripes and assigns the i-th strip to the i-th model. MultiDiffu-sion then samples from a sequence of transition kernels 
+
+pmulti  
+
+> t
+
+(·| xt) = N  P ni=1 μit(xt) ⊙ Mi, σ 2 
+
+> t
+
+I .
+
+4.3. Evaluation Metrics 
+
+We evaluate our method along three axes: multi-concept image generation using single-concept models, correct at-tribute binding for complex concepts, and composition of intentionally conflicting concepts. We quantify first two of these criteria on a popular benchmark for image generation called GenEval (Ghosh et al., 2023). For each concept set Y,we generate several images by changing the random seed. GenEval detects objects from the COCO vocabulary (Lin et al., 2014) and their color, and reports two specific metrics: 
+
+%images : The percentage of images containing all objects given by text prompts; %prompts : The percentage of con-cept sets Y where at least one generated image contains all objects. We complement GenEval with three widely-used perfor-mance metrics, each defined as rk(z, t), for an image z and   
+
+> Figure 4. Divide-and-Denoise avoids object overlap, preserves all objects, and correctly attributes colors, outperforming baselines on GenEval. Top to bottom: handbag+sports ball, tv remote+vase, white suitcase+orange horse, teddy bear+banana .
+
+a prompt t. CLIP-Score ( r1) measures text–image align-ment by computing the cosine similarity between their CLIP embeddings (Radford et al., 2021). Reward ( r2) uses a learned reward model trained on human preference data to score how closely the image matches the prompt (Xu et al., 2023). VQA ( r3) assesses faithfulness by answering yes-no questions about the prompt and the generated image (Lin et al., 2024). For each metric, we report the follow-ing scores averaged across pairs (Y, z) of a set of concepts 
+
+Y and the generated image z: joint : rk(z, t) where t is a multi-concept prompt for Y; min : min yi∈Y rk(z, ti) where 
+
+ti is a single-concept prompt for yi.
+
+4.4. Concepts as Objects 
+
+We first evaluate our method along the axis of generating more than one concept. Here each concept is defined as a distinct object. We assess how well Divide-and-Denoise works for multi-concept generation across both Stable Dif-fusion and DiT setups. 
+
+Stable Diffusion. For each problem instance, we randomly sample n objects from the COCO vocabulary and define a single-concept prompt for each model i as “ an image with [ object i]”. In total, we construct 100 unique 
+
+n-object tuples and evaluate each tuple across 4 different seeds. Results are presented in Table 1, where rows 2 and 
+
+3 correspond to n = 2 and n = 3 object-specific models, respectively. For all metrics except %prompts we report standard error across concept sets. Example images can be found in Figure 4. We find that improvement over baselines is driven by the 7Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Table 1. Performance of Divide-and-Denoise when coordinating 2 and 3 models conditioned on objects using Stable Diffusion. Players Coordination Strategy GenEval ↑ CLIP ↑ Reward ↑ VQA ↑
+
+%images %prompts joint min joint min joint min 2Averaging 31.25% ±3.23 59% 26.26 ±0.27 18.64 ±0.24 -0.49 ±0.071 -1.46 ±0.048 0.720 ±0.018 0.610 ±0.022 
+
+Composable Diff. 36.50% ±3.26 67% 26.85 ±0.27 18.92 ±0.27 -0.26 ±0.084 -1.30 ±0.059 0.749 ±0.021 0.643 ±0.025 
+
+Multi-Concept Diff. 53.75% ±3.32 86% 27.05 ±0.29 18.77 ±0.25 0.28 ±0.090 -1.15 ±0.064 0.753 ±0.022 0.683 ±0.025 
+
+MultiDiffusion 58.00% ±2.95 93% 27.65 ±0.30 19.59 ±0.22 0.34 ±0.075 -0.99 ±0.054 0.816 ±0.016 0.738 ±0.019 
+
+Ours (w/o fairness) 87.00% ±2.15 98% 29.91 ±0.26 21.59 ±0.17 1.16 ±0.056 -0.42 ±0.043 0.959 ±0.006 0.921 ±0.008 
+
+Ours 88.50% ±1.86 99% 30.02 ±0.27 21.53 ±0.16 1.23 ±0.054 -0.38 ±0.042 0.960 ±0.007 0.925 ±0.009 
+
+3Averaging 1.50% ±0.69 5% 25.46 ±0.26 16.08 ±0.16 -1.32 ±0.052 -2.06 ±0.025 0.461 ±0.017 0.296 ±0.015 
+
+Composable Diff. 3.50% ±0.94 13% 26.82 ±0.29 16.03 ±0.20 -1.06 ±0.064 -1.97 ±0.031 0.472 ±0.019 0.304 ±0.017 
+
+Multi-Concept Diff. 14.75% ±2.11 43% 28.45 ±0.27 15.15 ±0.23 -0.14 ±0.086 -1.82 ±0.044 0.532 ±0.021 0.384 ±0.021 
+
+MultiDiffusion 14.00% ±2.08 37% 28.05 ±0.28 16.02 ±0.19 -0.48 ±0.078 -1.79 ±0.044 0.537 ±0.020 0.374 ±0.021 
+
+Ours (w/o fairness) 51.75% ±3.08 88% 32.68 ±0.27 18.96 ±0.19 1.05 ±0.066 -0.92 ±0.053 0.872 ±0.014 0.773 ±0.018 
+
+Ours 59.50% ±2.99 92% 33.21 ±0.27 19.09 ±0.16 1.22 ±0.056 -0.79 ±0.048 0.921 ±0.010 0.829 ±0.014 
+
+Table 2. Fraction of timesteps with fairness violations when co-ordinating 2 and 3 models conditioned on objects using Stable Diffusion (mean ± std over 400 trajectories). Players Coordination Fairness Violation Rate ↓
+
+envy-free proportional 2MultiDiffusion 0.485 ±0.233 0.485 ±0.233 
+
+Ours (w/o fairness) 0.196 ±0.118 0.306 ±0.215 
+
+Ours 0.015 ±0.008 0.039 ±0.050 
+
+3MultiDiffusion 0.845 ±0.171 0.742 ±0.217 
+
+Ours (w/o fairness) 0.356 ±0.216 0.440 ±0.229 
+
+Ours 0.017 ±0.010 0.042 ±0.080 
+
+efficient division of labor. Fairness improves most metrics further. Observe that the importance of fairness increases as more models participate, since the probability of a model be-ing neglected by an efficient (but not fair) allocation grows. To illustrate the effect of the fairness constraint, we provide a qualitative example in Figure 2. Table 2 reports the frac-tion of sampling timesteps in which the allocation violates proportional or envy-free fairness when using MultiDif-fusion baseline, the unconstrained version of Divide-and-Denoise, and Divide-and-Denoise with proportional fairness constraints. Other baselines are omitted since they do not provide explicit allocation required to evaluate fairness, ex-cept for the uniform allocation used by the Averaging base-line, which is fair by definition. The fixed allocation used by MultiDiffusion frequently violates fairness constraints, indicating that some models are consistently dominated by others. Even without explicit fairness constraints, our effi-cient allocation substantially reduces violations. Enforcing proportional fairness reduces them further, with small resid-ual violations coming from numerical approximations in the dual optimization. 
+
+DiT. Each concept here is represented as a one-hot encoded ImageNet class depicting an object. We select 15 pairs of 
+
+Figure 5. Divide-and-Denoise outperforms baselines on ImageNet. Top: anemone+gold fish . Bottom: strawberry+orange+banana .
+
+Table 3. Performance of Divide-and-Denoise using DiT. CLIP ↑ Reward ↑ VQA ↑
+
+joint min joint min joint min Avg. 25.57 19.58 -1.00 -1.35 0.644 0.577 Comp. 26.67 20.43 -0.69 -1.11 0.700 0.634 Multidiff. 28.56 21.73 0.23 -0.46 0.860 0.804 Ours 29.03 22.01 0.28 -0.46 0.868 0.808 
+
+objects from the ImageNet-1K dataset (Russakovsky et al., 2014) and evaluate each pair across 20 random seeds. We test our method’s ability to coordinate pairs of models to gen-erate images containing both objects. Quantitative results are presented in Table 3, where we compare our method against the Averaging, Composable Diffusion and MultiDif-fusion baselines for the n = 2 setting. We note that the multi-concept baseline is unavailable here since no single DiT model can condition on multiple classes. In spite of this, Divide-and-Denoise generates images that 8Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Table 4. Performance on coordinating models with descriptive concepts using Stable Diffusion. Coordination Strategy GenEval ↑ CLIP ↑ Reward ↑ VQA ↑
+
+%images %prompts joint min joint min joint min Averaging 9.00% ±1.76 27% 28.57 ±0.26 19.81 ±0.21 -0.39 ±0.081 -1.65 ±0.051 0.641 ±0.017 0.500 ±0.018 
+
+Composable Diffusion 12.25% ±2.03 32% 29.65 ±0.25 20.37 ±0.23 -0.09 ±0.083 -1.49 ±0.056 0.658 ±0.019 0.522 ±0.021 
+
+Multi-Concept Diffusion 12.50% ±2.37 30% 29.86 ±0.28 19.61 ±0.26 0.10 ±0.099 -1.51 ±0.064 0.596 ±0.021 0.455 ±0.022 
+
+MultiDiffusion 27.00% ±3.05 58% 30.05 ±0.29 20.53 ±0.23 0.46 ±0.092 -1.19 ±0.064 0.733 ±0.018 0.608 ±0.022 
+
+Ours 55.75% ±3.44 86% 32.65 ±0.25 22.62 ±0.17 1.34 ±0.050 -0.56 ±0.060 0.882 ±0.013 0.806 ±0.017 
+
+Figure 6. Divide-and-Denoise outperforms the fixed allocation of MultiDiffusion when coordinating 3 models with conflicting interests ( sandy beach+aurora borealis+elephant ). 
+
+appear as though they were produced by such a multi-class model. We provide qualitative examples for n = 2 and 
+
+n = 3 objects in Figure 5. 
+
+4.5. Concepts with Description 
+
+We next evaluate how our method compares to baselines when concepts contain greater detail. This simulates a sce-nario where a single multi-concept model would typically fail. We attach color descriptions to objects, testing whether our method can faithfully bind attributes to the correct ob-jects. We use Stable Diffusion setup and construct single-concept prompts as earlier, but this time with each concept 
+
+y ∈ Y given by a color and object, e.g. “an orange horse ”. We generate 2 object–color descriptions to de-fine a pair of specialized models. In total, we construct 
+
+100 unique pairs and evaluate each pair across 4 different seeds. Results are presented in Table 4. Figure 4 provides a qualitative example of correct attribute binding. 
+
+Table 5. Performance of Divide-and-Denoise on coordinating models with conflicting interests using Stable Diffusion. CLIP ↑ Reward ↑ VQA ↑
+
+joint min joint min joint min Averaging 27.81 19.14 -0.36 -1.45 0.687 0.521 Composable Diff. 29.00 20.20 0.08 -1.23 0.729 0.581 Multi-Concept Diff. 29.76 19.82 0.65 -0.88 0.752 0.633 MultiDiffusion 29.85 20.23 0.70 -0.85 0.819 0.689 Ours 31.13 21.23 1.12 -0.55 0.905 0.815 
+
+4.6. Concepts with Conflict 
+
+Finally, we evaluate how well Divide-and-Denoise coordi-nates models with conflicting interests. To simulate this set-ting, we hand-design 40 concept sets with naturally compet-ing semantics. For example, we condition the first model on the concept “ a desert ”, while the second on the concept “a snowy mountain ”. A full list of prompt combina-tions is provided in Appendix A.6. We use Stable Diffusion setup. As shown in Table 5, Divide-and-Denoise outper-forms the coordination baselines. Figure 6 compares images generated by our method against its strongest baseline given by MultiDiffusion with a fixed allocation. By adapting allocations dynamically to model preferences, Divide-and-Denoise produces more diverse spatial layouts and improves overall image quality. Additional examples of generated images can be found in Appendix A.7. 
+
+# 5. Conclusion 
+
+In this work, we introduced Divide-and-Denoise, a game-theoretic framework for coordinating several pre-trained diffusion models. Our coupled division and denoising pro-cesses resolve conflicts between models, prevent concepts or models from being neglected, and outperform baselines across a broad range of metrics including the GenEval benchmark. Notably, our formulation is not tied to a specific model architecture or conditioning mechanism. We achieve compelling results with both DiT and Stable Diffusion, us-ing score-based utilities for the former and attention-based utilities for the latter. Attention-based utilities extend natu-rally to other domains, including text-to-graph (Chang & Ye, 2025), text-to-audio (Liu et al., 2023), and audio-to-image (Biner et al., 2024) generation. Our score-based utilities can be further applied in domains without cross-attention conditioning. Future work includes designing stronger util-ity functions, as well as reducing the computational cost of our approach; see Appendix A.3 for discussion. Our results highlight cooperative interaction between pre-trained models as a general recipe for controllable and reusable generative modeling across domains. 9Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+# Acknowledgements 
+
+AG and TJ acknowledge support from the Machine Learning for Pharmaceutical Discovery and Synthesis (MLPDS) con-sortium, and the NSF Expeditions grant (award 1918839) Understanding the World through code. PB and SK were supported by ERC grant ODD-ML 101201120, EU funding ELLIOT 101214398 the Research Council of Finland Flagship programme: Finnish Center for Artificial Intelligence FCAI and decision 341763. SK was supported by the UKRI Turing AI World-Leading Re-searcher Fellowship (EP/W002973/1). VG acknowledges Saab-WASP (grant 411025), Research Council of Finland (grant 342077), and the Jane and Aatos Erkko Foundation (grant 7001703) for their support. 
+
+# Impact Statement 
+
+This paper presents work whose goal is to advance the field of Machine Learning. There are many potential societal consequences of our work, none which we feel must be specifically highlighted here. 
+
+# References 
+
+Ajay, A. et al. Is conditional generative modeling all you need for decision-making? In International Conference on Learning Representations (ICLR) , 2023. Alamdari, S. et al. Protein generation with evolutionary diffusion: sequence is all you need. bioRxiv preprint bioRxiv:2023.07.12.548620 , 2023. Amanatidis, G., Aziz, H., Birmpas, G., Filos-Ratsikas, A., Li, B., Moulin, H., Voudouris, A. A., and Wu, X. Fair division of indivisible goods: Recent progress and open questions. Artificial Intelligence , 315:103841, 2023. doi: 10.1016/j.artint.2022.103841. Bar-Tal, O., Yariv, L., Lipman, Y., and Dekel, T. Multi-diffusion: fusing diffusion paths for controlled image generation. In Proceedings of the 40th International Con-ference on Machine Learning , pp. 1737–1752, 2023. Biner, B. C., Sofian, F. M., Karaka s¸ , U. B., Ceylan, D., Er-dem, E., and Erdem, A. Sonicdiffusion: Audio-driven im-age generation and editing with pretrained diffusion mod-els, 2024. URL https://arxiv.org/abs/2405. 00878 .Burgert, R., Li, X., Leite, A., Ranasinghe, K., and Ryoo, M. Diffusion illusions: Hiding images in plain sight. In ACM SIGGRAPH 2024 Conference Papers , pp. 1–11, 2024. Caragiannis, I., Kurokawa, D., Moulin, H., Procaccia, A. D., Shah, N., and Wang, J. The unreasonable fairness of max-imum nash welfare. ACM Transactions on Economics and Computation (TEAC) , 7(3):12:1–12:32, 2019. doi: 10.1145/3319729. Chang, J. and Ye, J. C. Ldmol: A text-to-molecule dif-fusion model with structurally informative latent space surpasses ar models. In International Conference on Machine Learning , pp. 7374–7392. PMLR, 2025. Chefer, H., Alaluf, Y., Vinker, Y., Wolf, L., and Cohen-Or, D. Attend-and-excite: Attention-based semantic guidance for text-to-image diffusion models. ACM transactions on Graphics (TOG) , 42(4):1–10, 2023. Chen, C., Wang, A., Wu, H., Liao, L., Sun, W., Yan, Q., and Lin, W. Enhancing diffusion models with text-encoder reinforcement learning. In European Conference on Com-puter Vision , pp. 182–198. Springer, 2024. Chi, C., Xu, Z., Feng, S., Cousineau, E., Du, Y., Burch-fiel, B., Tedrake, R., and Song, S. Diffusion policy: Visuomotor policy learning via action diffusion. The International Journal of Robotics Research , 44(10-11): 1684–1704, 2025. Cole, R., Devanur, N. R., Gkatzelis, V., Jain, K., Mai, T., Vazirani, V. V., and Yazdanbod, S. Convex program duality, fisher markets, and nash social welfare. In Pro-ceedings of the 18th ACM Conference on Economics and Computation (EC ’17) , pp. 459–460. ACM, 2017. doi: 10.1145/3033274.3085119. Corso, G. et al. Diffdock: Diffusion steps, twists, and turns for molecular docking. In International Conference on Learning Representations (ICLR) , 2023. Couairon, G., Careil, M., Cord, M., Lathuili `ere, S., and Verbeek, J. Zero-shot spatial layout conditioning for text-to-image diffusion models. In ICCV , 2023. Dhariwal, P. and Nichol, A. Diffusion models beat gans on image synthesis. In Advances in Neural Information Pro-cessing Systems (NeurIPS) , volume 34, pp. 8780–8794, 2021. Dickerson, J. P., Goldman, J., Karp, J., Procaccia, A. D., and Sandholm, T. The computational rise and fall of fairness. In Proceedings of the Twenty-Eighth AAAI Conference on Artificial Intelligence (AAAI ’14) , pp. 1405–1411. AAAI Press, 2014. Du, Y., Durkan, C., Strudel, R., Tenenbaum, J. B., Diele-man, S., Fergus, R., Sohl-Dickstein, J., Doucet, A., and Grathwohl, W. S. Reduce, reuse, recycle: Composi-tional generation with energy-based diffusion models and mcmc. In International conference on machine learning ,pp. 8489–8510. PMLR, 2023. 10 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Eisenberg, E. and Gale, D. Consensus of subjective proba-bilities: The pari-mutuel method. Annals of Mathemati-cal Statistics , 30(1):165–168, 1959. doi: 10.1214/aoms/ 1177706379. Fan, Y., Watkins, O., Du, Y., Liu, H., Ryu, M., Boutilier, C., Abbeel, P., Ghavamzadeh, M., Lee, K., and Lee, K. Dpok: Reinforcement learning for fine-tuning text-to-image diffusion models. Advances in Neural Information Processing Systems , 36:79858–79885, 2023. Garipov, T., De Peuter, S., Yang, G., Garg, V., Kaski, S., and Jaakkola, T. Compositional sculpting of iterative generative processes. Advances in neural information processing systems , 36:12665–12702, 2023. Geng, D. et al. Visual anagrams: Generating multi-view optical illusions with diffusion models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2024. Ghosh, D., Hajishirzi, H., and Schmidt, L. Geneval: An object-focused framework for evaluating text-to-image alignment. Advances in Neural Information Processing Systems , 36:52132–52152, 2023. Hertz, A., Mokady, R., Tenenbaum, J., Aberman, K., Pritch, Y., and Cohen-Or, D. Prompt-to-prompt image editing with cross-attention control. In The Eleventh Interna-tional Conference on Learning Representations .Ho, J. and Salimans, T. Classifier-free diffusion guidance. 
+
+arXiv preprint arXiv:2207.12598 , 2022. Ho, J., Jain, A., and Abbeel, P. Denoising diffusion prob-abilistic models. In Advances in Neural Information Processing Systems (NeurIPS) , 2020a. Ho, J., Jain, A., and Abbeel, P. Denoising diffusion proba-bilistic models. Advances in neural information process-ing systems , 33:6840–6851, 2020b. Jumper, J. et al. Highly accurate protein structure prediction with alphafold. Nature , 596:583–589, 2021. Lin, T.-Y., Maire, M., Belongie, S., Hays, J., Perona, P., Ra-manan, D., Doll ´ar, P., and Zitnick, C. L. Microsoft coco: Common objects in context. In European conference on computer vision , pp. 740–755. Springer, 2014. Lin, Z., Pathak, D., Li, B., Li, J., Xia, X., Neubig, G., Zhang, P., and Ramanan, D. Evaluating text-to-visual generation with image-to-text generation. In European Conference on Computer Vision , pp. 366–384. Springer, 2024. Liu, H., Chen, Z., Yuan, Y., Mei, X., Liu, X., Mandic, D., Wang, W., and Plumbley, M. Audioldm: Text-to-audio generation with latent diffusion models. In Proceedings of the 40th International Conference on Machine Learning, PMLR 2023 , volume 202, pp. 21450–21474. International Machine Learning Society (IMLS), 2023. Liu, N., Li, S., Du, Y., Torralba, A., and Tenenbaum, J. B. Compositional visual generation with composable diffu-sion models. In European conference on computer vision ,pp. 423–439. Springer, 2022. Manukyan, H., Sargsyan, A., Atanyan, B., Wang, Z., Navasardyan, S., and Shi, H. Hd-painter: high-resolution and prompt-faithful text-guided image inpainting with dif-fusion models. In International Conference on Learning Representations , volume 2025, pp. 96301–96330, 2025. Nichol, A. Q., Dhariwal, P., Ramesh, A., Shyam, P., Mishkin, P., Mcgrew, B., Sutskever, I., and Chen, M. Glide: Towards photorealistic image generation and edit-ing with text-guided diffusion models. In International Conference on Machine Learning , pp. 16784–16804. PMLR, 2022. Nishimura, K. and Sumita, H. Envy-freeness and maximum nash welfare for mixed divisible and indivisible goods. In 
+
+Proceedings of the 22nd ACM Conference on Economics and Computation (EC ’21) , pp. 650–670, 2021. doi: 10.1145/3465456.3467644. Pearce, T., Rashid, T., Kanervisto, A., Bignell, D., Sun, M., Georgescu, R., Macua, S. V., Tan, S. Z., Momennejad, I., Hofmann, K., et al. Imitating human behaviour with diffusion models. In 11th International Conference on Learning Representations, ICLR 2023 , 2023. Peebles, W. and Xie, S. Scalable diffusion models with transformers. In Proceedings of the IEEE/CVF interna-tional conference on computer vision , pp. 4195–4205, 2023. Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J., et al. Learning transferable visual models from natural language supervision. In International conference on machine learning , pp. 8748–8763. PmLR, 2021. Rombach, R., Blattmann, A., Lorenz, D., Esser, P., and Ommer, B. High-resolution image synthesis with la-tent diffusion models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 10684–10695, 2022. Russakovsky, O., Deng, J., Su, H., Krause, J., Satheesh, S., Ma, S., Huang, Z., Karpathy, A., Khosla, A., Bernstein, M. S., Berg, A. C., and Fei-Fei, L. Imagenet large scale visual recognition challenge. CoRR , abs/1409.0575, 2014. URL http://arxiv.org/abs/1409.0575 .11 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Saharia, C., Chan, W., Saxena, S., Li, L., Whang, J., Denton, E. L., Ghasemipour, K., Gontijo Lopes, R., Karagol Ayan, B., Salimans, T., et al. Photorealistic text-to-image dif-fusion models with deep language understanding. Ad-vances in neural information processing systems , 35: 36479–36494, 2022. Sehwag, V., Kong, X., Li, J., Spranger, M., and Lyu, L. Stretching each dollar: Diffusion training from scratch on a micro-budget. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pp. 28596–28608, 2025. Skreta, M., Atanackovic, L., Bose, J., Tong, A., and Nek-lyudov, K. The superposition of diffusion models using the it ˆo density estimator. In International Conference on Learning Representations , volume 2025, pp. 67004– 67057, 2025. Song, J., Meng, C., and Ermon, S. Denoising diffusion implicit models. In International Conference on Learning Representations .Song, J., Meng, C., and Ermon, S. Denoising diffusion im-plicit models. In 9th International Conference on Learn-ing Representations, ICLR 2021, Virtual Event, Austria, May 3-7, 2021 . OpenReview.net, 2021. URL https: //openreview.net/forum?id=St1giarCHLP .Song, Y. and Ermon, S. Generative modeling by estimating gradients of the data distribution. In Advances in Neural Information Processing Systems (NeurIPS) , 2019. Tang, R., Liu, L., Pandey, A., Jiang, Z., Yang, G., Kumar, K., Stenetorp, P., Lin, J., and T ¨ure, F. What the daam: Interpreting stable diffusion using cross attention. In Pro-ceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) ,pp. 5644–5659, 2023. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, Ł., and Polosukhin, I. Attention is all you need. In Advances in Neural Information Pro-cessing Systems (NeurIPS) , volume 30, pp. 6000–6010, 2017. Wallace, B. et al. Diffusion model alignment using direct preference optimization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2024. Xu, J., Liu, X., Wu, Y., Tong, Y., Li, Q., Ding, M., Tang, J., and Dong, Y. Imagereward: Learning and evaluat-ing human preferences for text-to-image generation. Ad-vances in Neural Information Processing Systems , 36: 15903–15935, 2023. Xu, Z. et al. Octo: An open-source generalist robot policy. 
+
+arXiv preprint arXiv:2405.12213 , 2024. 12 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+# A. Appendix 
+
+A.1. Proofs of the Theorems 
+
+In our proofs, we will rely on the following technical fact: 
+
+Lemma A.1. Let π′ be a probability distribution over Z, let α > 0, and let f : Z → R be a function such that 
+
+Z
+
+exp( f (z)/α ) π′(z)dz < ∞.
+
+Then the solution π∗ to an unconstrained optimization problem 
+
+max  
+
+> π
+
+Ez∼π f (z) − αD KL (π|| π′)
+
+is given by 
+
+π∗(z) = exp( f (z)/α )π′(z)
+
+R exp( f (z)/α )π′(z)dz .
+
+Proof. It is sufficient to notice that 
+
+αD KL (π|| π∗) = −Ez∼π f (z) + αD KL (π|| π′) + C, 
+
+where C is a constant that does not depend on π.
+
+Proof of Theorem 3.2. Recall that denoising kernels of individual models are Gaussians with the same covariance: 
+
+pi(· | xt) = N (μit(xt), σ 2 
+
+> t
+
+I).
+
+Denote the marginal distribution of pi corresponding to the latent feature j as pij (· | xt) = N (μij (xt), σ 2 
+
+> t
+
+).For an allocation Q with weights Qij , consider a distribution pQt defined as 
+
+pQt (x|xt) ∝
+
+> n
+
+Y
+
+> i=1
+> m
+
+Y
+
+> j=1
+
+pij (xj |xt)Qij .
+
+Notice that 
+
+pQt (x|xt) ∝
+
+> n
+
+Y
+
+> i=1
+> m
+
+Y
+
+> j=1
+
+pij (xj |xt)Qij 
+
+=
+
+> n
+
+Y
+
+> i=1
+> m
+
+Y
+
+> j=1
+
+exp −Qij ∥xj − μij (xt)∥2
+
+2σ2
+
+> t
+
+!
+
+= exp − Pni=1 
+
+Pmj=1 Qij ∥xj − μij (xt)∥2
+
+2σ2
+
+> t
+
+!
+
+∝ exp − Pni=1 
+
+Pmj=1 [Qij ∥xj ∥2 − 2⟨xj , μ ij (xt)⟩]2σ2
+
+> t
+
+!
+
+= exp − Pmj=1 ∥xj ∥2 + 2 Pmj=1 ⟨xj , Pni=1 Qij μij (xt)⟩
+
+2σ2
+
+> t
+
+!
+
+= exp 
+
+ −∥ x∥2 + 2 ⟨x, Pni=1 Qi ⊙ μi(xt)⟩
+
+2σ2
+
+> t
+
+
+
+,
+
+where ⊙ denotes feature-wise product, that is [Qi ⊙ μi(xt)] j = Qij μij (xt). Thus, we obtain 
+
+pQt (·| xt) = N
+
+
+
+μQt (xt), σ 2 
+
+> t
+
+I
+
+
+
+with μQt (xt) = 
+
+> n
+
+X
+
+> i=1
+
+Qi ⊙ μit(xt).
+
+13 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+By factorization assumption, for any distribution p ∈ Pt, it holds that p(x) = Qmj=1 pj (xj ).Therefore, the following equality holds 
+
+EM∈QnX
+
+> i=1
+> m
+
+X
+
+> j=1
+
+Mi,j DKL (pj (·)|| pij (·| xt)) = 
+
+> n
+
+X
+
+> i=1
+> m
+
+X
+
+> j=1
+
+Qij DKL (pj (·)|| pij (·| xt)) = −
+
+> m
+
+X
+
+> j=1
+
+" nX
+
+> i=1
+
+Qij 
+
+Z
+
+pj (xj ) log pij (xj |xt)dxj −
+
+> n
+
+X
+
+> i=1
+
+Qij H(pj )
+
+#
+
+= −
+
+Z
+
+p(x) log 
+
+> n
+
+Y
+
+> i=1
+> n
+
+Y
+
+> j=1
+
+pij (xj |xt)Qij dx −
+
+> m
+
+X
+
+> j=1
+
+H(pj )= −
+
+Z
+
+p(x) log pQt (x|xt)dx − H(p) + C
+
+= DKL (p|| pQt (·| xt)) + C, 
+
+where C is a constant that does not depend on p.By Lemma A.1, the composite kernel pct maximizing Ft(p, Q ) is given by 
+
+pct (xt−1|xt) ∝ exp( Ut−1(xt−1, Q )/α t)pQt (xt−1|xt). (8) Since Ut(x, Q ) is linear jointly in t and x, we have 
+
+Ut−1(xt−1, Q ) = Ut(xt, Q ) + A(xt−1 − xt) − b, 
+
+where A = ∇xUt(xt, Q ) and b = ∇tUt(xt, Q ).Substituting in equation 8, we obtain 
+
+pct (xt−1|xt) ∝ exp( Ut−1(xt−1, Q )/α t)pQt (xt−1|xt)= exp 
+
+ [Ut(xt, Q ) + A(xt−1 − xt) − b]
+
+αt
+
+
+
+pQt (xt−1|xt)
+
+∝ exp Axt−1
+
+αt
+
++ −∥ xt−1∥2 + 2 ⟨xt−1, μ Qt (xt)⟩
+
+2σ2
+
+> t
+
+!
+
+= exp −∥ xt−1∥2 + 2 ⟨xt−1, μ Qt (xt) + σ2 
+
+> t
+
+A/α t⟩
+
+2σ2
+
+> t
+
+!
+
+.
+
+We conclude that pct (·| xt) = N (μct , σ 2 
+
+> t
+
+I) with μct = Pni=1 μit(xt) ⊙ Qi + σ2 
+
+> t
+> αt
+
+∇xt Ut(xt, Q ).
+
+Proof of Theorem 3.1. Substituting definition of the efficiency functional G, equation 3, in the fair division game in equation 1, we obtain the following optimization problem 
+
+Qt = arg max 
+
+> Q∈Qt(xt)
+
+EM∼Q
+
+
+
+> n
+
+X
+
+> i=1
+> m
+
+X
+
+> j=1
+
+Mi,j uij (xt, t )
+
+ − βtDKL (Q|| Qt+1 ), (9) where Qt =
+
+n
+
+Q ∈ ∆( Mn,m ) : EM∼Q
+
+Pni=1 
+
+Pmj=1 Mi,j ϕij ⪯ b
+
+o
+
+. Below, we will write uij meaning uij (xt, t ).By the proof of Lemma A.1, the problem in equation 9 is equivalent to 
+
+Qt = arg min 
+
+> Q∈Qt(xt)
+
+DKL (Q|| Q∗), (10) 14 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+where 
+
+Q∗(M) ∝ exp 
+
+
+
+> n
+
+X
+
+> i=1
+> m
+
+X
+
+> j=1
+
+Mi,j uij /β 
+
+ Qt+1 (M).
+
+Assuming that Qt+1 is decomposable with weights Qt+1  
+
+> ij
+
+, we find that 
+
+Q∗(M) ∝
+
+> n
+
+Y
+
+> i=1
+> m
+
+Y
+
+> j=1
+
+
+
+euij /β t Qt+1 
+
+> ij
+
+Mi,j 
+
+,
+
+and thus, the allocation Q∗(M) is decomposable with weights 
+
+Q∗ 
+
+> ij
+
+= euij /β t Qt+1 
+
+> ij
+
+Pni=1 euij /β t Qt+1 
+
+> ij
+
+.
+
+We will solve the primal optimization problem in equation 10 in its dual form. Let ϕ(M) = Pni=1 
+
+Pmj=1 Mi,j ϕij . Assuming the set Q is non-empty (which is always the case for fairness constraints), the corresponding Lagrangian is 
+
+max  
+
+> λ≥0,ν
+
+min  
+
+> Q
+
+L(Q, λ, ν ),
+
+where 
+
+L(Q, λ, ν ) = DKL (Q|| Q∗) + λ (EM∼Qϕ(M) − b) + ν
+
+ X
+
+> M∈Mn,m
+
+Q(M) − 1
+
+ .
+
+Taking derivative with respect to Q(M) we obtain 
+
+∂L(Q(M), λ, ν )
+
+∂Q (M) = log Q(M) + 1 − log Q∗(M) + λϕ (M) + ν = 0 ,
+
+and thus, 
+
+Q(M) = Q∗(M) exp( −λϕ (M)) exp( ν + 1) .
+
+We can now plug it into the Lagrangian and take derivative with respect to ν:
+
+∂L(Q(M), λ, ν )
+
+∂ν = X
+
+> M
+
+Q∗(M) exp( −λϕ (M)) exp( ν + 1) − 1 = 0 .
+
+Hence, we have 
+
+Q(M) = Q∗(M) exp( −λϕ (M)) 
+
+Zλ
+
+with Zλ = P 
+
+> M
+
+Q∗(M) exp( −λϕ (M)) and the dual problem reads 
+
+max  
+
+> λ≥0
+
+− log( Zλ) − ⟨ b, λ ⟩.
+
+Let λ∗ be a solution to the dual problem. The optimal allocation is expressed as 
+
+Qt(M) = Q∗(M) exp( −λ∗ϕ(M)) 
+
+Zλ∗
+
+∝
+
+> n
+
+Y
+
+> i=1
+> m
+
+Y
+
+> j=1
+
+
+
+Q∗ 
+
+> ij
+
+e−⟨ λ∗,ϕ ij ⟩Mi,j 
+
+.
+
+Hence, it is also decomposable with weights 
+
+Qij = euij /β t e−⟨ λ∗,ϕ ij ⟩Qt+1 
+
+> ij
+
+Zj (λ∗)
+
+15 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+where 
+
+Zj (λ∗) = 
+
+> n
+
+X
+
+> i=1
+
+exp ( −⟨ λ∗, ϕ ij ⟩) exp( uij /β )Qt+1  
+
+> ij
+
+.
+
+We conclude the proof by noting that Zλ∗ = Qmj=1 Zj (λ∗).
+
+A.2. Score-Based Utilities 
+
+We derive the simplified form of the score-based utility for feature j under the classifier-free guidance setup. As in the main text, we view a latent as a feature map x ∈ Rm×c with features xj ∈ Rc, and write sjt ∈ Rc for the corresponding block of the score function. For a vector v, let v = v/ ∥v∥2, where ∥ · ∥ 2 is the Euclidean norm over all features and channels, and ⟨a, b ⟩Mi = Pmj=1 Mi,j (aj )⊤bj is the inner product restricted to the features selected by Mi. Writing 
+
+gi = ∇xqt(yi | x; θi) with blocks gji ∈ Rc, the utility of player i for a bundle Mi′ is 
+
+ui(Mi′ ) = ⟨gi, g i⟩Mi′ =
+
+> m
+
+X
+
+> j=1
+
+Mi′,j ∥gji ∥22.
+
+This satisfies the additive assumption we posed on utilities, with ui(Mi′ ) = Pmj=1 Mi′,j uij (x, t ) and uij (x, t ) = ∥gji ∥22,the energy of the normalized classifier gradient carried by feature j.In the classifier-free guidance setup, the conditional score is approximated as ∇x log qt(x | yi; θi) ≈ st(x, yi; θi). The gradient of a density is related to its score by ∇xqt(x; θi) = qt(x; θi) st(x; θi). Using Bayes’ rule on the log-densities, 
+
+∇x log qt(yi | x; θi) = ∇x log qt(x | yi; θi) − ∇ x log qt(x; θi),
+
+so the gradient of the posterior density is 
+
+∇xqt(yi | x; θi) = qt(yi | x; θi) ∇x log qt(yi | x; θi) = qt(yi | x; θi) st(x, yi; θi) − st(x; θi).
+
+Let ∆st(x, yi; θi) = st(x, yi; θi) − st(x; θi) denote the score difference, with j-th block ∆sjt ∈ Rc. Normalizing the gradient, the scalar qt(yi | x; θi) cancels: 
+
+gi = ∇xqt(yi | x; θi) = qt(yi | x; θi) ∆ st(x, yi; θi)
+
+qt(yi | x; θi) ∥∆st(x, yi; θi)∥2
+
+= ∆st(x, yi; θi)
+
+∥∆st(x, yi; θi)∥2
+
+.
+
+Taking the j-th block, gji = ∆ sjt /∥∆st∥2, so the utility for feature j is 
+
+uij (x, t ) = ∥gji ∥22 = ∥∆sjt (x, yi; θi)∥22
+
+∥∆st(x, yi; θi)∥22
+
+= ∥sjt (x, yi; θi) − sjt (x; θi)∥22
+
+∥st(x, yi; θi) − st(x; θi)∥22
+
+.
+
+The denominator is the full squared norm over all features and channels, so the utilities are normalized: Pmj=1 uij (x, t ) = 1 ,since Pmj=1 ∥∆sjt ∥22 = ∥∆st∥22. This shows that the utility for each coordinate is proportional to the squared difference between the conditional and unconditional scores at that coordinate, normalized by the total squared norm of the score difference across all coordinates. The key insight is that while the gradient of the posterior density includes the posterior probability qt(yi|x; θi) as a factor, this cancels out when we normalize, leaving only the score difference. 
+
+A.3. Space and Time Analysis 
+
+We analyze the computational cost of running Divide-and-Denoise. Our space and time analysis reveals practical techniques for mitigating the overhead of our method relative to baselines. Following the structure of Algorithm 1, each iteration of generation decomposes into three stages: (i) the Proposal stage, in which we run a forward pass for each pre-trained diffusion model, and aggregate the per-model denoising kernels {pit} and utilities {uij }; (ii) the Division stage, in which we solve the convex fair-division problem of equation 5 for the optimal allocation Qt; (iii) the Denoising stage, in which we form the composite denoising kernel pct and draw the next sample xt−1.16 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Stage-wise Breakdown. Table 6 reports the fraction of total wall-clock time and total CPU memory consumed by each stage of running Divide-and-Denoise on a single AWS EC2 G6e instance. We average wall-clock time and memory usage over many runs with each run generating a single sample (i.e. batch size = 1). We compare how space and time scale with the number of coordinated models from n = 2 to n = 4 . We observe two trends. First, the Division stage is the dominant bottleneck as n grows: its share of wall-clock time rises from roughly 12% at n = 2 to 57% at n = 4 , and it accounts for the vast majority of CPU memory across all settings (82% at n = 2 , growing to 96% at n = 4 ). The high memory footprint of the Division stage reflects the use of an off-the-shelf convex solver that runs on CPU to solve for the optimal allocation. The Proposal and Denoising stages execute entirely on GPU and contribute little to CPU memory usage. Second, the Denoising stage is the most expensive stage at n = 2 but its relative share decreases as more models are added. In other words, computing the guidance gradient ∇xt Ut(xt, Q ) is more costly than computing the allocation with only two models. The Proposal stage, despite running one diffusion forward pass per model, scales gracefully because each forward pass can be parallelized on the GPU.                                            
+
+> Table 6. Breakdown of wall-clock time and memory usage when coordinating 2, 3 and 4 models conditioned on objects using Stable Diffusion. Players Fraction of Total Generation Time (%) Fraction of Total CPU Memory (%) proposal division denoising proposal division denoising 20.404 ±0.06 0.118 ±0.13 0.462 ±0.07 0.170 ±0.065 0.820 ±0.069 0.013 ±0.011 30.298 ±0.09 0.300 ±0.23 0.382 ±0.12 0.075 ±0.064 0.918 ±0.070 0.007 ±0.009 40.174 ±0.10 0.569 ±0.25 0.244 ±0.14 0.031 ±0.042 0.964 ±0.047 0.004 ±0.006
+
+Runtime Optimization. The stage-wise breakdown suggests that optimizing the Division stage of Divide-and-Denoise would be most useful. We observe empirically that the allocation Qt is established early in the denoising trajectory (see Figure 3). We also observe that the guidance gradient minimally changes the image at later steps of generation. This motivates a simple schedule: (i) restrict the Division stage to the first k1 denoising steps, freezing Qt afterwards and (ii) restrict applying the guidance term in the Denoising stage to the first k2 steps, disabling guidance thereafter. Beyond steps 
+
+k1 and k2, the composite denoising kernel reduces to the much cheaper averaging update μct = Pni=1 μit(xt) ⊙ Qi with the most recent allocation. Table 7 reports wall-clock time in milliseconds per iteration of generation under a specific (k1, k 2) schedule for T = 50 
+
+DDIM steps. We compare to MultiDiffusion, the strongest naive composition baseline. Setting k1 = 15 approximately halves the Division-stage cost at n = 3 and reduces it by roughly 2× at n = 4 , while setting k2 = 15 similarly reduces the per-step Denoising cost. Applying both of these optimizations, the total per-iteration time of Divide-and-Denoise at 
+
+n = 4 drops from 741 .8 ms to 379 .4 ms – roughly half the unmitigated cost and within 4× of the baseline. Interestingly, the computational overhead of projecting onto the fair allocation set is substantially larger when no guidance is used. This occurs because explicitly steering the models toward a fair and efficient division encourages better separation of interests, often leading to subsequent allocations already being fair. Without guidance, we find that fairness often needs to be imposed at every step during generation. 
+
+Effect on Task Performance. A natural concern is whether early truncation of the Division and Denoising stages degrades sample quality. Table 8 reports performance on the ”Concepts as Objects” setting of Section 4 under matched (k1, k 2)
+
+configurations, keeping all other hyperparameters fixed. Truncating the division schedule to k1 = 15 has only a slight effect across all metrics, consistent with the observation that allocations are primarily determined early in generation. Truncating the guidance schedule to k2 = 15 has a small effect at n = 2 , but a more pronounced effect at n = 3 . This reflects the fact that alignment must be enforced explicitly and consistently as the number of models–and therefore the degree of conflict–increases. However, even the most aggressive setting (k1, k 2) = (15 , 15) continues to outperform the strongest baselines (Multi-Concept Diffusion and MultiDiffusion) by large and consistent margins. For example, at n = 3 ,Divide-and-Denoise with (15 , 15) achieves 48 .5% GenEval %images versus 14 .0–14 .8% for the baselines. 
+
+Further opportunities. The remaining cost of the Division stage is dominated by calls to the convex solver. Further speedups are possible by using a faster first-order solver, relaxing the convergence tolerance, fixing the number of solver iterations, or warm-starting from λ∗ 
+
+> t+1
+
+to exploit temporal smoothness in the dual variable. We leave a systematic exploration of these solver-level optimizations to future work. 17 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Table 7. Breakdown of wall-clock time per iteration of generation process when coordinating 2, 3 and 4 models conditioned on objects using Stable Diffusion. Players Coordination Strategy Wall-Clock Time Per Iteration (ms) ↓
+
+proposal division denoising total 2MultiDiffusion – – – 78 .06 ± 15 .44 
+
+Ours (k1 = 50 , k 2 = 50) 68 .18 ± 0.93 29 .36 ± 67 .54 77 .88 ± 0.218 175 .42 ± 67 .55 
+
+Ours (k1 = 15 , k 2 = 50) 68 .06 ± 0.793 16 .38 ± 20 .75 77 .82 ± 0.24 162 .26 ± 20 .77 
+
+Ours (k1 = 50 , k 2 = 15) 64 .62 ± 0.883 104 .09 ± 137 .21 23 .41 ± 0.198 192 .12 ± 137 .21 
+
+Ours (k1 = 15 , k 2 = 15) 65 .12 ± 0.738 17 .36 ± 21 .83 23 .72 ± 0.780 106 .20 ± 21 .86 
+
+3MultiDiffusion – – – 85 .03 ± 21 .81 
+
+Ours (k1 = 50 , k 2 = 50) 79 .67 ± 0.95 131 .72 ± 175 .9 101 .97 ± 0.258 313 .36 ± 175 .90 
+
+Ours (k1 = 15 , k 2 = 50) 80 .9 ± 0.851 72 .41 ± 70 .11 102 .56 ± 0.278 255 .87 ± 70 .12 
+
+Ours (k1 = 50 , k 2 = 15) 76 .05 ± 0.944 277 .25 ± 270 .08 30 .88 ± 0.176 384 .18 ± 270 .08 
+
+Ours (k1 = 15 , k 2 = 15) 79 .54 ± 0.962 71 .46 ± 68 .37 30 .66 ± 0.178 181 .66 ± 68 .38 
+
+4MultiDiffusion – – – 92 .58 ± 24 .26 
+
+Ours (k1 = 50 , k 2 = 50) 90 .82 ± 0.922 524 .54 ± 450 .32 126 .48 ± 0.263 741 .84 ± 450 .32 
+
+Ours (k1 = 15 , k 2 = 50) 90 .6 ± 1.02 255 .21 ± 143 .48 126 .56 ± 0.251 472 .37 ± 143 .48 
+
+Ours (k1 = 50 , k 2 = 15) 86 .03 ± 1.04 746 .9 ± 500 .4 38 .1 ± 0.179 871 .03 ± 500 .40 
+
+Ours (k1 = 15 , k 2 = 15) 86 .18 ± 0.816 255 .06 ± 144 .752 38 .13 ± 0.171 379 .37 ± 144 .75 
+
+Table 8. Performance of Divide-and-Denoise when coordinating 2 and 3 models conditioned on objects using Stable Diffusion. Players Coordination Strategy GenEval ↑ CLIP ↑ Reward ↑ VQA ↑
+
+%images %prompts joint min joint min joint min 2Multi-Concept Diffusion 53.75% 86.00% 27.05 18.77 0.28 -1.15 0.753 0.683 MultiDiffusion 58.00% 93.00% 27.65 19.59 0.34 -0.99 0.816 0.738 Ours (k1 = 50 , k 2 = 50) 88.50% 99.00% 30.02 21.53 1.23 -0.38 0.960 0.925 
+
+Ours (k1 = 15 , k 2 = 50) 86.25% 99.00% 29.91 21.54 1.22 -0.39 0.958 0.922 Ours (k1 = 50 , k 2 = 15) 85.25% 99.00% 29.79 21.38 1.18 -0.42 0.953 0.910 Ours (k1 = 15 , k 2 = 15) 83.25% 99.00% 29.77 21.36 1.15 -0.44 0.953 0.910 3Multi-Concept Diffusion 14.75% 43.00% 28.45 15.15 -0.14 -1.82 0.532 0.384 MultiDiffusion 14.00% 37.00% 28.05 16.02 -0.48 -1.79 0.537 0.374 Ours (k1 = 50 , k 2 = 50) 59.50% 92.00% 33.21 19.09 1.22 -0.79 0.921 0.829 
+
+Ours (k1 = 15 , k 2 = 50) 58.00% 89.00% 32.91 19.01 1.15 -0.83 0.906 0.812 Ours (k1 = 50 , k 2 = 15) 50.00% 88.00% 32.53 18.60 1.07 -0.90 0.864 0.761 Ours (k1 = 15 , k 2 = 15) 48.50% 86.00% 32.34 18.47 0.999 -0.86 0.846 0.737 
+
+A.4. Hyperparameter Selection 
+
+In this section, we analyze the effect of hyperparameters and the sensitivity of our method. Divide-and-Denoise has two main hyperparameters: βt, the regularization weight in the division problem, and αt, the regularization weight in the compositional update. We use a constant βt = β throughout generation, and we reparameterize αt via a single scalar γ that controls the guidance strength: 
+
+αt = σt
+
+γ ∥∇ xt Ut(xt, Q )∥ .
+
+We find it advantageous to match the guidance magnitude to the noise level, as overly strong guidance can drive intermediate latents off the training manifold. For a DDIM sampler with hyperparameter η, this corresponds to setting η = γ. Since DDIM typically performs best with η near zero, we focus on small values of γ.The limiting cases provide intuition for the role of each parameter. As β → ∞ , the allocation becomes fixed and independent of the utilities. In combination with γ = 0 , this recovers the Averaging baseline. Guidance is not effective when the allocation is nearly uniform, which motivates using β in a lower range. In contrast, β ≈ 0 yields an unregularized allocation determined solely by the current utilities. It can cause numerical instability and is sensitive to the noise, which suggests that larger β values are preferable for noisy score-based utilities. Setting γ = 0 disables guidance, while excessively large γ
+
+leads to off-manifold updates and artifacts. 18 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+We evaluate hyperparameter sensitivity on the same experimental setup as in Section 4.4 with n = 2 players and Stable Diffusion. Table 9 summarizes the results. In each experiment, we vary either γ or β while keeping the other parameter fixed to its default value. The default configuration with γ = 0 .015 and β = 0 .001 was hand-picked based on preliminary experiments.                                                                                                    
+
+> Table 9. Performance of Divide-and-Denoise on coordinating 2 models conditioned on different concepts under varying hyperparameters. Changed Parameter GenEval ↑CLIP ↑ImageReward ↑VQA ↑
+> %images %prompts joint min joint min joint min default: γ= 0 .015 , β = 0 .001 88.50% 99% 30.02 21.53 1.23 -0.38 0.960 0.925
+> γ= 0 62.25% 91% 28.41 20.50 0.57 -0.80 0.905 0.835
+> γ= 0 .01 87.50% 99% 29.77 21.39 1.15 -0.43 0.954 0.917
+> γ= 0 .02 88.50% 99% 30.02 21.57 1.25 -0.37 0.963 0.931
+> γ= 0 .05 88.25% 100% 30.10 21.76 1.18 -0.42 0.956 0.923
+> γ= 0 .178.75% 99% 29.95 21.89 0.86 -0.71 0.927 0.886
+> β= 0 .0005 89.00% 99% 30.01 21.50 1.24 -0.39 0.960 0.928
+> β= 0 .002 88.00% 99% 29.96 21.57 1.23 -0.38 0.965 0.929
+> β= 0 .01 84.00% 97% 29.82 21.51 1.31 -0.49 0.960 0.921
+
+Even without guidance ( γ = 0 ), Divide-and-Denoise consistently outperforms the baselines, highlighting the benefits of using dynamic allocation. Increasing γ initially improves performance, but beyond a certain point performance degrades due to artifacts caused by out-of-manifold updates. Overall, performance is fairly robust to small perturbations around the optimal ranges. 
+
+A.5. Additional Experimental Results 
+
+In addition to the experiments in section 4, we perform several supplementary tests. First, we employ our standard GenEval setup with 2 Stable Diffusion models conditioned on different objects, but this time we use score-based utilities instead of attention-based ones. Results are presented in Table 10. We notice that although this choice of utility significantly decreases performance compared to attention-based one, Divide-and-Denoise still outperforms the first three baselines including Multi-Concept Diffusion. However, comparable results to MultiDiffusion suggest that scores may provide insufficient information about concept localization.                                                                 
+
+> Table 10. Performance of Divide-and-Denoise on coordinating 2 models conditioned on different concepts with score-based utilities on GenEval. Coordination Strategy GenEval ↑CLIP ↑ImageReward ↑VQA ↑
+> %images %prompts joint min joint min joint min Averaging 31.25% 59.00% 26.26 18.64 -0.49 -1.46 0.720 0.610 Composable Diffusion 36.50% 67.00% 26.85 18.92 -0.26 -1.30 0.749 0.643 Multi-Concept Diffusion 53.75% 86.00% 27.05 18.77 0.28 -1.15 0.753 0.683 MultiDiffusion 58.00% 93.00% 27.65 19.59 0.34 -0.99 0.816 0.738 Ours (without fairness) 45.00% 85.00% 27.29 19.82 -0.08 -1.23 0.808 0.715 Ours (with proportional fairness) 59.00% 91.00% 28.13 20.38 0.26 -1.01 0.863 0.783
+
+Moreover, we analyze how the performance of Divide-and-Denoise is affected by the choice of the fairness constraints. Across all tasks for the Stable Diffusion setup, we compare our method without any regularization (Efficient Allocation), with only proportional constraints (Efficient + Proportional Allocation), with proportional and equitable constraints (Efficient + Proportional + Equitable Allocation), and finally with proportional and envy-free constraints (Efficient + Proportional + Envy-Free Allocation). Note that we only use last option when coordinating 3 models, since in 2 players’ case any proportional allocation is also envy-free. We report all metrics in Table 11. 19 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models                                                                                                                                  
+
+> Table 11. Performance of Divide-and-Denoise in coordinating 2 and 3 models on different concepts under varying fairness criteria. Task Allocation GenEval ↑CLIP ↑Reward ↑VQA ↑
+> %images %prompts joint min joint min joint min 2 objects Efficient 87.00% 98.00% 29.91 21.59 1.16 -0.42 0.959 0.921 Efficient + Proportional 88.50% 99.00% 30.02 21.53 1.23 -0.38 0.960 0.925
+> Efficient + Proportional + Equitable 87.00% 98.00% 30.08 21.67 1.20 -0.41 0.960 0.921 3 objects Efficient 51.75% 88.00% 32.68 18.96 1.05 -0.92 0.872 0.773 Efficient + Proportional 59.50% 92.00% 33.21 19.09 1.22 -0.79 0.921 0.829 Efficient + Proportional + Equitable 63.00% 94.00% 33.24 19.35 1.29 -0.74 0.919 0.834
+> Efficient + Proportional + Envy-Free 60.25% 92.00% 33.17 19.05 1.24 -0.77 0.915 0.824 2 objects with color Efficient 52.50% 86.00% 32.42 22.53 1.22 -0.66 0.869 0.791 Efficient + Proportional 55.75% 86.00% 32.65 22.62 1.34 -0.56 0.882 0.806
+> Efficient + Proportional + Equitable 54.00% 85.00% 32.65 22.62 1.31 -0.56 0.882 0.804 concepts with conflict Efficient --30.99 21.01 1.05 -0.60 0.896 0.796 Efficient + Proportional --31.13 21.23 1.12 -0.55 0.905 0.815 Efficient + Proportional + Equitable --31.36 21.46 1.15 -0.52 0.904 0.819
+> Efficient + Proportional + Envy-Free --31.19 21.26 1.12 -0.54 0.905 0.819
+
+A.6. Custom Dataset 
+
+We constructed a custom dataset comprising 40 examples, each designed with conflicts between individual prompts. Specifically, the first 30 prompts involve either object + semantics or semantics + semantics compositions: 10 focus on conflicting attributes (e.g., “an image with a blue lake” and “an image with violet trees”), while the remaining 20 capture conflicting semantic combinations (e.g., “an image with a desert” and “an image with a snowy mountain”). The last 10 prompts are of the form semantics + semantics + object, where at least one pairing is conflicting. 
+
+Conflicting Attributes (10 prompts): 
+
+1. an image with a blue lake , an image with violet trees 
+
+2. an image with a green car , an image with a pink forest 
+
+3. an image with a yellow elephant , an image with a grey desert 
+
+4. an image with a rainbow-colored dog , an image with a black-and-white city 
+
+5. an image with a brown flamingo , an image with a purple swamp 
+
+6. an image with a transparent car , an image with a glowing forest 
+
+7. an image with a golden cloud , an image with a black ocean 
+
+8. an image with a white bus , an image with a bright orange snowfield 
+
+9. an image with a blue cat , an image with a black sofa 
+
+10. an image with a red eagle , an image with a grey sky 
+
+Conflicting Semantic Combinations (20 prompts): 
+
+11. an image with a desert , an image with a snowy mountain 
+
+12. an image with a jungle , an image with an icy glacier 
+
+13. an image with a burning forest , an image with a frozen river 
+
+20 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+14. an image with a tropical beach , an image with a volcanic eruption 
+
+15. an image with a futuristic city , an image with a medieval castle 
+
+16. an image with a stormy sky , an image with a calm lake 
+
+17. an image with a carnival , an image with a haunted graveyard 
+
+18. an image with an underwater city , an image with a floating island 
+
+19. an image with a sunny meadow , an image with a meteor shower 
+
+20. an image with a winter tundra , an image with a blooming spring forest 
+
+21. an image with snowy mountains , an image with a camel 
+
+22. an image with a rainforest , an image with a penguin 
+
+23. an image with a rocky cliffside , an image with a telephone booth 
+
+24. an image with an iceberg , an image with a windmill 
+
+25. an image with a busy highway , an image with a deer 
+
+26. an image with a street , an image with a jaguar 
+
+27. an image with a blizzard , an image with a giraffe 
+
+28. an image with a desert oasis , an image with a moose 
+
+29. an image with a rice field , an image with a Ferris wheel 
+
+30. an image with a savanna , an image with a skyscraper 
+
+Triple Combinations (10 prompts): 
+
+31. an image with a desert canyon , an image with snowy peaks , an image with atropical parrot 
+
+32. an image with a modern city skyline , an image with a rural farm , an image with ahorse 
+
+33. an image with a sunflower field , an image with snowy mountains , an image with apolar bear 
+
+34. an image with a grassy soccer field , an image with volcanic ash clouds , an image with a motorcycle 
+
+35. an image with a frozen lake , an image with a tropical beach , an image with apalm tree 
+
+36. an image with an iceberg , an image with stormy skies , an image with a cow 
+
+37. an image with a grassy meadow , an image with a tropical sun , an image with asnowman 
+
+38. an image with a sandy beach , an image with the aurora borealis , an image with an elephant 
+
+39. an image with a wheat field , an image with a futuristic glass dome city , an image with a steam train 
+
+40. an image with a rocky cliffside , an image with a rainbow sky , an image with aboat 
+
+21 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+A.7. Additional Qualitative Results 
+
+We provide additional qualitative comparisons of Divide-and-Denoise with baselines. The experimental setups are described in Section 4. For the experiments using Stable Diffusion, the images are shown in Figures 8, 9, 10, and 11. Each row corresponds to one coordination mechanism: Averaging, Composable Diffusion, Multi-Concept Diffusion, MultiDiffusion and Divide-and-Denoise with fairness given by proportional constraints. Each column corresponds to a fixed set of concepts. For each combination of method and concept set, we generate a batch of 4 images. For the DiT setup, the images are shown in Figure 7. We present all pairs of ImageNet classes used for the quantitative analysis (see Figure 3) and plot images generated by Composable Diffusion and MultiDiffusion baselines alongside images generated by our method for the same random seed. Divide-and-Denoise avoids object overlap and blending of concepts in many cases where Composable Diffusion fails to reliably represent both classes. 22 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Figure 7. Comparison of Composable Diffusion (3 first columns), MultiDiffusion (3 middle columns) and Divide-and-Denoise (3 last columns) on a dataset of ImageNet pairs. For each pair of concepts, we show 3 images generated with random seeds. All three models use the same seeds. 
+
+23 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Figure 8. Qualitative comparison on GenEval benchmark (2 objects) 
+
+24 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Figure 9. Qualitative comparison on GenEval benchmark (3 objects) 
+
+25 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Figure 10. Qualitative comparison on GenEval benchmark (2 objects with color descriptions) 
+
+26 Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models 
+
+Figure 11. Qualitative comparison on Conflict dataset 
+
+27

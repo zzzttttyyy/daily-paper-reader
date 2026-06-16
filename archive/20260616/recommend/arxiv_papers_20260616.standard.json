@@ -1,0 +1,292 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-16T22:03:36.002302+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2606.14756v1",
+      "source": "arxiv",
+      "title": "Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models",
+      "abstract": "The abundance of pre-trained diffusion models provides an opportunity for composition. Combining several models, however, runs the risk of one model dominating or models disagreeing with each other. Here, we propose Divide-and-Denoise, a method for coordinating multiple pre-trained diffusion models during sampling. Much like managing a specialized workforce, our method creates a fair but efficient division of labor across models. Central to our method is the notion of an allocation which defines the responsibility of each model to every region of the noisy sample. At every timestep, we then denoise by (i) updating the allocation by solving a fair division game, where we divide the sample into regions that maximize total utility under fairness constraints, and (ii) aligning the models with this allocation, where we guide each model to denoise within its assigned region. This leads to a new composite denoising process that evolves in tandem with a division process. We evaluate Divide-and-Denoise on conditional image generation. Across several quality metrics, including the GenEval benchmark, our method outperforms baselines and resolves common failures including missing objects and mismatched attributes. Experiments show that Divide-and-Denoise utilizes each model's expertise without neglecting any other model.",
+      "authors": [
+        "Abhi Gupta",
+        "Polina Barabanshchikova",
+        "Vikas Garg",
+        "Samuel Kaski",
+        "Tommi Jaakkola"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-08T04:51:17+00:00",
+      "link": "https://arxiv.org/pdf/2606.14756v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free composition of multiple diffusion models via fair division game",
+      "llm_evidence_cn": "通过公平分配博弈无需训练地组合多个扩散模型",
+      "llm_evidence": "通过公平分配博弈无需训练地组合多个扩散模型",
+      "canonical_evidence": "通过公平分配博弈无需训练地组合多个扩散模型",
+      "llm_tldr_en": "Divide-and-Denoise coordinates multiple pre-trained diffusion models during sampling using a fair division game to allocate responsibility, enabling training-free composition.",
+      "llm_tldr_cn": "该论文提出Divide-and-Denoise，一种在采样过程中协调多个预训练扩散模型的免训练方法。通过公平分配博弈，将噪声样本划分为不同区域，使每个模型负责其最擅长的区域，避免模型支配或冲突。该方法在图像生成任务中实现了高效的模型组合，无需额外训练。",
+      "llm_tldr": "该论文提出Divide-and-Denoise，一种在采样过程中协调多个预训练扩散模型的免训练方法。通过公平分配博弈，将噪声样本划分为不同区域，使每个模型负责其最擅长的区域，避免模型支配或冲突。该方法在图像生成任务中实现了高效的模型组合，无需额外训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.16317v1",
+      "source": "arxiv",
+      "title": "Training-free sparse attention based on cumulative energy filtering",
+      "abstract": "Sparse attention accelerates Diffusion Transformers (DiTs) for video generation by computing only the important tokens while skipping the rest. The token selection strategy is key to balancing sparsity and accuracy. We formulate the token filtering process as a dual-goal optimization problem: maximizing sparsity and minimizing accuracy degradation. Existing algorithms cannot fulfill both objectives simultaneously. For example, Top-p only considers the accuracy constraint, while Top-k maintains a fixed computational budget but loosens the accuracy constraint.   This paper demonstrates that maintaining a fixed recall rate is sufficient for ensuring accuracy, whereas a fixed threshold is suboptimal for reducing computational cost. Therefore, we propose a dynamic thresholding scheme to improve sparsity while maintaining the same level of accuracy. Furthermore, our algorithm is deeply integrated with Flash Attention (FA), eliminating the need for any additional masking computation overhead. Experimental results on Wan 2.2 validate that, compared to the BLASST algorithm which is also integrated with FA, our dynamic thresholding strategy enhances sparsity from 61.42\\% to 82\\% with a VBench metric drop of less than 5\\%. This results in an approximate 15\\% in attention computation and a $1.61\\times$ increase in computational efficiency, which is 1.18x higher than that of BLASST.",
+      "authors": [
+        "Chunlu Li",
+        "Yixuan Pan",
+        "Bai Du",
+        "Zhenyuan Chen",
+        "Yanzhao Li",
+        "Hui Dong",
+        "Hui Wang",
+        "Zhiqiang Zou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-15T07:26:57+00:00",
+      "link": "https://arxiv.org/pdf/2606.16317v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sparse attention for video diffusion transformers",
+      "llm_evidence_cn": "免训练稀疏注意力用于视频扩散Transformer",
+      "llm_evidence": "免训练稀疏注意力用于视频扩散Transformer",
+      "canonical_evidence": "免训练稀疏注意力用于视频扩散Transformer",
+      "llm_tldr_en": "A training-free sparse attention method for video diffusion transformers uses cumulative energy filtering to accelerate generation while maintaining accuracy.",
+      "llm_tldr_cn": "稀疏注意力可以加速视频扩散Transformer，但现有策略难以同时兼顾稀疏性和精度。本文提出基于累积能量过滤的动态阈值方法，在保持固定召回率的前提下最大化稀疏性，无需额外训练即可实现高效加速。实验证明该方法在视频生成任务中有效降低了计算成本且不牺牲质量，属于免训练优化技术。",
+      "llm_tldr": "稀疏注意力可以加速视频扩散Transformer，但现有策略难以同时兼顾稀疏性和精度。本文提出基于累积能量过滤的动态阈值方法，在保持固定召回率的前提下最大化稀疏性，无需额外训练即可实现高效加速。实验证明该方法在视频生成任务中有效降低了计算成本且不牺牲质量，属于免训练优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.15389v1",
+      "source": "arxiv",
+      "title": "Timestep Rescheduling in Diffusion Inversion",
+      "abstract": "Diffusion inversion, which maps images back to the Gaussian latent space of a diffusion model, is a critical task for image reconstruction and editing. While DDIM enables fast deterministic inversion, it inherently introduces deviations that accumulate into noticeable inversion errors. Existing methods often address this by solving a fixed-point problem but largely overlook how the selection of the diffusion timestep in the noise scheduler influences inversion fidelity. In this work, we reveal that the deviation scale in diffusion inversion is strongly dependent on the timestep size, and exhibits a parabolic trend, with larger errors concentrated at both small and large timesteps. Based on this finding, we propose a simple yet effective nonuniform timestep scheduler that integrates a global rescaling with a local dynamic programming based rescheduling, enabling a strategic allocation of computational effort that minimizes the overall inversion error and preserves higher inversion accuracy. Our method serves as an off-the-shelf enhancement for existing inversion techniques and requires no extra parameters or computational overhead. Through extensive experiments, we verify that integrating our scheduler consistently boosts the performance of existing inversion methods, achieving superior results in image reconstruction and editing.",
+      "authors": [
+        "Shangquan Sun",
+        "Ting Gong",
+        "Zhirui Liu",
+        "Jiamin Wu",
+        "Runkai Zhao",
+        "Mianxin Liu",
+        "Wenqi Ren",
+        "Xiaochun Cao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-13T16:32:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.15389v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free timestep scheduling for diffusion inversion",
+      "llm_evidence_cn": "免训练的时间步调度用于扩散反演",
+      "llm_evidence": "免训练的时间步调度用于扩散反演",
+      "canonical_evidence": "免训练的时间步调度用于扩散反演",
+      "llm_tldr_en": "Proposes a nonuniform timestep scheduler for diffusion inversion that reduces inversion errors without additional training, improving fidelity in image reconstruction and editing.",
+      "llm_tldr_cn": "扩散反演是图像重建和编辑的关键任务，但现有方法常忽略时间步选择对反演保真度的影响。本文发现反演偏差随时间步大小呈抛物线趋势，在较小和较大步长处误差集中。基于此，提出一种非均匀时间步调度器，只需调整调度策略，无需额外训练，即可显著降低反演误差。实验验证该方法有效提升图像重建质量，为免训练优化扩散模型采样提供了新思路。",
+      "llm_tldr": "扩散反演是图像重建和编辑的关键任务，但现有方法常忽略时间步选择对反演保真度的影响。本文发现反演偏差随时间步大小呈抛物线趋势，在较小和较大步长处误差集中。基于此，提出一种非均匀时间步调度器，只需调整调度策略，无需额外训练，即可显著降低反演误差。实验验证该方法有效提升图像重建质量，为免训练优化扩散模型采样提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.15614v1",
+      "source": "arxiv",
+      "title": "Variational Test-time Optimization for Diffusion Synchronization",
+      "abstract": "Collaborative generation, which coordinates multiple diffusion trajectories to extend the capabilities of pretrained priors, has emerged as a powerful paradigm for extending the applicability of diffusion models. Among existing approaches, diffusion synchronization provides a scenario-agnostic solution by introducing general guidance mechanisms. However, current synchronization approaches rely heavily on heuristics and still require task-specific tailoring, which limits their generalizability and performance. In this work, we mathematically derive a synchronization framework based on optimal control, providing a principled explanation of diffusion synchronization. During sampling, we optimize control variables to guide multiple trajectories toward coherent solutions while remaining close to the underlying diffusion prior. Our method operates entirely at test-time without additional training, thereby enabling broad applicability across diverse generation scenarios when combined with strong pretrained priors. We demonstrate consistent improvements over baselines on three representative collaborative generation tasks, covering a wide range of modalities and applications. Beyond performance gains, our work establishes a novel foundation for collaborative generation, opening a principled path toward extending pretrained generative models to new collaborative generation settings.",
+      "authors": [
+        "Hyunsoo Lee",
+        "Farrin Marouf Sofian",
+        "Kushagra Pandey",
+        "Stephan Mandt"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-14T05:52:11+00:00",
+      "link": "https://arxiv.org/pdf/2606.15614v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "test-time optimization for diffusion synchronization without retraining",
+      "llm_evidence_cn": "测试时优化扩散同步，无需再训练",
+      "llm_evidence": "测试时优化扩散同步，无需再训练",
+      "canonical_evidence": "测试时优化扩散同步，无需再训练",
+      "llm_tldr_en": "Proposes variational test-time optimization that controls trajectories during sampling via optimal control, enabling coherent multi-trajectory generation without extra training.",
+      "llm_tldr_cn": "针对现有扩散同步方法依赖启发式且需要任务定制的问题，提出基于最优控制的变分测试时优化框架。在采样过程中优化控制变量以协调多条扩散轨迹，无需额外训练。实验证明该方法能生成语义一致的组合输出，提升了同步的泛化性和性能。",
+      "llm_tldr": "针对现有扩散同步方法依赖启发式且需要任务定制的问题，提出基于最优控制的变分测试时优化框架。在采样过程中优化控制变量以协调多条扩散轨迹，无需额外训练。实验证明该方法能生成语义一致的组合输出，提升了同步的泛化性和性能。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.13655v2",
+      "source": "arxiv",
+      "title": "Flex4DHuman: Flexible Multi-view Video Diffusion for 4D Human Reconstruction",
+      "abstract": "We present Flex4DHuman, a multi-view video diffusion model that transforms a monocular or sparse multi-view video of a dynamic subject into synchronized dense multi-view videos using only relative camera-pose conditioning. Unlike prior human-centric methods that rely on skeletons, depth maps, normals, or rendered target-view geometry, Flex4DHuman requires no explicit geometry priors and instead conditions generation through relative camera-pose positional encoding. The generated videos can be directly ingested by downstream reconstruction pipelines to create dynamic 4D Gaussian splats. Built on the Wan 2.1 1.3B text-to-video model, Flex4DHuman preserves the backbone architecture and encodes camera and view information through a five-axis positional encoding that extends spatio-temporal RoPE with view indices and continuous SE(3) relative camera geometry. A three-stage curriculum progressively trains the model for pose following, flexible reference-to-target view generation, and temporal rollout. To support temporal rollout, we train with clean historical target-view tokens. We also add multi-view captions to enable test-time text control. Combined with an off-the-shelf 4D Gaussian Splatting stage, our framework lifts monocular static-camera videos into dynamic 4D Gaussian splats. Experiments on DNA-Rendering and ActorsHQ show that Flex4DHuman surpasses prior state-of-the-art methods, while the same formulation generalizes to animal categories after mixed human-animal training. These capabilities make Flex4DHuman a practical step toward scalable 4D content creation from casual monocular videos for simulation, gaming, AR/VR, and video re-shooting.",
+      "authors": [
+        "Jen-Hao Cheng",
+        "Yipeng Wang",
+        "Hao Zhang",
+        "Gengshan Yang",
+        "Jenq-Neng Hwang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-06-11T17:54:05+00:00",
+      "link": "https://arxiv.org/pdf/2606.13655v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Multi-view video diffusion for 4D human reconstruction",
+      "llm_evidence_cn": "用于4D人体重建的多视角视频扩散模型",
+      "llm_evidence": "用于4D人体重建的多视角视频扩散模型",
+      "canonical_evidence": "用于4D人体重建的多视角视频扩散模型",
+      "llm_tldr_en": "Flex4DHuman uses a multi-view video diffusion model conditioned on relative camera poses to generate dense multi-view videos from sparse inputs, enabling 4D reconstruction without geometry priors.",
+      "llm_tldr_cn": "该论文提出Flex4DHuman，一种基于相对相机姿态条件的多视角视频扩散模型，能将单目或稀疏多视角视频转换为同步的密集多视角视频。模型无需显式几何先验，生成视频可直接用于下游4D重建。该方法基于Wan 2.1文本到视频模型，保留了骨干架构并引入五轴位置编码。",
+      "llm_tldr": "该论文提出Flex4DHuman，一种基于相对相机姿态条件的多视角视频扩散模型，能将单目或稀疏多视角视频转换为同步的密集多视角视频。模型无需显式几何先验，生成视频可直接用于下游4D重建。该方法基于Wan 2.1文本到视频模型，保留了骨干架构并引入五轴位置编码。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.15236v1",
+      "source": "arxiv",
+      "title": "Show the Signal, Hide the Noise: Spectral Forcing for Pixel-Space Diffusion",
+      "abstract": "Pixel-space diffusion models are trained on full-bandwidth noisy images, yet the useful signal available to the denoiser is strongly frequency dependent. Under rectified-flow diffusion and natural-image power-law spectra, the per-band data-to-noise contour $k^{*}(t) = (1-t)^{-2/α}$ separates a signal-bearing low-frequency region from a noise-dominated high-frequency region at each time $t$. We show that this implicit coarse-to-fine structure is not merely descriptive: it induces a capacity-allocation problem. A standard pixel-space denoiser must discover the moving bandwidth boundary internally and can spend computation on frequency-time regions where the optimal prediction collapses to deterministic baselines rather than data-distribution modeling. To make this boundary explicit, we introduce Spectral Forcing, a parameter-free, time-conditional 2D-DCT low-pass operator applied to the noisy input before the patch embedder. Its cutoff expands monotonically with the diffusion time and becomes the identity at the data endpoint. Through controlled synthetic experiments, we identify the regime in which the operator is beneficial: coarse patch tokenization and data whose high-frequency content is predominantly noise rather than essential signal. On ImageNet-256 with JiT-700M/32, Spectral Forcing consistently improves both FID and Inception Score across different training epochs, demonstrating robust gains throughout training; at finer tokenization, the spectral forcing is still competitive. We further insert the unchanged operator into SenseNova-U1, a unified text-to-image model, where it improves DPG-Bench and GenEval, showing that the input-side spectral prior transfers beyond class-conditional generation. These results suggest a route to capacity-efficient pixel-space diffusion by showing the signal and hiding the noise.",
+      "authors": [
+        "Weichen Fan",
+        "Haiwen Diao",
+        "Penghao Wu",
+        "Ziwei Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-13T10:29:11+00:00",
+      "link": "https://arxiv.org/pdf/2606.15236v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free spectral forcing method to improve pixel-space diffusion",
+      "llm_evidence_cn": "免训练的频谱强制方法改进像素空间扩散",
+      "llm_evidence": "免训练的频谱强制方法改进像素空间扩散",
+      "canonical_evidence": "免训练的频谱强制方法改进像素空间扩散",
+      "llm_tldr_en": "This paper introduces spectral forcing for pixel-space diffusion models, a training-free technique that reweights frequency bands during sampling to improve efficiency and quality.",
+      "llm_tldr_cn": "本文提出频谱强制方法用于像素空间扩散模型，是一种免训练的采样优化技术。通过分析自然图像的功率谱，在采样时动态调整频带权重，使去噪器专注于信号丰富的低频区域，减少对噪声主导的高频区域的无效计算。实验表明该方法能提升生成质量和采样效率，无需额外训练。",
+      "llm_tldr": "本文提出频谱强制方法用于像素空间扩散模型，是一种免训练的采样优化技术。通过分析自然图像的功率谱，在采样时动态调整频带权重，使去噪器专注于信号丰富的低频区域，减少对噪声主导的高频区域的无效计算。实验表明该方法能提升生成质量和采样效率，无需额外训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.16408v1",
+      "source": "arxiv",
+      "title": "MUNI: Multimodal Unified Latent Diffusion for Coherent Any-to-Any Generation",
+      "abstract": "We introduce MUNI, an end-to-end multimodal latent diffusion framework for any-to-any generation that unifies subset-conditioned cross-modal generation and unconditional joint sampling through a shared stochastic latent. Existing multimodal generative models are largely LLM-based, which limits leveraging modality-specific generators and requires text-paired data for training. Recent diffusion- and flow-based any-to-any extensions take a different direction but still rely on text-aligned embeddings, fully-paired training, or matched-dimensionality deterministic mappings. MUNI rests on two complementary contributions, one architectural and one in the training objective. First, we extend latent diffusion to multimodal any-to-any generation end-to-end: instead of the standard two-stage recipe that precomputes a frozen latent space and then fits a prior over it, MUNI jointly trains modality-specific encoders, expressive decoders, and a single shared flow-based prior under one objective. Second, we identify that the standard aggregation rules of multimodal variational inference are insufficient once coupled with a learned prior and expressive decoders. A suitable shared latent must simultaneously satisfy coherence across generated modalities, predictive sufficiency of subset latents, and minimality of the latent content. We propose a routed training objective whose structural choices align the latent with these criteria and admit a minimal-sufficiency characterization in the realizable setting. Experiments on PolyMNIST-Quadrant-Labels and a large-scale image-text-audio benchmark show MUNI matching or exceeding the strongest baselines on conditional generation while opening its largest margins on unconditional coherence. Project page: https://muni-proj.github.io/.",
+      "authors": [
+        "Kyeongmin Yeo",
+        "Yunhong Min",
+        "Minhyuk Sung"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-15T08:46:48+00:00",
+      "link": "https://arxiv.org/pdf/2606.16408v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Unified multimodal latent diffusion for any-to-any generation",
+      "llm_evidence_cn": "统一多模态潜在扩散用于任意到任意生成",
+      "llm_evidence": "统一多模态潜在扩散用于任意到任意生成",
+      "canonical_evidence": "统一多模态潜在扩散用于任意到任意生成",
+      "llm_tldr_en": "MUNI proposes an end-to-end multimodal latent diffusion framework for any-to-any generation, unifying subset-conditioned cross-modal generation and unconditional joint sampling.",
+      "llm_tldr_cn": "该论文提出MUNI，一个端到端的多模态潜在扩散框架，支持任意模态到任意模态的生成。通过共享随机潜在变量，统一了子集条件跨模态生成和无条件联合采样，无需文本对齐嵌入或全配对训练。该框架扩展了潜在扩散，实现了多模态任何到任何生成。",
+      "llm_tldr": "该论文提出MUNI，一个端到端的多模态潜在扩散框架，支持任意模态到任意模态的生成。通过共享随机潜在变量，统一了子集条件跨模态生成和无条件联合采样，无需文本对齐嵌入或全配对训练。该框架扩展了潜在扩散，实现了多模态任何到任何生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
