@@ -1,0 +1,2093 @@
+Title: NoiseTilt: Noise-Tilted Reverse Kernels for Diffusion Reward Alignment
+
+URL Source: https://arxiv.org/pdf/2606.18066v1
+
+Published Time: Wed, 17 Jun 2026 01:29:02 GMT
+
+Number of Pages: 52
+
+Markdown Content:
+# NoiseTilt: Noise-Tilted Reverse Kernels for Diffusion Reward Alignment 
+
+Jisung Hwang 1, Yunhong Min 1, Jaihoon Kim 1, I-Chao Shen 2, Minhyuk Sung 1
+
+> 1
+
+KAIST 2The University of Tokyo Aesthetic Image Text Alignment     
+
+> “The fluffy cloud floated beside the
+> fiery sunset and the misty mountain .”
+
+FLUX FLUX + Ours FLUX FLUX + Ours 
+
+Preference -Aligned Video Generation 
+
+Wan2.1 Wan2.1 + Ours 
+
+“Wolf”      
+
+> “A car moving slowly on an empty street ,rainy afternoon.”
+
+Spatial Alignment 
+
+FLUX FLUX + Ours        
+
+> “A dog and a bird sitting on a branch
+> while an eagle is flying in the sky.”
+
+VLM -Based Reward 
+
+FLUX FLUX + Ours      
+
+> “Does the overlaid red line represent the horizon of the scene?”
+
+Counting 
+
+FLUX FLUX + Ours 
+
+“17 eggs.” 
+
+Layout 
+
+Figure 1. Inference-time reward alignment results using our Noise-Tilted Reverse Kernels ( NTRK ) across diverse reward-guided diffusion applications. 
+
+Abstract 
+
+We introduce the Noise-Tilted Reverse Kernel ( NTRK ), a reward-guided diffusion sampler that injects reward gradients through the noise term, leaving the pretrained reverse kernel unchanged and requiring only a single sample per step. Reward-guided sampling at inference time has greatly expanded the versatility of pretrained diffusion models. Yet existing methods face a trade-off. Gradient-based guidance shifts the reverse mean, steering generation but pushing intermediate states outside the region that the model was trained on and degrading quality. Search-based methods preserve quality but gain no gradient signal. No prior method achieves both. NTRK resolves this by keeping the reverse mean fixed and biasing the noise term toward high reward. We introduce a whitening operator, the central mechanism behind NTRK , that makes the reward gradient safe to inject as noise without losing its guiding signal. Across various reward alignment tasks, NTRK outperforms recent state-of-the-art baselines without losing sample quality. Remarkably, on aesthetic generation, NTRK surpasses the reward of the best baseline at 500 NFEs using only 25 NFEs, a 20 × reduction in compute. 
+
+Keywords Noise-Tilted Reverse Kernel ; Whitening Operator ; Reward Alignment ; Inference-Time Scaling 
+
+> arXiv:2606.18066v1 [cs.LG] 16 Jun 2026 NoiseTilt: Noise-Tilted Reverse Kernels
+
+# 1 Introduction 
+
+Inference-time scaling has become one of the most powerful levers for expanding the capabil-ities of pretrained generative models, enabling alignment to user- and task-specific preferences without costly retraining. In particular, diffusion models, which underpin state-of-the-art image and video generation [ 6, 35 , 54 , 70 ], are well suited for inference-time scaling thanks to their iterative denoising process. When preferences can be expressed as a reward function, this itera-tive procedure offers a model-agnostic mechanism to reshape the sampling distribution toward high-reward regions. As a result, reward-guided sam-pling at inference time has been applied broadly, including deblurring [ 7 , 10 , 13 , 18 , 57 , 62 , 74 ], super-resolution [ 9, 10 , 62 , 74 ], aesthetic image generation [ 30 , 46 , 75 ], spatial alignment [ 3, 75 ], text–image alignment [ 29 , 30 ], and increasingly, controllable video generation [ 27 , 42 , 44 , 50 , 77 ]. Behind all these applications lies the same question: how to steer each denoising step toward high-reward outcomes. These methods broadly fall into two paradigms, distinguished by how they modify or utilize the reverse Gaussian ker-nel. The first, mean-shifted (gradient guidance) methods, pioneered by DPS [ 10 ], augment the mean of the reverse Gaussian kernel with re-ward gradients, steering the trajectory toward high-reward regions. MCMC-based extensions further build on this principle [ 3, 63 , 76 ]. The second, search-based methods [ 29 , 38 , 46 ], draw 
+
+K candidates from the stochastic reverse kernel and select among them by a reward criterion such as argmax or importance sampling, without gradients or kernel modification. Several works combine both via particle filtering [30, 71, 75]. The two paradigms represent opposite ends of a fundamental trade-off between gradient guid-ance and noise-compatibility. Mean-shifted meth-ods gain the former but introduce a critical mis-match: adding reward gradients to the reverse mean displaces sampled states outside the noise-compatible regime, the narrow region where the pretrained model was trained to operate, with the displacement growing as the gradient magni-tude increases (see Figure 3). This displacement drives intermediate states out-of-distribution and degrades generation quality. It also makes these methods prone to reward hacking [ 17 ]. Search-   
+
+> Latent Visualization Sampled Image
+> Typical Noise Atypical Noise
+> Figure 2. Typical vs. atypical noise. Typical noise produces high-quality outputs, whereas atypical noise in-duces artifacts.
+
+based methods preserve the latter but forgo gra-dient guidance entirely, relying on random sam-pling to find reward-improving directions. To the best of our knowledge, no prior method achieves both , and our work addresses this gap. To resolve this trade-off, we propose the Noise-Tilted Reverse Kernel (NTRK ), a drop-in alter-native that leaves the reverse-kernel mean en-tirely unchanged and routes reward information through the noise term at each step. The central challenge is that any signal in-jected through the noise term must still be typi-cal Gaussian noise [ 24 , 25 ], a multi-faceted prop-erty encompassing norm concentration, spatial uncorrelatedness, and collective Gaussian statis-tics. A raw reward gradient is usually structured and deterministic; injecting it directly through the noise channel produces atypical noise and again drives states out-of-distribution, as illus-trated in Figure 2. Inspired by the concept of whitening in statistical learning [ 26 , 28 ], we introduce a whitening operator that processes the reward gradient before injection, suppress-ing structured components incompatible with the pretrained model while preserving the directional information of the gradient. Whitening is there-fore not an auxiliary step but the core mechanism of NTRK , and reward alignment improves directly with the quality of the whitening operator. In our experiments, we demonstrate the ef-
+
+> 2NoiseTilt: Noise-Tilted Reverse Kernels
+
+fectiveness of NTRK , which can also be combined with multi-particle strategies such as Best-of-N (BoN) [ 65 ]. Across a range of applications, in-cluding aesthetic image generation, text-aligned image generation, VLM-based reward alignment, preference-aligned video generation as showcased in Figure 1, we show that NTRK , paired with sim-ple BoN, can outperform recent state-of-the-art approaches that employ more complex techniques such as trajectory rollback [ 76 ], particle filter-ing [ 29 , 30 , 38 ], and initial-point search [ 75 ]. In particular, for aesthetic image generation, our method surpasses the reward achieved by the state-of-the-art baseline with 500 NFEs using only 25 NFEs (i.e., 5%), while maintaining im-age quality. 
+
+# 2 Related Work 
+
+We review prior work on reward alignment for diffusion models at inference time. Fine-tuning-based approaches include direct backpropaga-tion [ 11 , 48 ] and reinforcement learning [ 5 , 16 ,51 , 69 ]; we focus on inference-time methods that operate directly on pretrained models without additional training, and can further be applied on top of fine-tuned models [ 37 , 41 ]. We orga-nize these into two threads: methods that modify the per-step reverse kernel, grouped into three categories summarized in Table 1, and methods for making reward gradients noise-compatible, which underpin our whitening operator. 
+
+2.1 Reverse Kernel Methods 
+
+Rather than manipulating attention maps [ 8, 19 ,20 , 33 , 47 ], which tend to be task- and model-specific, we focus on methods that modify the reverse kernel using a differentiable reward. A separate line that treats the injected noise as an optimization variable [ 15 , 66 ] is covered in the second thread below. 
+
+Mean-shifted reverse kernels. A foundational method in this line is DPS [ 10 ], which incorpo-rates reward information directly into the diffu-sion sampling process by shifting the mean of each reverse kernel using gradients derived from the reward model via Tweedie’s formula [ 53 ]. By leveraging the pretrained diffusion prior, this ap-proach can be applied to diverse tasks and has be-come one of the most widely adopted frameworks                           
+
+> Table 1. Comparison of reverse-kernel guidance mechanisms. NTRK is the only approach satisfying all three properties simultaneously.
+> Base Mean-Shifted Search-Based Hybrid Noise-Tilted
+> Examples —DPS [10] SVDD [38] DAS [30] NTRK
+> Gradient guidance ✗✓✗✓✓
+> Pretrained -compatible ✓✗✓✗✓
+> Draws / step 11KK1
+
+for inference-time alignment. Numerous exten-sions have since been proposed to improve sam-pling efficiency, accuracy, and applicability: Free-DoM [ 76 ] incorporates additional Monte Carlo sampling, other works develop more advanced solvers [ 18 , 57 , 62 , 63 , 71 ], and the framework has been extended to latent diffusion models [ 55 , 56 ]enabling scalable applications in large generative systems [ 54 ], and applied across image and video generation [ 3, 12 , 34 , 36 , 74 ]. As shown in Ta-ble 1, however, shifting the kernel mean pushes samples outside the noise-compatible Gaussian regime that pretrained models are trained on. 
+
+Search-based methods. Rather than modify-ing the kernel mean, search-based methods ex-ploit the stochasticity of the reverse diffusion process by drawing K candidates from the un-modified base kernel and selecting those with higher rewards [ 46 , 52 , 61 ]. These methods trade additional computation for improved sample qual-ity while strictly preserving the native reverse kernel. SVDD [ 38 ] is a representative exam-ple that selects the highest-reward sample at each denoising step; RBF [ 29 ] improves efficiency by dynamically allocating the sampling budget across timesteps. These methods remain noise-compatible but forgo gradient guidance and re-quire K draws per step. 
+
+Hybrid methods. A third group combines gra-dient guidance with multi-particle sampling, gain-ing the directionality of gradient guidance and the diversity of multiple draws. DAS [ 30 ] incorpo-rates reward gradients within a Sequential Monte Carlo (SMC) framework [ 14 ], and Ψ-Sampler [ 75 ]additionally reshapes the initial particle distribu-tion toward the reward-aligned posterior. How-ever, because these methods still shift the kernel mean to inject gradient guidance, they inherit the noise-compatibility issue of mean-shifted kernels. 
+
+> 3NoiseTilt: Noise-Tilted Reverse Kernels
+
+Across all three groups, no existing approach simultaneously achieves gradient guidance and noise-compatibility. 
+
+2.2 Noise-Compatible Perturbations 
+
+Our work addresses this gap with NTRK , which routes reward information through the stochastic noise term rather than the mean and is the only approach satisfying all three properties in Ta-ble 1. The central challenge is that the injected perturbation must remain noise-compatible, a property more demanding than simply matching a Gaussian norm [ 24 , 25 ]. Inspired by statisti-cal whitening [ 26 , 28 ], our whitening operator processes the reward gradient to exhibit Gaus-sian statistics and spatial uncorrelatedness before injection. 
+
+Regularization-based methods. Several prior works have studied how to encourage Gaussian typicality in vectors involved in diffusion infer-ence, each from a different context: earlier ap-proaches apply norm-based regularization to keep optimized noise or latent vectors near the Gaus-sian concentration shell [ 4 , 15 , 58 ], while DNO [ 66 ], MPGR [ 25 ], and StressDream [ 60 ] additionally regularize higher-order spatial statistics alongside norm, in the respective contexts of noise-space op-timization, gradient guidance stabilization, and video world model steering. All of these impose soft constraints for specific properties of Gaus-sian noise, however, and cannot guarantee those properties. 
+
+Projection-based methods. WGNC [ 24 ] is the first to reframe noise-compatibility as a pro-jection problem, directly mapping the reward gradient onto a white Gaussian noise feasible set defined by hard blockwise norm constraints in the Fourier domain. This is the first approach in the spirit of true statistical whitening, achieving typ-icality enforcement in a single pass. However, its hard equality constraints also distort noise that is already noise-compatible. Our whitening op-erator upgrades this projection approach: by re-placing hard equality constraints with confidence-interval projections, it strongly suppresses atyp-ical structure while leaving genuine Gaussian noise nearly unchanged (see Section B.7 for a detailed comparison). 
+
+# 3 Overview 
+
+We formalize the reward alignment problem and analyze four design choices for the per-step re-verse kernel. The central question is how reward information can be incorporated at each denois-ing step without violating the noise-compatible regime that the pretrained model relies on. 
+
+3.1 Problem Definition 
+
+Given a pretrained diffusion model that maps a source noise distribution, pT = N (0, I), to a data distribution p0, our objective is to generate high-reward samples x0, a task generally known as reward alignment. Formally, this objective is formulated as finding a target distribution p∗ 
+
+> 0
+
+[ 32 ,67, 68] such that: 
+
+p∗ 
+
+> 0
+
+= arg max 
+
+> q
+
+Ex0∼q [r(x0)] − β DKL [q∥p0] , (1) which maximizes the expected reward r(x0) while the KL divergence acts as a regularizer, prevent-ing deviation from the pretrained data distri-bution. The temperature β > 0 controls this trade-off: smaller β produces stronger reward tilting, while larger β stays closer to the pre-trained distribution. The optimal reverse kernel p∗
+
+> θ
+
+(xt−1 | xt) re-quired to sample from the target distribution in Equation (1) can be approximated as follows: 
+
+p∗
+
+> θ
+
+(xt−1|xt) ∝ pθ(xt−1|xt) exp  
+
+> (Vt−1(xt−1)
+> β
+> )
+
+, (2) where the exact value function Vt(xt) is intractable and is approximated using Tweedie’s posterior mean [ 53 ]. That is, Vt(xt) ≈ r( ˆx0|t), where 
+
+ˆx0|t := E[x0 | xt]. The design of the per-step re-verse kernel determines how this approximation is realized in practice, and whether the resulting updates remain noise-compatible. In the following sections, we first recall the base diffusion reverse kernel and then compare two common approximation routes to reward guidance: mean-shifted reverse kernels and search-based selection. Lastly, in Section 3.5, we intro-duce our proposed noise-tilted reverse kernel that preserves the base mean while injecting reward information through the stochastic term. These four kernels are illustrated in Figure 3. 
+
+> 4
+
+NoiseTilt: Noise-Tilted Reverse Kernels 
+
+Base Kernel 
+
+1 draw / step | Section 3.2 
+
+Mean-Shifted 
+
+1 draw / step | DPS [10], Section 3.3 
+
+xt−1 = μθ(xt, t ) + σtϵt, xt−1 = ˜ μθ(xt, t ) + σtϵt,
+
+ϵt ∼ N (0, I). ˜μθ(xt, t ) := μθ(xt, t ) + λt∇xt r( ˆ x0|t).
+
+Search-Based 
+
+K draws / step | SVDD [38], Section 3.4 
+
+Noise-Tilted 
+
+1 draw / step | Ours , Section 3.5 
+
+xt−1 = μθ(xt, t ) + σtϵ⋆t , xt−1 = μθ(xt, t ) + σt˜ϵt,
+
+ϵ⋆t = ϵ(i⋆) 
+
+> t
+
+, i⋆ = arg max 
+
+> i∈{ 1,...,K }
+
+r( ˆ x(i)0|t−1),
+
+x(i) 
+
+> t−1
+
+= μθ(xt, t ) + σtϵ(i) 
+
+> t
+
+.
+
+˜ϵt = √ρt W(∇xt r( ˆ x0|t)) + √1 − ρt ϵt.
+
+Figure 3. Reverse-kernel guidance mechanisms. The green annulus indicates the noise-compatible regime; blue dots show the induced sample distribution. Mean-shifted guidance injects reward information by shifting the reverse mean, pushing samples outside the noise-compatible regime. Search-based guidance preserves the base mean by selecting the best among K candidate noise draws. NTRK also preserves the base mean but constructs a single reward-tilted noise draw, achieving reward alignment without leaving the noise-compatible regime. 
+
+5NoiseTilt: Noise-Tilted Reverse Kernels 
+
+3.2 Diffusion Reverse Kernel 
+
+A diffusion model [ 21 , 64 ] progressively denoises an initial Gaussian noise by sequentially apply-ing a Markovian reverse kernel, modeled as a Gaussian transition from xt to xt−1 over discrete timesteps t = T, . . . , 0:
+
+pθ(xt−1 | xt) = N (xt−1; μθ(xt, t ), σ 2 
+
+> t
+
+I), (3) where the mean μθ(xt, t ) is parameterized using a neural network, and the variance σ2 
+
+> t
+
+controls the amount of stochasticity injected each step. The visualization of Equation (3) is presented in Figure 3. To generate a sample in practice, xt−1 is drawn from the distribution in Equation (3) using the standard reparameterization trick: 
+
+xt−1 = μθ(xt, t ) + σtϵt,
+
+ϵt ∼ N (0, I). (4) Since the reverse kernel is parameterized as a Gaussian distribution, any valid transition be-tween consecutive latent states must satisfy the condition that the standardized perturbation ηt
+
+is a Gaussian noise: 
+
+ηt := xt−1 − μθ(xt, t )
+
+σt
+
+. (5) Under the base reverse process, ηt = ϵt holds trivially, so the standardized perturbation is in-herently a standard Gaussian noise. 
+
+3.3 Mean-Shifted Reverse Kernel [10] 
+
+For efficient reward alignment, first-order reward information can be injected directly into the re-verse transition in Equation (3). Concretely, the mean-shifted reverse kernel [ 10 ] modifies the base reverse kernel by adding this gradient to its mean: 
+
+xt−1 = μθ(xt, t ) + λt∇xt r( ˆ x0|t) + σtϵt, (6) where ϵt ∼ N (0, I), λt > 0 is a guidance hyperpa-rameter, and detailed derivations are provided in Section A.2. As illustrated in the top-right panel of Figure 3, Equation (6) injects reward guidance by shifting the reverse-kernel mean while keeping the injected noise term unchanged. Since its introduction, this mean-shifted re-verse kernel has been widely adopted and ex-tended, including advanced sampling schemes [ 18 ,76 ], particle-based sampling [ 30 , 75 ], and ap-plications ranging from images [ 3, 36 , 74 ] to videos [12, 34]. Despite its practical success, a closer look at the standardized perturbation reveals a subtle yet critical mismatch with the base reverse dynamics. Identifying and analyzing this discrepancy is one of the main contributions of this work. To make the mismatch explicit, consider the standardized perturbation induced by Equation (6) relative to the base mean μθ(xt, t ):
+
+ηmean  
+
+> t
+
+= ϵt + λt
+
+σt
+
+∇xt r( ˆ x0|t). (7) The deterministic reward gradient term in Equa-tion (7) means that the standardized perturba-tion is no longer a Gaussian noise assumed by the pretrained reverse kernel. Consequently, the reverse updates can drift away from the learned intermediate distributions, and repeated itera-tions may push samples toward regions that are insufficiently supported by the pretrained diffu-sion in practice. An alternative approach avoids this issue by preserving the base mean and in-stead biasing the stochastic perturbation, as we describe in the following subsection. 
+
+3.4 Search-Based Reverse Kernel 
+
+To approximate the optimal reverse transition in Equation (2), search-based methods draw K can-didates from the base reverse kernel, all centered at the pretrained mean: 
+
+x(i) 
+
+> t−1
+
+= μθ(xt, t ) + σtϵ(i) 
+
+> t
+
+, ϵ(i) 
+
+> t
+
+∼ N (0, I), (8) where i = 1 , . . . , K . As a representative search-based method, SVDD [ 38 ] selects the candidate whose predicted reward score is highest: 
+
+i⋆ = arg max 
+
+> i∈{ 1,...,K }
+
+r
+
+> (
+
+ˆx(i)0|t−1
+
+> )
+
+, xt−1 = x(i⋆)
+
+> t−1
+
+. (9) Reward information therefore appears through the selected stochastic perturbation ϵ(i⋆) 
+
+> t
+
+rather than through a deterministic mean shift. As il-lustrated in Figure 3, search-based guidance can therefore be interpreted as an implicit form of noise tilting. However, when high-reward sam-ples are in low-density regions of the pretrained distribution, this becomes inefficient, requiring a prohibitively large number of samples. We 
+
+> 6NoiseTilt: Noise-Tilted Reverse Kernels
+
+provide a more detailed derivation of this view in Section A.3. In the following subsection, we propose a method that retains this advantage of preserving the base mean while reducing the sampling cost to a single draw. 
+
+3.5 Noise-Tilted Reverse Kernel ( NTRK )
+
+Our key idea is to preserve the pretrained re-verse mean μθ(xt, t ) and inject reward informa-tion only through the noise, thereby avoiding the noise-compatibility mismatch of mean-shifted kernels. Unlike search-based selection, which re-quires drawing K candidates per step, our ap-proach achieves this with a single noise draw. The challenge is that a raw reward gradient is usually structured and deterministic rather than Gaussian, so it cannot directly serve as a noise-compatible perturbation. We therefore introduce a whitening operator W that maps the reward gradient to a noise-compatible direction, and define the whitened reward direction wt := 
+
+W(∇xt r( ˆ x0|t)) . We formalize W in Section 4. To incorporate wt into the noise term while preserving its Gaussian form, we rely on a basic identity: if ϵ1, ϵ2 ∼ N (0, I) are independent, then for any ρ ∈ [0 , 1] ,
+
+√ρ ϵ1 + √1 − ρ ϵ2 ∼ N (0, I). (10) We define the guided injected noise by mixing the whitened direction with unbiased stochasticity: 
+
+˜ϵt = √ρt wt + √1 − ρt ϵt, (11) where ϵt ∼ N (0, I) and ρt ∈ [0 , 1] controls the guidance strength. Intuitively, the first term in-jects a whitened guidance component that carries reward-gradient information, while the second term preserves unbiased stochasticity. A heuris-tic interpretation of ρt relative to search-based guidance under a local linearity assumption is provided in Section A.5. Using Equation (11), we replace the base sam-pling rule in Equation (4), resulting in our noise-tilted reverse kernel, NTRK :
+
+xt−1 = μθ(xt, t ) + σt˜ϵt. (12) Most importantly, the standardized noise relative to the base mean becomes 
+
+ηnoise  
+
+> t
+
+:= xt−1 − μθ(xt, t )
+
+σt
+
+= ˜ϵt. (13) The kernel is thus noise-tilted in that reward guid-ance is expressed entirely through the noise term rather than the mean, as formalized in Equa-tion (13). Crucially, Equation (12) preserves the pretrained reverse-kernel structure, using the same base mean μθ(xt, t ) and the same nominal noise scale σt as Equation (3). Consequently, each step remains noise-compatible with the pre-trained reverse dynamics. As shown in the right panel of Figure 3, samples of xt−1 are drawn toward higher-reward regions while remaining within the regime where the pretrained model operates reliably. A core contribution of this work is the con-struction of the whitening operator W so that it is statistically well-founded in high dimensions and expressive enough to preserve reward signal. In Section 4, we formalize the required statistical conditions and introduce our confidence-interval projection method to realize W in practice. 
+
+# 4 Whitening Operator 
+
+Our goal is to transform an arbitrary input vector into a typical standard Gaussian noise vector. Al-though N (0, I) has nonzero density everywhere in RN , in high dimensions almost all probabil-ity mass concentrates on a narrow typical region. Pretrained generative models are trained on tra-jectories whose injected perturbations lie in this typical region; consequently, perturbations that drift away from it can act as out-of-distribution inputs to the learned reverse dynamics (see Fig-ure 2). We therefore design a whitening operator 
+
+W : RN → RN that moves the reward gradient direction toward typical standard Gaussian noise before it is mixed into the stochastic term of the reverse kernel. The typical set is difficult to characterize ex-actly in closed form. Instead, we approximate it using a collection of high-confidence constraints induced by known statistics of the standard nor-mal distribution. Concretely, we precompute 
+
+99 .99% confidence bounds and define W as a sequence of projections onto the corresponding confidence sets. A key building block is a two-level order-statistic projection ( 2OS ), which we 
+
+> 7NoiseTilt: Noise-Tilted Reverse Kernels
+
+Input 2OS Projection + Tile-wise Statistics + Multiple Domains Sampled Noise z W(z)
+
+> Latent Visualization
+> Sampled Image
+
+Figure 4. Effect of our whitening operator W. As we apply the components of W to a structured latent (left to right), it becomes more similar to typical Gaussian noise with more realistic samples. For typical Gaussian noise,  
+
+> W(z)changes negligibly (two rightmost columns).
+
+describe next. 
+
+Two-level order statistics. Let x ∈ RN be the vector to whiten, reshaped into a tile matrix 
+
+Y ∈ RM ×D (so N = M D ). The 2OS statistic is obtained by sorting within each tile and then sorting across tiles at each within-tile rank: 
+
+Z = sort 0
+
+(sort 1(Y )), (14) where sort 1 sorts each row of Y and sort 0 sorts each column. Intuitively, Z captures a “rank-of-rank” summary: Zr,j is the r-th smallest value among the j-th order statistics collected from all tiles. For standard Gaussian noise, each entry 
+
+Zr,j concentrates sharply, allowing tight confi-dence bounds for each (r, j ).
+
+Confidence bounds for the 2OS statistic. 
+
+Fix α = 10 −4 and let Φ denote the CDF of the standard normal distribution. For each rank pair (r, j ), we compute quantile bounds (qlo  
+
+> r,j
+
+, q hi  
+
+> r,j
+
+)
+
+from the nested order-statistic distribution, and map them to value-domain bounds 
+
+(Lr,j , U r,j ) = (Φ−1(qlo  
+
+> r,j
+
+), Φ−1(qhi  
+
+> r,j
+
+)). (15) The exact Beta-quantile construction is given in Section B.2. These bounds specify a 1 − α confidence set for the doubly-sorted matrix Z:
+
+C2os = {Y : Lr,j ≤ Zr,j ≤ Ur,j , ∀r, j }. (16) 
+
+2OS projection via sort–clip–unsort. Given 
+
+Y , we compute Z as in Equation (14), clip each element to its confidence interval 
+
+Zr,j ← clip( Zr,j ; Lr,j , U r,j ), (17) and then invert the two sorting permutations to map the clipped Z back to the original tile layout. We prove in Section B.2 that this sort–clip–unsort 
+
+operation equals the Euclidean projection onto 
+
+C2os , and we therefore call it the 2OS projection .The 2OS projection prevents extreme values from concentrating in a few tiles. Because clip-ping is applied to each rank pair (r, j ) of the doubly-sorted statistic, each tile contains a bal-anced spread of small-to-large values consistent with typical standard Gaussian noise. Applying 2OS additionally to tile-wise mean and energy statistics constrains block-level moments, while repeating across orthogonally transformed do-mains captures structured correlations that the value-domain projection alone cannot reach. The full whitening operator W is composed of 2OS projections applied to various tile-wise statis-tics across multiple transformed domains, as de-scribed in Section B. We visualize this progression in Figure 4. Since all constraints are derived from 
+
+99 .99% confidence intervals under the reference distribution, typical standard Gaussian noise passes through with negligible modification in practice (cosine similarity > 0.99999 ; see the two rightmost columns in Figure 4), whereas struc-tured inputs are substantially whitened, yielding a perturbation that is noise-compatible with the pretrained reverse kernel. 
+
+> 8
+
+NoiseTilt: Noise-Tilted Reverse Kernels 
+
+Table 2. Quantitative comparison on image reward alignment. Left: aesthetic image generation (target: Aesthetic Score [ 59 ]). Right: text-aligned image generation (target: PickScore [ 31 ]). For single-particle methods we augment sampling with Best-of-N to match the total NFE, denoted with †. Dark green cells indicate the best result for each metric, light green the second best.  
+
+> Method NFE
+
+Aesthetic Image Generation Text-Aligned Image Generation                                                                                                                                         
+
+> Target Reward Held-Out Reward Target Reward Held-Out Reward Aesthetic Score ↑Pick -Score ↑HPSv2 ↑Image Reward ↑VQA Score ↑Pick -Score ↑Aesthetic Score ↑HPSv2 ↑Image Reward ↑VQA Score ↑
+> Base [35] 25 6.0282 0.2144 0.2759 1.0538 0.9644 0.2054 5.4664 0.2316 0.1710 0.8011 BoN [65] 500 6.7310 0.2197 0.2890 1.1419 0.9597 0.2146 5.8582 0.2619 0.6883 0.8021 DPS †[10] 500 6.7647 0.2191 0.2861 1.0639 0.9624 0.2147 5.8073 0.2622 0.6310 0.8028 FreeDoM †[76] 533 6.8406 0.2185 0.2853 0.9941 0.9635 0.2133 5.8492 0.2572 0.5354 0.7990 SVDD [38] 500 7.1363 0.2177 0.2814 1.0256 0.9510 0.2204 5.8743 0.2699 0.7592 0.8201 RBF [29] 500 6.9900 0.2183 0.2826 1.0761 0.9689 0.2202 5.8618 0.2682 0.7583 0.8149 DAS [30] 500 6.9384 0.2183 0.2860 1.0568 0.9706 0.2139 5.8385 0.2568 0.5226 0.7990
+> Ψ-Sampler [75] 500 7.0116 0.2188 0.2847 1.1235 0.9737 0.2120 5.7329 0.2551 0.4590 0.8145
+> NTRK (Ours) 25 7.4510 0.2200 0.2928 1.2565 0.9728 0.2224 5.7720 0.2601 0.5257 0.8210
+> NTRK †(Ours) 500 7.9656 0.2197 0.2932 1.1669 0.9609 0.2327 5.9020 0.2817 0.7370 0.8017
+
+# 5 Experiments 
+
+In this section, we present experimental results demonstrating the effectiveness of NTRK com-pared to prior baselines, with the experimental setup described in Section 5.1. We first evalu-ate aesthetic image generation and text-aligned image generation in Section 5.2 and Section 5.3, respectively. We then extend the evaluation to preference-aligned video generation in Section 5.4. Finally, we show that our method can also be applied on top of fine-tuned models in Section 5.5. We provide additional applications, including counting tasks and VLM-based reward alignment, in Sections C.3 and C.4, and alignment results us-ing a different diffusion model [ 6 ] in Section C.5. Additional quantitative and qualitative results for the main experiments are provided in Sec-tion C.6. 
+
+5.1 Experiment Setup 
+
+Tasks. We evaluate NTRK across three reward-guided generation settings in the main text: aes-thetic image generation, text-aligned image gen-eration, and preference-aligned video generation. For aesthetic image generation, we use 45 animal prompts from previous work, DDPO [ 5]. For text-aligned image generation, we use 100 prompts in complex category of T2I-CompBench++ [ 22 ]. For preference-aligned video generation, we use 200 prompts from VBench [ 23 ] animal and scenery categories. For image and video generation applications, we use FLUX [ 35 ] and Wan2.1 [ 70 ] as the base flow models, respectively. In all experiments, we fix the sampling steps to 25 . As a reference, we also include the results of the base models without any guidance method applied. 
+
+Baselines. We compare NTRK against a range of inference-time reward-alignment algorithms discussed in Section 2, including both gradient-based guidance methods and search-based ap-proaches. Specifically, we consider DPS [ 10 ] and FreeDoM [ 76 ] as single-particle gradient-based methods, DAS [ 30 ] and Ψ-Sampler [ 75 ] as multi-particle gradient-based methods, and SVDD [ 38 ], RBF [ 29 ], and BoN [65 ] as search-based meth-ods. We additionally compare against DNO [ 66 ], a noise-optimization method with a distinct NFE budget structure, in Section C.2. Note that multi-particle and search methods utilize multiple samples during sampling, whereas single-particle methods produce only a single tra-jectory. For fair comparison, we fix the total number of function evaluations (NFE) across all methods. In particular, for single-particle sam-pling methods such as DPS and FreeDoM, we augment sampling with Best-of-N (BoN) [ 65 ], which runs multiple independent sampling pro-cesses and selects the highest-reward output, en-suring that the overall NFE is comparable across methods. 1 For all quantitative results, methods augmented with BoN are marked with †. For 
+
+NTRK , we report results both with and without BoN to isolate the effect of the proposed method. 
+
+> 1
+
+FreeDoM [ 76 ] incorporates additional MCMC sam-pling, which increases the computational cost. 9NoiseTilt: Noise-Tilted Reverse Kernels                            
+
+> Base [35] BoN [65] DPS †[10] SVDD [38] Ψ-Sampler [75] NTRK †(Ours)
+> Aesthetic Image Generation
+> “Sheep”
+> 6.5477 6.6494 6.9178 6.8442 7.0671 8.5842 “Frog”
+> 6.0279 7.1517 6.9119 7.0071 7.1417 8.6239
+> Text-Aligned Image Generation  “The yellow cone was suspended in mid-air near the orange pyramid and the green cylinder.”
+> 0.2190 0.2227 0.2235 0.2328 0.2224 0.2372 “The soft, billowing curtains fluttered in the gentle breeze, adding a touch of elegance to the room.”
+> 0.2070 0.2126 0.2122 0.2146 0.2055 0.2313
+
+Figure 5. Qualitative comparison on image reward alignment. Top: aesthetic image generation (target: Aesthetic Score [ 59 ]). Bottom: text-aligned image generation (target: PickScore [ 31 ]). Scores shown in italics below each image. For single-particle methods we augment sampling with Best-of-N to match the total NFE, denoted with †.
+
+Implementation details and hyperparameter set-tings are summarized in Section C.1. 
+
+5.2 Aesthetic Image Generation 
+
+Evaluation Metrics. In this work, we refer to the reward used for inference-time optimization as the target reward , and to rewards not observed during optimization as held-out rewards . In this task, the target reward is Aesthetic Score [ 59 ]. As held-out rewards, we evaluate image quality using ImageReward [ 73 ] and HPSv2 [ 72 ], and text–image alignment using PickScore [ 31 ] and VQA Score [39]. 
+
+Results. The quantitative and qualitative re-sults are presented in Table 2 and Figure 5, re-spectively. Overall, NTRK achieves the best tar-get reward performance across all methods, and even outperforms all baselines with only 1/20 of NFE. On held-out rewards, NTRK also delivers the best image quality for both ImageReward and HPSv2, while remaining comparable on text-image alignment metrics. The qualitative ex-amples in Figure 5 further support these trends. Across different prompts, NTRK produces more visually appealing samples than the baselines, achieving the highest rewards [59]. 
+
+5.3 Text-Aligned Image Generation 
+
+Evaluation Metrics. The target reward used to align text-image is PickScore [ 31 ]. For held-
+
+10 NoiseTilt: Noise-Tilted Reverse Kernels 
+
+Table 3. Quantitative comparison on preference-aligned video generation. The target reward is VideoRe-ward [ 42 ], and the held-out rewards are the metrics proposed in VBench [ 23 ]. Dark green cells indicate the best result for each metric across all runs, while light green cells denote the second best. 
+
+Method NFE Target Reward Held-Out Reward VideoReward ↑
+
+Motion Quality Visual Quality Text Alignment 
+
+Smooth. ↑ Dynamic ↑ Aesthetic ↑ Imaging. ↑ Subject ↑ Back. ↑
+
+Base [70] 25 -0.399 0.9629 0.9300 0.6104 0.6791 0.9589 0.9647 DPS [10] 25 -0.130 0.9621 0.9350 0.5867 0.6738 0.9398 0.9473 FreeDoM [76] 25 -0.211 0.9632 0.6900 0.5880 0.6897 0.9586 0.9570 
+
+NTRK (Ours) 25 3.465 0.9630 0.9500 0.6120 0.6870 0.9591 0.9646   
+
+> “Turkey in cage.” “Mother whale swimming with babies.”
+> Base [70]
+> DPS [10]
+> FreeDoM [76]
+> NTRK (Ours)
+
+Figure 6. Qualitative comparison on preference-aligned video generation using VideoReward [ 42 ]. NTRK 
+
+> produces videos with better text alignment and visual quality, and additional examples are provided in Figure 20.
+
+out rewards, we evaluate text–image alignment using VQA Score [ 39 ], and image quality us-ing Aesthetic Score [ 59 ], ImageReward [ 73 ], and HPSv2 [72]. 
+
+Results. The quantitative and qualitative re-sults are presented in Table 2 and Figure 5, re-spectively. As in the aesthetic image generation task, NTRK achieves the best target reward per-formance across all methods, with the same ef-ficiency trend that the 25 -NFE setting already outperforms all baselines. These gains also trans-fer to held-out rewards: NTRK with 500 NFE achieves the best Aesthetic Score and HPSv2, while NTRK with 25 NFE attains the best VQA Score. Qualitatively, NTRK produces samples that better align with text prompts, particularly on spatial and logical relations, compared to the baselines. 
+
+5.4 Preference-Aligned Video Generation 
+
+As done in the image generation task, we use 
+
+25 sampling steps for all methods except Free-DoM [ 76 ], for which we use 13 steps due to its additional MCMC sampling, ensuring that the total NFE remains comparable. For video gener-ation task, we test the baselines and our method with a single particle. 
+
+Evaluation Metrics. In this task, the target reward is VideoReward [ 42 ], which provides three component scores for Motion Quality (MQ), Vi-sual Quality (VQ), and Text Alignment (TA). We use the sum of these components (MQ + VQ + TA) as the target reward. For held-out evaluation, we report metrics from VBench [ 23 ], grouped into six categories: Subject Consistency and Background Consistency for text alignment, Motion Smoothness and Dynamic Degree for mo-tion quality, and Aesthetic Quality and Imaging Quality for visual quality.          
+
+> 11 NoiseTilt: Noise-Tilted Reverse Kernels
+> Table 4. Quantitative comparison on text-aligned image generation with fine-tuned model. We compare DPS [ 10 ] and NTRK integrated with a fine-tuned model, MixGRPO [ 37 ]. For single-particle methods we augment sampling with Best-of-N, denoted with †. Dark green cells indicate the best result for each metric across all runs, while light green cells denote the second best.
+
+Method NFE Target Reward Held-Out Reward PickScore ↑ Aesthetic Score ↑ HPSv2 ↑ Image Reward ↑ VQA Score ↑
+
+Base [35] 25 0.2054 5.4664 0.2316 0.1710 0.8011 MixGRPO [37] 25 0.2166 6.5245 0.2679 0.7605 0.8239 
+
+⌞ DPS † [10] 500 0.2235 6.6966 0.2840 1.0501 0.8376 
+
+⌞ NTRK † (Ours) 500 0.2545 6.7281 0.3224 1.2648 0.8498 
+
+Results. Table 3 and Figure 6 summarize the quantitative and qualitative comparisons, respec-tively. NTRK yields the highest VideoReward score and outperforms all the baselines. Beyond the target reward, NTRK achieves the best results on Dynamic Degree, Aesthetic Quality, and Subject Consistency, and remains marginally runner-up on the other held-out metrics. The qualitative examples further support this observation, with 
+
+NTRK producing videos that better align with the text prompts. In particular, NTRK generates videos that clearly capture the elements (e.g., turkey and babies) described in the prompt. 
+
+5.5 Integration with Fine-Tuned Models 
+
+Fine-tuning and inference-time alignment im-prove reward alignment along orthogonal direc-tions: the former adapts model parameters, while the latter guides the sampling process without modifying them. Because of this orthogonality, 
+
+NTRK can be applied on top of a fine-tuned model, and the two strategies can be combined whenever the goal is to maximize a specific reward as much as possible. In this section, we integrate NTRK 
+
+with MixGRPO [ 37 ], which fine-tunes the base FLUX model [35]. 
+
+Evaluation Metrics. In this task, the target reward is PickScore [ 31 ], and we report the same held-out rewards used in the text-aligned image generation task described in Section 5.3. 
+
+Results. As shown in Table 4, MixGRPO [ 37 ]improves both the target reward and all held-out rewards compared to the base model [ 35 ]. We further observe that applying inference-time re-ward alignment remains highly effective on top of the fine-tuned model, yielding additional im-provements across all metrics. In particular, NTRK 
+
+consistently outperforms DPS on both the target reward and all held-out rewards, achieving the highest overall scores. These results confirm that 
+
+NTRK is orthogonal to fine-tuning: the two can be composed to push a specific reward beyond what either approach achieves alone. 
+
+# 6 Conclusion 
+
+In this work, we identified a fundamental trade-off in inference-time reward alignment: gradient-based guidance steers generation effectively but degrades sample quality, while search-based meth-ods preserve quality but forgo gradient guidance. We resolved this trade-off with the Noise-Tilted Reverse Kernel ( NTRK ), which leaves the reverse mean unchanged and instead biases the noise term toward high reward through a whitening operator that makes the reward gradient safe to inject as noise without losing its guiding signal. Across aesthetic image generation, text-aligned image generation, and preference-aligned video generation, NTRK consistently outperforms recent baselines in target reward alignment without los-ing sample quality, and on aesthetic generation surpasses the reward of the best baseline at 500 NFEs using only 25, a 20 × reduction in compute. Beyond this setting, NTRK improves reward align-ment on top of fine-tuned models, transfers to a different diffusion backbone, and extends to counting-based and VLM-based rewards. By routing reward information through the noise term rather than the mean, NTRK offers a simple, broadly applicable mechanism for inference-time reward alignment that leaves the pretrained sampling dynamics intact. 
+
+> 12 NoiseTilt: Noise-Tilted Reverse Kernels
+
+# References 
+
+[1] Amini-Naieni, N., Han, T., and Zisserman, A. Countgd: Multi-modal open-world count-ing. In Advances in Neural Information Processing Systems , volume 37, pp. 48810– 48837, 2024. [2] Bai, S., Chen, K., Liu, X., Wang, J., Ge, W., Song, S., Dang, K., Wang, P., Wang, S., Tang, J., Zhong, H., Zhu, Y., Yang, M., Li, Z., Wan, J., Wang, P., Ding, W., Fu, Z., Xu, Y., Ye, J., Zhang, X., Xie, T., Cheng, Z., Zhang, H., Yang, Z., Xu, H., and Lin, J. Qwen2.5-VL technical report. arXiv preprint arXiv:2502.13923 , 2025. [3] Bansal, A., Chu, H.-M., Schwarzschild, A., Sengupta, S., Goldblum, M., Geiping, J., and Goldstein, T. Universal guidance for diffusion models. In IEEE/CVF Conference on Computer Vision and Pattern Recogni-tion Workshops , 2023. [4] Ben-Hamu, H., Puny, O., Gat, I., Karrer, B., Singer, U., and Lipman, Y. D-Flow: Differentiating through flows for controlled generation. In International Conference on Machine Learning , pp. 3462–3483, 2024. [5] Black, K., Janner, M., Du, Y., Kostrikov, I., and Levine, S. Training diffusion mod-els with reinforcement learning. In Interna-tional Conference on Learning Representa-tions , 2024. [6] Cai, H., Cao, S., Du, R., Gao, P., Hoi, S., Hou, Z., Huang, S., Jiang, D., Jin, X., Li, L., et al. Z-image: An efficient image generation foundation model with single-stream diffusion transformer. arXiv preprint arXiv:2511.22699 , 2025. [7] Cardoso, G., Idrissi, Y. J. E., Corff, S. L., and Moulines, E. Monte carlo guided diffu-sion for bayesian linear inverse problems. In 
+
+International Conference on Learning Rep-resentations , 2024. [8] Chefer, H., Alaluf, Y., Vinker, Y., Wolf, L., and Cohen-Or, D. Attend-and-excite: Attention-based semantic guidance for text-to-image diffusion models. ACM Transac-tions on Graphics , 42(4):148:1–148:12, 2023. doi: 10.1145/3592116. [9] Chung, H., Sim, B., Ryu, D., and Ye, J. C. Improving diffusion models for inverse prob-lems using manifold constraints. In Advances in Neural Information Processing Systems ,volume 35, pp. 25683–25696, 2022. [10] Chung, H., Kim, J., Mccann, M. T., Klasky, M. L., and Ye, J. C. Diffusion posterior sam-pling for general noisy inverse problems. In 
+
+International Conference on Learning Rep-resentations , 2023. [11] Clark, K., Vicol, P., Swersky, K., and J, F. D. Directly fine-tuning diffusion models on dif-ferentiable rewards. In International Con-ference on Learning Representations , 2024. [12] Daras, G., Nie, W., Kreis, K., Dimakis, A., Mardani, M., Kovachki, N., and Vah-dat, A. Warped diffusion: Solving video in-verse problems with image diffusion models. In Advances in Neural Information Process-ing Systems , volume 37, pp. 101116–101143, 2024. [13] Dou, Z. and Song, Y. Diffusion posterior sampling for linear inverse problem solving: A filtering perspective. In International Con-ference on Learning Representations , 2024. [14] Doucet, A., De Freitas, N., Gordon, N. J., et al. Sequential Monte Carlo methods in practice . Springer, 2001. [15] Eyring, L., Karthik, S., Roth, K., Dosovit-skiy, A., and Akata, Z. ReNO: Enhanc-ing one-step text-to-image models through reward-based noise optimization. In Ad-vances in Neural Information Processing Systems , volume 37, pp. 125487–125519, 2024. [16] Fan, Y., Watkins, O., Du, Y., Liu, H., Ryu, M., Boutilier, C., Abbeel, P., Ghavamzadeh, M., Lee, K., and Lee, K. DPOK: reinforce-ment learning for fine-tuning text-to-image diffusion models. In Advances in Neural In-formation Processing Systems , volume 36, pp. 79858–79885, 2023. [17] Gao, L., Schulman, J., and Hilton, J. Scaling laws for reward model overoptimization. In 
+
+International Conference on Machine Learn-ing , pp. 10835–10866, 2023. 
+
+> 13 NoiseTilt: Noise-Tilted Reverse Kernels
+
+[18] He, Y., Murata, N., Lai, C.-H., Takida, Y., Uesaka, T., Kim, D., Liao, W.-H., Mitsu-fuji, Y., Kolter, J. Z., Salakhutdinov, R., and Ermon, S. Manifold preserving guided diffusion. In International Conference on Learning Representations , 2024. [19] Hertz, A., Mokady, R., Tenenbaum, J., Aberman, K., Pritch, Y., and Cohen-Or, D. Prompt-to-prompt image editing with cross attention control. In International Confer-ence on Learning Representations , 2023. [20] Hertz, A., Voynov, A., Fruchter, S., and Cohen-Or, D. Style aligned image generation via shared attention. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 4775– 4785, 2024. [21] Ho, J., Jain, A., and Abbeel, P. Denoising diffusion probabilistic models. In Advances in Neural Information Processing Systems ,volume 33, pp. 6840–6851, 2020. [22] Huang, K., Duan, C., Sun, K., Xie, E., Li, Z., and Liu, X. T2I-CompBench++: An enhanced and comprehensive benchmark for compositional text-to-image generation. 
+
+IEEE Transactions on Pattern Analysis and Machine Intelligence , 47(5):3563–3579, 2025. doi: 10.1109/TPAMI.2025.3531907. [23] Huang, Z., He, Y., Yu, J., Zhang, F., Si, C., Jiang, Y., Zhang, Y., Wu, T., Jin, Q., Chanpaisit, N., Wang, Y., Chen, X., Wang, L., Lin, D., Qiao, Y., and Liu, Z. VBench: Comprehensive benchmark suite for video generative models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 21807– 21818, 2024. [24] Hwang, J. and Sung, M. Gradient preconditioning for efficient and reliable reward-guided generation. arXiv preprint arXiv:2602.08646 , 2026. [25] Hwang, J., Kim, J., and Sung, M. Moment-and power-spectrum-based Gaussianity reg-ularization for text-to-image models. In 
+
+Advances in Neural Information Processing Systems , volume 38, pp. 18235–18264, 2025. [26] Hyvärinen, A., Karhunen, J., and Oja, E. 
+
+Independent Component Analysis . John Wi-ley & Sons, 2001. [27] Jang, S., Ki, T., Jo, J., Yoon, J., Kim, S. Y., Lin, Z., and Hwang, S. J. Frame guidance: Training-free guidance for frame-level con-trol in video diffusion models. In Interna-tional Conference on Learning Representa-tions , 2026. [28] Kessy, A., Lewin, A., and Strimmer, K. Opti-mal whitening and decorrelation. The Amer-ican Statistician , 72(4):309–314, 2018. doi: 10.1080/00031305.2016.1277159. [29] Kim, J., Yoon, T., Hwang, J., and Sung, M. Inference-time scaling for flow models via stochastic generation and rollover budget forcing. In Advances in Neural Information Processing Systems , volume 38, pp. 30830– 30864, 2025. [30] Kim, S., Kim, M., and Park, D. Test-time alignment of diffusion models with-out reward over-optimization. In Interna-tional Conference on Learning Representa-tions , 2025. [31] Kirstain, Y., Polyak, A., Singer, U., Ma-tiana, S., Penna, J., and Levy, O. Pick-a-Pic: An open dataset of user preferences for text-to-image generation. In Advances in Neural Information Processing Systems ,volume 36, pp. 36652–36663, 2023. [32] Korbak, T., Elsahar, H., Kruszewski, G., and Dymetmant, M. On reinforcement learn-ing and distribution matching for fine-tuning language models with no catastrophic for-getting. In Advances in Neural Information Processing Systems , volume 35, pp. 16203– 16220, 2022. [33] Kumari, N., Zhang, B., Zhang, R., Shecht-man, E., and Zhu, J.-Y. Multi-concept cus-tomization of text-to-image diffusion. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recogni-tion (CVPR) , pp. 1931–1941, 2023. [34] Kwon, T. and Ye, J. C. Solving video inverse problems using image diffusion models. In 
+
+International Conference on Learning Rep-resentations , 2025. 
+
+> 14 NoiseTilt: Noise-Tilted Reverse Kernels
+
+[35] Labs, B. F. FLUX. https://github.com/ black-forest-labs/flux , 2024. [36] Lee, Y., Kim, K., Kim, H., and Sung, M. Syncdiffusion: Coherent montage via syn-chronized joint diffusions. In Advances in Neural Information Processing Systems , vol-ume 36, pp. 50648–50660, 2023. [37] Li, J., Cui, Y., Huang, T., Ma, Y., Fan, C., Yang, M., Zhong, Z., and Bo, L. Mixgrpo: Unlocking flow-based grpo effi-ciency with mixed ode-sde. arXiv preprint arXiv:2507.21802 , 2025. [38] Li, X., Zhao, Y., Wang, C., Scalia, G., Eraslan, G., Nair, S., Biancalani, T., Regev, A., Levine, S., and Uehara, M. Derivative-free guidance in continuous and discrete diffusion models with soft value-based de-coding. In Advances in Neural Information Processing Systems , volume 38, pp. 95507– 95545, 2025. [39] Lin, Z., Pathak, D., Li, B., Li, J., Xia, X., Neubig, G., Zhang, P., and Ramanan, D. Evaluating text-to-visual generation with image-to-text generation. In Proceedings of the European Conference on Computer Vision (ECCV) , pp. 366–384, 2024. [40] Lipman, Y., Chen, R. T. Q., Ben-Hamu, H., Nickel, M., and Le, M. Flow matching for generative modeling. In International Con-ference on Learning Representations , 2023. [41] Liu, J., Liu, G., Liang, J., Li, Y., Liu, J., Wang, X., Wan, P., Zhang, D., and Ouyang, W. Flow-GRPO: Training flow matching models via online RL. In Advances in Neural Information Processing Systems , volume 38, pp. 40783–40818, 2025. [42] Liu, J., Liu, G., Liang, J., Yuan, Z., Liu, X., Zheng, M., Wu, X., Wang, Q., Qin, W., Xia, M., et al. Improving video generation with human feedback. In Advances in Neural Information Processing Systems , volume 38, pp. 82155–82192, 2025. [43] Liu, X., Gong, C., and Liu, Q. Flow straight and fast: Learning to generate and trans-fer data with rectified flow. In Interna-tional Conference on Learning Representa-tions , 2023. [44] Lu, Y., Liang, Y., Zhu, L., and Yang, Y. Freelong: Training-free long video genera-tion with spectralblend temporal attention. In Advances in Neural Information Process-ing Systems , volume 37, pp. 131434–131455, 2024. [45] Luo, G., Granskog, J., Holynski, A., and Darrell, T. Dual-process image genera-tion. In Proceedings of the IEEE/CVF In-ternational Conference on Computer Vision (ICCV) , pp. 17972–17983, 2025. [46] Ma, N., Tong, S., Jia, H., Hu, H., Su, Y.-C., Zhang, M., Yang, X., Li, Y., Jaakkola, T., Jia, X., and Xie, S. Inference-time scaling for diffusion models beyond scaling denois-ing steps. arXiv preprint arXiv:2501.09732 ,2025. [47] Ma, X., Wang, Y., Chen, X., Wong, T.-T., and Chen, C. Training-free stylized text-to-image generation with fast inference. arXiv preprint arXiv:2505.19063 , 2025. [48] Prabhudesai, M., Mendonca, R., Qin, Z., Fragkiadaki, K., and Pathak, D. Video dif-fusion alignment via reward gradients. In 
+
+International Conference on Learning Rep-resentations , 2025. [49] Qian, Y., Guo, Z., Deng, B., Lei, C. T., Zhao, S., Lau, C. P., Hong, X., and Pound, M. P. T2icount: Enhancing cross-modal understanding for zero-shot counting. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recogni-tion (CVPR) , pp. 25336–25345, 2025. [50] Qiu, H., Chen, Z., Wang, Z., He, Y., Xia, M., and Liu, Z. Freetraj: Tuning-free trajectory control in video diffusion models. arXiv preprint arXiv:2406.16863 , 2024. [51] Rafailov, R., Sharma, A., Mitchell, E., Man-ning, C. D., Ermon, S., and Finn, C. Di-rect preference optimization: Your language model is secretly a reward model. In Ad-vances in Neural Information Processing Systems , volume 36, pp. 53728–53741, 2023. [52] Ramesh, V. and Mardani, M. Test-time scal-ing of diffusion models via noise trajectory search. arXiv preprint arXiv:2506.03164 ,2025. 
+
+> 15 NoiseTilt: Noise-Tilted Reverse Kernels
+
+[53] Robbins, H. E. An Empirical Bayes Ap-proach to Statistics . Springer, 1992. [54] Rombach, R., Blattmann, A., Lorenz, D., Esser, P., and Ommer, B. High-resolution image synthesis with latent diffusion models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recogni-tion (CVPR) , pp. 10674–10685, 2022. [55] Rout, L., Raoof, N., Daras, G., Caramanis, C., Dimakis, A., and Shakkottai, S. Solving linear inverse problems provably via poste-rior sampling with latent diffusion models. In Advances in Neural Information Process-ing Systems , volume 36, pp. 49960–49990, 2023. [56] Rout, L., Chen, Y., Kumar, A., Caramanis, C., Shakkottai, S., and Chu, W.-S. Beyond first-order tweedie: Solving inverse problems using latent diffusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 9472– 9481, 2024. [57] Rozet, F., Andry, G., Lanusse, F., and Louppe, G. Learning diffusion priors from observations by expectation maximization. In Advances in Neural Information Process-ing Systems , volume 37, pp. 87647–87682, 2024. [58] Samuel, D., Ben-Ari, R., Darshan, N., Maron, H., and Chechik, G. Norm-guided latent space exploration for text-to-image generation. In Advances in Neural Infor-mation Processing Systems , volume 36, pp. 57863–57875, 2023. [59] Schuhmann, C. LAION aesthetics. https: //laion.ai/blog/laion-aesthetics ,2022. [60] Seo, J., Veer, S., Tian, R., Ding, W., Sharma, A., Leung, K., Schmerling, E., Pavone, M., and Bajcsy, A. Stressdream: Steering video world models for robust pol-icy evaluation and improvement. arXiv preprint arXiv:2606.00267 , 2026. [61] Singhal, R., Horvitz, Z., Teehan, R., Ren, M., Yu, Z., McKeown, K., and Ranganath, R. A general framework for inference-time scaling and steering of diffusion models. 
+
+arXiv preprint arXiv:2501.06848 , 2025. [62] Song, J., Vahdat, A., Mardani, M., and Kautz, J. Pseudoinverse-guided diffusion models for inverse problems. In Interna-tional Conference on Learning Representa-tions , 2023. [63] Song, J., Zhang, Q., Yin, H., Mardani, M., Liu, M.-Y., Kautz, J., Chen, Y., and Vah-dat, A. Loss-guided diffusion models for plug-and-play controllable generation. In 
+
+International Conference on Machine Learn-ing , pp. 32483–32498, 2023. [64] Song, Y., Sohl-Dickstein, J., Kingma, D. P., Kumar, A., Ermon, S., and Poole, B. Score-based generative modeling through stochas-tic differential equations. In International Conference on Learning Representations ,2021. [65] Stiennon, N., Ouyang, L., Wu, J., Ziegler, D. M., Lowe, R., Voss, C., Radford, A., Amodei, D., and Christiano, P. Learning to summarize from human feedback. In 
+
+Advances in Neural Information Processing Systems , volume 33, pp. 3008–3021, 2020. [66] Tang, Z., Peng, J., Tang, J., Hong, M., Wang, F., and Chang, T.-H. Inference-time alignment of diffusion models with direct noise optimization. In International Confer-ence on Machine Learning , pp. 58905–58930, 2025. [67] Uehara, M., Zhao, Y., Hajiramezanali, E., Scalia, G., Eraslan, G., Lal, A., Levine, S., and Biancalani, T. Bridging model-based optimization and generative modeling via conservative fine-tuning of diffusion models. In Advances in Neural Information Process-ing Systems , volume 37, pp. 127511–127535, 2024. [68] Uehara, M., Zhao, Y., Black, K., Haji-ramezanali, E., Scalia, G., Diamant, N. L., Tseng, A. M., Biancalani, T., and Levine, S. Fine-tuning of continuous-time diffusion models as entropy-regularized control. In 
+
+International Conference on Learning Rep-resentations , 2025. 
+
+> 16 NoiseTilt: Noise-Tilted Reverse Kernels
+
+[69] Wallace, B., Dang, M., Rafailov, R., Zhou, L., Lou, A., Purushwalkam, S., Ermon, S., Xiong, C., Joty, S., and Naik, N. Diffusion model alignment using direct preference op-timization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 8228–8238, 2024. [70] Wan Team, A. G. Wan: Open and advanced large-scale video generative models. arXiv preprint arXiv:2503.20314 , 2025. [71] Wu, L., Trippe, B., Naesseth, C., Blei, D., and Cunningham, J. P. Practical and asymp-totically exact conditional sampling in diffu-sion models. In Advances in Neural Infor-mation Processing Systems , volume 36, pp. 31372–31403, 2023. [72] Wu, X., Hao, Y., Sun, K., Chen, Y., Zhu, F., Zhao, R., and Li, H. Human preference score v2: A solid benchmark for evaluating human preferences of text-to-image synthe-sis. In International Conference on Learning Representations , 2024. [73] Xu, J., Liu, X., Wu, Y., Tong, Y., Li, Q., Ding, M., Tang, J., and Dong, Y. ImageRe-ward: Learning and evaluating human pref-erences for text-to-image generation. In 
+
+Advances in Neural Information Processing Systems , volume 36, pp. 15903–15935, 2023. [74] Ye, H., Lin, H., Han, J., Xu, M., Liu, S., Liang, Y., Ma, J., Zou, J. Y., and Ermon, S. TFG: Unified training-free guidance for diffusion models. In Advances in Neural Information Processing Systems , volume 37, pp. 22370–22417, 2024. [75] Yoon, T., Min, Y., Yeo, K., and Sung, M. Psi-sampler: Initial particle sampling for smc-based inference-time reward alignment in score models. In Advances in Neural In-formation Processing Systems , volume 38, pp. 104745–104781, 2025. [76] Yu, J., Wang, Y., Zhao, C., Ghanem, B., and Zhang, J. FreeDoM: Training-free energy-guided conditional diffusion model. In Pro-ceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pp. 23174–23184, 2023. [77] Zhang, Y., Wei, Y., Jiang, D., Zhang, X., Zuo, W., and Tian, Q. Controlvideo: Training-free controllable text-to-video gen-eration. In International Conference on Learning Representations , 2024. 
+
+> 17
+
+# Appendix 
+
+# A Reward-Guided Reverse Kernels 
+
+In this section, we provide derivations and interpretations for reward-guided reverse kernels. Figure 3 and Table 1 summarize the four kernel types considered in this section: the base reverse kernel, mean-shifted reverse kernels, search-based guidance over the base kernel, and our noise-tilted reverse kernel ( NTRK ). Among them, mean-shifted guidance injects reward information through the deterministic term, whereas search-based guidance and NTRK act through stochastic perturbations. Before proceeding, we elaborate on the notion of noise-compatible used in Section 4. By this, we mean the regime in which the reverse update remains centered at the base transition and is perturbed by typical noise-like perturbations, so that intermediate states stay on the manifold of the learned intermediate-state distribution, rather than drifting into regions insufficiently supported by the pretrained diffusion. This shorthand captures the key intuition; it does not mean that the induced transition exactly matches the pretrained reverse-kernel distribution. With this clarification, the rest of the section is organized as follows. In Section A.1, we recall the optimal reward-tilted reverse kernel that serves as the common theoretical target and present continuous-time formulation of the base reverse kernel. In Section A.2, we derive mean-shifted reverse kernels as a standard approximation obtained by modifying the deterministic term. In Section A.3, we revisit search-based guidance, which instead draws multiple candidates from the base reverse kernel and selects favorable perturbations according to reward. In Section A.4, we interpret NTRK from both perspectives, showing how it combines the single-draw guidance advantage of mean-shifted methods with the noise-compatible-regime advantage of search-based guidance. Finally, in Section A.5, we present an intuitive interpretation of the guidance strength parameter. 
+
+A.1 Optimal Reward-Tilted and Base Reverse Kernel 
+
+In this subsection, we first formulate the optimal reward-tilted reverse kernel, which serves as the target for maximizing expected rewards under a KL divergence penalty. Subsequently, we detail the continuous-time formulation of the base reverse kernel. 
+
+A.1.1 Optimal Reward-Tilted Reverse Kernel 
+
+Starting from an entropy-regularized objective over reverse transition policies, we derive the optimal reward-tilted reverse kernel, the associated value function, and the target marginal distribution. For a more rigorous theoretical treatment and comprehensive proofs, we refer readers to previous work [67]. We consider the sequence of reverse transition policies {q(xt−1|xt)}Tt=1 and optimize 
+
+max  
+
+> q
+
+Ex0: T ∼q(x0: T )
+
+> [
+
+r(x0) − β
+
+> T∑
+> t=1
+
+DKL (q(xt−1|xt)∥p(xt−1|xt)) 
+
+> ]
+
+, (18) which maximizes the terminal reward while regularizing step-wise deviations from the pretrained base reverse kernel p(xt−1|xt). The temperature β > 0 controls the reward-KL trade-off. 
+
+> 18 NoiseTilt: Noise-Tilted Reverse Kernels
+
+We define the expected return functional from state xt as 
+
+Jt(xt; q) = Eq(x0: t−1|xt)
+
+[
+
+r(x0) − β
+
+> t
+
+∑ 
+
+> τ=1
+
+DKL (q(xτ −1|xτ )∥p(xτ −1|xτ )) 
+
+]
+
+. (19) The value function is the optimal value of this return functional: 
+
+Vt(xt) = max  
+
+> q
+
+Jt(xt; q) = Jt(xt; p⋆)= max 
+
+> q
+
+{Ext−1∼q
+
+[Vt−1(xt−1)] − βDKL (q(xt−1|xt)∥p(xt−1|xt)) } , (20) with terminal boundary condition V0(x0) = r(x0).
+
+Optimal reward-tilted reverse kernel. Expanding the expectation and KL divergence in Equation (20) gives 
+
+Vt(xt) = max 
+
+> q
+
+∫
+
+q(xt−1|xt)
+
+[
+
+Vt−1(xt−1) − β log q(xt−1|xt)
+
+p(xt−1|xt)
+
+]
+
+dxt−1. (21) Writing Vt−1(xt−1) = β log (exp( Vt−1(xt−1)/β )), we obtain 
+
+Vt(xt) = max 
+
+> q
+
+∫
+
+q(xt−1|xt)β log 
+
+( p(xt−1|xt) exp( Vt−1(xt−1)/β )
+
+q(xt−1|xt)
+
+)
+
+dxt−1. (22) Introducing the state-dependent normalizing constant 
+
+Zt(xt) = 
+
+∫
+
+p(xt−1|xt) exp( Vt−1(xt−1)/β )dxt−1, (23) and multiplying and dividing the logarithm argument by Zt(xt) yields 
+
+Vt(xt) = max 
+
+> q
+
+∫
+
+q(xt−1|xt)β log 
+
+( Zt(xt)
+
+q(xt−1|xt) · p(xt−1|xt) exp( Vt−1(xt−1)/β )
+
+Zt(xt)
+
+)
+
+dxt−1
+
+= β log Zt(xt) − β min  
+
+> q
+
+DKL 
+
+(
+
+q(xt−1|xt)
+
+∥∥∥∥
+
+p(xt−1|xt) exp( Vt−1(xt−1)/β )
+
+Zt(xt)
+
+)
+
+. (24) Since the KL divergence is non-negative and vanishes if and only if the two distributions coincide, the optimum is uniquely attained at 
+
+p⋆(xt−1|xt) = p(xt−1|xt) exp( Vt−1(xt−1)/β )
+
+∫ p(xt−1|xt) exp( Vt−1(xt−1)/β )dxt−1
+
+. (25) This is the optimal reward-tilted reverse kernel. Evaluating the optimum further yields the relation 
+
+exp( Vt(xt)/β ) = 
+
+∫
+
+p(xt−1|xt) exp( Vt−1(xt−1)/β )dxt−1
+
+= Ep [exp( Vt−1(xt−1)/β )|xt] = . . . = Ep [exp( r(x0)/β )|xt] . (26) 
+
+Value approximation. In practice, directly evaluating Equation (26) is intractable. Following previous work [ 38 ], we approximate the posterior expectation using the Tweedie estimate ˆx0|t := 
+
+E[x0|xt]:
+
+Vt(xt) = β log Ex0∼p(·| xt) [exp( r(x0)/β )] 
+
+≈ β log 
+
+(
+
+exp( r( ˆ x0|t)/β )
+
+)
+
+= r( ˆ x0|t). (27) 
+
+> 19 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Target marginal distribution. Sampling from the optimal step-wise proposal induces the following target marginal at timestep t:
+
+p⋆(xt) = 
+
+∫
+
+p⋆(xt:T )dxt+1: T
+
+= exp( Vt(xt)/β )
+
+Z
+
+∫
+
+p(xt:T )dxt+1: T
+
+= 1
+
+Z p(xt) exp( Vt(xt)/β ). (28) Likewise, 
+
+p⋆(xt−1) = 
+
+∫
+
+p⋆(xt−1|xt)p⋆(xt)dxt
+
+=
+
+∫ (
+
+p(xt−1|xt) exp( Vt−1(xt−1)/β )exp( Vt(xt)/β )
+
+) ( 1
+
+Z p(xt) exp( Vt(xt)/β )
+
+)
+
+dxt
+
+= exp( Vt−1(xt−1)/β )
+
+Z
+
+∫
+
+p(xt−1|xt)p(xt)dxt
+
+= 1
+
+Z p(xt−1) exp( Vt−1(xt−1)/β ). (29) Recursively applying this relation down to t = 0 recovers 
+
+p⋆(x0) = 1
+
+Z p(x0) exp( r(x0)/β ). (30) 
+
+A.1.2 Base Reverse Kernel 
+
+We connect our discrete-time formulation to the continuous-time sampling processes used in score-based generative models. Let {pt}0≤t≤T be a probability path interpolating between a tractable noise prior and the data distribution: 
+
+xt = αtx0 + σtxT , (31) where αt and σt are smooth monotone schedules satisfying α0 = σT = 1 and αT = σ0 = 0 .Flow-based models [ 40 , 43 ] parameterize this path using a time-dependent velocity field ut :
+
+RN → RN , leading to the probability flow ODE: 
+
+dxt = ut(xt)d t, xT ∼ N (0, I). (32) Adding stochastic exploration yields the reverse-time SDE: 
+
+dxt = ft(xt)d t + σtdw, ft(xt) = ut(xt) − σ2
+
+> t
+
+2 ∇ log pt(xt), (33) where w denotes the standard Wiener process. Discretizing Equation (33) backward in time yields the base reverse kernel: 
+
+xt−1 = μθ(xt, t ) + σtϵt, ϵt ∼ N (0, I). (34) 
+
+A.2 Approach 1: Mean-Shifted Reverse Kernel 
+
+A standard approach to approximating the optimal reward-tilted reverse kernel is to inject the reward information directly into the deterministic component of the reverse update. We first establish the exact relationship between the marginal velocity and the marginal score, then derive the mean-shifted reverse kernel by substituting the tilted score into the reverse SDE. 
+
+> 20 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Relation between velocity and score. To systematically modify this base kernel with a reward signal, we must adjust the reverse drift ft(xt) in Equation (33). Since this drift depends on both the marginal velocity ut(xt) and the marginal score ∇xt log pt(xt), we first establish their exact relationship. By definition, the marginal velocity is given as: 
+
+ut(xt) = E[ ˙ αtx0 + ˙ σtxT | xt] = ˙ αtE[x0 | xt] + ˙ σtE[xT | xt]. (35) Using the standard score identity for the Gaussian transition kernel pt(xt | x0) = N (xt; αtx0, σ 2 
+
+> t
+
+I),we can express the marginal score as: 
+
+∇xt log pt(xt) = E
+
+[
+
+− xt − αtx0
+
+σ2
+
+> t
+
+∣∣∣∣ xt
+
+]
+
+= − xt − αtE[x0 | xt]
+
+σ2
+
+> t
+
+. (36) Rearranging this expression yields the optimal denoised estimate for x0:
+
+E[x0 | xt] = 1
+
+αt
+
+xt + σ2
+
+> t
+
+αt
+
+∇xt log pt(xt). (37) Similarly, since the forward process is defined as xt = αtx0 + σtxT , the expected noise can be written directly in terms of the score: 
+
+E[xT | xt] = xt − αtE[x0 | xt]
+
+σt
+
+= −σt∇xt log pt(xt). (38) Substituting these posterior expectations back into the marginal velocity definition (Equation (35)), we arrive at the exact relationship: 
+
+ut(xt) = ˙ αt
+
+( 1
+
+αt
+
+xt + σ2
+
+> t
+
+αt
+
+∇xt log pt(xt)
+
+)
+
+− ˙σtσt∇xt log pt(xt)= ˙αt
+
+αt
+
+xt −
+
+(
+
+˙σtσt − σ2
+
+> t
+
+˙αt
+
+αt
+
+)︸ ︷︷ ︸
+
+> =: Ct
+
+∇xt log pt(xt). (39) 
+
+Mean-Shifted Reverse Kernel. With this exact relationship established, we can now inject the reward signal into the reverse generative dynamics. Starting from the optimal target marginal in Equation (28), we decompose its score as follows: 
+
+∇xt log p⋆(xt) = ∇xt log 
+
+( 1
+
+Z pt(xt) exp( Vt(xt)/β )
+
+)
+
+= ∇xt log pt(xt) + 1
+
+β ∇xt Vt(xt). (40) This demonstrates that the optimal tilted score is the pretrained score shifted by the temperature-scaled value gradient. Next, we substitute this tilted score alongside the corresponding tilted velocity, u⋆t (xt) = 
+
+ut(xt) − Ct 
+
+> β
+
+∇xt Vt(xt), into the reverse SDE (Equation (33)) to obtain the modified reverse drift: 
+
+f ⋆t (xt) = u⋆t (xt) − σ2
+
+> t
+
+2 ∇xt log p⋆(xt)=
+
+(
+
+ut(xt) − Ct
+
+β ∇xt Vt(xt)
+
+)
+
+− σ2
+
+> t
+
+2
+
+(
+
+∇xt log pt(xt) + 1
+
+β ∇xt Vt(xt)
+
+)
+
+= ft(xt) − Ct + σ2
+
+> t
+> 2
+
+β ∇xt Vt(xt). (41) 
+
+> 21 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Because the exact value function gradient is analytically intractable, we employ the approximation from Equation (27): 
+
+∇xt Vt(xt) ≈ ∇ xt r( ˆ x0|t). (42) We absorb the schedule-dependent coefficient (Ct + σ2 
+
+> t
+
+/2)/β into a single guidance hyperparameter 
+
+λt. Discretizing the modified reverse SDE then gives the mean-shifted reverse kernel: 
+
+xt−1 = μθ(xt, t ) + λt∇xt r( ˆ x0|t) + σtϵt, ϵt ∼ N (0, I). (43) While the derivation prescribes λt = (Ct + σ2 
+
+> t
+
+/2)/β , in practice λt is treated as an independent hyperparameter. This corresponds to the mean-shifted reverse kernel introduced in Section 3.3. 
+
+A.3 Approach 2: Search-Based Reverse Kernel 
+
+In contrast to modifying the deterministic drift, an alternative approximation strategy draws multiple candidate perturbations from the base reverse kernel and biases the final selection toward those yielding higher rewards. Starting from the optimal reward-tilted reverse kernel in Equation (25), we can approximate it empirically using K candidate samples drawn from the base reverse kernel: 
+
+p⋆θ(xt−1|xt) ≈
+
+> K
+
+∑
+
+> i=1
+
+w(i)
+
+> t−1
+
+∑Kj=1 w(j)
+
+> t−1
+
+δx(i)
+
+> t−1
+
+(xt−1), (44) 
+
+x(i) 
+
+> t−1
+
+= μθ(xt, t ) + σtϵ(i) 
+
+> t
+
+, ϵ(i) 
+
+> t
+
+∼ N (0, I),w(i) 
+
+> t−1
+
+= exp 
+
+(
+
+Vt−1(x(i)
+
+> t−1
+
+)/β 
+
+)
+
+.
+
+Here, each candidate is generated from the same base reverse kernel, and the reward tilt appears only through the selection weights. Using the value approximation in Equation (27), the weights can be approximated as 
+
+w(i) 
+
+> t−1
+
+≈ exp 
+
+(
+
+r( ˆ x(i)0|t−1)/β 
+
+)
+
+, (45) where ˆx(i)0|t−1 denotes the Tweedie estimate associated with the i-th candidate. This gives a search-based approximation to the optimal reward-tilted reverse kernel by favoring candidates with larger estimated terminal reward. In practice, a common hard-selection variant replaces stochastic resampling by selecting the maximum-weight candidate. In particular, SVDD [ 38 ] can be interpreted as the argmax form of this search procedure: 
+
+i⋆ = arg max 
+
+> i∈{ 1,...,K }
+
+r( ˆ x(i)0|t−1), (46) 
+
+xt−1 = x(i⋆)
+
+> t−1
+
+.
+
+Conditioned on xt, search-based guidance samples multiple perturbations around the same base center μθ(xt, t ) and selects one according to reward. This can be interpreted as inducing a biased distribution over the perturbation variable itself, while preserving the base reverse-kernel sampling form during candidate generation. Under a local linear reward model around the base reverse update, the induced perturbation bias is aligned with the reward-gradient direction, so search-based guidance may be viewed as an implicit form of noise tilting, as illustrated in Figure 3. This observation provides a natural bridge to our NTRK , which realizes reward guidance explicitly through a single tilted perturbation. 
+
+> 22 NoiseTilt: Noise-Tilted Reverse Kernels
+
+A.4 Best of Both Worlds: NTRK 
+
+We now interpret NTRK by connecting the two approximation routes discussed above. From the perspective of mean-shifted reverse kernels, our goal is to retain the guidance advantage of first-order reward information without modifying the deterministic term of the reverse update. From the perspective of search-based guidance, our goal is to retain the noise-compatible-regime advantage of sampling around the base update center, while avoiding the multi-draw search cost. These two viewpoints meet at the same principle: reward information should be injected through the perturbation variable rather than through a shift of the deterministic term. Accordingly, NTRK keeps the base reverse update center μθ(xt, t ) and replaces the standard Gaussian perturbation by a reward-tilted perturbation: 
+
+xt−1 = μθ(xt, t ) + σt ˜ϵt, (47) where 
+
+˜ϵt = √ρt W
+
+> (
+
+∇xt r( ˆ x0|t)
+
+> )
+
++ √1 − ρt ϵt, ϵt ∼ N (0, I). (48) Here, ρt ∈ [0 , 1] controls the strength of the reward-informed perturbation, and W(·) denotes the whitening operator introduced in Section 4 and detailed in Section B. The role of W(·) is to map the reward gradient to a typical noise-like vector, so that the resulting update remains in the noise-compatible regime. 
+
+From the mean-shift perspective. Comparing Equations (47) and (48) with the mean-shifted reverse kernel in Equation (43), both methods exploit the same local first-order reward signal 
+
+∇xt r( ˆx0|t). However, the way this signal enters the reverse update is fundamentally different. Mean-shifted guidance adds the reward gradient directly to the deterministic term, thereby changing the center of the reverse update. In contrast, NTRK preserves the deterministic term μθ(xt, t )
+
+and injects reward information only through the perturbation. Thus, NTRK may be viewed as a mean-preserving reformulation of first-order reward guidance: it retains the single-draw efficiency of mean-shifted guidance while avoiding the explicit center shift that moves the update away from the noise-compatible regime. 
+
+From the search-based perspective. Comparing Equations (47) and (48) with the search-based update in Equations (44) and (46), both methods generate reward-guided updates around the same base center μθ(xt, t ). Search-based guidance does so implicitly by drawing multiple perturbations from the base reverse kernel and selecting the most favorable one according to reward. As discussed in Section A.3, under a local linear assumption, this selection induces a bias over the perturbation variable aligned with the reward-gradient direction. From this viewpoint, NTRK can be interpreted as an explicit single-draw realization of that idea: instead of performing a K-candidate search and selecting a favorable perturbation afterward, we directly construct a reward-tilted perturbation through Equation (48). Therefore, NTRK combines the key advantages of both existing viewpoints. Unlike mean-shifted reverse kernels, it stays within the noise-compatible regime by preserving the base update center. Unlike search-based guidance, it achieves reward alignment with a single draw per step. In this sense, NTRK bridges the two approaches by realizing reward guidance explicitly through a single typical noise-like perturbation. 
+
+A.5 Interpretation of the Guidance Strength ρt in NTRK 
+
+We now give an intuitive interpretation of the guidance strength ρt by comparing NTRK with search-based guidance. Our goal is not to claim an exact equivalence, but to clarify how increasing ρt
+
+changes the effective strength of reward guidance relative to search-based methods. The discussion below is heuristic and relies on a local linearity assumption around the base reverse update. Although this assumption need not hold exactly, it reflects the common working belief behind 
+
+> 23 NoiseTilt: Noise-Tilted Reverse Kernels
+
+gradient-based guidance methods: the reward gradient often provides a meaningful direction not only infinitesimally, but also over a practically relevant local neighborhood. Fix xt and consider perturbations around the base reverse update center μθ(xt, t ). For a perturbation ϵ, define 
+
+xt−1(ϵ) := μθ(xt, t ) + σtϵ, (49) and let ˆx0|t−1(ϵ) denote the Tweedie estimate obtained from xt−1(ϵ).To connect this interpretation with the actual direction used in practice, we approximate the local reward-improving perturbation direction around ϵ = 0 by the normalized reward gradient at the current state: 
+
+ut := ∇xt r( ˆ x0|t)
+
+∥∇ xt r( ˆ x0|t)∥2
+
+, (50) whenever ∇xt r( ˆx0|t)̸ = 0. Under this approximation, the reward around the base reverse update is modeled by the first-order form 
+
+r
+
+(
+
+ˆx0|t−1(ϵ)
+
+)
+
+≈ ct + κt⟨ut, ϵ⟩, (51) where 
+
+ct := r
+
+(
+
+ˆx0|t−1(0)
+
+)
+
+, (52) and κt > 0 is a local sensitivity coefficient. Thus, under this local approximation, candidate ranking depends only on the one-dimensional projected perturbation coordinate 
+
+z := ⟨ut, ϵ⟩. (53) 
+
+Search-based perspective. As discussed in Section A.3, search-based guidance draws K candi-dates from the base reverse kernel and performs importance sampling according to their estimated rewards. Under Equation (51), the importance weight of the i-th candidate satisfies 
+
+wi ∝ exp 
+
+(
+
+r
+
+(
+
+ˆx0|t−1(ϵ(i) 
+
+> t
+
+)
+
+)) 
+
+≈ exp( ct) exp( κtzi), (54) where 
+
+zi := ⟨ut, ϵ(i) 
+
+> t
+
+⟩, ϵ(i) 
+
+> t
+
+∼ N (0, I). (55) Since the base perturbation is isotropic and ∥ut∥2 = 1 , each zi follows N (0 , 1) . Thus, search-based guidance increasingly favors candidates with larger projected coordinate zi. In the hard-selection form used by SVDD [38], this reduces to selecting 
+
+z⋆K = max  
+
+> 1≤i≤K
+
+zi. (56) Define 
+
+mK := E[z⋆K ] = E
+
+[
+
+max  
+
+> 1≤i≤K
+
+zi
+
+]
+
+. (57) Then larger K yields a larger average displacement along the reward-improving direction. For large 
+
+K, the standard extreme-value approximation gives 
+
+mK ≈ √2 log K.  (58) 
+
+NTRK perspective. For NTRK , the perturbation is 
+
+˜ϵt = √ρt wt + √1 − ρt ϵt, ϵt ∼ N (0, I), (59) where 
+
+wt := W
+
+(
+
+∇xt r( ˆ x0|t)
+
+)
+
+. (60) 
+
+> 24 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Projecting onto the same reward-aligned unit direction ut gives 
+
+˜zt := ⟨ut, ˜ϵt⟩ = √ρt
+
+> 〈
+
+ut, W
+
+> (
+
+∇xt r( ˆ x0|t)
+
+> )〉
+
++ √1 − ρt ⟨ut, ϵt⟩
+
+= √ρt at + √1 − ρt zt, (61) where 
+
+at := 
+
+> 〈
+
+ut, W
+
+> (
+
+∇xt r( ˆ x0|t)
+
+> )〉
+
+, zt := ⟨ut, ϵt⟩. (62) Since ∥ut∥2 = 1 and ϵt ∼ N (0, I), we have zt ∼ N (0 , 1) , and therefore 
+
+E[˜ zt] = √ρt at. (63) The key quantity is thus the alignment coefficient at. It measures how strongly the whitened reward-informed perturbation projects onto the locally reward-improving direction ut. As discussed later in Section B, the whitening operator W is designed to preserve a meaningful cosine similarity with the original reward gradient. Consequently, even in very high dimension, at can remain substantial. To see this, suppose the cosine similarity between wt := W(∇xt r( ˆx0|t)) and ut is around 0.1.When N = 65536 , we typically have ∥wt∥2 ≈ √N = 256 , so 
+
+at = ⟨ut, wt⟩ ≈ 0.1 × 256 = 25 .6. (64) Thus, even a seemingly small value of ρt can already induce a strong reward-aligned bias through the factor √ρt at.Under this interpretation, a local heuristic correspondence between search-based guidance and 
+
+NTRK is obtained by matching the average projected displacement: 
+
+√ρt at ≈ mK . (65) Using the large-K approximation in Equation (58), this gives 
+
+Keff ≈ exp  
+
+> (
+
+ρta2
+
+> t
+
+2
+
+> )
+
+. (66) Although this correspondence is only heuristic, it clarifies the role of ρt: increasing ρt rapidly increases the effective search strength. For example, taking the value at = 25 .6 from Equation (64) gives 
+
+ρt = 0 .01 =⇒ √ρt at = 2 .56 , Keff ≈ exp(3 .28) ≈ 2.6 × 10 1,ρt = 0 .10 =⇒ √ρt at = 8 .10 , Keff ≈ exp(32 .77) ≈ 1.7 × 10 14 . (67) Therefore, once the preserved directional alignment is taken into account, even moderate values of 
+
+ρt can correspond to an astronomically large effective search strength that would be infeasible for natural search-based methods. Although the correspondence above is only heuristic, it suggests a clear practical implication: large ρt acts like an increasingly greedy effective search over perturbations. In multi-step reverse sampling, however, stronger greediness is not always desirable. As ρt → 1, the perturbation in Equation (59) becomes nearly deterministic, and the residual exploration term vanishes. Thus, each reverse step relies more heavily on the reward-aligned component and less on stochastic exploration. While this can improve the immediate target reward, repeatedly applying such nearly deterministic updates may reduce robustness to local approximation error and gradually weaken compatibility with the noise-compatible regime, which can in turn harm held-out quality. 
+
+> 25
+
+NoiseTilt: Noise-Tilted Reverse Kernels 
+
+Table 5. Ablation on the guidance strength ρt for NTRK on aesthetic image generation. We fix the sampling configuration (NFE = 25) and vary only ρt. Dark green and light green denote the best and second-best results, respectively. 
+
+ρt
+
+Target Reward Held-out Rewards Aesthetic Score ↑ Pick -score ↑ HPSv2 ↑ Image Reward ↑ VQA Score ↑
+
+0.01 6.5127 0.2205 0.2979 1.2773 0.9724 0.03 6.7445 0.2212 0.2977 1.3135 0.9687 0.10 7.1128 0.2205 0.2959 1.2431 0.9730 0.20 7.3265 0.2204 0.2976 1.3386 0.9716 0.30 7.4510 0.2200 0.2928 1.2565 0.9728 0.50 7.5892 0.2177 0.2916 1.1592 0.9674 1.00 7.7571 0.2142 0.2789 0.9576 0.9492 
+
+Figure 7. Reward trade-off trajectory as ρt increases. Moderate ρt improves the target reward while preserving held-out quality, whereas overly large ρt degrades the held-out reward. 
+
+This trade-off is consistent with the ablation results in Table 5. Moderate values of ρt improve the target aesthetic score while largely preserving held-out rewards, whereas overly large values of ρt degrade held-out quality. Thus, the most effective operating regime is neither pure random sampling ( ρt ≈ 0) nor fully deterministic reward chasing ( ρt ≈ 1), but a moderate intermediate regime that balances reward alignment and stochastic exploration. 
+
+26 NoiseTilt: Noise-Tilted Reverse Kernels 
+
+# B Whitening Operator 
+
+In Section 4, we introduced the whitening operator W as the key component that enables reward guidance through the noise term while preserving the pretrained reverse-kernel mean. Its role is to transform an arbitrary input signal, such as a reward gradient, into a perturbation that remains compatible with the pretrained reverse dynamics. More precisely, our goal is to move an arbitrary vector toward the noise-compatible regime ,namely, the regime of perturbations that exhibit the statistical characteristics of typical standard Gaussian noise and are therefore naturally accepted by the pretrained model. As discussed in Section 4, although N (0, I) has nonzero density everywhere in RN , in high dimensions almost all of its probability mass concentrates on a narrow typical region. The exact typical set is difficult to characterize in closed form, so instead of attempting to describe it exactly, we approximate it by intersecting a collection of high-confidence constraint sets induced by known statistics of the standard Gaussian distribution. Accordingly, the whitening operator W is implemented as a sequence of projections onto such confidence sets. Each component enforces one statistical property that typical white Gaussian noise satisfies with overwhelming probability. The resulting operator is modular, computationally efficient, and practically effective: it leaves already-typical Gaussian noise almost unchanged, while substantially suppressing structured or correlated artifacts in arbitrary inputs. 
+
+B.1 Typical Noise Accepted by a Pretrained Model 
+
+The pretrained reverse kernel is calibrated under the assumption that its standardized perturbation follows standard Gaussian noise. Therefore, when we inject a reward-informed vector through the noise term, the relevant question is not merely whether the vector has the correct overall scale, but whether it lies in the regime of perturbations that the pretrained model naturally accepts. In this subsection, we clarify this regime and motivate why our whitening operator is designed through confidence-interval projections rather than simple norm matching. Let z ∈ RN follow the standard multivariate Gaussian distribution 
+
+p(z) = (2 π)−N/ 2 exp 
+
+> (
+
+− ∥z∥22
+
+2
+
+> )
+
+. (68) Although this density is radially symmetric, its probability mass concentrates sharply in high dimensions. In particular, 
+
+∥z∥22 ∼ χ2 
+
+> N
+
+, (69) whose mean is N and whose standard deviation is √2N . As N grows, the relative fluctuation of ∥z∥22 becomes small, so most samples concentrate near a thin hyperspherical shell of radius approximately √N . This is the familiar norm concentration phenomenon of high-dimensional Gaussian noise. A natural first approximation is therefore to regard vectors on the hypersphere ∥z∥2 = √N as typical. However, this is too weak for pretrained generative models. As illustrated in Figure 8, latent vectors can have the same norm while behaving very differently in a pretrained model. When the vector exhibits the fine-scale irregularity characteristic of standard Gaussian noise, the pretrained model produces valid samples. In contrast, when the vector contains structured spatial correlation or other atypical regularities, the same pretrained model can produce severe failure cases, even though the vector lies on the same hypersphere. Thus, norm concentration alone does not characterize the perturbation regime that a pretrained model reliably accepts. This observation suggests that the practically relevant object is not the hypersphere itself, but the subset of vectors whose statistics resemble those of typical standard Gaussian noise . More importantly, these are precisely the perturbations that the pretrained reverse kernel is calibrated to 
+
+> 27 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Typical Noise Atypical Noise              
+
+> Latent z(∥z∥2=√N)Sampled Image Latent z(∥z∥2=√N)Sampled Image
+
+Figure 8. Identical norm does not guarantee noise compatibility. Latent vectors with identical norm (∥z∥2 = √N ) can still behave very differently under pretrained reverse dynamics. Vectors whose statistics resemble typical standard Gaussian noise produce valid samples, whereas structured or spatially correlated vectors, despite lying on the same hypersphere, lead to severe failure cases. 
+
+process: during pretraining, the model repeatedly encounters standard Gaussian samples drawn from the reference noise distribution, not arbitrary vectors on the hypersphere. Therefore, if we wish to inject a reward-informed signal through the noise term while preserving the pretrained reverse dynamics, the injected vector should mimic the statistical characteristics of those typical sampled perturbations as closely as possible. In this sense, our goal is to move an arbitrary input toward the noise-compatible regime of standard Gaussian noise. Intuitively, such vectors should not only have the correct global scale, but also avoid unnatural local structure, excessive correlation, or anomalous concentration of values and energies. The exact typical set of high-dimensional Gaussian noise is difficult to describe in a closed form that is mathematically explicit. Accordingly, rather than attempting to characterize it exactly, we construct a tractable surrogate based on a collection of high-confidence constraints derived from standard Gaussian reference statistics. Our whitening operator is built from this perspective. Each component enforces one property that standard Gaussian noise satisfies with overwhelming probability, while modifying the input as little as possible in Euclidean norm. Concretely, throughout this appendix we use 99 .99% confidence intervals (CI) under the reference distribution and realize whitening as a sequence of projections onto the corresponding confidence sets. This gives a practical approximation of the noise-compatible regime: already-typical Gaussian noise is changed only minimally, while structured or correlated inputs are pushed toward the statistics of typical standard Gaussian noise. The remaining subsections make this construction explicit. We first introduce the basic two-level order-statistic (2OS) projection in Section B.2, then extend it to tile-wise mean and energy statistics in Section B.3, and finally apply the same principle in multiple orthogonal transform domains in Section B.4. 
+
+B.2 Confidence-Interval Projection via Two-Level Order Statistics 
+
+We now introduce the two-level order-statistic projection (2OS), which is a key building block of our whitening operator. Its purpose is to move an arbitrary input toward typical standard Gaussian noise by projecting onto high-confidence sets derived from the reference distribution. To motivate why 2OS is needed, we first consider two simpler confidence-interval (CI) constructions. These preliminary constructions are included only to explain the design choice. They are not components of the full whitening operator. Rather, they show why we ultimately use two-level order statistics 
+
+> 28 NoiseTilt: Noise-Tilted Reverse Kernels
+
+(a) Global CI (b) 1OS CI (c) 2OS CI 
+
+Figure 9. Illustration of the confidence-interval hierarchy. Confidence-intervals (CI) for the standard normal distribution with confidence level 99 .99% are shown. (a) The coarsest constraint is the global confidence interval for a single variable. (b) A tighter characterization is obtained by using rank-dependent confidence intervals for one-level order statistics (1OS). (c) Our two-level order-statistic (2OS) construction further refines the admissible range by conditioning on both the outer rank r and the inner rank j within each chunk. 
+
+instead of relying only on global value bounds or one-level sorted statistics. Figure 9 summarizes this build-up. Panel (a) shows the coarsest possibility: a global confidence interval for a single Gaussian variable. Panel (b) refines this by using rank-dependent confidence intervals for one-level order statistics. Panel (c) then shows the two-level construction used in our method, which additionally conditions on the inner rank within each local chunk. The key distinction is that only this final construction constrains how values are distributed inside each chunk, which is what allows it to suppress localized structure. Throughout this subsection, let H denote a continuous reference CDF and let H−1 denote its inverse CDF. In our Gaussian instantiation, we use H = Φ , the standard normal CDF, and fix the confidence level to 99 .99% .
+
+A first construction: global confidence intervals (Global CI). The coarsest confidence-based construction is to require each coordinate to lie in a global high-confidence interval under the reference distribution; see Figure 9(a). Given confidence level 1 − α, define 
+
+a = H−1
+
+( α
+
+2
+
+)
+
+, a = H−1
+
+(
+
+1 − α
+
+2
+
+)
+
+, (70) and let 
+
+Sbox =
+
+{
+
+y ∈ RN : a ≤ yi ≤ a ∀i
+
+}
+
+. (71) 
+
+Proposition B.1. The Euclidean projection onto Sbox is given by elementwise clipping: 
+
+ΠSbox (x) = (clip( xi; a, a ))Ni=1 . (72) 
+
+Proof. Because 
+
+∥y − x∥22 =
+
+> N
+
+∑
+
+> i=1
+
+(yi − xi)2, (73) and the constraints in Equation (71) decouple across coordinates, the minimization separates into 
+
+N independent scalar projections onto the interval [a, a ], which is exactly elementwise clipping. This construction preserves natural variability, since it imposes an interval rather than a deterministic equality. However, it is still far too weak for our purpose. It constrains only marginal value range, so many structured vectors can satisfy Equation (71) while remaining far from the noise-compatible regime of typical standard Gaussian noise. 
+
+A second construction: one-level order statistics (1OS). A more informative construction is to constrain the sorted values themselves, as visualized in Figure 9(b). Let {xi}Mi=1 be i.i.d. samples 
+
+> 29 NoiseTilt: Noise-Tilted Reverse Kernels
+
+from the reference distribution with CDF H, and let x(r) denote the r-th smallest sample. By the probability integral transform, ui := H(xi) are i.i.d. Unif(0 , 1) , and therefore 
+
+u(r) ∼ Beta (r, M − r + 1 ). (74) This yields rank-dependent confidence bounds in the quantile domain: 
+
+plo  
+
+> r
+
+(M ) = Beta −1( α
+
+2 ; r, M − r + 1 
+
+> )
+
+, phi  
+
+> r
+
+(M ) = Beta −1(
+
+1 − α
+
+2 ; r, M − r + 1 
+
+> )
+
+. (75) Mapping them back through H−1 gives the value-domain thresholds 
+
+Lr = H−1(plo  
+
+> r
+
+(M )), Ur = H−1(phi  
+
+> r
+
+(M )). (76) Let x↑ = ( x(1) , . . . , x (M )) denote the sorted version of x, and let Px be the permutation matrix satisfying x↑ = Pxx. Define 
+
+Sos =
+
+> {
+
+y ∈ RM : Lr ≤ y(r) ≤ Ur, r = 1 , . . . , M 
+
+> }
+
+. (77) 
+
+Proposition B.2. A Euclidean projection onto Sos is obtained by sorting, clipping in sorted order, and undoing the sort: 
+
+ΠSos (x) = P ⊤ 
+
+> x
+
+clip (x↑; L, U ), (78) 
+
+where L = ( L1, . . . , L M ) and U = ( U1, . . . , U M ).Proof. Any y ∈ S os can be written as y = P ⊤y↑ for some permutation P and some nondecreasing vector y↑ satisfying Lr ≤ (y↑)r ≤ Ur. Since the Euclidean norm is permutation-invariant, 
+
+∥y − x∥22 = ∥y↑ − P x∥22. (79) For fixed y↑, this is minimized when P x is sorted in the same order as y↑, that is, when P = Px,by the rearrangement inequality. The remaining problem is therefore the Euclidean projection of the sorted vector x↑ onto the box constraints Lr ≤ yr ≤ Ur, which is achieved by elementwise clipping. This one-level construction is much tighter than the global interval, since it constrains each rank separately rather than only the overall value range. For example, when H = Φ , α = 10 −4, and 
+
+M = 65536 , the global 99 .99% confidence interval is [−3.8906 , 3.8906] , whose width is 7.7812 . In contrast, the one-level interval width Ur − Lr is only 0.0381 near the median rank and 0.0414 even at r = 16384 , making it roughly 200 × tighter than the global interval. Even at the most extreme rank r = 1 , the width is 2.4282 , which is still more than 3× tighter. Nevertheless, one-level order statistics still do not solve the main problem. Because they depend only on the globally sorted values, they are permutation-invariant with respect to the original coordinates. They constrain the global histogram, but they do not constrain how small and large values are distributed across local chunks. As a result, substantial spatial structure can still survive. This limitation is illustrated in Figure 10. Both the global CI and one-level CI projections reduce extreme values, but visible stripe-like structure remains in the latent visualization. This is precisely what motivates the two-level construction below: we need a confidence-interval projection that controls not only which values appear globally, but also how those values are distributed locally. 
+
+Two-level order statistics (2OS). We now introduce the construction actually used in our whitening operator. To make the confidence-interval constraint sensitive to local organization, we partition the vector into local chunks and enforce order-statistic consistency both within each chunk and across chunks; see Figure 9(c). 
+
+> 30 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Input Global 1OS 2OS Latent Visualization Sampled Image 
+
+Figure 10. Effect of confidence-interval (CI) projection via two-level order statistics (2OS). Global CI clipping only truncates extreme values and leaves the dominant structured pattern largely unchanged. 1OS CI further matches the global sorted histogram, but still preserves substantial local structure. In contrast, 2OS CI enforces rank consistency both within and across local chunks, forcing each chunk to contain a balanced spread of small-to-large values. This suppresses localized artifacts much more effectively and makes the latent substantially more like a typical noise. The bottom row shows the corresponding effect on the sampled image. 
+
+Specifically, reshape the vector into a matrix 
+
+X ∈ RM ×D, (80) where each row corresponds to a chunk of size D. We first sort within each row, and then, for each within-row rank j, sort across the M rows. This yields the doubly sorted representation 
+
+Z = sort 0
+
+(sort 1(X)), (81) where r indexes the outer rank across chunks and j indexes the inner rank within each chunk. Equivalently, Zr,j is the r-th smallest value among the j-th order statistics collected from all chunks. Under the i.i.d. reference model, the induced quantiles are obtained by composing Beta laws. After fixing the outer rank r, the confidence interval for the corresponding quantile is given by Equation (75). Conditioning further on the inner rank j within a chunk yields 
+
+plo  
+
+> r,j
+
+(M, D ) = Beta −1(
+
+plo  
+
+> r
+
+(M ); j, D − j + 1 
+
+)
+
+, (82) 
+
+phi  
+
+> r,j
+
+(M, D ) = Beta −1(
+
+phi  
+
+> r
+
+(M ); j, D − j + 1 
+
+)
+
+, (83) and therefore 
+
+Lr,j = H−1(plo  
+
+> r,j
+
+(M, D )), Ur,j = H−1(phi  
+
+> r,j
+
+(M, D )). (84) Now define the feasible set 
+
+S2os =
+
+{
+
+Y ∈ RM ×D : Lr,j ≤ (sort 0(sort 1(Y )) ) 
+
+> r,j
+
+≤ Ur,j , ∀r, j 
+
+}
+
+. (85) 
+
+Proposition B.3. Let Z be defined by Equation (81) . Then clipping each entry of Z into its corresponding interval [Lr,j , U r,j ] and undoing the two sorting permutations yields a Frobenius-norm 
+
+> 31 NoiseTilt: Noise-Tilted Reverse Kernels
+
+projection onto S2os :
+
+ΠS2os (X) ∈ arg min  
+
+> Y∈S 2os
+
+∥Y − X∥2 
+
+> F
+
+. (86) 
+
+Proof. The row-wise and column-wise sorting operations are compositions of permutation matrices and therefore preserve the Frobenius norm. Accordingly, for the purpose of Euclidean projection, we may pass to the canonical representative obtained by doubly sorting X.Now fix a candidate doubly sorted matrix ˜Z satisfying 
+
+Lr,j ≤ ˜Zr,j ≤ Ur,j ∀r, j.  (87) Among all matrices whose doubly sorted representation equals ˜Z, the one closest to X is obtained by undoing the sorting permutations induced by X itself. This follows by repeated application of the rearrangement inequality: first within each row, and then across rows for each column. Consequently, the projection problem reduces to minimizing 
+
+∥ ˜Z − Z∥2 
+
+> F
+
+(88) subject to the box constraints above. Since these constraints decouple entrywise, the minimizer is obtained by clipping each Zr,j independently to [Lr,j , U r,j ]. Undoing the sorting permutations then gives a Frobenius-norm minimizer in the original coordinates. The key difference from the one-level construction is that clipping is applied to every rank pair (r, j ) of the doubly sorted statistic. As a result, extreme values cannot concentrate in only a few chunks. Instead, each chunk is forced to contain a balanced spread of small-to-large values consistent with typical standard Gaussian noise. In this sense, 2OS constrains not only the global histogram, but also the local distributional composition of each chunk. This is the core mechanism by which it suppresses localized structure and pushes an arbitrary vector toward typical noise. 
+
+B.3 Confidence-Interval Projection on Tile-wise Mean and Energy 
+
+The 2OS projection in Section B.2 acts directly on the entries of a partitioned representation. This already suppresses localized structure by forcing each chunk to contain a balanced spread of small-to-large values. However, entrywise 2OS alone does not fully control partition-wise statistics .For example, a chunk may still contain values from all bands while having an unusually low or high mean, or it may contain values that are too concentrated around that mean, leading to an atypical centered energy. To further move the input toward typical standard Gaussian noise, we therefore apply the same confidence-interval principle to tile-wise statistics themselves. Figure 11 illustrates this effect. Starting from the output of 2OS CI on entries, we additionally constrain tile-wise statistics at multiple tile scales. This progressively removes residual low-frequency bias. This is exactly the role of tile-wise statistics in the whitening operator: they complement entrywise 2OS by directly controlling whether each partition has Gaussian-like aggregate behavior. Let x ∈ RN be partitioned into P disjoint tiles of equal size F (so N = P F ), denoted by 
+
+x(p) ∈ RF , p = 1 , . . . , P.  (89) For each tile, define the tile-wise mean and centered energy 
+
+¯x(p) = 1
+
+F 1⊤x(p), v(p) =
+
+> ∥∥∥
+
+x(p) − ¯x(p)1 
+
+> ∥∥∥22
+
+, (90) where 1 ∈ RF is the all-ones vector. Under the standard Gaussian reference model, these statistics have known distributions. Indeed, 
+
+> 32 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Input 2OS + 2 × 2 Tile Mean/Energy 
+
++ 8 × 8 Tile Mean/Energy Latent Visualization Sampled Image 
+
+Figure 11. Effect of confidence-interval (CI) projection on tile-wise statistics. Starting from entrywise 2OS, we additionally constrain tile-wise mean and centered energy at 2 × 2 and 8 × 8 tile scales. These tile-wise constraints further suppress residual low-frequency structure. 
+
+if x(p) ∼ N (0, IF ), then 
+
+s(p) := √F ¯x(p) ∼ N (0 , 1) , v(p) ∼ χ2 
+
+> F−1
+
+. (91) Thus the normalized tile-wise mean is standard normal, while the centered energy follows a chi-square law with F − 1 degrees of freedom. We now collect these quantities over all tiles. Define the tile-wise statistic vectors 
+
+s ∈ RP , v ∈ RP , (92) whose p-th entries are the normalized mean s(p) and centered energy v(p) of the corresponding tile. We then apply the same 2OS projection introduced in Section B.2 to these statistic vectors, using the appropriate reference distributions. Let Hs and Hv denote the CDFs of the standard normal and χ2  
+
+> F−1
+
+distributions, respectively. We define 
+
+n = Π (2os)  
+
+> Hs
+
+(s), m = Π (2os)  
+
+> Hv
+
+(v), (93) where Π(2os)  
+
+> H
+
+denotes the two-level order-statistic (2OS) projection of Equation (86), with confidence bounds computed from the reference CDF H.The projected statistic fields n and m specify target tile-wise mean and energy values. For each tile, we then update the tile to match those targets with minimal Euclidean modification. Specifically, let 
+
+μ⋆p = n(p)
+
+√F , v⋆p = m(p), (94) and define 
+
+x(p)new = μ⋆p1 +
+
+(
+
+x(p) − ¯x(p)1
+
+) √
+
+v⋆p
+
+v(p) . (95) Thus each tile is shifted to the target mean and rescaled to the target centered energy, while 
+
+> 33 NoiseTilt: Noise-Tilted Reverse Kernels
+
+preserving its centered direction. 
+
+Proposition B.4. Fix a tile x(p) ∈ RF and target values (μ⋆p, v ⋆p ) with v⋆p ≥ 0. Define the feasible set 
+
+S(μ⋆p, v ⋆p ) = 
+
+{
+
+y ∈ RF : 1
+
+F 1⊤y = μ⋆p, ∥∥y − μ⋆p1∥∥22 = v⋆p
+
+}
+
+. (96) 
+
+Let ¯x(p) = 1 
+
+> F
+
+1⊤x(p) and v(p) = ∥x(p) − ¯x(p)1∥22. If v(p) > 0, then the update in Equation (95) is the Euclidean projection of x(p) onto S(μ⋆p, v ⋆p ):
+
+x(p)new = Π S(μ⋆p,v ⋆p )
+
+(x(p)) ∈ arg min  
+
+> y∈S (μ⋆p,v ⋆p)
+
+∥y − x(p)∥22. (97) 
+
+When v(p) = 0 , the minimizer is not unique. Proof. Write 
+
+x(p) = ¯ x(p)1 + c, 1⊤c = 0 , ∥c∥22 = v(p). (98) Any feasible y ∈ S (μ⋆p, v ⋆p ) can be written as 
+
+y = μ⋆p1 + d, 1⊤d = 0 , ∥d∥22 = v⋆p . (99) By orthogonality, 
+
+∥y − x(p)∥22 = ∥(μ⋆p − ¯x(p))1∥22 + ∥d − c∥22 = F (μ⋆p − ¯x(p))2 + ∥d − c∥22. (100) The first term is fixed once μ⋆p is fixed. For the second term, 
+
+∥d − c∥22 = ∥d∥22 + ∥c∥22 − 2⟨d, c⟩, (101) so minimizing it is equivalent to maximizing ⟨d, c⟩ subject to ∥d∥22 = v⋆p . This is achieved when d
+
+is colinear with c. Hence, when v(p) > 0, the unique minimizer is 
+
+d = c
+
+√
+
+v⋆p
+
+v(p) , (102) which yields Equation (95). If v(p) = 0 , then c = 0, and any feasible d with 1⊤d = 0 and ∥d∥22 = v⋆p
+
+attains the same minimum. The role of this construction is complementary to entrywise 2OS. The projection in Section B.2 ensures that each tile contains a balanced spread of values across different rank bands. The present construction checks whether the aggregate behavior of each tile is statistically typical. By constraining tile-wise mean and centered energy through their known reference distributions, we prevent a subset of tiles from having unusually biased averages or atypical local energy, even if their entrywise order statistics already look plausible. This is why tile-wise statistics are a natural next component of the whitening operator after 2OS. 
+
+B.4 Confidence-Interval Projection in Orthogonal Transform Domains 
+
+The constructions in Sections B.2 and B.3 constrain entrywise order statistics and tile-wise statistics in the original coordinates. These components already suppress substantial local structure, but some artifacts are still more naturally exposed after an orthogonal change of basis. In particular, residual global patterns may remain diffuse in the original indexing while becoming much more explicit in a transformed domain. For this reason, our whitening operator also applies the same confidence-interval projections in additional orthogonal transform domains .
+
+> 34 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Input 2OS + Tile-wise + Fourier + Hadamard Latent Visualization Sampled Image 
+
+Figure 12. Effect of confidence-interval (CI) projection in orthogonal transform domains. Starting from the output of 2OS and tile-wise constraints in the original coordinates, we additionally apply the same confidence-interval projections in a compact Fourier domain and then in a Hadamard-style mixing domain. These transformed views expose complementary global structure, progressively suppressing residual artifacts and improving the sampled image. 
+
+This effect is illustrated in Figure 12. After applying 2OS together with tile-wise constraints in the original coordinates, the latent is already substantially whitened, but the sampled image still contains severe global artifacts. Applying the same confidence-interval projections in a compact Fourier domain further suppresses frequency-localized structure and yields a recognizable image, although visible artifacts remain. Applying them again in a Hadamard-style mixing domain removes much of the remaining coherent structure and produces a valid sample. Thus, orthogonal transform domains provide complementary global views that are not fully captured by coordinate-domain or tile-wise constraints alone. The validity of this strategy rests on a simple geometric fact: Euclidean projection is preserved under orthogonal changes of coordinates. 
+
+Proposition B.5. Let T : RN → RN be orthogonal, i.e., 
+
+T ⊤T = I. (103) 
+
+For any nonempty closed set S ⊂ RN , define 
+
+T (S) = {T y : y ∈ S} . (104) 
+
+Then, for any x ∈ RN ,
+
+T ΠS (x) ∈ ΠT (S)(T x), (105) 
+
+equivalently, 
+
+ΠS (x) ∈ T ⊤ΠT (S)(T x). (106) 
+
+Hence, projecting in the transformed domain and mapping back is exactly the Euclidean projection onto the corresponding pullback set in the original domain. 
+
+> 35 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Proof. Since T is orthogonal, 
+
+∥T u − T v∥2 = ∥u − v∥2 ∀u, v ∈ RN . (107) Let y⋆ ∈ ΠS (x). Then for every y ∈ S ,
+
+∥T x − T y⋆∥2 = ∥x − y⋆∥2 ≤ ∥ x − y∥2 = ∥T x − T y∥2. (108) Hence T y⋆ is a minimizer of the distance from T x over T (S), proving Equation (105). Applying 
+
+T ⊤ yields Equation (106). A second fact is that the standard Gaussian reference distribution is itself invariant under orthogonal transforms. 
+
+Proposition B.6. If T ⊤T = I and ϵ ∼ N (0, IN ), then 
+
+T ϵ ∼ N (0, IN ). (109) 
+
+Consequently, confidence intervals derived under i.i.d. standard Gaussian assumptions remain valid after applying T .Proof. Since T is linear, T ϵ is Gaussian with mean 0 and covariance 
+
+T IN T ⊤ = IN . (110) Therefore T ϵ ∼ N (0, IN ).
+
+Compact orthogonal Fourier domain. Our first transformed view is a compact real represen-tation of the orthonormal discrete Fourier transform. For an even-length real vector x ∈ RN , let 
+
+ˆx = Fr(x) ∈ CN/ 2+1 , (111) where Fr denotes the orthonormal real Fourier transform. We then define the compact real transform 
+
+TF(x) = 
+
+> [
+
+ℜ(ˆ x0), √2ℜ( ˆ xint )⊤, ℜ(ˆ xN/ 2), √2ℑ( ˆ xint )⊤]⊤
+
+∈ RN , (112) where ˆxint = ( ˆx1, . . . , ˆxN/ 2−1) collects the interior Fourier coefficients. That is, we keep the two real boundary frequencies explicitly and pack the independent interior Fourier coefficients by concatenating their real and imaginary parts. The factor √2 on the interior frequencies accounts for the Hermitian symmetry of the Fourier transform of a real signal and preserves the Euclidean norm. Consequently, TF is an orthogonal linear bijection from RN to RN . Its inverse simply reconstructs the Hermitian-symmetric Fourier coefficients and then applies the inverse real FFT. The purpose of this domain is to expose structure that is more naturally described in frequency space. Periodic artifacts, low-frequency bias, and anomalous spectral concentration may remain difficult to suppress when viewed only through local statistics in the original coordinates. In the compact Fourier domain, the same CI projections from Sections B.2 and B.3 directly constrain those frequency-domain coordinates while remaining statistically consistent with the same standard Gaussian distribution. 
+
+Hadamard-style mixing domain. Our second transformed view is a sparse orthogonal mixing operator based on repeated pairwise sum/difference butterflies. Let a tile of size H × W be flattened into a vector z ∈ RD with D = HW . A single butterfly step maps each adjacent pair according to 
+
+(z2k−1, z 2k) 7 → 
+
+> (
+
+z2k−1 + z2k
+
+√2 , z2k−1 − z2k
+
+√2
+
+> )
+
+, k = 1 , . . . , D
+
+2 . (113) 
+
+> 36 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Applied independently across all tiles, this defines an orthogonal transform. Repeated application produces a Hadamard-style mixing effect that progressively redistributes local information across coordinates. The role of this domain is different from the Fourier domain. Whereas the compact Fourier transform makes frequency-localized anomalies explicit, the Hadamard-style mixing domain exposes coherent global structure through orthogonal linear combinations of coordinates. In practice, this complementary view is important: after Fourier-domain filtering, some residual artifacts can still remain spatially coherent, and Hadamard-style mixing makes them easier to detect and suppress by the same CI projections. In both transformed domains, the projection principle itself does not change: we transform the signal, apply the CI projections developed in Sections B.2 and B.3, and map the result back. Because the transforms are orthogonal and preserve the standard Gaussian law, these projections continue to target the same noise-compatible regime of typical standard Gaussian noise. 
+
+B.5 Component-Level Ablation of the Whitening Operator 
+
+Table 6 examines the contribution of each component of W to reward alignment performance. Starting from the 2OS projection alone, we progressively add tile-wise statistics and then multi-domain projections, holding the sampling configuration fixed throughout (NFE = 25). 
+
+Table 6. Component-level ablation of the whitening operator W                           
+
+> on aesthetic image generation. We fix the sampling configuration (NFE = 25) and progressively add components to the whitening operator. Dark green denotes the best target reward; light green denotes the second best.
+> Whitening Operator Target Reward Held-out Rewards Aesthetic Score ↑Pick -score ↑HPSv2 ↑Image Reward ↑
+> Base 6.0282 0.2144 0.2759 1.0538 2OS proj. 7.3439 0.2179 0.2891 1.1430
+> +Tile-wise stat. 7.4607 0.2181 0.2909 1.0585
+> +Multi. domain (Ours) 7.4510 0.2200 0.2928 1.2565
+
+Figure 13. Trade-off under compo-nent ablation. Full components achieve the best trade-off. 
+
+The 2OS projection alone already provides a substantial gain in the target reward over the unguided base. Adding tile-wise statistics yields the highest target reward among the three configurations, but reduces ImageReward, reflecting a trade-off between target optimization and distributional balance across rewards. Incorporating multi-domain projections restores the held-out metrics to their highest values while preserving most of the target-reward gain, achieving the best overall trade-off. These results suggest that each component addresses a complementary aspect of noise compatibility: 2OS controls local value statistics, tile-wise statistics regulate aggregate per-tile behavior, and multi-domain projections target residual structure that is more naturally exposed in alternative orthogonal bases. Figure 13 further visualizes the target-vs-held-out trade-off as components are added. 
+
+B.6 Implementation and Optimization of the Whitening Operator 
+
+The whitening operator admits many possible configurations, since it is determined by the combi-nation of the 2OS chunk partitions in Section B.2, the tile partitions for mean and centered energy in Section B.3, and the orthogonal transform domains in Section B.4. In practice, however, the computational bottleneck is clear: the dominant cost comes from the repeated sort–clip–unsort pattern inside the 2OS projection. By contrast, the tile-wise mean and centered-energy updates are comparatively cheap, since they consist only of reductions, rescaling, and broadcasting. Accordingly, our implementation is designed to make the 2OS projections as GPU-friendly as possible. 
+
+> 37 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Optimization. Our first optimization is to keep the 2OS chunk sizes small. In practice, we use chunk sizes such as 4 and 64 , so that the inner sorting dimension remains modest. When the chunk size is 4, the sorting can be handled essentially at thread-local scale. When the chunk size is 64 , it still fits comfortably within a single GPU block and can be processed efficiently in shared memory. This matters because each 2OS projection repeatedly sorts within chunks and then across chunks at a fixed rank index. By keeping the chunk size small, we keep these repeated sorting operations efficient even when the whitening operator is applied many times. Our second optimization is to precompute all confidence bounds once at initialization. For each configuration, we cache the Gaussian and chi-square thresholds for all relevant tuples of outer-rank count, chunk size, and tile size. As a result, the online cost of each whitening call is dominated by tensor reshaping, sorting, clipping, FFTs, and orthogonal mixing, rather than by repeated evaluation of Beta, Gaussian, or chi-square quantiles. In addition, because the same sort–clip–unsort pattern is reused across many nested calls, temporary tensors and indexing patterns can also be reused efficiently on GPU. 
+
+Configurations. For FLUX latents with shape [1024 , 64] , we use 2OS chunk sizes (2 , 2) and (8 , 8) ,tile-wise statistic sizes (1 , 1) , (2 , 2) , and (8 , 8) , and two Hadamard-style mixing domains: the full latent resolution and a 4 × 4 tiled mixing, repeated 32 and 8 times, respectively. For the larger Wan2.1 latent with shape [16 , 13 , 60 , 104] , reshaped as (16 ·13 ·60 , 104) , we use chunk sizes (2 , 2) and 
+
+(16 , 4) , tile-wise statistic sizes (2 , 2) and (13 , 13) , and the same two mixing domains, repeated 42 
+
+and 8 times. In all cases, we use confidence level α = 10 −4. 
+
+> Table 7. Wall-clock overhead of the whitening operator.
+
+Model Per-step Model Time Whitening Time Whitening Slowdown DPS [10] → NTRK 
+
+FLUX [35] 0.873 s 0.068 s +7.8% 87 s → 94 s Wan2.1 [70] 26.1 s 0.5 s +1.9% 650 s → 663 s 
+
+Wall-clock time. These configurations were selected so that whitening accounts for less than 10% 
+
+of the overall reward-alignment cost. For FLUX, one reward-guided model step takes about 0.87 s, while the whitening operator takes about 0.068 s, i.e., about 7.8% of the per-step wall-clock time. At the level of full runs, DPS [ 10 ] takes about 87 s, whereas adding whitening increases this only to 94 s. For Wan2.1, one model step takes about 26 s, while whitening takes about 0.5 s, which is roughly 2% of the runtime. Correspondingly, DPS [ 10 ] takes about 650 s, and the whitened version takes about 663 s. Thus, although the whitening operator combines several CI projections across multiple domains, its overhead remains modest relative to the underlying generative model. An important practical advantage is that this cost can be adjusted continuously through the configuration. Reducing the number of chunk sizes, tile sizes, transform domains, or mixing repetitions yields a cheaper operator, while adding them yields a stronger but slower one. This makes the whitening operator easy to adapt to models with different latent sizes and runtime budgets. 
+
+B.7 Comparison with Simpler Operators 
+
+To understand why the quality of the whitening operator matters, we compare NTRK with three simpler alternatives. The key question is not merely whether an operator removes visible structure, but whether it moves an arbitrary input toward the noise-compatible regime of typical standard Gaussian noise while leaving already-typical noise nearly unchanged. We consider four whitening operators. The first is the identity map, 
+
+WNone (z) = z, (114) 
+
+> 38 NoiseTilt: Noise-Tilted Reverse Kernels
+
+which corresponds to using the raw reward-informed direction without whitening. The second is norm projection, 
+
+WNorm (z) = √N z
+
+∥z∥2
+
+, (115) which places the input on the high-probability hypersphere of radius √N , but does not constrain its finer statistics. The third is WWGNC , based on White Gaussian Noise Constraints (WGNC) [ 24 ], which projects onto a spectral feasible set defined by hard blockwise constraints in a compact Fourier domain. This suppresses structured frequency artifacts much more strongly than norm projection, but its hard equalities remove the natural variability that genuine Gaussian noise should retain. The last is our proposed operator, WOurs .
+
+Table 8. Ablation on the whitening operator for NTRK on aesthetic image generation. We fix the sampling configuration (NFE = 25) and replace only the whitening operator. Dark green cells indicate the best result in the target reward, while light green cells denote the second best.                                            
+
+> Setting Target Reward Held-out Rewards Aesthetic Score ↑Pick -score ↑HPSv2 ↑Image Reward ↑VQA Score ↑
+> Base [35] 6.0282 0.2144 0.2759 1.0538 0.9644
+> NTRK w/ WNone 6.2392 0.2207 0.2981 1.2914 0.9690
+> NTRK w/ WNorm 7.1036 0.2147 0.2794 0.8908 0.9557
+> NTRK w/ WWGNC 7.2096 0.2174 0.2901 1.1391 0.9672
+> NTRK w/ WOurs 7.4510 0.2200 0.2928 1.2565 0.9728
+
+Figure 14. Trade-off under dif-ferent whitening operators. Only  
+
+> WOurs improves the target reward with-out degrading the held-out quality.
+
+Table 8 shows an ablation in which we fix the NTRK sampling setting and replace only the whitening operator. Using no whitening, i.e. WNone , improves the target reward only modestly. Norm projection, WNorm , increases the target reward further, but incurs the largest degradation in held-out quality. WWGNC provides a better trade-off than norm projection and recovers held-out quality above the base level, yet still lags behind WOurs on both target reward and held-out metrics. In contrast, WOurs achieves the highest target reward while also preserving, and in this case slightly improving, the held-out metrics. Therefore, the benefit of NTRK does not come merely from making the guidance stronger; it comes from injecting reward information through a perturbation that remains much more faithful to the statistics of typical standard Gaussian noise. Figure 15 compares the four operators on two representative inputs. In the top example of Figure 15, the input is strongly structured and leads to a severe failure case. Applying WNone or 
+
+WNorm leaves the dominant structure largely intact, so the sampled image remains invalid. WWGNC 
+
+removes much more of the visible structure, but still produces a noticeably distorted sample. By contrast, WOurs produces a much more typical noise and yields a realistic image. In the bottom example of Figure 15, the input is already a typical Gaussian noise. Here the desired behavior is the opposite: a good whitening operator should change the input as little as possible. Indeed, WOurs 
+
+leaves the latent almost unchanged, whereas WWGNC still perturbs it visibly. Figure 15 illustrates the main difference between the two approaches: NTRK removes atypical structure when necessary, but preserves genuine noise when it is already compatible with the pretrained model. Overall, the quantitative results above and Figure 15 together show that a good whitening operator is crucial for reward alignment. Operators that are too weak fail to remove harmful structure, whereas operators that are too rigid distort even already-typical noise. The proposed whitening operator is effective precisely because it balances these two requirements: it strongly suppresses atypical structure when needed, while minimally altering inputs that already lie near the noise-compatible regime. 
+
+> 39
+
+NoiseTilt: Noise-Tilted Reverse Kernels 
+
+z (= WNone (z)) WNorm (z) WWGNC (z) WOurs (z)
+
+> Latent Visualization Sampled Image
+
+CosSim( z, W(z)) 1.000000 0.642806 0.480325 
+
+∥z − W (z)∥2 37.63 203.35 244.39 
+
+z (= WNone (z)) WNorm (z) WWGNC (z) WOurs (z)
+
+> Latent Visualization Sampled Image
+
+CosSim( z, W(z)) 1.000000 0.989371 0.999996 
+
+∥z − W (z)∥2 1.98 37.24 0.77 
+
+Figure 15. Comparison with simpler whitening operators. Top: when the input latent z is strongly atypical, 
+
+WNone and WNorm fail to remove the dominant structure, while WWGNC suppresses it more strongly but still yields a distorted sample. In contrast, WOurs produces a much more typical noise and a realistic image. Bottom: when z
+
+is already close to typical Gaussian noise, a good whitening operator should leave it nearly unchanged. Here, WOurs 
+
+preserves the input most faithfully, whereas WWGNC still perturbs it visibly. The cosine similarity and ℓ2 distance quantify this trade-off: NTRK changes atypical inputs when needed, but minimally alters already-typical noise. 
+
+40 NoiseTilt: Noise-Tilted Reverse Kernels 
+
+# C Additional Experimental Results 
+
+In this section, we present additional experimental results and implementation details that com-plement the experiments in Section 5. We first summarize the implementation details across applications in Section C.1. We then compare with noise optimization methods in Section C.2. We further provide results on additional applications, including quantity-aware generation and VLM-based reward alignment, in Sections C.3 and C.4. We further report results with a different base model, Z-Image [ 6 ], for aesthetic and text-aligned image generation in Section C.5. Finally, we present additional results for the main experiments in Section C.6. 
+
+C.1 Implementation Details 
+
+Table 9. Hyperparameter configurations for each application.             
+
+> Aesthetic Image Text-Aligned Quantity-Aware VLM Video
+> σt0.2t0.2t0.20.20.2
+> ρt0.30.30.50.50.5
+
+We summarize the implementation details across applications in this section. For image generation tasks, we use FLUX [ 35 ] and Z-Image [ 6] as the base models for aesthetic image generation and text-aligned image generation, and FLUX [ 35 ] for quantity-aware generation and VLM-based reward alignment. For preference-aligned video generation, we use Wan2.1 [ 70 ] as the base flow model. Across all experiments, we fix the number of sampling steps to 25. The diffusion coefficient σt and the whitened guidance strength ρt used for each application are summarized in Table 9. 
+
+C.2 Comparison with Noise Optimization 
+
+Table 10. Comparison with DNO [ 66 ] under the same NFE budget. Aesthetic image generation at 500 NFE.                    
+
+> Method NFE Target Reward Held-Out Reward Aesthetic Score ↑Pick-Score ↑HPSv2 ↑
+> Base 25 6.028 0.2144 0.2759 DNO [66]
+> (20 updates) 500 6.772 0.2143 0.2717
+> NTRK
+> (20 particles) 500 7.966 0.2197 0.2932
+
+DNO [ 66 ] belongs to a distinct class of methods: rather than modifying the per-step reverse kernel, it treats all injected noise vectors as inference-time optimiza-tion variables and refines them through iterative Adam updates with a regulariza-tion term. This design has a fundamen-tal budgetary consequence: each Adam update requires a complete forward pass through all T denoising steps, so generat-ing a single sample with K updates costs T × K NFEs. At the standard 25-NFE budget ( K=0), DNO produces output identical to base sampling since no optimization has yet taken place. We compare DNO and NTRK under a matched budget of 500 NFE on the aesthetic image generation task. For DNO this corresponds to K=20 Adam updates over the full noise trajectory; for NTRK it corresponds to N = 20 particles with Best-of-N. As shown in Table 10, NTRK achieves substantially higher aesthetic reward while better preserving held-out metrics, demonstrating that per-step kernel modification is a more budget-efficient strategy than trajectory-level noise optimization. 
+
+C.3 Additional Application: Quantity-Aware Generation 
+
+Experiment Setup. We evaluate quantity-aware generation using 40 prompts from prior work, 
+
+Ψ-Sampler [ 75 ], covering 20 object categories with randomly assigned target counts of up to 90. For all other experimental details, we follow the same setup described in Section 5.1. 
+
+Evaluation Metrics. The target reward is negative smooth L1 loss computed with T2I-Count [ 49 ], which takes a generated image and the corresponding text prompt as input and returns a density map. For the held-out reward, we use alternative counting model, CountGD [ 1], and report MAE and counting accuracy (%), where a prediction is considered correct if the predicted count exactly 
+
+> 41 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Table 11. Quantitative comparison on quantity-aware generation. The target reward is T2I-Count [ 49 ]. For single-particle methods, we augment sampling with Best-of-N [ 65 ] and Ψ-Sampler [ 75 ] to match the total NFE, denoted with † and ‡, respectively. Dark green cells indicate the best result for each metric across all runs, while light green cells denote the second best. 
+
+Method NFE Target Reward Held-Out Reward T2I-Count ↓ MAE ↓ Acc (%) ↑ Image Reward ↑ HPSv2 ↑ VQA Score ↑
+
+Base [35] 25 16.365 16.700 5.0 0.579 0.262 0.928 BoN [65] 1000 2.668 4.925 22.5 0.642 0.269 0.904 DPS † [10] 1000 2.565 4.900 15.0 0.716 0.268 0.925 FreeDoM † [76] 1045 5.210 7.925 20.0 0.303 0.259 0.931 SVDD [38] 1000 1.530 3.100 17.5 0.729 0.271 0.953 RBF [29] 1000 1.796 4.025 30.0 0.646 0.271 0.936 DAS [30] 1000 2.061 3.875 27.5 0.789 0.271 0.950 
+
+Ψ-Sampler [75] 1000 1.426 3.215 30.0 0.854 0.273 0.951 
+
+NTRK ‡ (Ours) 1000 0.045 2.325 37.5 0.681 0.266 0.915 
+
+matches the target count. As held-out rewards, we evaluate image quality using ImageReward [ 73 ]and HPSv2 [ 72 ], and text–image alignment using VQA Score [ 39 ]. For all methods, methods augmented with BoN [65] and Ψ-Sampler [75] are marked with † and ‡, respectively. 
+
+Results. The quantitative and qualitative results are presented in Table 11 and Figure 16, re-spectively. Overall, NTRK achieves the best target reward performance by a large margin over all baselines. On held-out rewards, NTRK also attains the best counting performance in terms of both MAE and accuracy, while preserving image quality relative to the base model. Qualitatively, NTRK 
+
+consistently generates the desired number of objects across diverse categories and target counts, whereas the baselines often generate either fewer or more objects than the target count. 
+
+C.4 Additional Application: VLM-Based Reward Alignment 
+
+In this section, we present qualitative results of applying NTRK to a VLM-based reward application: relative depth and horizon position conditioned image generation. 
+
+Experiment Setup. We consider the relative depth and horizon position applications introduced in the Dual-Process framework [ 45 ]. For relative depth, the task is to enforce a specific depth ordering between two locations, specified by overlaid red dots labeled as Point A and Point B. For horizon position, the objective is to align the scene horizon with a red line overlaid on the image. To enforce these conditions, the generated image containing these visual overlays is fed into a VLM, Qwen2.5-VL [ 2]. The VLM is then queried with a task-specific instruction prompt (e.g., “Is Point B much closer to the camera than Point A?” or “Is the overlaid red line aligned with the horizon of the scene?”). The reward is computed as the probability of the VLM outputting the desired affirmative answer. 
+
+Results. We present qualitative results in Figure 17. As shown in these examples, NTRK demon-strates the capability to align generated images with instruction prompts. Specifically, we observe that the generated scenes can successfully place the horizon along the specified red line and adjust object positioning to satisfy the target depth ordering. 
+
+> 42
+
+NoiseTilt: Noise-Tilted Reverse Kernels                          
+
+> Base [35] BoN [65] DPS †[10] SVDD [38] Ψ-Sampler [75] NTRK ‡(Ours )
+> “37 strawberries”
+> 6 ( ∆31 )20 ( ∆17 )20 ( ∆17 )27 ( ∆10 )31 ( ∆6 )37 ( ∆0 )
+> “22 grapes”
+> 27 ( ∆5 )24 ( ∆2 )33 ( ∆11 )23 ( ∆1 )23 ( ∆1 )22 ( ∆0 )
+> “11 lychees”
+> 3 ( ∆8 )9 ( ∆2 )5 ( ∆6 )12 ( ∆1 )3 ( ∆8 )11 ( ∆0 )
+
+Figure 16. Qualitative comparison on quantity-aware generation using T2I-Count [ 49 ]. For each example, the first row shows generated images and the second row shows the corresponding heatmaps. For single-particle methods, we augment sampling with Best-of-N [ 65 ] and Ψ-Sampler [ 75 ] to match the total NFE, denoted with † and ‡,respectively. 
+
+43 NoiseTilt: Noise-Tilted Reverse Kernels 
+
+Relative Depth 
+
+Base [35] NTRK (Ours )
+
+“Is Point A much closer to the camera than Point B ?” 
+
+“Is Point B much closer to the camera than Point A ?” 
+
+Horizon Position 
+
+Base [35] NTRK (Ours )
+
+“Does the overlaid red line represent the horizon of the scene?” 
+
+“Does the overlaid red line represent the horizon of the scene?” 
+
+Figure 17. Applications of Dual-Process [ 45 ]. Horizon position aims to align the horizontal line with the image, and relative depth to place objects with the given relative depth information. The prompts describe the instructions provided to the VLM [2], and for generation, we use the prompts provided in the Dual-Process [45]. 
+
+44 NoiseTilt: Noise-Tilted Reverse Kernels 
+
+C.5 Additional Results with Different Diffusion Model 
+
+In this section, we present additional diffusion reward alignment results with a different base model, Z-Image [6]. 
+
+Experiment Setup. We follow the identical experimental setup described in Section 5.1, with only the base model replaced by Z-Image [ 6 ]. Specifically, for aesthetic image generation, we use 45 
+
+animal prompts from DDPO [ 5 ]. For text-aligned image generation, we use 100 prompts from the complex category of T2I-CompBench++ [ 22 ]. We fix the sampling steps to 25 for the base model. To ensure a fair comparison, we fix the total number of function evaluations (NFE) across all baseline methods, augmenting single-particle methods with Best-of-N (BoN) [ 65 ] or Ψ-Sampler [ 75 ]to match the computational budget. 
+
+Aesthetic Image Generation. In this task, the target reward is Aesthetic Score [ 59 ], and the held-out rewards are ImageReward [ 73 ], HPSv2 [ 72 ], PickScore [ 31 ], and VQA Score [ 39 ]. The quantitative results are presented in Table 12. Consistent with our findings using FLUX [ 35 ], 
+
+NTRK achieves the best target reward performance across all methods. Remarkably, NTRK with a single particle and only 25 NFE achieves a higher target reward (7.3500) than the best-performing multi-particle baselines (e.g., DAS [ 30 ] and SVDD [ 38 ]) evaluated at 500 NFE. When scaled to 500 
+
+NFE, NTRK further improves the target reward to 8.7860 and attains the highest scores across most held-out rewards. 
+
+Text-Aligned Image Generation. For this task, the target reward is PickScore [ 31 ], while held-out rewards include VQA Score [ 39 ], Aesthetic Score [ 59 ], ImageReward [ 73 ], and HPSv2 [ 72 ]. The quantitative results are summarized in Table 13. Similar to the aesthetic image generation, 
+
+NTRK consistently outperforms other baselines in target reward performance. With just 25 NFE, 
+
+NTRK surpasses the performance of all baselines evaluated at 500 NFE. In addition to superior target reward alignment, NTRK generalizes effectively to held-out rewards, attaining the highest ImageReward and HPSv2 scores while remaining comparable in Aesthetic Score and VQA Score. These results confirm that NTRK can be seamlessly applied to different diffusion models without compromising fundamental image quality. 
+
+> 45 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Table 12. Full quantitative comparison on aesthetic image generation with Z-Image [ 6]. The target reward is Aesthetic Score [ 59 ]. For single-particle methods, we augment sampling with Best-of-N [ 65 ] and Ψ-Sampler [ 75 ]to match the total NFE, denoted with † and ‡, respectively. Dark green cells indicate the best result for each metric across all runs, while light green cells denote the second best. 
+
+Method Settings Target Reward Held-out Rewards #Particles #Steps NFE Aesthetic Score ↑ Pick -score ↑ HPSv2 ↑ Image Reward ↑ VQA Score ↑
+
+Base [6] 1 25 25 5.7627 0.2206 0.2949 1.2856 0.9708 BoN [65] 4 25 100 5.9375 0.2208 0.2968 1.3292 0.9707 20 25 500 6.1749 0.2209 0.2962 1.3474 0.9709 DPS † [10] 4 25 100 5.9327 0.2207 0.2963 1.3186 0.9736 20 25 500 6.1587 0.2208 0.2966 1.3784 0.9657 FreeDoM † [76] 3 25 123 5.9502 0.2209 0.2944 1.3189 0.9718 13 25 533 6.0753 0.2203 0.2942 1.3119 0.9678 SVDD [38] 4 25 100 6.0228 0.2208 0.2979 1.3307 0.9665 20 25 500 6.2394 0.2209 0.2945 1.2996 0.9698 RBF [29] 4 25 100 6.0037 0.2208 0.2961 1.3203 0.9715 20 25 500 6.1600 0.2210 0.2941 1.3486 0.9692 DAS [30] 4 25 100 5.9745 0.2202 0.2942 1.3035 0.9678 20 25 500 6.2449 0.2214 0.2970 1.3174 0.9673 
+
+Ψ-Sampler [75] 10 25 + 25 500 6.1078 0.2206 0.2942 1.2843 0.9689 
+
+NTRK ‡ (Ours) 
+
+10 25 + 25 500 7.3139 0.2205 0.2975 1.3296 0.9669 
+
+NTRK † (Ours) 
+
+1 25 25 7.3500 0.2212 0.3003 1.2781 0.9666 2 50 100 8.0537 0.2204 0.2975 1.3034 0.9706 4 25 100 7.5989 0.2210 0.2996 1.3185 0.9684 20 25 500 7.8527 0.2218 0.3009 1.3701 0.9686 5 100 500 8.7860 0.2208 0.2978 1.4165 0.9738 
+
+> 46 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Table 13. Full quantitative comparison on text-aligned generation with Z-Image [ 6]. The target reward is PickScore [ 31 ]. For single-particle methods, we augment sampling with Best-of-N [ 65 ] and Ψ-Sampler [ 75 ] to match the total NFE, denoted with † and ‡, respectively. Dark green cells indicate the best result for each metric across all runs, while light green cells denote the second best. 
+
+Method Settings Target Reward Held-out Rewards #Particles #Steps NFE Pick -Score ↑ Aesthetic Score ↑ HPSv2 ↑ Image Reward ↑ VQA Score ↑
+
+Base [6] 1 25 25 0.2116 5.7061 0.2561 0.6567 0.8393 BoN [65] 4 25 100 0.2145 5.7627 0.2627 0.7788 0.8396 20 25 500 0.2162 5.7791 0.2654 0.7522 0.8299 DPS † [10] 4 25 100 0.2145 5.7501 0.2624 0.7747 0.8392 20 25 500 0.2162 5.7422 0.2633 0.7380 0.8385 FreeDoM † [76] 3 25 123 0.2133 5.7087 0.2589 0.7054 0.8317 13 25 533 0.2155 5.7486 0.2625 0.6872 0.8435 SVDD [38] 4 25 100 0.2151 5.7813 0.2621 0.7275 0.8374 20 25 500 0.2181 5.7910 0.2667 0.7893 0.8389 RBF [29] 4 25 100 0.2144 5.7461 0.2594 0.6940 0.8399 20 25 500 0.2165 5.7778 0.2628 0.7610 0.8445 DAS [30] 4 25 100 0.2144 5.7360 0.2605 0.7012 0.8426 20 25 500 0.2163 5.7657 0.2656 0.8306 0.8445 
+
+Ψ-Sampler [75] 10 25 + 25 500 0.2159 5.8097 0.2639 0.7419 0.8451 
+
+NTRK ‡ (Ours) 
+
+10 25 + 25 500 0.2158 5.7939 0.2656 0.7352 0.8336 
+
+NTRK † (Ours) 
+
+1 25 25 0.2334 5.8487 0.2837 0.8128 0.8423 2 50 100 0.2436 5.8095 0.2907 0.8525 0.8446 4 25 100 0.2361 5.8108 0.2877 0.8224 0.8364 20 25 500 0.2393 5.8092 0.2886 0.8515 0.8405 5 100 500 0.2613 5.7398 0.2984 0.8654 0.8444 
+
+> 47 NoiseTilt: Noise-Tilted Reverse Kernels
+
+C.6 Additional Results of the Main Paper Experiments 
+
+In this section, we present additional results for the main experiments, including expanded quanti-tative comparisons across diverse sampling configurations and additional qualitative examples for all three tasks in Section 5. 
+
+Expanded Quantitative Results. We provide the expanded quantitative results of aesthetic image generation and text-aligned image generation with FLUX [ 35 ] in Tables 14 and 15, covering diverse settings with different numbers of particles, sampling steps, and total NFEs. Across both diffusion models and reward alignment tasks, NTRK consistently outperforms the baselines in target reward alignment while achieving competitive or superior held-out reward performance, thereby yielding the most favorable trade-offs. These results further demonstrate that the advantages of 
+
+NTRK remain robust across different base models and sampling configurations. 
+
+> 48 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Table 14. Full quantitative comparison on aesthetic image generation with FLUX [ 35 ]. The target reward is Aesthetic Score [ 59 ]. For single-particle methods, we augment sampling with Best-of-N [ 65 ] and Ψ-Sampler [ 75 ]to match the total NFE, denoted with † and ‡, respectively. Dark green cells indicate the best result for each metric across all runs, while light green cells denote the second best. 
+
+Method Settings Target Reward Held-out Rewards #Particles #Steps NFE Aesthetic Score ↑ Pick -score ↑ HPSv2 ↑ Image Reward ↑ VQA Score ↑
+
+Base [35] 1 25 25 6.0282 0.2144 0.2759 1.0538 0.9644 BoN [65] 4 25 100 6.4694 0.2183 0.2832 0.9583 0.9635 20 25 500 6.7310 0.2197 0.2890 1.1419 0.9597 DPS † [10] 4 25 100 6.4773 0.2182 0.2805 0.9604 0.9634 20 25 500 6.7647 0.2191 0.2861 1.0639 0.9624 FreeDoM † [76] 3 25 123 6.5196 0.2179 0.2797 0.8771 0.9699 13 25 533 6.8406 0.2185 0.2853 0.9941 0.9635 SVDD [38] 4 25 100 6.5348 0.2176 0.2835 1.1208 0.9652 20 25 500 7.1363 0.2177 0.2814 1.0256 0.9510 RBF [29] 4 25 100 6.5497 0.2173 0.2818 1.1237 0.9695 20 25 500 6.9900 0.2183 0.2826 1.0761 0.9689 DAS [30] 4 25 100 6.5759 0.2177 0.2821 1.0096 0.9658 20 25 500 6.9384 0.2183 0.2860 1.0568 0.9706 
+
+Ψ-Sampler [75] 10 25 + 25 500 7.0116 0.2188 0.2847 1.1235 0.9737 
+
+NTRK ‡ (Ours) 
+
+10 25 + 25 500 7.4180 0.2170 0.2812 1.0209 0.9656 
+
+NTRK † (Ours) 
+
+1 25 25 7.4510 0.2200 0.2928 1.2565 0.9728 1 100 100 8.0538 0.2173 0.2854 1.1546 0.9682 2 50 100 7.8454 0.2160 0.2831 1.0744 0.9520 4 25 100 7.7247 0.2176 0.2835 0.9874 0.9648 5 100 500 8.5394 0.2183 0.2868 1.2613 0.9566 10 50 500 8.2081 0.2181 0.2913 1.1445 0.9643 20 25 500 7.9656 0.2197 0.2932 1.1669 0.9609 
+
+> 49 NoiseTilt: Noise-Tilted Reverse Kernels
+
+Table 15. Full quantitative comparison on text-aligned generation with FLUX [ 35 ]. The target reward is PickScore [ 31 ]. For single-particle methods, we augment sampling with Best-of-N [ 65 ] and Ψ-Sampler [ 75 ] to match the total NFE, denoted with † and ‡, respectively. Dark green cells indicate the best result for each metric across all runs, while light green cells denote the second best. 
+
+Method Settings Target Reward Held-out Rewards #Particles #Steps NFE Pick -Score ↑ Aesthetic Score ↑ HPSv2 ↑ Image Reward ↑ VQA Score ↑
+
+Base [35] 1 25 25 0.2054 5.4664 0.2316 0.1710 0.8011 BoN [65] 4 25 100 0.2103 5.6987 0.2463 0.4272 0.7767 20 25 500 0.2146 5.8582 0.2619 0.6883 0.8021 DPS † [10] 4 25 100 0.2105 5.6926 0.2470 0.5169 0.7926 20 25 500 0.2147 5.8073 0.2622 0.6310 0.8028 FreeDoM † [76] 3 25 123 0.2099 5.8158 0.2458 0.3275 0.8041 13 25 533 0.2133 5.8492 0.2572 0.5354 0.7990 SVDD [38] 4 25 100 0.2143 5.6745 0.2587 0.5536 0.8102 20 25 500 0.2204 5.8743 0.2699 0.7592 0.8201 RBF [29] 4 25 100 0.2150 5.6813 0.2603 0.5993 0.8031 20 25 500 0.2202 5.8618 0.2682 0.7583 0.8149 DAS [30] 4 25 100 0.2104 5.6601 0.2457 0.4134 0.8064 20 25 500 0.2139 5.8385 0.2568 0.5226 0.7990 
+
+Ψ-Sampler [75] 10 25 + 25 500 0.2120 5.7329 0.2551 0.4590 0.8145 
+
+NTRK ‡ (Ours) 
+
+10 25 + 25 500 0.2133 5.8495 0.2594 0.6226 0.8198 
+
+NTRK † (Ours) 
+
+1 25 25 0.2224 5.7720 0.2601 0.5257 0.8210 1 100 100 0.2363 5.8397 0.2743 0.5971 0.8177 2 50 100 0.2317 5.8097 0.2720 0.5918 0.8100 4 25 100 0.2282 5.7478 0.2700 0.6399 0.7881 5 100 500 0.2439 5.8016 0.2830 0.6771 0.8205 10 50 500 0.2385 5.7252 0.2796 0.6739 0.8081 20 25 500 0.2327 5.9020 0.2817 0.7370 0.8017 
+
+> 50
+
+NoiseTilt: Noise-Tilted Reverse Kernels 
+
+Additional Qualitative Results. We provide additional qualitative results for aesthetic image generation, text-aligned image generation and preference-aligned video generation in Figure 18, Fig-ure 19 and Figure 20, respectively. Across all applications, NTRK generates images and videos that better reflect the target reward, while maintaining strong visual quality and fidelity to the input text compared to the baselines. 
+
+Base [35] BoN [65] DPS † [10] SVDD [38] Ψ-Sampler [75] NTRK † (Ours )"dolphin" 
+
+5.8065 6.7978 6.7873 7.5315 6.9614 7.9347 
+
+"hedgehog" 
+
+5.8580 6.5064 6.7468 7.3300 7.0763 7.9429 
+
+Figure 18. Additional qualitative comparison on aesthetic image generation using Aesthetic Score [ 59 ]. 
+
+For single-particle methods, we augment sampling with Best-of-N to match the total NFE, denoted with †.
+
+Base [35] BoN [65] DPS † [10] SVDD [38] Ψ-Sampler [75] NTRK † (Ours) 
+
+> “The intricate, colorful patterns of the mandala radiated outward from the center, forming a dazzling and hypnotic display.”
+
+0.2126 0.2175 0.2140 0.2199 0.2116 0.2299 
+
+> “The tall, slender birch trees swayed gently in the cool autumn breeze, their golden leaves rustling softly.”
+
+0.2004 0.2106 0.2111 0.2231 0.2104 0.2403 
+
+Figure 19. Additional qualitative comparison on text-aligned image generation using PickScore [ 31 ]. 
+
+For single-particle methods we augment sampling with Best-of-N to match the total NFE, denoted with †.
+
+51 NoiseTilt: Noise-Tilted Reverse Kernels   
+
+> “A sheep eating yellow flowers from behind a wire fence.” “A harbour seal swimming near the shore.”
+> Base [70]
+> DPS [10]
+> FreeDoM [76]
+> NTRK (Ours)
+
+Figure 20. Additional qualitative comparison on preference-aligned video generation using VideoRe-ward [42]. NTRK produces videos with better text alignment, visual quality and motion quality. 
+
+52

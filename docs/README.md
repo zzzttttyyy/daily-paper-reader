@@ -6,41 +6,42 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-16
-- 运行时间：2026-06-16 22:09:03 UTC
+- 最新运行日期：2026-06-17
+- 运行时间：2026-06-17 22:04:47 UTC
 - 运行状态：成功
-- 本次总论文数：7
-- 精读区：4
+- 本次总论文数：6
+- 精读区：3
 - 速读区：3
 
 ### 今日简报（AI）
-今日共推荐7篇论文，精读4篇，速读3篇，重点聚焦扩散模型公平组合与无训练稀疏注意力两大方向。其中《Divide-and-Denoise》与《Training-free sparse attention》均获9.0/10高分，前者用博弈论优化扩散模型组合公平性，后者提出基于累计能量过滤的免训练稀疏注意力机制，值得优先关注。建议普通读者从这两篇入手，掌握扩散模型的高效与公平性创新思路。
-- 详情：[/202606/16/README](/202606/16/README)
+今日6篇扩散模型论文，精读聚焦于奖励对齐与变分测试优化，速读涵盖自适应采样、频谱强制与结构语义融合。
+
+最值得关注《NoiseTilt》用噪声倾斜逆向核实现奖励对齐，以及《Variational Test-time Optimization》用于扩散同步的变分测试优化。
+
+建议优先精读这两篇，掌握扩散模型对齐与同步的最新方法，再按需探索速读中的采样策略与文本-图像生成技术。
+- 详情：[/202606/17/README](/202606/17/README)
 
 ### 精读区论文标签
-1. [Divide-and-Denoise: A Game-Theoretic Method for Fairly Composing Diffusion Models](/202606/16/2606.14756v1-divide-and-denoise-a-game-theoretic-method-for-fairly-composing-diffusion-models)  
+1. [NoiseTilt: Noise-Tilted Reverse Kernels for Diffusion Reward Alignment](/202606/17/2606.18066v1-noisetilt-noise-tilted-reverse-kernels-for-diffusion-reward-alignment)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：通过公平分配博弈无需训练地组合多个扩散模型
-2. [Training-free sparse attention based on cumulative energy filtering](/202606/16/2606.16317v1-training-free-sparse-attention-based-on-cumulative-energy-filtering)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练稀疏注意力用于视频扩散Transformer
-3. [Timestep Rescheduling in Diffusion Inversion](/202606/16/2606.15389v1-timestep-rescheduling-in-diffusion-inversion)  
+   evidence：免训练的奖励引导扩散采样器
+2. [Variational Test-time Optimization for Diffusion Synchronization](/202606/17/2606.15614v2-variational-test-time-optimization-for-diffusion-synchronization)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：免训练的时间步调度用于扩散反演
-4. [Variational Test-time Optimization for Diffusion Synchronization](/202606/16/2606.15614v1-variational-test-time-optimization-for-diffusion-synchronization)  
+   evidence：扩散同步的免训练测试时优化
+3. [Pulling The REINS: Training-Free Safety Alignment of Video Diffusion Models via Representation Steering](/202606/17/2606.17257v1-pulling-the-reins-training-free-safety-alignment-of-video-diffusion-models-via-representation-steering)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：测试时优化扩散同步，无需再训练
+   evidence：视频扩散模型的免训练推理时安全引导
 
 ### 速读区论文标签
-1. [Flex4DHuman: Flexible Multi-view Video Diffusion for 4D Human Reconstruction](/202606/16/2606.13655v2-flex4dhuman-flexible-multi-view-video-diffusion-for-4d-human-reconstruction)  
+1. [Attention-Discounted Adaptive Sampler for Masked Diffusion Language Models](/202606/17/2606.10829v1-attention-discounted-adaptive-sampler-for-masked-diffusion-language-models)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：用于4D人体重建的多视角视频扩散模型
-2. [Show the Signal, Hide the Noise: Spectral Forcing for Pixel-Space Diffusion](/202606/16/2606.15236v1-show-the-signal-hide-the-noise-spectral-forcing-for-pixel-space-diffusion)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：免训练的频谱强制方法改进像素空间扩散
-3. [MUNI: Multimodal Unified Latent Diffusion for Coherent Any-to-Any Generation](/202606/16/2606.16408v1-muni-multimodal-unified-latent-diffusion-for-coherent-any-to-any-generation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：统一多模态潜在扩散用于任意到任意生成
+   evidence：掩码扩散语言模型的免训练采样优化
+2. [Show the Signal, Hide the Noise: Spectral Forcing for Pixel-Space Diffusion](/202606/17/2606.15236v2-show-the-signal-hide-the-noise-spectral-forcing-for-pixel-space-diffusion)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：针对像素空间扩散模型图像生成的免训练谱强制技术
+3. [Structure-Semantic Co-optimized Latent Diffusion Model for Fast Visual Anagram Synthesis](/202606/17/2606.16241v1-structure-semantic-co-optimized-latent-diffusion-model-for-fast-visual-anagram-synthesis)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：潜在扩散模型用于快速视觉字谜合成
 
 
 <div class="dpr-home-promo-card">
