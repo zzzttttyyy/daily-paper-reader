@@ -1,0 +1,39 @@
+{
+  "label": "2026-06-19",
+  "date": "2026-06-19",
+  "generated_at": "2026-06-19T20:23:01",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202606/19/2606.17192v1-constrained-diffusion-models-with-primal-dual-inference",
+      "section": "deep",
+      "title_en": "Constrained Diffusion Models with Primal-Dual Inference",
+      "authors": "Samar Hadou, Yigit Berkay Uslu, Alejandro Ribeiro",
+      "date": "2026-06-15",
+      "pdf": "https://arxiv.org/pdf/2606.17192v1",
+      "score": "8.0",
+      "evidence": "扩散模型中约束采样的原始-对偶推理",
+      "tldr": "针对具有平均约束的熵正则化优化问题的最优分布采样，本文提出约束扩散模型与原始-对偶推断（PDI），在逆扩散过程中联合学习最优分布及其对偶变量。通过训练单一条件分数网络并交替进行去噪与对偶上升更新，PDI从吉布斯分布族中采样。理论证明对偶变量时间平均收敛至最优邻域，并在高斯混合、无线资源分配和投资组合管理中验证有效性。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "This paper develops constrained diffusion models with primal-dual inference (PDI) to sample from optimal distributions of entropy-regularized optimization problems with \\emph{average} constraints. We formalize constrained sampling in the Lagrangian dual domain, where the optimal distribution takes the form of a Gibbs distribution indexed by the optimal dual variable. Rather than estimating this dual multiplier before sampling and freezing it throughout generation, PDI jointly infers the optimal primal distribution and its parametrizing dual variable. Each reverse diffusion step denoises using the score field associated with the current multiplier and then updates the multiplier through dual ascent using the estimated constraint violation of the denoised samples. To enable this conditional score field, we train a single dual-conditioned score network over the family of Gibbs distributions induced by the dual variables encountered during inference. We prove that the time average of the dual variables generated along the inference trajectory converges to a neighborhood of the dual optimum and bound the effect of residual dual mismatch on the terminal distribution through schedule-dependent stability factors. We evaluate PDI on constrained sampling from a mixture of Gaussians, wireless resource allocation, and portfolio management.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/19/2606.20110v1-frozendrive-zero-shot-text-guided-driving-scene-generation-and-data-augmentation-with-parameter-free-frozen-diffusion-model",
+      "section": "quick",
+      "title_en": "FrozenDrive: Zero-Shot Text-Guided Driving Scene Generation and Data Augmentation with Parameter-Free Frozen Diffusion Model",
+      "authors": "Yuhwan Jeong, Hyeonseong Kim, Daehyun We, Seonkyu Song, Jinnyeong Yang, Hyun-Kurl Jang, Youngho Yoon, Kuk-Jin Yoon",
+      "date": "2026-06-18",
+      "pdf": "https://arxiv.org/pdf/2606.20110v1",
+      "score": "6.0",
+      "evidence": "使用冻结扩散模型进行零样本驾驶场景生成",
+      "tldr": "针对自动驾驶场景生成中多视图和时序一致性依赖微调破坏预训练知识、模型难以应对恶劣天气和罕见类别的问题，提出FrozenDrive，利用参数冻结的扩散模型，通过知识保留的时空注意力实现单次前向中的跨视图对齐和时间连贯，并增加对象约束提升罕见类别保真度。无需针对天气或场景微调，即可合成全局一致的驾驶场景，在nuScenes上增强数据后显著提升AD模型在夜间和雨天的鲁棒性。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Synthetic data for autonomous driving is surging, powered by diffusion models that promise scalable scene generation. Yet key obstacles remain, as enforcing multi-view and temporal consistency often relies on backbone fine-tuning or added layers, which erodes pre-trained knowledge and weakens text alignment. Models also stay close to the training distribution, struggling under adverse weather and unseen configurations, and fidelity favors frequent over rare classes. We address these gaps with FrozenDrive, a controllable generative framework that preserves a pretrained diffusion models knowledge while achieving strong consistency. FrozenDrive conditions on rich driving-stack signals and text prompts, and introduces knowledge-preserving spatio-temporal attention to impose cross-view alignment and temporal coherence in a single pass within a parameter-free frozen diffusion backbone. An additional object-focused constraint improves per-object fidelity for rare categories. Without any weather- or scene-specific fine-tuning, our model synthesizes globally coherent multi-view driving scenes from text, particularly under adverse and rare conditions, and surpasses prior baselines. On nuScenes, FrozenDrive augmented data significantly improves AD models performance, especially at night and in rain, demonstrating stronger robustness when trained with our scenario-targeted data.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

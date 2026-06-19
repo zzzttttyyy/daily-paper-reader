@@ -1,0 +1,96 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-19T20:19:20.522375+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2606.17192v1",
+      "source": "arxiv",
+      "title": "Constrained Diffusion Models with Primal-Dual Inference",
+      "abstract": "This paper develops constrained diffusion models with primal-dual inference (PDI) to sample from optimal distributions of entropy-regularized optimization problems with \\emph{average} constraints. We formalize constrained sampling in the Lagrangian dual domain, where the optimal distribution takes the form of a Gibbs distribution indexed by the optimal dual variable. Rather than estimating this dual multiplier before sampling and freezing it throughout generation, PDI jointly infers the optimal primal distribution and its parametrizing dual variable. Each reverse diffusion step denoises using the score field associated with the current multiplier and then updates the multiplier through dual ascent using the estimated constraint violation of the denoised samples. To enable this conditional score field, we train a single dual-conditioned score network over the family of Gibbs distributions induced by the dual variables encountered during inference. We prove that the time average of the dual variables generated along the inference trajectory converges to a neighborhood of the dual optimum and bound the effect of residual dual mismatch on the terminal distribution through schedule-dependent stability factors. We evaluate PDI on constrained sampling from a mixture of Gaussians, wireless resource allocation, and portfolio management.",
+      "authors": [
+        "Samar Hadou",
+        "Yigit Berkay Uslu",
+        "Alejandro Ribeiro"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-15T18:32:33+00:00",
+      "link": "https://arxiv.org/pdf/2606.17192v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "primal-dual inference for constrained sampling in diffusion models",
+      "llm_evidence_cn": "扩散模型中约束采样的原始-对偶推理",
+      "llm_evidence": "扩散模型中约束采样的原始-对偶推理",
+      "canonical_evidence": "扩散模型中约束采样的原始-对偶推理",
+      "llm_tldr_en": "PDI jointly infers optimal distribution and dual variable during sampling without retraining, enabling constrained diffusion generation.",
+      "llm_tldr_cn": "该论文提出原始-对偶推理（PDI）方法，在扩散采样过程中联合推断最优分布和其对偶变量，无需预先估计或训练。每步去噪后通过原始因素最大化更新分布，通过梯度和拉格朗日更新对偶变量，逐步满足平均约束。该方法免训练，可直接用于各种约束生成任务。",
+      "llm_tldr": "该论文提出原始-对偶推理（PDI）方法，在扩散采样过程中联合推断最优分布和其对偶变量，无需预先估计或训练。每步去噪后通过原始因素最大化更新分布，通过梯度和拉格朗日更新对偶变量，逐步满足平均约束。该方法免训练，可直接用于各种约束生成任务。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.20110v1",
+      "source": "arxiv",
+      "title": "FrozenDrive: Zero-Shot Text-Guided Driving Scene Generation and Data Augmentation with Parameter-Free Frozen Diffusion Model",
+      "abstract": "Synthetic data for autonomous driving is surging, powered by diffusion models that promise scalable scene generation. Yet key obstacles remain, as enforcing multi-view and temporal consistency often relies on backbone fine-tuning or added layers, which erodes pre-trained knowledge and weakens text alignment. Models also stay close to the training distribution, struggling under adverse weather and unseen configurations, and fidelity favors frequent over rare classes. We address these gaps with FrozenDrive, a controllable generative framework that preserves a pretrained diffusion models knowledge while achieving strong consistency. FrozenDrive conditions on rich driving-stack signals and text prompts, and introduces knowledge-preserving spatio-temporal attention to impose cross-view alignment and temporal coherence in a single pass within a parameter-free frozen diffusion backbone. An additional object-focused constraint improves per-object fidelity for rare categories. Without any weather- or scene-specific fine-tuning, our model synthesizes globally coherent multi-view driving scenes from text, particularly under adverse and rare conditions, and surpasses prior baselines. On nuScenes, FrozenDrive augmented data significantly improves AD models performance, especially at night and in rain, demonstrating stronger robustness when trained with our scenario-targeted data.",
+      "authors": [
+        "Yuhwan Jeong",
+        "Hyeonseong Kim",
+        "Daehyun We",
+        "Seonkyu Song",
+        "Jinnyeong Yang",
+        "Hyun-Kurl Jang",
+        "Youngho Yoon",
+        "Kuk-Jin Yoon"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-18T11:34:26+00:00",
+      "link": "https://arxiv.org/pdf/2606.20110v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "zero-shot driving scene generation with frozen diffusion model",
+      "llm_evidence_cn": "使用冻结扩散模型进行零样本驾驶场景生成",
+      "llm_evidence": "使用冻结扩散模型进行零样本驾驶场景生成",
+      "canonical_evidence": "使用冻结扩散模型进行零样本驾驶场景生成",
+      "llm_tldr_en": "Proposes FrozenDrive, a parameter-free framework that preserves pretrained diffusion knowledge for consistent multi-view driving scene generation without fine-tuning.",
+      "llm_tldr_cn": "针对自动驾驶场景生成中需要微调导致预训练知识退化的问题，本文提出FrozenDrive，利用冻结的扩散模型并条件于驾驶信号和文本提示，无需额外训练即可生成多视角一致的场景。该方法在保持生成质量的同时实现了零样本泛化到未见天气和配置，为数据增强提供了高效方案。",
+      "llm_tldr": "针对自动驾驶场景生成中需要微调导致预训练知识退化的问题，本文提出FrozenDrive，利用冻结的扩散模型并条件于驾驶信号和文本提示，无需额外训练即可生成多视角一致的场景。该方法在保持生成质量的同时实现了零样本泛化到未见天气和配置，为数据增强提供了高效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

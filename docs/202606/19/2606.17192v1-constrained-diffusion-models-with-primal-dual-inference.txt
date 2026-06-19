@@ -1,0 +1,4058 @@
+Title: Constrained Diffusion Models with Primal-Dual Inference
+
+URL Source: https://arxiv.org/pdf/2606.17192v1
+
+Published Time: Wed, 17 Jun 2026 00:06:37 GMT
+
+Number of Pages: 39
+
+Markdown Content:
+# Constrained Diffusion Models with Primal-Dual Inference 
+
+Samar Hadou Yi˘ git Berkay Uslu Alejandro Ribeiro 
+
+Department of Electrical and Systems Engineering University of Pennsylvania 
+
+{selaraby,ybuslu,aribeiro}@seas.upenn.edu 
+
+Abstract 
+
+This paper develops constrained diffusion models with primal-dual inference (PDI) to sample from optimal distributions of entropy-regularized optimization problems with average constraints. We formalize constrained sampling in the Lagrangian dual domain, where the optimal distribution takes the form of a Gibbs distribution indexed by the optimal dual variable. Rather than estimating this dual multiplier before sampling and freezing it throughout generation, PDI jointly infers the optimal primal distribution and its parametrizing dual variable. Each reverse diffusion step denoises using the score field associated with the current multiplier and then updates the multiplier through dual ascent using the estimated constraint violation of the denoised samples. To enable this conditional score field, we train a single dual-conditioned score network over the family of Gibbs distributions induced by the dual variables encountered during inference. We prove that the time average of the dual variables generated along the inference trajectory converges to a neighborhood of the dual optimum and bound the effect of residual dual mismatch on the terminal distribution through schedule-dependent stability factors. We evaluate PDI on constrained sampling from a mixture of Gaussians, wireless resource allocation, and portfolio management. 
+
+1 Introduction 
+
+Diffusion models have become a dominant framework for sampling from complex, high-dimensional distributions by learning to reverse a noising process [ 1 , 2 , 3 ]. While their most apparent successes lie in unconstrained perceptual tasks such as image [4], audio [5], and video synthesis [6], the same distributional modeling capabilities are valuable for tackling a broad class of constrained optimization problems, whose optimal solutions are probabilistic rather than deterministic. Wireless resource allocation, for instance, employs stochastic, time-sharing policies to maximize a network-wide utility, subject to per-user service guarantees [ 7, 8]. Similarly, portfolio management seeks to diversify allocations to maximize returns under expected risk constraints [ 9 , 10 ]. Standard diffusion models, however, lack reliable mechanisms to enforce such statistical constraints during sampling. This paper develops diffusion models with primal-dual inference to bridge that gap. Entropy-regularized formulations that optimize over distributions with average constraints admit a clean form in the Lagrangian dual domain. For a fixed dual variable, the distributional minimizer of the Lagrangian is a Gibbs distribution whose energy is linear in the dual variable. This connects constrained sampling to the vast literature on diffusion-based samplers from unnormalized Gibbs targets [ 11 , 12 , 13 , 14 ]. In principle, one could solve for the optimal dual variable, and train a diffusion model to sample from the corresponding Gibbs distribution. In our setting, however, the sampler must operate over a family of constrained optimization instances and each instance can induce a different optimal multiplier. Estimating these multipliers before sampling is fragile and expensive. The optimal multiplier is defined through intractable expectations under the Gibbs distribution, so each dual 
+
+> Preprint.
+> arXiv:2606.17192v1 [cs.LG] 15 Jun 2026
+
+update requires estimating statistics of the very distribution being learned. Prior dual-training (DT) approaches [15, 16] address this by alternating dual updates with score-model training. With only a limited number of score updates per dual iterate, the learned score model can reflect the accumulated history of these targets rather than the Gibbs score field indexed by the final multiplier. Once training ends, the resulting sampler is fixed and cannot respond to constraint violations during generation. This paper proposes a different view. Rather than treating the dual variable as a quantity that must be estimated before sampling, we make it part of the sampling state. We propose primal–dual inference (PDI), which interleaves dual ascent with the reverse diffusion process. At each denoising step, PDI uses the score field associated with the current multiplier to update the samples, estimates constraint violations from Tweedie-based estimates of denoised samples [ 17 ], and updates the multiplier before the next reverse step. The dual variable becomes an inference-time state of the sampler that steers the trajectories toward feasibility, and the sampler follows a path-dependent sequence of Gibbs score fields. This dynamic coupling keeps the score field aligned with the current multiplier throughout inference and allows early noisy steps to absorb dual mismatch while later steps refine samples under multipliers that have already reached a region close to the optimal multiplier. Our analysis captures this effect by proving convergence of the time-averaged dual variables and bounding how residual dual mismatch propagates through the reverse process. To enable this primal–dual coupling, we train a single score network conditioned on the dual variable, so that the model represents a family of Gibbs targets rather than a single constrained distribution. This gives PDI a direct mechanism for adapting to shifted constraints and out-of-distribution (OOD) instances, as long as the induced dual trajectory remains within the multiplier range covered during training. Empirically, we show that PDI outperforms DT and remains more robust under shifted constraints. When DT is strengthened by freezing a candidate final multiplier and continuing score training for that fixed Gibbs target, it becomes competitive with PDI, but only after this additional training stage. This shows that PDI’s advantage is not merely estimating a good multiplier, but keeping multiplier updates coupled to the denoising trajectory during inference. We make the following contributions. 
+
+(C1) We cast constrained sampling with average constraints as a saddle-point problem in the Lagrangian dual domain, where the optimal distribution is a Gibbs distribution indexed by the optimal dual variable. 
+
+(C2) We introduce the PDI algorithm, a reverse-diffusion sampler in which primal denoising and dual ascent evolve jointly. At each step, the sampler uses the score field associated with the current multiplier and then updates the multiplier using constraint violations. 
+
+(C3) We train a single dual-variable-conditioned score network that generalizes across the family of Gibbs distributions indexed by the dual variable encountered during inference. 
+
+(C4) We establish convergence of the time-averaged dual iterates to a neighborhood of the optimal multiplier. We also bound the effect of residual dual mismatch on the terminal distribution through schedule-dependent stability factors. 
+
+(C5) We validate PDI empirically on a constrained Gaussian mixture, a wireless power-control problem with per-user rate requirements, and a portfolio-construction task with expected risk constraints. Figure 1 makes the effect of inference-time dual updates concrete. We showcase a wireless opti-mization problem where users share a channel and each needs a minimum average service rate. An unconstrained sampler ignores the requirements and leaves many users underserved; DT denoises dual variables before sampling and so cannot correct violations during generation; and PDI, by updating the dual variables as it denoises, steers samples toward (average) feasibility and lifts the worst-served users much closer to their targets. 
+
+2 Related Work 
+
+Diffusion model sampling with constraints. Guidance techniques steer reverse diffusions toward reward or constraint alignment by modifying the score in Tweedie’s denoising formula [ 17 ], as in classifier guidance [ 18 ], classifier-free guidance [ 19 ], and CLIP-based variants [ 20 ]. A separate line of work enforces domain-feasibility constraints directly on the diffusion process through boundary reflections [ 21 ], mirror maps [ 22 ], Riemannian formulations [ 23 ], log-barrier constructions [ 24 ], 2−2 −1 0 1 2 
+
+> ×10 3
+> −2.0
+> −1.5
+> −1.0
+> −0.50.00.51.01.52.0
+> ×10 3
+
+Unconstrained      
+
+> −2−1012
+> ×10 3
+> −2.0
+> −1.5
+> −1.0
+> −0.50.00.51.01.52.0
+> ×10 3
+
+PDI      
+
+> −2−1012
+> ×10 3
+> −2.0
+> −1.5
+> −1.0
+> −0.50.00.51.01.52.0
+> ×10 3
+
+DT 
+
+> 0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75
+> rmin
+
+Figure 1: Wireless power allocation under ergodic minimum-rate rmin constraints. Nodes represent users and colors indicate how well the rate requirement of each user is met, with red marking those that fall short. Here, average constraints are meaningful because mutual interference prevents any single solution from satisfying every requirement at once. Optimal solutions must therefore alternate samples (i.e., power allocations and/or channel access) over time, so that some compensate for others. The unconstrained sampler leaves many users below the target rate (red nodes), while DT partially improves feasibility through training-time dual updates. PDI further improves the lower-rate users by updating the dual variables during denoising. 
+
+feasibility projections [ 25 ], and constrained reverse steps [ 26 ]. Most importantly, these methods address pointwise constraints rather than distributional (average) ones. 
+
+Constrained diffusion modeling with Lagrangian dual formulations. Closely related to our work are [ 15 , 16 , 27 ], which adopt primal–dual formulations for average constraints. Specifically, [ 15 , 16 ]pair outer-loop dual ascent with inner-loop score matching but retrain the score network for each dual iterate, while primal–dual Langevin Monte Carlo [ 27 ] jointly evolves samples and multipliers at sampling time but forgoes a learned generative model. Our method shares the Lagrangian saddle-point structure of these works but differs in two key aspects. First, the dual variables evolve jointly with the denoising trajectory rather than in a separate training loop or ergodic Langevin chain. Second, a single score network, conditioned on the dual variable, is trained across a distribution of multipliers rather than refitted per iterate. An extended related work is provided in Appendix A. 
+
+3 Constrained Diffusion Models 
+
+Consider a target distribution μ∗ that trades off minimization of a variational objective function with satisfying a set of constraints in expectation. More concretely, μ∗ is the minimizer of 
+
+P ∗ = min 
+
+> μ∈P 2
+
+Eμ
+
+h
+
+f0(x)
+
+i
+
+− β H(μ),
+
+s.t. Eμ
+
+h
+
+f (x)
+
+i
+
+⪯ 0, (1) where f0 : X → R, f : X → Rd, X ⊆ Rp is the domain of feasible decisions and P2(X ) denotes the space of all probability distributions supported on X with finite second moments. We augment the objective with an entropy regularization term to penalize degenerate solutions and ensure sample diversity. This formulation is particularly relevant in multi-player cooperative games and resource allocation problems, where a single deterministic policy may not satisfy all competing requirements simultaneously. In such settings, time-sharing policies sampled from μ∗ can satisfy the constraints on average while improving the tradeoff between optimality and feasibility. The problem in (1) is ( β-strongly) convex in μ with zero duality gap and can be handled in the dual domain by constructing the Lagrangian function, 
+
+L μ, λ = Ex∼μ
+
+h
+
+f0(x) + λ⊤f (x)
+
+i
+
+− β H(μ), (2) where λ ⪰ 0 contains the Lagrangian multipliers. The dual problem is then defined as 
+
+D∗ = max  
+
+> λ⪰0
+
+min 
+
+> μ∈P 2
+
+Ex∼μ
+
+h
+
+f0(x) + λ⊤f (x)
+
+i
+
+− β H(μ). (3) The two problems are equivalent by the following proposition. 
+
+Assumption 1 (Existence of a strictly feasible solution) . There exists μ′ ∈ P 2 such that Eμ′ [f0(x)] −
+
+β H(μ′) < C < ∞, and Eμ′ [f (x)] ⪯ − ξ1 ≺ 0.
+
+3Proposition 1 (Strong duality [ 27 ]) . Under Assumption 1, and for β > 0, we have P ∗ = D∗, and the optimal pair (μ∗, λ∗) is a saddle-point of the Lagrangian, i.e., L(μ∗, λ) ≤ L (μ∗, λ∗) ≤ L (μ, λ∗),
+
+for any μ ∈ P 2(X ) and λ ∈ Rd
+
+> +
+
+. It also holds that λ∗ is finite, i.e., λ∗ ∈ Λ ⊂ Rd
+
+> +
+
+. Moreover, μ∗
+
+follows the law of the Gibbs distribution, 
+
+μ∗(x) = μλ∗ (x) = 1
+
+Z(λ∗) · exp 
+
+
+
+− 1
+
+β
+
+ f0(x) + λ∗⊤ f (x)
+
+, (4) 
+
+with Z(λ∗) = R exp 
+
+
+
+− 1
+
+> β
+
+ f0(x) + λ∗⊤ f (x)
+
+dx.
+
+Proposition 1 shows that the optimal distribution is a Gibbs distribution parametrized by the optimal dual variable, which can equivalently be viewed as an exponential tilting of the implicit uniform prior on X . Since the energy functions are known, sampling from this distribution is straightforward in principle. However, a computational challenge lies in that the optimal dual multiplier satisfies a saddle-point condition involving expectations under the very distribution it parametrizes. Prior work [ 15 ] addresses this by estimating λ∗ through a dual-training loop wrapped around diffusion-based score matching. However, this requires retraining or fine-tuning the score network for each dual iterate, let alone each new problem instance, and leaves a fixed sampler after training. To alleviate these challenges, we propose the PDI algorithm, which shifts the search for λ∗ from training to inference. 
+
+3.1 Primal–Dual Inference 
+
+For a given λ, the inner minimizer of the Lagrangian in (3) is the Gibbs distribution 
+
+μ†
+
+> λ
+
+(x) ∝ exp 
+
+
+
+− E(x, λ)
+
+
+
+, E(x, λ) = 1
+
+β
+
+
+
+f0(x) + λ⊤f (x)
+
+
+
+, (5) where the energy function E is the point-wise Lagrangian function scaled by β. We utilize diffusion models to sample from the family of Gibbs distributions {μ† 
+
+> λ
+
+| λ ∈ Λ}. If λ = λ∗, this Gibbs distribution coincides with the optimal constrained distribution μ∗.Diffusion models learn the reverse dynamics of a Gaussian noising process initialized at the target distribution [3]. For each Gibbs distribution, we define a forward process, 
+
+yτ (λ) = √aτ yτ −1(λ) + pbτ ϵτ , y0(λ) ∼ μ†
+
+> λ
+
+, yT ∼ N (0, I), (6) with ϵτ ∼ N (0, I). All processes in this family share the same decay schedule {aτ }, noise schedule {bτ } and terminal distribution N (0, I). We reserve the subscript τ for the time of the forward processes running from 0 to T . Each forward process induces a forward marginal dis-tribution qλ 
+
+> τ
+
+:= qτ (·| λ). The conditional distribution at time τ is qτ |0(· | y0, λ) = N (ατ y0, σ 2 
+
+> τ
+
+I)
+
+with ατ = Qτs=1 
+
+√as, and σ2 
+
+> τ
+
+= Pτj=1 bj
+
+Qτs=j+1 as. Throughout the paper, we refer to SNR τ := α2 
+
+> τ
+
+/σ 2 
+
+> τ
+
+as the signal-to-noise ratio. For a fixed λ, we associate to the forward process a score-based reverse sampler, 
+
+xt+1 (λ) = 1
+
+√aT −t
+
+
+
+xt(λ) + bT −t∇ log qT −t(xt|λ)
+
+
+
++ pbT −tϵt, (7) with x0 ∼ N (0, I), xT (λ) ∼ μ†
+
+> λ
+
+, and ϵt ∼ N (0, I). We use the subscript t to refer to the inference time running from Gaussian noise to the target distribution with t = T − τ . The reverse process induces marginal distributions ept(·| λ) that ideally match those of the forward process, namely 
+
+ept ≈ qT −t, for all λ.Running (7) under the optimal value λ∗ produces samples from the optimal distribution μ† 
+
+> λ∗
+
+, which coincides with μ∗ under strong duality. PDI replaces this fixed-multiplier sampler with a time-varying reverse process whose multiplier is updated during inference through dual ascent. Each reverse step uses the Gibbs score field indexed by the current multiplier, and the multiplier is updated from the constraint residual evaluated on Tweedie posterior-mean estimates: 
+
+xt+1 = 1
+
+√aT −t
+
+
+
+xt + bT −t ∇xt log qT −t(xt|λt)
+
+
+
++ pbT −tϵt, (PDI-P) 
+
+λt+1 =
+
+
+
+λt + ηt Ext+1 
+
+h
+
+f
+
+
+
+E y0 | xt+1 , λt
+
+i 
+
+> +
+
+. (PDI-D) 4The operator [·]+ denotes the projection onto the nonnegative orthant, ηt is the dual step size, and 
+
+E y0 | xt+1 , λt
+
+ is the Tweedie posterior-mean estimate of the clean samples under the forward process initialized at μ† 
+
+> λt
+
+. The primal step uses the score of the forward marginal qT −t selected by the current multiplier, while the dual step updates the multipliers in the direction of the average constraint violation estimated from the Tweedie clean-sample estimates. The primal samples and dual variable therefore evolve together during generation. As the dual iterates approach a neighborhood of λ∗, the sampler is steered through Gibbs distributions indexed by near-optimal multipliers. 
+
+Remark 1. The dual update in (PDI-D) evaluates the constraint violations over an ensemble of samples, reflecting the fact that the constraints are imposed in expectation and must therefore be assessed on average. This is in contrast with other constrained diffusion and sampling methods, e.g., [ 25 , 27 , 28 ], which enforce constraints separately on each sample. In our implementation of PDI, we run multiple sampling chains in parallel, each of which tracks a separate multiplier, as described in Algorithm 2. This scheme preserves the average-constraint interpretation while providing robustness to perturbations in the final dual estimate. 
+
+3.2 Score Network Training 
+
+PDI requires access to the score field ∇xt log qT −t(xt|λt) for the multiplier encountered at each denoising step. Since this score is not available in closed form, we learn a dual-conditioned score model sθ (xt, t, λt) that approximates the family of noised Gibbs score fields indexed by λ. The primal update in (PDI-P) is then replaced with 
+
+xt+1 = 1
+
+√aT −t
+
+
+
+xt + bT −t sθ
+
+ xt, t, λt
+
+
+
++ pbT −tϵt. (8) The score model is trained across a family of problem instances parameterized by G. Thus, the score model formally depends on the problem instance and should be written as sθ (xt, t, λt, G). To keep the notation uncluttered, we suppress the explicit dependence on G and write sθ (xt, t, λt) throughout. The score model is trained to approximate the score of the Gibbs distribution indexed by different dual variables. The training objective is 
+
+θ∗ ∈ argmin 
+
+> θ
+
+Eλ,xt,t 
+
+h
+
+ω(t) sθ
+
+ xt, t, λ − ∇ xt log qT −t(xt|λ) 22
+
+i
+
+, (9) where ω(t) is a time-dependent weighting function. The expectation is taken over diffusion times, noisy samples, a training distribution of problem instances and dual variables. This differs from standard denoising or score-matching objectives in two ways. First, the relevant distribution over dual variables is not known in advance because it is induced by the inference-time dual trajectory. Second, unlike computer vision tasks, where training starts from samples of the target distribution, our starting point is the optimization problem in (1) , whose solution distributions and samples are not necessarily available a priori. To mitigate these two issues, we propose Algorithm 1 in Appendix B. The training procedure starts by sampling dual multipliers from a prior distribution and rolling out trajectories using the untrained score network to collect noisy samples xt. As training progresses, we sample pairs (xt, λt) along these trajectories instead of relying on the initial prior alone. For each pair, we use a Monte Carlo estimator of the score to define the regression target. This gradually shifts training toward the joint distribution of noisy samples and dual variables encountered by the sampler at inference time. 
+
+4 Convergence Analysis 
+
+The PDI algorithm defines a sampling process steered by a sequence of dual variables estimated via dual ascent. Because the multiplier changes along the trajectory, the marginal law pt generated by PDI is generally not equal to qT −t(·| λt). The latter only defines the local fixed-multiplier score field used at that step. Thus, PDI is a path-dependent reverse process rather than the exact reversal of any single forward process in (6) . We therefore analyze the convergence of the time-averaged dual iterates to a neighborhood of the optimal dual variable λ∗. We then analyze how the residual errors in the multipliers and score fields propagate through the reverse dynamics and affect the terminal law 
+
+pT .5Theorem 1 (Convergence of time-average dual variables) . Let ηt = κ/ √T , ∀t. For a sequence of 
+
+{λt} generated by PDI, it holds under regularity Assumptions 2–4 and arbitrary δ > 0 that: 
+
+E∥¯λ − λ∗∥2] ≤ 2
+
+ϑ ED∗ − g ¯λ ≤ O 
+
+ 1
+
+√T
+
+
+
++ ∆ floor , (10) 
+
+with ∆floor = 12 L2
+
+> f
+> ϑ2T
+
+PT −1
+
+> t=0
+
+
+
+ϵ2
+
+> TW
+
+(t + 1) + σ4  
+
+> T−t
+> α2
+> T−t
+
+ϵ2
+
+> app
+
+(t + 1) 
+
+
+
++ 12 L2
+
+> h
+> ϑ2
+
+
+
+1 + 1
+
+> δ
+
+
+
+ϵ2
+
+> hist
+
+, and where 
+
+¯λ = 1
+
+> T
+
+P 
+
+> t
+
+λt is the time-average of the multipliers, g(λ) = L(μ†
+
+> λ
+
+, λ) is the dual function with strong concavity index ϑ, αT −t = max {αmin , α T −t}, and Lf , L h are Lipschitz constants. 
+
+The assumptions and proof are provided in Appendix C.2. The theorem shows that the time-average of the dual variable converges at a rate of 1/√T to a region around the dual optimum. The floor arises from three error sources. The first is the Tweedie posterior-mean error ϵTW (t), which results from evaluating constraint violations on Tweedie posterior means rather than on clean samples from the current Gibbs distribution. The second is the score-approximation error, ϵapp (t), which measures how errors in the learned score affect the Tweedie estimate. The third is the trajectory-history mismatch, 
+
+ϵhist , which captures how past score-approximation errors propagate through the reverse process. Empirically, the score-approximation terms appear negligible. The dominant residual bias is therefore the Tweedie term. Its effect decreases toward the data side because the SNR increases, making the posterior mean estimate of the clean sample more accurate and reducing the bias in the dual update. Since the dual variable parametrizes the Gibbs target, this implies that the time-averaged multiplier 
+
+¯λ defines a near-optimal Gibbs target. A fresh fixed-multiplier sampler using ¯λ across all diffusion steps would then target this distribution. Dual convergence alone does not control the generated samples, because errors in λt enter the reverse dynamics through the score field and may be amplified by later kernels. We therefore quantify the stability of these reverse kernels. For a fixed multiplier λ, let Kλ 
+
+> t
+
+denote the Markov kernel of the one-step reverse update in (7) using the score field ∇ log qT −t(·| λ). For any input law ν, the measure 
+
+νK λ 
+
+> t
+
+denotes the law obtained by propagating ν through the one-step reverse kernel Kλ 
+
+> t
+
+.
+
+Proposition 2 (W2 stability of the optimal kernel) . Let Kλ∗ 
+
+> t
+
+be the Markov kernel of a reverse step 
+
+(7) under the frozen optimal multiplier λ∗ and the true score ∇ log qT −t(·| λ∗). Under Assumption 5, for all ν, μ ∈ P 2(X ), it holds that 
+
+W2(νK λ∗ 
+
+> t
+
+, μK λ∗ 
+
+> t
+
+) ≤ ρtW2(ν, μ ), (11) 
+
+with ρt = 1√aT −t sup x∈X ∥I + bT −t∇2 
+
+> x
+
+log qT −t(x|λ∗)∥op .
+
+The proof is provided in Appendix C.5. The coefficient ρt measures how stable one reverse step is and depends on the noise level. At high noise, the score field varies slowly and the reverse step is typically stable, i.e., ρt < 1. At medium noise, ρt is usually expected to remain moderate, although not necessarily smaller than one. Near the data side, the distribution becomes sharper and the score field can vary rapidly around the data manifold, so ρt may become larger and small errors can be amplified. Based on this kernel stability, we characterize the W2 distance between the terminal and optimal distributions. 
+
+Theorem 2. Under Assumptions 2, 4 and 5, the Wasserstein distance between the terminal distribu-tion of PDI and the optimal distribution is controlled by the dual mismatch: 
+
+EW2
+
+ pT , μ ∗ ≤ 
+
+> T−1
+
+X
+
+> t=0
+
+Ψt,T 
+
+bT −t
+
+√aT −t
+
+
+
+γtE∥λt − λ∗∥ + ϵapp (t)
+
+
+
+, (12) 
+
+where Ψs,T = QTt=s+1 ρt, and γt = Rα T −t 
+
+> βσ 2
+> T−t
+
+psup λ ∥Cov πt (y0|x, λ)∥op .
+
+The proof is in Appendix C.3. The theorem shows that a dual mismatch at time t affects the final distribution through the future stability product QTs=t+1 ρs. This product is controlled by the noise schedule. Keeping the SNR low for enough reverse steps keeps the score field smooth and the kernels more contractive, so early dual errors are damped rather than amplified. This provides a stable phase in which the dual variable can approach a neighborhood of λ∗. Later, when the SNR increases and the reverse dynamics become more sensitive, the remaining mismatch is already small. Empirically, we find that standard DDPM linear and cosine schedules provide this behavior. 6PDL PDI – MC PDI – Net PDM Unconstrained           
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.01.00 1.00 1.00 1.00 0.00
+> Avg.-constraint feasibility ↑
+> PDL PDI – MC PDI – Net PDM Unconstrained
+> 0
+> 20
+> 40
+> 60 66.58 42.34 45.31 63.05 -0.78
+> Objective f0(x)↓
+> PDL PDI – MC PDI – Net PDM Unconstrained
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.00.83 0.92 1.00 0.83 1.00
+> Mode coverage
+> PDL PDI – MC PDI – Net PDM Unconstrained
+> 0
+> 2
+> 4
+> 6
+> 80.64 2.55 2.56 8.10 2.26
+> Wall time (s) ↓
+
+Figure 2: Mixture of Gaussians (K = 12 modes with M = 10 constraints in a 30 -dimensional space). While PDI, PDL and PDM maintain full feasibility, PDI exhibits the best objective and mode diversity. 
+
+5 Numerical Results 
+
+We provide numerical evidence in three stochastic optimization problems: constrained MoG, wireless resource allocation, and portfolio management. More details are provided in Appendices E, F, and G. 
+
+5.1 Mixture of Gaussians 
+
+We first evaluate our approach on sampling from a weighted mixture of Gaussians in Rd, f0(x) = 
+
+− log PKk=1 wk N  x; μk, Σk
+
+, truncated to a polytope {x : A⊤x ⪯ b}. The optimization problem is P ∗ 
+
+> MoG
+
+= min  
+
+> μ(x)
+
+Ex∼μ
+
+f0(x) − βH(μ) s.t. Ex∼μ
+
+A⊤x − b ⪯ 0, (13) i.e., the sampler must produce a distribution that concentrates on high-density regions of the mixture while satisfying M linear inequality constraints in expectation. 
+
+Baselines. We compare our approach to two baselines: i) a projected diffusion model (PDM) [ 25 ], and ii) primal-dual Langevin (PDL) dynamics [ 27 ]. For PDM, we reuse our trained model with 
+
+λ = 0 as the base model that samples from the unconstrained MoG and performs a Cimmino parallel projection [29] onto the polytope at each time step. 
+
+Results. As shown in Figure 2, all constrained methods achieve the same constraint feasibility. However, our method (PDI-Net and PDI-MC) obtains a better objective value than the other con-strained baselines. This is because the two baselines enforce the constraints on every generated sample, whereas our formulation only requires the constraints to hold in expectation. Pointwise enforcement is therefore more conservative and can discard useful samples for optimality that violate the constraints individually but could be offset by other samples in the distribution. We also include an ablation on the dual variable through the unconstrained baseline, which runs our model with λ
+
+fixed to zero at all time steps. As the figure shows, the unconstrained model ignores the constraints entirely and achieves the lowest objective. This performance confirms that the constrained behavior is not merely a consequence of the training algorithm. 
+
+5.2 Wireless Resource Allocation 
+
+For a given network state H with N = 200 users, the goal is to maximize the ergodic sum-rate while satisfying a minimum ergodic rate constraint for each user. That is, 
+
+P ∗ 
+
+> pc
+
+= max  
+
+> μ(x)
+
+1⊤r(μ, H) + βH(μ), s.t. r(μ, H) ≥ 1 · rmin , (14) where μ denotes the distribution of power allocations, and rmin is the minimum ergodic rate require-ment. The optimal solution is rarely a degenerate policy. Since users compete for the communication channels and cause interference, activating all users simultaneously is typically suboptimal and may prevent the rate constraints from being satisfied. Instead, the optimal distribution often corresponds to a multimodal switching policy, in which different subsets of users transmit at different times while meeting their rate requirements in expectation. 
+
+Baselines. In addition to PDL and PDM, we include two other diffusion-based baselines: i) diffusion posterior sampling (DPS) [ 28 ], and ii) supervised training (ST) with expert data [ 30 ]. The expert data are generated by a primal-dual method run for the deterministic version of (14) and its resulting trajectories (after a transient period) are collected to train the diffusion model. 
+
+Results. Table 1 shows that PDI achieves the best overall balance between mean rates (objective) and feasibility represented by the 5th-percentile rate and mean and sum violations. The 1st-percentile 7Table 1: Baseline comparisons. PDI achieves a near-feasible performance and provides the best balance between mean rates and constraint violations in the wireless power allocation problem ( rmin = 0 .6).                                                                            
+
+> Method Mean rates (↑)5th%ile rate (↑)1st%ile rate (↑)Mean viol. (↓)Sum viol. (↓)Feas. % (↑)
+> Unconstrained 2.957 ±0.123 0.239 ±0.052 0.081 ±0.037 0.0421 ±0.0078 8.43 ±1.57 85 .6±2.4
+> PDI–Net 2.803 ±0.132 0.613 ±0.042 0.424 ±0.082 0.0062 ±0.0027 1.25 ±0.54 95 .5±1.5
+> PDI–Net (warm-up) 2.578 ±0.132 0.670 ±0.055 0.429 ±0.102 0.0056 ±0.0026 1.12 ±0.51 96 .7±1.4
+> PDI–MC 2.839 ±0.130 0.614 ±0.052 0.355 ±0.120 0.0085 ±0.0037 1.71 ±0.75 95 .5±1.5
+> PDL [27] 2.635 ±0.141 0.641 ±0.057 0.405 ±0.106 0.0068 ±0.0031 1.36 ±0.63 96 .2±1.5
+> PDM [25] 2.591 ±0.157 0.510 ±0.082 0.165 ±0.107 0.0180 ±0.0065 3.61 ±1.29 91 .9±2.7
+> DPS [28] 2.731 ±0.138 0.461 ±0.071 0.184 ±0.082 0.0198 ±0.0060 3.96 ±1.19 90 .8±2.5
+> ST [30] 2.482 ±0.134 0.825 ±0.060 0.666 ±0.071 0.0007 ±0.0008 0.14 ±0.16 99 .3±0.6Mean Rate 5th %ile Sum Viol.
+> 0
+> 1
+> 2
+> 3
+> rmin =0.6
+> PDI-Net Fixed λλλT
+> Fixed ¯λλλMean Rate 5th %ile Sum Viol.
+> 0
+> 2
+> 4
+> 6
+> 8
+> rmin =0.6
+> DDPM Cosine DDPM Linear Linear SNR Poly SNR ( p=2) 2500 3000 3500 4000
+> 90
+> 92
+> 94
+> 96
+> Feasibility % ( ↑)
+> DT PDI
+
+Figure 3: Ablation. Comparisons between our base PDI-Net model, plotted in blue, and (left) a PDI-Net while setting λt to a fixed value along the denoising trajectory, (middle) a PDI-Net with different noise schedules, and (right) DT checkpoints corresponding to different training epochs and different estimates of the dual variable. 
+
+users, however, are harder to correct by the dual variables and suffer under all methods, except for ST. Similarly to the MoG experiment, PDL and PDM achieve lower mean rates (worse objectives) with no substantial gains in feasibility because they sacrifice optimality for forcing pointwise constraints. Moreover, ST generates feasible solutions at the expense of optimality. Because ST is trained only to imitate expert trajectories, it is agnostic to the dual structure of the constrained distribution and cannot explicitly balance utility against feasibility during sampling. Lastly, instead of using the untrained score model to generate rollouts during the early epochs of training, we initialize these rollouts with the ST model. We observe that the trained PDI-Net with ST warm-up inherits the same bias toward feasibility, achieving a higher, feasible 1st-percentile rate. However, this comes at the expense of the objective value, which decreases from 2.80 to 2.58 .
+
+Ablation. Figure 3 (left) evaluates the effect of keeping the dual variable fixed during inference. We run the score model with two fixed values: the final dual iterate λT and the time-average dual variable 
+
+¯λ, both computed from our base experiment. The results suggest that the distribution generated by the full PDI dynamics is not equivalent to the Gibbs distribution associated with either fixed value. Instead, it behaves like a mixture induced by the changing dual variable, and this mixture exhibits better feasibility. Among the two values, the Gibbs distribution with ¯λ provides a better approximation to the PDI-generated distribution than the one associated with the final iterate. To evaluate the role of the noise schedule, we report the performance metrics of four schedules in Figure 3 (middle): the DDPM cosine used in our base experiment, the DDPM linear schedule and the linear and polynomial SNR schedules. The latter two schedules fail to generate feasible samples. This is because they move out of the low-SNR regime too quickly before the dual updates reduce the dual mismatch. As a result, in the high-SNR regime, when the stability factor ρt becomes larger than one, the reverse process amplifies the remaining mismatch, leading to large constraint violations. 
+
+Dual training. To ablate the role of inference-time dual updates, we train a score model sϕ(xt, t )
+
+that does not take the dual variable as input. During training, we still update the dual variables using a primal-dual algorithm, so the score model is trained against targets induced by the evolving dual variables. At inference, there are no more dual updates and the trained model therefore acts as a fixed sampling policy that is intended to sample from the optimal distributions. We refer to this approach as dual training (DT) and the training algorithm is provided in Appendix D. Figures 3 (right) and 8 compare DT checkpoints along the training trajectory with PDI. Although some DT checkpoints reach dual variables close to those produced by PDI, their generated samples exhibit lower tail rates and lower feasibility. This indicates that matching the dual variables alone is not sufficient. Since DT does not condition the score model on the current multiplier, a checkpoint trained over a changing dual trajectory need not represent the score field associated with its current 8Table 2: Baseline comparison in portfolio management. PDI provides the best tradeoff between return, entropy and risk. Method Mean return (↑) Feasibility (↑) Mean viol. (↓) Neff Entropy |Top1| PDI–Net 0.189 ±0.031 0.91 ±0.09 8.18e-07 16.3 ±2.0 4.57 151 PDI–MC 0.195 ±0.028 0.92 ±0.13 1.45e-04 15.9 ±8.4 5.23 240 PDL 0.165 ±0.013 0.96 ±0.03 8.50e-07 21.8 ±0.7 5.78 376 PDM 0.125 ±0.012 1.00 ±0.00 0.00e+00 63.2 ±13.0 3.88 100 DPS 0.333 ±0.048 0.70 ±0.04 4.29e-04 4.5 ±0.4 4.91 202 Unconstrained 0.477 ±0.121 0.76 ±0.04 1.95e-03 4.2 ±0.6 4.68 159 
+
+dual value. Instead, it reflects the accumulated effect of the preceding training trajectory. We further verify this in Appendix F.3 by freezing DT multipliers and continuing score training, which substantially improves performance but requires a much larger training budget. PDI avoids this limitation by keeping the dual variable as an explicit state during inference. Thus, when the dual update increases the penalty on violated constraints, the penalty is reflected directly in the denoising dynamics. 0.60 0.65 0.70 0.75 0.80 0.85 
+
+> rmin
+> 2
+> 4
+> 6
+> 8
+> 10
+> Sum Violation ( ↓)
+> 77 .580 .082 .585 .087 .590 .092 .595 .097 .5
+> Feasibility % ( ↑)
+> PDI-Net (Sum Vio.) DT (Sum Vio.) PDI-Net (Feas.) DT (Feas.)
+
+Figure 4: Out-of-distribution constraints. The models are trained under rmin = 0 .6 and tested under different values of constraint levels. PDI degrades more gracefully than DT, showing more robustness to distribution shifts. 
+
+Out-of-distribution constraints. The dual state con-ditioning in our PDI score model also benefits OOD performance. In Figure 4, we plot the sum violation and feasibility percentage under different constraint levels rmin , with rmin = 0 .6 corresponding to the in-distribution setting. We observe that PDI is more robust to the shift in rmin . This is because the score function ∇ log qT −t(xt | λt) does not depend on rmin 
+
+directly. Instead, changing rmin changes the constraint residual and, therefore, induces a different trajectory of dual variables. Since PDI is trained with both exploita-tion and exploration over λ, the score model learns a family of score fields over a range of in-distribution dual values. Thus, as long as the dual trajectory in-duced by the new rmin remains close to this learned range, PDI can adapt to the new OOD constraints. 
+
+5.3 Portfolio Management 
+
+In constrained portfolio optimization, we aim to allocate weights x ∈ ∆N −1, where ∆N −1 is the 
+
+(N − 1) -dimensional probability simplex, across N = 500 assets, organized in 10 sectors. The return 
+
+r is drawn from a factor model with mean μ and block-diagonal covariance Σ. Our objective is to maximize expected return subject to per-asset variance-risk budgets, i.e., 
+
+P ∗ 
+
+> pm
+
+= max  
+
+> μ(x)
+
+Ex∼μ
+
+h
+
+Er
+
+r⊤xi
+
++ βH(μ) s.t. Ex∼μ
+
+xj (Σx )j
+
+ ≤ bj , j ∈ [N ]. (15) The budget bj > 0 caps how much variance asset j is permitted to contribute in expectation over all portfolios. The average constraints allow the sampler to trade risk across different portfolio samples, admitting occasional high-risk, high-return allocations while ensuring that the overall exposure of each asset remains within its prescribed budget in expectation. 
+
+Results. Table 2 shows that PDI achieves the best tradeoff between return, feasibility, and diversifica-tion among all diffusion samplers. The unconstrained model and DPS achieve higher returns, but only by incurring larger constraint violations and lower feasibility. In contrast, PDM and PDL are more feasible but more conservative, leading to lower returns. PDI lies between these extremes. It maintains high feasibility and very small mean violations while achieving the highest return among the feasible diffusion-based methods. Additional ablations in Appendix G confirm the same observations in the wireless allocation problem. That is, freezing the final or time-averaged multiplier underperforms the full PDI dynamics, and the noise schedule controls feasibility in a manner consistent with our stability analysis. 96 Conclusions 
+
+We introduced a primal–dual inference (PDI) framework that enforces distributional constraints by coupling a reverse diffusion process with dual ascent dynamics. We trained a single dual-variable-conditioned score network that serves the entire family of Gibbs targets encountered along the dual trajectory. At inference, PDI generates samples through a path-dependent sequence of Gibbs score fields indexed by the evolving multipliers, avoiding the need to first estimate and freeze an optimal dual variable. We analyzed PDI through the convergence of time-averaged dual iterates and a stability bound that quantifies how residual dual mismatch propagates through the reverse process. We validated our framework and methodology on constrained Gaussian sampling, wireless power control, and portfolio management. Extending PDI to adaptive dual step sizes, chance-constrained problems, and larger-scale setups are promising directions for future work. Our work has some limitations worth noting. The convergence guarantees of our algorithm apply to time-averaged dual iterates rather than final iterates or the primal distributions directly. Additionally, PDI requires problem-specific tuning of the dual-variable prior used during training and the entropy regularization strength β, for which principled selection rules remain an open question. Our code is available at: https://github.com/SMRhadou/PDI-Diffusion. 
+
+References 
+
+[1] J. Sohl-Dickstein, E. Weiss, N. Maheswaranathan, and S. Ganguli, “Deep unsupervised learning using nonequilibrium thermodynamics,” in Proceedings of the 32nd International Conference on Machine Learning (F. Bach and D. Blei, eds.), vol. 37 of Proceedings of Machine Learning Research , (Lille, France), pp. 2256–2265, PMLR, 07–09 Jul 2015. [2] J. Ho, A. Jain, and P. Abbeel, “Denoising diffusion probabilistic models,” arXiv preprint arxiv:2006.11239 , 2020. [3] Y. Song, J. Sohl-Dickstein, D. P. Kingma, A. Kumar, S. Ermon, and B. Poole, “Score-based generative modeling through stochastic differential equations,” in International Conference on Learning Representations , 2021. [4] R. Rombach, A. Blattmann, D. Lorenz, P. Esser, and B. Ommer, “ High-Resolution Image Synthesis with Latent Diffusion Models ,” in 2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , (Los Alamitos, CA, USA), pp. 10674–10685, IEEE Computer Society, June 2022. [5] Z. Kong, W. Ping, J. Huang, K. Zhao, and B. Catanzaro, “Diffwave: A versatile diffusion model for audio synthesis,” in International Conference on Learning Representations , 2021. [6] J. Ho, T. Salimans, A. Gritsenko, W. Chan, M. Norouzi, and D. Fleet, “Video diffusion models,” in Advances in Neural Information Processing Systems (S. Koyejo, S. Mohamed, A. Agarwal, D. Belgrave, K. Cho, and A. Oh, eds.), vol. 35, pp. 8633–8646, Curran Associates, Inc., 2022. [7] Y. B. Uslu, S. Hadou, S. S. Bidokhti, and A. Ribeiro, “Generative diffusion models for resource allocation in wireless networks,” in 2025 IEEE 10th International Workshop on Computational Advances in Multi-Sensor Adaptive Processing (CAMSAP) , pp. 201–205, IEEE, 2025. [8] A. Babazadeh Darabi and S. Coleri, “Diffusion model based resource allocation strategy in ultra-reliable wireless networked control systems,” IEEE Communications Letters , vol. 29, no. 1, pp. 85–89, 2025. [9] N. Tiwari, “Generative diffusion model for risk-neutral derivative pricing,” 2026. [10] M. He, X. He, and X. Gao, “Factor-based conditional diffusion model for portfolio optimization,” in NeurIPS 2025 Workshop: Generative AI in Finance , 2025. [11] Q. Zhang and Y. Chen, “Path integral sampler: a stochastic control approach for sampling,” in 
+
+International Conference on Learning Representations , 2022. [12] F. Vargas, W. S. Grathwohl, and A. Doucet, “Denoising diffusion samplers,” in The Eleventh International Conference on Learning Representations , 2023. [13] J. Berner, L. Richter, and K. Ullrich, “An optimal control perspective on diffusion-based generative modeling,” Transactions on Machine Learning Research , 2024. [14] L. Richter and J. Berner, “Improved sampling via learned diffusions,” in The Twelfth Interna-tional Conference on Learning Representations , 2024. 10 [15] S. Khalafi, D. Ding, and A. Ribeiro, “Constrained diffusion models via dual training,” Advances in Neural Information Processing Systems , vol. 37, pp. 26543–26576, 2024. [16] S. Khalafi, I. Hounie, D. Ding, and A. Ribeiro, “Composition and alignment of diffusion models using constrained learning,” arXiv preprint arXiv:2508.19104 , 2025. [17] B. Efron, “Tweedie’s formula and selection bias,” Journal of the American Statistical Associa-tion , vol. 106, no. 496, pp. 1602–1614, 2011. [18] P. Dhariwal and A. Q. Nichol, “Diffusion models beat GANs on image synthesis,” in Advances in Neural Information Processing Systems (A. Beygelzimer, Y. Dauphin, P. Liang, and J. W. Vaughan, eds.), 2021. [19] J. Ho and T. Salimans, “Classifier-free diffusion guidance,” arXiv preprint arXiv:2207.12598 ,2022. [20] A. Nichol, P. Dhariwal, A. Ramesh, P. Shyam, P. Mishkin, B. McGrew, I. Sutskever, and M. Chen, “Glide: Towards photorealistic image generation and editing with text-guided diffusion models,” 2022. [21] A. Lou and S. Ermon, “Reflected diffusion models,” in International Conference on Machine Learning , pp. 22675–22701, PMLR, 2023. [22] G.-H. Liu, T. Chen, E. Theodorou, and M. Tao, “Mirror diffusion models for constrained and watermarked generation,” Advances in Neural Information Processing Systems , vol. 36, pp. 42898–42917, 2023. [23] V. De Bortoli, E. Mathieu, M. Hutchinson, J. Thornton, Y. W. Teh, and A. Doucet, “Riemannian score-based generative modelling,” Advances in neural information processing systems , vol. 35, pp. 2406–2422, 2022. [24] N. Fishman, L. Klarner, E. Mathieu, M. Hutchinson, and V. De Bortoli, “Metropolis sampling for constrained diffusion models,” Advances in Neural Information Processing Systems , vol. 36, pp. 62296–62331, 2023. [25] J. K. Christopher, S. Baek, and F. Fioretto, “Constrained synthesis with projected diffusion models,” Advances in Neural Information Processing Systems , vol. 37, pp. 89307–89333, 2024. [26] W. Huang, Y. Jiang, T. Van Wouwe, and C. K. Liu, “Constrained diffusion with trust sampling,” 
+
+NeurIPS , 2024. [27] L. F. Chamon, M. R. Karimi, and A. Korba, “Constrained sampling with primal-dual langevin monte carlo,” Advances in Neural Information Processing Systems , vol. 37, pp. 29285–29323, 2024. [28] H. Chung, J. Kim, M. T. Mccann, M. L. Klasky, and J. C. Ye, “Diffusion posterior sampling for general noisy inverse problems,” in International Conference on Learning Representations (ICLR) , 2023. [29] F. Sloboda, “A projection method of the cimmino type for linear algebraic systems,” Parallel Computing , vol. 17, no. 4, pp. 435–442, 1991. [30] Y. B. Uslu, S. Hadou, S. S. Bidokhti, and A. Ribeiro, “Graph signal diffusion models for wireless resource allocation,” 2026. [31] A. Hyvärinen and P. Dayan, “Estimation of non-normalized statistical models by score match-ing.,” Journal of Machine Learning Research , vol. 6, no. 4, 2005. [32] Y. Song and S. Ermon, “Generative modeling by estimating gradients of the data distribution,” 
+
+Advances in neural information processing systems , vol. 32, 2019. [33] J. Song, C. Meng, and S. Ermon, “Denoising diffusion implicit models,” in International Conference on Learning Representations , 2021. [34] A. Q. Nichol and P. Dhariwal, “Improved denoising diffusion probabilistic models,” in Interna-tional conference on machine learning , pp. 8162–8171, PMLR, 2021. [35] C. Lu, Y. Zhou, F. Bao, J. Chen, C. Li, and J. Zhu, “Dpm-solver: A fast ode solver for diffusion probabilistic model sampling in around 10 steps,” arXiv preprint arXiv:2206.00927 , 2022. [36] T. Karras, M. Aittala, T. Aila, and S. Laine, “Elucidating the design space of diffusion-based generative models,” in Proc. NeurIPS , 2022. 11 [37] J. Chen, L. Richter, J. Berner, D. Blessing, G. Neumann, and A. Anandkumar, “Sequential controlled langevin diffusions,” 2024. [38] C. Domingo-Enrich, M. Drozdzal, B. Karrer, and R. T. Chen, “Adjoint matching: Fine-tuning flow and diffusion generative models with memoryless stochastic optimal control,” arXiv preprint arXiv:2409.08861 , 2024. [39] M. Sendera, M. Kim, S. Mittal, P. Lemos, L. Scimeca, J. Rector-Brooks, A. Adam, Y. Bengio, and N. Malkin, “Improved off-policy training of diffusion samplers,” Advances in Neural Information Processing Systems , vol. 37, pp. 81016–81045, 2024. [40] Y. Guo, H. Yuan, Y. Yang, M. Chen, and M. Wang, “Gradient guidance for diffusion models: An optimization perspective,” in Advances in Neural Information Processing Systems (A. Globerson, L. Mackey, D. Belgrave, A. Fan, U. Paquet, J. Tomczak, and C. Zhang, eds.), vol. 37, pp. 90736– 90770, Curran Associates, Inc., 2024. [41] L. Kong, Y. Du, W. Mu, K. Neklyudov, V. D. Bortoli, D. Wu, H. Wang, A. Ferber, Y.-A. Ma, C. P. Gomes, and C. Zhang, “Diffusion models as constrained samplers for optimization with unknown constraints,” 2025. [42] K. Black, M. Janner, Y. Du, I. Kostrikov, and S. Levine, “Training diffusion models with reinforcement learning,” in The Twelfth International Conference on Learning Representations ,2024. [43] Z. Sun and Y. Yang, “DIFUSCO: Graph-based diffusion solvers for combinatorial optimization,” in Thirty-seventh Conference on Neural Information Processing Systems , 2023. [44] J. Wen and J. Yang, “Distributionally robust optimization via diffusion ambiguity modeling,” 
+
+arXiv preprint arXiv:2510.22757 , 2025. [45] L. Kong, H. Wang, Y. Pan, C. W. Kim, M. Song, A. Nguyen, T. Wang, H. Xu, and M. Tambe, “Robust optimization with diffusion models for green security,” in Proceedings of the Forty-first Conference on Uncertainty in Artificial Intelligence (S. Chiappa and S. Magliacane, eds.), vol. 286 of Proceedings of Machine Learning Research , pp. 2325–2344, PMLR, 21–25 Jul 2025. [46] Z. Guo, W. Tang, and R. Xu, “Conditional diffusion guidance under hard constraint: A stochastic analysis approach,” arXiv preprint arXiv:2602.05533 , 2026. [47] M. Arvinte and J. I. Tamir, “Mimo channel estimation using score-based generative models,” 
+
+IEEE Transactions on Wireless Communications , vol. 22, no. 6, pp. 3698–3713, 2023. [48] N. Zilberstein, A. Swami, and S. Segarra, “Joint channel estimation and data detection in massive mimo systems based on diffusion models,” in ICASSP 2024 - 2024 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) , pp. 13291–13295, 2024. [49] Z. He, F. Héliot, and Y. Ma, “Deterministic score-based diffusion model for channel estimation in ris-assisted mimo systems,” in 2025 IEEE 26th International Workshop on Signal Processing and Artificial Intelligence for Wireless Communications (SPAWC) , pp. 1–5, 2025. [50] T. Lee, J. Park, H. Kim, and J. G. Andrews, “Generating high dimensional user-specific wireless channels using diffusion models,” IEEE Transactions on Wireless Communications , vol. 25, pp. 2907–2921, 2026. [51] S. K. Ankireddy, H. Kim, and H. Kim, “Residual diffusion models for joint source channel coding of mimo csi,” in 2025 59th Asilomar Conference on Signals, Systems, and Computers ,pp. 55–62, IEEE, 2025. [52] H. Kim, T. Lee, H. Kim, G. De Veciana, M. A. Arfaoui, A. Koc, P. Pietraski, G. Zhang, and J. Kaewell, “Generative diffusion model-based compression of mimo csi,” in ICC 2025 - IEEE International Conference on Communications , pp. 6323–6328, 2025. [53] J. Guo, X. Xu, Y. Liu, and A. Nallanathan, “Diffusion model for multiple antenna communica-tion,” IEEE Communications Magazine , vol. 63, no. 10, pp. 44–50, 2025. [54] T. Hui, X. Tang, Y. Wang, Q. Du, D. Niyato, and Z. Han, “Channel-aware conditional diffusion model for secure mu-miso communications,” IEEE Transactions on Vehicular Technology ,p. 1–6, 2026. [55] X. Zhang and J. Yu, “Improve the training efficiency of drl for wireless communication re-source allocation: The role of generative diffusion models,” IEEE Transactions on Wireless Communications , vol. 25, pp. 11593–11608, 2026. 12 [56] T. Takahashi and T. Mizuno, “Generation of synthetic financial time series by diffusion models,” 
+
+Quantitative Finance , vol. 25, no. 10, pp. 1507–1516, 2025. [57] H. Choudhary, A. Orra, and M. Thakur, “Diffusion-augmented reinforcement learning for robust portfolio optimization under stress scenarios,” 2025. [58] C. Jin and A. Agarwal, “Forecasting implied volatility surface with generative diffusion models,” 2025. [59] T. Akhound-Sadegh, J. Rector-Brooks, A. J. Bose, S. Mittal, P. Lemos, C.-H. Liu, M. Sendera, S. Ravanbakhsh, G. Gidel, Y. Bengio, N. Malkin, and A. Tong, “Iterated denoising energy matching for sampling from Boltzmann densities,” in International Conference on Machine Learning (ICML) , 2024. [60] Y. B. Uslu, N. NaderiAlizadeh, M. Eisen, and A. Ribeiro, “Fast state-augmented learning for wireless resource allocation with dual variable regression,” 2025. 13 A Extended Related Work 
+
+Diffusion models and score-based generative modeling. Score-based diffusion models learn a stochastic reversal of a progressive noising process by matching the gradients of the log-density 
+
+∇x log p(x), a.k.a. the score function, for noisy observations [ 31 ]. Noise-conditional score networks [32 ] train a single network across noise levels and sample via annealed Langevin dynamics, while denoising diffusion probabilistic models [ 2 ] frame generation as iterative Gaussian denoising guided by a simplified ELBO. These formulations are unified in [ 3 ] as instances of a common SDE, whose time reversal yields a generative process; and admits an equivalent deterministic probability-flow ODE that enables exact likelihood computation and has motivated accelerated sampling schemes such as denoising diffusion implicit models (DDIMs) [33, 34, 35, 36]. 
+
+Energy-based models and sampling from Gibbs targets. Energy-based models define distri-butions of the form p(x) ∝ exp( −E(x)) , whose normalizing constant is generally intractable. Score-based methods sidestep this because the score ∇x log p(x) = −∇ xE(x) is independent of this constant. This has motivated the use of diffusion as a sampler from unnormalized Gibbs targets by learning a controlled SDE, whose terminal law matches the target, e.g., [ 11 , 12 , 13 , 14 , 37 , 38 , 39 ]. In our setting, the Lagrangian minimizers are also Gibbs distributions whose energies are linear in the dual variables. Crucially, the energies are not fixed as they evolve during inference through dual ascent. Furthermore, the score network is trained over a distribution of dual variables, or equivalently, a distribution of target energies, rather than for a single one. 
+
+Guided and constrained diffusion sampling. Guidance techniques steer reverse diffusion pro-cesses toward improved fidelity or reward/constraint alignment more generally. They do so by modifying the score entering Tweedie’s denoising formula [ 17 ], which expresses the MMSE-estimate of a clean signal (posterior mean) given a noisy signal observation in terms of the score function. Notably, classifier guidance [ 18 ] perturbs the predicted score with the gradient of a noise-aware classifier, trading diversity for fidelity. Classifier-free guidance [ 19 ] removes the external classifier, in-stead interpolating between conditional and unconditional modes of a shared model during inference. Subsequent variants, such as CLIP-based guidance [ 20 ], underpin most state-of-the-art diffusion systems. Beyond guidance, an extensive body of work enforces domain-feasibility constraints on the diffusion process directly, e.g., boundary reflections [ 21 ], mirror diffusion [ 22 ], Riemannian score-based models [ 23 ], and log-barrier constructions [ 24 ]. A separate line of works target constraint-aware inference. In [ 25 ], projected diffusions that apply feasibility projections after each denoising step are proposed, while a trust sampling approach [ 26 ] reformulates each reverse step as a separate constrained optimization problem. Closest to this paper are [ 15 , 16 , 27 ], which adopt a constrained learning formulation for average (expectation) constraints. Specifically, [ 15 ] shows that the optimal KL-constrained distribution is an entropy-tilted mixture of reference distributions, enforced through a primal–dual training scheme that pairs an outer-loop dual ascent with inner-loop Lagrangian score matching, with [ 16 ] extending this to reward-based alignment and product/mixture compositions. Primal–dual Langevin Monte Carlo (PD-LMC) [ 27 ] operates instead at sampling time and enforces equality and average constraints via gradient descent–ascent in Wasserstein space, without a learned generative model. Our method shares the Lagrangian saddle-point structure of these works but differs in three key aspects: (i) the dual variable evolves jointly with the denoising trajectory rather than in a separate outer training loop [ 15 , 16 ] or an ergodic Langevin chain (PD-LMC) [ 27 ], (ii) a score network is trained across a distribution of dual variables and conditioned on each dual variable, rather than refitting an unconditional score model per dual iterate, and (iii) the aggregation of samples along the dual-ascent path yields a robust mixture of primal distributions that realizes the entropy-regularized mixture structure of [ 15 ] – as well as the Gibbs targets of the energy-based sampling approaches discussed above – empirically at inference time rather than analytically at a single optimal multiplier. 
+
+Diffusion-enabled Stochastic Optimization. Pretrained diffusion models constrained on the data manifold can be steered toward downstream objectives through gradient-based guidance or fine-tuning [ 40 ], making them viable tools for learning-enabled optimization. Several works have exploited this connection between guidance with optimization gradients and regularized optimization. 14 [ 41 ] combined guided diffusion models and Langevin dynamics in a two-stage scheme that learns constrained samplers for optimization with unknown constraints. [ 42 ] reinterpreted the denoising chain as a multi-step Markov Decision Process (MDP) and applied policy-gradient methods to fine-tune diffusion models on non-differentiable rewards. Beyond continuous settings, diffusion models have also advanced combinatorial optimization [ 43 ], and distributionally robust optimization [44, 45, 46]. 
+
+Diffusion models in wireless optimization and portfolio management. Diffusion models recast stochastic optimization as conditional sampling from learned solution distributions. This perspective is especially relevant to wireless communication systems, whose non-convex, constrained design problems typically admit optimal solutions that are probability distributions over optimization variables. E.g., [ 47 , 48 , 49 ] leveraged diffusion priors for score-based MIMO channel estimation, with subsequent works extending their use to CSI compression [ 50 , 51 , 52 ], beamforming design [ 53 , 54 ], and resource allocation [ 55 , 8 , 7, 30 ]. Specifically for power control, [ 8] trains DDPMs to generate optimal allocations conditioned on the channel state, while [ 7, 30 ] proposes graph-signal diffusion models for matching primal-dual expert policies with near-optimal ergodic rates and cross-topology transferability. Diffusion models have found great use in quantitative finance applications, where non-convex constraints and high-dimensional, heavy-tailed return distributions present analogous challenges to those encountered in wireless system design. E.g., [ 56 ] proposed wavelet-DDPMs for scenario and stylized facts generation. [ 57 , 10 ] tackled robust portfolio management with conditional diffusion models, with [ 58 , 9] enforcing arbitrage-free and risk-neutral diffusion dynamics for volatility forecasting. 
+
+B Proposed Algorithms 
+
+B.1 Score Network Training 
+
+We follow Algorithm 1 in training the score model sθ (xt, t, λt) using the regression loss in (9) . To compute the true score for the pairs (xt, λt), we use an MC estimator of the score function of the Gibbs distribution, described in the following lemma. 
+
+Lemma 1 (MC estimator of the Gibbs score [ 59 ]) . For any yτ , the score function of the Gibbs distribution can be estimated by KMC Monte Carlo samples as 
+
+∇yτ log qτ (yτ |λ) ≈ ∇ yτ log 1
+
+KMC 
+
+> KMC
+
+X
+
+> k=1
+
+exp − E
+
+ yτ + στ ϵk
+
+ατ
+
+, λ
+
+!
+
+, (16) 
+
+where ϵk ∼ N (0, I).
+
+We refer the reader to [59] for the proof. 
+
+B.2 Inference Algorithm 
+
+At inference, we run multiple chains in parallel as described in Algorithm 2. 
+
+B.3 Practical Considerations 
+
+In training the score model, we combine exploitation and exploration to generate training pairs (x, λ).Exploitation is performed by rolling out the sampling process using the most recent score model and storing the resulting primal-dual trajectories in a replay buffer. These rollouts expose the model to the states and dual variables it is likely to encounter during inference. Exploration is introduced in two ways. First, we sample dual variables from a prior distribution to cover regions that may not be visited by the current rollouts. Second, we perturb both the primal and dual variables to improve robustness to local deviations from the replayed trajectories. The exploitation fraction ρexp (n) controls the balance between replayed dual variables and prior-sampled dual variables throughout training. Although we refer to the learned network as a score model, our implementation uses the noise-prediction parameterization. For each training pair (xt, λ), the MC estimator computes the score of 15 Algorithm 1 Score Network Training 
+
+Require: Decay and noise schedule a0: T , b 0: T , Perturbation params (ρpert , ϵ x, ϵ λ), exploitation fraction ρexp (n) for all n 
+
+> 1:
+
+Initialize replay buffer B ← ∅ , score network sθ 
+
+> 2:
+
+for n = 1 , . . . , N outer do  
+
+> 3:
+
+for each problem G in a batch Btrain do ▷ Rollouts  
+
+> 4:
+
+Sample {x(i)0 ∼ N (0, I)}i, Initialize λ ← λ0 
+
+> 5:
+
+Run inference (Algorithm 2) with sθ to obtain {(x(i) 
+
+> t
+
+, t, λ, G)}T −1 
+
+> t=0
+
+, ∀i ∈ [I] 
+
+> 6:
+
+Push {(x(i) 
+
+> t
+
+, t, λ, G)}Ii to B 
+
+> 7:
+
+end for  
+
+> 8:
+
+for inner = 1 , . . . , N inner do  
+
+> 9:
+
+Sample a minibatch {(x(j) 
+
+> t
+
+, t (j), λ(j), G(j))}Bj=1 from B 
+
+> 10:
+
+for j = 1 , . . . , B do  
+
+> 11:
+
+if Bernoulli( ρpert ) = 1 then ▷ Perturb training pairs  
+
+> 12:
+
+x(j) 
+
+> t
+
+← x(j) 
+
+> t
+
++ ϵx · zx, zx ∼ N (0, I) 
+
+> 13:
+
+λ(j) ← [λ(j) + ϵλ · zλ]+, zλ ∼ N (0, I) 
+
+> 14:
+
+end if  
+
+> 15:
+
+if Bernoulli(1 − ρexp (n)) = 1 then  
+
+> 16:
+
+λ(j) ← v, v ∼ πprior (·) ▷ Sample from a prior  
+
+> 17:
+
+end if  
+
+> 18:
+
+end for  
+
+> 19:
+
+θ ← θ−α∇ 1
+
+> B
+
+P 
+
+> j
+
+w(t(j)) sθ (x(j) 
+
+> t
+
+, t (j), λ(j), G(j))−∇ log qT −t(j) (x(j) 
+
+> t
+
+| λ(j); G(j)) 22 
+
+> 20:
+
+end for  
+
+> 21:
+
+end for  
+
+> 22:
+
+return θ
+
+Algorithm 2 PDI Dynamics for a given problem instance G
+
+Require: Trained score network sθ∗ , dual step size ηt, decay and noise schedule a0: T , b 0: T 
+
+> 1:
+
+Initialize replay buffer B ← ∅  
+
+> 2:
+
+for chain = 1 , . . . , C do  
+
+> 3:
+
+Sample x(i)0 ∼ N (0, I), i = 1 , . . . I ▷ I i.i.d. samples  
+
+> 4:
+
+Initialize λ ← λ0 
+
+> 5:
+
+for t = 0 , . . . , T − 1 do  
+
+> 6:
+
+x(i) 
+
+> t+1
+
+= 1√aT −t
+
+
+
+x(i) 
+
+> t
+
++ bT −t sθ∗ (x(i) 
+
+> t
+
+, t, λ, G)
+
+
+
++ pbT −tz, z ∼ N (0, I) 
+
+> 7:
+
+by(i)0 ← (x(i) 
+
+> t+1
+
+− σ2  
+
+> T−t−1
+
+sθ∗ (x(i)
+
+> t+1
+
+, t + 1 , λ, G)) / α T −t−1 ▷ Tweedie estimate  
+
+> 8:
+
+λ ←
+
+h
+
+λ + ηt · P 
+
+> i
+
+f
+
+
+
+ˆy(i)0
+
+
+
+/I 
+
+i
+
+> +
+
+▷ Dual ascent  
+
+> 9:
+
+end for  
+
+> 10:
+
+Push {x(i) 
+
+> T
+
+}i to B 
+
+> 11:
+
+end for  
+
+> 12:
+
+return B
+
+the Gibbs distribution indexed by λ directly. Rather than regressing the network directly to this score, we reparameterize the target into the equivalent noise via ϵt = −σT −tst, where s is the MC score estimate. The network is therefore trained to predict this noise target. During sampling, the predicted noise is converted back into score units using the same relation, and the resulting score is used in the PDI reverse update. Thus, throughout the paper, training a score model should be understood as training a noise-prediction network whose target is derived from the same MC score estimate. In some of our numerical examples, the samples must satisfy physical domain constraints, such as box constraints on transmit powers or simplex constraints on portfolio weights. We enforce these constraints by projecting the Tweedie estimate by0 onto the corresponding domain immediately after Step 7 of Algorithm 2. We also ensure that we divide by αT −t = max {αmin , α T −t} in computing the Tweedie to avoid numerical instabilities in the low-SNR regime. 16 C Analytical Proofs 
+
+The dual function of (1) is defined as 
+
+g(λ) = L(μ†
+
+> λ
+
+, λ) = min   
+
+> μ∈P 2(X)
+
+L(μ, λ), (17) where μ† 
+
+> λ
+
+is the Gibbs distribution induced by the dual variable λ. We can then write the dual function in a closed form as 
+
+g(λ) = Eμ†
+
+> λ
+
+h
+
+f0(x) + λ⊤f (x)
+
+i
+
+− βH(μ†
+
+> λ
+
+) = −β log Z(λ). (18) The true gradient of the dual function is 
+
+∇g(λt) = Eμ†
+
+> λt
+
+[f (y0)] , (19) which is the violation estimated by clean samples of the distribution μ† 
+
+> λt
+
+. PDI replaces this gradient with 
+
+b∇g(λt) = Ext+1 ∼pt+1 
+
+h
+
+f
+
+
+
+Eeπθ
+
+> t+1
+
+ y0 | xt+1 , λt
+
+i 
+
+, (20) where pt is the marginal distribution at time t and Eeπθ
+
+> t+1
+
+ y0 | xt+1 , λt
+
+ is the Tweedie posterior mean under the score model sθ . This formula replaces clean samples with the Tweedie posterior means under the forward process started with μ† 
+
+> λt
+
+. The bias in this gradient comes from three sources: i) replacing the score field with a parameterized network sθ , ii) propagating the dual mismatch and score-approximation error across diffusion steps (marginal mismatch), and iii) replacing clean samples y0 with a posterior mean E y0 | xt+1 , λt
+
+ (Tweedie’s error). More concretely, we write the difference between the estimated gradient b∇g and true gradient ∇g as 
+
+bt+1 (λt) := b∇g(λt) − ∇ g(λt) (21) 
+
+= Ept
+
+h
+
+f
+
+
+
+Eeπθ
+
+> t+1
+
+ y0 | xt+1 , λt
+
+ i 
+
+− Eμ†
+
+> λt
+
+f (y0) (22) 
+
+= Ept+1 
+
+h
+
+f
+
+
+
+Eeπθ
+
+> t+1
+
+ y0 | xt+1 , λt
+
+ i 
+
+− Ept+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | xt+1 , λt
+
+ i 
+
+(23) 
+
++ Ept+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | xt+1 , λt
+
+ i 
+
+− Eept+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | ext+1 , λt
+
+ i 
+
++ Eept+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | ext+1 , λt
+
+ i 
+
+− Eμ†
+
+> λt
+
+f (y0). (24) We bound the norm of the three terms in Lemmas 3, 4 and 5 (Section C.4). The bias in the gradient results in dual convergence with a small but irreducible floor error. Theorem 1 characterizes this floor error and shows that it is controlled by the expected Tweedie posterior-mean error and the approximation error of the parameterization. Theorem 2 then analyzes how the residual errors in the multipliers and score fields propagate through the reverse dynamics and affect the terminal law pT . In Sections C.2 and C.3, we provide the analytical proofs of these theorems. The assumptions under which our analysis holds are listed in Section C.1. 
+
+C.1 Assumptions 
+
+Our proof holds under the following set of assumptions: 
+
+Assumption 2 (Constraint regularity) . The constraint function f is Lf -Lipschitz, i.e., ∥f (x)−f (y)∥ ≤ 
+
+Lf ∥x − y∥. Also, the constraint function is bounded on the compact set X , i.e., sup x∈X ∥f (x)∥ ≤ R.
+
+Assumption 3 (Strong dual concavity) . The dual function g is ϑ-strongly concave, i.e., ∇2
+
+> λ
+
+g λ ⪯−ϑI, for all λ ∈ Λ.
+
+The strong concavity modulus ϑ is not an independent quantity but is determined by the temperature 
+
+β and the constraint covariance under the induced Gibbs-distribution family. Since the dual function is g(λ) = −β log Z(λ), its Hessian is given by 
+
+∇2g(λ) = − 1
+
+β Cov μ†
+
+> λ
+
+
+
+f (x)
+
+
+
+,
+
+17 and ϑ = 1 
+
+> β
+
+inf λ σmin 
+
+
+
+Cov μ†
+
+> λ
+
+(f (x)) 
+
+
+
+, where σmin is the smallest eigenvalue of the covariance matrix. This makes Assumption 3 a mild and verifiable condition. The covariance of the constraints is strictly positive whenever the constraint covariance is nonsingular, and its smallest eigenvalue can be estimated directly from the samples generated during inference. 
+
+Assumption 4 (Rich parameterization) . For any function st, there exists a parameterization θ such that, uniformly over λ ∈ Λ, it holds that 
+
+Ept,G
+
+h
+
+sθ (xt, t, λ, G) − st(xt|λ; G) 22
+
+i
+
+≤ ϵ2
+
+> app
+
+(t). (25) Assumption 4 is an approximation condition on the score network. We require it only uniformly over the compact set Λ in which the dual iterates evolve. The error ϵ2
+
+> app
+
+(t) aggregates three sources: i) the finite expressivity of the parameterization, ii) the variance of the Monte Carlo score estimator (Lemma 1) used to form the regression targets, and iii) the mismatch between the rollout-induced training distribution of (xt, λ) pairs and the distribution encountered at inference. The expressivity of the parameterization controls the first source, and our training procedure is designed to control the latter two. That is, the exploration/exploitation rollout scheme with a replay buffer reduces the distribution shift, and KMC candidates reduce the estimator variance. Our numerical experiments show that the difference between PDI with a trained score model (PDI–Net) and PDI with an MC score field (PDI–MC) is negligible. In some cases, PDI–Net improves PDI–MC on feasibility and tail-rate metrics. 
+
+Assumption 5. Assume the noised optimal score is spatially Lipschitz, i.e. ∇2 
+
+> x
+
+log qT −t(x|λ) exists and is bounded in operator norm, sup x∈X ∥∇ 2 
+
+> x
+
+log qT −t(x|λ)∥op ≤ Mt, for each t and λ ∈ Λ.
+
+C.2 Dual Convergence: Proof of Theorem 1 
+
+Proof. From Lemma 2, the dual recursion is 
+
+E∥λt+1 − λ∗∥2 + ηED∗−g(λt) + 2 ηβ EDKL (μ† 
+
+> λt
+
+∥μ∗).
+
+≤ E∥λt − λ∗∥2] + 2ηϑ E∥bt+1 (λt)∥2] + η2R2. (26) Using the telescope sum, we get 
+
+E∥λT − λ∗∥2 + η 
+
+> T−1
+
+X
+
+> t=0
+
+ED∗−g(λt) + 2 ηβ  
+
+> T−1
+
+X
+
+> t=0
+
+EDKL (μ† 
+
+> λt
+
+∥μ∗).
+
+≤ E∥λ0 − λ∗∥2] + 2ηϑ 
+
+> T−1
+
+X
+
+> t=0
+
+E∥bt+1 (λt)∥2] + T η 2R2. (27) The bias comprises three components as described in (24) . The Tweedie posterior mean error is bounded by Lemma 3: 
+
+E
+
+h
+
+∥B1(t + 1) ∥2i
+
+≤ L2 
+
+> f
+
+ϵ2 
+
+> T W
+
+(t + 1) . (28) The marginal mismatch error is bounded by Lemma 4: 
+
+E
+
+h
+
+∥B2(t + 1) ∥2i
+
+≤ L2
+
+> h
+
+
+
+(1 + δ)C2
+
+> hist
+
+η2R2 +  1 + 1
+
+δ
+
+ϵ2
+
+> hist
+
+
+
+. (29) Finally, the parameterization error is bounded by Lemma 5: 
+
+E
+
+h
+
+∥B3(t + 1) ∥2i
+
+≤ L2
+
+> f
+
+σ4 
+
+> T−t
+
+α2 
+
+> T−t
+
+ϵ2
+
+> app
+
+(t + 1) . (30) The total bias can then be bounded as 
+
+E
+
+h
+
+∥bt+1 (λt)∥2i
+
+≤ 3E
+
+h
+
+∥B1(t + 1) ∥2i
+
++ 3 E
+
+h
+
+∥B2(t + 1) ∥2i
+
++ 3 E
+
+h
+
+∥B3(t + 1) ∥2i
+
+(31) 
+
+≤ 3L2 
+
+> f
+
+ϵ2 
+
+> T W
+
+(t + 1) + 3 L2
+
+> h
+
+
+
+(1 + δ)C2
+
+> hist
+
+η2R2 +  1 + 1
+
+δ
+
+ϵ2
+
+> hist
+
+
+
+(32) 
+
++ 3 L2
+
+> f
+
+σ4 
+
+> T−t
+
+α2 
+
+> T−t
+
+ϵ2
+
+> app
+
+(t + 1) . (33) 18 Substituting the bias in (27), the RHS is 
+
+I ≤ E∥λ0 − λ∗∥2] + 6L2 
+
+> f
+
+ηϑ 
+
+> T−1
+
+X
+
+> t=0
+
+ϵ2 
+
+> T W
+
+(t + 1) + (1 + δ) 6L2
+
+> h
+
+ηϑ T C 2
+
+> hist
+
+η2R2 (34) 
+
++ 6L2
+
+> h
+
+ηϑ
+
+
+
+1 + 1
+
+δ
+
+
+
+T ϵ 2 
+
+> hist
+
++ 6L2 
+
+> f
+
+ηϑ 
+
+> T−1
+
+X
+
+> t=0
+
+σ4 
+
+> T−t
+
+α2 
+
+> T−t
+
+ϵ2
+
+> app
+
+(t + 1) + T η 2R2. (35) Choose η = κ/ √T . Since the left-side terms in (27) are non-negative, each one of them is bounded above by I. Thus, we get a uniform average dual gap of 
+
+1
+
+T 
+
+> T−1
+
+X
+
+> t=0
+
+ED∗ − g(λt) ≤ I
+
+ηT (36) 
+
+= E∥λ0 − λ∗∥2]
+
+ηT 
+
+| {z }
+
+> O
+
+  1√T
+
+
+
++ 6L2
+
+> f
+
+ϑT  
+
+> T−1
+
+X
+
+> t=0
+
+ϵ2 
+
+> T W
+
+(t + 1) + (1 + δ) 6L2
+
+> h
+
+ϑT C2
+
+> hist
+
+R2η2
+
+| {z }
+
+> O
+
+  1
+
+> T
+
+
+
++ 6L2
+
+> h
+
+ϑ
+
+
+
+1 + 1
+
+δ
+
+
+
+ϵ2 
+
+> hist
+
++ 6L2
+
+> f
+
+ϑT  
+
+> T−1
+
+X
+
+> t=0
+
+σ4 
+
+> T−t
+
+α2 
+
+> T−t
+
+ϵ2
+
+> app
+
+(t + 1) + ηR 2
+
+|{z} 
+
+> O
+
+  1√T
+
+
+
+(37) 
+
+= O
+
+ 1
+
+√T
+
+
+
++ 6L2
+
+> f
+
+ϑT  
+
+> T−1
+
+X
+
+> t=0
+
+
+
+ϵ2 
+
+> T W
+
+(t + 1) + σ4 
+
+> T−t
+
+α2 
+
+> T−t
+
+ϵ2
+
+> app
+
+(t + 1) 
+
+
+
++ 6L2
+
+> h
+
+ϑ
+
+
+
+1 + 1
+
+δ
+
+
+
+ϵ2
+
+> hist
+
+. (38) The rate of convergence of both quantities is 1/√T and they converge to a neighborhood determined by ϵT W and ϵt+1 across diffusion steps. Define the time-average dual variable ¯λ = 1
+
+> T
+
+P 
+
+> t
+
+λt. By concavity of g, we have 
+
+ED∗ − g ¯λ] ≤ E
+
+h
+
+D∗ − 1
+
+T
+
+> T
+
+X
+
+> t=0
+
+g(λt)
+
+i
+
+= 1
+
+T
+
+> T
+
+X
+
+> t=0
+
+ED∗ − g(λt), (39) which is bounded by (38). Furthermore, by the strong concavity of g, we can also write 
+
+E∥¯λ − λ∗∥2] ≤ 2
+
+ϑ ED∗ − g(¯λ), (40) which completes the proof. 
+
+Lemma 2. Under Assumptions 2 and 3, and with ηt = η, the distance between λt and the optimum in expectation is given by 
+
+E∥λt+1 − λ∗∥2 + ηED∗−g(λt) + 2 ηβ EDKL (μ† 
+
+> λt
+
+∥μ∗).
+
+≤ E∥λt − λ∗∥2] + 2ηϑ E∥bt∥2] + η2R2. (41) 
+
+Proof. By the non-expansive property of the projection operator onto RM 
+
+> +
+
+, we have ∥[λ]+ − λ∗∥ ≤ ∥λ − λ∗∥, and therefore, 
+
+E∥λt+1 − λ∗∥2 | F t
+
+ ≤ ∥ λt + η b∇g(λt) − λ∗∥2, (42) where Ft is a filtration of the history of the PDI process till time t.Define the true gradient of the dual function as 
+
+∇g(λt) = Eμ†
+
+> λt
+
+[f (y0)] ,
+
+which is the constraint violations evaluated on clean samples under the current Gibbs distribution 
+
+μ† 
+
+> λt
+
+. PDI replaces this true gradient with a biased one, b∇g(λt), and the bias bt(λt) is split into three 19 terms, as characterized in (24). Thus, we can write 
+
+E∥λt+1 − λ∗∥2 | F t
+
+ ≤ ∥ λt + η b∇g(λt) − λ∗∥2 (43) 
+
+≤ ∥ λt − λ∗∥2 + 2 η⟨λt − λ∗, b∇g(λt)⟩ + η2∥ b∇g(λt)∥2 (44) 
+
+= ∥λt − λ∗∥2 + 2 η⟨λt − λ∗, ∇g(λt)⟩ + 2 η⟨λt − λ∗, bt(λt)⟩ + η2∥ b∇g(λt)∥2.
+
+(45) By Lemma 8, the Lagrangian function can be written as 
+
+L(μ, λ) = βD KL (μ∥μ†
+
+> λ
+
+) + g(λ),
+
+which leads to 
+
+⟨λt − λ∗, ∇g(λt)⟩ = L(μ† 
+
+> λt
+
+, λt) − L (μ† 
+
+> λt
+
+, λ∗) (46) 
+
+= g(λt) − g(λ∗)
+
+| {z }
+
+> duality gap
+
+−βD KL (μ† 
+
+> λt
+
+∥μ∗). (47) The first equality follows from the definition in (2) and the second follows from the definition in the lemma. Using Young’s inequality, for any c > 0, we can bound the inner product between λt − λ∗
+
+and the bias by 
+
+2⟨λt − λ∗, b(i) 
+
+> t
+
+⟩ ≤ c∥λt − λ∗∥2 + 1
+
+c ∥b(i) 
+
+> t
+
+∥2. (48) Choose c = ϑ/ 2. Thus, we get 
+
+E∥λt+1 − λ∗∥2 | F t
+
+ + 2 η
+
+
+
+g(λ∗) − g(λt)
+
+
+
++ 2 ηβD KL (μ† 
+
+> λt
+
+∥μ∗)
+
+≤
+
+
+
+1 + ηϑ 
+
+2
+
+
+
+∥λt − λ∗∥2 + 2ηϑ ∥bt∥2 + η2∥ b∇g(λt)∥2.
+
+(49) From the strong concavity of g (Assumption 3), we have D∗ − g(λt) ≥ ϑ 
+
+> 2
+
+∥λt − λ∗∥2 with 
+
+D∗ = g(λ∗).We then split the dual gap in the LHS into two halves and lower bound one of them with ηϑ  
+
+> 2
+
+∥λt −λ∗∥2.Thus, we have 
+
+E∥λt+1 − λ∗∥2 | F t
+
+ + η D∗ − g(λt) + 2 ηβD KL (μ† 
+
+> λt
+
+∥μ∗)
+
+≤ ∥ λt − λ∗∥2 + 2ηϑ ∥b(i) 
+
+> t
+
+∥2 + η2∥ b∇g(λt)∥2. (50) Take the expectation with respect to the filtration and bound the gradient with R (Assumption 2). This completes the proof. 
+
+C.3 Primal Recursion: Proof of Theorem 2 
+
+Proof. Let Kλt 
+
+> t
+
+be the kernel of the parametrized PDI process, i.e., pt+1 = ptKλt 
+
+> t
+
+, and Kλ∗
+
+> t
+
+is its equivalent in the backward process with a fixed dual variable λ∗ and the true score, i.e., 
+
+qλ∗  
+
+> T−t−1
+
+= qλ∗ 
+
+> T−t
+
+Kλ∗ 
+
+> t
+
+. By the triangle inequality, we get 
+
+W2
+
+ pt+1 , q λ∗ 
+
+> T−t−1
+
+ = W2
+
+ ptKλt 
+
+> t
+
+, q λ∗ 
+
+> T−t
+
+Kλ∗
+
+> t
+
+ (51) 
+
+≤ W2
+
+ ptKλ∗ 
+
+> t
+
+, q λ∗ 
+
+> T−t
+
+Kλ∗
+
+> t
+
+ + W2
+
+ ptKλt 
+
+> t
+
+, p tKλ∗
+
+> t
+
+. (52) The first term is bounded by (11) in Proposition 2, and the second term computes the effect of the mismatch in the dual variables. 
+
+Synchronous Coupling: We consider a synchronous coupling Πt between ptKλt 
+
+> t
+
+and ptKλ∗ 
+
+> t
+
+that shares the noise ϵ since the two kernels have the same noise covariance. Given a particle xt ∼ pt, the PDI kernel converts it into 
+
+xt+1 = 1
+
+√aτ
+
+
+
+xt + bτ sθ (xt, t, λt)
+
+
+
++ pbτ ϵ, (53) 20 where τ = T − t, while the optimal kernel transports it into 
+
+ext+1 = 1
+
+√aτ
+
+
+
+xt + bτ st(xt|λ∗)
+
+
+
++ pbτ ϵ, (54) where st = ∇ log qT −t is the true score and sθ is the parameterized score function. By construction, 
+
+Πt is a valid coupling. Bounding the W2 distance then reduces to bounding the norm of the difference between the score functions under two different dual variables. More concretely, we have 
+
+∥xt+1 − ext+1 ∥ = bτ
+
+√aτ
+
+sθ (xt, t, λt) − st(xt|λ∗) (55) 
+
+≤ bτ
+
+√aτ
+
+
+
+sθ (xt, t, λt) − st(xt|λt) + st(xt|λt) − st(xt|λ∗)
+
+
+
+. (56) By Lemma 7, we have 
+
+st(xt|λt) − st(xt|λ∗) ≤ γt ∥λt − λ∗∥. (57) Combined with Assumption 4, we can bound the dual mismatch with 
+
+W2
+
+ ptKλt 
+
+> t
+
+, p tKλ∗
+
+> t
+
+ = inf 
+
+> π
+
+Z
+
+∥xt+1 − ext+1 ∥2 dπ(xt+1 , ext+1 )
+
+!1/2
+
+(58) 
+
+≤
+
+Z
+
+∥xt+1 − ext+1 ∥2 dΠt(xt+1 , ext+1 )
+
+!1/2
+
+(59) 
+
+≤ bτ
+
+√aτ
+
+ γt ∥λt − λ∗∥ + ϵapp (t), (60) where the last inequality follows by Minkowski inequality. Substituting in (52), we get 
+
+W2
+
+ pt+1 , q λ∗ 
+
+> T−t−1
+
+ ≤ ρtW2
+
+ pt, q λ∗ 
+
+> T−t
+
+ + bτ
+
+√aτ
+
+γt ∥λt − λ∗∥ + bτ
+
+√aτ
+
+ϵapp (t). (61) Taking expectation with respect to λt and unrolling (61) for T steps results in 
+
+EW2
+
+ pT , μ ∗ ≤ Ψ0,T W2
+
+ p0, q λ∗
+
+> T
+
+ + 
+
+> T−1
+
+X
+
+> t=0
+
+Ψt,T 
+
+bT −t
+
+√aT −t
+
+
+
+γtE∥λt − λ∗∥ + ϵapp (t)
+
+
+
+, (62) where Ψs,T = QTt=s+1 ρt. For large T , it holds that qλ∗ 
+
+> T
+
+converges to N (0, I), making the first term go to zero. This completes the proof. 
+
+C.4 Gradient Bias C.4.1 Tweedie’s Error Lemma 3. Consider the reverse diffusion sampler, defined in (7) , associated with a dual value λt.Then, under Assumptions 2, it holds that 
+
+Eλt
+
+"
+
+Eept+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | ext+1 , λt
+
+ i 
+
+− Eμ†
+
+> λt
+
+f (y0)
+
+> 2
+
+#
+
+≤ Lf ϵT W (t + 1) (63) 
+
+where ept is the marginal distribution of the reverse process under fixed λt, eπt is the posterior density under the same process, Lf is a Lipschitz constant and ϵT W is the expected Tweedie posterior-mean error. Proof. Define the joint distribution Πλt
+
+> t+1
+
+ y0, ext+1 λt
+
+ = eπt+1 (y0|ext+1 , λt)ept+1 (ext+1 |λt) with marginals μ† 
+
+> λt
+
+and ept+1 . Then, we can write the bias as 
+
+B1(λt) := Eept+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | ext+1 , λt
+
+ i 
+
+− Eμ†
+
+> λt
+
+f (y0) (64) 
+
+= EΠλtt+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | ext+1 , λt
+
+ 
+
+− f (y0) | λt
+
+i
+
+. (65) 21 Taking the norm and applying Jensen’s inequality and Assumption 2, we get 
+
+∥B1(λt)∥22 ≤ EΠλtt+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | ext+1 , λt
+
+ 
+
+− f (y0) 22 | λt
+
+i
+
+(66) 
+
+≤ L2 
+
+> f
+
+EΠλtt+1 
+
+h
+
+Eeπt+1 
+
+ y0 | ext+1 , λt
+
+ − y0 
+
+> 22
+
+| λt
+
+i
+
+. (67) Take expectation with respect to λt, then we have 
+
+E
+
+h
+
+∥B1(λt)∥22
+
+i
+
+≤ L2 
+
+> f
+
+Eλt EΠλtt+1 
+
+Eeπt+1 
+
+ y0 | ext+1 , λt
+
+ − y0
+
+> 22
+
+=: L2 
+
+> f
+
+ϵ2 
+
+> T W
+
+(t + 1) . (68) where ϵ2 
+
+> T W
+
+(t + 1) is the expected Tweedie posterior-mean error at step t + 1 .
+
+C.4.2 Marginal Mismatch Lemma 4. Under Assumptions 4 and 5, it holds that 
+
+Eept+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | ext+1 , λt
+
+ i 
+
+− Ept+1 
+
+h
+
+f
+
+
+
+Eeπt+1 
+
+ y0 | xt+1 , λt
+
+ i 
+
+> 2
+
+≤ Lht−1X
+
+> j=0
+
+Ψj−1,t 
+
+bT −j
+
+√aT −j
+
+
+
+γj ∥λj − λt∥2 + ϵj
+
+
+
+. (69) 
+
+where Ψs,t = Qtr=s+1 ρr (λr ) is the stability product and ρr , γ j are the moduli of Lemma 6 and Lemma 7, generalized to any given λ.Proof. We use synchronous coupling to compare the Tweedie posterior mean at step t + 1 under two processes: 1) PDI, and 2) the reverse process (7) under λt.Under the PDI dynamics, one reverse step is given by 
+
+xs+1 = 1
+
+√aT −s
+
+
+
+xs + bT −s sθ (xs, s, λs)
+
+
+
++ pbT −sϵs, (70) where xs ∼ ps while the corresponding kernel Kλt 
+
+> s
+
+under (7) with fixed λt is 
+
+exs+1 = 1
+
+√aT −s
+
+exs + bT −s ss(exs|λt)
+
+
+
++ pbT −sϵs. (71) Under the synchronous coupling, the two processes share the same noise ϵs and the same initialization, i.e., x0 = ex0. Thus, the difference between the two noisy samples xs+1 and exs+1 is 
+
+xs+1 − exs+1 = 1
+
+√aT −s
+
+
+
+xs − exs
+
+
+
++ bT −s
+
+√aT −s
+
+
+
+ss(xs|λs) − ss(exs|λs)
+
+
+
++ bT −s
+
+√aT −s
+
+
+
+sθ (xs, s, λs) − ss(xs|λs)
+
+
+
++ bT −s
+
+√aT −s
+
+
+
+ss(exs|λs) − ss(exs|λt)
+
+
+
+, (72) where we added and subtracted bT −s  
+
+> √aT−s
+
+(ss(exs|λs) + ss(xs|λs)) . These quantities have been ana-lyzed in Lemmas 6 and 7 for the optimal kernel Kλ∗ 
+
+> t
+
+. Here, we use generalized formulas for any kernel associated with (7). Similarly to (97)–(101), we can bound the first term with 
+
+1
+
+√aT −s
+
+
+
+xs − exs
+
+
+
++ bT −s
+
+√aT −s
+
+
+
+ss(xs|λs) − ss(exs|λs)
+
+
+
+> 2
+
+≤ ρs(λs) · ∥ xs − exs∥2, (73) where ρs(λs) = 1√aT −s sup x I + bT −s∇2 
+
+> x
+
+log qT −s(x|λs) op is the stability factor of the one-step kernel Kλs 
+
+> s
+
+. For the last term, we follow (103)–(107) to get 
+
+∥ss(exs|λs) − ss(exs|λt)∥2 ≤ γs · ∥ λs − λt∥2, (74) 22 where γs = Rα T −s 
+
+> βσ 2
+> T−s
+
+psup λ∈Λ ∥Cov πs (y0|exs, λ)∥op .Combining the two results, along with Assumption 4, we obtain 
+
+∥xs+1 − exs+1 ∥2 ≤ ρs(λs) · ∥ xs − exs∥2
+
++ bT −s
+
+√aT −s
+
+
+
+γs∥λs − λt∥2 + ∥sθ (xs, s, λs) − ss(xs|λs)∥2
+
+
+
+. (75) Then, we take expectation with respect to the coupling Πs+1 to get 
+
+EΠs+1 
+
+h
+
+∥xs+1 − exs+1 ∥2
+
+i
+
+≤ ρs(λs) · EΠs
+
+h
+
+∥xs − exs∥2
+
+i
+
++ bT −s
+
+√aT −s
+
+
+
+γs · ∥ λs − λt∥2 + Eps ∥sθ (xs, s, λs) − ss(xs|λs)∥2
+
+
+
+≤ ρs(λs) · EΠs
+
+h
+
+∥xs − exs∥2
+
+i
+
++ bT −s
+
+√aT −s
+
+
+
+γs · ∥ λs − λt∥2 + ϵs
+
+
+
+. (76) The last inequality follows from Assumption 4 and Jensen’s inequality. With this inequality in place, let h(xt) := f
+
+
+
+Eeπt+1 
+
+ y0 | xt+1 , λt
+
+
+
+, and bound the bias with 
+
+∥B2(λt; Ft)∥2 := Eept
+
+h(ext+1 ) − Ept
+
+h(xt+1 )
+
+> 2
+
+= EΠt
+
+h(ext+1 ) − h(xt+1 )
+
+> 2
+
+(77) 
+
+≤ LhEΠt+1 ∥ext+1 − xt+1 ∥2 (78) 
+
+≤ Lh
+
+
+
+ρt(λt) · EΠt
+
+∥xt − ext∥2
+
+ + bT −t
+
+√aT −t
+
+ γt · ∥ λt − λt∥2 + ϵapp (t)
+
+, (79) where Lh is the Lipschitz constant of h(Eeπt+1 
+
+ y0 | xt+1 , λt
+
+) and depends on Lf and the score function. The dual mismatch here is zero but we keep it to show the decomposition of one recursion step. Recursively, we get the bound: 
+
+∥B2(λt; Ft)∥2 ≤ LhtX
+
+> j=0
+> t
+
+Y
+
+> s=j
+
+ρs(λs)
+
+!
+
+· bT −j
+
+√aT −j
+
+
+
+γj ∥λj − λt∥2 + ϵapp (j)
+
+
+
+(80) Let Ψj−1,t = Qts=j ρs(λs) be the product of the stability coefficient over the past t − j steps, then 
+
+∥B2(λt; Ft)∥2 ≤ LhtX
+
+> j=0
+
+Ψj−1,t 
+
+bT −j
+
+√aT −j
+
+
+
+γj ∥λj − λt∥2 + ϵapp (j)
+
+
+
+. (81) It is worth noting that 
+
+bT −j
+
+√aT −j
+
+γj = bT −j
+
+√aT −j
+
+αT −j
+
+σ2 
+
+> T−j
+
+Rβ
+
+r
+
+sup 
+
+> λ∈Λ
+
+∥Cov πs (y0|exj , λ)∥op ,
+
+where bT −j   
+
+> √aT−j
+> αT−j
+> σ2
+> T−j
+
+= αT −j−1bT −j /(bT −j + aT −j σ2 
+
+> T−j−1
+
+) is a non-negative value under 1 for variance-preserving noise schedules. Therefore, the bias depends on the noise schedule mainly through the stability product Ψj−1,t .Now assume that, for all t ≤ T , it holds that 
+
+> t
+
+X
+
+> j=0
+
+Ψj−1,t 
+
+bT −j
+
+√aT −j
+
+γj (t − j) ≤ Chist < ∞, (82) and 
+
+> t
+
+X
+
+> j=0
+
+Ψj−1,t 
+
+bT −j
+
+√aT −j
+
+ϵapp (j) ≤ ϵhist < ∞. (83) 23 It is also true that 
+
+∥λj − λt∥2 ≤ (t − j)ηR. (84) Therefore, we have ∥B2(λt; Ft)∥22 ≤ (1 + δ)L2
+
+> h
+
+C2
+
+> hist
+
+η2R2 + (1 + 1 
+
+> δ
+
+)L2
+
+> h
+
+ϵ2
+
+> hist
+
+, for an arbitrary δ > 0,using Young’s inequality, which completes the proof. As discussed in Section 4, under noise schedules with a sufficiently long stable high-noise phase, the stability products decay with the length of the history window. Hence, contributions from early dual mismatches are damped, and only the recent history can have a non-negligible effect near the high-SNR region, where the reverse dynamics become more sensitive. In this regime, the remaining history-dependent contribution can be controlled by the step size ηt.
+
+C.4.3 Parameterization Error Lemma 5. Under Assumptions 2 and 4, it holds that 
+
+Ept+1 
+
+h
+
+f   Eeπθ
+
+> t+1
+
+ y0 | xt+1 , λt
+
+  − f   Eeπt+1 
+
+ y0 | xt+1 , λt
+
+  i 22
+
+≤ L2
+
+> f
+
+σ4 
+
+> T−t
+
+α2 
+
+> T−t
+
+ϵ2
+
+> app
+
+(t + 1) . (85) 
+
+Proof. The Tweedie posterior means are given as 
+
+Eeπθ
+
+> t+1
+
+ y0 | xt+1 , λt
+
+ = 1
+
+αT −t
+
+
+
+xt+1 + σ2 
+
+> T−t
+
+sθ (xt+1 , t + 1 , λt)
+
+
+
+, (86) 
+
+Eeπt+1 
+
+ y0 | xt+1 , λt
+
+ = 1
+
+αT −t
+
+
+
+xt+1 + σ2 
+
+> T−t
+
+st+1 (xt+1 |λt)
+
+
+
+, (87) where αT −t = max {αmin , α T −t}. Therefore, we have 
+
+Ept+1 
+
+h
+
+f   Eeπθ
+
+> t+1
+
+ y0 | xt+1 , λt
+
+  − f   Eeπt+1 
+
+ y0 | xt+1 , λt
+
+  i
+
+> 2
+
+(88) 
+
+≤ Lf
+
+σ2 
+
+> T−t
+
+αT −t
+
+Ept+1 sθ (xt+1 , t + 1 , λt) − st+1 (xt+1 |λt) 2
+
+≤ Lf
+
+σ2 
+
+> T−t
+
+αT −t
+
+ϵt+1 , (89) by Jensen’s inequality and Assumptions 2 and 4. 
+
+C.5 Proof of Proposition 2 
+
+Proof. Let π be any coupling between ν and μ. Apply the synchronous coupling (same noise ϵt) to each realized pair (x, y) ∼ π:
+
+X+ = 1
+
+√aT −t
+
+
+
+x + bT −t∇ log qT −t(x|λ∗)
+
+
+
++ pbT −tϵt (90) 
+
+Y+ = 1
+
+√aT −t
+
+
+
+y + bT −t∇ log qT −t(y|λ∗)
+
+
+
++ pbT −tϵt (91) Let Γ be the joint law of (X+, Y+). By construction, the marginal distribution of X+ is νK λ∗ 
+
+> t
+
+, and the marginal distribution of Y+ is μK λ∗ 
+
+> t
+
+. Therefore, Γ is a valid coupling between νK λ∗ 
+
+> t
+
+and μK λ∗ 
+
+> t
+
+.Using the definition of W2, we have 
+
+W 22 (νK λ∗ 
+
+> t
+
+, μK λ∗ 
+
+> t
+
+) ≤ EΓ
+
+∥X+ − Y+∥2 (92) 
+
+= E(x,y)∼π
+
+h
+
+E∥X+ − Y+∥2 | x, yi
+
+(93) 
+
+≤ ρ2 
+
+> t
+
+E(x,y)∼π
+
+∥x − y∥2 , (94) which follows by Lemma 6. Note that, conditioned on the pair (x, y), ∥X+ − Y+∥2 is deterministic and the inner expectation in (93) is trivial. Since this holds for every coupling π ∈ Π( ν, μ ), we take the infimum over π and obtain 
+
+W 22 (νK λ∗ 
+
+> t
+
+, μK λ∗ 
+
+> t
+
+) ≤ ρ2 
+
+> t
+
+W 22 (ν, μ ). (95) Taking square roots gives 
+
+W2(νK λ∗ 
+
+> t
+
+, μK λ∗ 
+
+> t
+
+) ≤ ρtW2(ν, μ ). (96) This proves the proposition. 24 C.6 Additional Lemmas Lemma 6 (One-step contraction modulus) . Under Assumption 5, for any x, y and under the synchronous coupling (common noise ϵt), the reverse-step outputs satisfy ∥X+−Y+∥2 ≤ ρ2 
+
+> t
+
+∥x−y∥2,almost surely, with 
+
+ρt = 1
+
+√aT −t
+
+sup 
+
+> x
+
+I + bT −t∇2 
+
+> x
+
+log qT −t(x|λ∗) op .
+
+Proof. Under synchronous coupling, we have 
+
+X+ − Y+ = 1
+
+√aT −t
+
+
+
+x − y + bT −t
+
+ ∇ log qT −t(x|λ∗) − ∇ log qT −t(y|λ∗)
+
+. (97) The noise cancels exactly since the two processes share the same noise. Thus, this is deterministic given x and y. Then by the mean value theorem along the segment from y to x, we get 
+
+∇ log qT −t(x|λ∗) − ∇ log qT −t(y|λ∗) = 
+
+ Z 10
+
+∇2 log qT −t(y + s(x − y)|λ∗)ds 
+
+
+
+· (x − y).
+
+(98) Substitute back into (97), we get 
+
+X+ − Y+ = 1
+
+√aT −t
+
+(I + bT −t bH) · (x − y), (99) where bH is the averaged Hessian along the segment. Taking norms, 
+
+∥X+ − Y+∥ ≤ 1
+
+√aT −t
+
+I + bT −t bH op 
+
+· ∥ x − y∥ (100) 
+
+≤ 1
+
+√aT −t
+
+sup 
+
+> x∈X
+
+I + bT −t∇2 
+
+> x
+
+log qT −t(x|λ∗) op ∥x − y∥ =: ρt∥x − y∥. (101) The last inequality upper bounded the averaged Hessian with the supremum over the compact domain 
+
+X . This completes the proof. 
+
+Lemma 7. Under Assumption 2, the score function st(· | λ) is Lipschitz in λ, and 
+
+st(x|λt) − st(x|λ∗) ≤ γt ∥λt − λ∗∥2 , (102) 
+
+and γt = Rα T −t 
+
+> βσ 2
+> T−t
+
+psup λ ∥Cov πt (y0|x, λ)∥op ≥ 0.Proof. Using the mean value theorem, we can then bound the difference by 
+
+st(x|λt) − st(x|λ∗) ≤
+
+
+
+sup 
+
+> λ
+
+∇λst(x|λ) op 
+
+
+
+∥λt − λ∗∥2 , (103) where ∥ · ∥ op is the operator norm. The score function is defined through the Tweedie as 
+
+st(x|λ) = 1
+
+σ2 
+
+> T−t
+
+
+
+αT −tEπt [y0|x, λ] − x
+
+
+
+, (104) where πt is the posterior distribution: 
+
+πt(y0|x, λ) ∝ 1
+
+Z(λ) exp 
+
+
+
+− E(y0, λt) − 12σ2 
+
+> T−t
+
+∥x − αT −ty0∥2
+
+. (105) The posterior depends on λ only through the prior. Thus, we have 
+
+∇λEπt
+
+y0|x, λ = −1
+
+β Cov πt
+
+
+
+y0, f (y0) x, λ
+
+
+
+. (106) Taking the operator norm, we get 
+
+βσ 2 
+
+> T−t
+
+αT −t
+
+∇λst(x|λ) op ≤
+
+
+
+∥Cov πt (y0|x, λ)∥op 
+
+1/2
+
+·
+
+
+
+∥Cov πt (f (y0)|x, λ)∥op 
+
+1/2
+
+(107) 
+
+≤ R
+
+q
+
+∥Cov πt (y0|x, λ)∥op , (108) using Assumption 2. Let γt = Rα T −t 
+
+> βσ 2
+> T−t
+
+psup λ ∥Cov πt (y0|x, λ)∥op to complete the proof. 25 Lemma 8. The Lagrangian function in (2) is also equivalent to 
+
+L(μ, λ) = βD KL (μ∥μ†
+
+> λ
+
+) + g(λ).
+
+Proof. Start with the definition of KL divergence: 
+
+DKL (μ∥μ† 
+
+> λt
+
+) = Eμ
+
+h
+
+log μ(x) − log μ† 
+
+> λt
+
+(x)
+
+i
+
+(109) 
+
+= Eμ[log μ(x)] + 1
+
+β Eμ
+
+h
+
+f0(x) + λ⊤f (x)
+
+i
+
++ log Z(λ) (110) 
+
+= 1
+
+β L(μ, λ) + log Z(λ). (111) The second equality follows from the definition of μ† 
+
+> λt
+
+while the last one uses the definition of the Lagrangian. With the fact that g(λ) = −β log Z(λ), we complete the proof. 
+
+D Discussions 
+
+D.1 Dual Training 
+
+PDI updates the dual variables during inference, allowing the sampler to react instantaneously to constraint violations. Another alternative is to estimate the optimal dual variables during training while training a score model to sample directly from the optimal distribution. We refer to this approach as dual training (DT). The idea behind DT is related to prior work on constrained diffusion models [ 15 , 16 ]. However, this prior work typically considers a single optimization problem, such as fine-tuning a pre-trained model to satisfy a fixed set of constraints, where there is only one optimal dual variable to estimate. In contrast, our formulation considers a family of problem instances, each with its own optimal distribution and corresponding optimal dual variable. In this section, we extend DT to this setting by estimating the dual variables separately for each problem instance during training. The resulting method then serves as an ablation baseline to test the effect of inference-time dual updates. The dual problem in (3), for a given problem instance G, can be re-written as a bi-level problem, 
+
+D∗(G) = max  
+
+> λ⪰0
+
+L(μ†
+
+> λ
+
+, λ; G)
+
+with μ† 
+
+> λ
+
+= argmin 
+
+> μ∈P 2
+
+L(μ, λ; G). (112) The inner problem is equivalent to an unconstrained sampling problem and the diffusion process defined in (6) – (7) provides a mechanism to sample from the target distribution μ†
+
+> λ
+
+. Therefore, we replace the inner problem with the problem of training the score model of the reverse process (7) . Let 
+
+sϕ(x, t, G) be the score model, parameterized by ϕ, and pϕ 
+
+> T
+
+be the terminal distribution of the reverse process under a given dual variable λ. The parameterized bi-level problem can then be cast as 
+
+D∗
+
+> ϕ
+
+(G) = max  
+
+> λ⪰0
+
+L(pϕλ 
+
+> T
+
+, λ; G)
+
+with ϕλ(G) = argmin 
+
+> ϕ
+
+Et, xt
+
+h
+
+ω(t) sϕ(xt, t, G) − ∇ log qT −t(xt|λ; G) 22
+
+i
+
+, ∀λ.
+
+(113) The expectation is with respect to the noisy samples and the diffusion time. The inner problem in its current form assigns a different parametrization ϕ for each dual variable λ and problem instance G.This is not a training objective and is generally infeasible. To overcome this challenge, we alternate between the two problems so that, for an outer iteration k, the score model is trained only against the most recent dual variable, which is then updated based on the recent constraint violations. More concretely, the training algorithm follows the following dual-ascent iterations: 
+
+ϕk = argmin 
+
+> ϕ
+
+EG,t, xt
+
+h
+
+ω(t) sϕ(xt, t, G) − ∇ log qT −t
+
+ xt|λk(G); G 22
+
+i
+
+, (114) 
+
+λk+1 (G) = 
+
+h
+
+λk(G) + ηDT EpϕkT
+
+f (xT ; G)i
+
+> +
+
+, ∀ G , (115) 26 Algorithm 3 Dual Training  
+
+> 1:
+
+Initialize λ(G) ← λ0 for all G 
+
+> 2:
+
+Initialize score network sϕ 
+
+> 3:
+
+for d = 1 , . . . , D do ▷ Outer: dual iterations  
+
+> 4:
+
+Initialize replay buffer B ← ∅ 
+
+> 5:
+
+for each problem G in a batch Btrain do  
+
+> 6:
+
+Rollout : sample x(i)0 ∼ N (0, I); run inference with sϕ to obtain {(x(i) 
+
+> t
+
+, t )}T −1 
+
+> t=0
+
+, ∀i ∈ [I] 
+
+> 7:
+
+Push {(x(i) 
+
+> t
+
+, t, G)}i,t to B 
+
+> 8:
+
+end for  
+
+> 9:
+
+for e = 1 , . . . , E do ▷ Inner: train at fixed λ 
+
+> 10:
+
+Sample a minibatch {(x(j) 
+
+> t
+
+, t (j), G(j))}Bj=1 from B 
+
+> 11:
+
+for j = 1 , . . . , B do  
+
+> 12:
+
+if Bernoulli( ρpert ) = 1 then ▷ Perturb the sample  
+
+> 13:
+
+x(j) 
+
+> t
+
+← x(j) 
+
+> t
+
++ ϵx · zx, zx ∼ N (0, I) 
+
+> 14:
+
+end if  
+
+> 15:
+
+end for  
+
+> 16:
+
+ϕ ← ϕ−α ∇ 1
+
+> B
+
+P 
+
+> j
+
+w(t(j)) sϕ(x(j) 
+
+> t
+
+, t (j), G(j))−∇ log qT −t(j) (x(j) 
+
+> t
+
+| λ(G(j)); G(j)) 22 
+
+> 17:
+
+end for  
+
+> 18:
+
+for each problem G in a batch Bλ do ▷ Dual ascent  
+
+> 19:
+
+Generate samples {x(i) 
+
+> T
+
+∼ pϕ 
+
+> T
+
+}Ii=1 via full reverse diffusion using the most recent ϕ 
+
+> 20:
+
+λ(G) ←
+
+h
+
+λ(G) + ηDT 
+
+P 
+
+> i
+
+f (x(i) 
+
+> T
+
+; G)/I 
+
+i 
+
+> +
+> 21:
+
+end for  
+
+> 22:
+
+end for  
+
+> 23:
+
+return ϕ
+
+where ηDT is the dual step size. The expectation in the training objective becomes jointly over diffusion time, noisy samples, and the problem distribution so that a single G-conditional parameterization learns the score field for a family of problems. The dual variables, however, remain instance-specific. Each problem instance G maintains its own multiplier λk(G), updated only from the constraint violations observed for that instance. Updating the dual variables requires estimating the constraint violations under the current sampler, which in turn requires running the full reverse process to obtain clean samples. Implementing (114) –(115) to completion would therefore be computationally prohibitive. In practice, we use an alternating implementation. We perform a few gradient steps on the score-matching objective in (114) , then update the dual variables for a subset of problem instances. Specifically, at each outer iteration, Algorithm 3 samples a batch of instances Bλ and updates only their corresponding multipliers, while the remaining dual variables are kept unchanged. As in Algorithm 1, the score target is computed using the MC estimator in (16) and the noisy samples xt are obtained from rollouts of the inference dynamics at the beginning of each outer iteration. At inference time, DT starts from Gaussian noise and runs the reverse diffusion process using the trained score model sϕ∗ (xt, t, G). For a test instance G, the reverse dynamics are 
+
+xt+1 = 1
+
+√aT −t
+
+
+
+xt + bT −tsϕ∗
+
+ xt, t, G
+
++ pbT −tϵt. (116) No dual variable is initialized, provided to the score model, or updated during this process. The constraint information enters only through the learned parameters ϕ∗, which were trained using the instance-dependent dual estimates in (114) – (115) . Thus, DT produces samples in a single reverse pass and does not adapt the trajectory to constraint violations observed during inference. 27 D.2 DT Challenges 
+
+Since we execute a few gradient steps instead of fully solving the minimization problem for each outer iteration, it is sensible to assume that the score model at iteration k satisfies 
+
+ϕk ≈ argmin 
+
+> ϕ
+
+EG,t, xt Eλ∼πk (·|G )
+
+h
+
+ω(t) sϕ(xt, t, G) − ∇ log qT −t
+
+ xt|λ; G 22
+
+i
+
+, (117) where πk(· | G ) = Pki=0 wiδλi(G) captures the mixture of dual variables encountered in the preceding training iterations and P 
+
+> i
+
+wi = 1 . The weights wi reflect the effective contribution of each past dual iterate to the score-model parameters. Although each dual iterate is used only once in (114) ,later iterates typically have stronger weights because their gradient updates are applied closer to the final parameter state. Since the dual variable is not provided as an input to the score model, the corresponding predictor is an averaged score field, 
+
+sϕk (xt, t, G) ≈ Eλ∼πk (·|G )
+
+h
+
+∇xt log qT −t
+
+ xt|λ; Gi
+
+. (118) This averaging is benign when the dual distribution collapses into a degenerate distribution of a single value close to the optimum or when the conditional scores associated with the dual iterates are nearly aligned. However, for binding and near-binding constraints, where the constraint residual is close to zero, small changes in the generated samples change the constraint residual and therefore the multiplier update. As a result, the score model is trained on targets associated with a local range of dual values around the equilibrium. When two of these multipliers induce noticeably different score directions or correction strengths, the averaged score no longer matches the score associated with either dual value exactly. DT can therefore retain the part of the correction that is common across the dual trajectory, but it loses the multiplier-specific deviations. This explains why DT can still learn a reasonable constrained sampler when the dual trajectory repeatedly emphasizes the same constraints, while remaining less accurate for binding or near-binding constraints whose correction strength depends on the exact dual variable. This limitation is amplified at test time for unseen problem instances. In DT, no multiplier is inferred during sampling. Therefore, for a new instance, the model must implicitly infer from the problem data which constraints are active and what correction strength is needed. When the new instance induces multipliers close to those encountered during training, DT can still perform well. However, if the new instance changes the binding constraints or requires noticeably different multiplier magnitudes, the learned averaged score field has no explicit mechanism to adapt. 
+
+E Extended Numerical Results: Mixture of Gaussians 
+
+We first validate PDI on the problem of sampling from a weighted mixture of Gaussians in Rd,
+
+f0(x) = − log 
+
+> K
+
+X
+
+> k=1
+
+wk N  x; μk, Σk
+
+, (119) truncated to a polytope {x : Ax ≤ b}. The optimization problem is 
+
+min  
+
+> μ(x)
+
+Ex∼μ
+
+f0(x) s.t. Ex∼μ
+
+A⊤x − b ⪯ 0, (120) i.e., the sampler must produce a distribution that concentrates on high-density regions of the mixture while satisfying M linear inequality constraints in expectation. This is not an everywhere constrained sampling problem, where each sample x ∈ Rd is required to satisfy the constraints. In (13) , the constraints are imposed on average over the target distribution. This allows some samples to violate the constraints while others should be strictly feasible to compensate. 
+
+E.1 Baseline configuration 
+
+Each baseline shares the evaluation seed, batch size, and diffusion discretisation T = 500 where applicable. 28 −10 −5 0 5 10                                               
+
+> x1
+> −10
+> −5
+> 0
+> 5
+> 10
+> x2
+> Shared-λCED
+> fj(x) = 0 MoG modes μk
+> CED samples
+> E[f1(x)] = −0.22
+> E[f2(x)] = +0 .00
+> 0100 200 300 400 500
+> reverse step
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> λ1
+> Shared λ1
+> λ(T)1= 0 .00
+> 0100 200 300 400 500
+> reverse step
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> λ2
+> Shared λ2
+> λ(T)2= 0 .51
+> −10 −50510
+> x1
+> −10
+> −5
+> 0
+> 5
+> 10
+> x2
+> Per-sample CED
+> fj(x) = 0 MoG modes μk
+> CED samples
+> E[f1(x)] = −6.10
+> E[f2(x)] = −0.68
+> 0100 200 300 400 500
+> reverse step
+> 0
+> 5
+> 10
+> 15
+> 20
+> λi, 1
+> Per-sample λ1trajectory
+> 5-95% band mean max
+> λ(T)
+> i, 1= 0 .21
+> 0100 200 300 400 500
+> reverse step
+> 0
+> 5
+> 10
+> λi, 2
+> Per-sample λ2trajectory
+> 5-95% band mean max
+> λ(T)
+> i, 2= 1 .89
+
+Figure 5: Comparison of Constrained Energy-based Diffusion-sampler (CED) in enforcing the con-straints in expectation (top) vs per sample (bottom). Per-sample enforcement produces conservative samples that satisfy the constraints individually but fall short in providing a competitive objective. 
+
+Unconstrained DM. We run our trained model with λt = 0 for all time steps. This eliminates the constraint term from the energy function, and lets the model sample from the unconstrained Boltzmann density exp( −f0(x)/β ).
+
+PDM. Similarly, we run a reverse process with λt = 0, ∀t. At each step, the Tweedie prediction ˆx0
+
+is projected onto the feasible set before being used in the DDPM posterior, 
+
+˜x0 = Π F
+
+ ˆx0
+
+, F = x : f (x) ⪯ 0, j = 1 , . . . , M . (121) PDM then forces feasibility by construction and is therefore a hard-constraint method, unlike PDI. 
+
+PDL. Direct Langevin dynamics in the x-space with per-sample dual variables: 
+
+xt+1 = xt − ηp ∇xt
+
+
+
+f0(xt) + λ⊤
+
+t f (xt)
+
+
+
++ p2ηP ϵt, (122) 
+
+λt+1 = λt + ηd f (xt+1 )
+
++, (123) where ϵt ∼ N (0 , I). The main difference between PDL and PDI is that the former operates in the clean sample space. It therefore uses the gradient of the energy function to update x. In PDI, the dynamics evolve under a decreasing noise level, and at each time step, we follow the score of the corresponding denoised distribution. A distinction arises between these baselines and our method PDI. In all the aforementioned updates, the correction is made to each sample individually, forcing all samples to abide by the constraints. Their solutions are therefore feasible in our problem formulation, but suboptimal because they are more conservative. Figure 5 shows a toy example of the problem with d = 2 , K = 3 , and M = 2 .Per-sample enforcement sacrifices the opportunity to sample from the high-density regions of the MoG while still satisfying the constraints on average. Instead, it concentrates samples near the boundary of the feasible set, shown as the white region. In the following table, we provide all the hyperparameters of the baselines: Method ηd ηp T Diffusion Noise Schedule PDL 10 10 −3 500 –PDM – – 500 cosine Unconstrained – – 500 cosine 
+
+E.2 Data and Architecture 
+
+The problem consists of a K-component Gaussian mixture, truncated by M halfplane constraints. Mode centers are placed uniformly at random in a ball of radius proportional to a spread parameter, 29 Table 3: PDI training hyperparameters for the MoG experiment.                                                                            
+
+> Parameter Value Parameter Value
+> Problem Training
+> Dimension d30 Optimizer AdamW Mixture components K12 Learning rate 10 −3
+> Constraints M10 SGD steps 8000 (800 ×10)
+> Batch size B256 MC samples KMC 256 Rollout batch |B train |4 graphs Exploitation fraction ρexp 0→0.7
+> Diffusion Training – dual ascent rollouts
+> Noise schedule cosine Training dual step size ηtrain 0.01 Timesteps T500 Dual variable cap λmax 50 Inverse temperature β−150
+> Score network Training – λprior
+> Architecture MLP λ-prior family exp( ν)
+> Hidden dimension 512 νmin 0.1 Number of layers 8νmax 20.0 Parameters 8.73M Conditioning inputs (xt, t, λ)
+> Training – perturbation Inference
+> Perturbation fraction ρpert 1.0 Inference dual step size η1.0
+> xtperturbation std ϵx2.0 Initial λ00
+> λperturbation std ϵλ5.0 Feasibility tolerance 0.02 Inverse temperature β−150
+
+with isotropic covariances drawn from a specified range. The constraint normals are chosen so that some halfplanes separate pairs of modes while others cut through mode basins, ensuring that constraints are active near high-density regions. Constraint levels b are calibrated so that a target fraction of modes have infeasible centers and the remaining feasible modes sit close to constraint boundaries. Since this example is used as a proof of concept, the dataset has only one problem instance. The score network is an MLP with FiLM conditioning. The input (xt, λ) is projected into a hidden dimension, added to the sinusoidal timestep embedding, and passed through a stack of residual blocks. Each block applies a linear layer, layer normalization with FiLM modulation from the timestep embedding (scale and shift), and a SiLU activation. The output is projected back to Rd to predict the noise ϵt.
+
+E.3 Hyperparameter Choices 
+
+We ran a sweep over the hyperparameters: β, T, η, ρ, K MC , ν max , ϵ x, and ϵλ, and Table 3 shows the values we use in our experiments. All experiments were run on a single NVIDIA GeForce RTX 3090 card. 
+
+E.4 Additional Results 
+
+We also record the input-to-output transition matrix and report it in Figure 6. The figure shows that PDL divides the mass between one mode ( #10 ) and the diagonal of the transition matrix. The mass on the diagonal indicates that each input sample typically converges to its nearest mode. In contrast, PDI does not exhibit this behavior. This is partly due to the noise injected along the reverse trajectory, which acts as an annealing mechanism and allows samples to move across modes. It is also due to the entropy regularization in the PDI formulation, controlled by the temperature parameter, which encourages a distributional solution rather than deterministic convergence to the nearest mode. This temperature-driven randomization is absent in PDL. 30 0 1 2 3 4 5 6 7 8 9 10 11 
+
+Final basin ( t = T )                          
+
+> 012345678910 11
+> Init basin ( t = 0)
+> 0.36 0.14 0.50 0.74 0.01 0.02 0.23 0.03 0.72 0.25 0.27 0.18 0.09 0.45 0.15 0.23 0.01 0.01 0.01 0.61 0.12 0.06 0.27 0.02 0.53 0.14 0.17 0.02 0.05 0.01 0.60 0.19 0.05 0.02 0.06 0.68 0.17 0.09 0.08 0.09 0.57 0.18 0.12 0.04 0.06 0.02 0.04 0.55 0.02 0.01 0.98 0.04 0.21 0.75
+
+PDL            
+
+> 012345678910 11
+
+Final basin ( t = T )                 
+
+> 0.14 0.21 0.07 0.21 0.07 0.29 0.08 0.25 0.03 0.10 0.02 0.09 0.12 0.01 0.28 0.13 0.18 0.03 0.11 0.04 0.11 0.18 0.02 0.19 0.01 0.18 0.09 0.09 0.09 0.09 0.27 0.18 0.12 0.16 0.04 0.09 0.04 0.17 0.10 0.27 0.01 0.01 0.06 0.14 0.06 0.08 0.02 0.11 0.19 0.33 0.05 0.12 0.06 0.11 0.04 0.10 0.18 0.02 0.31 0.01 0.09 0.14 0.06 0.12 0.03 0.10 0.09 0.03 0.32 0.02 0.01 0.10 0.14 0.03 0.07 0.03 0.13 0.17 0.01 0.30 0.01 0.08 0.08 0.04 0.14 0.04 0.12 0.10 0.02 0.39 0.03 0.18 0.04 0.12 0.02 0.15 0.15 0.02 0.29 0.11 0.11 0.06 0.11 0.08 0.06 0.19 0.02 0.26
+
+PDI – MC            
+
+> 012345678910 11
+
+Final basin ( t = T )            
+
+> 0.14 0.14 0.14 0.21 0.07 0.21 0.07 0.08 0.11 0.01 0.10 0.09 0.07 0.06 0.12 0.06 0.28 0.01 0.07 0.15 0.11 0.11 0.04 0.10 0.12 0.04 0.24 0.04 0.18 0.18 0.18 0.18 0.09 0.18 0.01 0.04 0.15 0.07 0.15 0.03 0.13 0.11 0.03 0.25 0.03 0.11 0.12 0.13 0.07 0.02 0.06 0.13 0.05 0.31 0.01 0.01 0.07 0.13 0.01 0.08 0.08 0.01 0.12 0.19 0.24 0.04 0.05 0.13 0.14 0.10 0.05 0.06 0.19 0.02 0.26 0.02 0.01 0.09 0.12 0.02 0.18 0.10 0.06 0.10 0.12 0.01 0.19 0.01 0.02 0.02 0.14 0.02 0.14 0.12 0.04 0.10 0.12 0.24 0.06 0.02 0.08 0.14 0.14 0.10 0.02 0.07 0.16 0.04 0.19 0.05 0.02 0.11 0.11 0.09 0.15 0.06 0.17 0.02 0.25 0.02
+
+PDI – Net 
+
+> 0.00.20.40.60.81.0
+> P (final =  j | init =  i)
+
+Figure 6: Initial to final transition matrix. The matrix is almost diagonal in the PD Langevin case, reflecting the fact that samples converge to their nearest modes. 
+
+F Extended Numerical Results: Wireless Resource Allocation 
+
+We study stochastic constrained optimization for optimal wireless resource allocation [7, 30, 60]. Consider an ad-hoc wireless network comprised of N = 200 transmitter-receiver (tx-rx) pairs deployed uniformly over a square area of side length R = 5800 meters, yielding an average density of 
+
+ν = 5 .9 tx-rx pairs/ km 2. Each transmitter communicates with a single designated receiver, and each receiver treats incoming signals from all other transmitters as interference. The resource allocation (optimization) variable is the transmit power vector x ∈ [0 , P max ]N , where Pmax = 10 mW. 
+
+Channel model. The channel model includes both large-scale and small-scale fading effects. We denote by hij the large-scale channel gain from transmitter i to receiver j, governed by a dual-slope path-loss model with log-normal shadowing of standard deviation σ = 7 dB. A network configuration 
+
+H ∈ RN ×N
+
++ is the matrix of all large-scale gains [H]ij = hij , and it is jointly determined by the random geometric deployment of the tx-rx pairs, which fixes the pairwise distances and hence the path-loss components, and the realization of the log-normal shadowing. Each network configuration H
+
+remains fixed over the operating horizon, while the small-scale fading, which follows a Rayleigh distribution with a pedestrian velocity of 1 m/s, produces time-varying instantaneous channel gains 
+
+hij,t at each time slot t of duration 50 milliseconds. We set the channel bandwidth to W = 40 MHz and the noise power spectral density to N0 = −174 dBm/Hz. Given an allocation xt and fading realization Ht at time slot t, the instantaneous rate of receiver j is 
+
+˜rj (xt, Ht) = log 2 1 + [xt]j · | hjj,t |2
+
+W N 0 + P
+
+i̸=j [xt]i · | hij,t |2
+
+!
+
+. (124) The ergodic rate of receiver j is obtained by averaging the instantaneous rates over T time slots, i.e., 
+
+rj ≈ (1 /T ) PTt=1 ˜rj (xt, Ht).
+
+Optimization objective. For a given network state H, the goal is to maximize the ergodic sum-rate subject to per-user minimum ergodic rate constraints. That is, 
+
+P ∗
+
+pc = max 
+
+μ(x) 1⊤r(μ, H) + βH(μ), s.t. r(μ, H) ≥ 1 · rmin , (125) where μ denotes a power allocation policy, and rmin is the minimum ergodic rate requirement. The solution to this problem is rarely a degenerate policy. Because users compete for the same communication resources and interfere with one another, it is generally impossible for all users to transmit at high power simultaneously while satisfying their rate requirements. The optimal policy is therefore often a switching policy, where different users are activated at different times so that each receives enough transmission opportunities to meet its rate constraint on average. This naturally leads to a multimodal optimal distribution, with different modes corresponding to different active-user patterns. 31 F.1 Data and Architecture Dataset Generation. We generate a dataset of 256 network configurations in total, viewed as independent samples from the underlying distribution of network configurations induced by the random geometry of tx-rx deployments and random shadowing for the given value of R. A 5:1:2 train-validation-test split results in a training dataset of |D| = 160 networks, |V al | = 32 validation networks, and |T | = 64 test networks. 
+
+Graph representation. We represent each network configuration H as a directed graph GH =(V, E, w), where the node set V = {1, . . . , N } corresponds to the tx-rx pairs. We assign each directed edge (i, j ) ∈ E a weight proportional to the log-normalized channel gain given by 
+
+eij ∝ log 2
+
+
+
+1 + Pmax |hij |2
+
+W N 0
+
+
+
+, (126) and sparsify the graph by thresholding the weak edges so that we retain only the top-10 strongest incoming edges per receiver node. 
+
+Graph Neural Networks (GNNs). The power allocations x and ergodic rate vectors r are naturally interpreted as node-level signals supported on GH. We therefore use GNNs as the base parameteriza-tion for the score model, which takes the problem representation GH as input. We implement graph convolutions using Torch Geometric’s TAGConv (with K=2). The model consists of L=8 TAGConv residual blocks with hidden dimension dh=256 .The timestep information is injected through Feature-wise Linear Modulation (FiLM). The dual variable λ ∈ RN is concatenated to the input features x.
+
+F.2 Baselines PDM. We run our trained score model with λt = 0 for all the denoising steps to eliminate the dual ascent. After each step, we perform a projection into the feasible set by solving the augmented-Lagrangian problem: 
+
+xt ← arg min  
+
+> w
+
+∥w − xt∥2 + ζ 
+
+> 2
+
+∥[f (w)] +∥2, (127) where [x]+ = max {0, x}. We solve the problem via a few steps of gradient descent. 
+
+DPS. We run a reverse process with our trained score model while forcing λt = 0, ∀t, to eliminate the dual ascent. At each step in the inference process, the prediction xt is corrected by a gradient step that penalizes constraint violation before it is fed to the next iteration, 
+
+xt ← xt − st ∇xt f (xt) 2. (128) The gradient is applied directly to the denoised signal at the end of each step, and weighted by a scalar step size st. The step size is set to the inverse of the noise variance at each denoising step. 
+
+ST & PD Expert Policy. Following the methodology in [ 30 ], for each training network {H(b)}b∈D ,we solve the power control problem using an expert algorithm, specifically a dual gradient descent algorithm. The expert algorithm generates trajectories of primal iterates that are near-optimal and feasible in the ergodic sense. We view these iterates as draws from a stochastic, optimal policy, collecting M = 200 samples from the convergence regime of the algorithm to obtain an expert dataset of resource allocation vectors {x(m)  H(b)}Mm=1 .We train a diffusion model to imitate the expert data generated by the PD Expert. The neural network ϵθ (xt, t ) is trained via the standard denoising score matching objective and sampled using the deterministic DDIM update: 
+
+xt−1 = √¯αt−1 ˆx0 + p1 − ¯αt−1 ϵθ (xt, t ). (129) This method has no explicit constraint enforcement mechanism; feasibility depends entirely on the training data distribution and the expressivity of the parameterization. In order to replicate the performance of [ 30 ], we use the U-Graph Neural Network (U-GNN) parametrization proposed therein, which was designed for graph signal diffusion. This ensures that 32 Table 4: Baseline hyperparameters for the wireless allocation experiment. The DT settings differ from PDI in Table 6; all other problem, diffusion, architecture, and evaluation settings are identical. 
+
+Parameter Value Parameter Value 
+
+ST PDL 
+
+Backbone UGNN [30] Iterations 500 Base channels / levels 64 / 4 Primal learning rate ηp 10 −4
+
+Graph filter K = 2 hops Dual learning rate ηd 1Layers per level 2 Initial value λ0 0Timesteps T 500 Noise schedule Linear Optimizer AdamW ( β1 = 0 .9, β2 = 0 .98 )Learning rate / weight decay 10 −4 / 10 −4
+
+LR schedule Cosine Batch size 960 Conditioning 3 channels (x, t, G)
+
+Epochs 5 000 
+
+PDM DPS 
+
+Base model PDI-Net with λ = 0 Base model PDI-Net with λ = 0 
+
+Projection iterations 100 Projection step size 0.05 Regularization ζ 30 
+
+DT 
+
+Score model Same PDI-Net architecture Outer iterations D 4 000 Conditioning channels 3 (x, t, G) Inner SGD steps E 10 Dual input none Minibatch size |B train | 4 problems Samples per network I 20 Initial λ0 10 
+
+λ update batch size |B λ| 16 problems Dual learning rate ηDT 0.1 
+
+the DDIM imitation baseline follows the original architectural setup. We do not use U-GNN as the base parametrization for our method because it is computationally heavy. Instead, we use a vanilla GNN, since PDI enforces the constraints through dual ascent during sampling and therefore does not need to rely solely on a highly expressive score parametrization for feasibility. 
+
+DT. The training procedure is described in Appendix D. The score model shares the same architec-ture as PDI-Net, except that it uses three conditioning channels instead of four. All hyperparameters of these baselines are given in Table 4. 
+
+F.3 Additional Results 0 1000 2000 3000 4000 
+
+> DT outer iterations
+> 25
+> 50
+> 75
+> 100
+> 125
+> L2 distance
+> 0.40.60.81.0
+> Cosine similarity
+
+Figure 7: Dual Training. Cosine similarity and 
+
+L2 distance between the dual variables across the DT training iterations and the last-iterate PDI dual variables. The shaded region indicates the train-ing iterations where the cosine similarity peaks above 0.95 . The metrics then drift slightly after-wards. 
+
+Dual training (continued). We investigate the differ-ence between PDI and DT more closely by comparing the dual trajectories. Figure 7 plots the cosine simi-larity and the L2 distance between the dual variables generated along the DT trajectory and the last dual iterate obtained by the PDI dynamics. These quanti-ties are averaged over the training examples. We use the training dataset because DT does not infer dual variables during inference. The cosine similarity reaches its maximum between the epochs 2200 and 3200 , after which the DT dual variables begin to drift away from the PDI dual vari-ables. We therefore save all DT checkpoints after epoch 2200 , evaluate them on the test set and report the resulting metrics in Figure 8. The figure shows that all DT checkpoints achieve higher mean rates (ob-jective) than PDI, shown by the dashed blue line. This suggests that the models offer higher mean rates by 33 2200 2600 3000 3400 3800                     
+
+> DT outer iterations
+> 2.7
+> 2.8
+> 2.9
+> 3.0
+> Mean Rate ( ↑)
+> DT PDI
+> 2200 2600 3000 3400 3800
+> DT outer iterations
+> 0.50
+> 0.55
+> 0.60
+> 0.65
+> 5th  Percentile ( ↑)
+> 2200 2600 3000 3400 3800
+> DT outer iterations
+> 0.25
+> 0.30
+> 0.35
+> 0.40
+> 0.45
+> 0.50
+> 1st  Percentile ( ↑)
+> 2200 2600 3000 3400 3800
+> DT outer iterations
+> 0.0050
+> 0.0075
+> 0.0100
+> 0.0125
+> 0.0150
+> Mean Violation ( ↓)
+> 2200 2600 3000 3400 3800
+> DT outer iterations
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> 3.0
+> Sum Violation ( ↓)
+> 2200 2600 3000 3400 3800
+> DT outer iterations
+> 90
+> 92
+> 94
+> 96
+> Feasibility % ( ↑)
+
+Figure 8: Performance of DT checkpoints along the training trajectory. The DT models fail to attain the same 5th percentile rates, mean violations and feasibility percentage as PDI. All the metrics are evaluated over the test set. 
+
+Table 5: DT after extra training at fixed dual variables (DT+). We continue training several DT checkpoints with no dual updates and report the best two results (corresponding to iterations 2200 and 2900). PDI achieves comparable performance with much lighter training. Method Mean rates (↑) 5th%ile rate (↑) 1st%ile rate (↑) Mean viol. (↓) Sum viol. (↓)
+
+PDI–Net 2.803 ±0.132 0.613 ±0.042 0.424 ±0.082 0.0062 ±0.0027 1.25 ±0.54 
+
+DT+ (2200) 2.814 ±0.128 0.656 ±0.051 0.426 ±0.112 0.0060 ±0.0029 1.19 ±0.59 
+
+DT+ (2900) 2.822 ±0.128 0.615 ±0.045 0.422 ±0.090 0.0063 ±0.0028 1.25 ±0.57 
+
+reducing interference through more conservative power allocations. This reduction in interference benefits some users but sacrifices tail performance. This is reflected in the lower fifth and first percentile rates and feasibility percentages across all checkpoints. These observations suggest that the dual variables generated by DT do not induce the same primal solutions obtained by PDI dynamics. This can be attributed to the fact that the PDI score field is conditioned on the current dual variable λt while that of DT is an unconditional score field obtained after training over a history of changing dual variables. Therefore, even when the DT dual variable is close to the PDI dual variable, the checkpoint at that epoch does not need to approximate the score field associated with that particular dual variable. The reason is that the checkpoint represents the accumulated effect of the preceding training trajectory, not a score model explicitly indexed by the current dual variable. To further separate the quality of the learned dual variables from the quality of the corresponding score model, we continue training several DT checkpoints for extra 1000 outer iterations while freezing their dual variables. We refer to the resulting models as DT+. This experiment asks whether the dual variables produced by DT are useful once the score model is given enough optimization time to adapt to them. Table 5 reports the two best DT+ models and shows a substantial improvement over the original DT checkpoints. This indicates that DT can reach informative dual variables, but the score model at the corresponding checkpoint has not necessarily learned the score field induced by that dual value. Rather, because the model is updated only partially while the dual variables evolve, the checkpoint reflects the accumulated effect of the preceding training trajectory. In this sense, practical DT behaves as a score model shaped by a history of dual variables, and not as a fully optimized score model for the current dual variable. The improvement of DT+ also comes with a much larger training cost ( 4000 original outer iterations in addition to extra 1000 iterations for tuning the model), whereas PDI reaches comparable performance using only 400 training outer iterations. 34 0.0 0.5 1.0                       
+
+> p102 /P max
+> 0.0
+> 0.5
+> 1.0
+> p110 /P max
+> β−1= 0 .1mean=2.42, feas=90
+> 0.00.51.0
+> p102 /P max
+> β−1= 0 .5mean=2.51, feas=94
+> 0.00.51.0
+> p102 /P max
+> β−1= 1 .0mean=2.56, feas=96
+> 0.00.51.0
+> p102 /P max
+> β−1= 5 .0mean=2.62, feas=94
+> 0.00.51.0
+> p102 /P max
+> β−1= 10 .0mean=2.62, feas=92
+> 0.00.51.0
+> p112 /P max
+> 0.0
+> 0.5
+> 1.0
+> p153 /P max
+> mean=2.55, feas=88
+> 0.00.51.0
+> p112 /P max
+> mean=2.68, feas=94
+> 0.00.51.0
+> p112 /P max
+> mean=2.76, feas=96
+> 0.00.51.0
+> p112 /P max
+> mean=2.89, feas=94
+> 0.00.51.0
+> p112 /P max
+> mean=2.91, feas=88
+
+Figure 9: Temperature effect. Two-dimensional scatter plots of generated samples of two test networks. The title shows the mean rates and feasibility of the network. Higher temperature (left) promotes more diverse allocations while lower temperature (right) generates more degenerate samples. The value β = 1 provides a good balance between mean rates and feasibility. 
+
+The improvement of DT+ shows that the dual variables produced by DT are informative. However, it does not remove the limitation of using an unconditional score model. Since DT does not take the dual variable as input, the correction induced by the dual trajectory is absorbed into the score-model parameters rather than represented explicitly. This can work well for problem instances whose required correction is close to the one encoded by the trained model. At inference, however, new problem instances may induce different optimal multipliers or different constraint residuals along the denoising trajectory. The DT score field cannot adapt to these instance-dependent corrections during sampling, because the dual variable is not provided to the model. PDI reduces this limitation by learning a λ-conditioned family of score fields. During inference, the current dual iterate is passed directly to the score model, so each reverse step uses a score field matched to the dual correction used at that step. This does not mean that PDI samples from the Gibbs distribution of one fixed dual variable, since the final sample is produced by a sequence of kernels conditioned on different dual iterates. Rather, the advantage is that the constraint correction and denoising dynamics remain coupled along the trajectory, allowing constraint violations to influence subsequent denoising steps more directly. 
+
+Temperature effect. In Figure 9, we analyze the effect of the temperature parameter β. Large β,equivalently small β−1, generate more uniform samples, which cause severe interference and in turn the lowest mean rates and feasibility. Lower temperatures produce more degenerate distributions that concentrate the samples at the corners. This prevents severe interference and provides better mean rate, but does not fully benefit from time sharing (i.e., low feasibility). We find that β = 1 in this experiment balances the mean rates with feasibility. 
+
+Noise annealing effect. PDI differs from PDL because it follows the score fields of a sequence of progressively denoised distributions, rather than the score field of the clean target distribution. This mechanism is reminiscent of simulated annealing. Early noisy diffusion steps smooth the target landscape and promote exploration across modes, while later low-noise steps gradually sharpen the distribution and refine the samples toward the constrained target. Unlike classical simulated annealing, however, the annealing in PDI is induced by the diffusion noise schedule rather than by the temperature of the energy function. Figure 10 shows this effect, represented in the diverse samples generated by PDI compared with the more concentrated samples produced by PDL. 35 0.0 0.2 0.4 0.6 0.8 1.0                
+
+> p95 /Pmax
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> p147 /Pmax PDI (MC) PDL
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> p15 /Pmax
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> p126 /Pmax
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> p30 /Pmax
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> p130 /Pmax
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> p158 /Pmax
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> p52 /Pmax
+
+Figure 10: Annealing effect of PDI. A scatter plot of the predicted power allocation of four pairs of agents. PDI discovers more transmission modes, allowing more agents to transmit with higher power to achieve higher rates on average. PDL concentrates the samples in the same modes. 
+
+Table 6: PDI hyperparameters for the wireless power allocation experiment. 
+
+Parameter Value Parameter Value 
+
+Problem setup Training 
+
+Number of users N 200 Optimizer AdamW Max transmit power Pmax 10 dBm Learning rate 10 −3 (→ 10 −5)
+
+Bandwidth 40 MHz Weight decay 10 −4
+
+Minimum rate rmin 0.6 bps/Hz Outer iterations Nouter 400 Number of networks 256 
+
+Score network Training 
+
+Hidden dimension 256 Inner SGD steps Ninner 10 → 30 
+
+GNN layers 8 Batch size |B train | 4 problems Filter order K 2 Replay buffer capacity |B| 4 096 Time embedding dimension 128 Minibatch size B 128 Conditioning channels 4 (x, t, λ, G)
+
+Activation / normalization SiLU / LayerNorm 
+
+Diffusion process Training – perturbation and prior 
+
+Timesteps T 500 Exploitation fraction ρexp 0→0.7 Noise schedule Cosine λ prior range [νmin , ν max ] [2 , 10] 
+
+MC candidates KMC 8 Perturbation std (ϵx/ϵ λ) 0.1/0.5
+
+Perturbation fraction ρpert 0.5 
+
+Dual variable (inference) Evaluation 
+
+Inverse temperature β−1 1.0 Policies per network K 200 Step size ηt 0.05 Time-sharing timeslots Reval 500 Initialization λ0 10.0 Test networks 64 Clamp λmax 50 Evolution trials 50 Sub-batch groups C 10 
+
+F.4 Hyperparameters Choices 
+
+Table 6 collects the hyperparameters of the problem and PDI training. All experiments were run on a single NVIDIA GeForce RTX 3090 card. 
+
+G Extended Numerical Results: Portfolio Management 
+
+In constrained portfolio optimization, we aim to allocate weights x ∈ ∆N −1 across N = 500 assets, organized in 10 sectors. The return r is drawn from a factor model with mean μ and block-diagonal covariance Σ. Our objective is to maximize expected return subject to per-asset variance-risk budgets, i.e., 
+
+P ∗ 
+
+> pm
+
+= max  
+
+> μ(x)
+
+Ex∼μ
+
+h
+
+Er
+
+r⊤xi
+
++ βH(μ) s.t. Ex∼μ
+
+xj (Σx )j
+
+ ≤ bj , j = [ N ], (130) The budget bj > 0 caps how much variance asset j is permitted to contribute in expectation over all portfolios. In practice, portfolio construction is rarely a single-solution problem. Even under common market assumptions, different clients or rebalancing instances may require different allocations due to 36 Table 7: Baseline hyperparameters in the portfolio management problem.                          
+
+> Parameter Value Parameter Value
+> PD-Langevin
+> Primal step size ηp10 −2Iterations 500 Dual step size ηd100
+> PDM
+> Projection iterations 50 λ(net input) 0
+> PDI–MC
+> Inverse temperature β−12 000 dual step size ηt300 MC candidates KMC 512 λdecay 0.001
+> Evaluation
+> Generated samples 1024 Test instances 20
+
+heterogeneous preferences, liquidity needs, tax considerations, and model uncertainty. This motivates learning a distribution over portfolios rather than a single deterministic allocation. The average risk constraints allow the sampler to trade risk across different portfolio samples, admitting occasional high-risk, high-return allocations while ensuring that the overall exposure of each asset remains within its prescribed budget in expectation. 
+
+G.1 Data & Architecture Data. We generate synthetic portfolio instances using a latent factor model with sector structure. Each instance consists of N = 500 assets organized into S = 10 sectors. Each asset’s log-returns are drawn from a multivariate normal with a sector-structured covariance matrix Σ, where assets within the same sector are more correlated with each other than with assets in other sectors. We draw 1000 
+
+return scenarios and convert to simple returns via exponentiation. 
+
+Graph construction. To construct the graph, we compute the absolute correlation matrix from 
+
+Σ, remove self-loops, and for each asset retain edges to its k-nearest neighbors (we use k=20 )by absolute correlation magnitude. Edge weights are normalized by the largest eigenvalue of the resulting adjacency matrix. 
+
+Conditioning and architecture. We use the same GNN architecture used in the wireless allocation problem. The timestep information is injected through Feature-wise Linear Modulation (FiLM). The shared dual variable λ ∈ RN is concatenated to the input features. The network comprises L=6 
+
+residual blocks with hidden dimension dh=128 .
+
+G.2 Baselines 
+
+The hyperparameters of the baselines are summarized in Table 7. 
+
+G.3 Additional Results 
+
+We ran additional experiments to evaluate different aspects of our algorithm, and the results match our previous findings. First, we compare the full PDI algorithm with variants that freeze the dual variable after an initial primal-dual run and report the results in Figure 11. In this experiment, we consider the last dual iterate and the time-averaged dual variable. The results show that the time-averaged multiplier performs better than the last iterate. This is consistent with our convergence result, which guarantees convergence for the time-average of the dual variables rather than for the final iterate itself. However, both fixed-dual variants remain below the full PDI performance. We also notice that the initial λ0
+
+does not affect the PDI trajectory. This suggests that PDI is not simply estimating one good multiplier and then sampling from it. Its advantage comes from updating the multiplier throughout the denoising trajectory. 37 0 100 200 300 400 500              
+
+> Reverse step
+> 0.15
+> 0.20
+> 0.25
+> 0.30
+> 0.35
+> 0.40
+> 0.45
+> Mean return
+> PD from 0 Warm λT+ PD Warm ¯λ+ PD Fixed λT
+> Fixed ¯λ0100 200 300 400 500
+> Reverse step
+> 10 −11
+> 10 −9
+> 10 −7
+> 10 −5
+> 10 −3
+> Mean violation
+> PD from 0 Warm λT+ PD Warm ¯λ+ PD Fixed λT
+> Fixed ¯λ
+
+Figure 11: Performance of PDI while fixing λ along the diffusion steps. The time-average dual variable gives better objective and constraint satisfaction compared to the last iterate. However, running the dual updates beats both of them and does not depend on the initial value. 0 100 200 300 400 500      
+
+> Reverse step
+> 0.15
+> 0.20
+> 0.25
+> 0.30
+> 0.35
+> 0.40
+> 0.45
+> Mean return
+> PD from 0 tail 10% tail 20% tail 30% tail 40% tail 50% tail 100% 0100 200 300 400 500
+> Reverse step
+> 10 −9
+> 10 −7
+> 10 −5
+> 10 −3
+> Mean violation
+> PD from 0 tail 10% tail 20% tail 30% tail 40% tail 50% tail 100%
+
+Figure 12: Frozen ¯λtail during sampling. The effect of running the sampler with a fixed dual variable equal to the time-average of the tail dual iterates. Second, we test in Figure 12 whether using only a late-stage average of the dual trajectory is enough. The answer is negative. The performance degrades when the average is computed only over a suffix of the trajectory. This suggests that the early dual iterates are not merely transient noise; they contribute to the effective multiplier that governs the sampled distribution. In other words, the full trajectory matters, but its aggregate effect can be captured well by the full time-average. Our third experiment in Figure 13 investigates the role of the entropy regularization on the final solutions and trajectories. The figure shows that when the temperature β is high, the sampler produces more diverse samples, but the objective can be weaker. When the temperature is lower, the distribution becomes more concentrated around high-quality solutions. This improves the objective, but it can also make the dynamics sharper and more sensitive. Finally, the noise-schedule comparisons of Figure 14 show that the schedule is important for conver-gence. Schedules that keep the process noisy for longer, such as the standard cosine and DDPM linear schedules, give more stable behavior and better feasibility. In contrast, schedules that reconstruct the clean sample too early make the sampler sensitive before the dual variable has stabilized. This leads to larger violations and weaker convergence. These results agree with Theorem 2, which suggests that early high-noise steps damp the effect of dual mismatch, while later low-noise steps should only occur after the dual variable has moved close to a good region. 
+
+G.4 Hyperparameter Choices 
+
+We ran a sweep over β and ηt. Table 8 displays all hyperparameters used in experiments. All experiments were run on a single NVIDIA GeForce RTX 3090 card. 38 0 100 200 300 400 500                    
+
+> Reverse step
+> 0.10
+> 0.15
+> 0.20
+> 0.25
+> 0.30
+> 0.35
+> 0.40
+> 0.45
+> Mean return
+> β−1= 100
+> β−1= 200
+> β−1= 300
+> β−1= 400
+> β−1= 500
+> β−1= 600
+> β−1= 800 0100 200 300 400 500
+> Reverse step
+> 10 −8
+> 10 −7
+> 10 −6
+> 10 −5
+> 10 −4
+> 10 −3
+> 10 −2
+> Mean violation
+> β−1= 100
+> β−1= 200
+> β−1= 300
+> β−1= 400
+> β−1= 500
+> β−1= 600
+> β−1= 800
+
+Figure 13: Temperature effect. Lower temperature β, equivalently larger β−1 (yellow) helps improve returns and constraint satisfaction. 0 100 200 300 400 500    
+
+> Reverse step
+> 10 −9
+> 10 −7
+> 10 −5
+> 10 −3
+> Mean violation
+> Cosine Linear β(DDPM) Linear SNR Polynomial ( p= 2)
+
+Figure 14: Effect of noise schedules. Standard DDPM cosine and linear schedules give better feasibility. Schedules that reconstruct the clean sample too early make the sampler sensitive to perturbations in the dual variable before the dual variable has stabilized. Table 8: PDI hyperparameters in the portfolio management problem (training and inference). 
+
+Parameter Value Parameter Value 
+
+Diffusion process Training 
+
+Timesteps T 500 Optimizer AdamW Noise schedule Cosine Learning rate 3×10 −4 → 3×10 −5 (cosine) Inverse temperature β−1 2 000 λ prior [νmin , ν max ] [150 , 1500] 
+
+MC candidates KMC 512 λ perturbation (mult.) ϵλ 0.3 Exploitation ratio ρexp 0 → 0.7 Minibatch size B 128 Training instances 200 
+
+Dual variable (inference) Training 
+
+Step size ηt 300 Validation instances 10 Initialization λ0 0 Inner SGD steps Ninner 10 → 100 
+
+Clamp λmax 10 4 Outer iterations Nouter 600 Weight decay 0.001 Replay buffer capacity 8 192 Rollout minibatch |B train | 4 problems 
+
+Score network 
+
+Backbone GNN Hidden dimension dh 128 Residual blocks L 6Graph filter order K 2Graph sparsity (top-k) 20 Conditioning FiLM + λ concat 
+
+39
