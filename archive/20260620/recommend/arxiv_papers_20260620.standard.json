@@ -1,0 +1,258 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-20T20:08:28.154017+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2606.18702v1",
+      "source": "arxiv",
+      "title": "UniTemp: Unlocking Video Generation in Any Temporal Order via Bidirectional Distillation",
+      "abstract": "Autoregressive video diffusion models have emerged as a promising approach for long video generation, achieving strong performance in streaming settings. However, existing methods are restricted to forward temporal generation, whereas practical video creation often requires flexible generation order, e.g., conditioning on future context to extend backward, or on both past and future context for inbetween generation. We bridge this gap by training an autoregressive model that supports generation in arbitrary temporal directions. A key technical challenge arises from the Causal 3D VAE widely used in video diffusion models, which encodes latents strictly conditioned on past context. While suited for forward generation, this causal structure causes inter-block discontinuities when generation proceeds backward. To address this, we introduce blockwise anchor latents, a set of auxiliary latents that restore the missing past context at block boundaries during backward generation. Built on this design, we propose UniTemp, a bidirectional distillation framework that trains a single autoregressive student model for any-direction video generation. At inference time, UniTemp conditions on arbitrary past and/or future frames, improving controllability for both bidirectional and inbetween generation. Experiments show that UniTemp maintains competitive performance on short and long video generation compared to forward-only methods, while enabling diverse workflows such as bidirectional video extension, inbetween generation, looping video generation, scene transition, and visual story generation. Project website: https://lzhangbj.github.io/projects/unitemp/",
+      "authors": [
+        "Lin Zhang",
+        "Sicheng Mo",
+        "Zefan Cai",
+        "Jinhong Lin",
+        "Zihao Lin",
+        "Jiuxiang Gu",
+        "Krishna Kumar Singh",
+        "Yuheng Li",
+        "Yin Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-17T05:27:19+00:00",
+      "link": "https://arxiv.org/pdf/2606.18702v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "directly addresses video generation using diffusion models",
+      "llm_evidence_cn": "直接涉及使用扩散模型进行视频生成",
+      "llm_evidence": "直接涉及使用扩散模型进行视频生成",
+      "canonical_evidence": "直接涉及使用扩散模型进行视频生成",
+      "llm_tldr_en": "Proposes UniTemp, an autoregressive video diffusion model that supports arbitrary temporal order generation via bidirectional distillation, overcoming the limitations of forward-only generation.",
+      "llm_tldr_cn": "本文提出UniTemp，一种自回归视频扩散模型，通过双向蒸馏技术打破传统方法只能前向生成的限制，支持任意时间顺序的视频生成。针对因果3D VAE带来的结构约束，该方法实现了前向、后向及插值等多种生成模式，在长视频生成任务中展示了灵活性和高质量。该工作为视频生成提供了新的自由度，具有重要的应用价值。",
+      "llm_tldr": "本文提出UniTemp，一种自回归视频扩散模型，通过双向蒸馏技术打破传统方法只能前向生成的限制，支持任意时间顺序的视频生成。针对因果3D VAE带来的结构约束，该方法实现了前向、后向及插值等多种生成模式，在长视频生成任务中展示了灵活性和高质量。该工作为视频生成提供了新的自由度，具有重要的应用价值。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.20233v1",
+      "source": "arxiv",
+      "title": "Cinematic Compositing Using Character-Environment-Harmonized Video Generation Models",
+      "abstract": "Cinematic compositing aims to integrate green-screen characters into novel environments while maintaining physical and photometric realism. Previous methods often fail to capture the complex bidirectional interactions between characters and their surroundings, which we characterize as Character-to-Environment (C2E) physical interaction and Environment-to-Character (E2C) lighting harmonization. To address this, we propose an end-to-end video diffusion framework that jointly models C2E and E2C interactions, specifically handling the challenges of interactive props. Our approach introduces a tri-mask-guided architecture with RGB-D joint denoising to ensure physically consistent interactions among the character, props, and environment. We further develop an efficient prior-driven data curation pipeline to construct high-quality relighting pairs without expensive rendering. Finally, a reference-conditioned mechanism enables controllable environment synthesis and precise prop replacement. Extensive experiments demonstrate that our framework significantly outperforms existing methods in cinematic-quality dynamic video compositing.",
+      "authors": [
+        "Tianyi Xiang",
+        "Mingming He",
+        "Li Ma",
+        "Jing Liao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-17T17:56:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.20233v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "directly addresses video generation using diffusion models for cinematic compositing",
+      "llm_evidence_cn": "直接涉及使用扩散模型进行视频生成以用于电影合成",
+      "llm_evidence": "直接涉及使用扩散模型进行视频生成以用于电影合成",
+      "canonical_evidence": "直接涉及使用扩散模型进行视频生成以用于电影合成",
+      "llm_tldr_en": "Proposes an end-to-end video diffusion framework for cinematic compositing that jointly models character-environment interactions with tri-mask-guided architecture.",
+      "llm_tldr_cn": "本文提出一种端到端视频扩散框架，用于电影合成中的角色与环境融合。通过三掩码引导的RGB-D联合去噪架构，同时建模角色到环境的物理交互和环境到角色的光照协调。该方法在保证物理和光度真实感方面取得了显著效果，为视频生成在电影合成中的应用提供了先进解决方案。",
+      "llm_tldr": "本文提出一种端到端视频扩散框架，用于电影合成中的角色与环境融合。通过三掩码引导的RGB-D联合去噪架构，同时建模角色到环境的物理交互和环境到角色的光照协调。该方法在保证物理和光度真实感方面取得了显著效果，为视频生成在电影合成中的应用提供了先进解决方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.16457v1",
+      "source": "arxiv",
+      "title": "ResEdit: Residual embeddings for precise generative image editing",
+      "abstract": "Conditional diffusion image generators can be repurposed for editing through inversion, without the need for large-scale paired fine-tuning data. However, producing high-quality, targeted edits while maintaining image identity and global consistency remains challenging, as weakly conditioned inversion often embeds conflicting image features into the noise. We demonstrate that incorporating a residual image encoding as additional conditioning enables both improved identity preservation and better editability. We optimize this residual encoding to provide a strong conditioning signal for reconstruction, thereby reducing the reliance on inversion and susceptibility to its aforementioned pitfalls. To ensure this residual does not interfere with desired edits, we incorporate a gradient reversal-based optimization strategy that disentangles the residual from the edited condition. We illustrate our method's ability to produce high-fidelity results across precise intrinsic-based editing and relighting, and show proof-of-concept text-guided manipulation.",
+      "authors": [
+        "Ahmet Canberk Baykal",
+        "Valentin Deschaintre",
+        "Yannick Hold-Geoffroy",
+        "Michael Fischer",
+        "Anna Frühstück",
+        "Cengiz Öztireli",
+        "Iliyan Georgiev"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-06-15T09:30:03+00:00",
+      "link": "https://arxiv.org/pdf/2606.16457v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free editing with residual embeddings for conditional diffusion image generators",
+      "llm_evidence_cn": "使用残差嵌入实现条件扩散图像生成器的免训练编辑",
+      "llm_evidence": "使用残差嵌入实现条件扩散图像生成器的免训练编辑",
+      "canonical_evidence": "使用残差嵌入实现条件扩散图像生成器的免训练编辑",
+      "llm_tldr_en": "ResEdit uses residual image encoding as conditioning to enable precise editing of conditional diffusion images without fine-tuning, improving identity preservation and editability.",
+      "llm_tldr_cn": "针对条件扩散模型编辑中身份保持与编辑准确性的矛盾，本文提出ResEdit，通过优化残差图像编码作为额外条件，减少对反演的依赖，无需大规模微调。实验表明该方法在保持图像身份的同时实现精确编辑，是一种免训练的图像编辑优化方法。",
+      "llm_tldr": "针对条件扩散模型编辑中身份保持与编辑准确性的矛盾，本文提出ResEdit，通过优化残差图像编码作为额外条件，减少对反演的依赖，无需大规模微调。实验表明该方法在保持图像身份的同时实现精确编辑，是一种免训练的图像编辑优化方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.15590v1",
+      "source": "arxiv",
+      "title": "Unlocking Diffusion Hierarchies: Adaptive Timestep Selection for Zero-Shot Segmentation",
+      "abstract": "Zero-shot segmentation has recently shown notable improvement by leveraging the rich visual priors in large-scale text-to-image diffusion models, such as Stable Diffusion. However, current diffusion-based methods often face limitations due to the trade-off between spatial resolution and contextual information, as well as their reliance on a single static timestep for feature extraction. To overcome these challenges, our work introduces two key advancements. First, our Contextual Similarity Maps fuse high-resolution attention maps with rich U-Net encoder features, providing both fine-grained and robust per-pixel representations. Second, we identify an emergent hierarchical semantic progression within the denoising process of various diffusion models: representations transition from part-level abstractions at earlier timesteps to object-level abstractions at later stages. Leveraging this insight, we introduce a mechanism to adaptively select the optimal timestep for each pixel. Extensive experiments demonstrate that our method consistently outperforms existing zero-shot segmentation baselines, validating the efficacy of combining contextual features with dynamic, hierarchical timestep selection.",
+      "authors": [
+        "Ramin Nakhli",
+        "Mahesh Ramachandran",
+        "Luca Ballan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-14T04:21:21+00:00",
+      "link": "https://arxiv.org/pdf/2606.15590v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "adaptive timestep selection for zero-shot segmentation using pre-trained diffusion models without additional training",
+      "llm_evidence_cn": "无需额外训练，通过自适应时间步选择利用预训练扩散模型进行零样本分割",
+      "llm_evidence": "无需额外训练，通过自适应时间步选择利用预训练扩散模型进行零样本分割",
+      "canonical_evidence": "无需额外训练，通过自适应时间步选择利用预训练扩散模型进行零样本分割",
+      "llm_tldr_en": "Proposes adaptive timestep selection for zero-shot segmentation by leveraging hierarchical semantic progression in diffusion models, no extra training needed.",
+      "llm_tldr_cn": "本文利用扩散模型去噪过程中的层次化语义进展，提出自适应时间步选择方法，用于零样本分割任务。通过融合高分辨率注意力图和U-Net编码器特征，以及动态选择最优时间步，在不进行任何额外训练的情况下，显著提升了分割的精度和鲁棒性。该方法展示了扩散模型作为视觉先验在免训练优化中的潜力。",
+      "llm_tldr": "本文利用扩散模型去噪过程中的层次化语义进展，提出自适应时间步选择方法，用于零样本分割任务。通过融合高分辨率注意力图和U-Net编码器特征，以及动态选择最优时间步，在不进行任何额外训练的情况下，显著提升了分割的精度和鲁棒性。该方法展示了扩散模型作为视觉先验在免训练优化中的潜力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.17048v1",
+      "source": "arxiv",
+      "title": "Exact Posterior Score Estimation for Solving Linear Inverse Problems",
+      "abstract": "Diffusion and flow-based models learn powerful data priors by training a denoiser to reverse Gaussian corruption. To use this prior to solve a linear inverse problem, one needs to sample from the posterior, but the score that the prior provides is the unconditional score, not the posterior score. Existing methods either steer a fixed pretrained denoiser with approximate measurement-matching corrections, or train a conditional restoration model that abandons the denoising structure of the prior. We derive the exact posterior score in closed form for linear Gaussian inverse problems under general Gaussian interpolants, and show that posterior sampling reduces to a denoising problem at an operator-dependent shifted pivot under an anisotropic noise covariance. We turn this identity into Exact Posterior Score (EPS), a denoising training objective that preserves the input/output structure of standard pretraining and can therefore be trained from scratch or fine-tuned from a pretrained denoiser. At inference, EPS uses the same sampler as the underlying backbone, with no likelihood gradients or projections. We evaluate EPS on five linear inverse problems across FFHQ and ImageNet, where it outperforms training-free and training-based baselines on fidelity, perceptual, and distributional metrics, while using roughly an order of magnitude fewer denoiser evaluations than gradient-based posterior samplers.",
+      "authors": [
+        "Abbas Mammadov",
+        "Ozgur Kara",
+        "Kaan Oktay",
+        "Iskander Azangulov",
+        "Adil Kaan Akan",
+        "Hyungjin Chung",
+        "James Matthew Rehg",
+        "Yee Whye Teh"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV",
+        "stat.ML"
+      ],
+      "published": "2026-06-15T17:58:22+00:00",
+      "link": "https://arxiv.org/pdf/2606.17048v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "derives exact posterior score for linear inverse problems without extra training, enabling training-free optimization",
+      "llm_evidence_cn": "推导了线性逆问题的精确后验分数，无需额外训练，实现免训练优化",
+      "llm_evidence": "推导了线性逆问题的精确后验分数，无需额外训练，实现免训练优化",
+      "canonical_evidence": "推导了线性逆问题的精确后验分数，无需额外训练，实现免训练优化",
+      "llm_tldr_en": "Derives exact posterior score in closed form for linear Gaussian inverse problems using pre-trained diffusion models, enabling training-free posterior sampling.",
+      "llm_tldr_cn": "本文针对线性高斯逆问题，利用预训练扩散模型的先验，推导出精确的后验分数闭式解，无需额外训练即可进行后验采样。该方法将后验采样转化为一个在移位枢轴点上的去噪问题，避免了现有近似方法的误差。理论分析和实验表明，该方法在图像恢复等任务中取得了优异性能，为免训练优化提供了新的理论框架。",
+      "llm_tldr": "本文针对线性高斯逆问题，利用预训练扩散模型的先验，推导出精确的后验分数闭式解，无需额外训练即可进行后验采样。该方法将后验采样转化为一个在移位枢轴点上的去噪问题，避免了现有近似方法的误差。理论分析和实验表明，该方法在图像恢复等任务中取得了优异性能，为免训练优化提供了新的理论框架。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.20563v1",
+      "source": "arxiv",
+      "title": "JanusMesh: Fast and Zero-Shot 3D Visual Illusion Generation via Cross-Space Denoising",
+      "abstract": "Creating 3D visual illusions, a single 3D mesh that reveals entirely different semantics from various viewing angles, is a fascinating but tough challenge. Existing optimization-based methods are slow and can produce oversaturated colors. In contrast, naive stitching approaches fail to produce geometrically coherent objects. This results in visible unnatural seams and semantic leaks. In this paper, we present a fast and training-free framework for generating text-driven 3D visual illusions. Our approach decouples the generation into two stages. First, we propose a cross-space dual-branch denoising process. This process dynamically decodes 3D latents into voxel space for CLIP-guided orientation alignment and Signed Distance Field (SDF) blending, which ensures seamless geometric fusion. Second, we introduce a view-conditioned texture synthesis module that projects and aggregates view-specific 2D diffusion priors onto the fused geometry. Extensive experiments demonstrate that our method generates highly realistic, dual-semantic 3D illusions in just 3-5 minutes. It significantly outperforms existing methods in geometric integrity, semantic recognizability, and efficiency. Project page: https://siang1105.github.io/JanusMesh.github.io/",
+      "authors": [
+        "Siang-Ling Zhang",
+        "Huai-Hsun Cheng",
+        "Tsung-Ju Yang",
+        "Yu-Lun Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-18T17:59:55+00:00",
+      "link": "https://arxiv.org/pdf/2606.20563v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free framework for 3D visual illusion generation using cross-space denoising",
+      "llm_evidence_cn": "使用跨空间去噪的免训练3D视觉幻觉生成框架",
+      "llm_evidence": "使用跨空间去噪的免训练3D视觉幻觉生成框架",
+      "canonical_evidence": "使用跨空间去噪的免训练3D视觉幻觉生成框架",
+      "llm_tldr_en": "Proposes a fast, training-free framework for text-driven 3D visual illusions via cross-space dual-branch denoising.",
+      "llm_tldr_cn": "本文提出一种快速且无需训练的框架用于文本驱动的3D视觉幻觉生成。核心方法采用跨空间双分支去噪过程，动态解码3D潜变量到体素空间，通过CLIP引导对齐和SDF混合实现几何一致的结果。实验表明该方法比优化方法快得多，且颜色更自然，避免了拼接伪影。该方法验证了训练免费方案在3D生成中的有效性，对图像/视频免训练优化有借鉴意义。",
+      "llm_tldr": "本文提出一种快速且无需训练的框架用于文本驱动的3D视觉幻觉生成。核心方法采用跨空间双分支去噪过程，动态解码3D潜变量到体素空间，通过CLIP引导对齐和SDF混合实现几何一致的结果。实验表明该方法比优化方法快得多，且颜色更自然，避免了拼接伪影。该方法验证了训练免费方案在3D生成中的有效性，对图像/视频免训练优化有借鉴意义。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
