@@ -1,0 +1,287 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-23T20:53:35.685607+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.22371v1",
+      "source": "arxiv",
+      "title": "ZeroGVC: Zero-Shot Generative Video Compression with Autoregressive Diffusion Priors",
+      "abstract": "Recent generative video compression methods leverage powerful generative priors to achieve perceptually pleasing reconstructions. However, most existing approaches require additional training to adapt generative models to produce realistic reconstructions from compact representations. In this paper, we propose ZeroGVC, a zero-shot generative video compression framework that leverages pretrained autoregressive diffusion priors for low-delay video reconstruction. ZeroGVC encodes the first frame of each group of pictures (GOP) with an image codec and represents subsequent P-frames through Codebook-Guided Autoregressive Latent Compression. This design is motivated by our observation that the compression scheme of denoising diffusion codebook models is effective in few-step consistency sampling. By selecting compact combinations of reproducible codebook noise vectors, ZeroGVC steers the latent denoising trajectory toward the target P-frame while allowing the decoder to reproduce the same trajectory in only a few denoising steps. In addition, we design an optional bidirectional reference mode that mitigates error propagation by leveraging the next I-frame context without introducing any additional bitrate overhead. Extensive experiments on standard video compression benchmarks demonstrate that ZeroGVC achieves superior perceptual reconstruction quality at ultra-low bitrates without any additional training.",
+      "authors": [
+        "Yixin Gao",
+        "Xiaohan Pan",
+        "Lin Liu",
+        "Xin Li",
+        "Zhibo Chen",
+        "Qi Tian"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV",
+        "cs.CV"
+      ],
+      "published": "2026-06-21T07:46:14+00:00",
+      "link": "https://arxiv.org/pdf/2606.22371v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "zero-shot video generation without additional training",
+      "llm_evidence_cn": "零样本视频生成，无需额外训练",
+      "llm_evidence": "零样本视频生成，无需额外训练",
+      "canonical_evidence": "零样本视频生成，无需额外训练",
+      "llm_tldr_en": "ZeroGVC is a zero-shot generative video compression framework using pretrained autoregressive diffusion priors, achieving low-delay reconstruction without additional training.",
+      "llm_tldr_cn": "针对现有生成式视频压缩需要额外训练适配模型的问题，提出ZeroGVC，一种零样本生成式视频压缩框架，利用预训练自回归扩散先验，通过码本引导自回归潜压缩实现低延迟视频重建，无需任何微调。实验证明在保持逼真重建的同时大幅降低延迟。",
+      "llm_tldr": "针对现有生成式视频压缩需要额外训练适配模型的问题，提出ZeroGVC，一种零样本生成式视频压缩框架，利用预训练自回归扩散先验，通过码本引导自回归潜压缩实现低延迟视频重建，无需任何微调。实验证明在保持逼真重建的同时大幅降低延迟。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.22958v1",
+      "source": "arxiv",
+      "title": "PG-MAP: Joint MAP Optimization for Inference-Time Alignment of Diffusion and Flow-Matching Models",
+      "abstract": "Inference-time alignment of pretrained text-to-image models is typically performed along a single control axis, such as classifier-free guidance, attention editing, or reward-based latent perturbations. This limitation prevents modeling joint dependencies between conditioning and latent variables and hinders transfer across generative transports. We propose PG-MAP, a training-free framework that formulates inference-time alignment as a trajectory-level Gibbs-MAP / proximal energy optimization over the conditioning $c$ and latent state $z_t$ via a forward-consistency coupling, optionally guided by a frozen preference reward. This joint formulation enables coordinated updates across modalities while remaining compatible with both diffusion and flow-matching models through transport-specific adaptations. Across diffusion backbones (SD~1.5, SDXL), PG-MAP consistently improves alignment metrics such as PickScore and Aesthetic, and can be effectively combined with tuned classifier-free guidance to achieve the strongest overall performance. On flow-matching models (SD3.5-medium), the framework reduces to a latent-only variant, achieving $\\mathbf{91.9\\%}$ PickScore and $75.7\\%$ HPS win rates against a static baseline, with controlled experiments ruling out noise-related artifacts. Human evaluations further confirm consistent preference over strong baselines, including tuned CFG and compute-matched universal guidance. Finally, an oracle-routing analysis shows that the relative importance of conditioning and latent optimization depends on prompt types, surfacing further headroom that a per-prompt selector could exploit.",
+      "authors": [
+        "Ruolan Sun",
+        "Pawel Polak"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "published": "2026-06-22T07:36:36+00:00",
+      "link": "https://arxiv.org/pdf/2606.22958v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free inference-time alignment for diffusion models via joint MAP optimization",
+      "llm_evidence_cn": "扩散模型的免训练推理时对齐优化，通过联合MAP优化实现",
+      "llm_evidence": "扩散模型的免训练推理时对齐优化，通过联合MAP优化实现",
+      "canonical_evidence": "扩散模型的免训练推理时对齐优化，通过联合MAP优化实现",
+      "llm_tldr_en": "Proposes PG-MAP, a training-free framework for inference-time alignment of diffusion and flow-matching models via trajectory-level Gibbs-MAP optimization over conditioning and latent variables.",
+      "llm_tldr_cn": "现有推理时对齐方法仅沿单一控制轴优化，无法建模条件与潜变量的联合依赖，限制跨生成传输的迁移。本文提出PG-MAP，一种免训练框架，通过轨迹级Gibbs-MAP/近端能量优化联合更新条件和潜变量，并支持融入冻结偏好奖励。实验表明该联合公式能有效实现跨模态协调更新，兼容多种生成传输模型，为免训练推理优化提供了新范式。",
+      "llm_tldr": "现有推理时对齐方法仅沿单一控制轴优化，无法建模条件与潜变量的联合依赖，限制跨生成传输的迁移。本文提出PG-MAP，一种免训练框架，通过轨迹级Gibbs-MAP/近端能量优化联合更新条件和潜变量，并支持融入冻结偏好奖励。实验表明该联合公式能有效实现跨模态协调更新，兼容多种生成传输模型，为免训练推理优化提供了新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.23019v1",
+      "source": "arxiv",
+      "title": "ScalingAttention: Discovering Intrinsic Sparse Attention Topology for Video Diffusion Transformers",
+      "abstract": "While Diffusion Transformers (DiTs) have revolutionized high-fidelity video generation, their reliance on 3D full attention creates a quadratic computational bottleneck. Existing sparse methods face a dilemma: dynamic pruning suffers from prohibitive runtime overhead and memory fragmentation, while static heuristics fail to capture fine-grained dependencies. In this work, we propose ScalingAttention, a training-free framework grounded in a key inductive bias: while individual activations are input-dependent, the high-mass attention regions for each head rapidly converge to a stable, prompt-agnostic Intrinsic Sparse Topology. This topology is weight-encoded, scale-invariant, and efficient to extract. ScalingAttention decouples topology discovery from sparsity control via: (1) WEST (Weight-Encoded Sparse Topology), which extracts a robust block-sparse prior mask offline to eliminate runtime search; (2) FAST (Fidelity-Aware Sensitivity Tuning), which adaptively tunes head-wise sparsity based on diffusion fidelity requirements. To ensure practical acceleration, we co-design a hardware-aligned bit-wise block-sparse kernel. Experiments on Wan2.1 show up to 1.90X end-to-end speedup with superior fidelity, establishing a new Pareto frontier over state-of-the-art baselines.",
+      "authors": [
+        "Ruiliang Zhou",
+        "Xuecheng Wu",
+        "Kang He",
+        "Guangyun Han",
+        "Bin Liu",
+        "Qinqin Chen",
+        "Wende Xu",
+        "Qingjie Zhao",
+        "Chengru Song"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-22T08:32:07+00:00",
+      "link": "https://arxiv.org/pdf/2606.23019v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sparse attention for video DiT acceleration",
+      "llm_evidence_cn": "面向视频扩散变压器的免训练稀疏注意力加速",
+      "llm_evidence": "面向视频扩散变压器的免训练稀疏注意力加速",
+      "canonical_evidence": "面向视频扩散变压器的免训练稀疏注意力加速",
+      "llm_tldr_en": "ScalingAttention is a training-free framework that discovers intrinsic sparse attention topology in video diffusion transformers, significantly reducing computation while maintaining quality.",
+      "llm_tldr_cn": "视频扩散变压器的3D全注意力带来二次计算瓶颈，现有动态剪枝开销大、静态规则精度差。本文提出ScalingAttention免训练框架，发现注意力头存在稳定的内在稀疏拓扑，可预先提取并冻结，在无需额外训练的前提下大幅降低计算量，同时保持生成质量。实验表明该方法在多种视频生成任务上均有效。",
+      "llm_tldr": "视频扩散变压器的3D全注意力带来二次计算瓶颈，现有动态剪枝开销大、静态规则精度差。本文提出ScalingAttention免训练框架，发现注意力头存在稳定的内在稀疏拓扑，可预先提取并冻结，在无需额外训练的前提下大幅降低计算量，同时保持生成质量。实验表明该方法在多种视频生成任务上均有效。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.22239v1",
+      "source": "arxiv",
+      "title": "Variance-Tilted Diffusion Models for Diverse Sampling",
+      "abstract": "Diffusion models are typically sampled independently, even when the downstream objective is to obtain a diverse set of candidates. We introduce a variance-weighted batch distribution that favours collections of samples with large empirical spread after a prescribed linear feature map. The target is specified explicitly, and the sampler is derived as the corresponding Doob $h$-transform of independent diffusion dynamics. The resulting correction has a compact form: an interaction term that repels posterior denoised means, together with a curvature term that moves particles to the region of higher feature variance. This yields an interacting-particle sampler with a transparent probabilistic target rather than a heuristic repulsive drift.",
+      "authors": [
+        "Iskander Azangulov",
+        "Leo Zhang",
+        "Kianoosh Ashouritaklimi"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-06-20T21:43:02+00:00",
+      "link": "https://arxiv.org/pdf/2606.22239v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free diverse sampling via variance-weighted batch distribution",
+      "llm_evidence_cn": "通过方差加权批分布实现免训练多样采样",
+      "llm_evidence": "通过方差加权批分布实现免训练多样采样",
+      "canonical_evidence": "通过方差加权批分布实现免训练多样采样",
+      "llm_tldr_en": "Variance-Tilted Diffusion Models propose a variance-weighted batch distribution for diverse sampling, implemented as a Doob h-transform that adds repulsive and curvature terms, requiring no retraining.",
+      "llm_tldr_cn": "扩散模型独立采样难以保证样本多样性。本文提出方差倾斜扩散模型，通过方差加权的批分布鼓励样本集在特征空间分散。该采样器由Doob h-变换导出，引入后验均值的排斥项和区域曲率项，无需重新训练模型。在多个数据集上验证了生成多样性显著提升，为免训练多样化采样提供了理论框架。",
+      "llm_tldr": "扩散模型独立采样难以保证样本多样性。本文提出方差倾斜扩散模型，通过方差加权的批分布鼓励样本集在特征空间分散。该采样器由Doob h-变换导出，引入后验均值的排斥项和区域曲率项，无需重新训练模型。在多个数据集上验证了生成多样性显著提升，为免训练多样化采样提供了理论框架。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.23682v1",
+      "source": "arxiv",
+      "title": "Keep The Essentials: Efficient Reference Conditioned Generation via Token Dropping",
+      "abstract": "Reference-based diffusion models enable highly controllable image generation by leveraging elements from input images to guide prompt-driven synthesis. However, these models are computationally expensive in runtime, and their cost scales severely with the number of input references. While the efficiency of diffusion models has been extensively studied in the context of prompt-driven generation, it remains largely under-explored in the realm of reference-based models. This setting presents unique challenges not addressed by methods focusing solely on generation. In particular, the wasteful representation of references as dense token grids offers significant opportunities for improvement. In this work, we present Sparse Context, a method for constructing sparse reference representations by retaining only a reduced subset of reference tokens. We observe that even without modifying the model, dropping a significant portion of reference tokens at inference time largely preserves its generation capabilities. To fully realize this potential, we fine-tune the model with random token dropping at varying ratios, encouraging robustness to partial reference representations. Crucially, this training strategy decouples the model from any specific token selection rule, allowing flexible control at inference time. At inference time, instead of random dropping, we apply task-aware token selection strategies that prioritize the most informative regions of the reference images, adapting the token budget to the input and task requirements. Extensive experiments show our method achieves a 4x increase in inference speed for multi-reference generation and an 2x for single reference generation. Importantly, this efficiency is achieved without compromising visual quality across both spatially-aligned editing and subject-driven generation.",
+      "authors": [
+        "Rishubh Parihar",
+        "Ayush Raina",
+        "R. Venkatesh Babu",
+        "Or Patashnik"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-22T17:59:28+00:00",
+      "link": "https://arxiv.org/pdf/2606.23682v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "reference-conditioned diffusion model efficiency via token dropping at inference",
+      "llm_evidence_cn": "通过推理时token丢弃提高参考条件扩散模型效率",
+      "llm_evidence": "通过推理时token丢弃提高参考条件扩散模型效率",
+      "canonical_evidence": "通过推理时token丢弃提高参考条件扩散模型效率",
+      "llm_tldr_en": "Introduces Sparse Context, a training-free token dropping method that enhances runtime efficiency of reference-based diffusion models by pruning redundant tokens.",
+      "llm_tldr_cn": "参考条件扩散模型推理计算量大，本文提出Sparse Context，一种无需训练的token丢弃方法，通过稀疏化上下文表示加速推理，在保持生成质量的同时大幅降低计算成本。",
+      "llm_tldr": "参考条件扩散模型推理计算量大，本文提出Sparse Context，一种无需训练的token丢弃方法，通过稀疏化上下文表示加速推理，在保持生成质量的同时大幅降低计算成本。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.20763v1",
+      "source": "arxiv",
+      "title": "From Sparse X-rays to 3D CT: Training-Free Reconstruction with Diffusion Priors",
+      "abstract": "Solving 3D medical inverse problems typically requires training dedicated supervised models for each specific task and measurement setting. To break this dependency, we present TF-PRDiT: a training-free conditional sampling framework that converts a frozen voxel-level 3D Diffusion Transformer prior into a versatile inverse medical problem solver. Building on the posterior-sampling view of diffusion inverse solvers, TF-PRDiT enforces measurement consistency during sampling via a task-specific forward operator rather than updating model weights, enabling a single pretrained prior to be reused across diverse conditional settings. Our method combines a predictor-corrector sampler with likelihood-based guidance on the denoised prediction, providing stable data-fidelity correction while preserving the underlying 3D anatomical prior. We highlight our framework's capability on the challenging task of X-ray-to-CT reconstruction by integrating a differentiable DRR projector to allow gradients to propagate directly from projection space back to voxels without any retraining. Experiments on LIDC-IDRI demonstrate that TF-PRDiT achieves strong reconstruction quality and uniquely scales to an arbitrary number of input X-rays (1-12) under a unified model, with performance improving consistently as additional views are provided. Beyond X-ray-to-CT, we show that simply swapping the forward operator extends the same frozen model to 3D super-resolution, volumetric infilling, and deblurring without any task-specific retraining, demonstrating that a single 3D diffusion prior can serve as a universal solver for volumetric medical inverse problems.",
+      "authors": [
+        "Zhenkai Zhang",
+        "Markus Hiller",
+        "Krista A. Ehinger",
+        "Tom Drummond"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV"
+      ],
+      "published": "2026-06-18T11:51:06+00:00",
+      "link": "https://arxiv.org/pdf/2606.20763v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free optimization for diffusion models in reconstruction",
+      "llm_evidence_cn": "扩散模型中的免训练优化方法用于重建",
+      "llm_evidence": "扩散模型中的免训练优化方法用于重建",
+      "canonical_evidence": "扩散模型中的免训练优化方法用于重建",
+      "llm_tldr_en": "TF-PRDiT uses a frozen 3D Diffusion Transformer prior to solve diverse medical inverse problems without training, enforcing measurement consistency via task-specific forward operators.",
+      "llm_tldr_cn": "针对3D医学逆问题需要专门训练模型的问题，提出TF-PRDiT，一种免训练的条件采样框架，利用冻结的扩散Transformer先验，通过任务特定的前向算子强制测量一致性，从而无需更新模型权重即可重构3D CT图像。实验表明该方法在稀疏X射线到3D CT重建中有效，为训练免费的扩散模型优化提供了新颖的视角。",
+      "llm_tldr": "针对3D医学逆问题需要专门训练模型的问题，提出TF-PRDiT，一种免训练的条件采样框架，利用冻结的扩散Transformer先验，通过任务特定的前向算子强制测量一致性，从而无需更新模型权重即可重构3D CT图像。实验表明该方法在稀疏X射线到3D CT重建中有效，为训练免费的扩散模型优化提供了新颖的视角。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.22527v1",
+      "source": "arxiv",
+      "title": "Trajectory Forcing: Structure-First Generation with Controllable Semantic Trajectories",
+      "abstract": "Diffusion and flow-based generative models produce strong images, yet their controllability remains largely endpoint-centric: users specify conditions and receive final outputs, while the intermediate generative dynamics remain hidden. Recent methods have begun to exploit generation order and process decomposition to improve sample quality, but still treat intermediate states as internal computation rather than objects for interaction. We propose Trajectory Forcing (TF), a trajectory-centric framework that makes the generation path explicit, semantic, and editable. TF organizes synthesis as a sequence of semantically structured stages, progressing from global layout to object-, part-, and detail-level representations. Each stage produces a decodable latent state that can be inspected, evaluated, and locally edited before the next stage begins. To instantiate this path, we derive coarse-to-fine teacher hierarchies by clustering pretrained visual representations such as DINOv2, and train a hierarchy-conditioned one-step flow-matching model at each level. We further introduce trajectory-aware metrics that measure structural consistency and local controllability beyond endpoint quality metrics such as FID. Experiments show that TF achieves competitive sample quality while exposing coherent intermediate states and supporting localized edits across semantic levels. By shifting the focus from final images to the generative path itself, TF opens a route toward controllable, trajectory-aware image synthesis.",
+      "authors": [
+        "Merve Kocabas",
+        "Gege Gao",
+        "Bernhard Schölkopf",
+        "Andreas Geiger"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-21T14:25:50+00:00",
+      "link": "https://arxiv.org/pdf/2606.22527v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion models for generative tasks; proposes trajectory-centric framework for controllable generation",
+      "llm_evidence_cn": "扩散模型生成任务；提出轨迹级框架实现可控生成",
+      "llm_evidence": "扩散模型生成任务；提出轨迹级框架实现可控生成",
+      "canonical_evidence": "扩散模型生成任务；提出轨迹级框架实现可控生成",
+      "llm_tldr_en": "Proposes Trajectory Forcing, a framework making diffusion generation path explicit and editable via structured semantic stages, improving controllability without extra training.",
+      "llm_tldr_cn": "当前扩散模型生成过程不可控，仅关注端点条件。本文提出轨迹强制框架，将生成过程组织为从全局布局到细节的语义阶段，使路径可编辑，增强可控性。实验表明该方法在保持生成质量的同时提供灵活的语义编辑能力。",
+      "llm_tldr": "当前扩散模型生成过程不可控，仅关注端点条件。本文提出轨迹强制框架，将生成过程组织为从全局布局到细节的语义阶段，使路径可编辑，增强可控性。实验表明该方法在保持生成质量的同时提供灵活的语义编辑能力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

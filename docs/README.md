@@ -6,41 +6,41 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-22
-- 运行时间：2026-06-22 22:27:08 UTC
+- 最新运行日期：2026-06-23
+- 运行时间：2026-06-23 20:58:52 UTC
 - 运行状态：成功
 - 本次总论文数：7
-- 精读区：3
-- 速读区：4
+- 精读区：5
+- 速读区：2
 
 ### 今日简报（AI）
-今日精选7篇AI论文，涵盖边缘设备扩散模型协同推理、4D一致视频生成及扩散语言模型分析。最值得关注精读高分方向：高效边缘-设备协同推理服务（RISE）和4D相机可控视频生成（Track2View）。建议优先了解扩散模型在资源受限场景的实用部署思路，以及视频生成中一致性与控制力的平衡技巧。
-- 详情：[/202606/22/README](/202606/22/README)
+今日精选7篇论文，其中《ZeroGVC》和《PG-MAP》以9.0高分领跑精读，聚焦零样本视频压缩与扩散模型推理对齐。最值得关注的方向是生成式视频压缩的创新方案，以及无需额外训练的扩散模型对齐优化方法。建议优先深入研读这两篇高评论文，掌握用扩散先验提升视频编码效率，以及MAP对齐实现更稳定生成的关键思路。
+- 详情：[/202606/23/README](/202606/23/README)
 
 ### 精读区论文标签
-1. [RISE: Relay Inference and Online Scheduling for Efficient Edge-Device Collaborative Diffusion Model Services](/202606/22/2606.17378v1-rise-relay-inference-and-online-scheduling-for-efficient-edge-device-collaborative-diffusion-model-services)  
+1. [ZeroGVC: Zero-Shot Generative Video Compression with Autoregressive Diffusion Priors](/202606/23/2606.22371v1-zerogvc-zero-shot-generative-video-compression-with-autoregressive-diffusion-priors)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：用于边缘-设备扩散模型服务的中继推理与在线调度
-2. [Track2View: 4D-Consistent Camera-Controlled Video Generation via Paired 3D Point Tracks](/202606/22/2606.15534v1-track2view-4d-consistent-camera-controlled-video-generation-via-paired-3d-point-tracks)  
+   evidence：零样本视频生成，无需额外训练
+2. [PG-MAP: Joint MAP Optimization for Inference-Time Alignment of Diffusion and Flow-Matching Models](/202606/23/2606.22958v1-pg-map-joint-map-optimization-for-inference-time-alignment-of-diffusion-and-flow-matching-models)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：扩散模型的免训练推理时对齐优化，通过联合MAP优化实现
+3. [ScalingAttention: Discovering Intrinsic Sparse Attention Topology for Video Diffusion Transformers](/202606/23/2606.23019v1-scalingattention-discovering-intrinsic-sparse-attention-topology-for-video-diffusion-transformers)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：面向视频扩散变压器的免训练稀疏注意力加速
+4. [Variance-Tilted Diffusion Models for Diverse Sampling](/202606/23/2606.22239v1-variance-tilted-diffusion-models-for-diverse-sampling)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：使用扩散模型的视频生成
-3. [SketchKeyAnime: Reference-anchored Sparse Key-Sketch Animation Synthesis](/202606/22/2606.19958v1-sketchkeyanime-reference-anchored-sparse-key-sketch-animation-synthesis)  
+   evidence：通过方差加权批分布实现免训练多样采样
+5. [Keep The Essentials: Efficient Reference Conditioned Generation via Token Dropping](/202606/23/2606.23682v1-keep-the-essentials-efficient-reference-conditioned-generation-via-token-dropping)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：基于稀疏草图的视频扩散动画合成框架
+   evidence：通过推理时token丢弃提高参考条件扩散模型效率
 
 ### 速读区论文标签
-1. [Diffusion Language Models: An Experimental Analysis](/202606/22/2606.19475v1-diffusion-language-models-an-experimental-analysis)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：扩散语言模型的实验分析
-2. [teasr: training-efficient any-step diffusion transformer for real-world image super-resolution](/202606/22/2606.16188v1-teasr-training-efficient-any-step-diffusion-transformer-for-real-world-image-super-resolution)  
+1. [From Sparse X-rays to 3D CT: Training-Free Reconstruction with Diffusion Priors](/202606/23/2606.20763v1-from-sparse-x-rays-to-3d-ct-training-free-reconstruction-with-diffusion-priors)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：训练高效的任意步扩散图像超分辨率
-3. [STAR: SpatioTemporal Adaptive Reward Allocation for Text-to-Image RL Post-Training](/202606/22/2606.17979v1-star-spatiotemporal-adaptive-reward-allocation-for-text-to-image-rl-post-training)  
+   evidence：扩散模型中的免训练优化方法用于重建
+2. [Trajectory Forcing: Structure-First Generation with Controllable Semantic Trajectories](/202606/23/2606.22527v1-trajectory-forcing-structure-first-generation-with-controllable-semantic-trajectories)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：基于时空奖励分配的文本到图像扩散模型强化学习后训练
-4. [Learning When to Denoise: Optimizing Asynchronous Schedules for Latent Diffusion](/202606/22/2606.19662v1-learning-when-to-denoise-optimizing-asynchronous-schedules-for-latent-diffusion)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：优化潜扩散模型的去噪调度以改进图像生成
+   evidence：扩散模型生成任务；提出轨迹级框架实现可控生成
 
 
 <div class="dpr-home-promo-card">
