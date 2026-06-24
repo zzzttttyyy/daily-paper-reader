@@ -6,41 +6,46 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-23
-- 运行时间：2026-06-23 20:58:52 UTC
+- 最新运行日期：2026-06-24
+- 运行时间：2026-06-24 21:46:09 UTC
 - 运行状态：成功
-- 本次总论文数：7
-- 精读区：5
-- 速读区：2
+- 本次总论文数：8
+- 精读区：4
+- 速读区：4
 
 ### 今日简报（AI）
-今日精选7篇论文，其中《ZeroGVC》和《PG-MAP》以9.0高分领跑精读，聚焦零样本视频压缩与扩散模型推理对齐。最值得关注的方向是生成式视频压缩的创新方案，以及无需额外训练的扩散模型对齐优化方法。建议优先深入研读这两篇高评论文，掌握用扩散先验提升视频编码效率，以及MAP对齐实现更稳定生成的关键思路。
-- 详情：[/202606/23/README](/202606/23/README)
+今日聚焦视频压缩与扩散模型引导优化，精读两篇9.0分论文。
+最值得关注Zero-shot视频压缩（ZeroGVC）和自适应无分类器引导（信息论方法）。
+建议优先精读这两篇9分论文，并速览轻量化扩散模型（PeLAP-A）的实践。
+- 详情：[/202606/24/README](/202606/24/README)
 
 ### 精读区论文标签
-1. [ZeroGVC: Zero-Shot Generative Video Compression with Autoregressive Diffusion Priors](/202606/23/2606.22371v1-zerogvc-zero-shot-generative-video-compression-with-autoregressive-diffusion-priors)  
+1. [ZeroGVC: Zero-Shot Generative Video Compression with Autoregressive Diffusion Priors](/202606/24/2606.22371v2-zerogvc-zero-shot-generative-video-compression-with-autoregressive-diffusion-priors)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：零样本视频生成，无需额外训练
-2. [PG-MAP: Joint MAP Optimization for Inference-Time Alignment of Diffusion and Flow-Matching Models](/202606/23/2606.22958v1-pg-map-joint-map-optimization-for-inference-time-alignment-of-diffusion-and-flow-matching-models)  
+   evidence：使用预训练扩散先验的零样本视频生成
+2. [Information-Theoretic Classifier-Free Guidance with Adaptive Schedule Optimization](/202606/24/2606.24025v1-information-theoretic-classifier-free-guidance-with-adaptive-schedule-optimization)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：扩散模型的免训练推理时对齐优化，通过联合MAP优化实现
-3. [ScalingAttention: Discovering Intrinsic Sparse Attention Topology for Video Diffusion Transformers](/202606/23/2606.23019v1-scalingattention-discovering-intrinsic-sparse-attention-topology-for-video-diffusion-transformers)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：面向视频扩散变压器的免训练稀疏注意力加速
-4. [Variance-Tilted Diffusion Models for Diverse Sampling](/202606/23/2606.22239v1-variance-tilted-diffusion-models-for-diverse-sampling)  
+   evidence：无分类器引导的自适应调度优化，无需训练
+3. [One-Shot Novel View and Pose Human Image Synthesis via 3D Prior Guided Diffusion Model](/202606/24/2606.19718v1-one-shot-novel-view-and-pose-human-image-synthesis-via-3d-prior-guided-diffusion-model)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：通过方差加权批分布实现免训练多样采样
-5. [Keep The Essentials: Efficient Reference Conditioned Generation via Token Dropping](/202606/23/2606.23682v1-keep-the-essentials-efficient-reference-conditioned-generation-via-token-dropping)  
+   evidence：使用扩散模型进行新颖视角和姿态的人体图像合成
+4. [Towards Error-Free Long Video Generation](/202606/24/2606.22370v1-towards-error-free-long-video-generation)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：通过推理时token丢弃提高参考条件扩散模型效率
+   evidence：基于扩散模型微调的长视频生成框架
 
 ### 速读区论文标签
-1. [From Sparse X-rays to 3D CT: Training-Free Reconstruction with Diffusion Priors](/202606/23/2606.20763v1-from-sparse-x-rays-to-3d-ct-training-free-reconstruction-with-diffusion-priors)  
+1. [ELDiff: When Evidential Learning Meets Text-to-Image Diffusion](/202606/24/2606.20924v1-eldiff-when-evidential-learning-meets-text-to-image-diffusion)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：证据学习用于文本到图像扩散
+2. [PeLAP-A: Adaptive Latent Pruning for Lightweight Latent Diffusion Models](/202606/24/2606.23086v1-pelap-a-adaptive-latent-pruning-for-lightweight-latent-diffusion-models)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：自适应潜在剪枝用于高效图像生成的潜在扩散模型
+3. [Sol Video Inference Engine: Agent-Native Full-Stack Acceleration Framework for Efficient Video Generation](/202606/24/2606.23743v1-sol-video-inference-engine-agent-native-full-stack-acceleration-framework-for-efficient-video-generation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：扩散模型中的免训练优化方法用于重建
-2. [Trajectory Forcing: Structure-First Generation with Controllable Semantic Trajectories](/202606/23/2606.22527v1-trajectory-forcing-structure-first-generation-with-controllable-semantic-trajectories)  
+   evidence：通过推理引擎加速视频生成
+4. [Grounding Generative Policies in Physics: Optimization-Guided Diffusion for Robot Control](/202606/24/2606.24208v1-grounding-generative-policies-in-physics-optimization-guided-diffusion-for-robot-control)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：扩散模型生成任务；提出轨迹级框架实现可控生成
+   evidence：针对扩散模型的推理时优化，无需额外训练
 
 
 <div class="dpr-home-promo-card">
