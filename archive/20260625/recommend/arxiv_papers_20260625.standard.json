@@ -1,0 +1,342 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-25T21:53:02.328754+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2606.25040v1",
+      "source": "arxiv",
+      "title": "Chorus II: Cross-Request Sparsity Reuse for Efficient Image-to-Video Generation",
+      "abstract": "Serving diffusion models for image-to-video generation is computationally expensive, posing significant challenges for large-scale deployment. Real I2V workloads often contain similar requests, such as repeated effect templates, related subjects, and recurring shot layouts. Existing cross-request acceleration methods mainly exploit this redundancy through feature reuse. We observe that similar I2V requests also share highly consistent sparse attention patterns, enabling historical sparse masks to serve as request-conditioned priors with almost no online mask-prediction overhead. We propose a cross-request reuse framework centered on \\textbf{sparsity reuse}, with \\textbf{feature reuse} as an optional extension safeguarded by a lightweight \\textbf{guidance enhancement}. Our sparsity reuse is implemented as shared sparse mask reuse, which reuses high-quality sparse masks from similar historical requests to avoid per-request online mask prediction. Optional feature reuse applies downsampled computation to highly redundant spatiotemporal regions, mitigating boundary artifacts while preserving efficiency gains. Guidance enhancement reinforces image/text conditioning after reuse, mitigating semantic drift and condition-adherence issues. Experiments show that default sparsity reuse configuration preserves generation quality with a \\textbf{2.16$\\times$} speedup.",
+      "authors": [
+        "Hao Liu",
+        "Chenghuan Huang",
+        "Hao Liu",
+        "Xing Cai",
+        "Chen Li",
+        "Ziyang Ma",
+        "Jing Lyu",
+        "Nong Xiao",
+        "Jiangsu Du"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-23T18:00:55+00:00",
+      "link": "https://arxiv.org/pdf/2606.25040v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free cross-request sparsity reuse for efficient I2V generation",
+      "llm_evidence_cn": "免训练的跨请求稀疏性重用用于高效图像到视频生成",
+      "llm_evidence": "免训练的跨请求稀疏性重用用于高效图像到视频生成",
+      "canonical_evidence": "免训练的跨请求稀疏性重用用于高效图像到视频生成",
+      "llm_tldr_en": "Proposes cross-request sparsity reuse framework for image-to-video diffusion serving, reusing historical sparse attention masks to accelerate inference without extra training.",
+      "llm_tldr_cn": "图像到视频生成服务计算开销大。本文提出以稀疏性重用为核心的跨请求加速框架，利用相似请求间一致的稀疏注意力模式，无需额外训练即可重用历史稀疏掩码作为先验，几乎零在线预测开销。可选的轻量级特征重用进一步加速，显著提升服务效率。",
+      "llm_tldr": "图像到视频生成服务计算开销大。本文提出以稀疏性重用为核心的跨请求加速框架，利用相似请求间一致的稀疏注意力模式，无需额外训练即可重用历史稀疏掩码作为先验，几乎零在线预测开销。可选的轻量级特征重用进一步加速，显著提升服务效率。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.20971v1",
+      "source": "arxiv",
+      "title": "UNITY: Attention Flow Networks for Adaptive Conditioning in Diffusion",
+      "abstract": "We introduce UNITY, a Universal-to-Specialized adapter for efficient and scalable composite conditioning in diffusion based image generation. Unlike prior methods that train separate adapters for each conditioning modality, UNITY jointly learns shared semantics across multiple conditioning types and subsequently specializes without modifying the underlying architecture. The proposed two stage training paradigm consists of a Universal Stage that captures cross modal representations across all conditioning modalities using half of the total training steps, followed by a Specialization Stage that refines modality specific features using the remaining training budget. At the core of UNITY are the Morphable Attention Flow (MAF) Network and Morph Wrapper modules, which enable channel aware and spatially adaptive feature alignment through learnable flow fields and attention based fusion. This constant complexity formulation supports flexible operation under both single and composite conditioning settings while significantly reducing inference latency and memory consumption. Extensive experiments across multiple datasets demonstrate that UNITY achieves state of the art image fidelity while maintaining superior memory efficiency. Code: https://github.com/arya-domain/UNITY",
+      "authors": [
+        "Aryan Das",
+        "Koushik Biswas",
+        "Moloud Abdar",
+        "Vinay Kumar Verma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-18T22:29:28+00:00",
+      "link": "https://arxiv.org/pdf/2606.20971v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "adaptive conditioning for diffusion image generation",
+      "llm_evidence_cn": "扩散图像生成中的自适应条件",
+      "llm_evidence": "扩散图像生成中的自适应条件",
+      "canonical_evidence": "扩散图像生成中的自适应条件",
+      "llm_tldr_en": "UNITY proposes a universal-to-specialized adapter for composite conditioning in diffusion image generation, using attention flow networks with a two-stage training paradigm.",
+      "llm_tldr_cn": "现有方法为每种条件单独训练适配器，效率低。本文提出UNITY，通过通用到特化的两阶段训练，仅用一半训练步数学习跨模态表征，再优化特定模态特征。核心是形态注意力流网络。该方法在不改变底层架构下实现高效复合条件图像生成，显著减少训练开销。",
+      "llm_tldr": "现有方法为每种条件单独训练适配器，效率低。本文提出UNITY，通过通用到特化的两阶段训练，仅用一半训练步数学习跨模态表征，再优化特定模态特征。核心是形态注意力流网络。该方法在不改变底层架构下实现高效复合条件图像生成，显著减少训练开销。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.18555v1",
+      "source": "arxiv",
+      "title": "Rethinking Text-to-Image as Semantic-Aware Data Augmentation for Indoor Scene Recognition",
+      "abstract": "In the realm of computer vision, indoor image recognition presents challenges due to the intricate interplay of lighting conditions, occlusions, and diverse object arrangements within confined spaces. To address the lacks of training indoor images, we introduce a novel approach leveraging Stable Diffusion (SD) for the generation of synthetic images, which serve as a powerful data augmentation tool. The utilization of SD offers a principled framework for synthesizing diverse and realistic indoor scenes, thereby enriching the training data pool for robust indoor image recognition models. Experimental findings on the MIT Indoor Scene dataset reveal the potential of our proposed approach in enhancing the training of deep models when authentic data is limited. Furthermore, to prevent the misuse of SD synthetic images, we introduce a counter measure based on DIffusion Reconstruction Error (DIRE). The powerful DIRE presentation enables training robust classifiers only using lightweight deep models. Experiments show that our approach can perfectly recognize SD generated images with the accuracy of 100% using MobilenetV3.",
+      "authors": [
+        "Trong-Vu Hoang",
+        "Quang-Binh Nguyen",
+        "Dinh-Khoi Vo",
+        "Hoai-Danh Vo",
+        "Minh-Triet Tran",
+        "Trung-Nghia Le"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-17T00:08:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.18555v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "stable diffusion for data augmentation in image recognition",
+      "llm_evidence_cn": "稳定扩散用于图像识别中的数据增强",
+      "llm_evidence": "稳定扩散用于图像识别中的数据增强",
+      "canonical_evidence": "稳定扩散用于图像识别中的数据增强",
+      "llm_tldr_en": "This work uses Stable Diffusion to generate synthetic indoor images as data augmentation to improve indoor scene recognition performance.",
+      "llm_tldr_cn": "室内场景识别因训练数据有限和复杂环境而困难。本文利用稳定扩散模型生成多样化的合成室内图像作为数据增强，丰富训练集。在MIT室内场景数据集上的实验表明，该方法显著提升了深度学习模型的识别精度，展示了扩散模型在数据增强中的潜力。",
+      "llm_tldr": "室内场景识别因训练数据有限和复杂环境而困难。本文利用稳定扩散模型生成多样化的合成室内图像作为数据增强，丰富训练集。在MIT室内场景数据集上的实验表明，该方法显著提升了深度学习模型的识别精度，展示了扩散模型在数据增强中的潜力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.24844v1",
+      "source": "arxiv",
+      "title": "Bridging the Manifold Gap: Riemannian Residual Line Search for One-Step Image Editing",
+      "abstract": "One-step diffusion editors are fast because they avoid inversion and iterative optimization, but a single transport update must be aggressive enough to realize the target prompt and conservative enough to preserve the source image--and no fixed update strength satisfies both demands across edit types. We treat this tension as a post-hoc candidate-selection problem on top of energy-field transport rather than as a new editing model. Our proposed method, Riemannian Residual Line Search, first builds a stronger edit by estimating the local time curvature of the prompt-delta field and projecting the corrected direction back onto the update norm of the original first-order energy-field transport estimation. It then forms a small residual path from the source image to this strong edit, retains the original first-order output as one candidate, and picks the final image by maximizing target-prompt CLIP alignment. On a 700-sample PIE-Bench++ evaluation across 10 edit type IDs, our method achieves state-of-the-art (SOTA) performance among current one-step update algorithms.",
+      "authors": [
+        "Hongzhu Yi",
+        "Zhongtian Luo",
+        "Tong Li",
+        "Yiyan Fan",
+        "Jungang Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-23T17:23:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.24844v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "one-step image editing with Riemannian line search without extra training",
+      "llm_evidence_cn": "无需额外训练的一步图像编辑方法",
+      "llm_evidence": "无需额外训练的一步图像编辑方法",
+      "canonical_evidence": "无需额外训练的一步图像编辑方法",
+      "llm_tldr_en": "Riemannian Residual Line Search improves one-step diffusion editing by post-hoc candidate selection, avoiding inversion and iterative optimization.",
+      "llm_tldr_cn": "一步扩散编辑器因固定更新强度难以兼顾目标实现与源图像保持。本文提出黎曼残差线搜索方法，在能量场传输后进行候选选择，通过估计曲率并投影修正方向，无需额外训练即可生成更强的编辑结果。该方法可作为后处理步骤用于任何一步编辑模型，属于免训练的采样优化技术。",
+      "llm_tldr": "一步扩散编辑器因固定更新强度难以兼顾目标实现与源图像保持。本文提出黎曼残差线搜索方法，在能量场传输后进行候选选择，通过估计曲率并投影修正方向，无需额外训练即可生成更强的编辑结果。该方法可作为后处理步骤用于任何一步编辑模型，属于免训练的采样优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.20310v1",
+      "source": "arxiv",
+      "title": "Through the PRISM: Preference Representation in Intermediate States of Video Diffusion Models",
+      "abstract": "Evaluating video generation with clean, pixel-based reward models disconnects evaluation from the noisy diffusion process and incurs massive VAE decoding costs. In this paper, we challenge this paradigm by asking a fundamental question: Can a powerful video generator inherently discriminate preferences directly from noisy latents? To answer this, we introduce \\textbf{PRISM} (\\textbf{P}reference \\textbf{R}epresentation in \\textbf{I}ntermediate \\textbf{S}tates of Diffusion \\textbf{M}odels). PRISM employs a lightweight Query-based Aggregation head with a frozen video diffusion backbone to decode preference signals from noisy latents. Surprisingly, PRISM not only achieves SOTA preference accuracy but also unlocks strong noise-robustness, which enables early-stage Best-of-$N$ sampling. This allows for filtering suboptimal candidates at the very beginning of denoising, drastically reducing computation while boosting video quality. We also reveal a strong positive correlation between a backbone's generative performance and its inherent evaluative power, enabling self-improving video backbones.",
+      "authors": [
+        "Haoxuan Wu",
+        "Lai Man Po",
+        "Mengyang Liu",
+        "Kun Li",
+        "Hongzheng Yang",
+        "Wei Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-18T14:44:02+00:00",
+      "link": "https://arxiv.org/pdf/2606.20310v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video diffusion model preference evaluation from noisy latents",
+      "llm_evidence_cn": "视频扩散模型噪声潜在空间的偏好评估",
+      "llm_evidence": "视频扩散模型噪声潜在空间的偏好评估",
+      "canonical_evidence": "视频扩散模型噪声潜在空间的偏好评估",
+      "llm_tldr_en": "PRISM uses a frozen video diffusion backbone with a lightweight Query-based Aggregation head to decode preference signals directly from noisy latents, achieving SOTA preference accuracy without full decoding.",
+      "llm_tldr_cn": "视频生成评估通常依赖像素级奖励模型，计算量大且与扩散过程脱节。本文提出PRISM，从冻结视频扩散骨干的噪声潜在中直接解码偏好，使用轻量查询聚合头。实验表明PRISM在偏好预测准确率上达到最先进，且具有强噪声鲁棒性，为视频生成评价提供了高效新范式。",
+      "llm_tldr": "视频生成评估通常依赖像素级奖励模型，计算量大且与扩散过程脱节。本文提出PRISM，从冻结视频扩散骨干的噪声潜在中直接解码偏好，使用轻量查询聚合头。实验表明PRISM在偏好预测准确率上达到最先进，且具有强噪声鲁棒性，为视频生成评价提供了高效新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.25473v1",
+      "source": "arxiv",
+      "title": "Causal-rCM: A Unified Teacher-Forcing and Self-Forcing Open Recipe for Autoregressive Diffusion Distillation in Streaming Video Generation and Interactive World Models",
+      "abstract": "Autoregressive video diffusion with causal diffusion transformers has emerged as a major paradigm for real-time streaming video generation and action-conditioned interactive world models. In this work, we extend rCM, an advanced diffusion distillation framework, to autoregressive video diffusion. The core philosophy of rCM lies in the complementarity between forward and reverse divergences, represented by consistency models (CMs) and distribution matching distillation (DMD), respectively, in diffusion distillation. This philosophy naturally carries over to the autoregressive setting, where teacher-forcing (TF) provides an offline, forward-divergence causal training paradigm, while self-forcing (SF) corresponds to an on-policy, reverse-divergence refinement.   Our contributions are: (1) through extensive experiments, we show that teacher-forcing CM is currently the best complement to self-forcing DMD as an initialization strategy (2) we present the first implementation of teacher-forcing-based continuous-time CMs (e.g., sCM/MeanFlow) for autoregressive video diffusion, enabled by our custom-mask FlashAttention-2 JVP kernel, achieving 10$\\times$ faster convergence compared to discrete-time CMs (dCMs) (3) we introduce Causal-rCM, a leading, unified, and scalable algorithm-infrastructure open recipe for diffusion distillation and causal training (4) we achieve state-of-the-art streaming video generation performance in both frame-wise and chunk-wise settings, using only synthetic data for training.   Notably, our distilled 2-step causal Wan2.1-1.3B model achieves a VBench-T2V score of 84.63 with only 1 or 2 sampling steps. We further apply Causal-rCM to Cosmos 3, an advanced omnimodal world foundation model for physical AI with action-conditioned generation capability, enabling an interactive world model.",
+      "authors": [
+        "Kaiwen Zheng",
+        "Guande He",
+        "Min Zhao",
+        "Jintao Zhang",
+        "Huayu Chen",
+        "Jianfei Chen",
+        "Chen-Hsuan Lin",
+        "Ming-Yu Liu",
+        "Jun Zhu",
+        "Qianli Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-24T06:58:02+00:00",
+      "link": "https://arxiv.org/pdf/2606.25473v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "diffusion distillation for autoregressive video generation",
+      "llm_evidence_cn": "自回归视频生成的扩散蒸馏",
+      "llm_evidence": "自回归视频生成的扩散蒸馏",
+      "canonical_evidence": "自回归视频生成的扩散蒸馏",
+      "llm_tldr_en": "Causal-rCM extends the rCM distillation framework to autoregressive video diffusion, combining teacher-forcing and self-forcing for efficient streaming video generation and world models.",
+      "llm_tldr_cn": "自回归视频扩散流生成需要高效推理。本文扩展rCM蒸馏框架到自回归设置，结合教师强制和自我强制，实现快速高质量流视频生成。该方法在保持生成质量的同时显著减少采样步数，适用于实时交互式世界模型。",
+      "llm_tldr": "自回归视频扩散流生成需要高效推理。本文扩展rCM蒸馏框架到自回归设置，结合教师强制和自我强制，实现快速高质量流视频生成。该方法在保持生成质量的同时显著减少采样步数，适用于实时交互式世界模型。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.22976v1",
+      "source": "arxiv",
+      "title": "Understanding Parallel Samplers in Masked Diffusion via Random Walks on Graphs",
+      "abstract": "In this paper, we propose using random walks on graphs as a verifiable sandbox to study different parallel sampling strategies in masked diffusion models (MDMs). We train an MDM on random walk samples from a fixed graph. The graph or the transition kernel is never shown to the model explicitly and plays the role of latent structure in the sequences, albeit one that is controllable and can be used for quantitative evaluation. Thus, this framework enjoys a Sudoku-like validity check: verifying that an output is a valid walk and estimating the Markov kernel from the walks to measure distribution fidelity.   Using simple graphs, we theoretically prove that parallel unmasking via widely used scores like lowest entropy is not uniformly better than a random parallel sampler; the performance critically depends on the structure of the underlying graph. We develop a new bisection sampler for random walks, which takes logarithmic steps in the sequence length and is provably exact under perfect training. Experiments on various graph walk tasks show that different parallel samplers are better for different graphs even in practice. Our initial experiments on a pretrained OpenWebText MDM show that the bisection-style samplers improve speed-quality tradeoffs even for language generation. Together, these results position graph random walks as a mechanistic benchmark for diagnosing and designing parallel samplers for masked diffusion models.",
+      "authors": [
+        "Vansh Bansal",
+        "Cho Cholyeon",
+        "Syamantak Kumar",
+        "Sujay Sanghavi",
+        "Purnamrita Sarkar"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-06-22T07:56:50+00:00",
+      "link": "https://arxiv.org/pdf/2606.22976v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical analysis of parallel samplers in masked diffusion models",
+      "llm_evidence_cn": "掩码扩散模型中并行采样器的理论分析",
+      "llm_evidence": "掩码扩散模型中并行采样器的理论分析",
+      "canonical_evidence": "掩码扩散模型中并行采样器的理论分析",
+      "llm_tldr_en": "This paper uses random walks on graphs as a sandbox to analyze parallel sampling strategies in masked diffusion models, proving that low-entropy unmasking is not uniformly optimal.",
+      "llm_tldr_cn": "掩码扩散模型中的并行采样策略缺乏理论理解。本文利用图上的随机游走作为可控沙箱，训练掩码扩散模型并分析并行解掩码策略。通过简单图理论证明，基于最低熵等常用分数的并行解掩码并非始终优于随机，为设计更优采样器提供理论指导。",
+      "llm_tldr": "掩码扩散模型中的并行采样策略缺乏理论理解。本文利用图上的随机游走作为可控沙箱，训练掩码扩散模型并分析并行解掩码策略。通过简单图理论证明，基于最低熵等常用分数的并行解掩码并非始终优于随机，为设计更优采样器提供理论指导。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.25548v1",
+      "source": "arxiv",
+      "title": "Concept Removal for Frontier Image Generative Models",
+      "abstract": "Image generative models are trained on massive, largely uncurated internet-scale datasets that contain undesirable visual concepts. Efficiently removing such concepts from the model generations without degrading the quality of output images remains challenging. We introduce a novel concept removal method for frontier diffusion and image autoregressive models, such as SD3.5, Flux, and Infinity. Our intervention replaces the internal bottleneck layer present in all these modern models with a transcoder that is trained to replicate the original layer while structuring it into distinct activation features. This in-place substitution creates an integrated filter through which concept-specific signals can be selectively disabled while preserving the rest of the model's behavior. Since the intervention modifies the model backbone rather than attaching an external component, it remains persistent under white-box access. Empirically, the approach achieves state-of-the-art concept removal performance across modern diffusion and autoregressive models, maintains visual generation quality, provides robustness against adversarial prompts, and supports sequential removal of diverse concepts. This positions our method as a practical approach for concept removal in frontier image generative models.",
+      "authors": [
+        "Aditya Kumar",
+        "Pierre Joly",
+        "Adam Dziedzic",
+        "Franziska Boenisch"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-24T08:25:30+00:00",
+      "link": "https://arxiv.org/pdf/2606.25548v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "concept removal for diffusion image models via bottleneck transcoder",
+      "llm_evidence_cn": "通过瓶颈变换器为扩散图像模型进行概念移除",
+      "llm_evidence": "通过瓶颈变换器为扩散图像模型进行概念移除",
+      "canonical_evidence": "通过瓶颈变换器为扩散图像模型进行概念移除",
+      "llm_tldr_en": "This method replaces the bottleneck layer of frontier image diffusion models with a trained transcoder that structures features, enabling selective concept removal without degrading output quality.",
+      "llm_tldr_cn": "从大规模扩散模型中移除不需要的概念而不影响质量是挑战。本文提出通过可训练变换器替换瓶颈层，将激活特征结构化，从而可以禁用特定概念信号。在SD3.5、Flux等模型上有效移除概念，同时保持生成质量。",
+      "llm_tldr": "从大规模扩散模型中移除不需要的概念而不影响质量是挑战。本文提出通过可训练变换器替换瓶颈层，将激活特征结构化，从而可以禁用特定概念信号。在SD3.5、Flux等模型上有效移除概念，同时保持生成质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

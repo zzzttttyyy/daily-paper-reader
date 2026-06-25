@@ -1,0 +1,1368 @@
+Title: Understanding Parallel Samplers in Masked Diffusion via Random Walks on Graphs
+
+URL Source: https://arxiv.org/pdf/2606.22976v1
+
+Published Time: Tue, 23 Jun 2026 02:47:38 GMT
+
+Number of Pages: 28
+
+Markdown Content:
+# Understanding Parallel Samplers in Masked Diffusion via Random Walks on Graphs 
+
+Vansh Bansal ∗ Cho Cholyeon † Syamantak Kumar ‡ Sujay Sanghavi §
+
+Purnamrita Sarkar ¶
+
+Abstract 
+
+In this paper, we propose using random walks on graphs as a verifiable sandbox to study different parallel sampling strategies in masked diffusion models (MDMs). We train an MDM on random walk samples from a fixed graph. The graph or the transition kernel is never shown to the model explicitly and plays the role of latent structure in the sequences, albeit one that is controllable and can be used for quantitative evaluation. Thus, this framework enjoys a Sudoku-like validity check: verifying that an output is a valid walk and estimating the Markov kernel from the walks to measure distribution fidelity. Using simple graphs, we theoretically prove that parallel unmasking via widely used scores like lowest entropy is not uniformly better than a random parallel sampler; the performance critically depends on the structure of the underlying graph. We develop a new bisection sampler 
+
+for random walks, which takes logarithmic steps in the sequence length and is provably exact under perfect training. Experiments on various graph walk tasks show that different parallel samplers are better for different graphs even in practice. Our initial experiments on a pretrained OpenWebText MDM show that the bisection-style samplers improve speed–quality tradeoffs even for language generation. Together, these results position graph random walks as a mechanistic benchmark for diagnosing and designing parallel samplers for masked diffusion models. 
+
+# 1 Introduction 
+
+Masked diffusion models (MDMs) generate discrete data by iteratively denoising masked tokens [DCLT19, AJH +21, CBDB +22, SAS +24, SHW +24, LME24, ONX +25]. Because the denoiser can be queried on arbitrary partial contexts, inference is inherently any-order: tokens may be revealed left-to-right, adaptively, or in parallel. Recent work has shown that this freedom is not merely a design choice. Token ordering strongly affects generation quality: adaptive unmasking policies improve per-formance on structured tasks such as Sudoku, and multi-token samplers can substantially reduce the number of function evaluations (NFEs), since one denoiser call may reveal a block of tokens rather than a single coordinate [CZJ +22, SSE22, KSK +25, BHGS +25, ABC +25, WZX +26, WZL +25]. This speedup comes with a statistical risk. With exact conditional marginals, any one-coordinate reveal order samples exactly by the chain rule. A parallel update instead replaces the true block 
+
+> ∗
+
+UT Austin SDS, vansh@utexas.edu . Equal contribution. 
+
+> †
+
+UT Austin CS, cc77837@my.utexas.edu . Equal contribution. 
+
+> ‡
+
+UT Austin CS, syamantak@utexas.edu . Equal contribution. 
+
+> §
+
+UT Austin ECE, sanghavi@mail.utexas.edu 
+
+> ¶
+
+UT Austin SDS, purna.sarkar@austin.utexas.edu 
+
+1      
+
+> arXiv:2606.22976v1 [cs.LG] 22 Jun 2026 3612 24
+> average NFEs per sequence (a)
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> coherence (↑)
+> 3612 24
+> average NFEs per sequence (b)
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+
+ST-ER(p=0) ST-ER(p=0.01) 
+
+> bisection bisection_entropy entropy_x1 entropy_x2 entropy_x4 entropy_x6 entropy_x8 random_x1 random_x2 random_x4 random_x6 random_x8
+
+Figure 1: Trained only on unconditional random walks, the model generates conditional walks after endpoints are revealed at test time. Coherence is the fraction of valid generated walks. Unmasking policies yield different speed–coherence tradeoffs, with rankings depending on graph structure: (a) ST–ER( p = 0 ), a spanning tree; (b) ST–ER( p = 0 .01 ), with added random non-tree edges. conditional by a product of one-coordinate marginals, which is valid only when the selected coordi-nates are conditionally independent given the current context. Thus parallel decoding depends not only on block size or uncertainty scores, but on the conditional-dependence structure induced by the reveal order. This is hard to isolate in language, where model error, sampler error, and evaluation noise are intertwined. This leads to the central question of the paper: 
+
+When is parallel unmasking statistically accurate, and how can a sampler choose many tokens at once while respecting the conditional dependence structure of the target distribution? 
+
+We answer this question using graph random walks as a controlled setting where the latent structure is hidden from the model but available for exact evaluation like Sudoku [KSK +25]. Fix a graph 
+
+G = ( V, E ) and length L; training examples are walks X1: L ∈ V L, with vertices treated as categorical tokens and vocabulary V ∪ { [MASK ]}. The model never sees G or its transition kernel, only samples from the walk distribution. Thus, the graph provides controlled latent structure: edge density, bottlenecks (two dense components connected by a few edges), endpoint constraints (two endpoints belonging to two components at the end of the bottleneck). Standard random walks are first-order Markov chains: the next state depends only on the current state and is conditionally independent of the path history. They therefore provide a natural framework for modeling sequential processes. Higher-order variants extend this framework by allowing transitions to depend on multiple previous states, making them useful for capturing memory effects in settings such as web navigation, network flows, and complex networks [CKRS12, REL +14, BGL16, BGL17]. Graph walks also provide an exact validity check: a generated sequence is coherent iff every consecu-tive token pair is an edge in the graph. Thus, they play a Sudoku-like role; the model never sees the constraints, but validity is directly testable, while also giving a tunable family of sequence distribu-tions. Figure 1 shows that small changes in graph structure can flip sampler rankings of coherence. On trees, entropy-guided parallel updates may commit to correlated choices too early, while adding Erdős–Rényi edges creates many competing routes where entropy can first fix useful anchors. This illustrates that parallel decoding is governed by conditional dependence, not uncertainty alone. We therefore introduce bisection-style samplers , motivated by Markov separation in random walks (Section 4). The sampler reveals a small middle block, which separates the two sides, and then recurses in parallel. Under perfect conditionals, it is exact when the block size matches the walk 2order, achieving logarithmic parallel depth. Experiments on graph walks and pretrained masked language models show that this coarse-to-fine schedule improves speed–quality tradeoffs beyond the graph benchmark. 
+
+Contributions. Our primary contributions are summarized below. 
+
+1. A controlled benchmark for parallel masked diffusion. We formulate graph random walks as a masked diffusion task, in which the model only has sample access to random walks in the graph, but the graph is available for evaluation . The benchmark supports unconditional generation, endpoint-conditioned walks, and higher-order random walks, with coherence and transition total variation (TV) distance as direct evaluation metrics. 
+
+2. Separations between parallel unmasking policies. We show that exact sequential un-masking is order-invariant, while parallel unmasking is not. Simple DAG constructions show that lowest-entropy two-at-a-time unmasking can outperform random unmasking on some graphs and underperform it on others, demonstrating that no local uncertainty score is uniformly optimal. 
+
+3. A bisection sampler for random walks. We introduce bisection-style samplers that reveal separator positions or separator blocks and then recurse. For order-k Markov walks, the sampler is exact under perfect conditionals for both unconditional walks and endpoint-conditioned walks, with O(k log( L/k )) NFEs. 
+
+4. Transfer beyond graph walks. On a pretrained OpenWebText MDM, bisection-style sched-ules improve non-autoregressive speed–quality tradeoffs across MAUVE, generative perplexity, en-tropy, and repetition, suggesting that graph walks can inform sampler design beyond the sandbox. The rest of the paper is organized as follows. Section 2 introduces the graph-walk sequence distri-butions, the masked diffusion setup, and the unmasking policies studied in the paper. Section 3 gives graph constructions showing that parallel entropy and random unmasking can each outper-form the other, depending on the underlying conditional-dependence structure. Section 4 introduces bisection-style samplers and proves their exactness under perfect conditionals, while Sections 5 and 6 evaluate the samplers on graph walks and language generation. 
+
+# 2 Preliminaries 
+
+2.1 Graph-walk sequence distributions 
+
+Let G = ( V, E ) be a finite graph, and write u ∼ v if (u, v ) ∈ E. We consider random walks with self-loops, so a transition from u may move to any v ∈ N (u) ∪ { u}. Each walk is represented as a sequence of node IDs, so the sequence vocabulary is V . Fix a length L and an order k ≥ 1.An order-k graph walk is a process X1: L ∈ V L such that, for ℓ ≥ k, Pr( Xℓ+1 = v | X1: ℓ =
+
+x1: ℓ) = Pk(v | xℓ−k+1: ℓ). Given an initial law ρk on length-k histories, the induced path law is 
+
+νk(x1: L) = ρk(x1: k) QL−1 
+
+> ℓ=k
+
+Pk(xℓ+1 | xℓ−k+1: ℓ).
+
+For k = 1 , this recovers the lazy random walk; on an unweighted graph, P1(v | u) = 1 /(deg( u) + 1) 
+
+if v = u or v ∼ u, and 0 otherwise. We also consider endpoint-conditioned bridges. For s, t ∈ V with 
+
+νk(X1 = s, X L = t) > 0, define νs,t k := νk(· | X1 = s, X L = t). When the order and conditioning mode are clear, we write ν for the target sequence distribution, either νk or νs,t k .32.2 Masked diffusion model for graph-walk sequences 
+
+We use a masked diffusion language model (MDLM)[SAS +24] as a generator for samples from ν.The model vocabulary is V ∪ { [MASK ]}, where [MASK ] is a distinguished mask token. For U ⊆ [L],denote XU = ( Xi)i∈U and xU ⊕ [MASK ][L]\U for the sequence that agrees with xU on U and is masked elsewhere. We follow the standard MDLM setup: during training, coordinates of X1: L ∼ ν
+
+are randomly masked, and the denoising loss trains the model to predict the clean token at each masked coordinate. Vertex labels are treated as arbitrary categorical tokens: the model is never given E, the transition kernel, or any graph features, so crucially, the graph appears only through samples. Thus, given xU ⊕ [MASK ][L]\U , the model returns one-coordinate marginals 
+
+pi(· | xU ) := pθ,i (· | xU ⊕ [MASK ][L]\U ), i ∈ [L] \ U, 
+
+which we interpret as approximations to ν(Xi = · | XU = xU ).At inference, generation starts from an initial revealed set U0. For unconditional generation, U0 = ∅.For bridge generation, we reveal endpoints of a held-out path and set U0 = {1, L } with eX1 = x1
+
+and eXL = xL. At round r, let Mr = [ L] \ Ur. Given eXUr = xUr , an unmasking policy chooses a block Br ⊆ Mr, samples independently eXi ∼ pi(· | xUr ), i ∈ Br, and updates Ur+1 = Ur ∪ Br.The baseline policies differ only in how they choose Br. Random unmasking chooses either one uniformly random coordinate from Mr, or a uniformly random subset of size min {b, |Mr|} in the b-at-a-time version. Greedy entropy chooses the smallest Hi = − P 
+
+> a∈V
+
+pi(a) log pi(a); greedy confidence chooses the largest Ci = max a∈V pi(a); and greedy margin chooses the largest ∆i = p(1)  
+
+> i
+
+−p(2)  
+
+> i
+
+, where 
+
+p(1)  
+
+> i
+
+≥ p(2)  
+
+> i
+
+are the two largest probabilities under pi.If |Br| = 1 at every round and the conditionals are exact, any reveal order samples exactly from 
+
+ν by the probability chain rule. For |Br| > 1, the sampler replaces the true block conditional 
+
+ν(XBr = xBr | XUr = xUr ) by the product Q 
+
+> i∈Br
+
+ν(Xi = xi | XUr = xUr ), which is exact only when the block is conditionally independent given the current context. 
+
+# 3 Theoretically understanding parallel unmasking via graph struc-ture 
+
+In this section, we use simple graph constructions to show that no single parallel unmasking heuristic is uniformly optimal. The key issue is not merely which positions are most certain, but which po-sitions can be revealed together without introducing conditional-dependence errors. Entropy-based samplers help when low-entropy positions act as separators, but can fail when they cluster updates inside a dependent component or leave coupled choices to be sampled independently. Figures 2 and 3 show two simple graph families which expose these behaviors. We will use ν to denote the true underlying distribution and p to denote the distribution learned using the MDM. We operate under the following assumption regarding the learned distribution. 
+
+Assumption 1 (Perfect conditional marginals) . Let ν be the target distribution on paths X1: L =(X1, . . . , X L), and U ⊆ [L] be the currently unmasked set of coordinates. Then, for every par-tial assignment xU satisfying ν(XU = xU ) > 0, the model’s conditional marginal for the masked coordinates is exact, i.e, pi(· | xU ) = ν(Xi = · | XU = xU ) for all i ∈ [L]\U. 
+
+Lemma 5 in Appendix B formally shows that sequential unmasking is order-invariant. It is a direct consequence of the probability product rule and is standard in any-order autoregressive model-4Figure 2: Tree-Line-DAG with d = 3 dis-joint chains and chain length m = 2 .
+
+u1 v1 u2 v2     
+
+> Figure 3: The (K, L )bottleneck DAG, shown with two bottleneck gadgets and L= 4 .
+
+ing [ABC +25, KSK +25, UCG +16, UML14]. We include it for completeness since we apply it to random-walk and random-walk-bridge distributions. In this section, for simplicity of our analysis, we use DAGs with a particular context length so that each level corresponds to a position in the generated walk. We use two-at-a-time random (TR) and entropy (TE) samplers in the analysis, with ties broken uniformly at random. 
+
+3.1 Tree-Line-DAG: parallel entropy beats random 
+
+Definition 1. Fix integers d ≥ 2 and m ≥ 1. Let G(d, m ) be the directed graph with one root vertex 
+
+ρ and d disjoint directed chains of length m emanating from ρ: ρ → vi, 1 → · · · → vi,m . for i ∈ [d].
+
+Lemma 1. Let the context length be L = m + 1 and Assumption 1 hold. Denote by coh TE (d, m )
+
+and coh TR (d, m ) denote the probabilities of generating a coherent directed path in G(d, m ) with TE, and TR samplers respectively. Then 
+
+coh TE (d, m ) = 1 , coh TR (d, m ) = 2
+
+m + 1 + m − 1
+
+d(m + 1) .
+
+The target path is determined by a single hidden chain index I ∈ [d]: the root coordinate is deterministic, and every non-root coordinate reveals the same index I. Lowest-entropy unmasking first selects the deterministic root and one non-root coordinate, which identifies I and makes all remaining coordinates deterministic; random two-at-a-time unmasking succeeds only if its first pair contains the root or if two independently sampled non-root coordinates happen to choose the same chain. The detailed proof is deferred to Appendix C. 
+
+3.2 (K, L ) bottleneck DAG: parallel random beats entropy 
+
+Definition 2. A (K, L ) bottleneck DAG is defined as a graph with 2K bottleneck nodes where each pair is connected by a corridor of L parallel directed paths with two nodes each. 
+
+Lemma 2. Let Assumption 1 hold and coh TR (K), coh TE (K) denote the probabilities of a coherent path generation in the (K, L ) bottleneck DAG with TR and TE respectively. If K is even and L > 1, then 
+
+lim inf 
+
+> K→∞
+
+ coh TR  
+
+> K
+
+− coh TE 
+
+> K
+
+ ≥ 23 + 13L .
+
+5In the bottleneck DAG, errors arise only when two positions from the same dangerous corridor are revealed together but the independently sampled tokens belong to different parallel paths. TR spreads its pairs across all masked positions and therefore rarely hits the same corridor, whereas TE first consumes the low-entropy bottleneck nodes and leaves many corridor positions to be paired with each other; Appendix D formalizes this by comparing the resulting success recurrences. Viewed together, these separations suggest that a parallel unmasking rule should be judged by how each update reshapes the conditional dependencies among the still-masked coordinates. The aim is not merely to select individually predictable coordinates, but to reveal context that makes subse-quent parallel updates safe. In the Tree-Line-DAG, entropy achieves this by fixing the shared chain index, whereas in the bottleneck DAG, random unmasking performs better because its dispersed updates rarely sample both unresolved positions of a corridor together. Marginal uncertainty is therefore only a proxy; the more fundamental objective is to construct conditionally valid parallel updates. A similar principle may apply to creative language tasks: fixing a proof strategy or key lemma, a story twist or joke mechanism, or the central thesis of an idea can constrain the dependent details that follow. More generally, revealing structural anchors may divide the remaining generation into weakly coupled subproblems. For graph walks, the next section makes this idea exact through Markov separators and bisection sampling. 
+
+# 4 A new bisection sampler 
+
+Motivated by the Markov separator structure of graph random walks, we introduce bisection sam-pling. For a first-order random walk, revealing Xt separates the past and future: X<t ⊥⊥ X>t | Xt,i.e. X<t and X>t are conditionally independent given Xt. Thus, one can reveal the midpoint, then recursively reveal midpoints of the remaining subintervals. For an order-k random walk, the sepa-rator is a contiguous block of k tokens rather than a single token. In each active masked interval, we reveal its middle block of size min {k, ℓ } sequentially; once revealed, this block separates the left and right subintervals, which are processed recursively in parallel. We choose middle blocks rather than purely lowest-uncertainty pivots, since score-only choices may lie near an endpoint and create highly imbalanced splits. Algorithm 1 provides the detailed implementation. 
+
+4.1 Exactness of bisection sampling 
+
+Now we show that under Assumption 1, Algorithm 1 returns a correct sample from a conditional or an unconditional distribution. We provide detailed proofs of the results in Appendix E. 
+
+Lemma 3 (Conditional independence for order-k Markov bridges, informal) . Let νs,t k be an endpoint-conditioned order-k Markov bridge. If the revealed set U contains the endpoints and contiguous separator blocks of length at least k, then the masked intervals between separators are conditionally independent given XU . Hence, for blocks Sj in distinct masked intervals and any feasible xU ,
+
+νs,t k (XS1 = xS1 , . . . , X Sm = xSm | XU = xU ) = 
+
+> m
+
+Y
+
+> j=1
+
+νs,t k
+
+ XSj = xSj | XU = xU
+
+ .
+
+For an order-k Markov chain, a revealed contiguous block of length at least k contains all memory needed for transitions crossing that location. Hence, once such separator chunks are fixed, the Markov factorization breaks the bridge likelihood into independent factors over the masked intervals; 6Algorithm 1 Order-k bisection sampling 
+
+Require: Length L, order k, conditionals pi(· | eXU ), initial unmasked set U 
+
+> 1:
+
+while U̸ = {1, . . . , L } do  
+
+> 2:
+
+Let I1, . . . , I m−1 ⊆ U be the current unmasked separator chunks  
+
+> 3:
+
+Let B1, . . . , B m be the masked chunks between consecutive separators  
+
+> 4:
+
+for all Bj = {aj , . . . , b j } in parallel do  
+
+> 5:
+
+ℓj ← | Bj | and rj ← min {ℓj , k } 
+
+> 6:
+
+Choose the middle contiguous block Sj = {τj , τ j + 1 , . . . , τ j + rj − 1} ⊆ Bj 
+
+> 7:
+
+end for  
+
+> 8:
+
+for h = 1 , . . . , k do  
+
+> 9:
+
+for all j such that h ≤ | Sj | in parallel do  
+
+> 10:
+
+Let i be the hth position in Sj 
+
+> 11:
+
+Sample eXi ∼ pi(· | eXU ) 
+
+> 12:
+
+end for  
+
+> 13:
+
+Add all positions sampled in this substep to U 
+
+> 14:
+
+end for  
+
+> 15:
+
+end while  
+
+> 16:
+
+return eX1: L
+
+endpoint conditioning only fixes the outer boundary values and does not recouple intervals separated by revealed length-k blocks. 
+
+Lemma 4 (Exactness of order-k bisection sampling) . Let ν be an order-k random-walk law on X1: L,either unconditional or conditioned on fixed endpoints. In the conditioned case, assume the endpoints belong to the initial revealed set U0. Suppose the model conditionals satisfy Assumption 1, i.e. agree with the true one-coordinate conditional marginals of ν at every context visited by Algorithm 1. If 
+
+eνbis  
+
+> k
+
+denotes the law of the output eX1: L, then eνbis  
+
+> k
+
+= ν. Moreover, the parallel sampling depth is 
+
+O(k(1 + log( L/k ))) .
+
+At each bisection level, Algorithm 1 selects one new separator block inside each currently masked interval. By Lemma 3, these blocks are conditionally independent given the current revealed context, so sampling their coordinates from exact one-coordinate conditionals gives the correct joint block conditional. Chaining this argument over bisection levels gives exactness, and choosing middle blocks shrinks every active interval by a constant factor, giving O(k log( L/k )) parallel depth. 
+
+4.2 Score-guided bisection sampling 
+
+To combine score-guided unmasking with balanced bisection, we use the score to choose a pivot inside a balanced region. In each active masked chunk, the sampler first restricts attention to the middle half and chooses the lowest-uncertainty pivot there based on the provided score. It then grows a contiguous separator block by repeatedly revealing the lower-uncertainty frontier neighbor based on the same score. The middle-half restriction ensures that each recursive subproblem shrinks by a constant factor, while the contiguous growth produces a valid order-k separator. Hence the parallel depth remains O(k log( L/k )) . The full algorithm is provided in Appendix F. 75 Experiments 
+
+We use the graph-walk MDM setup from Section 2.2 to experimentally illustrate how the underlying latent graph structure affects the performance of different parallel samplers. In all graph experi-ments, the vocabulary is the vertex set V (and a [MASK ] token) with |V | = 500 . For each graph, we train an MDM on random-walk samples from the unconditional path law ν described previosuly. 
+
+ST-ER (p) graphs. We begin by constructing a spanning-tree backbone. Starting from a single root vertex, we grow a connected set one vertex at a time: at each step, we attach one not-yet-added vertex to one vertex already in the connected set, both chosen uniformly at random. After |V | − 1
+
+steps, this gives a spanning tree T , and therefore guarantees that the graph is connected. We then add each remaining non-tree edge independently with probability p. The tree backbone guarantees connectivity, while the Erdős-Rényi edges controls the average degree. 
+
+Bottleneck graphs. Our second family creates explicit community bottlenecks. These graphs are dense within communities but have rare edges across them. We use them for endpoint-conditioned bridge generation: placing the endpoints in different communities forces the model to discover these inter-community bottleneck edges. This is a test of model’s compositional reasoning: the model sees ample walks within the community, however crossings between communities are rare in training. 
+
+5.1 Metrics 
+
+Graph walks allow exact validation without likelihood estimates or judge models. For an order-
+
+k walk with initial law ρk and transition kernel Pk, we define the sequence-level coherence of a generated sample eX1: L as 
+
+coh k( eX1: L) = 1{ρk( eX1: k) > 0}
+
+> L−1
+
+Y
+
+> ℓ=k
+
+1
+
+n
+
+Pk( eXℓ+1 | eXℓ−k+1: ℓ) > 0
+
+o
+
+.
+
+We report coherence by averaging this quantity over generated samples. Thus coherence is a support-validity check: it equals one iff the generated sequence is a valid walk under the data-generating rule, and becomes zero after the first illegal transition. Coherence does not measure whether the sampler matches the correct transition statistics. For un-conditional first-order walks, we also report row-weighted transition total variation. More generally, let bPk(· | h) be the empirical next-token distribution after history h ∈ V k, and let bω(h) be the empirical frequency of that history. We define 
+
+TV k = 12
+
+X  
+
+> h∈Vk:bω(h)>0
+
+bω(h) X
+
+> v∈V
+
+bPk(v | h) − Pk(v | h) .
+
+In the main experiments we report TV 1 only, since estimating bPk over V k becomes sparse for k > 1.
+
+5.2 Unconditional random-walk generation 
+
+In the unconditional task, generation starts from the fully masked sequence and targets the uncon-ditioned path law ν. We evaluate unmasking policies on ST-ER graphs while varying the graph density. The main evaluation metrics are coherence for correctness and transition TV for distribu-tion fidelity. 8In Figure 4, we show both of these metrics on two graphs: ST-ER( p = 0 ), which is just a spanning tree and ST-ER( p = 0 .01 ), where we add random edges as described above. Similar to Figure 1, we see that changing just the edge density significantly changes the performance gap between random and entropy based samplers, both in terms of coherence and the transition TV. Moreover, bisection-style samplers substantially reduce the NFEs while preserving coherence and transition fidelity, whereas aggressive random or entropy-based parallel unmasking can lose coherence depending on the graph structure. 3 6 12 24          
+
+> average NFEs per sequence (a)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> coherence (↑)
+> 3612 24
+> average NFEs per sequence (b)
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> TV error (↓)
+> 3612 24
+> average NFEs per sequence (c)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> coherence (↑)
+> 3612 24
+> average NFEs per sequence (d)
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> TV error (↓)
+
+ST-ER(p=0) ST-ER(p=0.01) 
+
+> bisection bisection_entropy entropy_x1 entropy_x2 entropy_x4 entropy_x6 entropy_x8 random_x1 random_x2 random_x4 random_x6 random_x8
+
+Figure 4: Unconditional random-walk generation on ST-ER graphs. (a,b) report coherence and TV error on ST-ER( p = 0 ). (c,d) report the same metrics on ST-ER( p = 0 .01 ). 
+
+5.3 Endpoint-conditioned bridge generation 1 2 4 8 16                     
+
+> number of bottleneck edges (a)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> coherence (↑)
+> 1234567
+> separation between start-end communities (b)
+> 010 20
+> average NFEs per sequence (c)
+> bisection 5
+> bisection_entropy 7.6
+> entropy_x1 22
+> entropy_x2 11
+> entropy_x4 6
+> entropy_x6 4
+> entropy_x8 3
+> random_x1 22
+> random_x2 11
+> random_x4 6
+> random_x6 4
+> random_x8 3
+
+Figure 5: Endpoint-conditioned bridge generation on bottleneck graph families. (a) shows the two-community bottleneck task (b) shows the chain-of-communities task (c) reports the average NFEs per sequence for each sampler. In the endpoint-conditioned task, we take a held-out path x1: L, reveal x1 and xL, and ask the sampler to fill in the bridge. We evaluate only coherence in this setting. We do not report transition TV for endpoint conditioning, because the bridge law has endpoint-dependent transition statistics different from the unconditional kernel P . Figure 1 shows our results for this for the ST-ER (p) graphs. We also use two bottleneck tests that probe compositional bridge generation. 
+
+Two-community bottleneck. The first setting has two subgraphs V = V1 ⊔ V2, |V1| = |V2| =250 . Each subgraph is sampled independently from the ST-ER (p) family. We then add b inter-subgraph edges between V1 and V2, and vary b. A separate model is trained for each b. For testing, the revealed start and end vertices lie in different subgraphs. As b decreases, the bridge becomes 9harder since the sampler must discover a rarer crossing. This tests whether the sampler can compose local motion inside each community with the global requirement of crossing between communities. Figure 5 (a) shows the performance of different sampling strategies with their corresponding average NFEs in Figure 5 (c). We observe that in this case, even the one-at-a-time sequential random sampler performs better than the corresponding sequential entropy counterpart, while order flips as the bottleneck is relaxed. Moreover, our entropy-guided bisection sampler outperforms all baselines for stronger bottlenecks while being far more computationally efficient. 
+
+Chain of communities. The second setting is a chain of ten communities. We partition V =
+
+V1 ⊔ · · · ⊔ V10 , |Vj | = 50 . Each Gj is again sampled from the same ST-ER (p) family. Let rj ∈ Vj be the root of the spanning tree used to construct Gj . Consecutive communities are connected by a single edge (rj , r j+1 ) for j = 1 , . . . , 9, and there are no edges between non-consecutive communities. We test endpoints in increasingly distant communities. For a separation h, we choose endpoints in Vj
+
+and Vj+h. To construct the test set, we first place the required root-to-root crossing rj , r j+1 , . . . , r j+h
+
+in the middle of the walk. We then generate the left part by randomly walking inside Gj from rj
+
+and reversing the segment, and generate the right part by randomly walking inside Gj+h from rj+h.At test time, only the endpoints are revealed; the intermediate roots and bottleneck crossings are masked. By construction, there exists at least one bridge between the given start and end nodes at the specified distance, so the model must discover at least one such bridge. This creates a long-range compositional reasoning problem for the sampler. To produce a coherent bridge, it must infer not just one bottleneck crossing, but a sequence of hidden community crossings whose length increases with h. Figure 5 (b) shows the performance of different sampling strategies. Entropy-based sampler works well when run sequentially, however becomes comparable or worse than the random sampler when run in parallel. Bisection samplers still maintain coherence that is competitive to sequential samplers while being far more computationally efficient. 
+
+5.4 Order K random walks 
+
+We next evaluate samplers on a graph-walk task with deliberately nonlocal dependencies. Unlike an ordinary random walk, where Xℓ+1 is sampled from the neighbors of the current state Xℓ, this process samples Xℓ+1 from neighbors of distant ancestors in the trajectory. This makes the task a sharper test of whether a sampler preserves higher-order structure: a generated sequence may look locally plausible while still violating the true distant-history rule. We write the path as X1: L. Given a history X1: ℓ, define Aℓ = {j : skip_recent + 1 ≤ j ≤ K, j ≤ ℓ − 1}. If Aℓ̸ = ∅, the transition kernel is 
+
+P (Xℓ+1 = v | X1: ℓ) = 1
+
+|Aℓ|
+
+X
+
+> j∈Aℓ
+
+1{v ∈ N (Xℓ−j )}|N (Xℓ−j )| .
+
+If Aℓ = ∅, we use the one-step non-lazy random-walk kernel P (Xℓ+1 = v | X1: ℓ) = 1{v ∈
+
+N (Xℓ)}/|N (Xℓ)|. In our main experiment, K = 4 and skip_recent = 2 , so once enough his-tory is available, Aℓ = {3, 4}. Thus Xℓ+1 is sampled from a neighbor of either Xℓ−3 or Xℓ−4, while the two most recent states are ignored by the data-generating rule. The same coherence metric is used for the support-validity check as above, specialized to the nonlocal transition rule. A generated transition is valid if either Aℓ = ∅ and eXℓ+1 ∈ N ( eXℓ), or Aℓ̸ = ∅ and 
+
+eXℓ+1 ∈ N ( eXℓ−j ) for some j ∈ Aℓ. Writing ϕℓ( eX1: L) for this indicator, we report coh dist -K ( eX1: L) = 
+
+QL−1 
+
+> ℓ=1
+
+ϕℓ( eX1: L), averaged over generated samples. 10 1 2 3 4 5 6   
+
+> k
+> 0.55
+> 0.60
+> 0.65
+> 0.70
+> 0.75
+> 0.80
+> 0.85
+> 0.90
+> 0.95
+> coherence (↑)
+> bisection bisection_entropy entropy_x1 random_x1
+
+Figure 6: Distant-K coherence versus sam-pler memory order. The true data-generating history parameter is K = 4 (vertical dashed line). Dotted horizontal lines show random and entropy one-token baselines. Error bars are standard deviations across four batch means. 10 1 10 2 10 3    
+
+> average NFEs per sequence (a)
+> 10 −2
+> 10 −1
+> 10 0
+> MAUVE (↑)
+> 10 110 210 3
+> average NFEs per sequence (b)
+> 2
+> 3
+> 4
+> 5
+> entropy (↑)
+> 10 110 210 3
+> average NFEs per sequence (c)
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> rep-1 (↓)
+> bisection bisection_entropy entropy_x1 entropy_x2 entropy_x4 entropy_x8 random_x1 random_x2 random_x4 random_x8 entropy_bounded autoregressive
+
+Figure 7: Speed-quality tradeoffs for language generation with a pretrained OpenWebText MDLM using different samplers. We report (a) MAUVE ( ↑); (b) entropy ( ↑); (c) token repetition rate ( ↓). The x-axis is the average NFEs per sequence. We train on an ST-ER (p) graph with |V | = 500 , p = 0 .01 , walk length L = 24 , and 50 ,000 training trajectories. As before, the model sees only sampled trajectories; the graph and the distant-history transition rule are not provided to it. We compare divide-half bisection, entropy-guided bisection, and one-token random and entropy baselines. For each sampler setting, we generate 1024 samples, split them into four batches of size 256 , and report mean distant-K coherence with standard-deviation error bars. Figure 6 shows that bisection samplers improve as the sampler memory order approaches the true dependency scale K = 4 . Divide-half bisection remains slightly below the ran-dom one-token baseline, whereas entropy-guided bisection achieves substantially higher coherence. The entropy one-token sampler performs best overall, but requires one model call per generated coordinate. Thus the distant-history experiment again shows the central speed–coherence trade-off: bisection-style schedules recover the benefit of adaptive sequential unmasking at substantially smaller parallel depth. 
+
+# 6 Implications for language 
+
+Setup. We evaluate sampler quality on the OpenWebText (OWT) dataset [GCPT19] using 1024 generated samples per method with top-p = 0 .9 sampling. We use the MDLM checkpoint trained on OWT [SAS +24, WSSK25] and compare the main sampler families shown in Figure 7. The x-axis reports average NFEs per sequence. In the main paper, we report MAUVE [PSZ +21] with 2048 11 reference validation samples, token entropy and uni-gram repetition scores. MAUVE measures the distributional similarity between generated and reference text by comparing their representations in a quantized embedding space; higher MAUVE indicates that generated samples more closely match the reference text distribution. Additional metrics like generative perplexity and bi-/tri-gram repetition scores are deferred to Appendix G. Higher is better for MAUVE and entropy, while lower is better for repetition. 
+
+Results. Figure 7 shows a clear compute–quality tradeoff. The autoregressive baseline is strongest overall, but uses roughly 1023 NFEs per sequence. Among non-autoregressive methods, bisection-based samplers perform best: entropy-guided bisection reaches MAUVE ≈ 0.16 at about 145 NFEs, while standard bisection reaches MAUVE ≈ 0.13 at about 161 NFEs. Both versions also maintain comparable or better diversity than all other non-autoregressive baselines. Low generative perplexity alone is not predictive of quality: as we show in Figure 8 in Appendix G, constant-entropy and entropy-bounded samplers achieve low perplexity, but have poor MAUVE, consistent with prior observations [WSSK25]. Overall, bisection, especially entropy-guided bisection, gives the strongest non-autoregressive speed-quality tradeoff in the main-paper metrics, suggesting that although the bisection sampler is motivated by exact conditional separation in random walks, the same coarse-to-fine unmasking pattern improves language generation as well. 
+
+# 7 Conclusion and future directions 
+
+We introduced graph random walks as a controlled benchmark for understanding parallel sampling in masked diffusion models. The graph is hidden from the model but available for evaluation, giving direct checks of support validity through coherence and distributional fidelity through transition TV. Within this benchmark, we showed that parallel unmasking depends on conditional independence rather than local uncertainty alone, and proposed bisection-style samplers that exploit Markov separators to obtain logarithmic parallel depth under perfect conditional marginals. Several directions remain open. First, our theory assumes exact conditional marginals; an impor-tant next step is to quantify how estimation error in the denoiser propagates through sequential, parallel, and bisection samplers, including why learned one-token random and entropy samplers can behave differently despite exact sequential sampling being order-invariant. Second, the bisection sampler is tailored to finite-order Markov structures, whereas language exhibits longer-range de-pendencies that do not vanish beyond a fixed context window. Developing adaptive coarse-to-fine samplers that learn approximate separator structure from model uncertainty or hidden states is a natural extension. Third, graph walks provide many additional stress tests beyond those studied here, including directed graphs, weighted kernels, nonreversible walks, time-inhomogeneous Markov chains, and larger community hierarchies. Finally, the encouraging OpenWebText results suggest that insights from graph walks can inform practical decoding for large masked language models; scaling these experiments and combining bisection with remasking or verifier-guided correction are promising future directions. 
+
+# Acknowledgments 
+
+SK gratefully acknowledges funding support from the Amazon AI PhD Fellowship. PS gratefully acknowledges NSF grants 2217069 and CCF-2505865. VB is grateful to Dr. Vaishnavh Nagarajan (Google DeepMind) for discussions during a separate collaboration that deepened his understanding 12 of planning problems and reasoning in language models, providing useful background for the present work. We all thank Dr. Adam Klivans and the Institute for Foundations of Machine Learning (IFML) at UT Austin for providing the computing resources. 
+
+# References 
+
+[ABC +25] Nima Anari, Carlo Baronio, CJ Chen, Alireza Haqi, Frederic Koehler, Anqi Li, and Thuy-Duong Vuong. Parallel sampling via autospeculation. arXiv preprint arXiv:2511.07869 , 2025. [AGC +25] Marianne Arriola, Aaron Gokaslan, Justin T. Chiu, Zhihan Yang, Zhixuan Qi, Jiaqi Han, Subham Sekhar Sahoo, and Volodymyr Kuleshov. Block diffusion: Interpolating between autoregressive and diffusion language models. In The Thirteenth International Conference on Learning Representations , 2025. [AJH +21] Jacob Austin, Daniel D. Johnson, Jonathan Ho, Daniel Tarlow, and Rianne van den Berg. Structured denoising diffusion models in discrete state-spaces. In Advances in Neural Information Processing Systems , volume 34, pages 17981–17993, 2021. [BGL16] Austin R. Benson, David F. Gleich, and Jure Leskovec. Higher-order organization of complex networks. Science , 353(6295):163–166, 2016. [BGL17] Austin R Benson, David F Gleich, and Lek-Heng Lim. The spacey random walk: A stochastic process for higher-order data. SIAM Review , 59(2):321–345, 2017. [BHGS +25] Heli Ben-Hamu, Itai Gat, Daniel Severo, Niklas Nolte, and Brian Karrer. Accelerated sampling from masked diffusion models via entropy bounded unmasking. In Advances in Neural Information Processing Systems , 2025. [CBDB +22] Andrew Campbell, Joe Benton, Valentin De Bortoli, Thomas Rainforth, George Deli-giannidis, and Arnaud Doucet. A continuous time framework for discrete denoising models. In Advances in Neural Information Processing Systems , volume 35, pages 28266–28279, 2022. [CKRS12] Flavio Chierichetti, Ravi Kumar, Prabhakar Raghavan, and Tamas Sarlos. Are web users really markovian? In Proceedings of the 21st international conference on World Wide Web , pages 609–618, 2012. [CYB +24] Andrew Campbell, Jason Yim, Regina Barzilay, Tom Rainforth, and Tommi Jaakkola. Generative flows on discrete state-spaces: Enabling multimodal flows with applications to protein co-design. In Proceedings of the 41st International Conference on Machine Learning , volume 235 of Proceedings of Machine Learning Research , pages 5453–5512. PMLR, 2024. [CZJ +22] Huiwen Chang, Han Zhang, Lu Jiang, Ce Liu, and William T. Freeman. Maskgit: Masked generative image transformer. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 11315–11325, 2022. [DCLT19] Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. BERT: Pre-training of deep bidirectional transformers for language understanding. In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computa-tional Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers) ,pages 4171–4186. Association for Computational Linguistics, 2019. 13 [GCPT19] Aaron Gokaslan, Vanya Cohen, Ellie Pavlick, and Stefanie Tellex. Openwebtext corpus. 
+
+http://Skylion007.github.io/OpenWebTextCorpus , 2019. [GLF +23] Shansan Gong, Mukai Li, Jiangtao Feng, Zhiyong Wu, and Lingpeng Kong. Diffuseq: Sequence to sequence text generation with diffusion models. In The Eleventh Interna-tional Conference on Learning Representations , 2023. [GRS +24] Itai Gat, Tal Remez, Neta Shaul, Felix Kreuk, Ricky T. Q. Chen, Gabriel Synnaeve, Yossi Adi, and Yaron Lipman. Discrete flow matching. In Advances in Neural Infor-mation Processing Systems , volume 37, 2024. [HNJ +21] Emiel Hoogeboom, Didrik Nielsen, Priyank Jaini, Patrick Forré, and Max Welling. Argmax flows and multinomial diffusion: Learning categorical distributions. In Ad-vances in Neural Information Processing Systems , volume 34, 2021. [HST +23] Zhengfu He, Tianxiang Sun, Qiong Tang, Kuanning Wang, Xuanjing Huang, and Xipeng Qiu. DiffusionBERT: Improving generative masked language models with diffusion models. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics , pages 4521–4534, Toronto, Canada, 2023. Association for Computational Linguistics. [KMM +13] Florent Krzakala, Cristopher Moore, Elchanan Mossel, Joe Neeman, Allan Sly, Lenka Zdeborová, and Pan Zhang. Spectral redemption in clustering sparse networks. Pro-ceedings of the National Academy of Sciences , 110(52):20935–20940, 2013. [KSK +25] Jaeyeon Kim, Kulin Shah, Vasilis Kontonis, Sham M. Kakade, and Sitan Chen. Train for the worst, plan for the best: Understanding token ordering in masked diffusions. In Proceedings of the 42nd International Conference on Machine Learning , 2025. Out-standing Paper Award. [LME24] Aaron Lou, Chenlin Meng, and Stefano Ermon. Discrete diffusion modeling by esti-mating the ratios of the data distribution. In Proceedings of the 41st International Conference on Machine Learning , volume 235 of Proceedings of Machine Learning Re-search . PMLR, 2024. [LTG +22] Xiang Lisa Li, John Thickstun, Ishaan Gulrajani, Percy Liang, and Tatsunori B. Hashimoto. Diffusion-LM improves controllable text generation. In Advances in Neural Information Processing Systems , volume 35, pages 4328–4343, 2022. [NZY +25] Shen Nie, Fengqi Zhu, Zebin You, Xiaolu Zhang, Jingyang Ou, Jun Hu, Jun Zhou, Yankai Lin, Ji-Rong Wen, and Chongxuan Li. Large language diffusion models. arXiv preprint arXiv:2502.09992 , 2025. [ONX +25] Jingyang Ou, Shen Nie, Kaiwen Xue, Fengqi Zhu, Jiacheng Sun, Zhenguo Li, and Chongxuan Li. Your absorbing discrete diffusion secretly models the conditional dis-tributions of clean data. In The Thirteenth International Conference on Learning Representations , 2025. [PSZ +21] Krishna Pillutla, Swabha Swayamdipta, Rowan Zellers, John Thickstun, Sean Welleck, Yejin Choi, and Zaid Harchaoui. MAUVE: Measuring the gap between neural text and human text using divergence frontiers. In Advances in Neural Information Processing Systems , volume 34, 2021. 14 [REL +14] Martin Rosvall, Alcides V Esquivel, Andrea Lancichinetti, Jevin D West, and Renaud Lambiotte. Memory in network flows and its effects on spreading dynamics and com-munity detection. Nature communications , 5(1):4630, 2014. [SAS +24] Subham Sekhar Sahoo, Marianne Arriola, Yair Schiff, Aaron Gokaslan, Edgar Mariano Marroquin, Justin T. Chiu, Alexander M. Rush, and Volodymyr Kuleshov. Simple and effective masked diffusion language models. In Advances in Neural Information Processing Systems , 2024. [SHW +24] Jiaxin Shi, Kehang Han, Zhe Wang, Arnaud Doucet, and Michalis K. Titsias. Simplified and generalized masked diffusion for discrete data. In Advances in Neural Information Processing Systems , 2024. [SSE22] Andy Shih, Dorsa Sadigh, and Stefano Ermon. Training and inference on any-order autoregressive models the right way. In Advances in Neural Information Processing Systems , volume 35, pages 2762–2775, 2022. [SYD +23] Haoran Sun, Lijun Yu, Bo Dai, Dale Schuurmans, and Hanjun Dai. Score-based continuous-time discrete diffusion models. In The Eleventh International Conference on Learning Representations , 2023. [UCG +16] Benigno Uria, Marc-Alexandre Côté, Karol Gregor, Iain Murray, and Hugo Larochelle. Neural autoregressive distribution estimation. Journal of Machine Learning Research ,17(205):1–37, 2016. [UML14] Benigno Uria, Iain Murray, and Hugo Larochelle. A deep and tractable density es-timator. In Proceedings of the 31st International Conference on Machine Learning ,volume 32 of Proceedings of Machine Learning Research , pages 467–475. PMLR, 2014. [WSSK25] Guanghan Wang, Yair Schiff, Subham Sekhar Sahoo, and Volodymyr Kuleshov. Re-masking discrete diffusion models with inference-time scaling. In Advances in Neural Information Processing Systems , 2025. arXiv:2503.00307v4, revised 7 February 2026. [WZL +25] Qingyan Wei, Yaojie Zhang, Zhiyuan Liu, Dongrui Liu, and Linfeng Zhang. Accelerat-ing diffusion large language models with slowfast sampling: The three golden principles. 
+
+arXiv preprint arXiv:2506.10848 , 2025. [WZX +26] Chengyue Wu, Hao Zhang, Shuchen Xue, Zhijian Liu, Shizhe Diao, Ligeng Zhu, Ping Luo, Song Han, and Enze Xie. Fast-dllm: Training-free acceleration of diffusion llm by enabling kv cache and parallel decoding. In The Fourteenth International Conference on Learning Representations , 2026. [YZB +23] Jiasheng Ye, Zaixiang Zheng, Yu Bao, Lihua Qian, and Quanquan Gu. Diffusion language models can perform many tasks with scaling and instruction-finetuning. arXiv preprint arXiv:2308.12219 , 2023. 15 Appendix organization. The appendix is organized as follows. 
+
+• Appendix A : Provides additional preliminaries and related work on masked diffusion models, any-order unmasking, and higher-order random walks on graphs. 
+
+• Appendix B : Gives the deferred proof that exact one-token-at-a-time unmasking is order-invariant under perfect conditional marginals. 
+
+• Appendix C : Proves the Tree-Line-DAG separation, where entropy-based two-at-a-time un-masking succeeds while random two-at-a-time unmasking can fail. 
+
+• Appendix D : Proves the bottleneck-DAG separation, where random two-at-a-time unmask-ing outperforms entropy-based two-at-a-time unmasking. 
+
+• Appendix E : Contains the formal conditional-independence and exactness proofs for order-k
+
+bisection sampling. 
+
+• Appendix F : Gives the full score-guided bisection algorithm used to combine balanced re-cursive splitting with entropy-based pivot choices. 
+
+• Appendix G : Provides additional language experiments on the OpenWebText dataset 
+
+• Appendix H : Reports compute resources and runtime details for the graph-walk training and sampler-evaluation experiments. 
+
+• Appendix I : Provides licenses for external codebase and dataset used. 
+
+• Appendix J : Provides additional coherence tables for graph random-walk samplers across graph families, conditioning regimes, and unmasking policies. 
+
+# A Additional preliminaries and related work 
+
+The main text uses masked diffusion models through a black-box conditional marginal view: given a partially revealed sequence xU , the denoiser returns one-coordinate distributions pi(· | xU ) for masked coordinates i / ∈ U . This appendix records the standard MDLM details behind this view and expands the related-work discussion. 
+
+A.1 Additional details on masked diffusion models 
+
+Absorbing corruption. Masked diffusion models for discrete data commonly use an absorbing-state corruption process [AJH +21, CBDB +22, SAS +24, SHW +24]. Let V be the clean vocabulary and let [MASK ] /∈ V be the absorbing mask token. For a decreasing schedule αt ∈ [0 , 1] with α0 = 1 
+
+and α1 = 0 , the forward process masks coordinates independently: 
+
+qt(z | x) = 
+
+> L
+
+Y
+
+> i=1
+
+ αtδxi (zi) + (1 − αt)δ[MASK ](zi) .
+
+Thus Zt is exactly a partially revealed version of X, with revealed set Ut = {i : Zt,i ̸ = [ MASK ]}.
+
+Reverse update. For 0 ≤ s < t ≤ 1, if Zt,i ̸ = [ MASK ], the absorbing coordinate is copied unchanged. If Zt,i = [ MASK ], then the exact reverse posterior, conditioned on the clean token, unmasks with probability ρs,t := ( αs − αt)/(1 − αt) and otherwise remains masked: 
+
+Pr( Zs,i = · | Zt,i = [ MASK ], X i) = ρs,t δXi (·) + (1 − ρs,t )δ[MASK ](·).
+
+16 Since Xi is unknown at generation time, the learned sampler replaces δXi by a denoiser pθ,i (· | Zt).Equivalently, a finite reverse step first chooses a subset of currently masked coordinates and then samples each chosen coordinate independently from its one-coordinate denoising distribution. In the infinitesimal limit s = t − dt , ρs,t = O(dt ), so for fixed L the probability of revealing two or more coordinates in one infinitesimal interval is O(dt 2). This motivates viewing continuous-time MDLM sampling as a one-coordinate-at-a-time jump process, while finite-step or accelerated samplers may reveal multiple coordinates from the same denoiser call. 
+
+Training objective. The usual MDLM objective is a schedule-weighted denoising cross-entropy over masked coordinates [SAS +24, SHW +24]. In the notation of the main text, a typical loss has the form 
+
+L(θ) = EX∼ν, t, Z t∼qt(·| X)
+
+X
+
+> i:Zt,i =[ MASK ]
+
+w(t) ( − log pθ,i (Xi | Zt)) ,
+
+for a nonnegative schedule-dependent weight w(t). Our theoretical results do not depend on the exact choice of w(t); they only use the induced conditional-marginal interpretation pi(· | xU ) ≈
+
+ν(Xi = · | XU = xU ), formalized in Assumption 1. 
+
+A.2 Related work 
+
+Discrete and masked diffusion models. Diffusion models for discrete data have been de-veloped through several closely related formalisms. Early work introduced structured categorical corruptions and multinomial diffusion processes [AJH +21, HNJ +21], while continuous-time for-mulations model the forward and reverse dynamics as jump processes or continuous-time Markov chains [CBDB +22, SYD +23]. More recent approaches improve the learning objective or parameter-ization for discrete denoising, including score-entropy ratio estimation and simplified masked objec-tives [LME24, SAS +24, SHW +24]. Discrete flow models and discrete flow matching give another view in which probability paths on finite state spaces are learned through posterior or denoising objectives [CYB +24, GRS +24]. Our work is complementary to these modeling advances: rather than proposing a new training objective, we study how a trained masked denoiser should be queried at inference time. 
+
+Diffusion language models. Several works adapt diffusion or denoising ideas to text generation. Continuous-diffusion language models map tokens through continuous embeddings and enable con-trollable generation [LTG +22, GLF +23], while masked or absorbing-state language diffusion models operate directly over token vocabularies [HST +23, SAS +24, SHW +24]. Recent large-scale diffusion language models and block diffusion models suggest that diffusion-style generation can scale to stronger language modeling regimes and interpolate between autoregressive and non-autoregressive generation [YZB +23, AGC +25, NZY +25]. These models motivate our focus on sampling schedules: if masked diffusion language models are to be competitive at scale, one needs fast parallel samplers that do not destroy global sequence coherence. 
+
+Any-order generation and token ordering. Masked language modeling began as arepresentation-learning objective in models such as BERT [DCLT19], but the same ability to condition on arbitrary visible tokens also enables any-order generation. Any-order-autoregressive and masked generative models exploit this flexibility by choosing which coordinate to reveal next [UML14, UCG +16, SSE22]. In the exact one-token setting, every reveal order is valid by the chain rule, but practical orderings can substantially affect sample quality. MaskGIT popularized 17 confidence-based iterative decoding [CZJ +22], and recent work shows that token ordering matters sharply in masked diffusion models, including structured tasks such as Sudoku [KSK +25]. Our graph benchmark isolates the same phenomenon in a setting where the latent constraint structure is controllable and directly checkable. 
+
+Parallel and accelerated masked decoding. The main computational appeal of masked diffu-sion is that multiple tokens can be revealed per denoiser call. Recent samplers accelerate generation by choosing larger blocks, adaptive block sizes, or by adding inference-time mechanisms such as KV caching, slow-fast schedules, auto speculation, and remasking [BHGS +25, WZX +26, WZL +25, ABC +25, WSSK25]. These methods improve the speed-quality tradeoff, but a parallel update implicitly replaces a true block conditional by a product of one-coordinate marginals. Our contri-bution is to make this approximation explicit: on graph walks, whether a parallel update is safe is determined by conditional independence in the underlying sequence distribution. 
+
+Random walks and higher-order network dynamics. Random walks and higher-order Markov models are standard tools for modeling sequential structure on graphs. Higher-order vari-ants capture memory effects in web navigation, network flows, community detection, and complex networks [CKRS12, REL +14, KMM +13, BGL16, BGL17]. We use these models in a different role: the walk distribution is a controlled sequence distribution for training and testing masked diffusion samplers. The graph and transition rule are hidden from the model but available to the evaluator, giving exact checks of support validity through coherence and, for first-order unconditional walks, distributional fidelity through transition TV. 
+
+Structured evaluation for generative models. Open-ended text generation is difficult to evaluate with a single scalar metric; distributional metrics such as MAUVE compare generated and human text in an embedding space [PSZ +21], and our language experiments use OpenWebText as the evaluation domain [GCPT19]. Graph walks serve a different purpose: they are not intended as a replacement for language evaluation, but as a mechanistic sandbox where failures can be attributed to support violations or transition-statistic errors. This makes them useful for diagnosing sampler behavior before transferring the resulting schedules back to language generation. 
+
+# B Deferred Proofs from Section 3 
+
+Lemma 5 (Exactness of sequential unmasking) . Let ν be a target distribution on paths X1: L =(X1, . . . , X L), and let σ = ( σ1, . . . , σ L) be an ordering of {1, . . . , L }. Suppose Assumption 1 holds for this order σ. Consider the sequential sampler eXσr ∼ pσr (· | eXUr−1 ), where Ur−1 := {σ1, . . . , σ r−1},for r = 1 , . . . , L . Let eνσ denote the law of eX1: L. Then eνσ = ν.Proof. Fix x1: L ∈ V L. If ν(x1: L) > 0, then every prefix xUk−1 has positive ν-probability, so Assump-tion 1 and the probability chain rule give 
+
+eνσ(x1: L) = 
+
+> L
+
+Y
+
+> k=1
+
+pσk (xσk | xUk−1 ) = 
+
+> L
+
+Y
+
+> k=1
+
+ν(Xσk = xσk | XUk−1 = xUk−1 ) = ν(x1: L).
+
+If ν(x1: L) = 0 , let k be the first index such that ν(XUk = xUk ) = 0 . Then ν(XUk−1 = xUk−1 ) > 0,while ν(Xσk = xσk | XUk−1 = xUk−1 ) = 0 . By Assumption 1, the corresponding multiplicative term in the sampler probability is also zero: pσr (xσr | xUr−1 ) = 0 . Hence eνσ(x1: L) = 0 .18 C A toy graph where entropy-two-at-a-time wins 
+
+Lemma 1. Let the context length be L = m + 1 and Assumption 1 hold. Denote by coh TE (d, m )
+
+and coh TR (d, m ) denote the probabilities of generating a coherent directed path in G(d, m ) with TE, and TR samplers respectively. Then 
+
+coh TE (d, m ) = 1 , coh TR (d, m ) = 2
+
+m + 1 + m − 1
+
+d(m + 1) .
+
+Proof of Lemma 1. The target distribution is supported on the d paths indexed by I ∈ [d]. The first coordinate is deterministic: X1 = ρ. Every non-root coordinate reveals the same hidden chain index I:
+
+Xt+1 = vI,t , t = 1 , . . . , m. 
+
+We first analyze entropy unmasking. Initially, H(X1) = 0 , since X1 is deterministic. For every non-root coordinate t + 1 ,
+
+Xt+1 ∼ Unif {v1,t , . . . , v d,t },
+
+so H(Xt+1 ) = log d. Therefore the greedy lowest-entropy two-at-a-time rule first selects the root coordinate X1 and one non-root coordinate Xj , j ≥ 2.The sampler draws X1 = ρ deterministically. It also draws Xj = vi,j −1 for some i ∈ [d]. This reveals the hidden chain index I = i. Once I = i is known, every remaining coordinate is deterministic: 
+
+Xt+1 = vi,t , t = 1 , . . . , m. 
+
+Thus all later conditional marginals are point masses, and no inconsistency can ever be introduced. Hence coh TE  
+
+> d,m
+
+= 1 .
+
+Now consider random two-at-a-time unmasking. The first random block is a uniformly random two-element subset of the L = m + 1 positions. The probability that this block contains the root coordinate is L − 1
+
+ L
+
+> 2
+
+ = 2
+
+L = 2
+
+m + 1 .
+
+If the first block contains the root, then the other selected coordinate reveals the chain index I,after which all remaining coordinates are deterministic. Thus this case succeeds with probability 1.On the complementary event, the first block contains two non-root coordinates. Suppose the two selected positions are a, b ≥ 2. Under the product-marginal parallel update, the sampler draws 
+
+Xa = vbIa,a −1, Xb = vbIb,b −1,
+
+where bIa, bIb i.i.d.
+
+∼ Unif([ d]) . These two sampled coordinates are jointly extendable to a valid path if and only if they come from the same chain: bIa = bIb. This happens with probability 1/d . If they disagree, no valid path in Gd,m contains both sampled vertices, so the sampler has already failed. If they agree, then the common value fixes I, and all remaining coordinates are deterministic, so the sampler succeeds. Therefore 
+
+coh TR  
+
+> d,m
+
+= 2
+
+m + 1 +
+
+
+
+1 − 2
+
+m + 1 
+
+ 1
+
+d = 2
+
+m + 1 + m − 1
+
+d(m + 1) .
+
+19 D A toy graph where random-two-at-a-time wins 
+
+Lemma 2. Let Assumption 1 hold and coh TR (K), coh TE (K) denote the probabilities of a coherent path generation in the (K, L ) bottleneck DAG with TR and TE respectively. If K is even and L > 1, then 
+
+lim inf 
+
+> K→∞
+
+ coh TR  
+
+> K
+
+− coh TE 
+
+> K
+
+ ≥ 23 + 13L .
+
+Proof of Lemma 2. Let n denote the number of dangerous corridors remaining. Each dangerous corridor contains a pair of internal positions. If these two positions are unmasked in the same parallel round, then the independently sampled channel choices agree with probability 1/L and disagree with probability 1 − 1/L . All other pairs of simultaneously unmasked positions are safe, because they either lie in different corridors or contain a bottleneck position. We first lower bound the success probability of TR. Since the coordinate choices of TR are inde-pendent of the sampled values, the sequence of two-at-a-time choices induces a uniformly random matching M on the initially masked positions. Let m be the number of initially masked positions. For each dangerous pair Di, the probability that Di appears as an edge of M is 1/(m−1) . Therefore, by a union bound, 
+
+1 − coh TR  
+
+> K
+
+= Pr ( TR fails )
+
+≤
+
+> K
+
+X
+
+> i=1
+
+Pr ( Di ∈ M ) Pr ( channel mismatch | Di ∈ M )= Km − 1
+
+
+
+1 − 1
+
+L
+
+
+
+.
+
+The (K, L ) bottleneck DAG has at least 3K initially masked positions. Hence 
+
+1 − coh TR  
+
+> K
+
+≤ K
+
+3K − 1
+
+
+
+1 − 1
+
+L
+
+
+
+,
+
+and consequently 
+
+lim inf  
+
+> K→∞
+
+coh TR  
+
+> K
+
+≥ 1 − 13
+
+
+
+1 − 1
+
+L
+
+
+
+= 23 + 13L .
+
+We now upper bound the success probability of TE. The lowest-entropy coordinates are the bottle-neck coordinates, so the first K two-at-a-time rounds reveal all 2K bottleneck nodes. After this, the only remaining possible errors are the K dangerous internal pairs. Let coh TE  
+
+> n
+
+denote the probability of generating a coherent sequence with entropy-based unmasking when n dangerous pairs remain. If the next entropy round selects the two positions from the same dangerous pair, which occurs with probability 1/(2 n − 1) , then it succeeds with probability 1/L and leaves n − 1 dangerous pairs. Otherwise it selects positions from two different dangerous pairs, which occurs with probability 
+
+(2 n − 2) /(2 n − 1) , and leaves n − 2 dangerous pairs. Therefore 
+
+coh TE  
+
+> n
+
+= 12n − 1 · 1
+
+L coh TE  
+
+> n−1
+
++ 2n − 22n − 1 coh TE 
+
+> n−2
+
+.
+
+Set coh TE  
+
+> 0
+
+= 1 and define 
+
+Hn := max {coh TE  
+
+> n
+
+, coh TE 
+
+> n−1
+
+}.
+
+20 Then 
+
+coh TE  
+
+> n−1
+
+≤
+
+ 12n − 3 · 1
+
+L + 2n − 42n − 3
+
+
+
+Hn−2,
+
+coh TE  
+
+> n
+
+≤
+
+ 12n − 1 · 1
+
+L + 2n − 22n − 1
+
+
+
+Hn−2 =
+
+
+
+1 − 1 − 1/L 
+
+2n − 1
+
+
+
+Hn−2.
+
+Thus 
+
+Hn ≤
+
+
+
+1 − 1 − 1/L 
+
+2n − 1
+
+
+
+Hn−2.
+
+For n = 2 r, using H1 ≤ 1 and H2 ≤ 1,
+
+H2r ≤
+
+> r
+
+Y
+
+> i=2
+
+
+
+1 − 1 − 1/L 
+
+4i − 1
+
+
+
+≤ exp − 1 − 1/L 
+
+4
+
+> r
+
+X
+
+> i=2
+
+1
+
+i
+
+!
+
+≤
+
+ 2
+
+r + 1 
+
+(1 −1/L )/4
+
+.
+
+In particular, coh TE  
+
+> K
+
+→ 0 along even K. Combining this with the lower bound for TR gives 
+
+lim inf 
+
+> K→∞
+
+ coh TR  
+
+> K
+
+− coh TE 
+
+> K
+
+ ≥ 23 + 13L .
+
+# E Deferred Proofs from Section 4.1 
+
+Lemma 6 (Conditional independence for order-k Markov bridges) . Let νk be the law of an order-k
+
+Markov chain on X1: L, and let νs,t k := νk(· | X1 = s, X L = t) be its endpoint-conditioned bridge law. Let U ⊆ [L] contain the endpoints, and suppose the revealed coordinates in U form contiguous separator chunks I0, . . . , I m, ordered from left to right, with |Ij | ≥ k for every internal chunk 1 ≤
+
+j ≤ m − 1. Let Bj be the masked interval between Ij−1 and Ij , and let Sj ⊆ Bj be any contiguous block of length min {| Bj |, k }. Then, for every xU with νs,t k (XU = xU ) > 0,
+
+νs,t k (XS1 = xS1 , . . . , X Sm = xSm | XU = xU ) = 
+
+> m
+
+Y
+
+> j=1
+
+νs,t k
+
+ XSj = xSj | XU = xU
+
+ .
+
+Proof. First note that, conditioned on the I1, . . . I m−1, we have the following conditional indepen-dence structure. 
+
+νk(X1, X S1 , X S2 , . . . , X Sm , X L|XI1 , . . . , X Im−1 )= νk(X1, X S1 |XI1 , . . . , X Im−1 )
+
+> m−1
+
+Y
+
+> i=2
+
+νk(XSi |XI1 , . . . , X Im−1 )νk(XSm , X L|XI1 , . . . , X Im−1 )
+
+Dividing by ν(X1, X L|XI1 , . . . , X Im−1 ) and noticing that X1 and XL are conditionally independent given XI1 , . . . , X Im−1 , we see, 
+
+νk(XS1 , X S2 , . . . , X Sm |X1, X I1 , . . . , X Im−1 , X L)= νk(XS1 |X1, X I1 , . . . , X Im−1 )
+
+> m−1
+
+Y
+
+> i=2
+
+νk(XSi |X1, X I1 , . . . , X Im−1 , I L)νk(XSm |X1, X I1 , . . . , X Im−1 , X L)
+
+21 The last line holds because for all internal Si with i ∈ [2 , m − 1] , XSi and X1 (and XL) are conditionally independent given I1, . . . , I m.
+
+Lemma 4 (Exactness of order-k bisection sampling) . Let ν be an order-k random-walk law on X1: L,either unconditional or conditioned on fixed endpoints. In the conditioned case, assume the endpoints belong to the initial revealed set U0. Suppose the model conditionals satisfy Assumption 1, i.e. agree with the true one-coordinate conditional marginals of ν at every context visited by Algorithm 1. If 
+
+eνbis  
+
+> k
+
+denotes the law of the output eX1: L, then eνbis  
+
+> k
+
+= ν. Moreover, the parallel sampling depth is 
+
+O(k(1 + log( L/k ))) .Proof. Let Ur be the unmasked set at the beginning of bisection level r. Let I1, . . . , I mr −1 be the current unmasked separator chunks, and let B1, . . . , B mr be the masked chunks induced by these separators. For each masked chunk Bj , Algorithm 1 chooses a contiguous block Sj ⊆ Bj , k j := 
+
+|Sj | = min {| Bj |, k }. The positions inside each Sj are then unmasked sequentially, while different chunks are processed in parallel. By Lemma 6, conditional on the current unmasked variables XUr = xUr , the selected blocks from different masked chunks are conditionally independent: 
+
+ν  XS1 = xS1 , . . . , X Smr = xSmr | XUr = xUr
+
+ =
+
+> mr
+
+Y
+
+> j=1
+
+ν  XSj = xSj | XUr = xUr
+
+ .
+
+Now fix a realization x1: L in the support of ν. For each block Sj , write its positions in the order used by the algorithm as Sj = {sj, 1, . . . , s j,k j }. Because the blocks Sj are conditionally independent given 
+
+XUr , conditioning additionally on already unmasked prefixes of these blocks preserves independence across chunks. We will denote by a substep h the sequential unmasking step of each Sj . Therefore, at each substep h, the next positions {sj,h : h ≤ kj } are conditionally independent given the current unmasked variables. Let U denote 
+
+U := Ur ∪ { s1,1, . . . , s 1,h −1} ∪ · · · ∪ { smr ,1, . . . , s mr ,h −1}.
+
+Hence, conditional on the current generated values eXU = xU , the algorithm samples the substep-h
+
+positions with probability Y
+
+> j
+
+psj,h (xsj,h | xU ).
+
+By the perfect conditional marginal assumption (Assumption 1), 
+
+psj,h (xsj,h | xU ) = ν(Xsj,h = xsj,h | XU = xU ).
+
+Using the conditional independence from Lemma 6, this product is exactly the true conditional law of the positions sampled at substep h.Thus, over all h = 1 , . . . , k , the whole level samples exactly from the true conditional law of the newly unmasked blocks: 
+
+p
+
+ eXS1 = xS1 , . . . , eXSmr = xSmr | eXUr = xUr
+
+
+
+= ν  XS1 = xS1 , . . . , X Smr = xSmr | XUr = xUr
+
+ .
+
+After the level is completed, update 
+
+Ur+1 = Ur ∪ S1 ∪ · · · ∪ Smr .
+
+22 Applying the blockwise chain rule over all bisection levels gives 
+
+eνbis  
+
+> k
+
+(x1: L) = Y
+
+> r
+
+ν
+
+
+
+XS(r)1
+
+= xS(r)1
+
+, . . . , X S(r)
+
+> mr
+
+= xS(r)
+
+> mr
+
+| XUr = xUr
+
+
+
+= ν(x1: L).
+
+Therefore eνbis  
+
+> k
+
+= ν. 
+
+It remains to bound the number of rounds. At each bisection level, the algorithm unmasks a contiguous block of at most k positions in each active masked chunk. The selected block lies in the middle of the chunk, so the largest remaining masked chunk decreases by a constant factor until its length is at most k. Thus the number of bisection levels is O(log( L/k )) . Each level requires at most 
+
+k sequential substeps to unmask the selected block, while different masked chunks are processed in parallel. Hence the total parallel sampling depth is O(k log( L/k )) .
+
+# F Score-guided bisection sampling 
+
+In this section, we provide the detailed Algorithm (Algorithm 2) for score guided bisection sampling for Order-k random walks. 
+
+# G Additional metrics for the language experiment 
+
+Figure 8 reports generative perplexity under GPT2-Large, bi-gram and tri-gram repetition rates for the same OpenWebText experiment. All bisection-based samplers, especially entropy-guided bisection, maintain low repetition rates, while maintaining generative perplexity comparable to the AR model. Constant-entropy and entropy-bounded samplers achieve low perplexity, but have poor MAUVE, and high repetition rates consistent with prior observations [WSSK25]. These metrics sup-port the same conclusion as the main-paper results: bisection-based samplers provide the strongest non-autoregressive speed-quality tradeoff. 10 1 10 2 10 3    
+
+> average NFEs per sequence (a)
+> 10 1
+> gen-ppl (↓)
+> 10 110 210 3
+> average NFEs per sequence (b)
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> rep-2 (↓)
+> 10 110 210 3
+> average NFEs per sequence (c)
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> rep-3 (↓)
+> bisection bisection_entropy entropy_x1 entropy_x2 entropy_x4 entropy_x8 random_x1 random_x2 random_x4 random_x8 entropy_bounded autoregressive
+
+Figure 8: Additional language-generation metrics for the pretrained OpenWebText MDLM. We report (a) generative perplexity under GPT2-Large ( ↓), and (b) bi-gram repetition rate ( ↓), (c) tri-gram repetition rate ( ↓) The x-axis is the average NFEs per sequence. 
+
+# H Compute Resources 
+
+All model training and sampler evaluation runs were performed on the TACC Vista cluster. GPU experiments used Vista Grace-Hopper nodes, each with one NVIDIA H200 GPU with 96GB HBM3 23 Algorithm 2 Order-k score-guided bisection sampling 
+
+Require: Sequence length L, maximum growth order k, conditionals pi(· | eXU ), scores si( eXU ),initial unmasked set U 
+
+> 1:
+
+procedure ParallelSample (C, U )
+
+▷ C is a set of disjoint candidate index sets  
+
+> 2:
+
+I ← ∅  
+
+> 3:
+
+for all C ∈ C in parallel do  
+
+> 4:
+
+Choose i ∈ arg min j∈C sj ( eXU ) 
+
+> 5:
+
+Sample eXi ∼ pi(· | eXU ) 
+
+> 6:
+
+I ← I ∪ { i} 
+
+> 7:
+
+end for  
+
+> 8:
+
+U ← U ∪ I ▷ Synchronous state update  
+
+> 9:
+
+return I, U  
+
+> 10:
+
+end procedure  
+
+> 11:
+
+procedure BisectionSample (L, k, U ) 
+
+> 12:
+
+while U̸ = {1, . . . , L } do  
+
+> 13:
+
+B ← { B | B is a maximal contiguous masked chunk in {1, . . . , L } \ U } 
+
+> 14:
+
+▷ Phase 1: Unmask centers  
+
+> 15:
+
+Ccenter ← { C ⊆ B | B ∈ B , C is the centered sub-interval of size ⌈| B|/2⌉}  
+
+> 16:
+
+I, U ← ParallelSample (Ccenter , U ) 
+
+> 17:
+
+Initialize active separators AB ← B ∩ I for all B ∈ B  
+
+> 18:
+
+▷ Phase 2: Grow separators outwards  
+
+> 19:
+
+for h = 2 , . . . , k do  
+
+> 20:
+
+Bactive ← { B ∈ B | | AB | < |B|}  
+
+> 21:
+
+Cgrow ← {{ min AB − 1, max AB + 1 } ∩ B | B ∈ B active } 
+
+> 22:
+
+I, U ← ParallelSample (Cgrow , U ) ▷ Grow blocks in parallel  
+
+> 23:
+
+for all B ∈ B active do  
+
+> 24:
+
+AB ← AB ∪ (B ∩ I) ▷ Update active separators  
+
+> 25:
+
+end for  
+
+> 26:
+
+end for  
+
+> 27:
+
+end while  
+
+> 28:
+
+return eX1: L 
+
+> 29:
+
+end procedure 
+
+memory, a 72-core NVIDIA Grace CPU, and approximately 120GB of host memory. CPU-only preprocessing, aggregation, and plotting were run on Vista CPU/login nodes; the node used for these auxiliary jobs exposed 144 ARM Neoverse-V2 cores and 237GiB of system memory. These CPU-only jobs were negligible compared with model training and sampler evaluation. Each 100k-sample graph model trained in roughly 30 minutes on a single Vista GPU node, i.e., well under one GPU-hour per model. Sampler evaluation time varied with the conditioning task. All-sampler unconditional sweeps were the shortest, taking roughly 10 minutes per model to generate all samples for each sampler. Endpoint-conditional sweeps took roughly 25 minutes for each ST–ER graph and about two hours for the bottleneck-family sweep, for roughly three GPU-hours total across the final table settings. Bottleneck-conditional sweeps were the most expensive: the final bottleneck-family sweeps took between about 30 minutes and 1.5 hours each, totaling roughly five 24 GPU-hours for the reported bottleneck-conditional table. 
+
+# I Licenses 
+
+The MDLM codebase and the pretrained kuleshov-group/mdlm-owt checkpoint are released under the Apache-2.0 license. The Hugging Face OpenWebText dataset card lists the dataset packaging under CC0-1.0, while noting that the curators do not own the underlying web text; the Hugging Face GPT-2 Large model card lists the model under the MIT license. 
+
+# J Additional Coherence Results for Graph Random-Walk Samplers 
+
+Configurations. The graph experiments use a masked discrete diffusion model over tokenized random walks. The backbone is the tiny-tiny DDiT configuration: hidden size 256 , conditioning dimension 64 , 4 transformer blocks, 4 attention heads, dropout 0.1, untied input/output embed-dings, and sigma-scaled logits. All graph models use the absorbing-state diffusion parameterization with substitution loss, continuous time ( T = 0 ), a log-linear noise schedule with σmin = 10 −4 and 
+
+σmax = 20 , antithetic time sampling, and EMA decay 0.9999 .All reported graph models are trained from scratch on synthetic random-walk datasets generated by our code. Each dataset has N = 500 nodes, fixed walk length 24 , 100 ,000 training walks, and 1,000 
+
+held-out test walks. Optimization uses AdamW with learning rate 3 × 10 −4, β1 = 0 .9, β2 = 0 .999 ,
+
+ϵ = 10 −8, and weight decay 0. We train for 50 ,000 steps with global batch size 256 , gradient clipping at 1.0, bfloat16 precision, and a cosine decay schedule with linear warmup for the first 
+
+10% of training steps. The warmup starts at learning rate 10 −6 and the cosine schedule decays to minimum learning rate 10 −6. Validation and checkpointing are run every 2,000 training steps, and the checkpoint selected for the table evaluations is the last checkpoint from each run. For the two-community bottleneck comparison, lower-bridge graphs are nested subgraphs of higher-bridge graphs: the b = 64 graph is generated first, the b = 8 graph is obtained by deterministically trimming bridge edges from the b = 64 graph, and the b = 1 graph is obtained by trimming the b = 8 graph. This keeps the within-community graph structure fixed while varying only the number of inter-community bridges. The ten-community bottleneck experiment uses one chain-of-communities graph and reports aggregate bottleneck-conditional metrics as well as span-specific bottleneck-conditional metrics. All entries report coherence as mean ± standard deviation. Unconditional experiments use 512 samples per sampler. Conditional and bottleneck-conditional experiments use 512 prompts with 32 samples per prompt. Standard deviations are computed by splitting samples or prompts into four equal groups and taking the standard deviation of the four group means. The ST–ER average-degree-7 entries use the 100 k-training-sample model from the primary experiments, not the sample-scaling 12 .5k model. 
+
+Notation. ST–ER( p) denotes the spanning-tree plus Erdős–Rényi graph family used in the experi-ments: a random spanning-tree backbone guarantees connectivity, and each remaining non-tree edge is added independently with probability p. Bottleneck graphs are composed of m dense communi-ties connected by rare inter-community bridge edges; b is the number of bridge edges per adjacent community pair. The “lazy” value is the probability of staying at the current node during the ran-dom walk. Endpoint-conditional experiments condition only on the prescribed start and terminal nodes of the walk. Bottleneck-conditional experiments further condition on the bottleneck-crossing 25 Table 1: Graph data and training settings used for the coherence tables. ST–ER denotes a spanning-tree backbone plus independent random non-tree edges.                                                                   
+
+> Setting Value Model DDiT model with hidden size 256 , conditioning dimension 64 ,4blocks, 4
+> heads, sigma-scaled logits, untied embeddings Diffusion Absorbing-state MDLM, substitution parameterization, continuous time, log-linear noise, antithetic time sampling Training size 100 ,000 walks per graph family Test/cache size 1,000 held-out walks per graph family Walk kernel Lazy Markov random walk on each graph family Walk length Fixed length 24 nodes Optimizer AdamW, lr 3×10 −4, betas (0 .9,0.999) , eps 10 −8, wd 0
+> Schedule Cosine decay with 5,000 warmup steps, warmup/min lr 10 −6
+> Training steps 50 ,000 steps, global batch size 256 , bf16 precision Regularization Dropout 0.1, EMA 0.9999 , gradient clip 1.0
+> Validation/checkpointing Every 2,000 steps; checkpoint monitor is validation walk coherence; tables use the last checkpoint Evaluation 512 unconditional samples, or 512 prompts with 32 samples per prompt for conditional settings ST–ER p= 0 p= 0 .0, lazy probability 0.5
+> ST–ER avg. degree 7p= 0 .0100683294 , lazy probability 0.125
+> Bottleneck m= 2 b∈ { 1,8,64 }, edge probability 0.02 , lazy probability 0.125
+> Bottleneck m= 10 chain communities, edge probability 0.106377551 , lazy probability 0.125
+
+constraints in the bottleneck graph family, and therefore test whether the sampler can satisfy both endpoint constraints and the required inter-community transitions. In sampler names, a suffix such as _k4 means that four masked positions are updated per model call, while _exponential uses a growing update budget. 
+
+Trend summary. The results support the central claim that the efficiency–coherence tradeoff is governed by the conditional-dependence structure induced by the unmasking order. Greedy constant-k and exponential schedules degrade sharply because their score rules often select local clusters of tokens from a single denoiser call. This effect is especially pronounced for confidence-based decoding, where locally confident neighboring positions are likely to be conditioned on one another but are nevertheless updated in parallel. In contrast, entropy-guided bisection preserves high coherence while reducing sequential depth: its recursive middle-out schedule separates the next revealed positions across subintervals, limiting local dependence among simultaneous updates. This is reflected in the tables, where bisection entropy is the strongest accelerated samplers and consistently performs well compared with methods that obtain speedup by updating several positions from the same denoiser call. The bottleneck experiments further show that graph structure controls the difficulty of conditional generation: coherence is lowest when inter-community crossings are rare (b = 1 ) or must traverse longer community chains ( m = 10 ), and improves as wider bottlenecks provide more valid bridge choices. 26 Table 2: Unconditional coherence across samplers and graph families. 
+
+Sampling method ST–ER 
+
+p = 0 
+
+lazy 0.5
+
+ST–ER avg. deg. 7
+
+lazy 0.125 
+
+Bottleneck 
+
+m = 2 , b = 1 
+
+Bottleneck 
+
+m = 2 , b = 8 
+
+Bottleneck 
+
+m = 2 , b = 64 
+
+Bottleneck 
+
+m = 10 
+
+bisection 0.996 ± 0.004 0.777 ± 0.051 0.812 ± 0.062 0.840 ± 0.055 0.799 ± 0.029 0.887 ± 0.004 bisection entropy 0.996 ± 0.004 0.844 ± 0.031 0.869 ± 0.012 0.891 ± 0.018 0.830 ± 0.038 0.916 ± 0.024 greedy_entropy 0.998 ± 0.003 1.000 ± 0.000 1.000 ± 0.000 1.000 ± 0.000 1.000 ± 0.000 1.000 ± 0.000 greedy_entropy_x2 0.002 ± 0.003 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_x4 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_x6 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_x8 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_exponential 0.002 ± 0.003 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 random 0.988 ± 0.012 0.783 ± 0.026 0.818 ± 0.028 0.830 ± 0.019 0.758 ± 0.017 0.879 ± 0.031 random_x2 0.146 ± 0.024 0.248 ± 0.013 0.199 ± 0.025 0.250 ± 0.034 0.258 ± 0.032 0.127 ± 0.037 random_x4 0.000 ± 0.000 0.023 ± 0.012 0.004 ± 0.004 0.008 ± 0.006 0.006 ± 0.003 0.004 ± 0.004 random_x6 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.004 ± 0.004 0.000 ± 0.000 random_x8 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 random_exponential 0.320 ± 0.054 0.006 ± 0.006 0.004 ± 0.004 0.004 ± 0.007 0.002 ± 0.003 0.012 ± 0.009 greedy_confidence 0.996 ± 0.004 0.998 ± 0.003 0.996 ± 0.004 0.992 ± 0.006 0.990 ± 0.006 0.926 ± 0.012 greedy_confidence_x2 0.002 ± 0.003 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.002 ± 0.003 0.000 ± 0.000 greedy_confidence_x4 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_confidence_x6 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_confidence_x8 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_margin 0.994 ± 0.003 0.973 ± 0.004 0.977 ± 0.020 0.971 ± 0.016 0.936 ± 0.019 0.877 ± 0.022 greedy_margin_x2 0.006 ± 0.006 0.012 ± 0.007 0.004 ± 0.004 0.006 ± 0.010 0.010 ± 0.009 0.010 ± 0.010 greedy_margin_x4 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_margin_x6 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_margin_x8 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 
+
+Table 3: Endpoint-conditional coherence across samplers and graph families. 
+
+Sampling method ST–ER 
+
+p = 0 
+
+lazy 0.5
+
+ST–ER avg. deg. 7
+
+lazy 0.125 
+
+Bottleneck 
+
+m = 2 , b = 1 
+
+Bottleneck 
+
+m = 2 , b = 8 
+
+Bottleneck 
+
+m = 2 , b = 64 
+
+Bottleneck 
+
+m = 10 
+
+bisection 0.947 ± 0.012 0.620 ± 0.008 0.755 ± 0.004 0.773 ± 0.007 0.680 ± 0.012 0.836 ± 0.008 bisection entropy 0.956 ± 0.013 0.745 ± 0.006 0.818 ± 0.009 0.822 ± 0.007 0.748 ± 0.003 0.973 ± 0.004 greedy_entropy 0.952 ± 0.011 0.927 ± 0.003 0.941 ± 0.041 0.968 ± 0.006 0.943 ± 0.001 0.973 ± 0.003 greedy_entropy_x2 0.611 ± 0.022 0.593 ± 0.007 0.555 ± 0.022 0.560 ± 0.009 0.537 ± 0.006 0.479 ± 0.008 greedy_entropy_x4 0.126 ± 0.013 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_x6 0.041 ± 0.003 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_x8 0.015 ± 0.003 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_exponential 0.029 ± 0.004 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 random 0.938 ± 0.015 0.712 ± 0.005 0.788 ± 0.013 0.800 ± 0.006 0.701 ± 0.005 0.850 ± 0.007 random_x2 0.736 ± 0.009 0.284 ± 0.007 0.327 ± 0.008 0.326 ± 0.004 0.289 ± 0.004 0.424 ± 0.006 random_x4 0.424 ± 0.013 0.039 ± 0.001 0.048 ± 0.006 0.049 ± 0.002 0.042 ± 0.003 0.105 ± 0.006 random_x6 0.219 ± 0.011 0.003 ± 0.001 0.005 ± 0.001 0.004 ± 0.001 0.004 ± 0.001 0.020 ± 0.001 random_x8 0.105 ± 0.003 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.004 ± 0.001 random_exponential 0.399 ± 0.012 0.016 ± 0.002 0.012 ± 0.002 0.014 ± 0.002 0.011 ± 0.002 0.028 ± 0.002 greedy_confidence 0.937 ± 0.008 0.917 ± 0.001 0.930 ± 0.035 0.951 ± 0.003 0.919 ± 0.004 0.914 ± 0.003 greedy_confidence_x2 0.662 ± 0.017 0.111 ± 0.027 0.101 ± 0.023 0.099 ± 0.028 0.065 ± 0.002 0.161 ± 0.042 greedy_confidence_x4 0.168 ± 0.011 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_confidence_x6 0.063 ± 0.008 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_confidence_x8 0.024 ± 0.006 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_margin 0.928 ± 0.010 0.882 ± 0.007 0.900 ± 0.036 0.922 ± 0.001 0.858 ± 0.002 0.868 ± 0.003 greedy_margin_x2 0.523 ± 0.019 0.500 ± 0.020 0.516 ± 0.025 0.460 ± 0.054 0.466 ± 0.020 0.483 ± 0.023 greedy_margin_x4 0.198 ± 0.011 0.016 ± 0.004 0.011 ± 0.002 0.003 ± 0.002 0.005 ± 0.002 0.055 ± 0.027 greedy_margin_x6 0.089 ± 0.011 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.007 ± 0.003 greedy_margin_x8 0.040 ± 0.009 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 
+
+27 Table 4: Bottleneck-conditional coherence across samplers and bottleneck graph families. 
+
+Sampling method Bottleneck 
+
+m = 2 , b = 1 
+
+Bottleneck 
+
+m = 2 , b = 8 
+
+Bottleneck 
+
+m = 2 , b = 64 
+
+Bottleneck 
+
+m = 10 
+
+bisection 0.253 ± 0.028 0.572 ± 0.010 0.587 ± 0.008 0.182 ± 0.052 bisection entropy 0.285 ± 0.037 0.703 ± 0.010 0.696 ± 0.004 0.284 ± 0.091 greedy_entropy 0.172 ± 0.025 0.897 ± 0.002 0.928 ± 0.004 0.288 ± 0.090 greedy_entropy_x2 0.084 ± 0.010 0.478 ± 0.007 0.541 ± 0.007 0.113 ± 0.028 greedy_entropy_x4 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_x6 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_x8 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_entropy_exponential 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 random 0.224 ± 0.025 0.668 ± 0.007 0.656 ± 0.005 0.199 ± 0.060 random_x2 0.083 ± 0.010 0.248 ± 0.005 0.254 ± 0.005 0.091 ± 0.028 random_x4 0.009 ± 0.001 0.029 ± 0.001 0.031 ± 0.002 0.019 ± 0.004 random_x6 0.001 ± 0.001 0.002 ± 0.000 0.002 ± 0.001 0.002 ± 0.001 random_x8 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 random_exponential 0.004 ± 0.001 0.012 ± 0.000 0.010 ± 0.001 0.009 ± 0.003 greedy_confidence 0.160 ± 0.024 0.903 ± 0.004 0.911 ± 0.002 0.287 ± 0.090 greedy_confidence_x2 0.015 ± 0.003 0.090 ± 0.008 0.082 ± 0.004 0.028 ± 0.010 greedy_confidence_x4 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.001 ± 0.001 greedy_confidence_x6 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_confidence_x8 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_margin 0.170 ± 0.018 0.845 ± 0.005 0.846 ± 0.010 0.270 ± 0.090 greedy_margin_x2 0.077 ± 0.007 0.272 ± 0.010 0.407 ± 0.004 0.093 ± 0.025 greedy_margin_x4 0.002 ± 0.001 0.003 ± 0.000 0.004 ± 0.001 0.008 ± 0.003 greedy_margin_x6 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 greedy_margin_x8 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 0.000 ± 0.000 
+
+28
