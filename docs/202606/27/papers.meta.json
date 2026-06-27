@@ -1,0 +1,69 @@
+{
+  "label": "2026-06-27",
+  "date": "2026-06-27",
+  "generated_at": "2026-06-27T20:47:11",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202606/27/2606.23626v1-dit-reward-generative-representations-for-text-to-image-reward-modeling",
+      "section": "quick",
+      "title_en": "DiT-Reward: Generative Representations for Text-to-Image Reward Modeling",
+      "authors": "Yuanming Yang, Guoqing Ma, Bo Wang, Yuan Zhang, Wei Tang, Chenyi Li, Haoyang Huang, Nan Duan",
+      "date": "2026-06-22",
+      "pdf": "https://arxiv.org/pdf/2606.23626v1",
+      "score": "6.0",
+      "evidence": "使用扩散Transformer的文本到图像奖励模型",
+      "tldr": "文本到图像生成模型的奖励预测是提升生成质量的关键，但现有模型依赖大规模偏好数据。本文提出DiT-Reward，将预训练的扩散Transformer（DiT）直接转换为奖励模型，通过处理近干净图像潜变量并聚合跨层表示实现。在相同训练数据下，DiT-Reward在HPDv2和HPDv3上分别达到85.6%和77.6%的准确率，超越HPSv3。该方法在冻结生成骨干时仍有效，且中后层表示贡献最大，推理速度提升1.65倍。结果表明，生成式DiT表征可有效迁移至奖励建模，提升图像生成策略优化效果。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Can representations learned for image generation also support the evaluation of generated images? We study text-to-image reward prediction as a downstream task of generative representation learning. To this end, we introduce DiT-Reward, which converts a pretrained text-to-image Diffusion Transformer into a reward model by processing near-clean image latents and aggregating text-conditioned image representations across transformer layers. Under the same training data mixture as HPSv3, DiT-Reward outperforms HPSv3 on all four evaluated preference benchmarks, reaching 85.6% on HPDv2 and 77.6% on HPDv3. When the generative backbone is frozen, a lightweight learned head can still extract meaningful preference predictions from its representations. Probing across depth further reveals that downstream reward performance is strongest in the middle-to-late layers and benefits from combining representations across different stages. We also observe consistent positive scaling with generative backbone capacity. Finally, when used to optimize Stable Diffusion 3.5 Large with Flow-GRPO, DiT-Reward outperforms HPSv3 along the matched training trajectory, with particularly clear gains in realism. Direct latent scoring also achieves a 1.65x inference speedup over HPSv3 with comparable peak memory. These results show that pretrained generative DiTs provide transferable representations for reward modeling and policy optimization.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/27/2606.23743v2-sol-video-inference-engine-agent-native-full-stack-acceleration-framework-for-efficient-video-generation",
+      "section": "quick",
+      "title_en": "Sol Video Inference Engine: Agent-Native Full-Stack Acceleration Framework for Efficient Video Generation",
+      "authors": "Yitong Li, Junsong Chen, Haopeng Li, Haozhe Liu, Jincheng Yu, Ligeng Zhu, Ping Luo, Song Han, Enze Xie",
+      "date": "2026-06-21",
+      "pdf": "https://arxiv.org/pdf/2606.23743v2",
+      "score": "6.0",
+      "evidence": "视频扩散模型推理加速框架",
+      "tldr": "视频扩散模型推理加速策略高度依赖具体模型、硬件和配置，通用性差。Sol提出无训练智能体全栈加速框架，通过并行技能智能体分别优化缓存、稀疏注意力、token剪枝、量化和内核融合，再由集成器组合并人工验证质量。在64B Cosmos3-Super、22B LTX-2.3和2B SANA-Video上实现超2倍加速，VBench质量近无损。该框架展示了智能体驱动自动化优化解决实例特异性问题的有效性。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Modern video diffusion models achieve higher generation quality through scaling, but this also increases inference cost. Although many acceleration methods have been proposed, a central challenge is that the most effective acceleration strategy is highly instance-specific: a recipe that works well for one combination of model, hardware, and inference configuration often does not transfer to another. Different models vary in architecture, numerical sensitivity, and attention concentration patterns. Inference settings differ in spatial and temporal resolution and video duration, while hardware platforms differ in memory hierarchy, supported numerical formats, and kernel throughput. These factors create a large tuning space, making manual performance engineering costly. We present Sol Video Inference Engine, an agentic, native, training-free acceleration framework for video diffusion models. It organizes five broadly applicable techniques, cache, sparse attention, token pruning, quantization, and kernel fusion, into an agentic acceleration stack for instance-specific optimization. For a concrete deployment target defined by a model, hardware platform, and serving configuration, parallel skill agents optimize the implementation of each technique, an agent integrator composes them into a global acceleration stack, and a human validator provides feedback on generation quality. We instantiate this workflow on three video models with different sizes and architectures: 64B Cosmos3-Super, 22B LTX-2.3, and 2B SANA-Video. With little human effort, the full stack achieves more than 2x end-to-end acceleration while maintaining near-lossless VBench quality, demonstrating the effectiveness of the agent framework for video diffusion acceleration.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/27/2606.25300v1-hifive-high-fidelity-vehicle-generation-leveraging-auto-regressive-2d-generative-priors",
+      "section": "quick",
+      "title_en": "HiFiVe: High-Fidelity Vehicle Generation Leveraging Auto-Regressive 2D Generative Priors",
+      "authors": "Hongli Xiao, Youjian Zhang, Qi Zheng, Zhaohui Hu, Yaohui Jin, Xiaoguang Ren, Wenjing Yang, Long Lan",
+      "date": "2026-06-24",
+      "pdf": "https://arxiv.org/pdf/2606.25300v1",
+      "score": "6.0",
+      "evidence": "利用扩散先验的无需训练框架，用于车辆生成",
+      "tldr": "现有车辆3D生成方法几何保真度低、纹理模糊，多视图扩散方法受限于固定视角和分辨率。HiFiVe提出无训练框架，通过自回归纹理细化逐步合成高分辨率纹理，利用深度变形和多视图融合保证跨视图一致性，并利用车辆对称性减少误差累积。最后从纹理估计法线图恢复几何细节。在合成和真实数据集上，几何与纹理质量显著优于现有方法。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Existing 3D vehicle generation methods often suffer from low geometric fidelity and blurry textures, hindering their downstream applications. While recent works adopt multi-view diffusion models for high-fidelity texture, they are often constrained by fixed viewpoints, limited resolution, and a reliance on costly fine-tuning to achieve cross-view consistency. In this paper, we propose HiFiVe, a training-free framework for high-fidelity vehicle modeling through joint texture and geometry enhancement by imposing 3D geometric constraints to anchor 2D generative priors. Specifically, we propose an auto-regressive texture refinement pipeline that progressively synthesizes high-resolution textures from arbitrary viewpoints. To ensure cross-view consistency, the coarse geometry serves as a synchronization prior, conditioning each generation step on previously synthesized frames via depth-based warping and multi-view texture fusion. Moreover, the inherent symmetry of vehicles is exploited to mitigate error accumulation. Finally, high-frequency surface details are recovered by refining the mesh geometry using normal maps estimated from the enhanced textures. Extensive experiments on synthetic and real-world vehicle datasets demonstrate that our method significantly improves both geometric detail and texture quality compared to state-of-the-art baselines.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/27/2606.27089v1-tmp-tree-structured-mixed-policy-pruning-for-large-scale-image-generation-and-editing",
+      "section": "quick",
+      "title_en": "TMP: Tree-structured Mixed-policy Pruning for Large-scale Image Generation and Editing",
+      "authors": "Peizhen Zhang, Yang Li, Xunsong Li, Songtao Liu, Zewen Liu, Qiangqiang Hu, Guotong Guo, Jupeng Ding, Yifu Sun, coopersli, Jian Zhang, Zhao Zhong, Liefeng Bo",
+      "date": "2026-06-25",
+      "pdf": "https://arxiv.org/pdf/2606.27089v1",
+      "score": "6.0",
+      "evidence": "大规模图像生成模型的免训练剪枝框架",
+      "tldr": "现代图像生成模型规模巨大，导致计算资源与显存消耗过高。本文提出TMP，首个树结构混合策略剪枝框架，统一适用于文生图与图生图任务以及MoE、DiT等架构。在HunyuanImage-3.0上将80B参数压缩至20B（剪枝75%），质量损失有限，并可在单张24GB 4090显卡上推理。在Z-Image turbo上将6B压缩至4B（剪枝33%），性能退化可忽略。该工作已集成至开源仓库，显著降低大模型部署门槛。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Modern image generation model rapidly grows their sizes to meet high-fidelity image synthesis. However, they gradually become unaffordable for their enormous parameter consumption and computation budget that lead to massive resources requirement and gpu memory footprint. In this paper, we propose TMP, the first Tree-structured Mixed-policy Pruning framework that generalizes prevalent image tasks (T2I and TI2I) and architectures (Mixture-of-Experts (MoE) and Diffusion transformer (DiT)). It could be applied to the step-distilled models and contribute as the last stage. We perform experiments upon current open-sourced SOTA HunyuanImage-3.0 instruct and a popular efficient model Z-Image turbo. The proposed pruning framework manages to compress HunyuanImage 3.0 from 80B to 20B parameters at 75% reduction ratio, sacrificing limited generation quality. We also optimize to enable the inference of the pruned 20B version of HunyuanImage 3.0 on a single 24GB 4090 GPU by engineering skills. The inference script and model weight have been integrated into the existing HunyuanImage3.0 open-source github and huggingface repository. Besides, we prove the efficacy of TMP by compressing Z-Image turbo from 6B to 4B (33% reduction) with negligible degradation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

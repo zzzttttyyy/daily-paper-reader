@@ -6,34 +6,37 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-26
-- 运行时间：2026-06-26 21:39:59 UTC
+- 最新运行日期：2026-06-27
+- 运行时间：2026-06-27 20:47:04 UTC
 - 运行状态：成功
 - 本次总论文数：4
-- 精读区：3
-- 速读区：1
+- 精读区：0
+- 速读区：4
 
 ### 今日简报（AI）
-1) 今日推荐4篇论文，精读两篇高分工作：语义优先文生图模型SeFi-Image与视频生成自校准缓存NaviCache，均获9.0分。  
-2) 最值关注：文本到图像的语义对齐新范式，以及视频生成中的测试时缓存优化，能显著提升生成质量与效率。  
-3) 建议从SeFi-Image的语义优先架构入手，理解如何避免文本-图像语义错位，再结合NaviCache的缓存策略改进长视频生成流畅度。
-- 详情：[/202606/26/README](/202606/26/README)
+今日速读4篇论文，涵盖文本到图像奖励建模、视频生成全栈加速框架及高保真车辆生成三大前沿方向。
+
+最值得关注的是《DiT-Reward》的生成式奖励建模方法与《Sol Video》的智能体原生加速架构，分别提升图像生成的控制性和视频推理效率。
+
+建议读者优先了解生成式奖励模型的通用性潜力，并关注端侧视频生成加速方案对落地应用的推动作用。
+- 详情：[/202606/27/README](/202606/27/README)
 
 ### 精读区论文标签
-1. [SeFi-Image: A Text-to-Image Foundation Model with Semantic-First Diffusion](/202606/26/2606.22568v2-sefi-image-a-text-to-image-foundation-model-with-semantic-first-diffusion)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：基于扩散模型的文生图
-2. [NaviCache: Test-Time Self-Calibration Caching for Video Generation](/202606/26/2606.26795v1-navicache-test-time-self-calibration-caching-for-video-generation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：视频扩散的测试时自校准缓存，无需额外训练
-3. [Vera: A Layered Diffusion Model for Content-Preserving Video Editing](/202606/26/2606.23610v1-vera-a-layered-diffusion-model-for-content-preserving-video-editing)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：使用扩散模型进行视频生成；内容保持的视频编辑
+- 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Don't Settle at the Mode! Mitigating Diversity Collapse in Pretrained Flow Models via Feature Self-Guidance](/202606/26/2606.27371v1-dont-settle-at-the-mode-mitigating-diversity-collapse-in-pretrained-flow-models-via-feature-self-guidance)  
+1. [DiT-Reward: Generative Representations for Text-to-Image Reward Modeling](/202606/27/2606.23626v1-dit-reward-generative-representations-for-text-to-image-reward-modeling)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：流模型的免训练多样性增强
+   evidence：使用扩散Transformer的文本到图像奖励模型
+2. [Sol Video Inference Engine: Agent-Native Full-Stack Acceleration Framework for Efficient Video Generation](/202606/27/2606.23743v2-sol-video-inference-engine-agent-native-full-stack-acceleration-framework-for-efficient-video-generation)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：视频扩散模型推理加速框架
+3. [HiFiVe: High-Fidelity Vehicle Generation Leveraging Auto-Regressive 2D Generative Priors](/202606/27/2606.25300v1-hifive-high-fidelity-vehicle-generation-leveraging-auto-regressive-2d-generative-priors)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：利用扩散先验的无需训练框架，用于车辆生成
+4. [TMP: Tree-structured Mixed-policy Pruning for Large-scale Image Generation and Editing](/202606/27/2606.27089v1-tmp-tree-structured-mixed-policy-pruning-for-large-scale-image-generation-and-editing)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：大规模图像生成模型的免训练剪枝框架
 
 
 <div class="dpr-home-promo-card">
