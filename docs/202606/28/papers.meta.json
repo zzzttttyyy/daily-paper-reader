@@ -1,0 +1,39 @@
+{
+  "label": "2026-06-28",
+  "date": "2026-06-28",
+  "generated_at": "2026-06-28T20:27:04",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202606/28/2606.24817v1-high-fidelity-synthetic-transmission-electron-microscopy-image-generation-using-diffusion-probabilistic-models-for-data-limited-semiconductor-metrology",
+      "section": "deep",
+      "title_en": "High-Fidelity Synthetic Transmission Electron Microscopy Image Generation Using Diffusion Probabilistic Models for Data-Limited Semiconductor Metrology",
+      "authors": "Johannes Boehm, Bappaditya Dey",
+      "date": "2026-06-23",
+      "pdf": "https://arxiv.org/pdf/2606.24817v1",
+      "score": "8.0",
+      "evidence": "扩散模型用于TEM图像生成",
+      "tldr": "先进半导体节点对透射电镜（TEM）的需求急剧增加，但破坏性制样、慢速成像和高成本导致数据集严重匮乏，限制了机器学习应用。本文提出基于去噪扩散概率模型（DDPM）的合成TEM图像生成框架，在仅15个样本的极端数据稀缺下从零训练。采用渐进式补丁训练策略，集成自定义TrivialAugment数据增强、跨过程域转移、分类器引导和RePaint修复技术，生成高保真全图像，MS-SSIM>0.98。该方法满足FAB计量要求，支持缺陷检测、分割等下游任务，有效解决数据瓶颈。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Advanced semiconductor nodes drastically increased demand for Transmission Electron Microscopy (TEM), yet destructive sample preparation, slow imaging and high costs severely limit the availability of diverse datasets needed for downstream machine learning (ML). Synthetic data generation is becoming essential, but current generative models often miss TEM-specific noise, structural detail, and stochastic variability crucial for evaluation. We present a Denoising Diffusion Probabilistic Model (DDPM) framework for synthetic TEM image generation under extreme data scarcity. A progressive patch-based training strategy scales from low-resolution patches to full images, enabling from-scratch training with only 15 samples. We integrate a custom TrivialAugment adaptation, cross-process domain transfer, classifier guidance, and RePaint-style inpainting, culminating in full-image generation that preserves global structural and spatial relationships in compliance with FAB metrology requirements. Beyond synthesis, we repurpose DDPM feature representations for segmentation, partitioning encoder feature maps to obtain coherent region masks. Our synthetic images achieve up to MS-SSIM > 0.98 and qualitative expert assessment consistent with structural similarity results, facilitating downstream ML training for defect detection, segmentation, and metrology while preserving statistical and physical realism.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/28/2606.27371v1-dont-settle-at-the-mode-mitigating-diversity-collapse-in-pretrained-flow-models-via-feature-self-guidance",
+      "section": "quick",
+      "title_en": "Don't Settle at the Mode! Mitigating Diversity Collapse in Pretrained Flow Models via Feature Self-Guidance",
+      "authors": "Pradhaan S Bhat, Rishubh Parihar, Abhijnya Bhat, R. Venkatesh Babu",
+      "date": "2026-06-25",
+      "pdf": "https://arxiv.org/pdf/2606.27371v1",
+      "score": "6.0",
+      "evidence": "免训练自引导缓解生成流模型多样性崩溃",
+      "tldr": "现有流模型在生成多个样本时会出现多样性崩溃。本文提出一种免训练的特征自引导方法，通过分散批生成中的内部特征并添加流形正则化，使特征保持在数据流形上，从而在几乎不增加推理成本的前提下显著提升多样性。实验证明，该方法在多种条件流模型（如文生图、深度图生图、参考图生成）中均能保持保真度并改善多样性。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "State-of-the-art flow models generate stunning images from text or image prompts. However, they suffer from diversity collapse when generating multiple samples under the same conditioning. Existing methods address this issue via either latent guidance, which has limited effectiveness, or sample selection, which relies on external reward models that incur significant inference-time overhead. In this work, we introduce an efficient, training-free self-guidance mechanism to mitigate diversity collapse without requiring additional reward models. Specifically, we disperse the internal features of the flow model during batch generation with feature self-guidance. Further, to keep the features close to the manifold, we introduce a manifold regularization step that projects these dispersed features back onto the data manifold, ensuring diverse generation without sacrificing alignment with the input conditions. Our method integrates seamlessly as a plug-and-play module into pretrained flow models, adding only a marginal inference cost. Experiments demonstrate significant improvements in diversity while preserving fidelity across several conditional flow models, including multi-step and few-step text-to-image, depth-to-image, and reference image generation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

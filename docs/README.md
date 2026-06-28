@@ -6,37 +6,26 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-27
-- 运行时间：2026-06-27 20:47:04 UTC
+- 最新运行日期：2026-06-28
+- 运行时间：2026-06-28 20:26:58 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：0
-- 速读区：4
+- 本次总论文数：2
+- 精读区：1
+- 速读区：1
 
 ### 今日简报（AI）
-今日速读4篇论文，涵盖文本到图像奖励建模、视频生成全栈加速框架及高保真车辆生成三大前沿方向。
-
-最值得关注的是《DiT-Reward》的生成式奖励建模方法与《Sol Video》的智能体原生加速架构，分别提升图像生成的控制性和视频推理效率。
-
-建议读者优先了解生成式奖励模型的通用性潜力，并关注端侧视频生成加速方案对落地应用的推动作用。
-- 详情：[/202606/27/README](/202606/27/README)
+今日精读和速读共2篇，焦点在半导体计量中扩散模型生成高保真TEM图像的方法，以及流模型多样性坍塌的缓解策略。其中《High-Fidelity Synthetic TEM Image Generation Using Diffusion Models》得分8.0/10，最值得关注其针对数据有限场景的生成方案。建议后续可尝试将扩散模型应用于同类成像数据稀缺的工业检测任务。
+- 详情：[/202606/28/README](/202606/28/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [High-Fidelity Synthetic Transmission Electron Microscopy Image Generation Using Diffusion Probabilistic Models for Data-Limited Semiconductor Metrology](/202606/28/2606.24817v1-high-fidelity-synthetic-transmission-electron-microscopy-image-generation-using-diffusion-probabilistic-models-for-data-limited-semiconductor-metrology)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：扩散模型用于TEM图像生成
 
 ### 速读区论文标签
-1. [DiT-Reward: Generative Representations for Text-to-Image Reward Modeling](/202606/27/2606.23626v1-dit-reward-generative-representations-for-text-to-image-reward-modeling)  
+1. [Don't Settle at the Mode! Mitigating Diversity Collapse in Pretrained Flow Models via Feature Self-Guidance](/202606/28/2606.27371v1-dont-settle-at-the-mode-mitigating-diversity-collapse-in-pretrained-flow-models-via-feature-self-guidance)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：使用扩散Transformer的文本到图像奖励模型
-2. [Sol Video Inference Engine: Agent-Native Full-Stack Acceleration Framework for Efficient Video Generation](/202606/27/2606.23743v2-sol-video-inference-engine-agent-native-full-stack-acceleration-framework-for-efficient-video-generation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：视频扩散模型推理加速框架
-3. [HiFiVe: High-Fidelity Vehicle Generation Leveraging Auto-Regressive 2D Generative Priors](/202606/27/2606.25300v1-hifive-high-fidelity-vehicle-generation-leveraging-auto-regressive-2d-generative-priors)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：利用扩散先验的无需训练框架，用于车辆生成
-4. [TMP: Tree-structured Mixed-policy Pruning for Large-scale Image Generation and Editing](/202606/27/2606.27089v1-tmp-tree-structured-mixed-policy-pruning-for-large-scale-image-generation-and-editing)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：大规模图像生成模型的免训练剪枝框架
+   evidence：免训练自引导缓解生成流模型多样性崩溃
 
 
 <div class="dpr-home-promo-card">
