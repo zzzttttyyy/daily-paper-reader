@@ -1,0 +1,208 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-29T21:14:42.585631+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.27935v1",
+      "source": "arxiv",
+      "title": "Controllable Histopathology Image Synthesis with Training-free Structural Initialization and Textural Modulation",
+      "abstract": "Deep learning has demonstrated remarkable success in high-throughput histopathology image analysis. However, the performance of learning-based models critically depends on the quality and size of annotations by expert pathologists, which is a resource-intensive and time-consuming process. To address the limitations of data scarcity and annotation burden, several methods have been proposed to synthesize paired histopathology data. Nevertheless, these frameworks typically still require annotation data, albeit in reduced quantities, to impose structural constraints during training.   In this work, we present CHIS, a plug-in framework that guides the sampling trajectory of a pretrained diffusion model through two key stages: structural initialization at the start and textural modulation during generation. The initial noise state is refined by fusing the phase information from a prior mask with the amplitude of Gaussian noise in the frequency domain, yielding a structurally informed starting point. During the reverse diffusion process, we adaptively modulate both coarse-grained and fine-grained textures at different wavelet decomposition levels. This enables a diffusion model pretrained solely on unlabeled images to generate outputs that align with prior structural masks while preserving the reference tissue style.   We conducted extensive experiments demonstrating the superiority of CHIS in generation fidelity and its substantial benefits for downstream segmentation tasks. Code is available at https://github.com/IBIL-Code/CHIS.",
+      "authors": [
+        "Yuheng Qiu",
+        "Jingyi Luo",
+        "Chenfei Ye",
+        "Ting Ma",
+        "Jianfeng Cao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-26T10:27:03+00:00",
+      "link": "https://arxiv.org/pdf/2606.27935v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free structural initialization and textural modulation for diffusion model image synthesis",
+      "llm_evidence_cn": "训练无关的结构初始化和纹理调制用于扩散模型图像合成",
+      "llm_evidence": "训练无关的结构初始化和纹理调制用于扩散模型图像合成",
+      "canonical_evidence": "训练无关的结构初始化和纹理调制用于扩散模型图像合成",
+      "llm_tldr_en": "A plug-in framework that guides pretrained diffusion model sampling with training-free structural initialization and textural modulation for controllable histopathology image synthesis.",
+      "llm_tldr_cn": "现有组织病理学图像合成方法需要大量标注数据进行训练。本文提出CHIS框架，通过训练无关的结构初始化和纹理调制，引导预训练扩散模型的采样轨迹，实现可控的组织病理学图像合成。实验表明该方法在减少标注依赖的同时生成高质量图像。",
+      "llm_tldr": "现有组织病理学图像合成方法需要大量标注数据进行训练。本文提出CHIS框架，通过训练无关的结构初始化和纹理调制，引导预训练扩散模型的采样轨迹，实现可控的组织病理学图像合成。实验表明该方法在减少标注依赖的同时生成高质量图像。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.28301v1",
+      "source": "arxiv",
+      "title": "VGB for Masked Diffusion Model: Efficient Test-time Scaling for Reward Satisfaction and Sample Editing",
+      "abstract": "Inference-time scaling is a promising paradigm to improve generative models, especially when outputs must satisfy structural constraints or optimize downstream rewards. We consider Masked Diffusion Model (MDM) and introduce MDM-VGB, a discrete diffusion sampler that augments unmasking generation with theoretically principled reward-guided remasking. Inspired by the recent success of the classical Jerrum-Sinclair backtracking Markov chain in reward-tilted generation, MDM-VGB extends the backtracking random walk from a fixed prefix tree to a masked-state graph, allowing tokens to be unmasked and remasked at arbitrary positions. The resulting sampler favors unmasking and remasking moves that lead to higher-value partial configurations, enabling both effective high-reward generation and efficient repair of low-reward samples. We prove that MDM-VGB is robust to process-verifier noise and achieves quadratic complexity, while popular test-time heuristics such as best-of-$N$ can incur exponential complexity due to error accumulation. Our theoretical findings are corroborated by strong empirical performance, particularly on popular constraint-satisfaction and scientific benchmarks such as Sudoku and QM9.",
+      "authors": [
+        "Kijung Jeon",
+        "Thuy-Duong Vuong",
+        "Molei Tao"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.DS",
+        "math.NA",
+        "math.PR",
+        "stat.ML"
+      ],
+      "published": "2026-06-26T17:47:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.28301v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "test-time scaling, reward-guided remasking, no training",
+      "llm_evidence_cn": "测试时缩放、奖励引导重新掩码、无需训练",
+      "llm_evidence": "测试时缩放、奖励引导重新掩码、无需训练",
+      "canonical_evidence": "测试时缩放、奖励引导重新掩码、无需训练",
+      "llm_tldr_en": "MDM-VGB is a training-free inference-time sampler for masked diffusion models that uses reward-guided remasking to satisfy structural constraints.",
+      "llm_tldr_cn": "该论文针对掩码扩散模型提出MDM-VGB采样器，通过奖励引导的重新掩码实现测试时缩放，满足结构约束或优化下游奖励。方法无需额外训练，直接增强生成样本的质量和可控性。实验证明在多种离散生成任务上，该免训练方法能有效提升奖励分数并支持样本编辑。",
+      "llm_tldr": "该论文针对掩码扩散模型提出MDM-VGB采样器，通过奖励引导的重新掩码实现测试时缩放，满足结构约束或优化下游奖励。方法无需额外训练，直接增强生成样本的质量和可控性。实验证明在多种离散生成任务上，该免训练方法能有效提升奖励分数并支持样本编辑。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.22477v1",
+      "source": "arxiv",
+      "title": "Physically-guided Image Generation for Multi-Projection Mapping",
+      "abstract": "Projection Mapping (PM) enables seamless superimposition of digital content onto real-world 3D objects, serving as a fundamental technique for immersive visualization, digital twins, and interactive art. Although text-to-image diffusion models have greatly facilitated customized content creation, directly integrating them into practical PM pipelines remains challenging due to the mismatch between idealized 2D generation and physical constraints. To bridge this gap, this paper formalizes two application-level generative paradigms: the cooperative paradigm (harmonizing generated semantics with physical attributes) and the adversarial paradigm (eliminating surface interference via radiometric compensation). Based on this, we propose ConPhyG, a unified controllable physically-guided generative multi-projection mapping framework that enables creators to interactively adjust physical constraints and flexibly switch generative paradigms. In cooperative mode, multi-dimensional physical priors (per-pixel gamut, depth, and edges) are injected into the diffusion process. In adversarial mode, the framework releases the generative potential and applies bounded numerical optimization for multi-projector radiometric compensation. It allows users to dynamically switch constraints to balance artistic freedom with physical feasibility. Furthermore, we extend ConPhyG to 360-degree multi-view consistent PM using a sequential generation strategy. Quantitative and qualitative evaluations on a real-world four-projector setup demonstrate that ConPhyG significantly outperforms state-of-the-art methods in geometric alignment, gamut utilization, and semantic fidelity.",
+      "authors": [
+        "Xingyun Liu",
+        "Yuqi Li",
+        "Jinhui Xiang",
+        "Pinyan Tang",
+        "Chong Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-21T12:37:20+00:00",
+      "link": "https://arxiv.org/pdf/2606.22477v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "physically-guided image generation using diffusion models for projection mapping",
+      "llm_evidence_cn": "使用扩散模型进行投影映射的物理引导图像生成",
+      "llm_evidence": "使用扩散模型进行投影映射的物理引导图像生成",
+      "canonical_evidence": "使用扩散模型进行投影映射的物理引导图像生成",
+      "llm_tldr_en": "Proposes ConPhyG, a unified controllable framework for integrating text-to-image diffusion models into projection mapping pipelines, addressing physical constraints.",
+      "llm_tldr_cn": "将文本到图像扩散模型直接用于投影映射存在物理约束不匹配的问题。本文提出ConPhyG统一可控框架，通过合作范式与对抗范式分别处理语义和谐与表面干扰。实验表明该方法生成的内容符合物理属性，提升了投影映射的实际效果。",
+      "llm_tldr": "将文本到图像扩散模型直接用于投影映射存在物理约束不匹配的问题。本文提出ConPhyG统一可控框架，通过合作范式与对抗范式分别处理语义和谐与表面干扰。实验表明该方法生成的内容符合物理属性，提升了投影映射的实际效果。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.22568v3",
+      "source": "arxiv",
+      "title": "SeFi-Image: A Text-to-Image Foundation Model with Semantic-First Diffusion",
+      "abstract": "Training image generation foundation models consumes substantial resources. Previous methods have attempted to leverage semantic guidance to accelerate the training process, yet their experiments were only conducted on simple datasets such as ImageNet, at low resolutions, and with small-scale models. In this paper, we propose SeFi-Image, a text-to-image foundation model built upon semantic-first diffusion, a novel latent diffusion modeling paradigm. We instantiate SeFi-Image at three model scales, 1B, 2B, and 5B parameters, enabling systematic study of scaling behavior and flexible deployment under varying compute budgets. Notably, our largest 5B model was trained with merely 125K A800 GPU hours, corresponding to roughly 10-20% of the training compute used by Z-Image. However, it achieves results comparable to or even superior to Qwen-Image and Z-Image. Despite this modest training compute, SeFi-Image achieves strong performance on a wide range of benchmarks, including GenEval, DPG, LongTextBench, OneIG, and CVTG-2K. Moreover, we provide DMD2-distilled few-step turbo variants for each model scale to accommodate diverse hardware constraints and latency requirements. We publicly release our code, weights and hope this work offers the community useful insights into semantic-guided diffusion modeling for T2I generation, while also providing practical and readily deployable model options.",
+      "authors": [
+        "SeFi-Team"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-21T16:10:22+00:00",
+      "link": "https://arxiv.org/pdf/2606.22568v3",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion model for text-to-image generation",
+      "llm_evidence_cn": "扩散模型用于文本到图像生成",
+      "llm_evidence": "扩散模型用于文本到图像生成",
+      "canonical_evidence": "扩散模型用于文本到图像生成",
+      "llm_tldr_en": "SeFi-Image is a text-to-image foundation model using semantic-first diffusion, achieving efficient training with reduced compute.",
+      "llm_tldr_cn": "现有文本到图像扩散模型训练资源消耗巨大。本文提出Semantic-First Diffusion范式，构建SeFi-Image基础模型，在不同参数量（1B，2B，5B）上验证缩放行为。5B模型仅用12.5万A800 GPU小时即可训练，约为常规方法的10-20%。该工作大幅降低了训练成本，但未涉及免训练优化。",
+      "llm_tldr": "现有文本到图像扩散模型训练资源消耗巨大。本文提出Semantic-First Diffusion范式，构建SeFi-Image基础模型，在不同参数量（1B，2B，5B）上验证缩放行为。5B模型仅用12.5万A800 GPU小时即可训练，约为常规方法的10-20%。该工作大幅降低了训练成本，但未涉及免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.26778v1",
+      "source": "arxiv",
+      "title": "LearniBridge: Learnable Calibration of Feature Caching for Diffusion Models Acceleration",
+      "abstract": "Diffusion Transformers (DiTs) have driven substantial progress in image and video generation but suffer from prohibitive computational costs. Feature caching accelerates inference by reusing intermediate representations. Existing methods rely on historical features for implementation simplicity, yet suffer from severe error accumulation at high acceleration ratios. To address this limitation, we investigate the nature of the requisite feature correction. We demonstrate that the optimal calibration update is characterized by a shared low-rank subspace across diverse prompts. Guided by this structural insight, we propose LearniBridge, a learnable calibration mechanism for feature caching that bridges multiple timesteps through lightweight LoRA updates. This mechanism enables effective calibration requiring only 3-5 training samples. Extensive experiments on image and video generation show that LearniBridge achieves up to $5.87\\times$, $5.75\\times$, and $4.10\\times$ acceleration on FLUX, HunyuanVideo, and WAN2.1, respectively. On WAN2.1, it improves VBench by 1.28% over the previous SOTA at $4.10\\times$ acceleration. Our code is available at https://github.com/Iiiiiiirene/LearniBridge.",
+      "authors": [
+        "Xuyue Huang",
+        "Zhe Chen",
+        "Wang Shen",
+        "Xiao-Ping Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-25T09:12:51+00:00",
+      "link": "https://arxiv.org/pdf/2606.26778v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion model acceleration for image/video generation",
+      "llm_evidence_cn": "扩散模型图像/视频生成的加速方法",
+      "llm_evidence": "扩散模型图像/视频生成的加速方法",
+      "canonical_evidence": "扩散模型图像/视频生成的加速方法",
+      "llm_tldr_en": "LearniBridge introduces a learnable calibration mechanism for feature caching in diffusion transformers, reducing error accumulation at high acceleration ratios, enhancing inference speed with minimal quality loss.",
+      "llm_tldr_cn": "扩散Transformer在图像和视频生成中计算成本高昂，特征缓存可加速推理但存在误差累积问题。本文提出LearniBridge，一种可学习的校准机制，利用跨提示共享低秩子空间来校正缓存特征，实现高加速比下性能的显著提升。该方法在多个数据集上验证了有效性和泛化能力，为扩散模型的高效部署提供了实用方案。",
+      "llm_tldr": "扩散Transformer在图像和视频生成中计算成本高昂，特征缓存可加速推理但存在误差累积问题。本文提出LearniBridge，一种可学习的校准机制，利用跨提示共享低秩子空间来校正缓存特征，实现高加速比下性能的显著提升。该方法在多个数据集上验证了有效性和泛化能力，为扩散模型的高效部署提供了实用方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

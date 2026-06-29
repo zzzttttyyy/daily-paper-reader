@@ -6,26 +6,37 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-28
-- 运行时间：2026-06-28 20:26:58 UTC
+- 最新运行日期：2026-06-29
+- 运行时间：2026-06-29 21:20:41 UTC
 - 运行状态：成功
-- 本次总论文数：2
-- 精读区：1
-- 速读区：1
+- 本次总论文数：5
+- 精读区：3
+- 速读区：2
 
 ### 今日简报（AI）
-今日精读和速读共2篇，焦点在半导体计量中扩散模型生成高保真TEM图像的方法，以及流模型多样性坍塌的缓解策略。其中《High-Fidelity Synthetic TEM Image Generation Using Diffusion Models》得分8.0/10，最值得关注其针对数据有限场景的生成方案。建议后续可尝试将扩散模型应用于同类成像数据稀缺的工业检测任务。
-- 详情：[/202606/28/README](/202606/28/README)
+今日精读两篇9分论文，涵盖可控组织病理图像合成与扩散模型高效测试缩放。  
+最值得关注：无训练结构初始化实现组织图像可控生成，以及VGB掩码扩散模型实现奖励导向的样本编辑。  
+建议优先精读这两篇，理解扩散模型在医学图像生成与奖励优化中的前沿设计。
+- 详情：[/202606/29/README](/202606/29/README)
 
 ### 精读区论文标签
-1. [High-Fidelity Synthetic Transmission Electron Microscopy Image Generation Using Diffusion Probabilistic Models for Data-Limited Semiconductor Metrology](/202606/28/2606.24817v1-high-fidelity-synthetic-transmission-electron-microscopy-image-generation-using-diffusion-probabilistic-models-for-data-limited-semiconductor-metrology)  
+1. [Controllable Histopathology Image Synthesis with Training-free Structural Initialization and Textural Modulation](/202606/29/2606.27935v1-controllable-histopathology-image-synthesis-with-training-free-structural-initialization-and-textural-modulation)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：训练无关的结构初始化和纹理调制用于扩散模型图像合成
+2. [VGB for Masked Diffusion Model: Efficient Test-time Scaling for Reward Satisfaction and Sample Editing](/202606/29/2606.28301v1-vgb-for-masked-diffusion-model-efficient-test-time-scaling-for-reward-satisfaction-and-sample-editing)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：测试时缩放、奖励引导重新掩码、无需训练
+3. [Physically-guided Image Generation for Multi-Projection Mapping](/202606/29/2606.22477v1-physically-guided-image-generation-for-multi-projection-mapping)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：扩散模型用于TEM图像生成
+   evidence：使用扩散模型进行投影映射的物理引导图像生成
 
 ### 速读区论文标签
-1. [Don't Settle at the Mode! Mitigating Diversity Collapse in Pretrained Flow Models via Feature Self-Guidance](/202606/28/2606.27371v1-dont-settle-at-the-mode-mitigating-diversity-collapse-in-pretrained-flow-models-via-feature-self-guidance)  
+1. [SeFi-Image: A Text-to-Image Foundation Model with Semantic-First Diffusion](/202606/29/2606.22568v3-sefi-image-a-text-to-image-foundation-model-with-semantic-first-diffusion)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：免训练自引导缓解生成流模型多样性崩溃
+   evidence：扩散模型用于文本到图像生成
+2. [LearniBridge: Learnable Calibration of Feature Caching for Diffusion Models Acceleration](/202606/29/2606.26778v1-learnibridge-learnable-calibration-of-feature-caching-for-diffusion-models-acceleration)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：扩散模型图像/视频生成的加速方法
 
 
 <div class="dpr-home-promo-card">
