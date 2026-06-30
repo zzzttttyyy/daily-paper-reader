@@ -1,0 +1,485 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-30T21:58:39.781705+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 8,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2606.25430v1",
+      "source": "arxiv",
+      "title": "PRISM: Feed-Forward Single-Image 3D Reconstruction via Geometric Warp-Residual Modeling",
+      "abstract": "Reconstructing 3D scenes from a single image is a fundamental challenge in computer vision, with broad applications in virtual reality, robotics, and content creation. Recent methods achieve outstanding performance by leveraging camera-controlled video diffusion models, but rely on iterative diffusion sampling, which greatly limits their practical deployment. We observe that geometric forward warping alone can cover the majority of a target view directly from the input image, with only a compact residual left for the encoder to correct. Motivated by this observation, we propose PRISM, a feed-forward framework that decomposes multi-view latent prediction into a parameter-free geometric prior and a learned residual correction, with no diffusion sampling required at inference. To enable generalization from purely synthetic training data, we devise a two-stage training strategy combining latents supervised distillation for geometric generalization and perceptual fine-tuning for appearance quality optimization. Extensive experiments on three benchmarks demonstrate that PRISM achieves competitive reconstruction quality compared with diffusion-based methods, while reducing inference time dramatically to only 36 seconds per scene.",
+      "authors": [
+        "Zhijie Zheng",
+        "Xinhao Xiang",
+        "Jiawei Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-24T05:48:20+00:00",
+      "link": "https://arxiv.org/pdf/2606.25430v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "feed-forward framework avoids iterative diffusion sampling; training-free optimization for diffusion models",
+      "llm_evidence_cn": "前馈框架避免迭代扩散采样；扩散模型的免训练优化",
+      "llm_evidence": "前馈框架避免迭代扩散采样；扩散模型的免训练优化",
+      "canonical_evidence": "前馈框架避免迭代扩散采样；扩散模型的免训练优化",
+      "llm_tldr_en": "PRISM decomposes multi-view latent prediction into a parameter-free geometric prior and a learned residual correction, eliminating the need for iterative diffusion sampling at inference.",
+      "llm_tldr_cn": "现有基于扩散模型的3D重建方法依赖迭代采样，计算开销大且难以实用。本文提出PRISM，将多视图潜在预测分解为无参数几何先验和可学习残差修正，在推理时无需任何扩散采样步骤，实现前馈式3D重建。在多个基准上，PRISM以极快速度达到与迭代扩散方法相当的重建质量，加速比超过两个数量级。该工作证明了通过几何先验和残差学习可以有效替代扩散采样过程，为扩散模型的免训练优化提供了新范式。",
+      "llm_tldr": "现有基于扩散模型的3D重建方法依赖迭代采样，计算开销大且难以实用。本文提出PRISM，将多视图潜在预测分解为无参数几何先验和可学习残差修正，在推理时无需任何扩散采样步骤，实现前馈式3D重建。在多个基准上，PRISM以极快速度达到与迭代扩散方法相当的重建质量，加速比超过两个数量级。该工作证明了通过几何先验和残差学习可以有效替代扩散采样过程，为扩散模型的免训练优化提供了新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.28417v1",
+      "source": "arxiv",
+      "title": "DiffRGD: An Inference-Time Diffusion Guidance Through Riemannian Gradient Descent",
+      "abstract": "Recently, diffusion models have been widely adopted in generative modeling and have served as foundational models for many image generation tasks. To control the generation without costly re-training or fine-tuning, many works seek inference-time guidance methods to steer the latent via a differentiable objective at inference time. However, these methods cannot effectively preserve the original Gaussian distribution because they introduce distributional drift, thereby degrading the sample quality. To address this gap, we propose DiffRGD, a distribution-aware guidance framework that explicitly preserves the latent Gaussian structure. DiffRGD formulates each sampling step as a constrained optimization problem on a spherical manifold induced by the latent Gaussian distribution, and solves it efficiently via Riemannian Gradient Descent (RGD). DiffRGD is a plug-and-play method that can be seamlessly integrated into any pre-trained diffusion model. Extensive experiments demonstrate that DiffRGD outperforms previous methods in most image restoration and conditional generation tasks. Our codebase is available at https://github.com/jwliao1209/DiffRGD.",
+      "authors": [
+        "Jia-Wei Liao",
+        "Li-Xuan Peng",
+        "Mei-Heng Yueh",
+        "Min Sun",
+        "Cheng-Fu Chou",
+        "Jun-Cheng Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-25T12:06:41+00:00",
+      "link": "https://arxiv.org/pdf/2606.28417v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free inference-time guidance via Riemannian gradient descent for image generation",
+      "llm_evidence_cn": "通过黎曼梯度下降实现免训练推理时引导的图像生成优化",
+      "llm_evidence": "通过黎曼梯度下降实现免训练推理时引导的图像生成优化",
+      "canonical_evidence": "通过黎曼梯度下降实现免训练推理时引导的图像生成优化",
+      "llm_tldr_en": "DiffRGD proposes a distribution-aware inference-time guidance method that preserves the latent Gaussian structure, enabling controllable generation without retraining.",
+      "llm_tldr_cn": "DiffRGD提出了一种分布感知的推理时引导框架，通过将每一步采样公式化为黎曼球面上的约束优化问题，显式保留潜变量的高斯结构，从而在不重新训练的情况下实现可控的图像生成，并避免了分布漂移导致的质量下降。实验表明该方法在保持样本质量的同时提供了有效的控制。",
+      "llm_tldr": "DiffRGD提出了一种分布感知的推理时引导框架，通过将每一步采样公式化为黎曼球面上的约束优化问题，显式保留潜变量的高斯结构，从而在不重新训练的情况下实现可控的图像生成，并避免了分布漂移导致的质量下降。实验表明该方法在保持样本质量的同时提供了有效的控制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29801v1",
+      "source": "arxiv",
+      "title": "Concept Removal Guidance: Evidence-Calibrated Negative Guidance for Safe Diffusion Sampling",
+      "abstract": "Text-to-image diffusion models remain vulnerable to adversarial prompts that elicit disallowed content, motivating reliable inference-time controls. A popular approach is negative guidance, which subtracts a negative prompt direction with a fixed weight. However, it often forces a safety-fidelity trade-off, causing artifacts or prompt drift when over-applied and failing under attacks when under-applied. Dynamic variants reweight guidance using posterior-odds signals, which can be brittle for open-vocabulary compositional prompts, while lightweight similarity-based methods ignore the evolving image evidence along the denoising trajectory. We introduce Concept Removal Guidance (CRG), a training-free method that estimates unwanted-concept presence at each diffusion step from the model's noise predictions, and adaptively calibrates negative guidance via a closed-form constrained update enforcing a target presence threshold while minimally perturbing the conditional trajectory. Across red-teaming benchmarks, CRG reduces attack success rates while preserving benign fidelity, and extends to additional suppression targets such as artist style and violence without fine-tuning or external classifiers.",
+      "authors": [
+        "Yoonseok Choi",
+        "Chaeyoung Oh",
+        "Hyunjun Choi",
+        "Seokin Seo",
+        "Kee-Eung Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T05:28:34+00:00",
+      "link": "https://arxiv.org/pdf/2606.29801v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free negative guidance for safe diffusion sampling",
+      "llm_evidence_cn": "基于证据校准的免训练负引导",
+      "llm_evidence": "基于证据校准的免训练负引导",
+      "canonical_evidence": "基于证据校准的免训练负引导",
+      "llm_tldr_en": "Proposes Concept Removal Guidance (CRG), a training-free method that estimates unwanted concept presence and calibrates negative guidance dynamically, avoiding safety-fidelity tradeoffs.",
+      "llm_tldr_cn": "本文提出概念移除引导（CRG），一种无需额外训练的扩散采样方法。CRG通过动态估计图像中不需要的概念（如违禁内容）并自适应调整负引导强度，解决了固定负引导带来的安全与质量的权衡问题。实验表明，CRG在保持高质量生成的同时有效移除概念，可应用于安全可控的文本到图像生成。",
+      "llm_tldr": "本文提出概念移除引导（CRG），一种无需额外训练的扩散采样方法。CRG通过动态估计图像中不需要的概念（如违禁内容）并自适应调整负引导强度，解决了固定负引导带来的安全与质量的权衡问题。实验表明，CRG在保持高质量生成的同时有效移除概念，可应用于安全可控的文本到图像生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30248v1",
+      "source": "arxiv",
+      "title": "Your Data Manifold is Secretly a Reward Model: Shell-LCC for Text-to-Video Generation",
+      "abstract": "Recent text-to-video (T2V) diffusion models rely heavily on auxiliary reward signals (e.g., via reward models or DPO) to align generated content with human aesthetics and improve realism. These signals, however, incur substantial computational overhead, require costly human annotations, and often yield limited improvement in fine-grained local details. In this paper, we argue that your data manifold is secretly a reward model. By explicitly modeling the manifold structure of high-quality Supervised Fine-Tuning (SFT) data and encouraging video latents to lie on this manifold, we derive dense, differentiable, and nearly cost-free reward signals that significantly improve video quality, particularly in mitigating low-level distortions. Our modeling builds upon Local Coordinate Coding (LCC), which captures the `skeleton' of the manifold. However, directly applying LCC suffers from mean regression, pulling latents toward the geometric mean and losing high-frequency details. We therefore extend it to Shell Local Coordinate Coding (Shell-LCC), which models the manifold `surface' as an isotropic shell to align with the true high-density region. Experiments demonstrate that our approach improves realism, enhances high-frequency details, reduces over-smoothing artifacts, and alleviates motion blur.",
+      "authors": [
+        "Shihao Zhang",
+        "Yuguang Yan",
+        "Junzhe Zhang",
+        "Wei Zhao",
+        "Bohan Wang",
+        "Hanwang Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-29T12:57:34+00:00",
+      "link": "https://arxiv.org/pdf/2606.30248v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free reward from data manifold for T2V diffusion",
+      "llm_evidence_cn": "从数据流形导出的视频扩散模型免训练奖励",
+      "llm_evidence": "从数据流形导出的视频扩散模型免训练奖励",
+      "canonical_evidence": "从数据流形导出的视频扩散模型免训练奖励",
+      "llm_tldr_en": "Shell-LCC derives dense, differentiable reward signals from data manifold structure, improving T2V diffusion video quality without extra training or annotations.",
+      "llm_tldr_cn": "本文提出Shell-LCC，通过显式建模高质量微调数据的流形结构，鼓励视频潜码位于该流形上，从而导出密集、可微且近乎免费的奖励信号。该方法无需额外训练或人工标注，有效提升文本到视频生成的质量，尤其是在缓解低层失真方面表现出色，是一种免训练的优化策略。",
+      "llm_tldr": "本文提出Shell-LCC，通过显式建模高质量微调数据的流形结构，鼓励视频潜码位于该流形上，从而导出密集、可微且近乎免费的奖励信号。该方法无需额外训练或人工标注，有效提升文本到视频生成的质量，尤其是在缓解低层失真方面表现出色，是一种免训练的优化策略。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30557v1",
+      "source": "arxiv",
+      "title": "EcoVideo: Entropy-Orchestrated Video Generation Paradigm in Cloud-Edge Dynamics",
+      "abstract": "DiT video generation is latency-intensive due to iterative full-frame denoising, while prior cloud-edge methods largely rely on static inter-step decoupling and cannot leverage inter-frame similarity or adapt to system dynamics. We propose EcoVideo, an entropy-orchestrated framework for dynamic inter-frame decoupling: early-stage self-attention entropy provides a training-free estimate of frame-wise information density for frame selection; a cloud large model denoises sparse high-entropy keyframes; and an edge lightweight model reconstructs the remaining frames via motion-aware interpolation with refinement for temporal stability. EcoVideo further adapts the keyframe budget and edge refinement depth to real-time bandwidth and compute availability, optimizing end-to-end latency under constraints. Experiments on representative DiT video generators show improved quality--efficiency trade-offs and up to 2.9x end-to-end speedup in low-bandwidth, compute-limited edge settings. Code is available at https://github.com/IF-LAB-PKU/EcoVideo.",
+      "authors": [
+        "Jiayu Chen",
+        "Hengyi Zhang",
+        "Maoliang Li",
+        "Minyu Li",
+        "Zihao Zheng",
+        "Xuanzhe Liu",
+        "Guojie Luo",
+        "Xiang Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T16:51:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.30557v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free entropy estimation for video generation acceleration",
+      "llm_evidence_cn": "无训练的熵估计用于视频生成加速",
+      "llm_evidence": "无训练的熵估计用于视频生成加速",
+      "canonical_evidence": "无训练的熵估计用于视频生成加速",
+      "llm_tldr_en": "EcoVideo proposes an entropy-orchestrated cloud-edge framework for video generation, using training-free self-attention entropy to select keyframes, enabling efficient video generation without extra training.",
+      "llm_tldr_cn": "针对DiT视频生成延迟高的问题，提出EcoVideo框架，利用早期自注意力熵的无训练估计进行关键帧选择，云端大模型对稀疏高熵关键帧去噪，边缘轻量模型通过运动感知插值重构其余帧。实验表明该方法能适应动态带宽，在保持质量的同时显著降低延迟，为视频生成提供一种无需额外训练的云端协同方案。",
+      "llm_tldr": "针对DiT视频生成延迟高的问题，提出EcoVideo框架，利用早期自注意力熵的无训练估计进行关键帧选择，云端大模型对稀疏高熵关键帧去噪，边缘轻量模型通过运动感知插值重构其余帧。实验表明该方法能适应动态带宽，在保持质量的同时显著降低延迟，为视频生成提供一种无需额外训练的云端协同方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.22696v1",
+      "source": "arxiv",
+      "title": "NullFlow: One-Step Generative Reconstruction",
+      "abstract": "We propose NullFlow, a principled framework for one-step generative image reconstruction. Our key idea is to confine the generative flow to a measurement-consistent subspace. Because the flow never leaves this subspace, NullFlow needs no separate data-fidelity corrections, unlike existing solvers. NullFlow samples in a single network evaluation by learning the flow's average velocity, avoiding the step-by-step integration of traditional flow matching methods. We prove that the average velocity of this constrained flow yields a training objective whose global minimizer is a one-step posterior sampler. We show on image inpainting that NullFlow matches state-of-the-art diffusion solvers while cutting inference from hundreds of network evaluations to one.",
+      "authors": [
+        "Xiao Shi",
+        "Edward P. Chandler",
+        "Chicago Y. Park",
+        "Shirin Shoushtari",
+        "Ulugbek S. Kamilov"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-21T22:21:43+00:00",
+      "link": "https://arxiv.org/pdf/2606.22696v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "one-step generative reconstruction without iterative sampling",
+      "llm_evidence_cn": "一步生成重建，无需迭代采样，属于免训练优化",
+      "llm_evidence": "一步生成重建，无需迭代采样，属于免训练优化",
+      "canonical_evidence": "一步生成重建，无需迭代采样，属于免训练优化",
+      "llm_tldr_en": "NullFlow achieves one-step image reconstruction by constraining generative flow to a measurement subspace, avoiding step-by-step integration and matching diffusion solver quality.",
+      "llm_tldr_cn": "本文提出NullFlow，将生成流限制在测量一致子空间内，通过学习流的平均速度实现单步采样，无需单独的数据保真校正或逐步积分。在图像修复任务上，NullFlow匹配扩散求解器的质量，同时将推理步骤从数百降为一步，是一种高效的免训练采样优化方法。",
+      "llm_tldr": "本文提出NullFlow，将生成流限制在测量一致子空间内，通过学习流的平均速度实现单步采样，无需单独的数据保真校正或逐步积分。在图像修复任务上，NullFlow匹配扩散求解器的质量，同时将推理步骤从数百降为一步，是一种高效的免训练采样优化方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.28785v1",
+      "source": "arxiv",
+      "title": "Stochastic Optimal Control Sampling for Diffusion Inverse Problems",
+      "abstract": "Benefiting from the strong ability to capture data distributions, diffusion models have become powerful tools for solving image inverse problems. The key is to controllably steer the sampling trajectory toward the measurements while respecting the diffusion prior. In this work, we introduce Stochastic Optimal Control Sampling (SOCS), which models the denoising process as a dynamical system and injects control signals via SOC. Previous SOC-based approach addresses inverse problems by optimizing over the entire trajectory, which is computationally expensive. In contrast, we derive a closed-form control update and apply it at each sampling step, pulling the measurement-consistent clean prediction back onto the denoising flow. In SOCS, we can readily modulate the control strength to align with the diffusion model's native capabilities and thereby enhance perceptual quality. Our method is compatible with a variety of linear stochastic differential equation backbones. Extensive experiments across a broad spectrum of image inverse tasks demonstrate that SOCS achieves accurate measurement-aligned reconstructions with improved visual fidelity and stronger quantitative performance.",
+      "authors": [
+        "Jie Zhang",
+        "Youmei Qiu",
+        "Hanling Tian",
+        "Jingyuan Zhang",
+        "Xiang Yin",
+        "Xiaolin Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-27T07:34:52+00:00",
+      "link": "https://arxiv.org/pdf/2606.28785v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free optimal control sampling for diffusion",
+      "llm_evidence_cn": "扩散模型的免训练最优控制采样",
+      "llm_evidence": "扩散模型的免训练最优控制采样",
+      "canonical_evidence": "扩散模型的免训练最优控制采样",
+      "llm_tldr_en": "SOCS introduces a closed-form control update for diffusion inverse problems, enabling training-free sampling optimization with measurement consistency.",
+      "llm_tldr_cn": "本文提出随机最优控制采样（SOCS），将去噪过程建模为动态系统，通过推导闭式控制更新，在每一步注入控制信号，无需整体轨迹优化。该方法在图像逆问题上实现了免训练的采样优化，有效平衡测量一致性与扩散先验。",
+      "llm_tldr": "本文提出随机最优控制采样（SOCS），将去噪过程建模为动态系统，通过推导闭式控制更新，在每一步注入控制信号，无需整体轨迹优化。该方法在图像逆问题上实现了免训练的采样优化，有效平衡测量一致性与扩散先验。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.29964v1",
+      "source": "arxiv",
+      "title": "Variance Reduction on the Camera Axis: Multi-View Score Distillation for 3D",
+      "abstract": "Score distillation turns a pretrained 2D diffusion model into a 3D generator, but the per-step gradient is estimated from a single randomly chosen view: it is high-variance and blind to global shape consistency. Prior work addresses this by retraining the diffusion prior on multi-view data; this improves consistency but makes the sampling contribution inseparable from prior quality. We instead isolate the sampling axis. The per-step gradient is one noisy sample of an expectation over views; aggregating K samples per step at a fixed total UNet budget reduces variance without touching the prior. We introduce Multi-View Aggregated Score Distillation (MV-SDI), which aggregates gradients from K views per step via gradient accumulation, keeping peak memory unchanged and the 2D prior frozen, and draws views as antithetic antipodal pairs, a prior-independent geometric property, for balanced angular coverage. At a fixed 10,000-UNet-call budget, K=2 raises CLIP R-Precision from 74.8% to 83.8% and CLIP score from 0.297 to 0.312, with consistent gains on HPSv2 and ImageReward and a 0.0% divergence rate on the 43-prompt benchmark; optimization steps halve as a consequence. K=4 gives a fourfold step reduction at R-Precision 86.9% and CLIP 0.307, still well above the single-view baseline on every alignment metric. MV-SDI is compatible with gradient-based score-distillation pipelines, including Score Distillation via Inversion, and requires no retraining and no multi-view data.",
+      "authors": [
+        "Marian Lupascu",
+        "Mihai Sorin Stupariu",
+        "Ionut Mironica"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T08:41:42+00:00",
+      "link": "https://arxiv.org/pdf/2606.29964v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-view score distillation without retraining diffusion prior",
+      "llm_evidence_cn": "无需重新训练扩散先验的多视角分数蒸馏",
+      "llm_evidence": "无需重新训练扩散先验的多视角分数蒸馏",
+      "canonical_evidence": "无需重新训练扩散先验的多视角分数蒸馏",
+      "llm_tldr_en": "Introduces MV-SDI, a training-free method that aggregates gradients from multiple views to reduce variance in score distillation for 3D generation, improving consistency without retraining.",
+      "llm_tldr_cn": "本文提出MV-SDI，一种无需训练的多视角分数蒸馏方法。针对从2D扩散模型进行3D生成时单视角梯度方差大的问题，该方法在固定UNet预算下聚合多个视角的梯度，降低了方差并提升了三维形状的一致性。无需修改预训练模型，显著改善了分数蒸馏在3D任务中的稳定性。",
+      "llm_tldr": "本文提出MV-SDI，一种无需训练的多视角分数蒸馏方法。针对从2D扩散模型进行3D生成时单视角梯度方差大的问题，该方法在固定UNet预算下聚合多个视角的梯度，降低了方差并提升了三维形状的一致性。无需修改预训练模型，显著改善了分数蒸馏在3D任务中的稳定性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.28674v1",
+      "source": "arxiv",
+      "title": "Constrained Tabular Diffusion for Finance",
+      "abstract": "Generative models in finance face the dual challenge of producing realistic data while satisfying strict regulatory and economic objectives, a requirement that standard tabular diffusion models cannot provide. To address this difficulty, we introduce Constrained Tabular Diffusion for Finance (CTDF), a novel integration of sampling-time feasibility operations with mixed-type tabular diffusion in financial applications. By incorporating a training-free feasibility operator into the reverse-diffusion sampling loop, CTDF enforces hard constraints for applications such as simulation, legal compliance, and extrapolation. Extensive experiments on large-scale financial datasets demonstrate zero constraint violations and improvement in scarce data utility. CTDF establishes a robust method for generating trustworthy and compliant synthetic data, opening new avenues for rigorous generative modeling and analysis in the financial domain.",
+      "authors": [
+        "Michael Cardei",
+        "Jose M Munoz",
+        "Oscar Barrera",
+        "Shreyas K Chandrahas",
+        "Partha Saha"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-27T01:27:35+00:00",
+      "link": "https://arxiv.org/pdf/2606.28674v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free feasibility operator for tabular diffusion",
+      "llm_evidence_cn": "用于表格扩散的免训练可行性算子",
+      "llm_evidence": "用于表格扩散的免训练可行性算子",
+      "canonical_evidence": "用于表格扩散的免训练可行性算子",
+      "llm_tldr_en": "This paper introduces a training-free feasibility operator into the reverse-diffusion sampling loop to enforce hard constraints for financial tabular data generation, achieving zero constraint violations.",
+      "llm_tldr_cn": "该论文提出了一种免训练可行性算子，将其集成到反向扩散采样循环中，以强制执行金融表格数据生成的硬约束，实现了零约束违反。虽然应用于金融领域，但其训练时无训练的采样优化方法对扩散模型的免训练优化具有方法论启示。",
+      "llm_tldr": "该论文提出了一种免训练可行性算子，将其集成到反向扩散采样循环中，以强制执行金融表格数据生成的硬约束，实现了零约束违反。虽然应用于金融领域，但其训练时无训练的采样优化方法对扩散模型的免训练优化具有方法论启示。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.29360v1",
+      "source": "arxiv",
+      "title": "SAFE-DiT: Semantics-Aware Fast-path Execution for High-Resolution Diffusion Transformers",
+      "abstract": "High-resolution Diffusion Transformer (DiT) inference contains substantial spatial redundancy, but many spatially adaptive implementations encode regional computation as attention masks, which can inadvertently move scaled dot-product attention (SDPA) away from FlashAttention fast paths. We identify this avoidable systems bottleneck as Mask-Induced Dispatch Tax (MIDT) and show that it grows with latent sequence length. We introduce SAFE-DiT, a training-free Semantics-Aware Fast-path Execution framework that separates exact mask elision from approximation-based spatial scheduling. SAFE-DiT removes only provenance-certified image self-attention masks that induce a row-wise constant shift in attention logits, preserves semantics-bearing masks such as text-padding masks, and realizes spatial adaptation through prompt-conditioned token partitioning, selective state updates with global context, and periodic context refresh. We call this acceleration-only configuration SAFE-Core and report sensitivity-weighted classifier-free guidance separately as SAFE-DiT+SW. On the evaluated PyTorch SDPA stack, redundant masks make long-sequence attention $4.1\\times$ to $5.8\\times$ slower than the mask-free path. On Lumina-Next, SAFE-DiT achieves $2.69\\times$ end-to-end acceleration at $1024^2$ resolution and $5.09\\times$ at $2560^2$, reduces peak memory at $2560^2$ from 94.1 to 27.9 GB, and enables $3072^2$ generation when dense inference runs out of memory. Paired metrics, component ablations, and a blinded human study support visual non-inferiority of SAFE-Core to the dense fast-path baseline, while SAFE-DiT+SW provides a separate prompt-alignment operating point without reintroducing spatial self-attention masks. Code is available at https://github.com/xuanhuayin/SAFE-DiT.",
+      "authors": [
+        "Xuanhua Yin",
+        "Yuxuan Jia",
+        "Chuanzhi Xu",
+        "Weidong Cai"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-28T12:16:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.29360v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free acceleration framework for DiT by removing semantic-irrelevant attention masks",
+      "llm_evidence_cn": "通过移除语义无关注意力掩码实现DiT的免训练加速",
+      "llm_evidence": "通过移除语义无关注意力掩码实现DiT的免训练加速",
+      "canonical_evidence": "通过移除语义无关注意力掩码实现DiT的免训练加速",
+      "llm_tldr_en": "SAFE-DiT is a training-free framework that accelerates high-resolution DiT inference by eliminating attention masks that cause dispatch tax, improving efficiency without sacrificing quality.",
+      "llm_tldr_cn": "SAFE-DiT提出了一种免训练的语义感知快速路径执行框架，通过移除经过认证的、仅引起注意力logits行向常位移的图像自注意力掩码，从而避免掩码导致的调度开销（MIDT），在不牺牲语义保留的同时加速高分辨率扩散Transformer推理，显著提升了生成效率。",
+      "llm_tldr": "SAFE-DiT提出了一种免训练的语义感知快速路径执行框架，通过移除经过认证的、仅引起注意力logits行向常位移的图像自注意力掩码，从而避免掩码导致的调度开销（MIDT），在不牺牲语义保留的同时加速高分辨率扩散Transformer推理，显著提升了生成效率。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.29319v1",
+      "source": "arxiv",
+      "title": "FDM-MFVT: Few-step Sampling Diffusion Model for Mask-Free Virtual Try-On",
+      "abstract": "Image-based Virtual Try-On (IVTON) has greatly advanced through diffusion models, yet existing methods require many sampling steps and depend on masks with costly auxiliary networks. In addition, the absence of large-scale mask-free paired datasets further limits the development of mask-free IVTON. We propose FDM-MFVT, a few-step diffusion model for mask-free IVTON, integrating an Outfit-aware Noise Optimization Module (OANO) and an Instruction-driven Try-on Module (IDT) to enhance efficiency and flexibility.The OANO module initializes the alignment space with noise using the input image and only needs 6 steps to generate a higher-fidelity try-on image compared to 30 steps.The IDT module uses virtual try-on prompts and efficient adaptation to generate high-quality results from garment and person images alone. We further introduce MFVT, a 30,000-pair mask-free IVTON dataset. Experiments show that FDM-MFVT achieves superior quantitative and qualitative results with fewer inference steps than mask-based and mask-free baseline methods.",
+      "authors": [
+        "Jiaxin Liu",
+        "Xiaoye Liang",
+        "Lai Jiang",
+        "Mai Xu",
+        "Jun Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-28T10:24:45+00:00",
+      "link": "https://arxiv.org/pdf/2606.29319v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "few-step sampling via noise optimization for image generation",
+      "llm_evidence_cn": "通过噪声优化实现少步采样，用于图像生成",
+      "llm_evidence": "通过噪声优化实现少步采样，用于图像生成",
+      "canonical_evidence": "通过噪声优化实现少步采样，用于图像生成",
+      "llm_tldr_en": "FDM-MFVT uses an outfit-aware noise optimization module to achieve few-step (6 steps) diffusion sampling for mask-free virtual try-on, improving efficiency.",
+      "llm_tldr_cn": "本文提出FDM-MFVT，针对无掩模虚拟试穿任务，集成出装感知噪声优化模块（OANO）和指令驱动模块（IDT），仅需6步即可生成高质量试穿图像，显著减少采样步数。该工作属于少步采样优化，虽非完全免训练，但噪声优化在推理阶段进行，具有免训练优化的特点。",
+      "llm_tldr": "本文提出FDM-MFVT，针对无掩模虚拟试穿任务，集成出装感知噪声优化模块（OANO）和指令驱动模块（IDT），仅需6步即可生成高质量试穿图像，显著减少采样步数。该工作属于少步采样优化，虽非完全免训练，但噪声优化在推理阶段进行，具有免训练优化的特点。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.29814v1",
+      "source": "arxiv",
+      "title": "Nemotron-Labs-Diffusion-Image: Advancing Masked Discrete Diffusion for High-Resolution Image Synthesis",
+      "abstract": "We propose Nemotron-Labs-Diffusion-Image, a state-of-the-art masked discrete diffusion model (MDM) for high-resolution text-to-image synthesis. Compared with prior work on masked image generation, Nemotron-Labs-Diffusion-Image addresses two key challenges. First, unlike continuous diffusion models which progressively refine latent representations across the entire image, standard MDMs lack self-correcting capability because discrete tokens cannot be modified once they are unmasked. Second, although increasing the vocabulary size of discrete image tokenizers improves reconstruction fidelity, it introduces optimization difficulties for generative modeling as the per-token training signal becomes increasingly sparse. To address the first challenge, Nemotron-Labs-Diffusion-Image incorporates a token-editing mechanism that enables the model to dynamically revise already-unmasked tokens during inference, similar to how a sculptor iteratively refines their work. To tackle the second challenge, we propose a Grouped Cross-Entropy (GCE) objective that assigns positive learning signals to tokens neighboring the ground truth in embedding space, thereby alleviating signal sparsity. To further improve training efficiency, we implement a custom fused operator for GCE that significantly reduces VRAM usage in large-vocabulary settings. Experimental results demonstrate that these innovations substantially improve both training efficiency and image fidelity of masked discrete image generators, achieving a score of 0.90 on GenEval, 86.9 on DPG and 10.76 of HPSv3.",
+      "authors": [
+        "Shufan Li",
+        "Greg Heinrich",
+        "Hanrong Ye",
+        "Yonggan Fu",
+        "Aditya Grover",
+        "Jan Kautz",
+        "Pavlo Molchanov"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T05:48:41+00:00",
+      "link": "https://arxiv.org/pdf/2606.29814v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "advances masked discrete diffusion for high-resolution text-to-image synthesis",
+      "llm_evidence_cn": "推进掩码离散扩散实现高分辨率文本到图像合成",
+      "llm_evidence": "推进掩码离散扩散实现高分辨率文本到图像合成",
+      "canonical_evidence": "推进掩码离散扩散实现高分辨率文本到图像合成",
+      "llm_tldr_en": "Proposes Nemotron-Labs-Diffusion-Image, a state-of-the-art masked discrete diffusion model for high-resolution text-to-image synthesis, addressing self-correction and training sparsity issues.",
+      "llm_tldr_cn": "本文提出Nemotron-Labs-Diffusion-Image，一种面向高分辨率文本到图像合成的最先进掩码离散扩散模型。针对标准掩码扩散模型缺乏自校正能力以及离散分词器词汇表增大导致训练信号稀疏的两大挑战，该模型通过引入新的机制来解决。实验表明，该方法在图像生成质量和效率上达到领先水平。该工作推动了掩码离散扩散在图像生成中的应用。",
+      "llm_tldr": "本文提出Nemotron-Labs-Diffusion-Image，一种面向高分辨率文本到图像合成的最先进掩码离散扩散模型。针对标准掩码扩散模型缺乏自校正能力以及离散分词器词汇表增大导致训练信号稀疏的两大挑战，该模型通过引入新的机制来解决。实验表明，该方法在图像生成质量和效率上达到领先水平。该工作推动了掩码离散扩散在图像生成中的应用。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
