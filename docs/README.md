@@ -6,56 +6,38 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-30
-- 运行时间：2026-06-30 22:07:25 UTC
+- 最新运行日期：2026-07-01
+- 运行时间：2026-07-01 21:53:22 UTC
 - 运行状态：成功
-- 本次总论文数：12
-- 精读区：6
-- 速读区：6
+- 本次总论文数：6
+- 精读区：5
+- 速读区：1
 
 ### 今日简报（AI）
-今日精读6篇、速读6篇，重点关注3D重建与扩散模型优化新方法。最值得看的两项工作：PRISM通过几何变形残差建模实现前馈单图3D重建，DiffRGD利用黎曼梯度下降指导扩散采样。后续可关注随机最优控制采样（SOCS）在扩散逆问题中的应用，以及SAFE-DiT在扩散Transformer中的语义加速执行。
-- 详情：[/202606/30/README](/202606/30/README)
+今日精读5篇论文，重点关注音频驱动人像动画和任意分辨率照片拼贴两个方向，速读视频世界模型新方法。最值得看的两篇高评分工作：基于非对称动态加速音频人像动画的SyncCache，以及无需训练即可生成任意分辨率拼贴画的PhotoQuilt。建议关注这两项技术如何简化创作流程，尤其是PhotoQuilt对普通用户使用生成式AI制作个性化图像拼贴的便利性提升。
+- 详情：[/202607/01/README](/202607/01/README)
 
 ### 精读区论文标签
-1. [PRISM: Feed-Forward Single-Image 3D Reconstruction via Geometric Warp-Residual Modeling](/202606/30/2606.25430v1-prism-feed-forward-single-image-3d-reconstruction-via-geometric-warp-residual-modeling)  
+1. [SyncCache: Exploiting Asymmetric Dynamics for Fast Audio-Driven Portrait Animation](/202607/01/2606.30849v1-synccache-exploiting-asymmetric-dynamics-for-fast-audio-driven-portrait-animation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：前馈框架避免迭代扩散采样；扩散模型的免训练优化
-2. [DiffRGD: An Inference-Time Diffusion Guidance Through Riemannian Gradient Descent](/202606/30/2606.28417v1-diffrgd-an-inference-time-diffusion-guidance-through-riemannian-gradient-descent)  
+   evidence：免训练缓存加速视频生成
+2. [PhotoQuilt: Training-Free Arbitrary-Resolution Photomosaics via Bootstrapped Tiled Denoising](/202607/01/2606.30968v1-photoquilt-training-free-arbitrary-resolution-photomosaics-via-bootstrapped-tiled-denoising)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：通过黎曼梯度下降实现免训练推理时引导的图像生成优化
-3. [Concept Removal Guidance: Evidence-Calibrated Negative Guidance for Safe Diffusion Sampling](/202606/30/2606.29801v1-concept-removal-guidance-evidence-calibrated-negative-guidance-for-safe-diffusion-sampling)  
+   evidence：用于图像生成的免训练框架（照片马赛克）
+3. [OTCache: Optimal Transport for Geometry-Aware Caching in Diffusion Models](/202607/01/2606.31026v1-otcache-optimal-transport-for-geometry-aware-caching-in-diffusion-models)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：基于证据校准的免训练负引导
-4. [Your Data Manifold is Secretly a Reward Model: Shell-LCC for Text-to-Video Generation](/202606/30/2606.30248v1-your-data-manifold-is-secretly-a-reward-model-shell-lcc-for-text-to-video-generation)  
+   evidence：免训练缓存调度优化加速扩散采样
+4. [Accelerated Likelihood Maximization for Diffusion-based Versatile Content Generation](/202607/01/2606.31323v1-accelerated-likelihood-maximization-for-diffusion-based-versatile-content-generation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：从数据流形导出的视频扩散模型免训练奖励
-5. [EcoVideo: Entropy-Orchestrated Video Generation Paradigm in Cloud-Edge Dynamics](/202606/30/2606.30557v1-ecovideo-entropy-orchestrated-video-generation-paradigm-in-cloud-edge-dynamics)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：无训练的熵估计用于视频生成加速
-6. [NullFlow: One-Step Generative Reconstruction](/202606/30/2606.22696v1-nullflow-one-step-generative-reconstruction)  
+   evidence：扩散生成免训练采样优化
+5. [Histogram-constrained Image Generation](/202607/01/2606.31683v1-histogram-constrained-image-generation)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：一步生成重建，无需迭代采样，属于免训练优化
+   evidence：采样时免训练约束，直方图约束图像生成
 
 ### 速读区论文标签
-1. [Stochastic Optimal Control Sampling for Diffusion Inverse Problems](/202606/30/2606.28785v1-stochastic-optimal-control-sampling-for-diffusion-inverse-problems)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：扩散模型的免训练最优控制采样
-2. [SAFE-DiT: Semantics-Aware Fast-path Execution for High-Resolution Diffusion Transformers](/202606/30/2606.29360v1-safe-dit-semantics-aware-fast-path-execution-for-high-resolution-diffusion-transformers)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：通过移除语义无关注意力掩码实现DiT的免训练加速
-3. [Variance Reduction on the Camera Axis: Multi-View Score Distillation for 3D](/202606/30/2606.29964v1-variance-reduction-on-the-camera-axis-multi-view-score-distillation-for-3d)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：无需重新训练扩散先验的多视角分数蒸馏
-4. [Constrained Tabular Diffusion for Finance](/202606/30/2606.28674v1-constrained-tabular-diffusion-for-finance)  
+1. [MemLearner: Learning to Query Context memory for Video World Models](/202607/01/2606.31734v1-memlearner-learning-to-query-context-memory-for-video-world-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：用于表格扩散的免训练可行性算子
-5. [FDM-MFVT: Few-step Sampling Diffusion Model for Mask-Free Virtual Try-On](/202606/30/2606.29319v1-fdm-mfvt-few-step-sampling-diffusion-model-for-mask-free-virtual-try-on)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：通过噪声优化实现少步采样，用于图像生成
-6. [Nemotron-Labs-Diffusion-Image: Advancing Masked Discrete Diffusion for High-Resolution Image Synthesis](/202606/30/2606.29814v1-nemotron-labs-diffusion-image-advancing-masked-discrete-diffusion-for-high-resolution-image-synthesis)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：推进掩码离散扩散实现高分辨率文本到图像合成
+   evidence：视频生成中利用预训练模型进行免训练上下文查询
 
 
 <div class="dpr-home-promo-card">

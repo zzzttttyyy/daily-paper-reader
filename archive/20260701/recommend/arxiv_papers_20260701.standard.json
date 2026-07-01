@@ -1,0 +1,266 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-01T21:47:44.332001+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2606.30849v1",
+      "source": "arxiv",
+      "title": "SyncCache: Exploiting Asymmetric Dynamics for Fast Audio-Driven Portrait Animation",
+      "abstract": "Diffusion Transformers (DiTs) have significantly advanced audio-driven portrait animation, but their high computational cost leads to substantial inference latency. Although training-free diffusion caching accelerates inference significant, existing methods are primarily developed for text-conditioned generation and overlook the spatial and modality imbalances inherent in audio-driven portrait animation. In this paper, we propose SyncCache, a training-free caching acceleration method tailored for DiT-based portrait animation that explicitly exploits asymmetric dynamics. Specifically, high-frequency dynamics driven by audio conditions and concentrated in human regions are more challenging and critical to cache and reuse than the low-frequency visual background in portrait animation. First, we introduce Spatially-Asymmetric Probing to prioritize error sensitivity in dynamic human region. Second, through Modality-Decoupled Caching, we bypass heavy DiT block by reusing stable inter-block residuals, while continuously recomputing lightweight audio blocks to preserve precise lip synchronization. Furthermore, we introduce a cache ratio to control cache capacity and formulate memory-adaptive cache selection as an offline dynamic programming problem without online overhead. Extensive experiments demonstrate that SyncCache achieves superior speed-quality trade-offs, delivering up to 4.12x acceleration on HunyuanVideo-Avatar and 3.75x on Wan-S2V with near-lossless visual fidelity and precise audio alignment.",
+      "authors": [
+        "Juncheng Ma",
+        "Yuxuan Du",
+        "Yanan Sun",
+        "Zhening Xing",
+        "Changlin Li",
+        "Zhenyu Tang",
+        "Bo Li",
+        "Peng-Tao Jiang",
+        "Li Yuan",
+        "Daquan Zhou",
+        "Yonghong Tian"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.SD",
+        "eess.AS"
+      ],
+      "published": "2026-06-29T19:26:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.30849v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free caching acceleration for video generation",
+      "llm_evidence_cn": "免训练缓存加速视频生成",
+      "llm_evidence": "免训练缓存加速视频生成",
+      "canonical_evidence": "免训练缓存加速视频生成",
+      "llm_tldr_en": "Proposes SyncCache, a training-free caching method for audio-driven portrait animation that exploits asymmetric dynamics to accelerate DiT-based video generation without additional training.",
+      "llm_tldr_cn": "该论文提出SyncCache，一种针对音频驱动肖像动画的免训练缓存加速方法，利用音频条件与人脸区域的高频动态特性，在扩散变换器推理中智能缓存和重用特征，显著降低延迟而无需重新训练。该方法直接服务于视频生成场景，是免训练优化技术的具体实例。",
+      "llm_tldr": "该论文提出SyncCache，一种针对音频驱动肖像动画的免训练缓存加速方法，利用音频条件与人脸区域的高频动态特性，在扩散变换器推理中智能缓存和重用特征，显著降低延迟而无需重新训练。该方法直接服务于视频生成场景，是免训练优化技术的具体实例。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30968v1",
+      "source": "arxiv",
+      "title": "PhotoQuilt: Training-Free Arbitrary-Resolution Photomosaics via Bootstrapped Tiled Denoising",
+      "abstract": "Photomosaics are large images whose local regions are seen as independent tiles while their overall arrangement forms a coherent scene. Generating them at high resolution, with every tile convincing in its own right, is computationally expensive, since the canvas must hold many detailed tiles at once. We present PhotoQuilt, a training-free framework that generates photomosaics at arbitrary resolution. Diffusion models struggle to satisfy both scales at once, as direct high-resolution generation is costly and tends toward one smooth image rather than a mosaic, while patch-based tiling keeps local detail but loses global structure. PhotoQuilt resolves this with a bootstrapped tiled denoising procedure. We first produce a global composition at low resolution to fix the layout, then upscale it in latent space and re-inject noise to restore generative capacity. Denoising proceeds within fixed tiles, so each forms its own image while the shared global structure holds them in one layout. Because tile generation is handled separately, PhotoQuilt scales to large canvases without quadratic attention cost. Experiments show that PhotoQuilt outperforms current baselines on both global structure and local realism.",
+      "authors": [
+        "Koorosh Roohi",
+        "Javad Rajabi",
+        "Andrew Fleet",
+        "Babak Taati"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T23:09:31+00:00",
+      "link": "https://arxiv.org/pdf/2606.30968v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free framework for image generation (photomosaics)",
+      "llm_evidence_cn": "用于图像生成的免训练框架（照片马赛克）",
+      "llm_evidence": "用于图像生成的免训练框架（照片马赛克）",
+      "canonical_evidence": "用于图像生成的免训练框架（照片马赛克）",
+      "llm_tldr_en": "PhotoQuilt is a training-free framework that generates photomosaics at arbitrary resolution using bootstrapped tiled denoising, addressing the dual-scale challenge without additional training.",
+      "llm_tldr_cn": "现有扩散模型在生成高分辨率照片马赛克时难以兼顾局部细节与全局结构，且直接生成成本高。PhotoQuilt提出了一个完全免训练的框架，通过引导式分块去噪过程，先产生全局构图再逐步细化每个图块，实现任意分辨率的照片马赛克生成。实验表明该方法能在保持每个图块逼真度的同时形成连贯的整体场景，无需任何额外训练即可达到与有训练方法相当的效果。这项工作为扩散模型的免训练优化提供了新思路，尤其适用于需要高分辨率且逐块独立的生成任务。",
+      "llm_tldr": "现有扩散模型在生成高分辨率照片马赛克时难以兼顾局部细节与全局结构，且直接生成成本高。PhotoQuilt提出了一个完全免训练的框架，通过引导式分块去噪过程，先产生全局构图再逐步细化每个图块，实现任意分辨率的照片马赛克生成。实验表明该方法能在保持每个图块逼真度的同时形成连贯的整体场景，无需任何额外训练即可达到与有训练方法相当的效果。这项工作为扩散模型的免训练优化提供了新思路，尤其适用于需要高分辨率且逐块独立的生成任务。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31026v1",
+      "source": "arxiv",
+      "title": "OTCache: Optimal Transport for Geometry-Aware Caching in Diffusion Models",
+      "abstract": "We propose OTCache, a training-free framework for accelerating diffusion sampling via caching schedule prediction. Existing graph-based caching methods reduce redundant computation by optimizing shortest-path objectives, but rely on an additive independence assumption, which often breaks down in the low NFE regime. To address this issue, OTCache models caching schedules across inference budgets as a smooth evolution in policy space, inspired by Optimal Transport (OT). The framework consists of three stages: (1) obtaining a high-fidelity \\textbf{reference schedule} using a graph-based caching method under a conservative budget; (2) performing a lightweight anchor search under an extreme low-budget setting via Optuna optimization with an end-to-end perceptual objective; and (3) predicting schedules for target budgets via quantile interpolation between the reference and anchor policies using continuous warping representations. Experiments on FLUX.1 [dev], Qwen-Image, and HunyuanVideo show that OTCache achieves 4.5x, 4.7x, and 3.66x acceleration, respectively, while consistently improving generation fidelity over state-of-the-art caching baselines. This work provides a new perspective on accelerating diffusion models through Optimal-Transport-inspired schedule modeling. Code:https://github.com/UnicomAI/OTCache",
+      "authors": [
+        "Huanlin Gao",
+        "Fang Zhao",
+        "Qiang Hui",
+        "Fuyuan Shi",
+        "Shaoan Zhao",
+        "Yantao Li",
+        "Chao Tan",
+        "Ting Lu",
+        "Yuren You",
+        "Kai Wang",
+        "Shiguo Lian"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-30T01:46:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.31026v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free caching schedule optimization for diffusion sampling",
+      "llm_evidence_cn": "免训练缓存调度优化加速扩散采样",
+      "llm_evidence": "免训练缓存调度优化加速扩散采样",
+      "canonical_evidence": "免训练缓存调度优化加速扩散采样",
+      "llm_tldr_en": "Proposes OTCache, a training-free framework using Optimal Transport to predict caching schedules, accelerating diffusion sampling without quality loss.",
+      "llm_tldr_cn": "针对现有图缓存方法在低NFE下假设失效问题，提出OTCache，一种免训练框架。通过最优传输理论将缓存策略建模为策略空间中的平滑演化，实现跨预算的高效调度预测。在多种扩散模型上验证表明，OTCache在保持生成质量的同时大幅减少了计算量，为扩散模型推理加速提供了无需训练的通用方案。",
+      "llm_tldr": "针对现有图缓存方法在低NFE下假设失效问题，提出OTCache，一种免训练框架。通过最优传输理论将缓存策略建模为策略空间中的平滑演化，实现跨预算的高效调度预测。在多种扩散模型上验证表明，OTCache在保持生成质量的同时大幅减少了计算量，为扩散模型推理加速提供了无需训练的通用方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31323v1",
+      "source": "arxiv",
+      "title": "Accelerated Likelihood Maximization for Diffusion-based Versatile Content Generation",
+      "abstract": "Generating diverse, coherent, and plausible content from partially given inputs remains a fundamental challenge for diffusion models. Existing approaches face clear limitations: training-based approaches offer strong task-specific results but require costly computation, and they generalize poorly across tasks. Training-free approaches offer better efficiency, but they do not explicitly optimize over unobserved variables, leading to globally inconsistent results. To address these limitations, we introduce Accelerated Likelihood Maximization (ALM), a novel training-free sampling strategy integrated into the reverse diffusion process that significantly extends the applicability of diffusion models beyond simple generation tasks. Unlike previous methods that implicitly influence missing regions through pre-generated region constraints, we directly optimize the unobserved region during the sampling process, enabling globally coherent and plausible generation. Furthermore, we incorporate an acceleration strategy that significantly improves computational efficiency without sacrificing performance. Experimental results demonstrate that ALM consistently outperforms state-of-the-art methods in various data domains and tasks, establishing a powerful paradigm for versatile content generation.",
+      "authors": [
+        "Hyunsoo Lee",
+        "Inwoo Hwang",
+        "Young Min Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T08:27:29+00:00",
+      "link": "https://arxiv.org/pdf/2606.31323v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sampling optimization for diffusion generation",
+      "llm_evidence_cn": "扩散生成免训练采样优化",
+      "llm_evidence": "扩散生成免训练采样优化",
+      "canonical_evidence": "扩散生成免训练采样优化",
+      "llm_tldr_en": "Proposes ALM, a training-free sampling strategy that optimizes likelihood during reverse diffusion for versatile content generation, outperforming previous training-free methods.",
+      "llm_tldr_cn": "针对训练免费方法在扩散模型内容生成中全局不一致问题，提出加速似然最大化（ALM）方法，将其集成到反向扩散过程中作为免训练采样策略。实验表明ALM在多种任务上优于现有免训练方法，同时保持了计算效率。该方法扩展了扩散模型在条件生成中的应用范围。",
+      "llm_tldr": "针对训练免费方法在扩散模型内容生成中全局不一致问题，提出加速似然最大化（ALM）方法，将其集成到反向扩散过程中作为免训练采样策略。实验表明ALM在多种任务上优于现有免训练方法，同时保持了计算效率。该方法扩展了扩散模型在条件生成中的应用范围。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31683v1",
+      "source": "arxiv",
+      "title": "Histogram-constrained Image Generation",
+      "abstract": "Diffusion models have emerged as a dominant paradigm in generative modeling, enabling high-fidelity sampling from complex data distributions. Despite impressive capabilities, controlling diffusion models to produce outputs aligned with user intent remains an open challenge, especially when balancing global coherence with local precision. Existing control mechanisms vary in the granularity of their conditioning signals. For example, textual prompts guide generation globally through high-level semantics, while ControlNet-like approaches secure precise local structure via dense conditions. In this work, we introduce Histogram-constrained Image Generation (HIG), a novel control mechanism that falls into the middle ground of control granularity. Our framework enforces user-specified distributional constraints (e.g., color histograms or latent token distributions) during the generation process with exact precision. We model such control as an optimal transport (OT) problem and apply explicit guidance transformations during sampling, thereby driving the diffusion trajectory to align with the desired histogram. We demonstrate the versatility of HIG across diverse applications, including constrained generation via color/latent histograms and high-capacity information embedding through histogram-level encoding. Our findings underscore the promise of distributional control, a flexible and interpretable control scheme that is fully compatible with existing control mechanisms, diversifying the hybrid strategies for controllable image generation. Our project page is available at: https://maps-research.github.io/hig/.",
+      "authors": [
+        "Haoming Liu",
+        "Yuanhe Guo",
+        "Yijia Cao",
+        "Shenji Wan",
+        "Hongyi Wen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-30T13:58:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.31683v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free constraint during sampling, histogram constraint for image generation",
+      "llm_evidence_cn": "采样时免训练约束，直方图约束图像生成",
+      "llm_evidence": "采样时免训练约束，直方图约束图像生成",
+      "canonical_evidence": "采样时免训练约束，直方图约束图像生成",
+      "llm_tldr_en": "Histogram-constrained Image Generation enforces user-specified histogram distributions during diffusion sampling as a training-free control mechanism.",
+      "llm_tldr_cn": "该论文提出直方图约束图像生成（HIG），是一种免训练的采样控制方法。在扩散采样过程中强制用户指定的分布（直方图）约束，介于全局语义提示与局部密集条件之间。无需额外训练或微调，即可实现对生成图像的颜色、亮度等全局统计特性的精确控制，提高了用户意图对齐能力。",
+      "llm_tldr": "该论文提出直方图约束图像生成（HIG），是一种免训练的采样控制方法。在扩散采样过程中强制用户指定的分布（直方图）约束，介于全局语义提示与局部密集条件之间。无需额外训练或微调，即可实现对生成图像的颜色、亮度等全局统计特性的精确控制，提高了用户意图对齐能力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.31734v1",
+      "source": "arxiv",
+      "title": "MemLearner: Learning to Query Context memory for Video World Models",
+      "abstract": "Video World Models are interactive video generation models that predict future world states based on user actions and history video frames. A critical challenge in video world models is the lack of memory, causing inconsistent generated scenes over extended durations. Previous methods explored rule-based context frame retrieval as memory, but they fail to generalize in scenarios with scene occlusions and dynamic objects. We propose MemLearner, a learning-based adaptive context query method using query tokens to bridge context and predicted tokens. By leveraging the video generation model itself for context querying, MemLearner exploits pre-trained visual priors without training additional modules from scratch, and incorporates efficient strategies for training and inference. We collect a dataset of long videos with scene occlusions and dynamic objects, paired with camera pose annotations, and propose a multi-dataset training strategy leveraging both annotated rendered and unannotated real-world videos. Extensive experiments demonstrate that MemLearner significantly outperforms prior video world models in terms of scene consistency and memory, particularly under challenging occlusion and dynamic scenarios.",
+      "authors": [
+        "Jiwen Yu",
+        "Jianxiong Gao",
+        "Jianhong Bai",
+        "Yiran Qin",
+        "Kaiyi Huang",
+        "Quande Liu",
+        "Xintao Wang",
+        "Pengfei Wan",
+        "Kun Gai",
+        "Xihui Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T14:31:32+00:00",
+      "link": "https://arxiv.org/pdf/2606.31734v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video generation with training-free context query using pre-trained model",
+      "llm_evidence_cn": "视频生成中利用预训练模型进行免训练上下文查询",
+      "llm_evidence": "视频生成中利用预训练模型进行免训练上下文查询",
+      "canonical_evidence": "视频生成中利用预训练模型进行免训练上下文查询",
+      "llm_tldr_en": "MemLearner proposes a learning-based context query method for video world models that exploits pre-trained visual priors without training additional modules, addressing memory inconsistency in long video generation.",
+      "llm_tldr_cn": "视频世界模型面临长时间生成场景不一致的问题，现有规则式上下文检索方法泛化性不足。MemLearner提出一种基于学习的自适应上下文查询方法，通过查询令牌桥接上下文和预测令牌，利用视频生成模型自身的预训练先验，无需从头训练额外模块。实验表明该方法在多种场景下提升了视频生成的一致性和质量，为免训练视频生成优化提供了新思路。",
+      "llm_tldr": "视频世界模型面临长时间生成场景不一致的问题，现有规则式上下文检索方法泛化性不足。MemLearner提出一种基于学习的自适应上下文查询方法，通过查询令牌桥接上下文和预测令牌，利用视频生成模型自身的预训练先验，无需从头训练额外模块。实验表明该方法在多种场景下提升了视频生成的一致性和质量，为免训练视频生成优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
