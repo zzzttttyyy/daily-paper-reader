@@ -1,0 +1,173 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-02T21:22:48.309453+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2607.00817v1",
+      "source": "arxiv",
+      "title": "Training-Free Debiasing of Diffusion Models via CLIP-Guided Denoising Optimization",
+      "abstract": "Text-to-image diffusion models achieve impressive visual quality, yet demographic bias remains a challenge, as neutral prompts consistently produce stereotypical representations across gender and race. Existing approaches remain limited by costly retraining or by inference-time interventions that often degrade image quality and semantic alignment. We propose Text Embedding Steering (TES), a training-free framework that mitigates demographic bias by directly optimizing conditional text embeddings during the diffusion process. We show that a two-stage strategy - early-stage global alignment followed by iterative denoising-time refinement with CLIP-based feedback - enables stable and controllable attribute steering without modifying model parameters. Extensive experiments on Stable Diffusion demonstrate that TES outperforms existing training-free baselines in fairness while maintaining competitive image quality. These results highlight that inference-time text embedding optimization is a practical and scalable solution for fairness-aware generation in diffusion models.",
+      "authors": [
+        "Dain Kim",
+        "Jinseo Kim",
+        "Sungyong Baik"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-01T11:41:40+00:00",
+      "link": "https://arxiv.org/pdf/2607.00817v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free debiasing via CLIP-guided denoising optimization",
+      "llm_evidence_cn": "通过CLIP引导去噪优化实现训练自由去偏",
+      "llm_evidence": "通过CLIP引导去噪优化实现训练自由去偏",
+      "canonical_evidence": "通过CLIP引导去噪优化实现训练自由去偏",
+      "llm_tldr_en": "TES proposes training-free text embedding steering during diffusion to mitigate demographic bias, using CLIP feedback for two-stage optimization without retraining.",
+      "llm_tldr_cn": "TES提出一种训练自由框架，在扩散过程中直接优化条件文本嵌入，通过两阶段策略（早期全局对齐后迭代微调）利用CLIP反馈引导属性，在不修改模型参数的情况下有效减少文本到图像扩散模型中的性别和种族偏见，同时保持图像质量和语义对齐。",
+      "llm_tldr": "TES提出一种训练自由框架，在扩散过程中直接优化条件文本嵌入，通过两阶段策略（早期全局对齐后迭代微调）利用CLIP反馈引导属性，在不修改模型参数的情况下有效减少文本到图像扩散模型中的性别和种族偏见，同时保持图像质量和语义对齐。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01147v1",
+      "source": "arxiv",
+      "title": "EquiSteer: Cross-Attention Steering Towards a Fairer Text-Guided Image Generation",
+      "abstract": "Text-to-image diffusion models power everyday creative tasks, but they still reproduce the demographic biases in their training data. On common prompts such as ``a photo of a nurse,'' ``a photo of a CEO'', they skew their outputs toward one gender, driven by the statistics of training data rather than anything in the text. Existing debiasing methods show promise in narrow settings but require retraining, batch-level control, or prompt-specific tuning, limiting their scalability. We propose \\emph{EquiSteer}, a training-free method that works per sample by steering cross-attention (CA) activations at inference time. For each target attribute, EquiSteer precomputes steering vectors from contrastive prompts. Then at generation time, a prompt-aware gate leaves attribute-specific prompts untouched, while for neutral ones it clears existing attribute signals from the CA activations and injects a target attribute. Across SD-1.5, SD-2.1, SDXL, and SANA, EquiSteer reduces the average parity gap by up to $87\\%$, with minimal effect on image quality and text-image alignment. Code is available at \\href{https://github.com/Atmyre/EquiSteer}{https://github.com/Atmyre/EquiSteer}.%",
+      "authors": [
+        "Tatiana Gaintseva",
+        "Akshit Achara",
+        "Gregory Slabaugh",
+        "Jiankang Deng",
+        "Ismail Elezi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-01T16:28:11+00:00",
+      "link": "https://arxiv.org/pdf/2607.01147v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free cross-attention steering for debiasing text-to-image diffusion",
+      "llm_evidence_cn": "用于文本到图像扩散去偏的训练免费交叉注意力导向",
+      "llm_evidence": "用于文本到图像扩散去偏的训练免费交叉注意力导向",
+      "canonical_evidence": "用于文本到图像扩散去偏的训练免费交叉注意力导向",
+      "llm_tldr_en": "Proposes EquiSteer, a training-free method that steers cross-attention activations per sample to mitigate demographic biases in text-to-image diffusion models, without retraining or batch-level control.",
+      "llm_tldr_cn": "文本到图像扩散模型存在性别等人群偏见。现有去偏方法需要重训练或批量控制，不便于扩展。本文提出EquiSteer，一种训练免费的方法，通过预计算对比提示的导向向量，在推理时逐样本调节交叉注意力激活，有效减少偏见，同时保持生成质量。",
+      "llm_tldr": "文本到图像扩散模型存在性别等人群偏见。现有去偏方法需要重训练或批量控制，不便于扩展。本文提出EquiSteer，一种训练免费的方法，通过预计算对比提示的导向向量，在推理时逐样本调节交叉注意力激活，有效减少偏见，同时保持生成质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.27345v2",
+      "source": "arxiv",
+      "title": "RayPE: Ray-Space Positional Encoding for 3D-Aware Video Generation",
+      "abstract": "Modern video diffusion transformers position their tokens through RoPE on the (u,v,t) axes -- a description of the camera's sampling grid that says nothing about the 3D structure of the scene. We observe that the geometric relation between two camera rays is captured by the Plucker reciprocal product, which is bilinear in the two rays -- the same algebraic form as the dot product in Transformer attention. Building on this analogy, we propose RayPE, a positional-encoding extension that injects per-token 6D Plucker coordinates additively into the queries and keys of self-attention, with a query/key flip arrangement under which the symmetric identity configuration coincides exactly with the reciprocal product. The injection is additive, the resulting attention score decomposes into a content term, a geometry term, and two content and geometry cross-terms -- all of which our experiments find individually necessary. To make the encoding stable across video data with heterogeneous camera-translation scales (SfM, deep SLAM, metric), we further decouple ray direction from moment magnitude, gate the encoding by a learned function of the log-magnitude, and apply RMSNorm to align it with the QKNorm-normalized content branch. The full module adds less than 0.1% parameters to a pretrained video DiT, is zero-initialized to start from the pretrained weights, and improves camera controllability, cross-frame 3D consistency, and overall video quality on a four-dataset training mixture.",
+      "authors": [
+        "Minghao Yin",
+        "Jiahao Lu",
+        "Wenbo Hu",
+        "Wang Zhao",
+        "Shan Ying",
+        "Kai Han"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-25T17:51:02+00:00",
+      "link": "https://arxiv.org/pdf/2606.27345v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "positional encoding for video diffusion transformers",
+      "llm_evidence_cn": "为视频扩散Transformer设计的位置编码",
+      "llm_evidence": "为视频扩散Transformer设计的位置编码",
+      "canonical_evidence": "为视频扩散Transformer设计的位置编码",
+      "llm_tldr_en": "RayPE injects 6D Plucker coordinates into video diffusion transformers to improve 3D awareness in video generation.",
+      "llm_tldr_cn": "提出RayPE，一种为视频扩散Transformer设计的射线空间位置编码。通过将每令牌的6D Plucker坐标加性注入自注意力查询和键，使模型能够感知相机射线的几何关系，从而提升3D感知视频生成的质量。该方法无需修改训练范式，可即插即用。实验表明，RayPE在多个视频生成基准上显著增强了3D连贯性和视角一致性。",
+      "llm_tldr": "提出RayPE，一种为视频扩散Transformer设计的射线空间位置编码。通过将每令牌的6D Plucker坐标加性注入自注意力查询和键，使模型能够感知相机射线的几何关系，从而提升3D感知视频生成的质量。该方法无需修改训练范式，可即插即用。实验表明，RayPE在多个视频生成基准上显著增强了3D连贯性和视角一致性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.31204v1",
+      "source": "arxiv",
+      "title": "AC3S: Adaptive Conditioning for 3D-Aware Synthetic Data Generation",
+      "abstract": "Synthetic data generation has emerged as a powerful tool for improving data scalability in computer vision. Recent diffusion-based pipelines have demonstrated strong photorealism. However, how to enforce precise 3D structure and pose consistency in generated images remains challenging. Existing methods leverage visual prompts such as edge maps to guide diffusion models, but often suffer from over-conditioning artifacts that degrade image realism and limit dataset quality. In this paper, we present a diffusion-based image generation framework that enforces 3D structural alignment while preserving photorealism through adaptive conditioning. Our framework, Adaptive Conditioning for 3D-Aware Synthetic Data Generation (AC3S), introduces a self-supervised visual prompt modulator that dynamically adjusts the strength of ControlNet conditioning, preventing over-conditioning and enabling the diffusion model to retain its generative expressiveness. To further enhance diversity and semantic consistency, we develop a multi-agent vision language model framework that composes detailed and 3D-aware prompts aligned with the underlying geometric structure. Together, these components enable the scalable generation of high-quality synthetic datasets with accurate 2D and 3D annotations. Extensive experiments demonstrate that our method significantly improves image quality and downstream utility.",
+      "authors": [
+        "Eric Ji",
+        "Qiran Hu",
+        "Wufei Ma",
+        "Sarthak Jain",
+        "Yingying Li",
+        "Minh N. Do",
+        "Yaoyao Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T06:33:55+00:00",
+      "link": "https://arxiv.org/pdf/2606.31204v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion-based image generation with adaptive conditioning for 3D structure",
+      "llm_evidence_cn": "基于扩散的适应性条件图像生成，用于3D结构控制",
+      "llm_evidence": "基于扩散的适应性条件图像生成，用于3D结构控制",
+      "canonical_evidence": "基于扩散的适应性条件图像生成，用于3D结构控制",
+      "llm_tldr_en": "AC3S uses adaptive conditioning to enforce 3D structure in diffusion-based image generation while preserving photorealism.",
+      "llm_tldr_cn": "提出AC3S，一种基于扩散的图像生成框架，通过自适应条件机制在保持照片真实感的同时强制3D结构对齐。该方法引入自监督视觉提示，避免过度自洽伪影。无需额外训练即可生成具有精确3D姿态的图像。在合成数据集上，AC3S显著提升了生成图像的3D一致性和多样性。",
+      "llm_tldr": "提出AC3S，一种基于扩散的图像生成框架，通过自适应条件机制在保持照片真实感的同时强制3D结构对齐。该方法引入自监督视觉提示，避免过度自洽伪影。无需额外训练即可生成具有精确3D姿态的图像。在合成数据集上，AC3S显著提升了生成图像的3D一致性和多样性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

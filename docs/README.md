@@ -6,38 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-01
-- 运行时间：2026-07-01 21:53:22 UTC
+- 最新运行日期：2026-07-02
+- 运行时间：2026-07-02 21:27:19 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：5
-- 速读区：1
+- 本次总论文数：4
+- 精读区：2
+- 速读区：2
 
 ### 今日简报（AI）
-今日精读5篇论文，重点关注音频驱动人像动画和任意分辨率照片拼贴两个方向，速读视频世界模型新方法。最值得看的两篇高评分工作：基于非对称动态加速音频人像动画的SyncCache，以及无需训练即可生成任意分辨率拼贴画的PhotoQuilt。建议关注这两项技术如何简化创作流程，尤其是PhotoQuilt对普通用户使用生成式AI制作个性化图像拼贴的便利性提升。
-- 详情：[/202607/01/README](/202607/01/README)
+今日推荐4篇论文，聚焦扩散模型公平性去偏与3D感知生成两大方向。最值得精读两篇高分工作：《Training-Free Debiasing of Diffusion Models via CLIP-Guided Denoising Optimization》与《EquiSteer: Cross-Attention Steering Towards a Fairer Text-Guided Image Generation》，均以9.0/10评分探讨如何缓解生成内容的偏见，前者无需重新训练，后者通过交叉注意力调整实现更公平的图像生成。建议普通读者关注生成式AI的公平性挑战，尤其当使用文本生成图像时，可尝试文中“无训练去偏”思路来减少性别、种族等偏差。
+- 详情：[/202607/02/README](/202607/02/README)
 
 ### 精读区论文标签
-1. [SyncCache: Exploiting Asymmetric Dynamics for Fast Audio-Driven Portrait Animation](/202607/01/2606.30849v1-synccache-exploiting-asymmetric-dynamics-for-fast-audio-driven-portrait-animation)  
+1. [Training-Free Debiasing of Diffusion Models via CLIP-Guided Denoising Optimization](/202607/02/2607.00817v1-training-free-debiasing-of-diffusion-models-via-clip-guided-denoising-optimization)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练缓存加速视频生成
-2. [PhotoQuilt: Training-Free Arbitrary-Resolution Photomosaics via Bootstrapped Tiled Denoising](/202607/01/2606.30968v1-photoquilt-training-free-arbitrary-resolution-photomosaics-via-bootstrapped-tiled-denoising)  
+   evidence：通过CLIP引导去噪优化实现训练自由去偏
+2. [EquiSteer: Cross-Attention Steering Towards a Fairer Text-Guided Image Generation](/202607/02/2607.01147v1-equisteer-cross-attention-steering-towards-a-fairer-text-guided-image-generation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：用于图像生成的免训练框架（照片马赛克）
-3. [OTCache: Optimal Transport for Geometry-Aware Caching in Diffusion Models](/202607/01/2606.31026v1-otcache-optimal-transport-for-geometry-aware-caching-in-diffusion-models)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练缓存调度优化加速扩散采样
-4. [Accelerated Likelihood Maximization for Diffusion-based Versatile Content Generation](/202607/01/2606.31323v1-accelerated-likelihood-maximization-for-diffusion-based-versatile-content-generation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：扩散生成免训练采样优化
-5. [Histogram-constrained Image Generation](/202607/01/2606.31683v1-histogram-constrained-image-generation)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：采样时免训练约束，直方图约束图像生成
+   evidence：用于文本到图像扩散去偏的训练免费交叉注意力导向
 
 ### 速读区论文标签
-1. [MemLearner: Learning to Query Context memory for Video World Models](/202607/01/2606.31734v1-memlearner-learning-to-query-context-memory-for-video-world-models)  
+1. [RayPE: Ray-Space Positional Encoding for 3D-Aware Video Generation](/202607/02/2606.27345v2-raype-ray-space-positional-encoding-for-3d-aware-video-generation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：视频生成中利用预训练模型进行免训练上下文查询
+   evidence：为视频扩散Transformer设计的位置编码
+2. [AC3S: Adaptive Conditioning for 3D-Aware Synthetic Data Generation](/202607/02/2606.31204v1-ac3s-adaptive-conditioning-for-3d-aware-synthetic-data-generation)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：基于扩散的适应性条件图像生成，用于3D结构控制
 
 
 <div class="dpr-home-promo-card">
