@@ -6,32 +6,39 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-02
-- 运行时间：2026-07-02 21:27:19 UTC
+- 最新运行日期：2026-07-03
+- 运行时间：2026-07-03 20:40:41 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：2
-- 速读区：2
+- 本次总论文数：6
+- 精读区：6
+- 速读区：0
 
 ### 今日简报（AI）
-今日推荐4篇论文，聚焦扩散模型公平性去偏与3D感知生成两大方向。最值得精读两篇高分工作：《Training-Free Debiasing of Diffusion Models via CLIP-Guided Denoising Optimization》与《EquiSteer: Cross-Attention Steering Towards a Fairer Text-Guided Image Generation》，均以9.0/10评分探讨如何缓解生成内容的偏见，前者无需重新训练，后者通过交叉注意力调整实现更公平的图像生成。建议普通读者关注生成式AI的公平性挑战，尤其当使用文本生成图像时，可尝试文中“无训练去偏”思路来减少性别、种族等偏差。
-- 详情：[/202607/02/README](/202607/02/README)
+今日精读6篇论文，以无训练运动控制方法QWERTY（满分）和黎曼梯度下降引导DiffRGD（9分）为核心亮点。最值得关注的方向：视频扩散模型中的查询扭曲控制技术，以及基于流形优化的推断时引导框架。下一步可重点探索扩散模型在复杂场景下的实时运动控制与几何约束优化。
+- 详情：[/202607/03/README](/202607/03/README)
 
 ### 精读区论文标签
-1. [Training-Free Debiasing of Diffusion Models via CLIP-Guided Denoising Optimization](/202607/02/2607.00817v1-training-free-debiasing-of-diffusion-models-via-clip-guided-denoising-optimization)  
+1. [QWERTY: Training-Free Motion Control via Query-Warped Video Diffusion Transformers](/202607/03/2607.01869v1-qwerty-training-free-motion-control-via-query-warped-video-diffusion-transformers)  
+   标签：评分：10.0/10、query:tfree-diff
+   evidence：视频扩散变压器的免训练运动控制
+2. [DiffRGD: An Inference-Time Diffusion Guidance Through Riemannian Gradient Descent](/202607/03/2606.28417v2-diffrgd-an-inference-time-diffusion-guidance-through-riemannian-gradient-descent)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：通过CLIP引导去噪优化实现训练自由去偏
-2. [EquiSteer: Cross-Attention Steering Towards a Fairer Text-Guided Image Generation](/202607/02/2607.01147v1-equisteer-cross-attention-steering-towards-a-fairer-text-guided-image-generation)  
+   evidence：无需重新训练的推理时黎曼梯度下降引导
+3. [NeoMap: Training-free Novel-View Synthesis from Single Images and Videos](/202607/03/2607.01962v1-neomap-training-free-novel-view-synthesis-from-single-images-and-videos)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：用于文本到图像扩散去偏的训练免费交叉注意力导向
+   evidence：免训练新视角视频合成
+4. [Accelerating Discrete Diffusion Models with Parallel-In-Time Sampling](/202607/03/2607.00773v1-accelerating-discrete-diffusion-models-with-parallel-in-time-sampling)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：离散扩散模型的并行时间采样加速
+5. [Multi-Resolution Flow Matching: Training-Free Diffusion Acceleration via Staged Sampling](/202607/03/2607.01642v1-multi-resolution-flow-matching-training-free-diffusion-acceleration-via-staged-sampling)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：针对流匹配扩散模型的免训练多分辨率加速策略
+6. [OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers](/202607/03/2607.02461v1-orbitquant-data-agnostic-quantization-for-image-and-video-diffusion-transformers)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：图像和视频扩散模型的后训练量化方法
 
 ### 速读区论文标签
-1. [RayPE: Ray-Space Positional Encoding for 3D-Aware Video Generation](/202607/02/2606.27345v2-raype-ray-space-positional-encoding-for-3d-aware-video-generation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：为视频扩散Transformer设计的位置编码
-2. [AC3S: Adaptive Conditioning for 3D-Aware Synthetic Data Generation](/202607/02/2606.31204v1-ac3s-adaptive-conditioning-for-3d-aware-synthetic-data-generation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：基于扩散的适应性条件图像生成，用于3D结构控制
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">

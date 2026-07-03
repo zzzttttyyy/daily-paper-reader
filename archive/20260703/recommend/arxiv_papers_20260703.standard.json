@@ -1,0 +1,263 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-03T20:34:10.730261+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 0,
+    "quick_skim_target": 11,
+    "quick_selected": 0
+  },
+  "deep_dive": [
+    {
+      "id": "2607.01869v1",
+      "source": "arxiv",
+      "title": "QWERTY: Training-Free Motion Control via Query-Warped Video Diffusion Transformers",
+      "abstract": "Video diffusion transformers (DiTs) generate high-fidelity and temporally coherent videos, yet motion control remains implicit, primarily relying on text prompts. As a result, achieving desired motion often requires extensive prompt engineering and repeated resampling. While fine-tuning models with additional spatial prompts (e.g., bounding boxes or point trajectories) enables explicit control, it demands substantial data curation and computation, and may compromise the generative capabilities of pretrained models. Consequently, training-free motion control using such spatial prompts has been explored in U-Net-based video diffusion models, but remains largely unexplored for DiTs. We introduce QWERTY, a training-free framework that enables flexible motion control in pretrained image-to-video DiTs via user-defined object warping and optical flow. We carefully manipulate the 3D full attention of DiTs by warping the frame-invariant semantic subspace of queries. We find that the noise predicted by the query-warped DiT naturally guides the diffusion trajectory toward the desired motion, and further show that leveraging this noise as self-guidance for latent optimization improves control stability and visual quality. Experiments show that QWERTY achieves the most effective motion control among existing training-free approaches on a recent image-to-video DiT, with performance comparable to fine-tuning-based methods.",
+      "authors": [
+        "Kyobin Choo",
+        "Youngmin Kim",
+        "Hyunkyung Han",
+        "Geunrip Park",
+        "Chanyoung Kim",
+        "Sunyoung Jung",
+        "Seong Jae Hwang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-02T08:25:38+00:00",
+      "link": "https://arxiv.org/pdf/2607.01869v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "training-free motion control for video diffusion transformers",
+      "llm_evidence_cn": "视频扩散变压器的免训练运动控制",
+      "llm_evidence": "视频扩散变压器的免训练运动控制",
+      "canonical_evidence": "视频扩散变压器的免训练运动控制",
+      "llm_tldr_en": "Introduces QWERTY, a training-free framework that enables explicit motion control in video diffusion transformers via query warping, without additional training or fine-tuning.",
+      "llm_tldr_cn": "针对视频扩散变压器中运动控制隐式依赖文本提示的问题，提出QWERTY，一种免训练框架。通过查询扭曲机制实现显式运动控制，无需微调或额外训练。实验表明，QWERTY能够以零额外训练成本实现精确的运动引导，生成高质量、时间一致性的视频，显著优于现有免训练方法。",
+      "llm_tldr": "针对视频扩散变压器中运动控制隐式依赖文本提示的问题，提出QWERTY，一种免训练框架。通过查询扭曲机制实现显式运动控制，无需微调或额外训练。实验表明，QWERTY能够以零额外训练成本实现精确的运动引导，生成高质量、时间一致性的视频，显著优于现有免训练方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.28417v2",
+      "source": "arxiv",
+      "title": "DiffRGD: An Inference-Time Diffusion Guidance Through Riemannian Gradient Descent",
+      "abstract": "Recently, diffusion models have been widely adopted in generative modeling and have served as foundational models for many image generation tasks. To control the generation without costly re-training or fine-tuning, many works seek inference-time guidance methods to steer the latent via a differentiable objective at inference time. However, these methods cannot effectively preserve the original Gaussian distribution because they introduce distributional drift, thereby degrading the sample quality. To address this gap, we propose DiffRGD, a distribution-aware guidance framework that explicitly preserves the latent Gaussian structure. DiffRGD formulates each sampling step as a constrained optimization problem on a spherical manifold induced by the latent Gaussian distribution, and solves it efficiently via Riemannian Gradient Descent (RGD). DiffRGD is a plug-and-play method that can be seamlessly integrated into any pre-trained diffusion model. Extensive experiments demonstrate that DiffRGD outperforms previous methods in most image restoration and conditional generation tasks. Our project page is available at https://diffrgd.github.io/.",
+      "authors": [
+        "Jia-Wei Liao",
+        "Li-Xuan Peng",
+        "Mei-Heng Yueh",
+        "Min Sun",
+        "Cheng-Fu Chou",
+        "Jun-Cheng Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-25T12:06:41+00:00",
+      "link": "https://arxiv.org/pdf/2606.28417v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "inference-time guidance via Riemannian gradient descent without retraining",
+      "llm_evidence_cn": "无需重新训练的推理时黎曼梯度下降引导",
+      "llm_evidence": "无需重新训练的推理时黎曼梯度下降引导",
+      "canonical_evidence": "无需重新训练的推理时黎曼梯度下降引导",
+      "llm_tldr_en": "Proposes DiffRGD, an inference-time guidance method for diffusion models that preserves latent Gaussian structure by formulating each sampling step as constrained optimization on a spherical manifold and using Riemannian gradient descent. Achieves high-quality controlled generation without retraining or fine-tuning.",
+      "llm_tldr_cn": "扩散模型推理时引导方法常因破坏潜在高斯分布而降低样本质量。DiffRGD将每个采样步骤建模为球面流形上的约束优化问题，通过黎曼梯度下降显式保持潜在空间的高斯结构。该方法无需重新训练或微调，就能在可控生成中保持高质量。实验表明其在图像生成任务上优于现有推理时引导方法。",
+      "llm_tldr": "扩散模型推理时引导方法常因破坏潜在高斯分布而降低样本质量。DiffRGD将每个采样步骤建模为球面流形上的约束优化问题，通过黎曼梯度下降显式保持潜在空间的高斯结构。该方法无需重新训练或微调，就能在可控生成中保持高质量。实验表明其在图像生成任务上优于现有推理时引导方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01962v1",
+      "source": "arxiv",
+      "title": "NeoMap: Training-free Novel-View Synthesis from Single Images and Videos",
+      "abstract": "We study the challenging problem of novel view video synthesis from single images or monocular videos. Existing methods, which operate under the assumption that pre-trained video models lack native novel view synthesis capability and enforce view alignment via camera conditioning, task-specific fine-tuning, or stepwise hard denoising guidance, often suffer from artifacts and compromised global scene consistency. In this paper, we introduce NeoMap, a novel training-free framework designed to locate high-fidelity, view-consistent novel view solutions from general pre-trained video models. The key to our approach is the core insight that promising novel view solutions are inherently encoded within the natural video data manifold learned by pre-trained models, and the core challenge is simply to locate this optimal solution. We solve this via our core mechanism: convergent manifold alternating projection iterations that optimize the initial noise. Extensive experiments demonstrate that NeoMap significantly outperforms all existing methods across 3 standard novel view synthesis benchmarks, including the challenging Tanks-and-Temples, LLFF and DAVIS datasets, achieving state-of-the-art generation fidelity and top-tier view consistency.",
+      "authors": [
+        "Jinxi Li",
+        "Tianyi Zhang",
+        "Yafei Yang",
+        "Zihui Zhang",
+        "Peng Huang",
+        "Koon Wing Macgyver Lin",
+        "Bo Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.GR",
+        "cs.RO"
+      ],
+      "published": "2026-07-02T09:56:50+00:00",
+      "link": "https://arxiv.org/pdf/2607.01962v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free novel view video synthesis",
+      "llm_evidence_cn": "免训练新视角视频合成",
+      "llm_evidence": "免训练新视角视频合成",
+      "canonical_evidence": "免训练新视角视频合成",
+      "llm_tldr_en": "Introduces NeoMap, a training-free framework for novel view video synthesis from single images or monocular videos, leveraging off-the-shelf video diffusion models.",
+      "llm_tldr_cn": "新颖视角视频合成是极具挑战的任务，现有方法多需繁重的微调或逐步引导，导致伪影和不一致。本文提出NeoMap，一个免训练框架，核心洞察是视频预训练模型中已隐含潜在的新视角解。通过精心设计的采样策略，NeoMap能从单张图像或单目视频中直接提取高保真、视角一致的视频输出。无需任何额外训练，实验结果在保真度和一致性上大幅超越现有方法，为视频生成开辟了免训练优化新路径。",
+      "llm_tldr": "新颖视角视频合成是极具挑战的任务，现有方法多需繁重的微调或逐步引导，导致伪影和不一致。本文提出NeoMap，一个免训练框架，核心洞察是视频预训练模型中已隐含潜在的新视角解。通过精心设计的采样策略，NeoMap能从单张图像或单目视频中直接提取高保真、视角一致的视频输出。无需任何额外训练，实验结果在保真度和一致性上大幅超越现有方法，为视频生成开辟了免训练优化新路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.00773v1",
+      "source": "arxiv",
+      "title": "Accelerating Discrete Diffusion Models with Parallel-In-Time Sampling",
+      "abstract": "Discrete diffusion models are widely used for learning and generating discrete distributions. As the generation process is inherently sequential, the acceleration of sampling is of significant importance. In this work, we parallelize the mainstream $τ$-leaping algorithm for absorbing discrete diffusion in a Continuous-Time Markov Chain (CTMC) framework. By leveraging the continuous-time stochastic integral form of the $τ$-leaping algorithm and the Picard iteration method, we achieve parallel-in-time sampling acceleration and provide a proof of exponential-factorial convergence for our algorithm. We improve the overall time complexity of $τ$-leaping under absorbing settings from ${\\mathcal{O}}(d \\log S)$ to ${\\mathcal{O}}(\\log (d\\log S)\\cdot \\log d)$ with respect to NFE. Empirically, our method shows consistent acceleration across synthetic and real-data settings. The new sampler achieves at most $7$--$9\\times$ runtime speedup for synthetic distribution, and maintains the same quality with $50\\%$ fewer NFE and $1.45$--$1.86\\times$ runtime speedups in image/text tasks on a single GPU. Our research expands the potential of discrete diffusion models for efficient parallel inference, with broader implications for applications such as molecular structure and language generation.",
+      "authors": [
+        "Yu Yao",
+        "Huanjian Zhou",
+        "Andi Han",
+        "Wei Huang",
+        "Masashi Sugiyama"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.DC",
+        "cs.DS",
+        "math.NA"
+      ],
+      "published": "2026-07-01T10:59:33+00:00",
+      "link": "https://arxiv.org/pdf/2607.00773v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "parallel-in-time sampling acceleration for discrete diffusion models",
+      "llm_evidence_cn": "离散扩散模型的并行时间采样加速",
+      "llm_evidence": "离散扩散模型的并行时间采样加速",
+      "canonical_evidence": "离散扩散模型的并行时间采样加速",
+      "llm_tldr_en": "Proposes parallel-in-time sampling for discrete diffusion models using Picard iteration within a CTMC framework, achieving exponential-factorial convergence and reducing time complexity from O(d log S) to O(log(d log S) log d) without additional training.",
+      "llm_tldr_cn": "离散扩散模型生成过程本质上是顺序的，采样速度慢。本文在连续时间马尔可夫链框架下，利用Picard迭代方法并行化τ-leaping算法，实现时间上的并行采样加速。理论上证明了指数阶乘收敛性，并将时间复杂度从O(d log S)降低到O(log(d log S)·log d)。该方法无需额外训练，显著提升离散扩散采样效率。",
+      "llm_tldr": "离散扩散模型生成过程本质上是顺序的，采样速度慢。本文在连续时间马尔可夫链框架下，利用Picard迭代方法并行化τ-leaping算法，实现时间上的并行采样加速。理论上证明了指数阶乘收敛性，并将时间复杂度从O(d log S)降低到O(log(d log S)·log d)。该方法无需额外训练，显著提升离散扩散采样效率。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01642v1",
+      "source": "arxiv",
+      "title": "Multi-Resolution Flow Matching: Training-Free Diffusion Acceleration via Staged Sampling",
+      "abstract": "Hardware-agnostic strategies for accelerating text-to-image diffusion, such as timestep distillation and feature caching, can reduce inference time without custom kernels or system-level optimization. Among them, multi-resolution generation strategies have recently received broad attention, attaining more than 5x speedup without any training. However, the design of performing upsampling in the latent space, together with the selective modification of partial regions, causes these methods to exhibit noticeable blurring or artifacts. To this end, we propose MrFlow, a training-free multi-resolution acceleration strategy for pretrained flow-matching models built upon a staged low-to-high-resolution pipeline. MrFlow first rapidly generates the main structure at low resolution, then performs super-resolution in the pixel space using a lightweight pretrained GAN-based model, subsequently injects low-strength noise to enable high-frequency resampling, and finally refines the details at high resolution. Quantitative and qualitative results on FLUX.1-dev and Qwen-Image show that MrFlow exploits the quadratic token reduction and reduced step requirement of low-resolution sampling to achieve 10x end-to-end acceleration while keeping OneIG within a 1% gap relative to that before acceleration, significantly surpassing other training-free acceleration strategies, and requiring no training or runtime dynamic identification whatsoever. MrFlow can further be directly combined orthogonally with pre-trained timestep distillation strategies, achieving even higher generation acceleration of up to 25x.",
+      "authors": [
+        "Xingyu Zheng",
+        "Xianglong Liu",
+        "Yifu Ding",
+        "Weilun Feng",
+        "Junqing Lin",
+        "Jinyang Guo",
+        "Haotong Qin"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-02T03:14:57+00:00",
+      "link": "https://arxiv.org/pdf/2607.01642v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free multi-resolution acceleration for flow-matching diffusion models",
+      "llm_evidence_cn": "针对流匹配扩散模型的免训练多分辨率加速策略",
+      "llm_evidence": "针对流匹配扩散模型的免训练多分辨率加速策略",
+      "canonical_evidence": "针对流匹配扩散模型的免训练多分辨率加速策略",
+      "llm_tldr_en": "Proposes MrFlow, a training-free multi-resolution acceleration strategy for flow-matching text-to-image diffusion models via a staged low-to-high-resolution pipeline, achieving over 5x speedup without training.",
+      "llm_tldr_cn": "针对文本到图像扩散模型推理速度慢的问题，本文提出MrFlow，一种免训练的多分辨率加速策略。该方法基于预训练的流匹配模型，通过分阶段的低到高分辨率流水线，先生成低分辨率全局预览，再逐步细化局部区域，避免了在原始高分辨率上的完整去噪过程。MrFlow在不引入额外训练的情况下取得了超过5倍的加速效果，同时生成质量优于现有免训练多分辨率方法，为扩散模型推理加速提供了高效且无需训练的解决方案。",
+      "llm_tldr": "针对文本到图像扩散模型推理速度慢的问题，本文提出MrFlow，一种免训练的多分辨率加速策略。该方法基于预训练的流匹配模型，通过分阶段的低到高分辨率流水线，先生成低分辨率全局预览，再逐步细化局部区域，避免了在原始高分辨率上的完整去噪过程。MrFlow在不引入额外训练的情况下取得了超过5倍的加速效果，同时生成质量优于现有免训练多分辨率方法，为扩散模型推理加速提供了高效且无需训练的解决方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02461v1",
+      "source": "arxiv",
+      "title": "OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers",
+      "abstract": "Diffusion transformers (DiTs) achieve state-of-the-art image and video generation, but their multi-step sampling and growing parameter count make inference expensive. Post-training quantization (PTQ) is the natural remedy, yet DiT activations shift across timesteps, prompts, and guidance branches, forcing prior methods to re-fit calibration data for every new checkpoint or modality. We present OrbitQuant, a data-agnostic weight-activation quantizer that bypasses range estimation by quantizing in a normalized, rotated basis. In this basis, a randomized permuted block-Hadamard (RPBH) rotation concentrates each coordinate around one fixed, known marginal regardless of the input, so a single Lloyd-Max codebook serves all timesteps, prompts, and layers of a given input dimension. We extend the same quantizer to weight rows offline, absorbing the rotation into the weights so that it cancels inside each linear layer and only a forward rotation on the activations remains at runtime. The same recipe transfers from image to video with no per-modality tuning. Across FLUX.1, Z-Image-Turbo, Wan 2.1, and CogVideoX, it sets the state of the art for PTQ at several low-bit settings. It also pushes PTQ of image diffusion transformers to W2A4 with usable generation quality.",
+      "authors": [
+        "Donghyun Lee",
+        "Jitesh Chavan",
+        "Duy Nguyen",
+        "Sam Huang",
+        "Liming Jiang",
+        "Priyadarshini Panda",
+        "Timo Mertens",
+        "Saurabh Shukla"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-07-02T17:27:34+00:00",
+      "link": "https://arxiv.org/pdf/2607.02461v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Post-training quantization for image and video diffusion models",
+      "llm_evidence_cn": "图像和视频扩散模型的后训练量化方法",
+      "llm_evidence": "图像和视频扩散模型的后训练量化方法",
+      "canonical_evidence": "图像和视频扩散模型的后训练量化方法",
+      "llm_tldr_en": "OrbitQuant proposes a data-agnostic weight-activation quantizer for diffusion transformers, enabling efficient inference without retraining by using a rotated basis and fixed codebook across timesteps.",
+      "llm_tldr_cn": "扩散变换器在图像和视频生成中性能优异，但推理成本高。现有后训练量化方法需要针对每个检查点重新拟合校准数据。本文提出OrbitQuant，一种数据无关的量化器，通过将激活量化到归一化旋转基中，使用随机排列分块哈达玛变换，使所有时间步、提示和引导分支共享固定的Lloyd-Max码本，从而避免重新校准。实验表明，OrbitQuant在保持生成质量的同时显著降低推理成本。该工作为扩散模型的免训练优化提供了高效解决方案。",
+      "llm_tldr": "扩散变换器在图像和视频生成中性能优异，但推理成本高。现有后训练量化方法需要针对每个检查点重新拟合校准数据。本文提出OrbitQuant，一种数据无关的量化器，通过将激活量化到归一化旋转基中，使用随机排列分块哈达玛变换，使所有时间步、提示和引导分支共享固定的Lloyd-Max码本，从而避免重新校准。实验表明，OrbitQuant在保持生成质量的同时显著降低推理成本。该工作为扩散模型的免训练优化提供了高效解决方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": []
+}
