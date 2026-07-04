@@ -6,39 +6,36 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-03
-- 运行时间：2026-07-03 20:40:41 UTC
+- 最新运行日期：2026-07-04
+- 运行时间：2026-07-04 21:02:21 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：6
-- 速读区：0
+- 本次总论文数：4
+- 精读区：3
+- 速读区：1
 
 ### 今日简报（AI）
-今日精读6篇论文，以无训练运动控制方法QWERTY（满分）和黎曼梯度下降引导DiffRGD（9分）为核心亮点。最值得关注的方向：视频扩散模型中的查询扭曲控制技术，以及基于流形优化的推断时引导框架。下一步可重点探索扩散模型在复杂场景下的实时运动控制与几何约束优化。
-- 详情：[/202607/03/README](/202607/03/README)
+今日精读两篇9分论文与一篇速读，聚焦360全景零样本生成与扩散模型连续时间控制。
+
+最推荐SpheRoPE和ART：前者用球形RoPE实现免优化零样本全景图生成，后者将扩散采样视为连续时间控制问题并引入演员-评论家学习。
+
+普通读者可关注零样本全景生成技术如何简化VR/AR内容创作，以及基于强化学习的扩散采样控制对图像质量提升的潜力。
+- 详情：[/202607/04/README](/202607/04/README)
 
 ### 精读区论文标签
-1. [QWERTY: Training-Free Motion Control via Query-Warped Video Diffusion Transformers](/202607/03/2607.01869v1-qwerty-training-free-motion-control-via-query-warped-video-diffusion-transformers)  
-   标签：评分：10.0/10、query:tfree-diff
-   evidence：视频扩散变压器的免训练运动控制
-2. [DiffRGD: An Inference-Time Diffusion Guidance Through Riemannian Gradient Descent](/202607/03/2606.28417v2-diffrgd-an-inference-time-diffusion-guidance-through-riemannian-gradient-descent)  
+1. [SpheRoPE: Zero-Shot Optimization-Free 360 Panorama Generation with Spherical RoPE](/202607/04/2606.32033v1-spherope-zero-shot-optimization-free-360-panorama-generation-with-spherical-rope)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：无需重新训练的推理时黎曼梯度下降引导
-3. [NeoMap: Training-free Novel-View Synthesis from Single Images and Videos](/202607/03/2607.01962v1-neomap-training-free-novel-view-synthesis-from-single-images-and-videos)  
+   evidence：免训练免优化的扩散模型图像视频生成框架
+2. [ART for Diffusion Sampling: Continuous-Time Control and Actor-Critic Learning](/202607/04/2607.02137v1-art-for-diffusion-sampling-continuous-time-control-and-actor-critic-learning)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练新视角视频合成
-4. [Accelerating Discrete Diffusion Models with Parallel-In-Time Sampling](/202607/03/2607.00773v1-accelerating-discrete-diffusion-models-with-parallel-in-time-sampling)  
+   evidence：扩散模型免训练采样优化，通过自适应时间步分配
+3. [UniGP: Taming Diffusion Transformer for Prior-Preserved Unified Generation and Perception](/202607/04/2606.30332v1-unigp-taming-diffusion-transformer-for-prior-preserved-unified-generation-and-perception)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：离散扩散模型的并行时间采样加速
-5. [Multi-Resolution Flow Matching: Training-Free Diffusion Acceleration via Staged Sampling](/202607/03/2607.01642v1-multi-resolution-flow-matching-training-free-diffusion-acceleration-via-staged-sampling)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：针对流匹配扩散模型的免训练多分辨率加速策略
-6. [OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers](/202607/03/2607.02461v1-orbitquant-data-agnostic-quantization-for-image-and-video-diffusion-transformers)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：图像和视频扩散模型的后训练量化方法
+   evidence：使用扩散Transformer的统一可控图像生成
 
 ### 速读区论文标签
-- 本次无速读推荐。
+1. [DTI: Dynamic Trajectory Initialization for Generative Face Video Super-Resolution](/202607/04/2606.29198v1-dti-dynamic-trajectory-initialization-for-generative-face-video-super-resolution)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：使用预训练扩散模型进行生成式人脸视频超分辨率
 
 
 <div class="dpr-home-promo-card">

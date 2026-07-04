@@ -1,0 +1,175 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-04T20:57:45.448967+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2606.32033v1",
+      "source": "arxiv",
+      "title": "SpheRoPE: Zero-Shot Optimization-Free 360 Panorama Generation with Spherical RoPE",
+      "abstract": "We present a zero-shot, training-free and optimization-free framework for generating 360 panoramic images and videos by directly injecting spherical priors into pre-trained diffusion transformers. Existing methods either rely on costly fine-tuning on scarce panoramic data that limits generalization, or leverage multi-step optimization that incurs prohibitive inference latency. We observe that contemporary generative models natively exhibit some panoramic priors from large-scale training. However, these emergent capabilities are insufficient, as the models fundamentally fail to satisfy the rigorous topological constraints imposed by equirectangular projection (ERP). We introduce a zero-shot and optimization-free approach that resolves these constraints at inference time. Spherical RoPE replaces standard rotary position embeddings: low-frequency channels are re-parameterized as 3D Cartesian coordinates to natively encode the spherical manifold, while high-frequency channels are harmonically quantized to enforce exact periodicity. Coupled with complementary Semantic Distortion classifier-free guidance (CFG) that explicitly steers geometry, we avoid retraining and inherit the full creative breadth of state-of-the-art models. Our approach generalizes across diverse backbones and 360 generation modalities. We demonstrate this across text-to-panorama using Flux.1, Flux.2, and LTX-Video backbones, achieving competitive performance against baselines, all while remaining training-free. Project page: https://orhir.github.io/SpheRoPE",
+      "authors": [
+        "Or Hirschorn",
+        "Aaron Olender",
+        "Eli Alshan",
+        "Ianir Ideses",
+        "Lior Fritz",
+        "Sagie Benaim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T17:57:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.32033v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free and optimization-free framework for diffusion model image and video generation",
+      "llm_evidence_cn": "免训练免优化的扩散模型图像视频生成框架",
+      "llm_evidence": "免训练免优化的扩散模型图像视频生成框架",
+      "canonical_evidence": "免训练免优化的扩散模型图像视频生成框架",
+      "llm_tldr_en": "SpheRoPE achieves zero-shot 360 panorama generation by injecting spherical priors into pre-trained diffusion transformers, requiring no training or optimization.",
+      "llm_tldr_cn": "现有方法依赖昂贵微调或多步优化，泛化有限且推理延迟高。SpheRoPE通过向预训练扩散变换器注入球形先验，实现零样本、免训练、免优化的360全景图像和视频生成。实验证明该方法能有效满足等距柱状投影的拓扑约束，无需额外训练即可生成高质量全景内容。",
+      "llm_tldr": "现有方法依赖昂贵微调或多步优化，泛化有限且推理延迟高。SpheRoPE通过向预训练扩散变换器注入球形先验，实现零样本、免训练、免优化的360全景图像和视频生成。实验证明该方法能有效满足等距柱状投影的拓扑约束，无需额外训练即可生成高质量全景内容。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02137v1",
+      "source": "arxiv",
+      "title": "ART for Diffusion Sampling: Continuous-Time Control and Actor-Critic Learning",
+      "abstract": "We study timestep allocation for score-based diffusion sampling, where a learned reverse-time dynamics is discretized on a finite grid. Uniform and hand-crafted schedules are standard choices, but they rely on fixed prescriptions and can therefore be suboptimal. To address this limitation, we propose Adaptive Reparameterized Time (ART), a continuous-time control formulation that learns a time change by treating the speed of the sampling clock as the control, so that a uniform grid on the learned clock induces adaptive timesteps in the original diffusion time. Based on a leading-order Euler error surrogate, ART provides a principled objective for allocating timesteps along the sampling trajectory. To solve this deterministic control problem, we introduce ART-RL, an auxiliary randomized formulation with Gaussian policies that turns schedule learning into a continuous-time reinforcement learning problem. We prove that the randomized ART-RL formulation is equivalent to ART at the optimizer level, in the sense that its optimal Gaussian policy recovers the optimal ART time-warping rate through its mean. We further establish policy evaluation and policy improvement characterizations and derive trajectory-based moment identities that yield implementable actor--critic updates for learning the schedule. Across experiments ranging from controlled low-dimensional settings to image generation, ART-RL can be plugged into existing diffusion samplers by changing only the timestep grid, consistently improving sample quality over strong baseline schedules at matched budgets while leaving the rest of the sampling pipeline unchanged. The learned schedules also exhibit broad generalization, transferring without retraining across sampling budgets, datasets, solvers, pipelines, and representation spaces.",
+      "authors": [
+        "Yilie Huang",
+        "Wenpin Tang",
+        "Xun Yu Zhou"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "eess.SY",
+        "math.OC"
+      ],
+      "published": "2026-07-02T13:13:19+00:00",
+      "link": "https://arxiv.org/pdf/2607.02137v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sampling optimization for diffusion models via adaptive timestep allocation",
+      "llm_evidence_cn": "扩散模型免训练采样优化，通过自适应时间步分配",
+      "llm_evidence": "扩散模型免训练采样优化，通过自适应时间步分配",
+      "canonical_evidence": "扩散模型免训练采样优化，通过自适应时间步分配",
+      "llm_tldr_en": "ART proposes a training-free adaptive timestep allocation method for diffusion sampling using continuous-time control and actor-critic learning.",
+      "llm_tldr_cn": "扩散模型采样中固定时间步调度可能次优。ART将时间步分配视为连续时间控制问题，学习一个时间变化函数，使得均匀网格在学得的时钟上对应自适应时间步，无需重新训练模型。基于欧拉误差代理提出优化目标，并使用演员-评论家学习求解。实验证明该方法能提升采样质量且完全免训练。",
+      "llm_tldr": "扩散模型采样中固定时间步调度可能次优。ART将时间步分配视为连续时间控制问题，学习一个时间变化函数，使得均匀网格在学得的时钟上对应自适应时间步，无需重新训练模型。基于欧拉误差代理提出优化目标，并使用演员-评论家学习求解。实验证明该方法能提升采样质量且完全免训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30332v1",
+      "source": "arxiv",
+      "title": "UniGP: Taming Diffusion Transformer for Prior-Preserved Unified Generation and Perception",
+      "abstract": "Recent advances in diffusion models have shown impressive performance in controllable image generation and dense prediction tasks. However, existing approaches typically treat diffusion-based controllable generation and dense prediction as separate tasks, overlooking the potential benefits of jointly modeling the heterogeneous distributions. In this work, we introduce UniGP, a framework built upon MMDiT, which unifies controllable generation and dense prediction through simple joint training, without the need for complex task-specific designs or losses, while preserving the backbone's versatile priors. By learning controllable generation and prediction under different conditions, our model effectively captures the joint distribution of image-geometry pairs. UniGP is capable of versatile controllable generation, dense prediction, and joint generation. Specifically, the proposed UniGP consists of DUGP and a unified dataset training strategy. The former, following the principle of Occam's razor, uses only a copied image branch of MMDiT to model dense distributions beyond RGB, while the latter integrates heterogeneous datasets into a unified training framework to jointly model generation and perception tasks. Extensive experiments demonstrate that our unified model surpasses prior unified approaches and performs on par with specialized methods. Furthermore, we demonstrate that multi-task joint training provides complementary benefits: generative priors enrich perceptual details, while perceptual learning improves structural alignment in generation.",
+      "authors": [
+        "Qin Guo",
+        "Hao Luo",
+        "Dongxu Yue",
+        "Weixuan Jin",
+        "Xiao Fu",
+        "Fan Wang",
+        "Dan Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T14:13:27+00:00",
+      "link": "https://arxiv.org/pdf/2606.30332v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "unified controllable image generation with diffusion transformers",
+      "llm_evidence_cn": "使用扩散Transformer的统一可控图像生成",
+      "llm_evidence": "使用扩散Transformer的统一可控图像生成",
+      "canonical_evidence": "使用扩散Transformer的统一可控图像生成",
+      "llm_tldr_en": "UniGP unifies controllable generation and dense prediction in a single diffusion transformer framework via joint training, preserving versatile priors without complex task-specific designs.",
+      "llm_tldr_cn": "针对现有方法将可控生成和密集预测分离的问题，UniGP提出基于MMDiT的统一框架，通过简单的联合训练同时处理两项任务，无需复杂设计，同时保持骨干网络的先验知识。实验表明该框架在可控图像生成和预测任务中均取得优异效果，为扩散模型的多任务统一提供了新思路。",
+      "llm_tldr": "针对现有方法将可控生成和密集预测分离的问题，UniGP提出基于MMDiT的统一框架，通过简单的联合训练同时处理两项任务，无需复杂设计，同时保持骨干网络的先验知识。实验表明该框架在可控图像生成和预测任务中均取得优异效果，为扩散模型的多任务统一提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.29198v1",
+      "source": "arxiv",
+      "title": "DTI: Dynamic Trajectory Initialization for Generative Face Video Super-Resolution",
+      "abstract": "As the most perceptually powerful Face Video Super-Resolution (FVSR) method, existing works in Generative FVSR (GFVSR) mainly exploit the generative prior of pretrained diffusion models. However, viewed as full generation, they suffer from fixed sampling and expensive inference costs if without large-scale auxiliary training. Furthermore, an excessive pursuit of generic perceptual metrics often results in low fidelity. To address these issues, we present Dynamic Trajectory Initialization (DTI) paradigm for GFVSR, which reformulates GFVSR as an input-driven directional restoration. With a novel enhancement-and-injection conditioning mechanism for pretrained DiT backbone, fidelity of our model has been significantly improved without compromising perceptual quality. To dynamically set the starting sampling point, we propose a Discriminative Guide (DG) trained via objective Signal-to-Noise Ratio (SNR) alignment. With only minor model adaptation and fine-tuning, our method achieves a SOTA overall performance across diverse metrics and benchmarks. An analysis of relationship between actual comprehensive quality and common metrics is also conducted, which demonstrates the perception-distortion trade-off and that the LPIPS is the most convincing metric in our case.",
+      "authors": [
+        "Yingwei Tang",
+        "Chen Yan",
+        "Wendi Liu",
+        "Qiang Hu",
+        "Xiaoyun Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-28T04:55:10+00:00",
+      "link": "https://arxiv.org/pdf/2606.29198v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "generative face video super-resolution using pretrained diffusion models",
+      "llm_evidence_cn": "使用预训练扩散模型进行生成式人脸视频超分辨率",
+      "llm_evidence": "使用预训练扩散模型进行生成式人脸视频超分辨率",
+      "canonical_evidence": "使用预训练扩散模型进行生成式人脸视频超分辨率",
+      "llm_tldr_en": "DTI reformulates face video super-resolution as input-driven directional restoration, using a novel conditioning mechanism to improve fidelity without large-scale training.",
+      "llm_tldr_cn": "针对现有生成式人脸视频超分方法采样固定、推理成本高的问题，DTI提出动态轨迹初始化范式，将超分重构为输入驱动的定向恢复，并通过增强注入条件机制提高保真度。实验证明该方法在保持感知质量的同时显著提升保真度，降低了训练开销。",
+      "llm_tldr": "针对现有生成式人脸视频超分方法采样固定、推理成本高的问题，DTI提出动态轨迹初始化范式，将超分重构为输入驱动的定向恢复，并通过增强注入条件机制提高保真度。实验证明该方法在保持感知质量的同时显著提升保真度，降低了训练开销。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
