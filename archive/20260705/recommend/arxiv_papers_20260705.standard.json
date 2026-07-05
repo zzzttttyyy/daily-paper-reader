@@ -1,0 +1,210 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-05T20:28:47.451948+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2606.29828v1",
+      "source": "arxiv",
+      "title": "HomeDiffusion: Zero-Shot Object Customization with Multi-View Representation Learning for Indoor Scenes",
+      "abstract": "Recently, zero-shot object customization generation methods have rapidly developed and shown tremendous potential for applications. For instance, in the e-commerce domain, consumers can observe the visual effect of furniture placed within their personal living spaces or clothes worn on their own bodies. Many existing approaches perform object customization generation based on diffusion models and extracted reference object features. However, the generated object significantly diverges from the original reference object in details such as patterns and curves. Particularly for asymmetrical reference objects, the absence of comprehensive multi-viewpoint information prevents the generation of object poses that harmonize with the background scene. To address these shortcomings, we have constructed a novel dataset comprising multi-angle images of furniture and indoor scenes. Based on diffusion models, we introduce HomeDiffusion, which can leverage multi-viewpoint images of the same reference object to accurately generate visually harmonious object poses within specified areas of the background scene. During the diffusion process, we further extract high-fidelity details of the reference object and perform cross-attention with the noise latents in the latent space, thereby ensuring the preservation of details in the customized object generation. Extensive qualitative and quantitative experiments demonstrate that our method achieves superior performance over other existing zero-shot as well as few-shot object customization approaches.",
+      "authors": [
+        "Guoqiu Li",
+        "Jin Song",
+        "Yiyun Fei"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T06:16:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.29828v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "zero-shot object customization in indoor scenes using diffusion models",
+      "llm_evidence_cn": "使用扩散模型在室内场景中进行零样本对象定制",
+      "llm_evidence": "使用扩散模型在室内场景中进行零样本对象定制",
+      "canonical_evidence": "使用扩散模型在室内场景中进行零样本对象定制",
+      "llm_tldr_en": "Proposes HomeDiffusion for zero-shot object customization in indoor scenes via multi-view representation learning, improving detail consistency.",
+      "llm_tldr_cn": "针对零样本对象定制生成中细节失真问题，提出HomeDiffusion，利用多视图表示学习提取参考对象全面特征，结合扩散模型生成与场景和谐的新对象，有效提升图案和曲线保持度。",
+      "llm_tldr": "针对零样本对象定制生成中细节失真问题，提出HomeDiffusion，利用多视图表示学习提取参考对象全面特征，结合扩散模型生成与场景和谐的新对象，有效提升图案和曲线保持度。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30045v1",
+      "source": "arxiv",
+      "title": "Walking in the Implicit: Interactive World Exploration via Neural Scene Representation",
+      "abstract": "Interactive video generation systems for camera-controlled world exploration roll out growing sequences of latent video frames, entangling state transition with high-frequency observation synthesis. We propose Walking in the Implicit, a scene-centric paradigm that changes the rollout variable from frame latents to a fixed-length, renderable implicit state, termed Neural Implicit Scene (NIS). This factorizes interactive generation into stochastic transition of a compact scene state and deterministic pose-conditioned rendering given the sampled state. We instantiate this paradigm as NeuWorld: a transformer VAE learns locally anchored NIS from sparse posed frames, and a diffusion transformer evolves NIS conditioned on future camera trajectories and geometry-aware retrieved history. By reusing the VAE encoder as a unified conditioner, NeuWorld maps camera, reference-image, and history cues into the same NIS modality, avoiding external heterogeneous encoders. Trained from scratch on public posed-view data without pretrained video backbones or auxiliary 3D reconstructors, NeuWorld achieves strong long-horizon consistency with favorable inference efficiency.",
+      "authors": [
+        "Zhiqi Li",
+        "Chengrui Dong",
+        "Zhenhua Du",
+        "Hangning Zhou",
+        "Cong Qiu",
+        "Hailong Qin",
+        "Mu Yang",
+        "Dongxu Wei",
+        "Peidong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T09:37:33+00:00",
+      "link": "https://arxiv.org/pdf/2606.30045v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "diffusion transformer for interactive video generation from neural implicit scene state",
+      "llm_evidence_cn": "使用扩散transformer从神经隐式场景状态生成交互式视频",
+      "llm_evidence": "使用扩散transformer从神经隐式场景状态生成交互式视频",
+      "canonical_evidence": "使用扩散transformer从神经隐式场景状态生成交互式视频",
+      "llm_tldr_en": "Proposes Walking in the Implicit, a paradigm using neural implicit scene state for interactive video generation, factorizing transition and rendering.",
+      "llm_tldr_cn": "针对交互式视频生成中帧预测与观测合成纠缠问题，提出Walking in the Implicit范式，以固定长度隐式场景状态代替帧潜在变量，将生成分解为场景过渡和姿态条件渲染，并利用扩散Transformer进化场景状态，实现高效交互世界探索。",
+      "llm_tldr": "针对交互式视频生成中帧预测与观测合成纠缠问题，提出Walking in the Implicit范式，以固定长度隐式场景状态代替帧潜在变量，将生成分解为场景过渡和姿态条件渲染，并利用扩散Transformer进化场景状态，实现高效交互世界探索。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01743v1",
+      "source": "arxiv",
+      "title": "InterCMDM: Block-Causal Diffusion for Autoregressive Human Interaction Generation",
+      "abstract": "Text-conditioned human interaction generation must capture both long-range temporal causality within each individual and tightly coupled coordination between partners. Existing interaction diffusion models typically denoise full sequences using bidirectional attention, which obscures causality and hinders streaming and long-horizon generation. Autoregressive alternatives enforce causality but often suffer from temporal drift, leading to coordination degradation and unstable interaction dynamics over time. We propose InterCMDM, a block-causal latent diffusion framework for autoregressive two-person interaction generation. InterCMDM introduces a Dual-Stream Causal Diffusion Transformer that maintains separate causal streams for each person while modeling inter-person dependencies via unified dual-stream attention with multi-task attention masks. These masks unify interaction modeling within a single attention mechanism and support diverse coordination behaviors, including simultaneous actions, reactive responses, leader-follower dynamics, and independent motion. By training a single model across these mask configurations as a form of data augmentation, InterCMDM enables controllable interaction generation by simply selecting the desired attention mask at inference time. Finally, a block-wise diffusion objective enables stable latent rollout over long sequences without repeated decode-encode cycles. InterCMDM achieves state-of-the-art performance on InterHuman and Inter-X, improving text-motion alignment, realism, and long-horizon continuity.",
+      "authors": [
+        "Qing Yu",
+        "Kent Fujiwara"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-02T05:58:15+00:00",
+      "link": "https://arxiv.org/pdf/2607.01743v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "block-causal latent diffusion for autoregressive two-person interaction generation",
+      "llm_evidence_cn": "块因果潜在扩散用于自回归两人交互生成",
+      "llm_evidence": "块因果潜在扩散用于自回归两人交互生成",
+      "canonical_evidence": "块因果潜在扩散用于自回归两人交互生成",
+      "llm_tldr_en": "Proposes InterCMDM, a block-causal latent diffusion framework for autoregressive two-person interaction generation, addressing causality and temporal drift issues.",
+      "llm_tldr_cn": "针对现有人体交互扩散模型在因果性和长时生成中的问题，提出InterCMDM，一种块因果潜在扩散框架，通过双流因果扩散Transformer分别建模各人动作并保持协作，实现自回归生成，有效缓解时间漂移并维持交互协调。",
+      "llm_tldr": "针对现有人体交互扩散模型在因果性和长时生成中的问题，提出InterCMDM，一种块因果潜在扩散框架，通过双流因果扩散Transformer分别建模各人动作并保持协作，实现自回归生成，有效缓解时间漂移并维持交互协调。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.00927v1",
+      "source": "arxiv",
+      "title": "Post-Training Pruning for Diffusion Transformers",
+      "abstract": "Diffusion Transformers (DiTs) have demonstrated impressive performance in image generation but suffer from substantial computational overhead and resource consumption. Post-training pruning offers a promising solution; however, due to DiTs' unique architectural design and parameter distribution, traditional pruning methods are inapplicable, leading to significant performance degradation. Specifically, prior methods developed for LLMs, which derive metrics through a series of approximations, amplify the relative contribution of weights in the saliency metric. In addition, weights in DiTs exhibit significantly larger magnitudes than those in LLMs. Moreover, existing pruning granularity overlooks variations in model structures. In this paper, we propose DiT-Pruning, which improves pruning performance by introducing customized saliency criteria and pruning granularity. We design a novel metric that balances the contributions of weights and activations from an energy-based perspective, enabling more effective identification of important elements. Furthermore, we observe distinct clustering patterns in the two-dimensional weight space. Accordingly, we adopt a clustering-aware pruning granularity, enabling effective sparse allocation. Extensive evaluations on various DiTs show that our method consistently preserves image quality, especially under high sparsity. For FLUX.1-dev at 512x512 resolution on MJHQ, DiT-Pruning achieves only a 0.001 loss in CLIP score at 50% sparsity, dramatically outperforming recent pruning methods.",
+      "authors": [
+        "Chengzhi Hu",
+        "Xuewen Liu",
+        "Jing Zhang",
+        "Mengjuan Chen",
+        "Zhikai Li",
+        "Qingyi Gu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-01T13:30:49+00:00",
+      "link": "https://arxiv.org/pdf/2607.00927v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "post-training pruning reduces computational cost of diffusion transformers, an optimization without additional training",
+      "llm_evidence_cn": "训练后剪枝降低扩散Transformer计算开销，无需额外训练",
+      "llm_evidence": "训练后剪枝降低扩散Transformer计算开销，无需额外训练",
+      "canonical_evidence": "训练后剪枝降低扩散Transformer计算开销，无需额外训练",
+      "llm_tldr_en": "DiT-Pruning applies post-training pruning to diffusion transformers, reducing computation while maintaining image generation quality.",
+      "llm_tldr_cn": "Diffusion Transformer（DiT）计算开销大，现有剪枝方法不适用。提出DiT-Pruning，针对DiT独特结构设计剪枝粒度，在保持生成质量的同时显著降低计算量。这是一种训练后优化方法，无需重新训练。",
+      "llm_tldr": "Diffusion Transformer（DiT）计算开销大，现有剪枝方法不适用。提出DiT-Pruning，针对DiT独特结构设计剪枝粒度，在保持生成质量的同时显著降低计算量。这是一种训练后优化方法，无需重新训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.02516v1",
+      "source": "arxiv",
+      "title": "Alignment Is All You Need For X-to-4D Generation",
+      "abstract": "Generative diffusion models excel at synthesizing high-quality images, videos, and 3D content under multimodal control. However, arbitrary user-defined modality-to-4D (X-to-4D) generation remains challenging due to the high cost of constructing diverse datasets and the limited scalability of existing methods. This paper presents Align4D, a flexible framework that translates any-modal input into coherent video-3D pairs, using video to guide 4D motion and 3D data to shape 4D geometry. Align4D introduces three key techniques: (1) Object Distance Alignment, which searches Video-Aligned and Multiview-Aligned Object Distances (VAOD/MAOD), respectively, to reconcile 4D renderings with video and the priors of multiview diffusion models; (2) Motion-Geometry Joint Alignment, which constrains known and unknown views through synchronized video and 3D inputs, ensuring consistent 4D generation; and (3) Asynchronous Optimization, which decouples Gaussian attribute and deformation network training to enhance motion and geometry fidelity. We further propose the X4D dataset, which integrates prompt, image, video, and 3D data for benchmarking. Experiments on X4D and Consistent4D demonstrate that Align4D achieves state-of-the-art quality and consistency in X-to-4D generation. Project page: https://miaoqiaowei.github.io/Align4D/.",
+      "authors": [
+        "Qiaowei Miao",
+        "Kehan Li",
+        "Yawei Luo",
+        "Yi Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-02T17:59:57+00:00",
+      "link": "https://arxiv.org/pdf/2607.02516v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "uses diffusion models for generative tasks (4D)",
+      "llm_evidence_cn": "使用扩散模型进行生成任务（4D）",
+      "llm_evidence": "使用扩散模型进行生成任务（4D）",
+      "canonical_evidence": "使用扩散模型进行生成任务（4D）",
+      "llm_tldr_en": "Align4D adapts diffusion models to generate coherent 4D from any input modality but requires training, not training-free.",
+      "llm_tldr_cn": "本文提出Align4D框架，利用扩散模型将任意模态输入转化为一致的4D表示，通过视频引导运动和3D数据塑造几何。虽然涉及扩散生成，但方法需要训练，不属于免训练优化。",
+      "llm_tldr": "本文提出Align4D框架，利用扩散模型将任意模态输入转化为一致的4D表示，通过视频引导运动和3D数据塑造几何。虽然涉及扩散生成，但方法需要训练，不属于免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

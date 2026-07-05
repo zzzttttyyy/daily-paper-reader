@@ -6,36 +6,37 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-04
-- 运行时间：2026-07-04 21:02:21 UTC
+- 最新运行日期：2026-07-05
+- 运行时间：2026-07-05 20:31:44 UTC
 - 运行状态：成功
-- 本次总论文数：4
+- 本次总论文数：5
 - 精读区：3
-- 速读区：1
+- 速读区：2
 
 ### 今日简报（AI）
-今日精读两篇9分论文与一篇速读，聚焦360全景零样本生成与扩散模型连续时间控制。
-
-最推荐SpheRoPE和ART：前者用球形RoPE实现免优化零样本全景图生成，后者将扩散采样视为连续时间控制问题并引入演员-评论家学习。
-
-普通读者可关注零样本全景生成技术如何简化VR/AR内容创作，以及基于强化学习的扩散采样控制对图像质量提升的潜力。
-- 详情：[/202607/04/README](/202607/04/README)
+1) 今日精读两篇高质论文：零样本室内场景定制与隐式场景交互探索，速读扩散Transformer剪枝与X-to-4D生成。  
+2) 最值得关注室内场景零样本定制（HomeDiffusion）与隐式世界探索（Walking in the Implicit），均获9.0分。  
+3) 建议优先精读这两篇高分支架，掌握多视图表示与神经场景表示的核心方法，为实际应用或研究提供直接参考。
+- 详情：[/202607/05/README](/202607/05/README)
 
 ### 精读区论文标签
-1. [SpheRoPE: Zero-Shot Optimization-Free 360 Panorama Generation with Spherical RoPE](/202607/04/2606.32033v1-spherope-zero-shot-optimization-free-360-panorama-generation-with-spherical-rope)  
+1. [HomeDiffusion: Zero-Shot Object Customization with Multi-View Representation Learning for Indoor Scenes](/202607/05/2606.29828v1-homediffusion-zero-shot-object-customization-with-multi-view-representation-learning-for-indoor-scenes)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练免优化的扩散模型图像视频生成框架
-2. [ART for Diffusion Sampling: Continuous-Time Control and Actor-Critic Learning](/202607/04/2607.02137v1-art-for-diffusion-sampling-continuous-time-control-and-actor-critic-learning)  
+   evidence：使用扩散模型在室内场景中进行零样本对象定制
+2. [Walking in the Implicit: Interactive World Exploration via Neural Scene Representation](/202607/05/2606.30045v1-walking-in-the-implicit-interactive-world-exploration-via-neural-scene-representation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：扩散模型免训练采样优化，通过自适应时间步分配
-3. [UniGP: Taming Diffusion Transformer for Prior-Preserved Unified Generation and Perception](/202607/04/2606.30332v1-unigp-taming-diffusion-transformer-for-prior-preserved-unified-generation-and-perception)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：使用扩散Transformer的统一可控图像生成
+   evidence：使用扩散transformer从神经隐式场景状态生成交互式视频
+3. [InterCMDM: Block-Causal Diffusion for Autoregressive Human Interaction Generation](/202607/05/2607.01743v1-intercmdm-block-causal-diffusion-for-autoregressive-human-interaction-generation)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：块因果潜在扩散用于自回归两人交互生成
 
 ### 速读区论文标签
-1. [DTI: Dynamic Trajectory Initialization for Generative Face Video Super-Resolution](/202607/04/2606.29198v1-dti-dynamic-trajectory-initialization-for-generative-face-video-super-resolution)  
+1. [Post-Training Pruning for Diffusion Transformers](/202607/05/2607.00927v1-post-training-pruning-for-diffusion-transformers)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：使用预训练扩散模型进行生成式人脸视频超分辨率
+   evidence：训练后剪枝降低扩散Transformer计算开销，无需额外训练
+2. [Alignment Is All You Need For X-to-4D Generation](/202607/05/2607.02516v1-alignment-is-all-you-need-for-x-to-4d-generation)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：使用扩散模型进行生成任务（4D）
 
 
 <div class="dpr-home-promo-card">

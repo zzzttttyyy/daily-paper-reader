@@ -1,0 +1,1162 @@
+Title: InterCMDM: Block-Causal Diffusion for Autoregressive Human Interaction Generation
+
+URL Source: https://arxiv.org/pdf/2607.01743v1
+
+Published Time: Fri, 03 Jul 2026 00:44:38 GMT
+
+Number of Pages: 29
+
+Markdown Content:
+# InterCMDM: Block-Causal Diffusion for Autoregressive Human Interaction Generation 
+
+Qing Yu and Kent Fujiwara 
+
+LY Corporation, Tokyo, Japan 
+
+{yu.qing, kent.fujiwara}@lycorp.co.jp 
+
+Abstract. Text-conditioned human interaction generation must cap-ture both long-range temporal causality within each individual and tightly coupled coordination between partners. Existing interaction diffusion models typically denoise full sequences using bidirectional attention, which obscures causality and hinders streaming and long-horizon generation. Autoregressive alternatives enforce causality but often suffer from tem-poral drift, leading to coordination degradation and unstable interaction dynamics over time. We propose InterCMDM, a block-causal latent diffu-sion framework for autoregressive two-person interaction generation. In-terCMDM introduces a Dual-Stream Causal Diffusion Transformer that maintains separate causal streams for each person while modeling inter-person dependencies via unified dual-stream attention with multi-task attention masks. These masks unify interaction modeling within a sin-gle attention mechanism and support diverse coordination behaviors, in-cluding simultaneous actions, reactive responses, leader–follower dynam-ics, and independent motion. By training a single model across these mask configurations as a form of data augmentation, InterCMDM en-ables controllable interaction generation by simply selecting the desired attention mask at inference time. Finally, a block-wise diffusion objec-tive enables stable latent rollout over long sequences without repeated decode–encode cycles. InterCMDM achieves state-of-the-art performance on InterHuman and Inter-X, improving text–motion alignment, realism, and long-horizon continuity. 
+
+Keywords: Human Interaction Generation · Motion Synthesis · Au-toregressive Diffusion Models 
+
+1 Introduction 
+
+Text-conditioned human interaction generation aims to synthesize coordinated two-person motion that matches a natural-language description. Unlike single-person motion generation [11, 36], interactions require simultaneously modeling (i) long-range temporal causality within each individual and (ii) tightly coupled, dynamically evolving coordination across individuals [21, 47]. Small temporal or coordination errors quickly compound over time, leading to orientation inconsis-tencies, missed physical contacts, and interaction drift. 
+
+> arXiv:2607.01743v1 [cs.CV] 2 Jul 2026
+
+2 Q. Yu and K. Fujiwara Timeline    
+
+> Holistic & Non -Causal Generation
+> Existing Methods
+> Text
+> Prompt
+> Block -Wise Autoregressive Generation
+> Proposed Method
+> Text
+> Prompt
+> Block t -1
+> (Past )
+> Block t
+> (Current )
+> Block t+1
+> (Future )
+> Person 1 Stream
+> Person 2 Stream
+> Causal
+> Dependency
+> Whole Sequence
+> Interaction Attention Masks (Selectable)
+> Bidirectional Dependency
+> Simultaneous Reactive Leader -Follower Independent
+
+Fig. 1: Comparison of existing interaction generation methods and InterCMDM. Left: prior methods perform full-sequence, non-causal generation. Right: InterCMDM uses 
+
+block-wise autoregressive generation with dual causal streams and interaction masks. 
+
+Recent diffusion models achieve high-fidelity motion synthesis [9, 11, 36, 53] and have been extended to interactions [6, 21, 34, 44]. However, most interaction diffusion models denoise full sequences with bidirectional attention, implicitly relying on future context. This obscures causal structure, complicates streaming generation, and limits control over coordination roles ( e.g ., reactions or leader– follower behaviors). Autoregressive methods instead enforce causality [24, 37, 45, 55], but often suffer from drift and boundary artifacts in long sequences, especially in interactions, where coordination errors compound across partners. In this paper, we introduce InterCMDM , a block-causal latent diffusion 
+
+framework that combines diffusion-level realism with explicit causal interaction structure (Fig. 1). InterCMDM generates motion block by block in the latent space of a temporal motion VAE, enabling long-horizon rollout. InterCMDM is built on three core components. First, we propose the Dual-Stream Causal Diffusion Transformer (DS-Causal-DiT) , which models interaction as two coupled but structurally distinct temporal processes. Unlike prior methods that either concatenate both people into a single stream [12, 17] or handle them with separate attention modules [21, 47], our design maintains separate causal streams while unifying interaction through a dual-stream atten-tion mechanism. Causal self-attention preserves temporal ordering within each person, while cross-stream attention captures dynamic coordination, enabling joint modeling of intra-person causality and inter-person interaction. Second, we propose multi-task block attention masking , a unified train-ing strategy that exposes the model to diverse coordination structures, includ-ing simultaneous, reactive, leader–follower, and independent interactions. Each masking pattern defines distinct causal and cross-stream attention constraints. By randomly sampling these masks during training, the model learns general-ized interaction dynamics. At inference time, selecting a specific mask enables controllable generation tailored to the desired coordination behavior. InterCMDM 3
+
+Third, we reformulate diffusion for interaction generation through a block-wise diffusion objective . Rather than denoising entire sequences [15], our model progressively denoises temporal blocks in latent space. Inspired by Diffu-sion Forcing for next-token prediction and single-person motion generation [7,50], this formulation preserves causal dependencies across blocks, i.e ., segments of frames, while enabling parallel denoising within each block. The resulting block-causal design supports stable long-horizon rollouts while mitigating drift. Experiments on InterHuman and Inter-X show that InterCMDM achieves state-of-the-art text-motion alignment and realism. In long-horizon evaluations, latent rollout demonstrates good continuity while maintaining competitive local motion quality. Ablation studies further validate the benefits of dual-stream causal modeling and multi-task masking. Our contributions are summarized as follows: 
+
+– DS-Causal-DiT: a dual-stream diffusion transformer that enforces per-person temporal causality and models structured inter-person dependencies via dual-stream masked attention. 
+
+– Multi-task block attention masking: a unified framework for learning diverse coordination patterns and enabling controllable interaction generation. 
+
+– Block-wise diffusion objective: an autoregressive latent diffusion formu-lation enabling stable long-horizon interaction rollout. 
+
+– State-of-the-art results on InterHuman and Inter-X with improved realism, coherence, and interaction stability. 
+
+2 Related Work 
+
+Generative Human Motion Modeling. Large-scale datasets such as AMASS [26], BABEL [35], and KIT-ML [33] have driven rapid progress in generative human motion modeling. Early RNN- and Transformer-based approaches [3, 14, 29, 30, 48,56] struggled with long-range dependencies and semantic alignment. Diffusion models [11, 15, 36] now dominate due to superior realism and diversity. Motion-space diffusion methods such as MDM [41] and MotionDiffuse [53] directly de-noise trajectories, while latent variants including MLD [8], MotionLCM [10], and SALAD [16] improve efficiency. Recent extensions enhance controllability via retrieval augmentation [20, 49, 54], guidance [19, 23, 43, 46], and composi-tional generation [4,31,51]. However, most diffusion models rely on full-sequence bidirectional denoising, implicitly assuming future context. This violates tempo-ral causality and limits streaming and stable long-horizon generation, especially in human-to-human interaction settings. 
+
+Generative Human Interaction Modeling. Interaction modeling requires rea-soning over both intra-person dynamics and inter-person coordination. Com-MDM [39] connects pretrained single-person models, while RIG [40], InterGen [21] and Inter-X [47] introduce interaction diffusion architectures and datasets. TIM-otion [42] introduces temporal modeling and interaction mixing during the dif-fusion process. Recent work explores masked and autoregressive formulations. 4 Q. Yu and K. Fujiwara 
+
+InterMask [17] adopts bidirectional masked modeling, and Interact2Ar [37] in-troduces autoregressive diffusion, but operates frame-by-frame in motion space, leading to drift and computational overhead. HINT [24] improves realism, but relies on ground-truth prefix conditioning. Overall, existing interaction models either rely on full-sequence bidirectional denoising without explicit causality or perform fine-grained autoregression with accumulated drift. Neither approach simultaneously preserves diffusion fidelity and structured causal modeling. 
+
+Autoregressive Motion Generation. Autoregressive (AR) motion models enforce temporal causality by predicting future frames from past context. Discrete-token methods such as T2M-GPT [52] and MotionGPT [18] suffer from exposure bias [28, 38]. VQ-based approaches [13, 32, 57] mitigate some limitations, but introduce quantization artifacts. Recent autoregressive diffusion models bridge AR and diffusion. Dart [55], MARDM [27], and MotionStreamer [45] incorpo-rate diffusion into causal frameworks. CMDM [50] introduces causal diffusion forcing [7] for autoregressive motion generation with token-wise causal attention and a temporal VAE for single-person settings. However, extending these designs to interaction introduces additional chal-lenges: structured cross-person dependencies, diverse coordination patterns, and amplified drift when two people must remain aligned. Our work builds upon CMDM’s causal diffusion and temporal VAE framework, extending it from single-person motion generation to interaction modeling through: (1) a dual-stream architecture with unified masked attention for cross-person dependencies; (2) multi-task block attention masking for diverse coordination patterns; and (3) inference-time controllability via mask selection. These extensions enable struc-tured two-person interaction generation beyond CMDM’s single-stream design. 
+
+3 Method 
+
+To enable structured causal two-person interaction generation, we propose In-terCMDM , a block-causal latent diffusion framework for autoregressive in-teraction modeling. Unlike prior causal diffusion models designed for single-person motion, InterCMDM explicitly captures structured cross-person depen-dencies while preserving per-person temporal causality. The framework, as shown in Fig. 2, introduces three key components: (i) a Dual-Stream Causal Diffu-sion Transformer (DS-Causal-DiT) that factorizes interaction into separate causal streams and couples them through unified cross-stream attention; (ii) 
+
+multi-task block attention masking , which enables controllable coordina-tion behaviors within a single model; and (iii) a block-wise diffusion objec-tive that supports long-horizon rollout in latent space. A temporal motion VAE provides a compact and efficient latent representation for block-wise generation. 
+
+3.1 Problem Formulation 
+
+Let x(1) , x(2) ∈ RT ×D denote the motion sequences of two interacting people over T frames, where D is the feature dimension per frame ( e.g ., joint positions, InterCMDM 5Motion        
+
+> Latent
+> Block -Wise
+> Noise Level
+> Person 1 Person 2
+> 1 Latent Block = 4 ×B Frames
+> Noise
+> Latent
+> Person 1 Person 2
+> Block -Wise Diffusion
+> Text Attention
+> Unified DS -Attention
+> Feed Forward
+> Q, V, K Q, V, K
+> Text Attention
+> Feed Forward
+> Dual -Stream Causal -DiT
+> Dual -Stream Block ×L
+> Denoised Latent
+> Text
+> Prompt
+> Interaction Attention Masks
+> Multi -Task Block Attention
+> P1
+> P2
+> P1 P2
+
+Fig. 2: InterCMDM pipeline. Motion sequences are encoded into latent blocks and dif-fused via block-wise diffusion (left). The DS-Causal-DiT (center) processes two causal streams with unified dual-stream attention and text cross-attention. Multi-task block attention masks (right) impose structured causal and cross-stream constraints. 
+
+rotations, and velocities), and let c be a text prompt. Our goal is to autore-gressively generate (x(1) , x(2) ) such that the motions are temporally coherent, physically plausible, and semantically aligned with c.We train a diffusion model in latent space, partitioning the latent sequences into non-overlapping temporal blocks of size B and imposing a block-causal 
+
+constraint: tokens may attend to tokens within the current block and all previous blocks, but never to future blocks. This design preserves diffusion parallelism within each block while enforcing an autoregressive structure across blocks. 
+
+3.2 Temporal Motion VAE 
+
+We encode each person independently into latent sequences using a shared tem-poral motion VAE. Both the encoder and decoder are built with 1D causal con-volutions, as in CMDM [50], ensuring temporal causality during both encoding and decoding: 
+
+z(i) 
+
+> τ
+
+= Eϕ(x(i) 
+
+> ≤τ
+
+), ˆx(i) 
+
+> τ
+
+= Dψ (z(i) 
+
+> ≤τ
+
+), i ∈ { 1, 2}. (1) The encoder temporally downsamples the sequence ( T ′ = T / 4), producing compact latent tokens of dimension dz , each aligned with a local 4-frame motion window. This design enables efficient diffusion in latent space and avoids repeated decode–encode cycles during autoregressive rollout. The VAE is trained with a variational objective that combines a recon-struction loss and a Kullback–Leibler divergence term for each person: LVAE =
+
+P2
+
+> i=1
+
+
+
+L(i) 
+
+> rec
+
++ βD (i)
+
+> KL
+
+
+
+. This per-person formulation preserves separate latent rep-resentations, while the shared encoder–decoder parameters ensure consistent en-coding across both individuals. During inference, motion can be decoded sequen-tially in real time, enabling streaming generation without access to future frames. 6 Q. Yu and K. Fujiwara 
+
+3.3 Dual-Stream Causal Diffusion Transformer (DS-Causal-DiT) 
+
+InterCMDM adopts a DS-Causal-DiT to explicitly model two-person interaction under block-wise diffusion. As shown in Fig. 2, motion latents from Person 1 and Person 2 are processed as two parallel streams within each temporal block, while block-wise noise levels are injected during denoising. Unlike prior interaction diffusion models that either concatenate both people into a single stream [12,17] or separate self- and cross-attention modules [21,47], our design maintains two structured causal streams and unifies their interaction within a single attention operation inside each dual-stream block. 
+
+Dual-Stream Block. Given noisy latent blocks z(1) , z(2) ∈ RT ′×dz for Person 1 and Person 2, DS-Causal-DiT applies L stacked Dual-Stream blocks. Each block preserves separate temporal representations while enabling interaction modeling. Let h(0)  
+
+> i
+
+= Embed( z(i)), i ∈ { 1, 2}. At layer ℓ:
+
+[˜h(ℓ)1 ; ˜h(ℓ)2 ] = DualStreamAttn([ h(ℓ−1) 1 ; h(ℓ−1) 2 ], M) + [ h(ℓ−1) 1 ; h(ℓ−1) 2 ], (2) 
+
+ˆh(ℓ) 
+
+> i
+
+= TextAttn( ˜h(ℓ) 
+
+> i
+
+, c) + ˜h(ℓ) 
+
+> i
+
+, (3) 
+
+h(ℓ) 
+
+> i
+
+= FFN( ˆh(ℓ) 
+
+> i
+
+) + ˆh(ℓ) 
+
+> i
+
+. (4) Details of other components, including the text encoder, positional encoding, and diffusion timestep embedding, are provided in the supplementary material. 
+
+Unified Dual-Stream Attention with Multi-Task Block Masking. The core of DS-Causal-DiT is a unified masked attention mechanism that preserves per-person temporal causality while modeling structured cross-person dependencies via the attention mask M. Within each block, separate query, key, and value projections are computed for Person 1 and Person 2, and the two streams are concatenated along the sequence dimension. A single masked attention operation is then ap-plied to the concatenated sequence as shown in Fig. 2. The unified dual-stream attention is controlled by a structured mask M that jointly encodes temporal causality and interaction patterns. Formally, M[i, j ]
+
+determines whether token i (from either stream) is allowed to attend to to-ken j in the concatenated sequence. The mask enforces block-causal constraints (restricting attention to the current block and all preceding blocks) and cross-stream interaction structures (specifying how the two people attend to each other). Different mask configurations enable distinct coordination modes. 
+
+Multi-Task Block Masking. Human interactions exhibit diverse coordination structures that differ in information flow and temporal dependency. Rather than training separate models, we adopt multi-task block masking to expose the model to multiple interaction structures during training. We define four mask types to cover representative and complementary coordination patterns: 1. Simultaneous: Both people attend causally to their own past and to the other’s past. InterCMDM 7
+
+2. Reactive: One person conditions on the other’s completed motion before responding. 3. Leader–Follower: The follower attends to the leader with a temporal lag. 4. Independent: Cross-stream attention is disabled. These masks are designed to span symmetric, asymmetric, delayed, and decoupled interaction regimes, providing structured supervision over different cross-person dependency patterns. During training, mask types are randomly sampled to encourage generalization across coordination dynamics. At inference, selecting a mask directly determines the generated interaction behavior without retraining. The detailed formulation is provided in the supplementary material. 
+
+3.4 Block-Wise Diffusion Objective 
+
+We extend causal diffusion forcing [7,50] from frame-level noise to a block-level 
+
+formulation in latent space. Unlike conventional diffusion models that apply a single noise level to the entire sequence, we assign an independent diffusion timestep to each temporal block. For clean latents z(1) 0 , z(2) 0 ∈ RT ′×dz of Person 1 and Person 2, we reformulate diffusion as a block-causal latent process . Each latent sequence is partitioned into NB = T ′/B non-overlapping temporal blocks: 
+
+z(i)0 =
+
+h
+
+z(i, 1) 0 , z(i, 2) 0 , . . . , z(i,N B )0
+
+i
+
+, i ∈ { 1, 2}, (5) where z(i,b )0 ∈ RB×dz denotes the b-th block of person i.
+
+Block-Level Diffusion Process. For each block b, we sample an independent dif-fusion timestep kb ∈ [0 , K ] and define the noisy latent block as: 
+
+z(i,b ) 
+
+> kb
+
+= p¯αkb z(i,b )0 + p1 − ¯αkb ϵ(i,b ), ϵ(i,b ) ∼ N (0 , I), (6) where √¯αkb and √1 − ¯αkb are determined by the diffusion noise schedule. As a result, the noisy latent sequence for person i is: z(i) 
+
+> k
+
+=
+
+h
+
+z(i, 1)  
+
+> k1
+
+, . . . , z(i,N B )
+
+> kNB
+
+i
+
+,
+
+where k = ( k1, . . . , k NB ).
+
+Block-Causal Denoising. The DS-Causal-DiT jointly predicts the noise residu-als for both streams under the unified dual-stream attention mechanism. For example, under strict block-causal attention ( i.e ., the simultaneous mask), the prediction for block b conditions only on the noisy latent blocks up to b:
+
+LBW = Ek,ϵ
+
+" NBX
+
+> b=1 2
+
+X
+
+> i=1
+
+ϵ(i,b ) − μ(i)
+
+> θ
+
+ z(1) 
+
+> k,≤b
+
+, z(2) 
+
+> k,≤b
+
+, k b, c 22
+
+#
+
+, (7) where z(i) 
+
+> k,≤b
+
+denotes the noisy latent blocks of person i from block 1 to b. The denoiser outputs a pair of residual predictions, μθ = ( μ(1)  
+
+> θ
+
+, μ(2)  
+
+> θ
+
+), corresponding to Person 1 and Person 2, respectively. This block-wise formulation preserves diffusion parallelism within each block while enforcing causal dependencies across blocks, enabling stable autoregressive rollout without full-sequence denoising. 8 Q. Yu and K. Fujiwara 
+
+Discussion. Unlike full-sequence diffusion zk = √¯αkz + √1 − ¯αkϵ, our block-wise formulation applies noise at the block level and enforces temporal causality through block-restricted attention. This design bridges diffusion modeling and autoregressive generation by retaining parallel intra-block denoising while sup-porting causal rollout across blocks. 
+
+Autoregressive Inference (Latent Rollout). At inference, generation proceeds au-toregressively over latent blocks. Some existing methods [24, 37] use a ground-truth prefix to initialize generation. In contrast, our method initializes the first block ( b = 1 ) from pure Gaussian noise, z(1 ,1)  
+
+> K
+
+, z(2 ,1)  
+
+> K
+
+∼ N (0 , I), and denoises it over K diffusion steps using the selected attention mask M. For subsequent blocks b > 1, we sample: 
+
+z(1 ,b )0 , z(2 ,b )0 ∼ pθ
+
+ · | z(1 ,<b )0 , z(2 ,<b )0 , c, (8) where z(i,<b )0 denotes the previously generated clean latent blocks of person 
+
+i. The motion sequence is then recovered through the temporal motion VAE. This latent rollout avoids repeated decode–encode cycles for prefix construction, mitigating cumulative reconstruction drift and improving boundary continuity during long-horizon synthesis. 
+
+4 Experiments 
+
+4.1 Experimental Setup 
+
+Datasets. We evaluate InterCMDM on two text-to-interaction benchmarks: In-terHuman [21] and Inter-X [47]. InterHuman contains 7,779 sequences paired with 23,337 captions and is represented using the 22-joint AMASS skeleton (262-dimensional features per frame, including global joint positions, velocities, and rotations). Inter-X comprises 11,388 sequences with three annotations per sequence and adopts the 56-joint SMPL-X representation (336-dimensional fea-tures) to capture detailed hand and facial motion. Both datasets are recorded at 30 fps, and we follow the standard train/validation/test splits. 
+
+Evaluation Metrics. Following prior work [17,21,47], we report R-Precision (Top-1/2/3), Fréchet Inception Distance (FID), Multi-Modal Distance (MM Dist), Diversity, and Multi-Modality. Lower FID and MM Dist indicate better realism and alignment, while higher R-Precision and Multi-Modality reflect stronger semantic consistency and diversity. 
+
+Implementation Details. The Temporal Motion VAE downsamples motion by 4×, producing 64-dimensional latents for every 4 frames. For VAE training, motion sequences are segmented into 64-frame clips with a sliding window of 10 frames. The VAE is trained for 50 epochs using AdamW with a learning rate of 2×10 −4, a batch size of 256, and a learning-rate schedule that decays by 0.1 InterCMDM 9
+
+twice. Gradient clipping with a maximum norm of 1.0 is applied to stabilize training. VAE training takes approximately 1 hour on a single NVIDIA A100 GPU. DS-Causal-DiT consists of 8 transformer layers with 4 attention heads and a hidden size of 512, using block-causal attention with block size B = 3 . Text conditioning is provided by a frozen DistilBERT encoder. For DS-Causal-DiT training, motion sequences from InterHuman and Inter-X are clipped or padded to fixed lengths of 300 and 156 frames, respectively. The streams of Person 1 and Person 2 are randomly shuffled during training. Attention mask types are randomly sampled with probabilities of 60% for Simultaneous, 20% for Reactive, 10% for Leader–Follower, and 10% for In-dependent. This weighting reflects the empirical distribution of coordination patterns in our interaction datasets, where simultaneous interactions are most common, while reactive, leader–follower, and independent movements occur less frequently. It prioritizes the dominant interaction pattern while maintaining ex-posure to diverse coordination behaviors. We train DS-Causal-DiT for 500 epochs using AdamW with a learning rate of 10 −4 and a batch size of 64. We use Flow Matching [1,2,22,25] as the diffusion scheduler. Training takes approximately 8 hours on a single NVIDIA A100 GPU. During inference, we use 50 diffusion steps, a classifier-free guidance scale of 3.0 for InterHuman and 1.5 for Inter-X. We follow the block-wise sampling schedule of [50]. 
+
+4.2 Quantitative Results 
+
+Results on InterHuman. We compare InterCMDM with state-of-the-art inter-action generation methods across three paradigms: (1) Recent diffusion-based 
+
+(InterGen [21], MoMat-MoGen [5], in2IN [34], TIMotion [42], InterActor [44]); (2) Generative masked modeling (InterMask [17]); (3) Autoregressive (Inter-act2Ar [37], HINT [24]). As shown in Table 1, InterCMDM achieves the strongest overall performance on InterHuman among fully generative, representation-consistent methods. Com-pared to the strongest diffusion baseline TIMotion [42], InterCMDM improves R-Precision from 0.501 to 0.529 (+0.028) on Top-1, indicating stronger text–motion alignment. InterCMDM also achieves the lowest MM Dist (3.765), demonstrat-ing improved semantic consistency. While HINT † reports a lower FID (3.100), it relies on autoregressive generation with initial ground-truth frames; among fully generative diffusion-based methods, InterCMDM achieves the best FID (4.492). InterCMDM also achieves the highest MModality and maintains diversity close to real motions, indicating improved alignment and realism without sacrificing variation. 
+
+Results on Inter-X. We further evaluate InterCMDM on the more challeng-ing Inter-X benchmark. Table 2 shows that InterCMDM achieves the strongest overall performance on Inter-X among methods trained under comparable set-tings. Compared to InterMask, InterCMDM improves R-Precision from 0.403 10 Q. Yu and K. Fujiwara 
+
+Table 1: Results on the InterHuman test set. Methods marked with † are autoregressive approaches that use several initial ground-truth frames during evaluation. The average is reported over 10 runs with 95% confidence intervals. For all tables, bold indicates the best result, and underline denotes the second-best result. Method R-Precision ↑ FID ↓ MM Dist ↓ Diversity → MModality ↑
+
+Top-1 Top-2 Top-3 Real Motions 0.452 ±.008 0.610 ±.009 0.701 ±.008 0.273 ±.007 3.755 ±.008 7.948 ±.064 –InterGen 0.371 ±.010 0.515 ±.012 0.624 ±.010 5.918 ±.079 5.108 ±.014 7.387 ±.029 2.141 ±.063 
+
+MoMat-MoGen 0.449 ±.004 0.591 ±.003 0.666 ±.004 5.674 ±.085 3.790 ±.001 8.021 ±.350 1.295 ±.023 
+
+in2IN 0.425 ±.008 0.576 ±.008 0.662 ±.009 5.535 ±.120 3.803 ±.002 7.953 ±.047 1.215 ±.023 
+
+InterMask 0.449 ±.004 0.599 ±.005 0.683 ±.004 5.154 ±.061 3.790 ±.002 7.944 ±.033 1.737 ±.020 
+
+TIMotion 0.501 ±.005 0.656 ±.006 0.734 ±.006 4.702 ±.069 3.769 ±.021 7.943 ±.034 1.005 ±.020 
+
+InterActor 0.483 ±.005 0.638 ±.005 0.717 ±.005 5.191 ±.055 3.778 ±.001 7.900 ±.030 1.051 ±.031 
+
+HINT † - - 0.672 ±.004 3.100 ±.035 3.796 ±.001 7.898 ±.023 -
+
+InterCMDM 0.529 ±.007 0.678 ±.008 0.757 ±.005 4.492 ±.087 3.765 ±.002 8.065 ±.034 3.044 ±0.104 
+
+Table 2: Results on the Inter-X test set. Methods marked with † are autoregressive approaches that use several initial ground-truth frames during evaluation. Methods marked with ∗ are trained using a different motion representation. Method R-Precision ↑ FID ↓ MM Dist ↓ Diversity → MModality ↑
+
+Top-1 Top-2 Top-3 Real Motions 0.429 ±.004 0.626 ±.003 0.736 ±.003 0.002 ±.000 3.536 ±.013 9.734 ±.078 –InterGen 0.207 ±.004 0.335 ±.005 0.429 ±.005 5.207 ±.216 9.580 ±.011 7.788 ±.208 3.686 ±.052 
+
+InterMask 0.403 ±.005 0.595 ±.004 0.705 ±.005 0.399 ±.013 3.705 ±.017 9.046 ±.073 2.261 ±.081 
+
+TIMotion 0.411 ±.005 0.597 ±.006 0.707 ±.004 0.261 ±.014 3.737 ±.015 9.112 ±.079 2.475 ±.075 
+
+Interact2Ar ∗† 0.441 ±.00? 0.631 ±.00? 0.737 ±.00? 0.148 ±.01 ? 3.581 ±.01? 9.147 ±.06? 1.529 ±.05? 
+
+HINT † - - 0.682 ±.003 0.278 ±.012 4.007 ±.016 8.886 ±.066 -
+
+InterCMDM 0.523 ±.009 0.721 ±.008 0.820 ±.007 0.215 ±.014 3.154 ±.021 9.490 ±.120 2.391 ±.136 
+
+to 0.523 (+0.120) on Top-1, from 0.595 to 0.721 (+0.126) on Top-2, and from 0.705 to 0.820 (+0.115) on Top-3. InterCMDM also achieves the lowest MM Dist (3.154) and the best diversity score (9.490), indicating better semantic alignment and motion variation. Although Interact2Ar ∗† reports a lower FID (0.148), it is trained with a different motion representation and uses initial ground-truth frames during evaluation. Under fully generative and representation-consistent settings, InterCMDM achieves the best overall balance between alignment, re-alism, and diversity. These results show that block-causal diffusion and unified dual-stream attention effectively model fine-grained full-body interactions. 
+
+Long-Horizon Interaction Generation. To evaluate InterCMDM on long-horizon generation, we compare: (1) InterMask with an autoregressive adaptation that extends generation using the most recent latent; and (2) three autoregressive strategies with our model: (a) Naive, which concatenates independently gen-erated segments; (b) Composition, which follows the standard approach with repeated decode–encode cycles (Generate → Decode → Prefix → Encode →InterCMDM 11 
+
+Table 3: Long-horizon interaction generation on InterHuman. We evaluate per-segment quality and transition smoothness at segment boundaries. B/NB Ratio :boundary-to-non-boundary position discontinuity ratio (1.0 = perfect continuity). Model Strategy Segment Quality Transition Smoothness FID ↓ R-Top1 ↑ MM Dist ↓ Pos Disc. ↓ B/NB Ratio ↓ Skating ↓                         
+
+> InterMask AR Rollout 27 .239 ±.39 0.320 ±.008 3.864 ±.018 0.048 ±.002 2.51 ±.07 0.172 ±.004
+> InterCMDM Naive 18 .37 ±.37 0.423 ±.008 3.775 ±.011 1.375 ±.053 98 .58 ±1.21 0.260 ±.006
+> Composition 25 .758 ±.35 0.338 ±.008 3.823 ±.014 0.026 ±.001 1.91 ±.05 0.136 ±.003
+> Latent Rollout 25 .104 ±.40 0.352 ±.007 3.798 ±.013 0.024 ±.001 1.66 ±.04 0.157 ±.004
+
+Generate); and (c) Latent Rollout, enabled by block-wise diffusion (Generate →
+
+Latent → Generate). We generate 64 long-horizon sequences on InterHuman, each consisting of 32 caption–duration pairs ( > 120 frames each), and use 32 segments and 31 transitions per sequence for evaluation. We evaluate long-horizon generation on InterHuman in terms of segment quality and transition smoothness . Segment quality is measured using FID, R-Precision (Top-1), and MM Distance with respect to real motion clips. For FID, we compute statistics from real InterHuman clips that share the same prompt as the evaluation caption. Transition smoothness is assessed at segment boundaries using three metrics: Position Discrepancy (Pos Disc.) (mean per-joint posi-tion error between consecutive segments), Boundary/Non-Boundary (B/NB) Ratio (boundary-to-intra-segment discontinuity ratio; 1.0 indicates perfect con-tinuity), and Skating (average horizontal foot velocity during ground contact). Table 3 shows that Naive generation achieves the best per-segment qual-ity (FID 18.37, Top1 0.423) since segments are generated independently, but it suffers from severe boundary artifacts (B/NB 98.58). In contrast, Latent Roll-out improves segment quality over InterMask AR Rollout (FID 25.10 vs. 27.24, Top1 0.352 vs. 0.320). Latent Rollout achieves the lowest position discontinuity (0.024) and B/NB ratio (1.66), with reduced skating compared with InterMask (0.157 vs. 0.172), indicating smoother transitions at segment boundaries. Over-all, block-wise diffusion with latent rollout provides a practical balance between motion quality, temporal continuity, and streaming latency. 
+
+4.3 Qualitative Results 
+
+Fig. 3 presents qualitative comparisons between InterCMDM and InterMask on diverse long-horizon interaction scenarios. As shown in the figure, InterCMDM generates coordinated and semantically consistent behaviors across a wide range of interactions, including greeting by shaking hands or bowing, fencing practice, kicking exchanges, cheering while the other runs, and helping a fallen partner. Across these examples, InterCMDM preserves mutual facing, relative posi-tioning, and action–reaction consistency over time. In contrast, InterMask ex-hibits noticeable artifacts, including large foot sliding, spatial overlap between two people, unnatural kicking motions, missing reaction behaviors ( e.g ., no help-12 Q. Yu and K. Fujiwara Both they engage in                   
+
+> fencing practice.
+> Two persons run
+> in a circle.
+> One person hands over
+> an object to the other person.
+> Two persons kick
+> each other.
+> Timeline Timeline
+> Two people greet each
+> other by shaking hands.
+> They greet each
+> other by bowing.
+> One person pushes the
+> other with both hands.
+> Two people are throwing
+> punches at each other.
+> Timeline Timeline
+> Two people are dancing
+> together.
+> Two people stand tall
+> with arms open.
+> One person is running,
+> while the other person
+> cheers and encourages.
+> One person falls down
+> and the other helps him.
+> Ours InterMask
+> Timeline Timeline
+> Only one person is running
+> No help
+> Large foot sliding
+> Ours InterMask
+> Ours InterMask
+> Unnatural kicking
+> Large Overlap
+
+Fig. 3: Qualitative comparison of long-horizon motion generation between InterCMDM and InterMask. Our results demonstrate more continuous and coherent interactions. For clarity, each long sequence is divided into shorter segments aligned with their cor-responding captions. Please refer to the supplementary videos for full-length sequences. 
+
+ing action), and cases where only one person performs the intended action. These errors indicate weakened coordination and accumulated drift in long sequences. Thanks to its continuous latent representation and block-causal structure, InterCMDM maintains smooth temporal transitions, stable contact patterns, and coherent inter-person alignment throughout extended timelines. Additional examples and video results are provided in the supplementary material. 
+
+4.4 Analysis 
+
+To investigate the impact of each component in InterCMDM, we conduct com-prehensive ablation studies on the InterHuman dataset. 
+
+DS-Causal-DiT Architecture Validation. We validate DS-Causal-DiT on Inter-Human by comparing dual-stream vs. single-stream designs and causal vs. bidi-rectional attention. Table 4 shows three main findings. First, under causal attention ( B = 3 ), the dual-stream model significantly outperforms the single-stream variant (Top-1: 0.529 vs. 0.484; FID: 4.492 vs. 5.068). The hybrid design, i.e ., using dual-stream blocks in the first half of the network and single-stream blocks in the second half, improves over pure single-stream but remains inferior to the full dual-stream architecture, indicating that consistent two-person modeling across all layers is important. Second, although bidirectional attention achieves a slightly higher Top-1 score (0.549) by accessing future blocks, it does not support autoregressive generation and yields worse transition smoothness in long-horizon generation. Among bidi-rectional models, dual-stream achieves a good balance of alignment and realism. InterCMDM 13 
+
+Table 4: Ablation study of InterCMDM. We evaluate attention type (bidirectional vs. causal with block size B) and block design (single-stream vs. dual-stream). Attention Block Design R-Top1 ↑ R-Top2 ↑ R-Top3 ↑ FID ↓ MM Dist ↓
+
+Bidirectional Single 0.535 ±.003 0.692 ±.003 0.771 ±.002 4.456 ±.058 3.758 ±.016 
+
+Bidirectional Hybrid 0.538 ±.003 0.693 ±.003 0.768 ±.002 4.468 ±.061 3.760 ±.017 
+
+Bidirectional Dual 0.549 ±.003 0.703 ±.002 0.778 ±.002 4.562 ±.064 3.754 ±.015 
+
+Causal ( B = 3 ) Single 0.484 ±.003 0.641 ±.003 0.717 ±.003 5.068 ±.071 3.782 ±.018 
+
+Causal ( B = 3 ) Hybrid 0.499 ±.003 0.652 ±.003 0.734 ±.003 4.577 ±.063 3.774 ±.017 
+
+Causal ( B = 3 ) Dual 0.529 ±.007 0.678 ±.008 0.757 ±.005 4.492 ±.087 3.765 ±.002 
+
+Causal ( B = 1 ) Dual 0.514 ±.007 0.663 ±.007 0.735 ±.009 4.551 ±.098 3.773 ±.002 
+
+Causal ( B = 5 ) Dual 0.532 ±.007 0.684 ±.006 0.763 ±.004 4.545 ±.097 3.763 ±.002 
+
+Table 5: Comparison of model variants. We evaluate different stream designs and parameter-sharing strategies. In the dual-stream shared-weights variant, Person 1 and Person 2 share the same layer weights except for the unified attention layers. Model Variants #Params R-Top1 ↑ R-Top2 ↑ R-Top3 ↑ FID ↓ MM Dist ↓                  
+
+> Single-stream, shared weights 39M 0.484 ±.003 0.641 ±.003 0.717 ±.003 5.068 ±.071 3.782 ±.018
+> Dual-stream, shared weights 47M 0.506 ±.007 0.658 ±.007 0.736 ±.008 4.672 ±.109 3.774 ±.02
+> Dual-stream, separate weights (ours) 77M 0.529 ±.007 0.678 ±.008 0.757 ±.005 4.492 ±.087 3.765 ±.002
+
+Third, block size influences performance. While #B = 5 achieves the highest alignment (Top-1: 0.532), it introduces additional latency in online generation due to larger temporal blocks. In contrast, #B = 3 yields the best FID (4.492) and enables lower-delay streaming generation. Token-level blocks ( #B = 1 )underperform in both alignment and realism. Overall, separate causal streams with unified dual-stream attention and a moderate block size are essential for high-quality and real-time generation. 
+
+Stream Parameter Sharing. We further analyze whether the gains come from maintaining two structured streams or from using person-specific parameters. Table 5 compares single-stream shared weights, dual-stream shared weights, and our dual-stream separate-weights design. Using a dual-stream architecture with shared person weights improves over the single-stream baseline (Top-1: 0.506 vs. 0.484; FID: 4.672 vs. 5.068), showing that explicit stream separation provides the main structural benefit. Allowing separate stream weights further improves performance (Top-1: 0.529; FID: 4.492), suggesting that person-specific param-eters help capture role-asymmetric interactions such as leader/follower or ac-tor/reactor behaviors. This is especially useful in our causal setting, where the two streams may have different information availability under different masks. 
+
+Multi-Task Block Attention Masking. Our proposed multi-task block attention masking strategy enables a unified model to capture diverse interaction patterns through flexible attention control. We evaluate multi-task masking under a re-14 Q. Yu and K. Fujiwara 
+
+Table 6: Reaction generation on InterHuman. Person 1 is given as ground truth, and Person 2 is generated as the response. Training Mask Inference Mask R-Precision ↑ FID ↓ MM Dist ↓ Diversity →
+
+Top-1 Top-2 Top-3 Real Motions 0.432 ±.005 0.607 ±.004 0.708 ±.004 0.292 ±.009 3.786 ±.000 7.744 ±.040 
+
+InterMask 0.427 ±.007 0.579 ±.006 0.674 ±.005 3.149 ±.060 3.799 ±.001 7.678 ±.041 
+
+InterCMDM Simultaneous Reactive 
+
+0.434 ±.006 0.597 ±.007 0.685 ±.006 2.585 ±.050 3.786 ±.001 7.686 ±.044 
+
+Reactive 0.451 ±.006 0.612 ±.006 0.698 ±.006 2.216 ±.049 3.778 ±.002 7.843 ±.037 
+
+Multi-task 0.484 ±.005 0.642 ±.006 0.727 ±.006 2.121 ±.033 3.771 ±.002 7.751 ±.019 
+
+Table 7: Comparison of attention mask types at training and inference. We evaluate InterCMDM using different attention mask configurations on InterHuman. Training Mask Inference Mask R-Precision ↑ FID ↓ MM Dist ↓ Diversity →
+
+Top-1 Top-2 Top-3 Real Motions 0.452 ±.008 0.610 ±.009 0.701 ±.008 0.273 ±.007 3.755 ±.008 7.948 ±.064 
+
+Independent Independent 0.492 ±.007 0.638 ±.005 0.727 ±.006 6.058 ±.130 3.782 ±.001 8.060 ±.039 
+
+Simultaneous Simultaneous 0.498 ±.008 0.653 ±.008 0.730 ±.006 4.621 ±.055 3.775 ±.002 8.088 ±.032 
+
+Multi-task (Even) 0.509 ±.007 0.664 ±.007 0.740 ±.006 5.247 ±.130 3.775 ±.002 8.102 ±.023 
+
+Multi-task (Weighted) Simultaneous 0.529 ±.007 0.678 ±.008 0.757 ±.005 4.492 ±.087 3.765 ±.002 8.065 ±.034 
+
+Reactive 0.521 ±.009 0.677 ±.007 0.752 ±.006 4.736 ±.134 3.767 ±.002 8.083 ±.038 
+
+Leader–Follower 0.514 ±.003 0.672 ±.006 0.751 ±.005 5.214 ±.138 3.770 ±.002 8.108 ±.037 
+
+Independent 0.490 ±.003 0.647 ±.006 0.731 ±.004 6.541 ±.147 3.782 ±.002 8.080 ±.041 
+
+action generation setting, where Person 1 is given and Person 2 is generated as the response. Table 6 compares InterCMDM variants with InterMask. Multi-task training achieves the best performance across all metrics. Com-pared to training with only the simultaneous mask (Top-1: 0.434; FID: 2.585), multi-task masking improves alignment (Top-1: 0.484) and reduces FID to 2.121. The reaction-only model also improves over the standard variant but remains inferior to multi-task training. Compared to InterMask, InterCMDM with multi-task masking achieves higher alignment (0.484 vs. 0.427 Top-1) and substantially lower FID (2.121 vs. 3.149). These results show that multi-task block attention masking allows our model to adapt to other tasks such as reaction generation without dedicated training. 
+
+Inference with Different Attention Masks. We evaluate the flexibility of the multi-task trained model by applying different attention masks at inference. We compare two training strategies: Multi-task (Even) , which samples the four mask types uniformly (25% each), and Multi-task (Weighted) , which emphasizes simul-taneous interactions (60% simultaneous, 20% or 10% each for others). As shown in Table 7, the weighted multi-task model achieves the best overall performance when using the simultaneous mask (Top-1: 0.529; FID: 4.492), indicating that prioritizing the prevalent interaction pattern improves overall generation qual-ity. The reactive mask performs comparably (Top-1: 0.521; FID: 4.736), while the leader–follower mask slightly reduces alignment but yields the highest diver-InterCMDM 15 
+
+sity (8.108). The independent mask shows the lowest performance (Top-1: 0.490; FID: 6.541), as cross-stream coordination is disabled. These results demonstrate that multi-task training enables controllable in-teraction generation via mask selection, and that emphasizing the dominant coordination pattern during training leads to stronger overall performance. 
+
+Computational Efficiency. We evaluate the computational efficiency of Inter-CMDM on a single NVIDIA A100 GPU. The model contains 219.19M pa-rameters (152.83M trainable), including 76.29M in the Temporal AutoEncoder (TAE), 76.54M in the diffusion transformer (excluding text encoder), and 66.36M in the frozen DistilBERT encoder. Peak GPU memory during inference is 566.15M. Using 20 diffusion steps with block-wise rollout ( B=3 , 12 frames/block), gen-erating a 90-frame sequence takes 1.014 ±0.014 s, with a first-block latency of 0.662 ±0.014 s. After the first block, streaming generation costs 50.3 ms per 12-frame block on average, corresponding to approximately 89 FPS overall. 
+
+5 Limitations 
+
+While InterCMDM achieves state-of-the-art results for text-conditioned two-person interaction generation, several limitations remain. First, InterCMDM is currently designed for two-person interactions; scaling to multi-person groups would require extending the dual-stream design. Second, although cross-stream attention models coordination, the framework does not explicitly enforce physi-cal constraints ( e.g ., collision avoidance or contact forces), and the mask types are manually predefined. Learning data-driven interaction masks is an important direction for future work. Third, text conditioning relies on sentence-level em-beddings from a pretrained BERT encoder, providing coarse semantic guidance. Fine-grained control over specific temporal phases or per-person action variations via an additional single-person prompt is limited. Integrating compositional text conditioning for each person could enable more precise control. 
+
+6 Conclusion 
+
+We present InterCMDM, a block-causal diffusion framework for autoregressive two-person interaction generation. The framework introduces three core inno-vations: DS-Causal-DiT, which maintains separate causal streams while model-ing inter-person dependencies through unified dual-stream attention; multi-task block attention masking, which trains a unified model across diverse coordination patterns and enables controllable generation via inference-time mask selection; and block-wise diffusion, which denoises temporal blocks for long-horizon rollout directly in latent space. Experiments on InterHuman and Inter-X demonstrate state-of-the-art performance. InterCMDM effectively combines high-fidelity dif-fusion synthesis with structured autoregressive temporal modeling for realistic, causally coherent human interaction generation. 16 Q. Yu and K. Fujiwara 
+
+References 
+
+1. Albergo, M.S., Boffi, N.M., Vanden-Eijnden, E.: Stochastic interpolants: A unifying framework for flows and diffusions. arXiv preprint arXiv:2303.08797 (2023) 2. Albergo, M.S., Vanden-Eijnden, E.: Building normalizing flows with stochastic interpolants. In: ICLR (2023) 3. Athanasiou, N., Petrovich, M., Black, M.J., Varol, G.: Teach: Temporal action composition for 3d humans. In: 3DV (2022) 4. Barquero, G., Escalera, S., Palmero, C.: Seamless human motion composition with blended positional encodings. In: CVPR (2024) 5. Cai, Z., Jiang, J., Qing, Z., Guo, X., Zhang, M., Lin, Z., Mei, H., Wei, C., Wang, R., Yin, W., et al.: Digital life project: Autonomous 3d characters with social intelligence. In: CVPR (2024) 6. Cen, Z., Pi, H., Peng, S., Shuai, Q., Shen, Y., Bao, H., Zhou, X., Hu, R.: Ready-to-react: Online reaction policy for two-character interaction generation. In: ICLR (2025) 7. Chen, B., Martí Monsó, D., Du, Y., Simchowitz, M., Tedrake, R., Sitzmann, V.: Diffusion forcing: Next-token prediction meets full-sequence diffusion. In: NeurIPS (2024) 8. Chen, X., Jiang, B., Liu, W., Huang, Z., Fu, B., Chen, T., Yu, G.: Executing your commands via motion diffusion in latent space. In: CVPR (2023) 9. Dabral, R., Mughal, M.H., Golyanik, V., Theobalt, C.: Mofusion: A framework for denoising-diffusion-based motion synthesis. In: CVPR (2023) 10. Dai, W., Chen, L.H., Wang, J., Liu, J., Dai, B., Tang, Y.: Motionlcm: Real-time controllable motion generation via latent consistency model. In: ECCV (2024) 11. Dhariwal, P., Nichol, A.: Diffusion models beat gans on image synthesis. In: NeurIPS (2021) 12. Ghosh, A., Zhou, B., Dabral, R., Wang, J., Golyanik, V., Theobalt, C., Slusallek, P., Guo, C.: Duetgen: Music driven two-person dance generation via hierarchical masked modeling. In: ACM Siggraph (2025) 13. Guo, C., Mu, Y., Javed, M.G., Wang, S., Cheng, L.: Momask: Generative masked modeling of 3d human motions. In: CVPR (2024) 14. Guo, C., Zuo, X., Wang, S., Zou, S., Sun, Q., Deng, A., Gong, M., Cheng, L.: Action2motion: Conditioned generation of 3d human motions. In: ACM MM (2020) 15. Ho, J., Jain, A., Abbeel, P.: Denoising diffusion probabilistic models. In: NeurIPS (2020) 16. Hong, S., Kim, C., Yoon, S., Nam, J., Cha, S., Noh, J.: Salad: Skeleton-aware latent diffusion for text-driven motion generation and editing. In: CVPR (2025) 17. Javed, M.G., Guo, C., Cheng, L., Li, X.: Intermask: 3d human interaction gener-ation via collaborative masked modeling. In: ICLR (2025) 18. Jiang, B., Chen, X., Liu, W., Yu, J., Yu, G., Chen, T.: Motiongpt: Human motion as a foreign language. In: NeurIPS (2023) 19. Karunratanakul, K., Preechakul, K., Suwajanakorn, S., Tang, S.: Guided motion diffusion for controllable human motion synthesis. In: CVPR (2023) 20. Li, Z., Wang, S., Zhang, Z., Tang, H.: Remomask: Retrieval-augmented masked motion generation. arXiv preprint arXiv:2508.02605 (2025) 21. Liang, H., Zhang, W., Li, W., Yu, J., Xu, L.: Intergen: Diffusion-based multi-human motion generation under complex interactions. IJCV (2024) 22. Lipman, Y., Chen, R.T., Ben-Hamu, H., Nickel, M., Le, M.: Flow matching for generative modeling. In: ICLR (2023) InterCMDM 17 23. Liu, H., Zhan, X., Huang, S., Mu, T.J., Shan, Y.: Programmable motion generation for open-set motion control tasks. In: CVPR (2024) 24. Liu, M., Di, Y., Wang, G., Qu, Y., Zhu, D., Li, Y., Ji, X.: Hint: Hierarchical inter-action modeling for autoregressive multi-human motion generation. arXiv preprint arXiv:2601.20383 (2026) 25. Ma, N., Goldstein, M., Albergo, M.S., Boffi, N.M., Vanden-Eijnden, E., Xie, S.: Sit: Exploring flow and diffusion-based generative models with scalable interpolant transformers. In: ECCV (2024) 26. Mahmood, N., Ghorbani, N., Troje, N.F., Pons-Moll, G., Black, M.J.: Amass: Archive of motion capture as surface shapes. In: CVPR (2019) 27. Meng, Z., Xie, Y., Peng, X., Han, Z., Jiang, H.: Rethinking diffusion for text-driven human motion generation. In: CVPR (2024) 28. Ning, M., Li, M., Su, J., Salah, A.A., Ertugrul, I.O.: Elucidating the exposure bias in diffusion models. In: ICLR (2024) 29. Petrovich, M., Black, M.J., Varol, G.: Action-conditioned 3d human motion syn-thesis with transformer vae. In: ICCV (2021) 30. Petrovich, M., Black, M.J., Varol, G.: Temos: Generating diverse human motions from textual descriptions. In: ECCV (2022) 31. Petrovich, M., Litany, O., Iqbal, U., Black, M.J., Varol, G., Bin Peng, X., Rempe, D.: Multi-track timeline control for text-driven 3d human motion generation. In: CVPR-W (2024) 32. Pinyoanuntapong, E., Wang, P., Lee, M., Chen, C.: Mmm: Generative masked motion model. In: CVPR (2024) 33. Plappert, M., Mandery, C., Asfour, T.: The kit motion-language dataset. Big data (2016) 34. Ponce, P.R., Barquero, G., Palmero, C., Escalera, S., Garcia-Rodriguez, J.: in2in: Leveraging individual information to generate human interactions. In: CVPR-W (2024) 35. Punnakkal, A.R., Chandrasekaran, A., Athanasiou, N., Quiros-Ramirez, A., Black, M.J.: Babel: Bodies, action and behavior with english labels. In: CVPR (2021) 36. Rombach, R., Blattmann, A., Lorenz, D., Esser, P., Ommer, B.: High-resolution image synthesis with latent diffusion models. In: CVPR (2022) 37. Ruiz-Ponce, P., Escalera, S., García-Rodríguez, J., Deng, J., Potamias, R.A.: Inter-act2ar: Full-body human-human interaction generation via autoregressive diffusion models. arXiv preprint arXiv:2512.19692 (2025) 38. Schmidt, F.: Generalization in generation: A closer look at exposure bias. In: EMNLP-IJCNLP (2019) 39. Shafir, Y., Tevet, G., Kapon, R., Bermano, A.H.: Human motion diffusion as a generative prior. In: ICLR (2024) 40. Tanaka, M., Fujiwara, K.: Role-aware interaction generation from textual descrip-tion. In: ICCV (2023) 41. Tevet, G., Raab, S., Gordon, B., Shafir, Y., Bermano, A.H., Cohen-Or, D.: Human motion diffusion model. In: ICLR (2023) 42. Wang, Y., Wang, S., Zhang, J., Fan, K., Wu, J., Xue, Z., Liu, Y.: Timotion: Tem-poral and interactive framework for efficient human-human motion generation. In: CVPR (2025) 43. Watanabe, A., Yu, Q., Simo-Serra, E., Fujiwara, K.: Projflow: Projection sampling with flow matching for zero-shot exact spatial motion control. In: CVPR (2026) 44. Wu, Q., Dou, Z., Guo, C., Huang, Y., Feng, Q., Zhou, B., Wang, J., Liu, L.: Text2interact: High-fidelity and diverse text-to-two-person interaction generation. arXiv preprint arXiv:2510.06504 (2025) 18 Q. Yu and K. Fujiwara 45. Xiao, L., Lu, S., Pi, H., Fan, K., Pan, L., Zhou, Y., Feng, Z., Zhou, X., Peng, S., Wang, J.: Motionstreamer: Streaming motion generation via diffusion-based autoregressive model in causal latent space. In: ICCV (2025) 46. Xie, Y., Jampani, V., Zhong, L., Sun, D., Jiang, H.: Omnicontrol: Control any joint at any time for human motion generation. In: ICLR (2024) 47. Xu, L., Lv, X., Yan, Y., Jin, X., Wu, S., Xu, C., Liu, Y., Zhou, Y., Rao, F., Sheng, X., et al.: Inter-x: Towards versatile human-human interaction analysis. In: CVPR (2024) 48. Yan, S., Li, Z., Xiong, Y., Yan, H., Lin, D.: Convolutional sequence generation for skeleton-based action synthesis. In: CVPR (2019) 49. Yu, Q., Tanaka, M., Fujiwara, K.: Remogpt: Part-level retrieval-augmented motion-language models. In: AAAI (2025) 50. Yu, Q., Watanabe, A., Fujiwara, K.: Causal motion diffusion models for autore-gressive motion generation. In: CVPR (2026) 51. Zhang, J., Fan, H., Yang, Y.: Energymogen: Compositional human motion gener-ation with energy-based diffusion model in latent space. In: CVPR (2025) 52. Zhang, J., Zhang, Y., Cun, X., Huang, S., Zhang, Y., Zhao, H., Lu, H., Shen, X.: T2m-gpt: Generating human motion from textual descriptions with discrete representations. In: CVPR (2023) 53. Zhang, M., Cai, Z., Pan, L., Hong, F., Guo, X., Yang, L., Liu, Z.: Motiondif-fuse: Text-driven human motion generation with diffusion model. arXiv preprint arXiv:2208.15001 (2022) 54. Zhang, M., Guo, X., Pan, L., Cai, Z., Hong, F., Li, H., Yang, L., Liu, Z.: Remod-iffuse: Retrieval-augmented motion diffusion model. In: ICCV (2023) 55. Zhao, K., Li, G., Tang, S.: Dartcontrol: A diffusion-based autoregressive motion model for real-time text-driven motion control. In: ICLR (2025) 56. Zhao, R., Su, H., Ji, Q.: Bayesian adversarial human motion synthesis. In: CVPR (2020) 57. Zou, Q., Yuan, S., Du, S., Wang, Y., Liu, C., Xu, Y., Chen, J., Ji, X.: Parco: Part-coordinating text-to-motion synthesis. In: ECCV (2024) Supplementary Material 
+
+Overview. We provide (i) implementation details (Section A), (ii) additional quantitative results (Section B), (iii) additional qualitative results (Section C), and (iv) theoretical analyses (Section D). 
+
+A Implementation Details 
+
+A.1 Temporal Motion VAE 
+
+We adopt the temporal motion VAE architecture from CMDM [4], which is built entirely with causal operators to preserve temporal ordering. The encoder and decoder each contain seven 1D causal convolutional layers and two causal ResNet blocks. All convolutions use kernel size 3 and stride 1 with ReLU activations. Temporal resolution is reduced by a factor of 4 using stride-2 convolutions in-side the residual blocks and restored symmetrically in the decoder. The latent representation has dimensionality dz = 64 per temporal step. For training, motion sequences are segmented into 64-frame clips with a slid-ing window of 10 frames. The VAE is trained with AdamW using a learning rate of 2×10 −4, batch size 256, and a learning-rate schedule that decays by 0.1 twice over 50 epochs. Training takes approximately 1 hour on a single NVIDIA A100 GPU. Gradient clipping with a maximum norm of 1.0 is applied to stabilize training. The model is trained using a standard variational objective applied indepen-dently to both persons: 
+
+LVAE =
+
+> 2
+
+X
+
+> i=1
+
+
+
+λrec ∥x(i) − ˆx(i)∥2 + λKL DKL 
+
+ qϕ(z(i)|x(i)) ∥ p(z(i))
+
+. (1) 
+
+A.2 DS-Causal-DiT 
+
+The DS-Causal-DiT serves as a lightweight Transformer-based denoiser com-posed of 8 layers, each with 4 attention heads and a hidden dimension of 512. Text conditioning is performed via word-level embeddings extracted from the in-put prompt using a pretrained DistilBERT encoder [2], which are incorporated through cross-attention. To encode temporal structure, we incorporate Rotary Position Embeddings (RoPE) [3] to the query and key projections in the attention, enabling relative positional modeling across time. Diffusion timesteps are injected using Adaptive Layer Normalization (AdaLN) [1], which modulates each layer with block-wise timestep information kb. This design allows the model to integrate temporal noise levels directly into the denoising process while maintaining stability over long horizons. 2
+
+During training, motion sequences from InterHuman and Inter-X are either clipped or padded to fixed lengths of 300 and 156 frames, respectively. The streams of Person 1 and Person 2 are randomly shuffled during training. DS-Causal-DiT is trained for 500 epochs with a batch size of 64 using the AdamW optimizer. Training takes approximately 8 hours on a single NVIDIA A100 GPU. At inference, we use 50 diffusion steps and adopt a block-wise denoising schedule from [4], where the next block begins denoising two steps after the previous block. 
+
+A.3 Unified Dual-Stream Attention 
+
+Specifically, given hidden states h(ℓ−1) 1 , h(ℓ−1) 2 ∈ RT ′×d, we first compute per-stream projections: 
+
+Qi = h(ℓ−1)  
+
+> i
+
+WiQ, Ki = h(ℓ−1)  
+
+> i
+
+WiK , Vi = h(ℓ−1)  
+
+> i
+
+WiV , i ∈ { 1, 2}, (2) where WiQ, WiK , WiV ∈ Rd×dh are learned projection matrices. These are then concatenated along the sequence dimension: 
+
+Q = [ Q1; Q2], K = [ K1; K2], V = [ V1; V2] ∈ R2T ′×dh . (3) The unified dual-stream attention is then computed as standard masked multi-head attention: 
+
+DualStreamAttn([ h1; h2], M) = softmax 
+
+ QK ⊤
+
+√dh
+
++ M
+
+
+
+V, (4) where M ∈ R2T ′×2T ′
+
+is the structured attention mask with M[i, j ] = −∞ for disallowed attention pairs and M[i, j ] = 0 otherwise. The output is then split back into [˜h(ℓ)1 ; ˜h(ℓ)2 ] along the sequence dimension. 
+
+A.4 Multi-Task Block Attention Masking 
+
+Formally, let tokens be indexed by (p, b, t ) where p ∈ { 1, 2} is the person index, 
+
+b ∈ { 1, . . . , N B } is the block index, and t ∈ { 1, . . . , B } is the position within the block. The mask M determines whether token (pi, b i, t i) can attend to token 
+
+(pj , b j , t j ). For causal generation, we apply the block-causal constraint bj ≤ bi
+
+(no future block access) to each stream’s self-attention and allow full attention within a block since we denoise blocks jointly. Cross-stream permissions are then specified by the particular mask type (e.g., full access in reactive and local-window access in leader–follower). 
+
+– Simultaneous: M[( pi, b i, t i), (pj , b j , t j )] = 0 if bj ≤ bi; otherwise −∞ . Both streams have symmetric causal access. 
+
+– Reactive: As reaction generation task assumes that one actor is given and fully observed, one person (reactor) is generated block-causally while con-ditioning on the other person’s complete motion. Let r ∈ { 1, 2} denote the reactor index (default r = 2 , but roles can be swapped) and o := 3 − rSupplementary Material 3
+
+the observed index. The reactor has full access to the observed stream: 
+
+M[( r, b i, t i), (o, b j , t j )] = 0 for all (bj , t j ), while its self-attention remains block-causal ( bj ≤ bi). The observed stream uses full self-attention. We con-sider both a cross-stream version (observed → reactor is block-causal) as the default setting and a one-way version that disables this reverse cross-stream attention. 
+
+– Leader–Follower: Both self-attentions are block-causal. Person 1 (leader) does not attend to Person 2. Person 2 (follower) attends to a finite local window of the leader around the corresponding timestep: letting τ (b, t ) := (b − 1) B + t be the within-stream token index and ∆ be the window pa-rameter, (2 , b i, t i) may attend to (1 , b j , t j ) only if max(1 , τ i − ∆ + 1) ≤ τj ≤
+
+min( NB B, τ i + ∆ − 1) , where τi := τ (bi, t i) and τj := τ (bj , t j ).
+
+– Independent: Cross-stream attention is disabled: M[( pi, b i, t i), (pj , b j , t j )] = 
+
+−∞ if pi̸ = pj . Each person attends only to its own block-causal history (bj ≤ bi within the same stream). During training, the reactor identity r in the reactive mask is sampled uniformly from {1, 2}, and the leader–follower window parameter ∆ is sampled uniformly from a discrete range ∆ ∈ { 10 , . . . , 30 }.
+
+B Additional Quantitative Results 
+
+B.1 Causality, Downsampling, and Latent Dimensionality of Temporal Motion VAE 
+
+We ablate the Temporal Motion VAE along three factors: causality, temporal downsampling rate, and latent dimensionality. We evaluate both reconstruction quality and downstream text-to-motion generation in the latent space. As shown in Table 7, more aggressive temporal compression substantially degrades recon-struction quality. For example, increasing the downsampling rate from 4 × to 8 ×
+
+raises MPJPE from 0.025 to 0.173 when dz =64 , while producing only marginal changes in DiT generation metrics. Increasing the latent dimensionality improves reconstruction, but does not necessarily improve generation quality; for instance, 
+
+dz =128 yields a higher generation FID than dz ∈ { 32 , 64 }. We also find that VAE causality is important for causal generation. The non-causal VAE reduces R-Top1 from 0.529 to 0.475 and worsens generation FID from 4.492 to 4.739. Based on these trade-offs, we use a causal VAE with 4 × downsampling and 
+
+dz =64 in all experiments. 
+
+B.2 Model Size of DS-Causal-DiT 
+
+We ablate the denoiser capacity by scaling DS-Causal-DiT in terms of the num-ber of attention heads (H), layers (L), and hidden dimensions (D), ranging from a small model (4 layers, 39M parameters) to an extra-large model (16 layers, 607M parameters), while keeping the dual-stream block-wise causal attention and training setup fixed. As shown in Table 8, increasing the size from Small to 4
+
+Table 7: Temporal VAE ablations on InterHuman. We compare downsampling rates, latent dimensions, and VAE causality. Reconstruction metrics evaluate VAE recon-struction quality, while generation metrics evaluate interaction generation. The average is reported over 10 runs with 95% confidence intervals. VAE setting (downsampling / latent dim.) Reconstruction Metrics Generation Metrics MPJPE ↓ FID ↓ R-Top1 ↑ R-Top2 ↑ R-Top3 ↑ FID ↓ MM Dist ↓ Diversity →                                                              
+
+> 4×/ 32 0.036 ±.030 0.644 ±.021 0.525 ±.006 0.675 ±.006 0.755 ±.006 4.322 ±.069 3.769 ±.001 8.040 ±.034
+> 4×/ 64 0.025 ±.020 0.594 ±.018 0.529 ±.007 0.678 ±.008 0.757 ±.005 4.492 ±.087 3.765 ±.002 8.065 ±.034
+> 4×/ 128 0.020 ±.018 0.604 ±.017 0.506 ±.006 0.663 ±.005 0.743 ±.004 5.659 ±.143 3.775 ±.001 8.125 ±.045
+> 8×/ 32 0.178 ±.161 1.531 ±.021 0.520 ±.008 0.678 ±.010 0.756 ±.008 4.333 ±.083 3.768 ±.002 7.930 ±.036
+> 8×/ 64 0.173 ±.162 1.464 ±.020 0.528 ±.004 0.685 ±.006 0.760 ±.005 4.366 ±.076 3.768 ±.002 8.002 ±.036
+> 8×/ 128 0.074 ±.065 1.423 ±.015 0.514 ±.008 0.673 ±.004 0.750 ±.004 5.048 ±.097 3.773 ±.001 8.051 ±.036
+> Non-causal VAE 0.028 ±.023 0.601 ±.019 0.475 ±.007 0.635 ±.005 0.709 ±.005 4.739 ±.125 3.794 ±.001 7.962 ±.030
+
+Table 8: Performance comparison across different model scales on InterHuman. The average is reported over 10 runs with 95% confidence intervals. Model parameters exclude BERT encoder. Model Configuration #Params R-Precision ↑ FID ↓ MM Dist ↓ Diversity →
+
+Top-1 Top-2 Top-3 Small H2, L4, D512 39M 0.487 ±.009 0.646 ±.007 0.729 ±.007 5.501 ±.106 3.780 ±.002 8.106 ±.046 
+
+Base H4, L8, D512 77M 0.529 ±.007 0.678 ±.008 0.757 ±.005 4.492 ±.087 3.765 ±.002 8.065 ±.034 
+
+Large H6, L12, D768 257M 0.533 ±.011 0.680 ±.007 0.753 ±.008 4.764 ±.104 3.763 ±.002 7.975 ±.041 
+
+XLarge H8, L16, D1024 607M 0.538 ±.008 0.684 ±.009 0.757 ±.007 4.706 ±.072 3.761 ±.002 8.001 ±.055 
+
+Base substantially improves both text–motion alignment and generation qual-ity ( e.g ., R-Precision Top-1: 0.487 →0.529; FID: 5.501 →4.492). Further scaling yields diminishing returns: Large/XLarge provide only marginal R-Precision gains (Top-1 up to 0.538) and do not consistently improve FID/MM Dist, while diversity remains comparable. Based on this accuracy–efficiency trade-off, we adopt the Base configuration (8 layers, hidden size 512, 77M parameters; ex-cluding the text encoder) in all experiments. 
+
+B.3 Variations of Reactive Mask 
+
+In the reactive setting, the reactor is generated block-causally while condition-ing on the observed person’s complete motion. Under our unified dual-stream attention, there is an additional design choice: whether to allow the observed stream to attend to the reactor. Our default Reactive mask keeps this reverse cross-stream attention block-causal, whereas Reactive* disables it (one-way), treating the observed stream as a fixed context. Table 9 reports results on InterHuman. For standard interaction generation (inference: simultaneous), adding Reactive* as an extra training mask has neg-ligible impact (Top-1: 0.529 →0.527; FID: 4.492 →4.544). For reaction genera-tion (Person 1 given, Person 2 generated), training only with Reactive or Re-active* yields noticeably worse text alignment than multi-task training (Top-1: 0.451/0.450 vs 0.484), while Reactive* slightly improves FID over Reactive Supplementary Material 5
+
+Table 9: Ablation of reactive-mask variants on InterHuman. Top: standard interaction generation evaluated with the simultaneous mask. Bottom: reaction generation, where Person 1 is provided as ground truth and Person 2 is generated as the response. Training Mask Inference Mask R-Precision ↑ FID ↓ MM Dist ↓ Diversity →                                      
+
+> Top-1 Top-2 Top-3
+> Interaction Generation
+> Multi-task Simultaneous 0.529 ±.007 0.678 ±.008 0.757 ±.005 4.492 ±.087 3.765 ±.002 8.065 ±.034
+> Multi-task (w/ Reactive*) 0.527 ±.001 0.678 ±.006 0.751 ±.007 4.544 ±.098 3.767 ±.001 8.065 ±.040
+> Reaction Generation: Person 1 (GT) and Person 2 (Reactor)
+> Reactive Reactive
+> 0.451 ±.006 0.612 ±.006 0.698 ±.006 2.216 ±.049 3.778 ±.002 7.843 ±.037
+> Reactive* 0.450 ±.008 0.613 ±.007 0.701 ±.007 2.160 ±.058 3.779 ±.002 7.806 ±.022
+> Multi-task 0.484 ±.005 0.642 ±.006 0.727 ±.006 2.121 ±.033 3.771 ±.002 7.751 ±.019
+> Multi-task (w/ Reactive*) 0.487 ±.009 0.649 ±.007 0.733 ±.006 2.387 ±.051 3.771 ±.001 7.743 ±.026
+
+(2.216 →2.160). Overall, the multi-task model generalizes best to reactive infer-ence, achieving the lowest FID (2.121) with strong alignment. Adding Reactive* to multi-task marginally improves R-Precision (Top-1: 0.484 →0.487) but de-grades FID (2.121 →2.387), so we use the standard Reactive mask in multi-task training in all experiments. 
+
+C Additional Qualitative Results 
+
+To further demonstrate the effectiveness of InterCMDM, we provide additional qualitative comparisons against InterMask on both long-horizon and standard 
+
+interaction generation. Fig. 4 shows additional long-horizon examples. Inter-CMDM maintains coherent inter-person coordination across many caption seg-ments, preserving mutual facing, relative distance, and contact consistency ( e.g ., stable hand/arm coupling in greeting-like actions) while producing smooth tran-sitions between segments. In contrast, InterMask exhibits accumulated drift over time, which can manifest as foot sliding, spatial overlap, and inconsistent action– reaction patterns across successive segments. Fig. 5 presents additional short-horizon interaction generation results. Inter-CMDM better captures fine-grained textual semantics and produces more nat-ural body articulation, especially in cases requiring precise role-aware coordina-tions (who initiates, who responds). These examples highlight how block-causal diffusion with unified dual-stream attention improves both temporal coherence and semantic consistency for human interaction generation. 
+
+Please refer to the supplementary videos on the demo page for full-length visualizations. 
+
+D Theoretical Analyses 
+
+This section provides theoretical analyses of our (i) dual-stream network de-sign and (ii) multi-task attention masks . We formalize how the architecture and mask determine information flow (which tokens can influence which predic-tions), and why (a) dual-stream parameterization is strictly more expressive than 6After one person 
+
+kicks the other, 
+
+the second person 
+
+defends using their 
+
+arm to block. 
+
+One person walks 
+
+three steps clockwise, 
+
+swinging their arms. 
+
+The other steps forward 
+
+and lets both arms 
+
+hang naturally. 
+
+The first person 
+
+crosses and opens 
+
+their hands, jumps 
+
+on the left foot, 
+
+swings both hands back, 
+
+then the right forward. 
+
+The other steps 
+
+forward, opens their hands. 
+
+Two humans are 
+
+going down into 
+
+a crouching position 
+
+and standing up. 
+
+Timeline 
+
+Ours 
+
+Two people are 
+
+standing 
+
+side by side. 
+
+Timeline 
+
+InterMask 
+
+Two people are dancing 
+
+in each other's arms. 
+
+Two people play rock, 
+
+paper, scissors. 
+
+Two people are 
+
+practicing tai chi. 
+
+The two embrace 
+
+each other closely. 
+
+Timeline 
+
+Ours 
+
+The first person places 
+
+their right hand on 
+
+the back of the 
+
+other person and they 
+
+both move in one direction. 
+
+Timeline 
+
+InterMask 
+
+No walking Only one person 
+
+crouching 
+
+Not side by side 
+
+Large foot sliding Wrong hand 
+
+position 
+
+Large overlap 
+
+One person approaches the 
+
+other person and lightly taps 
+
+them on the shoulder. The other 
+
+person covers their face and cries. 
+
+Two people walk 
+
+backward. 
+
+Two people are 
+
+jumping face to face. 
+
+The two are training in 
+
+taekwondo leg attack 
+
+techniques. 
+
+Timeline 
+
+Ours 
+
+Two performers sway 
+
+their bodies 
+
+while dancing. 
+
+Timeline 
+
+InterMask 
+
+Strange jumping Not walking backward 
+
+Fig. 4: Additional qualitative comparison of long-horizon motion generation between InterCMDM and InterMask. Our results demonstrate more continuous and coherent interactions. For clarity, each long sequence is divided into shorter segments aligned with their corresponding captions. Please refer to the supplementary videos for full-length sequences. Supplementary Material 7The two individuals maintain their 
+
+original posture, while their bodies continue 
+
+to rotate 90 degrees clockwise to the right. 
+
+Ours InterMask 
+
+Not maintaining posture 
+
+These two are walking around in 
+
+a circle while holding hands. 
+
+Ours InterMask 
+
+Not walking in a circle 
+
+One is observing the motion of a cardboard 
+
+while the other maintains their hold on the cardboard. 
+
+Ours InterMask 
+
+Not maintaining the hold 
+
+One person falls down, and the other person 
+
+squats down in front of them, 
+
+attempting to lift them up. 
+
+Ours InterMask 
+
+Incorrect squat position 
+
+Both persons bend over, squat with bent knees, 
+
+and swing their arms downward from the upper 
+
+right to the front of their legs. 
+
+Ours InterMask 
+
+The first person keeps walking, 
+
+and the second picks up a piece of paper 
+
+and takes two steps to catch up to the first person. 
+
+The second pats the first person with the paper, 
+
+causing the first person to turn around. 
+
+Ours InterMask 
+
+Two individuals are seated on chairs, 
+
+with one person seated behind the other. 
+
+Ours InterMask 
+
+Large foot sliding 
+
+Two people crouch down and 
+
+touch the ground with their hands. 
+
+Ours InterMask 
+
+Not touching 
+
+Not picking up 
+
+No bent knees 
+
+Fig. 5: Additional qualitative comparison of interaction generation between Inter-CMDM and InterMask. Our method demonstrates better capture of fine-grained tex-tual semantics and maintains more natural body articulation compared to previous methods. Please refer to the supplementary videos for clearer visualization. 8
+
+a single-stream concatenation baseline, and (b) multi-task masking is preferable to training with a single fixed attention pattern when we want both controlla-bility and robustness. 
+
+D.1 Dual-Stream Network vs. Single-Stream Concatenation 
+
+Single-stream baseline (concatenation with shared projections). A common de-sign for two-person modeling concatenates both people into one sequence and applies standard masked self-attention with shared projections across all tokens: 
+
+Attn single (H; M) = softmax 
+
+ HW Q(HW K )⊤
+
+√dh
+
++ M
+
+
+
+HW V , H ∈ R2T ′×d.
+
+(5) Here, H = [ h1; h2] and WQ, WK , WV ∈ Rd×dh are shared. 
+
+Dual-stream as a strict generalization. Our unified dual-stream attention uses 
+
+stream-specific projections. Define block-diagonal matrices 
+
+WQ := diag( W1
+
+> Q
+
+, W2
+
+> Q
+
+), WK := diag( W1 
+
+> K
+
+, W2 
+
+> K
+
+), WV := diag( W1 
+
+> V
+
+, W2 
+
+> V
+
+),
+
+(6) so that Q = HW Q, K = HW K , and V = HW V reproduce the per-stream projections and concatenation. Therefore, our attention is exactly masked self-attention on H with mask M, but with a block-structured parameterization .Importantly, the single-stream baseline is recovered by the special case W1 
+
+> Q
+
+=
+
+W2
+
+> Q
+
+, W1 
+
+> K
+
+= W2 
+
+> K
+
+, and W1 
+
+> V
+
+= W2 
+
+> V
+
+(and identical FFN/TextAttn weights). Hence, dual-stream contains single-stream as a special case. 
+
+Why dual-stream is strictly more expressive. Stream-specific projections decou-ple the similarity metrics used for self- and cross-person matching. Let 
+
+S := QK ⊤
+
+√dh
+
+=
+
+S11 S12 
+
+S21 S22 
+
+
+
+, Sij = (hiWiQ)( hj WjK )⊤
+
+√dh
+
+. (7) Dual-stream allows S11 , S22 (within-person) and S12 , S21 (cross-person) to be governed by different bilinear forms, capturing asymmetric interaction patterns and person-specific dynamics. In contrast, a shared-projection single-stream de-sign ties all four blocks to the same (WQ, WK ), reducing flexibility. 
+
+Self vs. cross coupling is explicit. Let AM := softmax( S + M) and partition it into blocks Aij analogously. Then the attention output decomposes as 
+
+˜h1
+
+˜h2
+
+
+
+= AM
+
+V1
+
+V2
+
+
+
+, ˜h1 = A11 V1 + A12 V2, ˜h2 = A21 V1 + A22 V2. (8) The off-diagonal blocks (A12 , A21 ) are the only cross-person information path-ways, and the mask M directly enables/disables them (e.g., A12 = A21 = 0 for the independent mask). Supplementary Material 9
+
+Proposition (symmetry breaking). Consider the minimal case T ′ = 1 with a mask that allows mutual attention. If the two inputs are identical ( h1 = h2) but the model uses different value projections ( W1
+
+> V
+
+̸ = W2 
+
+> V
+
+), then the dual-stream out-puts for the two tokens can be different. A single-stream attention layer with shared WV cannot produce different outputs under h1 = h2 unless additional person-specific parameters are introduced. Thus, stream-specific projections pro-vide a structural mechanism to model role/asymmetry without relying purely on learned person-ID conditioning. 
+
+D.2 Mask-Induced Causal Information Flow 
+
+Mask-induced dependency set. For any token index i, define its allowed attention set 
+
+AM(i) := { j | M [i, j ] = 0 }. (9) In a masked attention layer, the output at token i is a convex combination of 
+
+{V[j]}j∈A M(i) (after softmax), hence it depends only on the values of tokens in AM(i). The mask therefore defines a directed graph over tokens with edges 
+
+j → i whenever j ∈ A M(i).
+
+Lemma (Block-causal information flow). Assume M enforces the block-causal constraint bj ≤ bi for the tokens being predicted. Then for any layer ℓ, the repre-sentation of any token (p, b, t ) after ℓ Dual-Stream blocks depends only on tokens from blocks ≤ b (from either person, depending on cross-stream permissions in 
+
+M). Reactive masks additionally allow the reactor to attend to the observed person’s full sequence by design. 
+
+Proof (sketch). At ℓ = 1 , masked attention restricts aggregation to bj ≤ b.Residual connections, per-token FFNs, and text cross-attention do not introduce access to future blocks. Inductively, if layer ℓ − 1 representations depend only on blocks ≤ b, then layer ℓ cannot introduce dependence on b′ > b because attention is still masked by bj ≤ b. ⊓⊔
+
+Remark (propagation depth). Stacking L masked blocks allows information to propagate along paths of length up to L in the mask-induced token graph, while still respecting block causality. This clarifies how interaction cues (e.g., a leader’s early motion) can influence a follower several blocks later, depending on both L
+
+and the mask. 
+
+D.3 Multi-Task Masks vs. Single-Task Attention 
+
+Let μθ (·; M) denote the DS-Causal-DiT denoiser under mask M (predicting noise residuals per token/block). Because the only coupling between the two people inside a Dual-Stream block occurs through the off-diagonal attention blocks ( S12 , S21 ), each mask M induces a distinct set of cross-person conditional dependencies and, equivalently, a distinct conditional factorization of the block-wise denoising problem. 10 
+
+Mask-induced per-block conditioning sets. Let C(p) 
+
+> M
+
+(b) denote the set of tokens from which person p at block b can receive information under M (including within-person causal history and any allowed cross-person history). Then the denoiser for person p at block b is restricted to the form 
+
+μ(p,b ) 
+
+> θ
+
+= μ(p,b )
+
+> θ
+
+
+
+zk; C(p) 
+
+> M
+
+(b)
+
+
+
+, (10) where zk denotes the collection of noisy latent blocks. The four masks correspond to the following canonical conditioning patterns (omitting within-block indices for brevity): 
+
+– Simultaneous (symmetric) :
+
+C(1)  
+
+> M
+
+(b) = C(2)  
+
+> M
+
+(b)= {z(1 ,b ′), z(2 ,b ′)}b′≤b.
+
+– Reactive (asymmetric): Let r be the reactor and o the observed stream. The reactor conditions on its own history up to b and the observed person’s 
+
+entire sequence: 
+
+C(r) 
+
+> M
+
+(b) = {z(r,b ′)}b′≤b ∪ { z(o,b ′)}NB
+
+> b′=1
+
+.
+
+The observed stream uses full self-context over all blocks; in the cross-stream version it may additionally incorporate reactor blocks up to b, whereas the one-way version removes this reverse cross-stream dependency. 
+
+– Leader–Follower (windowed): C(1)  
+
+> M
+
+(b) = {z(1 ,b ′)}b′≤b and C(2)  
+
+> M
+
+(b) includes 
+
+{z(2 ,b ′)}b′≤b plus a finite local window of leader tokens around the follower’s time indices (controlled by ∆ as defined above). 
+
+– Independent (decoupled): C(p) 
+
+> M
+
+(b) = {z(p,b ′)}b′≤b (no cross-person to-kens). Thus, changing M is equivalent to choosing a different, explicit cross-person de-pendency structure while retaining block-causal self-attention for the stream(s) generated autoregressively. 
+
+Optimal denoiser under a mask. Under the squared error diffusion objective, the Bayes-optimal predictor for each (p, b ) is the conditional expectation given the information permitted by the mask: 
+
+μ(p,b ) 
+
+> ∗
+
+(·; M) = E
+
+h
+
+ϵ(p,b ) C(p) 
+
+> M
+
+(b)
+
+i
+
+. (11) Different masks therefore correspond to different target conditional expectations (different conditioning sets). Training with a single fixed mask learns only one such conditional, whereas multi-task masking explicitly trains the same param-eters to approximate this family {μ(p,b ) 
+
+> ∗
+
+(·; Mm)}m.Supplementary Material 11 
+
+Multi-task masking objective (amortized over masks). During training, we sample a mask type m (with corresponding mask Mm) from a distribution π(m). The training objective becomes an expectation over both diffusion noise and masks: 
+
+L(θ) = Em∼π [Lm(θ)] , Lm(θ) := Ek,ϵ
+
+" 2X
+
+> i=1
+> NB
+
+X
+
+> b=1
+
+ϵ(i,b ) − μθ (·; Mm) 22
+
+#
+
+.
+
+(12) Single-task attention is the degenerate case where π(m) places all its mass on one mask. In that setting, switching to a different mask at inference changes the model’s effective computation graph (removing or adding attention edges) and leads to a form of structural distribution shift . Multi-task masking eliminates this mismatch by explicitly training the same parameters θ under multiple attention graphs. 
+
+Advantages over single-task training. Multi-task masking provides: (i) control-lability —a single θ supports multiple coordination regimes by selecting M at inference; (ii) structural regularization —randomly sampling masks acts like structured edge dropout, discouraging over-reliance on any single cross-person pathway and improving robustness; and (iii) amortized modeling of mul-tiple factorizations —instead of training separate parameters {θm} for each dependency structure, we share representations across masks while keeping the dependency constraints explicit and verifiable through M.
+
+References
