@@ -1,0 +1,39 @@
+{
+  "label": "2026-07-06",
+  "date": "2026-07-06",
+  "generated_at": "2026-07-06T20:56:44",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202607/06/2606.30308v1-the-surprising-effectiveness-of-video-diffusion-models-for-hand-motion-reconstruction",
+      "section": "quick",
+      "title_en": "The Surprising Effectiveness of Video Diffusion Models for Hand Motion Reconstruction",
+      "authors": "Yuxi Wang, Chengkai Jin, Yufei Liu, Wenqi Ouyang, Tianyi Wei, Zhiwei Zeng, Siyuan Huang, Zhiqi Shen, Xingang Pan",
+      "date": "2026-06-29",
+      "pdf": "https://arxiv.org/pdf/2606.30308v1",
+      "score": "6.0",
+      "evidence": "视频扩散模型用于手部运动重建",
+      "tldr": "现有基于图像或视频的手部运动重建方法受限于检测器失效和标注不足。本文提出ViDiHand，利用预训练视频扩散模型通过手部覆盖渲染目标进行特征适配，再经解码器恢复度量手部姿态，无需检测器或后处理。在ARCTIC、HOT3D、HOI4D上显著超越前人，展示了视频扩散模型作为手部运动重建新基础的潜力。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "4D hand motion reconstruction from egocentric video is bottlenecked by clear limitations of existing methods: image-based pipelines depend on a detector that fails under heavy occlusion, while video-based methods rely on temporal modules learned only from scarce hand-pose annotations, a narrow signal insufficient to model motion dynamics, occlusion reasoning, and hand-object interaction. These capabilities, however, are exactly what video generative models must implicitly acquire when trained to synthesize coherent video at internet scale. Motivated by this, we present ViDiHand, which leverages the representations of a pretrained video diffusion model to reconstruct 4D two-hand pose. We adapt it via a hand-overlay rendering objective that specializes its features for hands while preserving its world priors. A decoder then recovers metric-scale pose from the adapted features. The whole pipeline operates directly on full frames--no detector, no infiller, and no test-time optimization. On ARCTIC, HOT3D, and HOI4D, ViDiHand substantially outperforms prior methods, establishing video diffusion models as a powerful new foundation for hand motion reconstruction and a promising route to scalable in-the-wild data collection for embodied AI. Project page: https://vidihand.github.io.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/06/2607.01803v1-pixgs-pixel-space-diffusion-for-direct-3d-gaussian-splat-generation",
+      "section": "quick",
+      "title_en": "PixGS: Pixel-Space Diffusion for Direct 3D Gaussian Splat Generation",
+      "authors": "Duy Cao, Phong Nguyen-Ha",
+      "date": "2026-07-02",
+      "pdf": "https://arxiv.org/pdf/2607.01803v1",
+      "score": "6.0",
+      "evidence": "扩散模型用于3D生成",
+      "tldr": "文本或图像驱动的3D生成中，现有方法多采用潜在空间扩散模型，但受限于压缩损失导致伪影，且级联管线计算昂贵。PixGS创新地提出单阶段像素空间扩散，直接对3D高斯泼溅的每个属性进行去噪，无需潜在压缩，并设计了结合表面法线、深度和高频结构的综合监督策略。在单A100上仅需1秒即可生成高质量3D资产，在多项指标上超越当前最优方法，显著减少计算开销并提升生成质量。该工作为高效3D生成开辟了新路径。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Recent advances in 3D content generation from text or images have achieved impressive results, yet view inconsistency from 2D generators and the scarcity of high-quality 3D data remain significant bottlenecks. Existing solutions typically adapt large-scale pre-trained text-to-image latent diffusion models to generate 3D Gaussian Splats (3DGS). However, these approaches often rely on training complex cascade pipelines that are computationally expensive and scalability-limited. Most critically, the quality of generated 3D assets is inherently constrained by each component capacity and compressed latent space, leading to decoding artifacts and accumulated errors. To address these limitations, we propose PixGS, a single-stage pipeline for direct high-quality 3DGS generation, which leverages recent advances in pixel-space diffusion to bypass lossy latent compression while still benefiting from the vast 2D generative priors. By directly denoising 3D Gaussian attributes at each timestep, our method enables precise, splat-level regularization of both appearance and geometry. Furthermore, we introduce a comprehensive supervision strategy that incorporates surface normals, depth, and high-frequency structural information, which is often overlooked in prior works. Experiments demonstrate that PixGS outperforms current state-of-the-art methods while maintaining a fast inference speed (1s on a single A100 GPU), offering a robust and efficient alternative to multi-stage generation pipelines.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,98 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-06T20:54:28.342284+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2606.30308v1",
+      "source": "arxiv",
+      "title": "The Surprising Effectiveness of Video Diffusion Models for Hand Motion Reconstruction",
+      "abstract": "4D hand motion reconstruction from egocentric video is bottlenecked by clear limitations of existing methods: image-based pipelines depend on a detector that fails under heavy occlusion, while video-based methods rely on temporal modules learned only from scarce hand-pose annotations, a narrow signal insufficient to model motion dynamics, occlusion reasoning, and hand-object interaction. These capabilities, however, are exactly what video generative models must implicitly acquire when trained to synthesize coherent video at internet scale. Motivated by this, we present ViDiHand, which leverages the representations of a pretrained video diffusion model to reconstruct 4D two-hand pose. We adapt it via a hand-overlay rendering objective that specializes its features for hands while preserving its world priors. A decoder then recovers metric-scale pose from the adapted features. The whole pipeline operates directly on full frames--no detector, no infiller, and no test-time optimization. On ARCTIC, HOT3D, and HOI4D, ViDiHand substantially outperforms prior methods, establishing video diffusion models as a powerful new foundation for hand motion reconstruction and a promising route to scalable in-the-wild data collection for embodied AI. Project page: https://vidihand.github.io.",
+      "authors": [
+        "Yuxi Wang",
+        "Chengkai Jin",
+        "Yufei Liu",
+        "Wenqi Ouyang",
+        "Tianyi Wei",
+        "Zhiwei Zeng",
+        "Siyuan Huang",
+        "Zhiqi Shen",
+        "Xingang Pan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T13:53:00+00:00",
+      "link": "https://arxiv.org/pdf/2606.30308v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video diffusion model used for hand motion reconstruction",
+      "llm_evidence_cn": "视频扩散模型用于手部运动重建",
+      "llm_evidence": "视频扩散模型用于手部运动重建",
+      "canonical_evidence": "视频扩散模型用于手部运动重建",
+      "llm_tldr_en": "ViDiHand leverages pretrained video diffusion model representations for 4D hand pose reconstruction, showing surprising effectiveness without additional training.",
+      "llm_tldr_cn": "现有手部运动重建依赖有监督检测或时序模块，但标注稀缺。本文利用预训练视频扩散模型的表征进行4D双手姿态重建，通过手部叠加渲染目标适应模型。实验表明视频扩散模型隐含的运动和遮挡推理能力可有效迁移至运动重建任务，且无需额外训练。",
+      "llm_tldr": "现有手部运动重建依赖有监督检测或时序模块，但标注稀缺。本文利用预训练视频扩散模型的表征进行4D双手姿态重建，通过手部叠加渲染目标适应模型。实验表明视频扩散模型隐含的运动和遮挡推理能力可有效迁移至运动重建任务，且无需额外训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.01803v1",
+      "source": "arxiv",
+      "title": "PixGS: Pixel-Space Diffusion for Direct 3D Gaussian Splat Generation",
+      "abstract": "Recent advances in 3D content generation from text or images have achieved impressive results, yet view inconsistency from 2D generators and the scarcity of high-quality 3D data remain significant bottlenecks. Existing solutions typically adapt large-scale pre-trained text-to-image latent diffusion models to generate 3D Gaussian Splats (3DGS). However, these approaches often rely on training complex cascade pipelines that are computationally expensive and scalability-limited. Most critically, the quality of generated 3D assets is inherently constrained by each component capacity and compressed latent space, leading to decoding artifacts and accumulated errors. To address these limitations, we propose PixGS, a single-stage pipeline for direct high-quality 3DGS generation, which leverages recent advances in pixel-space diffusion to bypass lossy latent compression while still benefiting from the vast 2D generative priors. By directly denoising 3D Gaussian attributes at each timestep, our method enables precise, splat-level regularization of both appearance and geometry. Furthermore, we introduce a comprehensive supervision strategy that incorporates surface normals, depth, and high-frequency structural information, which is often overlooked in prior works. Experiments demonstrate that PixGS outperforms current state-of-the-art methods while maintaining a fast inference speed (1s on a single A100 GPU), offering a robust and efficient alternative to multi-stage generation pipelines.",
+      "authors": [
+        "Duy Cao",
+        "Phong Nguyen-Ha"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR",
+        "cs.RO"
+      ],
+      "published": "2026-07-02T07:18:37+00:00",
+      "link": "https://arxiv.org/pdf/2607.01803v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion model for 3D generation",
+      "llm_evidence_cn": "扩散模型用于3D生成",
+      "llm_evidence": "扩散模型用于3D生成",
+      "canonical_evidence": "扩散模型用于3D生成",
+      "llm_tldr_en": "PixGS proposes a single-stage pixel-space diffusion pipeline for direct high-quality 3D Gaussian splat generation, overcoming limitations of latent-space methods.",
+      "llm_tldr_cn": "PixGS提出一种单阶段像素空间扩散流水线，用于直接生成高质量3D高斯点云。它解决了潜在空间方法中的解码伪影和累积误差问题，无需复杂的级联训练。实验结果表明，该方法在3D生成质量上达到领先水平，为3D内容生成提供了更高效的方案。",
+      "llm_tldr": "PixGS提出一种单阶段像素空间扩散流水线，用于直接生成高质量3D高斯点云。它解决了潜在空间方法中的解码伪影和累积误差问题，无需复杂的级联训练。实验结果表明，该方法在3D生成质量上达到领先水平，为3D内容生成提供了更高效的方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
