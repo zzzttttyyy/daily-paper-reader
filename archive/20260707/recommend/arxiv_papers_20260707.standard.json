@@ -1,0 +1,532 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-07T21:53:37.252563+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 7,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2607.02137v2",
+      "source": "arxiv",
+      "title": "ART for Diffusion Sampling: Continuous-Time Control and Actor-Critic Learning",
+      "abstract": "We study timestep allocation for score-based diffusion sampling, where a learned reverse-time dynamics is discretized on a finite grid. Uniform and hand-crafted schedules are standard choices, but they rely on fixed prescriptions and can therefore be suboptimal. To address this limitation, we propose Adaptive Reparameterized Time (ART), a continuous-time control formulation that learns a time change by treating the speed of the sampling clock as the control, so that a uniform grid on the learned clock induces adaptive timesteps in the original diffusion time. Based on a leading-order Euler error surrogate, ART provides a principled objective for allocating timesteps along the sampling trajectory. To solve this deterministic control problem, we introduce ART-RL, an auxiliary randomized formulation with Gaussian policies that turns schedule learning into a continuous-time reinforcement learning problem. We prove that the randomized ART-RL formulation is equivalent to ART at the optimizer level, in the sense that its optimal Gaussian policy recovers the optimal ART time-warping rate through its mean. We further establish policy evaluation and policy improvement characterizations and derive trajectory-based moment identities that yield implementable actor--critic updates for learning the schedule. Across experiments ranging from controlled low-dimensional settings to image generation, ART-RL can be plugged into existing diffusion samplers by changing only the timestep grid, consistently improving sample quality over strong baseline schedules at matched budgets while leaving the rest of the sampling pipeline unchanged. The learned schedules also exhibit broad generalization, transferring without retraining across sampling budgets, datasets, solvers, pipelines, and representation spaces.",
+      "authors": [
+        "Yilie Huang",
+        "Wenpin Tang",
+        "Xun Yu Zhou"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "eess.SY",
+        "math.OC"
+      ],
+      "published": "2026-07-02T13:13:19+00:00",
+      "link": "https://arxiv.org/pdf/2607.02137v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free adaptive timestep allocation for diffusion sampling via continuous-time control",
+      "llm_evidence_cn": "通过连续时间控制实现扩散采样的免训练自适应时间步分配",
+      "llm_evidence": "通过连续时间控制实现扩散采样的免训练自适应时间步分配",
+      "canonical_evidence": "通过连续时间控制实现扩散采样的免训练自适应时间步分配",
+      "llm_tldr_en": "ART formulates timestep allocation as a continuous-time control problem and learns adaptive schedules without retraining the diffusion model, improving sampling efficiency and quality.",
+      "llm_tldr_cn": "ART将扩散采样中的时间步分配建模为连续时间控制问题，通过学习速度场来自适应调整采样步长，无需重新训练扩散模型。该方法基于欧拉误差代理函数优化时间步，在保持生成质量的同时加速采样。实验表明ART在多个数据集上优于固定调度，是一种有效的免训练采样优化技术。",
+      "llm_tldr": "ART将扩散采样中的时间步分配建模为连续时间控制问题，通过学习速度场来自适应调整采样步长，无需重新训练扩散模型。该方法基于欧拉误差代理函数优化时间步，在保持生成质量的同时加速采样。实验表明ART在多个数据集上优于固定调度，是一种有效的免训练采样优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.03012v1",
+      "source": "arxiv",
+      "title": "HyperVAttention: Efficient Sparse Attention with Spatio-Temporal Clustering for Video Diffusion",
+      "abstract": "Video Diffusion Transformers (VDiTs) have demonstrated significant capabilities in high-fidelity video generation. However, their ability to produce long-duration videos is fundamentally constrained by the quadratic complexity of the self-attention mechanism. Recent clustering-based sparse attention methods improve the quality-speed trade-off by grouping semantically similar tokens, but their practical efficiency remains limited by two bottlenecks: substantial clustering overhead and low CTA utilization caused by irregular cluster-induced blocks. We propose HyperVAttention (HVA), a training-free sparse attention framework that addresses both bottlenecks jointly. To reduce clustering overhead, we introduce 3D local-window clustering, which exploits the spatio-temporal locality of video tokens to restrict centroid search to fixed local neighborhoods, and implement it with a custom Triton kernel for efficient execution. We further propose a hybrid clustering strategy that performs full clustering only at anchor steps and updates only subset tokens at intermediate steps, leveraging the temporal stability of cluster assignments across denoising steps. To improve CTA utilization, we present hardware-aware cluster merging that minimizes CTA-aligned execution cost through parallel agglomerative merging, improving block density and approximation fidelity by utilizing idle tile capacity. Together, these components reduce clustering overhead, avoid redundant updates, and better align sparse attention with the fixed tile structure of modern GPU kernels. Experiments on Text-to-Video generation show that HVA establishes a new Pareto frontier for training-free sparse attention in video diffusion, reducing end-to-end latency by up to $2.13\\times$ while improving fidelity over existing training-free sparse attention baselines.",
+      "authors": [
+        "Dongyeun Lee",
+        "Amir Zandieh",
+        "Vahab Mirrokni",
+        "Junmo Kim",
+        "Insu Han"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-07-03T06:46:35+00:00",
+      "link": "https://arxiv.org/pdf/2607.03012v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sparse attention for video diffusion",
+      "llm_evidence_cn": "免训练稀疏注意力用于视频扩散",
+      "llm_evidence": "免训练稀疏注意力用于视频扩散",
+      "canonical_evidence": "免训练稀疏注意力用于视频扩散",
+      "llm_tldr_en": "HyperVAttention is a training-free sparse attention framework for video diffusion transformers that reduces clustering overhead and improves CTA utilization, enabling efficient long video generation.",
+      "llm_tldr_cn": "视频扩散Transformer因自注意力二次复杂度难以生成长视频，现有聚类稀疏注意力存在聚类开销大和CTA利用率低的问题。HyperVAttention提出免训练稀疏注意力框架，引入3D局部窗口聚类减少开销，并通过优化块布局提高利用率，有效支持长视频生成且无需额外训练。实验表明在保持高质量的同时显著加速。",
+      "llm_tldr": "视频扩散Transformer因自注意力二次复杂度难以生成长视频，现有聚类稀疏注意力存在聚类开销大和CTA利用率低的问题。HyperVAttention提出免训练稀疏注意力框架，引入3D局部窗口聚类减少开销，并通过优化块布局提高利用率，有效支持长视频生成且无需额外训练。实验表明在保持高质量的同时显著加速。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.04461v1",
+      "source": "arxiv",
+      "title": "Flash-BoN: Instant Drafts for Inference-Time Scaling in Diffusion Models",
+      "abstract": "Inference-time scaling for text-to-image generation has progressed from simple Best-of-$N$ (BoN) sampling to guided search methods that verify and steer candidate trajectories at intermediate denoising steps. These approaches focus on when and how often to verify during denoising but largely treat the cost of generation itself as fixed. Moreover, the standard practice of comparing methods by number of function evaluations (NFEs) counts only denoising forward passes and ignores verifier overhead, which can distort efficiency rankings. We show that under wall-clock evaluation, simple BoN already matches or outperforms several guided search techniques, suggesting that compute is better spent on broader exploration than on repeated intermediate verification. This motivates Flash-BoN, which generates a large pool of inexpensive draft candidates by combining three complementary acceleration knobs: timestep truncation, layer skipping, and activation proxies into a single configuration optimized once per model. An efficient multi-stage verification procedure then identifies the most promising draft, which is refined at full quality. Across three benchmarks and three model scales, Flash-BoN consistently outperforms all baselines under fixed wall-clock budgets, with gains that grow at larger model scales (+8% AUC). We further show that our strategy combines well and improves existing orthogonal techniques such as reflection-based prompt optimization (+16% AUC). The gains correlate with increased candidate diversity, which also enables draft-guided selection to accelerate RL post-training convergence.",
+      "authors": [
+        "Ruchit Rawal",
+        "Reza Shirkavand",
+        "Sayak Paul",
+        "Yuxin Wen",
+        "Heng Huang",
+        "Yizheng Chen",
+        "Tom Goldstein",
+        "Gowthami Somepalli"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-05T19:02:32+00:00",
+      "link": "https://arxiv.org/pdf/2607.04461v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Inference-time scaling via Best-of-N sampling, training-free optimization for generation efficiency",
+      "llm_evidence_cn": "通过Best-of-N采样的推理时扩展，训练无关的生成效率优化",
+      "llm_evidence": "通过Best-of-N采样的推理时扩展，训练无关的生成效率优化",
+      "canonical_evidence": "通过Best-of-N采样的推理时扩展，训练无关的生成效率优化",
+      "llm_tldr_en": "Shows that simple Best-of-N sampling, when measured by wall-clock time, matches or outperforms guided search methods for inference-time scaling of diffusion models.",
+      "llm_tldr_cn": "扩散模型推理时扩展的现有方法聚焦于验证时机，但忽略了生成本身的成本。本文通过壁钟时间评估发现，简单Best-of-N采样在效率上匹配甚至超过多种引导搜索技术，表明将计算用于更广泛的探索比重复中间验证更有效。该发现为推理时扩展提供了新视角，且无需额外训练。",
+      "llm_tldr": "扩散模型推理时扩展的现有方法聚焦于验证时机，但忽略了生成本身的成本。本文通过壁钟时间评估发现，简单Best-of-N采样在效率上匹配甚至超过多种引导搜索技术，表明将计算用于更广泛的探索比重复中间验证更有效。该发现为推理时扩展提供了新视角，且无需额外训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.04691v1",
+      "source": "arxiv",
+      "title": "From Open Loop to Closed Loop: A Test-Time Iterative Optimization Framework for Reference-Consistent Image Generation",
+      "abstract": "While controllable image generation has made significant strides by incorporating visual reference conditions, existing methods predominantly operate as open-loop systems. They inject control signals in a strictly feed-forward manner, failing to guarantee strict fidelity to the reference due to the absence of active feedback and error correction mechanisms. To address this fundamental limitation, we propose a novel test-time iterative optimization framework that reformulates reference-consistent generation as a closed-loop dynamic tracking problem. By treating the pre-trained generative model as a control plant, our framework employs a sensor-controller architecture driven by a modified Proportional-Integral-Derivative (PID) algorithm. This mechanism iteratively optimizes the latent control signals at test time based on the sensed discrepancy between the generated output and the reference target. Notably, this approach is entirely training-free, model-agnostic, and integrates seamlessly around existing diffusion pipelines. Extensive evaluations across ID-preserving, pose-controlled, and depth-controlled generation tasks validate the universality of our method. Empirical results demonstrate improvements over computation-matched open-loop baselines, achieving relative performance gains of up to 25.36\\% for facial similarity, alongside spatial error reductions of up to 27.71\\% for pose alignment and 28.50\\% for depth consistency. More broadly, this work offers a new conceptual perspective: it demonstrates that controllable generation can be effectively managed as a dynamic feedback system, bringing the rigorous principles of classical control theory into the optimization of generative models. Code is available at https://github.com/zzdrill/From-Open-Loop-to-Closed-Loop.",
+      "authors": [
+        "Baixuan Zhao",
+        "Xinyu Zhang",
+        "Huayu Zheng",
+        "Shuaicheng Liu",
+        "Xiongkuo Min",
+        "Guangtao Zhai",
+        "Xiaohong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-06T05:36:30+00:00",
+      "link": "https://arxiv.org/pdf/2607.04691v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Test-time iterative optimization for reference-consistent generation without additional training",
+      "llm_evidence_cn": "无需额外训练的测试时迭代优化框架，用于参考一致性生成",
+      "llm_evidence": "无需额外训练的测试时迭代优化框架，用于参考一致性生成",
+      "canonical_evidence": "无需额外训练的测试时迭代优化框架，用于参考一致性生成",
+      "llm_tldr_en": "Proposes a closed-loop test-time optimization framework that treats pre-trained diffusion models as control plants, achieving reference-consistent generation via iterative feedback.",
+      "llm_tldr_cn": "现有可控图像生成方法多为开环系统，缺乏反馈机制，无法保证对参考条件的高度一致。本文提出闭环测试时迭代优化框架，将预训练生成模型视为控制对象，采用传感器-控制器架构和修改的PID控制器进行迭代校正。实验表明该方法在没有额外训练的情况下显著提高了参考一致性，为测试时优化提供了新范式。",
+      "llm_tldr": "现有可控图像生成方法多为开环系统，缺乏反馈机制，无法保证对参考条件的高度一致。本文提出闭环测试时迭代优化框架，将预训练生成模型视为控制对象，采用传感器-控制器架构和修改的PID控制器进行迭代校正。实验表明该方法在没有额外训练的情况下显著提高了参考一致性，为测试时优化提供了新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.03732v1",
+      "source": "arxiv",
+      "title": "ProxyUp: Training-Free Proxy-Conditioned Video Generation for Controllable Dynamics",
+      "abstract": "Precise control over complex dynamics remains challenging for modern video generative models, as text prompts alone often cannot specify physically plausible, fine-grained motion and interactions. We introduce $\\textit{proxy-conditioned video generation}$, where a coarse proxy video from physics-based simulation or real-world recording serves as a dynamics carrier to control foreground object motion. Given a proxy video and a text prompt, the goal is to synthesize a new video that preserves the proxy dynamics while generating novel content and plausible interactions aligned with the prompt. Since paired proxy-target videos are difficult to obtain, we propose $\\textbf{ProxyUp}$, a training-free framework built on pretrained video generative models. ProxyUp first inverts the proxy video into an intermediate latent representation and applies $\\textbf{region-wise latent noising}$, preserving motion-critical proxy latents while injecting noise into regions intended for text-driven regeneration. To mitigate the distribution mismatch and weak foreground-background coupling introduced by this heuristic latent composition, we further propose $\\textbf{Stochastic Flow Relaxation (SFR)}$, which progressively relaxes the composed latent toward the model's learned distribution before ODE sampling. Experiments on both simulation and real-world proxies show that ProxyUp outperforms strong video editing and motion transfer baselines in dynamic fidelity and text alignment.",
+      "authors": [
+        "Zanwei Zhou",
+        "Jiazhong Cen",
+        "Jiemin Fang",
+        "Yumeng He",
+        "Chen Yang",
+        "Sikuang Li",
+        "Fanpeng Meng",
+        "Zhikuan Bao",
+        "Wei Shen",
+        "Qi Tian"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-04T06:39:40+00:00",
+      "link": "https://arxiv.org/pdf/2607.03732v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free framework for video generation using proxy conditioning",
+      "llm_evidence_cn": "使用代理条件实现免训练视频生成框架",
+      "llm_evidence": "使用代理条件实现免训练视频生成框架",
+      "canonical_evidence": "使用代理条件实现免训练视频生成框架",
+      "llm_tldr_en": "ProxyUp enables training-free video generation with controlled dynamics by conditioning on a coarse proxy video, preserving motion while generating novel content.",
+      "llm_tldr_cn": "现有视频生成模型难以通过文本精准控制复杂动态。ProxyUp提出免训练的代理条件视频生成方法，利用物理模拟或真实录制的粗糙代理视频作为动态载体，结合文本提示合成新视频。该方法无需配对数据或额外训练，即可保留代理动态并生成逼真交互，显著提升视频生成的可控性。",
+      "llm_tldr": "现有视频生成模型难以通过文本精准控制复杂动态。ProxyUp提出免训练的代理条件视频生成方法，利用物理模拟或真实录制的粗糙代理视频作为动态载体，结合文本提示合成新视频。该方法无需配对数据或额外训练，即可保留代理动态并生成逼真交互，显著提升视频生成的可控性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.03899v1",
+      "source": "arxiv",
+      "title": "DICT: Data Injection and Contrastive Trajectory Refinement for Conditional Image Generation with Diffusion Models",
+      "abstract": "Diffusion models have become a dominant paradigm for conditional image generation, yet existing approaches generally follow two directions: task-specific designs that can improve performance but limit generalization, and training-free loss guidance that compresses rich conditions into scalar objectives and applies stepwise guidance, leading to information bottlenecks and error accumulation along the sampling trajectory. Given the urgent need for an effective unified framework across diverse conditional image generation tasks, we propose Data Injection and Contrastive Trajectory Refinement (DICT), a training-free inference method that enhances conditional image generation without introducing task-dependent architectures. DICT introduces Data Injection, where noise-perturbed conditional signals are integrated into early denoising stages; by performing guided denoising on these injected signals, DICT adaptively selects and distills task-salient information from the raw condition, effectively preserving spatial richness and ensuring precise condition-to-generation alignment. Furthermore, DICT applies Contrastive Trajectory Refinement across adjacent denoising states, enabling pairwise comparisons that progressively improve sample quality. These designs keep inference simple while improving cross-task transfer under a unified diffusion formulation. Extensive experiments on conditional image generation tasks (e.g., style transfer, image super-resolution, and image deblurring) show consistent gains in fidelity and perceptual quality over representative task-specific and loss-guided baselines.",
+      "authors": [
+        "Chunnan Shang",
+        "Xin Zhang",
+        "Zhizhong Wang",
+        "Hongwei Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-04T14:44:06+00:00",
+      "link": "https://arxiv.org/pdf/2607.03899v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free inference method for conditional image generation with contrastive trajectory refinement",
+      "llm_evidence_cn": "用于条件图像生成的免训练推理方法，采用对比轨迹优化",
+      "llm_evidence": "用于条件图像生成的免训练推理方法，采用对比轨迹优化",
+      "canonical_evidence": "用于条件图像生成的免训练推理方法，采用对比轨迹优化",
+      "llm_tldr_en": "DICT proposes a training-free inference method for conditional image generation that injects data and refines sampling trajectories via contrastive learning, unifying diverse tasks.",
+      "llm_tldr_cn": "DICT提出了一种免训练推理方法，用于扩散模型的条件图像生成。它通过数据注入和对比轨迹优化来增强生成质量，无需依赖任务特定架构或额外训练。在多个条件生成任务上，该方法超越了现有训练无关方法，并且接近训练特定方法的效果，展示了统一框架的潜力。",
+      "llm_tldr": "DICT提出了一种免训练推理方法，用于扩散模型的条件图像生成。它通过数据注入和对比轨迹优化来增强生成质量，无需依赖任务特定架构或额外训练。在多个条件生成任务上，该方法超越了现有训练无关方法，并且接近训练特定方法的效果，展示了统一框架的潜力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.05088v1",
+      "source": "arxiv",
+      "title": "RADIANCE: Relative Adaptive Denoising with IP-Adapter for Novel Concept Enhancement",
+      "abstract": "Text-to-image (T2I) diffusion models have achieved striking progress but still struggle to synthesize rare concepts involving unusual attribute-object pairings, often resulting in concept omission or semantic drift where a dominant entity overwhelms the generation. Tracing these failures to a lack of compositional balance during the denoising trajectory, we propose RADIANCE, a training-free framework that treats inference as a closed-loop feedback process. RADIANCE augments pretrained backbones with three modular components: (1) a Compositional Similarity Monitor (CSM) that tracks the emergence of objects and attributes in intermediate latents via CLIP-based feedback; (2) a Bidirectional Scale Controller (BSC) that applies a reactive \"restoring force\" using positive and negative IP-Adapter scales to rebalance biased trajectories; and (3) a Feedback Guidance Scheduler (FGS) that coordinates these updates across timesteps without additional training. We further extend the framework to multi-object prompts via Delayed Adapter Activation (DAA) and Layer-wise Alternating Guidance (LAG) to prevent premature concept fusion. By overlapping monitoring and denoising through pipelined execution, RADIANCE maintains competitive latency while significantly enhancing the per-sample success rate and effective throughput. Experiments on RareBench and T2I-CompBench demonstrate that RADIANCE consistently enhances compositional alignment and perceptual quality over state-of-the-art baselines.",
+      "authors": [
+        "Zi-Xiang Ni",
+        "Bo-Lun Huang",
+        "Teng-Fang Hsiao",
+        "Bo-Kai Ruan",
+        "Hong-Han Shuai"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-06T13:49:40+00:00",
+      "link": "https://arxiv.org/pdf/2607.05088v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free inference-time optimization for text-to-image diffusion",
+      "llm_evidence_cn": "面向文本到图像扩散模型的免训练推理时优化",
+      "llm_evidence": "面向文本到图像扩散模型的免训练推理时优化",
+      "canonical_evidence": "面向文本到图像扩散模型的免训练推理时优化",
+      "llm_tldr_en": "RADIANCE is a training-free framework that uses CLIP feedback to adaptively balance composition during denoising, improving rare concept generation in T2I models.",
+      "llm_tldr_cn": "文本到图像扩散模型在生成罕见概念时常出现遗漏或语义漂移。RADIANCE提出免训练推理时优化框架，通过组合相似性监视器和双向尺度控制器，在去噪过程中自适应调整属性-对象平衡。该方法无需训练即可显著提升组合生成质量，是典型的免训练采样优化技术。",
+      "llm_tldr": "文本到图像扩散模型在生成罕见概念时常出现遗漏或语义漂移。RADIANCE提出免训练推理时优化框架，通过组合相似性监视器和双向尺度控制器，在去噪过程中自适应调整属性-对象平衡。该方法无需训练即可显著提升组合生成质量，是典型的免训练采样优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.31290v1",
+      "source": "arxiv",
+      "title": "Patch-PODiff-ViT: Structured Latent Diffusion with Patchwise POD for Super-Resolution and Uncertainty Quantification",
+      "abstract": "Diffusion models enable probabilistic super-resolution and conditional generation, but pixel-space methods are computationally expensive and learned latent spaces often lack interpretable uncertainty quantification. We introduce Patch-PODiff-ViT, a structured latent diffusion framework in which the latent space is defined by patchwise Proper Orthogonal Decomposition (POD), a fixed linear orthonormal basis over local patches, rather than learned by a nonlinear autoencoder. This yields low-dimensional, variance-ordered tokens that preserve spatial structure and enable efficient diffusion in a structured low-dimensional latent space with a Vision Transformer. Because the decoder is fixed, linear, and orthonormal, latent coefficient uncertainty can be propagated directly to physical-space predictive variance, enabling analytic propagation of predictive variance through the linear decoder without Monte Carlo estimation in pixel space. Across sea surface temperature, medical imaging, and natural images, the method achieves strong reconstruction with fewer parameters and lower memory, while producing well-calibrated spatial uncertainty that closely matches empirical ensembles.",
+      "authors": [
+        "Onkar Jadhav",
+        "Tim French",
+        "Matthew Rayson",
+        "Nicole L. Jones"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-30T08:05:53+00:00",
+      "link": "https://arxiv.org/pdf/2606.31290v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free latent space via fixed POD basis",
+      "llm_evidence_cn": "通过固定POD基的免训练潜在空间",
+      "llm_evidence": "通过固定POD基的免训练潜在空间",
+      "canonical_evidence": "通过固定POD基的免训练潜在空间",
+      "llm_tldr_en": "Proposes a structured latent diffusion framework using a fixed linear orthonormal basis (POD) instead of learned autoencoder, enabling efficient super-resolution and uncertainty quantification with a training-free decoder.",
+      "llm_tldr_cn": "该论文提出Patch-PODiff-ViT框架，使用固定的分块本征正交分解（POD）定义潜在空间，替代传统学习的非线性自编码器。该固定解码器无需训练，保持了空间结构，并支持高效的低维潜在扩散。实验表明，该方法在超分辨率任务中性能良好，并提供了可解释的不确定性量化。这项工作为扩散模型的免训练优化提供了一种新思路。",
+      "llm_tldr": "该论文提出Patch-PODiff-ViT框架，使用固定的分块本征正交分解（POD）定义潜在空间，替代传统学习的非线性自编码器。该固定解码器无需训练，保持了空间结构，并支持高效的低维潜在扩散。实验表明，该方法在超分辨率任务中性能良好，并提供了可解释的不确定性量化。这项工作为扩散模型的免训练优化提供了一种新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.02628v1",
+      "source": "arxiv",
+      "title": "SE-UNet: Singular Equivariant Imaging for Real-World Constrained Generation",
+      "abstract": "While diffusion models have revolutionized image synthesis, their application to real-world inverse problems is often hampered by the need for massive datasets and the difficulty of imposing strict physical constraints. In this work, we introduce \\textbf{SE-UNet} (Singular Equivariant UNet), a framework designed to solve ill-posed imaging tasks without extensive pre-training. By treating generation as an optimization problem constrained by geometric equivariance ($D_4$ group) and singular value gating, SE-UNet effectively standardizes the solution space. We demonstrate that these strong inductive biases allow for state-of-the-art zero-shot inpainting results (80\\% missing pixels) on CIFAR-10. Our method surpasses Deep Image Prior (DIP) baselines by over 4 dB in PSNR and exhibits a characteristic \"singular snap\" convergence -- rapidly locking into the signal manifold. SE-UNet thus offers a data-efficient pathway for constrained generation, aligning with the ReALM-GEN goal of bridging theoretical priors with practical deployment.",
+      "authors": [
+        "Kanishk Awadhiya"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-02T13:24:53+00:00",
+      "link": "https://arxiv.org/pdf/2607.02628v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Zero-shot inpainting via optimization with geometric equivariance constraints",
+      "llm_evidence_cn": "通过几何等变性约束的优化实现零样本修复",
+      "llm_evidence": "通过几何等变性约束的优化实现零样本修复",
+      "canonical_evidence": "通过几何等变性约束的优化实现零样本修复",
+      "llm_tldr_en": "Proposes SE-UNet, a framework that treats generation as optimization with geometric equivariance and singular value gating, achieving zero-shot inpainting without extensive pre-training.",
+      "llm_tldr_cn": "扩散模型在真实逆问题中的应用受限于大数据需求和物理约束难施加。本文提出SE-UNet，将生成视为受几何等变性（D_4群）和奇异值门控约束的优化问题，从而标准化解空间。在CIFAR-10上实现了80%缺失像素的零样本修复，超越Deep Image Prior基线。该方法表明强归纳偏置可以有效降低对预训练数据的依赖。",
+      "llm_tldr": "扩散模型在真实逆问题中的应用受限于大数据需求和物理约束难施加。本文提出SE-UNet，将生成视为受几何等变性（D_4群）和奇异值门控约束的优化问题，从而标准化解空间。在CIFAR-10上实现了80%缺失像素的零样本修复，超越Deep Image Prior基线。该方法表明强归纳偏置可以有效降低对预训练数据的依赖。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.00927v2",
+      "source": "arxiv",
+      "title": "Post-Training Pruning for Diffusion Transformers",
+      "abstract": "Diffusion Transformers (DiTs) have demonstrated impressive performance in image generation but suffer from substantial computational overhead and resource consumption. Post-training pruning offers a promising solution; however, due to DiTs' unique architectural design and parameter distribution, traditional pruning methods are inapplicable, leading to significant performance degradation. Specifically, prior methods developed for LLMs, which derive metrics through a series of approximations, amplify the relative contribution of weights in the saliency metric. In addition, weights in DiTs exhibit significantly larger magnitudes than those in LLMs. Moreover, existing pruning granularity overlooks variations in model structures. In this paper, we propose DiT-Pruning, which improves pruning performance by introducing customized saliency criteria and pruning granularity. We design a novel metric that balances the contributions of weights and activations from an energy-based perspective, enabling more effective identification of important elements. Furthermore, we observe distinct clustering patterns in the two-dimensional weight space. Accordingly, we adopt a clustering-aware pruning granularity, enabling effective sparse allocation. Extensive evaluations on various DiTs show that our method consistently preserves image quality, especially under high sparsity. For FLUX.1-dev at 512x512 resolution on MJHQ, DiT-Pruning achieves only a 0.001 loss in CLIP score at 50% sparsity, dramatically outperforming recent pruning methods.",
+      "authors": [
+        "Chengzhi Hu",
+        "Xuewen Liu",
+        "Jing Zhang",
+        "Mengjuan Chen",
+        "Zhikai Li",
+        "Qingyi Gu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-01T13:30:49+00:00",
+      "link": "https://arxiv.org/pdf/2607.00927v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "post-training pruning for diffusion transformers without additional training (same as v1)",
+      "llm_evidence_cn": "后训练剪枝方法（与v1相同）",
+      "llm_evidence": "后训练剪枝方法（与v1相同）",
+      "canonical_evidence": "后训练剪枝方法（与v1相同）",
+      "llm_tldr_en": "DiT-Pruning proposes a post-training pruning method tailored for diffusion transformers, achieving significant computational reduction without performance degradation.",
+      "llm_tldr_cn": "扩散变换器计算开销大，现有剪枝方法不适用。本文提出DiT-Pruning，针对DiT独特结构和参数分布设计后训练剪枝策略，通过改进显著性度量与剪枝粒度，在保持生成质量的同时大幅降低参数量和计算量。实验证明该方法在ImageNet生成上有效，为扩散模型免训练压缩提供了新方案。",
+      "llm_tldr": "扩散变换器计算开销大，现有剪枝方法不适用。本文提出DiT-Pruning，针对DiT独特结构和参数分布设计后训练剪枝策略，通过改进显著性度量与剪枝粒度，在保持生成质量的同时大幅降低参数量和计算量。实验证明该方法在ImageNet生成上有效，为扩散模型免训练压缩提供了新方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.02798v1",
+      "source": "arxiv",
+      "title": "Track the Noise, Move the World:3D-Grounded Motion-Consistent Noise for Controllable Video Generation",
+      "abstract": "Modern image-and-text-to-video diffusion models can synthesize highly realistic videos by iteratively denoising an initial Gaussian noise tensor conditioned on reference image and text inputs. However, existing approaches still lack precise and unified controllability over both object motion and camera motion within a single generation process. We present UniCaMo, a unified framework that enables simultaneous control of object trajectories and camera viewpoints by directly constructing the input noise of the diffusion model. Specifically, UniCaMo builds a shared 3D-grounded motion-consistent noise space across latent video frames. Sparse 3D point tracks are used to warp the Gaussian noise of the reference frame along desired object trajectories, while a virtual spherical noise representation provides globally consistent noise values for newly revealed scene regions under camera motion. By combining local track-guided noise warping with global sphere-based noise sampling, UniCaMo maintains geometric and temporal consistency under both object movement and viewpoint changes. Because UniCaMo modifies only the input noise, it requires no auxiliary adapters, control branches, or architectural changes to the underlying video diffusion model. With lightweight LoRA fine-tuning on large pretrained video diffusion models, including Wan 2.1 (14B), UniCaMo achieves state-of-the-art results in both video quality and motion controllability on standard controllable video generation benchmarks.",
+      "authors": [
+        "Long Vu",
+        "Tan Ngo",
+        "Animesh Karnewar",
+        "Amir Habibian",
+        "Binh-Son Hua",
+        "Hung Bui",
+        "Minh Hoai Nguyen",
+        "Phong Nguyen-Ha"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-07-02T22:17:20+00:00",
+      "link": "https://arxiv.org/pdf/2607.02798v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free noise construction for controllable video generation",
+      "llm_evidence_cn": "免训练的噪声构建实现可控视频生成",
+      "llm_evidence": "免训练的噪声构建实现可控视频生成",
+      "canonical_evidence": "免训练的噪声构建实现可控视频生成",
+      "llm_tldr_en": "UniCaMo constructs 3D-grounded motion-consistent noise to control object and camera motion in video diffusion models without additional training, enabling unified controllability.",
+      "llm_tldr_cn": "现有视频扩散模型缺乏对物体运动和相机运动的统一控制。UniCaMo提出通过直接构建输入噪声实现免训练控制，构建3D感知的运动一致噪声空间，利用稀疏3D点轨迹变形参考帧噪声。该方法无需额外训练即可独立控制物体轨迹和相机视角，提升了视频生成的灵活性和可控性。",
+      "llm_tldr": "现有视频扩散模型缺乏对物体运动和相机运动的统一控制。UniCaMo提出通过直接构建输入噪声实现免训练控制，构建3D感知的运动一致噪声空间，利用稀疏3D点轨迹变形参考帧噪声。该方法无需额外训练即可独立控制物体轨迹和相机视角，提升了视频生成的灵活性和可控性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.03875v1",
+      "source": "arxiv",
+      "title": "MACRO: Training-free Multi-plane Attention for Closeup Render Optimization",
+      "abstract": "Close-up rendering, zooming into a scene well beyond any training camera, is important for virtual production and interactive 3D content, yet remains an open challenge. 3D Gaussian splatting (3DGS) enables high-fidelity, real-time novel view synthesis, but its rendering quality degrades at close range. Recent diffusion-based methods that enhance the rendering by conditioning on reference images from the training set produce significant artifacts in this setting. We analyze this failure and identify its root cause: the scale gap between the close-up and reference views. We show that the features in reference-conditioned enhancement models are not scale-invariant, causing cross-view attention to retrieve incorrect correspondences when the same content appears at different scales, and that this mismatch cannot be corrected in latent space because the VAE encoder is not scale-equivariant. Building on this analysis we introduce MACRO, Multi-plane Attention for Closeup Render Optimization, a training-free method for high-quality close-up novel view synthesis from 3DGS. MACRO resolves the scale gap by leveraging the scene's known 3D structure: it decomposes the close-up into depth planes, crops and resizes references in image space to match the scale of each plane before encoding, and applies a depth-aware attention mask so each token attends only to scale-matched references. The method requires no architectural changes or additional training. We further contribute two new close-up novel view synthesis benchmarks, the first standardized evaluation protocol for this setting, and demonstrate state-of-the-art results on both, outperforming existing 3DGS and diffusion-based methods on both reconstruction and perceptual metrics. Project page: https://nitzanhod.github.io/MACRO",
+      "authors": [
+        "Nitzan Hodos",
+        "Roy Amoyal",
+        "Lior Fritz",
+        "Ianir Ideses",
+        "Sagie Benaim",
+        "Netalee Efrat"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-04T13:36:06+00:00",
+      "link": "https://arxiv.org/pdf/2607.03875v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free multi-plane attention for diffusion-based closeup render enhancement",
+      "llm_evidence_cn": "基于扩散模型的免训练多平面注意力用于特写渲染优化",
+      "llm_evidence": "基于扩散模型的免训练多平面注意力用于特写渲染优化",
+      "canonical_evidence": "基于扩散模型的免训练多平面注意力用于特写渲染优化",
+      "llm_tldr_en": "MACRO analyzes scale gap in diffusion-based close-up rendering and proposes training-free multi-plane attention to correct cross-view correspondences, improving quality without retraining.",
+      "llm_tldr_cn": "MACRO针对扩散模型在3D高斯溅射特写渲染中的失效问题，分析了尺度不匹配的根本原因，并提出了免训练的多平面注意力机制。该方法无需重新训练，通过调整注意力跨视图对应关系，显著提升了特写渲染质量，为扩散模型在渲染领域的免训练优化提供了有效方案。",
+      "llm_tldr": "MACRO针对扩散模型在3D高斯溅射特写渲染中的失效问题，分析了尺度不匹配的根本原因，并提出了免训练的多平面注意力机制。该方法无需重新训练，通过调整注意力跨视图对应关系，显著提升了特写渲染质量，为扩散模型在渲染领域的免训练优化提供了有效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.05274v1",
+      "source": "arxiv",
+      "title": "Erasing Without Collateral Damage: Precise Concept Removal in Diffusion Models",
+      "abstract": "Training-free concept erasure is an attractive mechanism for controlling text-to-image diffusion models, but precise erasure often comes at the cost of damaging semantically related non-target concepts. Existing value-space methods remove the component of each cross-attention value along the target concept direction, implicitly treating target identity and shared visual structure as the same signal. We argue that this is the source of much of the collateral damage in prior preservation. We introduce CARE, a closed-form concept erasure operator that replaces the raw target direction with a kept-subspace-aware direction computed from a small bank of retained concept anchors. The resulting edit is applied directly in cross-attention value space, requires no model fine-tuning, and adds only a negligible offline computation. A single shrinkage parameter controls the erase-preserve trade-off. We further show that the operator admits a minimum-disturbance interpretation and, in its projection form, leaves the kept subspace invariant. Experiments under the standard concept-erasure protocol show that our method preserves non-target concepts more faithfully while maintaining competitive erasure across instance, style, and celebrity concepts. Code: https://github.com/parthupman/care",
+      "authors": [
+        "Parth Upman",
+        "Nishita Jain",
+        "Shreyank N Gowda"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-06T16:21:09+00:00",
+      "link": "https://arxiv.org/pdf/2607.05274v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free concept erasure via closed-form attention manipulation",
+      "llm_evidence_cn": "通过闭式注意力操作实现训练无关的概念擦除",
+      "llm_evidence": "通过闭式注意力操作实现训练无关的概念擦除",
+      "canonical_evidence": "通过闭式注意力操作实现训练无关的概念擦除",
+      "llm_tldr_en": "Proposes CARE, a training-free closed-form concept erasure operator for diffusion models that avoids collateral damage by using kept-subspace-aware directions.",
+      "llm_tldr_cn": "现有训练无关的概念擦除方法在删除目标概念时往往附带损害语义相关的非目标概念。本文提出CARE，一种闭式概念擦除算子，通过保留子空间感知的方向替换原始目标方向，直接在交叉注意力值空间中应用编辑，从而避免附带损害。实验表明该方法在精确擦除的同时保持了其余视觉结构的完整性，为扩散模型的安全控制提供了高效免训练的解决方案。",
+      "llm_tldr": "现有训练无关的概念擦除方法在删除目标概念时往往附带损害语义相关的非目标概念。本文提出CARE，一种闭式概念擦除算子，通过保留子空间感知的方向替换原始目标方向，直接在交叉注意力值空间中应用编辑，从而避免附带损害。实验表明该方法在精确擦除的同时保持了其余视觉结构的完整性，为扩散模型的安全控制提供了高效免训练的解决方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
