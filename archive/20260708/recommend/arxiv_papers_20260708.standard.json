@@ -1,0 +1,177 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-08T21:34:25.901388+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2607.06136v1",
+      "source": "arxiv",
+      "title": "Tuning-Free Latent Diffusion Models for Ultrahigh-Resolution Image Editing",
+      "abstract": "Recent diffusion-based generative models have shown impressive performance in image generation and editing. However, due to memory limitations and the high cost of collecting high-resolution training images, existing methods are typically restricted to inputs with linear resolutions below 1K. In contrast, photos captured by modern mobile devices often reach linear resolutions up to 8K, revealing a significant gap between current capabilities and real-world demands. Simply upscaling low-resolution edited results often results in visually enlarged but blurry images that lack fine details. This paper introduces UltraDiffEdit, a novel, tuning-free image editing framework that extends off-the-shelf latent diffusion models (LDMs) to ultrahigh resolutions. UltraDiffEdit employs a multi-scale progressive editing strategy, iteratively blending high-resolution edited content with unedited areas in a coarse-to-fine manner. We employ multi-patch encoding to preserve both edited and unedited visual details within the latent space. To mitigate editing artifacts, our global-local consistency denoising technique consistently integrates edited and unedited latent features, ensuring smooth transition at editing boundaries from the latent representation to the final image. We also introduce a patch-based hybrid sampling approach that captures local, intermediate, and global features, ensuring semantic coherence and enhancing fine detail during denoising. We conduct extensive experiments demonstrating UltraDiffEdit's superior editing quality and flexibility: it can handle image resolutions up to 8K using only a single NVIDIA GeForce RTX 3090 GPU. The source code is publicly available at https://github.com/LonglongaaaGo/UltraDiffEdit.",
+      "authors": [
+        "Wanglong Lu",
+        "Lingming Su",
+        "Kaijie Shi",
+        "Minglun Gong",
+        "Xiaogang Jin",
+        "Hanli Zhao",
+        "Xianta Jiang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.MM"
+      ],
+      "published": "2026-07-07T10:52:10+00:00",
+      "link": "https://arxiv.org/pdf/2607.06136v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "tuning-free latent diffusion models for ultrahigh-resolution image editing",
+      "llm_evidence_cn": "免调优的潜在扩散模型用于超高清图像编辑",
+      "llm_evidence": "免调优的潜在扩散模型用于超高清图像编辑",
+      "canonical_evidence": "免调优的潜在扩散模型用于超高清图像编辑",
+      "llm_tldr_en": "UltraDiffEdit extends off-the-shelf LDMs to ultrahigh-resolution image editing without any tuning, overcoming memory limits.",
+      "llm_tldr_cn": "现有扩散模型受限于内存和训练数据，图像线性分辨率通常低于1K，而现代设备可达8K。本文提出UltraDiffEdit，一种无需调优的图像编辑框架，将现成潜在扩散模型扩展到超高清分辨率。它通过分块处理和特征融合等技术，在不进行任何微调的情况下实现高质量编辑。实验结果显示编辑效果出色。",
+      "llm_tldr": "现有扩散模型受限于内存和训练数据，图像线性分辨率通常低于1K，而现代设备可达8K。本文提出UltraDiffEdit，一种无需调优的图像编辑框架，将现成潜在扩散模型扩展到超高清分辨率。它通过分块处理和特征融合等技术，在不进行任何微调的情况下实现高质量编辑。实验结果显示编辑效果出色。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.05376v1",
+      "source": "arxiv",
+      "title": "MV-Forcing: Long Multi-View Video Generation via 4D-Grounded Spatio-Temporal Self-Forcing",
+      "abstract": "Recent advances in video diffusion models have enabled either long single-view generation through temporal autoregression, or short multi-view synthesis through bidirectional attention. However, generating long, multi-view consistent videos of dynamic scenes remains unsolved. In this work, we present MV-Forcing, a framework that composes temporal and view-wise autoregression within a single diffusion model by introducing a 4D geometric bridge between sequentially generated views. Our key insight is that an autoregressive 3D reconstruction model naturally interfaces between autoregressively generated views. Given a completed source view, we reconstruct its 3D structure and render a geometric prior of the next target viewpoint, which the diffusion model refines into a high-quality video. To extend generation beyond the teacher's fixed temporal window, we introduce a joint denoising regime where both view slots are initialized from noise during training, enabling temporally unbounded generation. We distill the model via Distribution Matching Distillation with Spatio-Temporal Self-Forcing, closing the train-inference exposure bias gap for both temporal and view-sequential autoregression. Extensive experiments on both synthetic and real-world data demonstrate that MV-Forcing produces geometrically consistent multi-view videos of dynamic scenes at arbitrary lengths and viewpoint counts using a single few-step student model.",
+      "authors": [
+        "Gal Fiebelman",
+        "Hadar Averbuch-Elor",
+        "Sagie Benaim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-07-06T17:54:16+00:00",
+      "link": "https://arxiv.org/pdf/2607.05376v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-view video generation using diffusion models",
+      "llm_evidence_cn": "使用扩散模型进行多视角视频生成",
+      "llm_evidence": "使用扩散模型进行多视角视频生成",
+      "canonical_evidence": "使用扩散模型进行多视角视频生成",
+      "llm_tldr_en": "MV-Forcing generates long multi-view videos by combining temporal and view-wise autoregression with a 4D geometric bridge, enabling consistent dynamic scene generation.",
+      "llm_tldr_cn": "现有视频扩散模型要么生成长序列单视角视频，要么生成短序列多视角视频，却难以同时实现长序列和多视角一致性。MV-Forcing通过引入4D几何桥接，在一个扩散模型内组合时序和视角自回归，利用自回归3D重建模型为下一视角提供几何先验，从而生成长且多视角一致的动态视频。实验表明该方法在多种场景下生成高质量多视角视频。",
+      "llm_tldr": "现有视频扩散模型要么生成长序列单视角视频，要么生成短序列多视角视频，却难以同时实现长序列和多视角一致性。MV-Forcing通过引入4D几何桥接，在一个扩散模型内组合时序和视角自回归，利用自回归3D重建模型为下一视角提供几何先验，从而生成长且多视角一致的动态视频。实验表明该方法在多种场景下生成高质量多视角视频。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.03509v1",
+      "source": "arxiv",
+      "title": "Flex-Forcing: Towards a Unified Autoregressive and Bidirectional Video Diffusion Model",
+      "abstract": "Recent progress in large-scale generative models has substantially advanced video generation, yet existing methods remain constrained by a rigid inference paradigm. Bidirectional diffusion models excel at global coherence and visual fidelity but suffer from slow inference, while autoregressive models offer efficient and streaming generation at the cost of long-range consistency and exposure bias. We introduce Flex-Forcing, a unified training and inference framework that enables a video diffusion model to seamlessly operate under both bidirectional and autoregressive generation regimes. The core idea is a flexible chunking mechanism jointly defined over the temporal axis and denoising steps. This design allows the model to (1) perform flexible chunking according to different device budgets, (2) perform bidirectional inference across chunks for global structure planning, while generating frames autoregressively within each chunk for efficient and fine-grained synthesis, and (3) perform any-order, any-timestep autoregressive generation without the strict causal constraint. Extensive experiments on multiple video generation benchmarks demonstrate that Flex-Forcing achieves consistently better video quality, long-video stability than strong baselines with a rigid inference schedule, while offering faster inference.",
+      "authors": [
+        "Xinyin Ma",
+        "Julius Berner",
+        "Chao Liu",
+        "Arash Vahdat",
+        "Weili Nie",
+        "Xinchao Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-03T17:34:14+00:00",
+      "link": "https://arxiv.org/pdf/2607.03509v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "unified training and inference framework for video diffusion models",
+      "llm_evidence_cn": "视频扩散模型的统一训练推理框架",
+      "llm_evidence": "视频扩散模型的统一训练推理框架",
+      "canonical_evidence": "视频扩散模型的统一训练推理框架",
+      "llm_tldr_en": "Flex-Forcing enables a video diffusion model to operate under both bidirectional and autoregressive regimes via a flexible chunking mechanism, improving inference efficiency and quality.",
+      "llm_tldr_cn": "现有视频扩散模型在双向（全局一致但慢）和自回归（高效但长期一致性差）之间难以兼得。本文提出Flex-Forcing，通过灵活的时序分块机制统一训练和推理框架，使同一模型可在两种模式下切换。实验表明该方法在保持视频质量的同时显著提升推理速度，为视频生成提供了更灵活高效的解决方案。",
+      "llm_tldr": "现有视频扩散模型在双向（全局一致但慢）和自回归（高效但长期一致性差）之间难以兼得。本文提出Flex-Forcing，通过灵活的时序分块机制统一训练和推理框架，使同一模型可在两种模式下切换。实验表明该方法在保持视频质量的同时显著提升推理速度，为视频生成提供了更灵活高效的解决方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.03803v1",
+      "source": "arxiv",
+      "title": "CineMobile: On-Device Image-to-Video Diffusion for Cinematic Camera Motion Generation",
+      "abstract": "The growing demand for image-to-video creation on mobile devices has increasingly focused on cinematic motion effects like bullet time, dolly zoom, slow motion, etc. While Diffusion Transformers (DiTs) exhibit strong performance in video generation, their large parameter sizes and multi-step iterative denoising processes lead to substantial computational overhead, making efficient generation on mobile devices challenging. We propose CineMobile to bridge the gap. In particular, CineMobile adopts a three-fold optimization strategy: (1) leveraging a distillation-guided pruning approach to derive a compact yet efficient model that retains the essential video generation capabilities required for cinematic effects; (2) optimizing the compressed model into a 4-step generator via a combination of diffusion distillation and reinforcement learning; (3) employing a hybrid post-training quantization strategy to compress the model footprint to under 1 GB. Experimental results show that compared to the teacher model with the Wan 2.1 architecture, CineMobile achieves a 40x speedup in generation while maintaining comparable visual quality. Specifically, CineMobile generates 49-frame 480p videos with a per-step denoising latency of 0.6s on an NVIDIA H200 GPU and 20s on the MediaTek Dimensity 8400 Ultimate 5G platform, with a peak memory usage of 1.8 GB, demonstrating its practical applicability for mobile-based image-to-video creation.",
+      "authors": [
+        "Xuyao Huang",
+        "Zelai Deng",
+        "Xu Wang",
+        "Xizhong Xiao",
+        "Zhijie Deng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-04T10:24:35+00:00",
+      "link": "https://arxiv.org/pdf/2607.03803v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "image-to-video diffusion for cinematic effects on mobile devices",
+      "llm_evidence_cn": "移动设备上实现电影效果的图像到视频扩散",
+      "llm_evidence": "移动设备上实现电影效果的图像到视频扩散",
+      "canonical_evidence": "移动设备上实现电影效果的图像到视频扩散",
+      "llm_tldr_en": "CineMobile uses distillation-guided pruning and model compression to enable efficient image-to-video diffusion on mobile devices for cinematic camera motions.",
+      "llm_tldr_cn": "针对移动设备上图像到视频生成的计算开销问题，CineMobile提出蒸馏引导剪枝和模型压缩的三重优化策略，在保留电影效果核心能力的同时大幅降低计算量。实验表明该方法能在手机上实时生成子弹时间、推拉镜头等效果，为移动端视频扩散模型的实际部署提供了可行方案。",
+      "llm_tldr": "针对移动设备上图像到视频生成的计算开销问题，CineMobile提出蒸馏引导剪枝和模型压缩的三重优化策略，在保留电影效果核心能力的同时大幅降低计算量。实验表明该方法能在手机上实时生成子弹时间、推拉镜头等效果，为移动端视频扩散模型的实际部署提供了可行方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
