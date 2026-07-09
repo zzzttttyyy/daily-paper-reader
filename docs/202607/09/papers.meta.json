@@ -1,0 +1,24 @@
+{
+  "label": "2026-07-09",
+  "date": "2026-07-09",
+  "generated_at": "2026-07-09T20:35:06",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202607/09/2607.06843v1-retrieving-and-refining-winning-noise-tickets-for-diffusion-based-motion-generation",
+      "section": "deep",
+      "title_en": "Retrieving and Refining Winning Noise Tickets for Diffusion-Based Motion Generation",
+      "authors": "Sakuya Ota, Qing Yu, Kent Fujiwara, Satoshi Ikehata, Ikuro Sato",
+      "date": "2026-07-07",
+      "pdf": "https://arxiv.org/pdf/2607.06843v1",
+      "score": "8.0",
+      "evidence": "基于扩散的运动生成中初始噪声的免训练优化",
+      "tldr": "扩散文本到运动模型在组合长序列中常出现语义漂移，初始噪声是影响一致性的关键。本文提出WINRO框架，无训练且模型无关，通过检索并优化“获胜噪声票”来提升文本-运动对齐。该方法在HumanML3D上显著提高保真度，增强MTT时间鲁棒性，并泛化至运动风格化与空间约束任务。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion-based text-to-motion models synthesize realistic human motions but often exhibit semantic drift from the input text. Motion is inherently temporal, especially in compositional and long-duration sequences that require semantic consistency across multiple action segments and smooth kinematic transitions throughout the trajectory. We posit that the initial noise is central to this consistency: within the Gaussian noise space, certain instances, i.e. winning noise tickets, carry latent structure that biases denoising toward particular motion semantics, even under null prompts. We propose WInning Noise Retrieval and Optimization (WINRO), a training-free, model-agnostic framework that improves text-motion alignment by selecting and refining such tickets before diffusion sampling. WINRO maps random noises to motion features generated under null prompts, retrieves the best-aligned noise for a given text, and refines it via a KL-regularized objective that reduces the residual semantic gap while preserving the Gaussian prior. An optional LoRA-based adapter amortizes this refinement into a single forward pass. WINRO consistently improves text-motion fidelity across different base models, MDM and MotionLCM, on HumanML3D without retraining, improves temporal robustness on the MTT benchmark, and generalizes to applications such as motion stylization and spatial constraint satisfaction.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

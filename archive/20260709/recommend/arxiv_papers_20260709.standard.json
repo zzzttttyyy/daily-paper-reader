@@ -1,0 +1,55 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-09T20:33:09.350042+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 0,
+    "quick_skim_target": 11,
+    "quick_selected": 0
+  },
+  "deep_dive": [
+    {
+      "id": "2607.06843v1",
+      "source": "arxiv",
+      "title": "Retrieving and Refining Winning Noise Tickets for Diffusion-Based Motion Generation",
+      "abstract": "Diffusion-based text-to-motion models synthesize realistic human motions but often exhibit semantic drift from the input text. Motion is inherently temporal, especially in compositional and long-duration sequences that require semantic consistency across multiple action segments and smooth kinematic transitions throughout the trajectory. We posit that the initial noise is central to this consistency: within the Gaussian noise space, certain instances, i.e. winning noise tickets, carry latent structure that biases denoising toward particular motion semantics, even under null prompts. We propose WInning Noise Retrieval and Optimization (WINRO), a training-free, model-agnostic framework that improves text-motion alignment by selecting and refining such tickets before diffusion sampling. WINRO maps random noises to motion features generated under null prompts, retrieves the best-aligned noise for a given text, and refines it via a KL-regularized objective that reduces the residual semantic gap while preserving the Gaussian prior. An optional LoRA-based adapter amortizes this refinement into a single forward pass. WINRO consistently improves text-motion fidelity across different base models, MDM and MotionLCM, on HumanML3D without retraining, improves temporal robustness on the MTT benchmark, and generalizes to applications such as motion stylization and spatial constraint satisfaction.",
+      "authors": [
+        "Sakuya Ota",
+        "Qing Yu",
+        "Kent Fujiwara",
+        "Satoshi Ikehata",
+        "Ikuro Sato"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-07T22:32:10+00:00",
+      "link": "https://arxiv.org/pdf/2607.06843v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free optimization of initial noise for diffusion-based motion generation",
+      "llm_evidence_cn": "基于扩散的运动生成中初始噪声的免训练优化",
+      "llm_evidence": "基于扩散的运动生成中初始噪声的免训练优化",
+      "canonical_evidence": "基于扩散的运动生成中初始噪声的免训练优化",
+      "llm_tldr_en": "Proposes WINRO, a training-free method to improve text-to-motion alignment by selecting and refining winning noise tickets, applicable to video generation.",
+      "llm_tldr_cn": "针对扩散文本到运动模型中的语义漂移问题，提出WINRO框架，通过检索和优化初始噪声中的胜出噪声票，无需额外训练即可提升生成动作与文本的对齐质量。该方法模型无关且在多个数据集上表现优异，为免训练优化扩散生成提供了新思路。",
+      "llm_tldr": "针对扩散文本到运动模型中的语义漂移问题，提出WINRO框架，通过检索和优化初始噪声中的胜出噪声票，无需额外训练即可提升生成动作与文本的对齐质量。该方法模型无关且在多个数据集上表现优异，为免训练优化扩散生成提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": []
+}

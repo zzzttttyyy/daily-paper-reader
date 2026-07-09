@@ -6,34 +6,26 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-08
-- 运行时间：2026-07-08 21:41:11 UTC
+- 最新运行日期：2026-07-09
+- 运行时间：2026-07-09 20:34:56 UTC
 - 运行状态：成功
-- 本次总论文数：4
+- 本次总论文数：1
 - 精读区：1
-- 速读区：3
+- 速读区：0
 
 ### 今日简报（AI）
-1) 今日精读一篇无调参超高分辨率图像编辑扩散模型（9.0/10），并速读三项视频生成研究。  
-2) 最值得关注：无调参潜扩散模型实现超高清图像编辑的零样本能力；同时多视角长视频生成与双向自回归统一模型值得留意。  
-3) 建议优先精读最高分论文，理解其无需微调即可编辑高分辨率图像的关键设计；速读部分可关注视频运动控制与模型融合思路。
-- 详情：[/202607/08/README](/202607/08/README)
+今日精读一篇关于扩散模型运动生成中噪声票检索与优化的高分论文。  
+该文核心结论是：通过检索并优化“获胜噪声票”可显著提升扩散模型生成运动的质量与多样性。  
+建议后续关注扩散模型在运动生成中的噪声调度技巧，以及该方向与其他生成任务的交叉应用。
+- 详情：[/202607/09/README](/202607/09/README)
 
 ### 精读区论文标签
-1. [Tuning-Free Latent Diffusion Models for Ultrahigh-Resolution Image Editing](/202607/08/2607.06136v1-tuning-free-latent-diffusion-models-for-ultrahigh-resolution-image-editing)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免调优的潜在扩散模型用于超高清图像编辑
+1. [Retrieving and Refining Winning Noise Tickets for Diffusion-Based Motion Generation](/202607/09/2607.06843v1-retrieving-and-refining-winning-noise-tickets-for-diffusion-based-motion-generation)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：基于扩散的运动生成中初始噪声的免训练优化
 
 ### 速读区论文标签
-1. [MV-Forcing: Long Multi-View Video Generation via 4D-Grounded Spatio-Temporal Self-Forcing](/202607/08/2607.05376v1-mv-forcing-long-multi-view-video-generation-via-4d-grounded-spatio-temporal-self-forcing)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：使用扩散模型进行多视角视频生成
-2. [Flex-Forcing: Towards a Unified Autoregressive and Bidirectional Video Diffusion Model](/202607/08/2607.03509v1-flex-forcing-towards-a-unified-autoregressive-and-bidirectional-video-diffusion-model)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：视频扩散模型的统一训练推理框架
-3. [CineMobile: On-Device Image-to-Video Diffusion for Cinematic Camera Motion Generation](/202607/08/2607.03803v1-cinemobile-on-device-image-to-video-diffusion-for-cinematic-camera-motion-generation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：移动设备上实现电影效果的图像到视频扩散
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">

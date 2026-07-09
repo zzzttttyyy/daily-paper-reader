@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-07-09 <!--dpr-date:20260709-->
+    * 精读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202607/09/2607.06843v1-retrieving-and-refining-winning-noise-tickets-for-diffusion-based-motion-generation" data-sidebar-item="{&quot;title&quot;: &quot;Retrieving and Refining Winning Noise Tickets for Diffusion-Based Motion Generation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2607.06843v1-retrieving-and-refining-winning-noise-tickets-for-diffusion-based-motion-generation&quot;, &quot;score&quot;: &quot;8.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;基于扩散的运动生成中初始噪声的免训练优化&quot;}">Retrieving and Refining Winning Noise Tickets for Diffusion-Based Motion Generation</a>
   * 2026-07-08 <!--dpr-date:20260708-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202607/08/2607.06136v1-tuning-free-latent-diffusion-models-for-ultrahigh-resolution-image-editing" data-sidebar-item="{&quot;title&quot;: &quot;Tuning-Free Latent Diffusion Models for Ultrahigh-Resolution Image Editing&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2607.06136v1-tuning-free-latent-diffusion-models-for-ultrahigh-resolution-image-editing&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;免调优的潜在扩散模型用于超高清图像编辑&quot;}">Tuning-Free Latent Diffusion Models for Ultrahigh-Resolution Image Editing</a>
