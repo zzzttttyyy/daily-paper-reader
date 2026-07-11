@@ -6,37 +6,34 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-10
-- 运行时间：2026-07-10 20:53:21 UTC
+- 最新运行日期：2026-07-11
+- 运行时间：2026-07-11 20:37:47 UTC
 - 运行状态：成功
-- 本次总论文数：5
-- 精读区：2
-- 速读区：3
+- 本次总论文数：4
+- 精读区：3
+- 速读区：1
 
 ### 今日简报（AI）
-今日研读聚焦于自回归视频生成的两篇高分精读，涵盖稳定加速引导与在线自蒸馏后训练技术。
-最值得关注《SAGA》提出的稳定加速引导方法与《OPSD-V》的少步后训练机制，两者均显著提升了视频生成效率与质量。
-建议普通读者优先关注自回归视频生成中的自蒸馏与引导策略，同时可留意扩散模型中的角色感知去噪与多概念定制等低分速读方向。
-- 详情：[/202607/10/README](/202607/10/README)
+今日精选4篇论文，其中两篇物理感知生成与像素空间3D场景重建获9.0高分。  
+最值得关注物理感知镜像生成与像素级3D场景统一重建两大方向。  
+建议深入理解物理约束在生成中的应用，这对提升3D内容真实感至关重要。
+- 详情：[/202607/11/README](/202607/11/README)
 
 ### 精读区论文标签
-1. [SAGA: Stable Acceleration Guidance for Autoregressive Video Generation](/202607/10/2607.08020v1-saga-stable-acceleration-guidance-for-autoregressive-video-generation)  
+1. [PhysMirror: Physics-Aware Mirror Object Generation](/202607/11/2607.03470v1-physmirror-physics-aware-mirror-object-generation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：自回归视频生成的免训练加速引导方法
-2. [OPSD-V: On-Policy Self-Distillation for Post-Training Few-Step Autoregressive Video Generators](/202607/10/2607.08766v1-opsd-v-on-policy-self-distillation-for-post-training-few-step-autoregressive-video-generators)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：少步自回归视频扩散模型的自蒸馏方法
+   evidence：使用扩散模型生成镜像物体图像
+2. [PixWorld: Unifying 3D Scene Generation and Reconstruction in Pixel Space](/202607/11/2607.05373v1-pixworld-unifying-3d-scene-generation-and-reconstruction-in-pixel-space)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：使用像素空间扩散统一3D场景生成与重建，生成图像
+3. [Breaking Spurious Correlations via Generative Randomization and Cross-Variant Self-Supervised Learning](/202607/11/2607.05850v1-breaking-spurious-correlations-via-generative-randomization-and-cross-variant-self-supervised-learning)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：使用扩散模型生成背景变化的图像变体
 
 ### 速读区论文标签
-1. [Enhancing Video Physical Consistency via Role-aware Joint Training and Modality-decoupled Denoising](/202607/10/2607.04653v1-enhancing-video-physical-consistency-via-role-aware-joint-training-and-modality-decoupled-denoising)  
+1. [Gen4U: Unifying Video Generation and Understanding via Diffusion](/202607/11/2607.06856v1-gen4u-unifying-video-generation-and-understanding-via-diffusion)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：通过联合训练和模态解耦去噪增强视频物理一致性
-2. [LILAC: Layer-Wise Independent LoRAs and Cascaded Conditioning for Multi-Concept Customization of Diffusion Models](/202607/10/2607.04801v1-lilac-layer-wise-independent-loras-and-cascaded-conditioning-for-multi-concept-customization-of-diffusion-models)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：使用分层独立LoRA的多概念定制
-3. [Stage-Aware Adaptation and Distribution Calibration for Subject-Driven Personalized Text-to-Image Generation](/202607/10/2607.07173v1-stage-aware-adaptation-and-distribution-calibration-for-subject-driven-personalized-text-to-image-generation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：基于阶段感知适配的主体驱动个性化图像生成
+   evidence：使用扩散模型进行视频生成
 
 
 <div class="dpr-home-promo-card">

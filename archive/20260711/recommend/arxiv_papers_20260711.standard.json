@@ -1,0 +1,178 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-11T20:34:55.865496+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2607.03470v1",
+      "source": "arxiv",
+      "title": "PhysMirror: Physics-Aware Mirror Object Generation",
+      "abstract": "Synthesizing physically accurate mirror reflections remains a fundamental challenge for modern text-to-image diffusion models, which are increasingly critical for generating synthetic training data for embodied AI and robotic perception. These models typically struggle with strict geometric constraints, leading to hallucinations that degrade the utility of the synthetic data. To address this, we introduce a novel, end-to-end physics-aware generation framework namely PhysMirror that natively enforces projective geometry through explicit 3D spatial priors. Our method automatically lifts prompted objects into 3D meshes and constructs a lightweight, mathematically exact mirror scene within a simulated environment. By rendering this explicit 3D scene, we extract precise 2D conditioning elements, such as depth maps and segmentation maps, that serve as robust guiding signals for downstream diffusion models, guiding them to generate images with physically correct mirror reflections. Moreover, we introduce Mirror Consistency Score (MCS), reference-free, fully automated metric that quantifies physical correctness using dense feature matching and vanishing point convergence. Experimental results on our newly constructed MirrOB dataset demonstrate that our approach outperforms state-of-the-art baselines in reflection accuracy and physical realism, while maintaining strong text-to-image semantic alignment, providing a reliable pipeline for embodied AI data generation. The source code is released at https://duyphuc0701.github.io/PhysMirror.",
+      "authors": [
+        "Xuan-Bach Mai",
+        "Duy-Phuc Nguyen",
+        "Quoc-Van Le",
+        "Tam V. Nguyen",
+        "Thanh-Toan Do",
+        "Huu Le",
+        "Duong-Van Nguyen",
+        "Minh-Triet Tran",
+        "Trung-Nghia Le"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-03T16:32:02+00:00",
+      "link": "https://arxiv.org/pdf/2607.03470v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "uses diffusion model for text-to-image generation of mirror objects",
+      "llm_evidence_cn": "使用扩散模型生成镜像物体图像",
+      "llm_evidence": "使用扩散模型生成镜像物体图像",
+      "canonical_evidence": "使用扩散模型生成镜像物体图像",
+      "llm_tldr_en": "Introduces PhysMirror, a physics-aware framework that generates physically accurate mirror reflections by enforcing projective geometry through explicit 3D spatial priors.",
+      "llm_tldr_cn": "提出PhysMirror，一种物理感知的镜像生成框架。它通过自动将物体提升为3D网格并构建精确镜面场景，在扩散模型中强制执行投影几何约束，从而生成物理正确的反射图像。实验表明，PhysMirror显著减少了反射幻觉，提高了合成数据对机器人感知的实用性。",
+      "llm_tldr": "提出PhysMirror，一种物理感知的镜像生成框架。它通过自动将物体提升为3D网格并构建精确镜面场景，在扩散模型中强制执行投影几何约束，从而生成物理正确的反射图像。实验表明，PhysMirror显著减少了反射幻觉，提高了合成数据对机器人感知的实用性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.05373v1",
+      "source": "arxiv",
+      "title": "PixWorld: Unifying 3D Scene Generation and Reconstruction in Pixel Space",
+      "abstract": "3D reconstruction and generation are commonly tackled by separate paradigms: pixel-based regression for reconstruction, and latent diffusion for generation. Recent works attempt to unify them in latent space, but with notable drawbacks: the diffusion objective is defined on latent features rather than the underlying 3D representation, and both branches suffer from information loss introduced by latent encoding, while requiring a pretrained Variational Autoencoder (VAE) or Representation Autoencoder (RAE). In this paper, we reformulate these two tasks under a unified pixel-space diffusion paradigm and introduce PixWorld, a single model that jointly addresses 3D reconstruction and generation. By supervising diffusion directly on rendered images, PixWorld removes the above limitations and aligns optimization with 3D scene fidelity. Beyond photometric and perceptual supervision that operates at the 2D image level and lacks 3D geometric awareness, we further introduce a geometry perception loss that aligns rendered views with their ground truth in the geometry-aware feature space of a pretrained 3D foundation model, providing 3D structural supervision. PixWorld consistently outperforms prior latent-space generation methods and matches state-of-the-art reconstruction methods, demonstrating the superiority of a unified pixel-space approach.",
+      "authors": [
+        "Sensen Gao",
+        "Zhaoqing Wang",
+        "Qihang Cao",
+        "Dongdong Yu",
+        "Changhu Wang",
+        "Jia-Wang Bian"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-06T17:51:00+00:00",
+      "link": "https://arxiv.org/pdf/2607.05373v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "unifies 3D scene generation and reconstruction using pixel-space diffusion, producing images",
+      "llm_evidence_cn": "使用像素空间扩散统一3D场景生成与重建，生成图像",
+      "llm_evidence": "使用像素空间扩散统一3D场景生成与重建，生成图像",
+      "canonical_evidence": "使用像素空间扩散统一3D场景生成与重建，生成图像",
+      "llm_tldr_en": "Proposes PixWorld, a unified pixel-space diffusion model for joint 3D reconstruction and generation, supervising diffusion directly on rendered 2D images.",
+      "llm_tldr_cn": "提出PixWorld，一个统一的像素空间扩散模型，同时处理3D重建和生成。该方法直接在渲染的2D图像上监督扩散，避免了潜在编码的信息损失。实验表明，PixWorld在生成质量和重建精度上均优于之前的分立方法，为3D内容创建提供统一高效的框架。",
+      "llm_tldr": "提出PixWorld，一个统一的像素空间扩散模型，同时处理3D重建和生成。该方法直接在渲染的2D图像上监督扩散，避免了潜在编码的信息损失。实验表明，PixWorld在生成质量和重建精度上均优于之前的分立方法，为3D内容创建提供统一高效的框架。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.05850v1",
+      "source": "arxiv",
+      "title": "Breaking Spurious Correlations via Generative Randomization and Cross-Variant Self-Supervised Learning",
+      "abstract": "Deep neural networks trained with Empirical Risk Minimization (ERM) often fail under distribution shifts because they exploit spurious correlations between object labels and background context. Recent generative approaches address this issue by creating counterfactual images with altered contexts, but typically use these samples as standard data augmentation, leaving the model free to retain background-sensitive representations. We propose a two-stage framework that uses generative intervention to explicitly learn background-invariant visual representations. First, we isolate the foreground object using zero-shot segmentation and generate context-shifted variants with a structure-preserving diffusion model, preserving object identity while varying the surrounding environment. We then introduce Cross-Variant Self-Supervised Learning, where variants of the same object under different backgrounds form positive pairs in a contrastive objective. This encourages the encoder to align object-centric representations while suppressing background-specific cues. Then, we fine-tune the pretrained encoder using an ERM warm-up followed by GroupDRO with layer-wise learning rates. Experiments on distribution-shift benchmarks demonstrate best worst-group performance, achieving 92.5% on Waterbirds, 81.7% on MetaShift, and 87.4% on NICO++. Code: https://github.com/surajyadav-research/GRSSL",
+      "authors": [
+        "Suraj Yadav",
+        "Anjaneya Sharma",
+        "Siddharth Yadav"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-07T05:13:26+00:00",
+      "link": "https://arxiv.org/pdf/2607.05850v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "uses diffusion model to generate context-shifted image variants",
+      "llm_evidence_cn": "使用扩散模型生成背景变化的图像变体",
+      "llm_evidence": "使用扩散模型生成背景变化的图像变体",
+      "canonical_evidence": "使用扩散模型生成背景变化的图像变体",
+      "llm_tldr_en": "Proposes a two-stage framework using a structure-preserving diffusion model to generate counterfactual images for breaking spurious correlations, improving background invariance.",
+      "llm_tldr_cn": "提出两阶段框架，利用结构保持扩散模型生成背景变化的图像变体以打破虚假相关。该方法通过零样本分割提取前景，再用扩散模型生成上下文变化的图像，并与跨变体自监督学习结合，显式学习背景无关表示。实验证明其在多个分布偏移基准上显著提升分类鲁棒性，为利用生成模型增强视觉表示的可靠性提供了新思路。",
+      "llm_tldr": "提出两阶段框架，利用结构保持扩散模型生成背景变化的图像变体以打破虚假相关。该方法通过零样本分割提取前景，再用扩散模型生成上下文变化的图像，并与跨变体自监督学习结合，显式学习背景无关表示。实验证明其在多个分布偏移基准上显著提升分类鲁棒性，为利用生成模型增强视觉表示的可靠性提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.06856v1",
+      "source": "arxiv",
+      "title": "Gen4U: Unifying Video Generation and Understanding via Diffusion",
+      "abstract": "Prior work suggests that diffusion representations capture low-level geometry but struggle with high-level semantics. We demonstrate that state-of-the-art video diffusion models overcome this limitation. By systematically probing their intermediate activations using recent mutual-kNN alignment metrics, we reveal a highly structured latent space where visual representations evolve across both network depth and noise levels. We show that while moderate noise levels yield linearly separable global semantics, fine-grained details persist at lower noise levels but become spatially scattered, requiring attention mechanisms to decode. Building on these insights, we introduce Gen4U (Generation for Understanding), a framework that repurposes these generative representations with a single forward pass. Our experiments establish that frozen, large-scale video diffusion models function as highly competitive video encoders across a wide spectrum of tasks, spanning semantic and non-semantic objectives (video classification, depth estimation, camera pose estimation, image and video captioning). Bypassing fine-tuning, Gen4U unifies the generation and understanding paradigms, achieving strong perception performance while fully preserving the model's ability to generate high-quality video.",
+      "authors": [
+        "Michael King",
+        "Aravindh Mahendran",
+        "Matthew Koichi Grimes",
+        "Fedor Kitashov",
+        "Adham Elarabawy",
+        "Pedro Velez",
+        "Maks Ovsjanikov",
+        "Viorica Pătrăucean"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-07T23:17:26+00:00",
+      "link": "https://arxiv.org/pdf/2607.06856v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video generation via diffusion",
+      "llm_evidence_cn": "使用扩散模型进行视频生成",
+      "llm_evidence": "使用扩散模型进行视频生成",
+      "canonical_evidence": "使用扩散模型进行视频生成",
+      "llm_tldr_en": "Probes video diffusion model representations and proposes Gen4U to repurpose generative features for understanding tasks.",
+      "llm_tldr_cn": "该论文通过系统性探针分析揭示了视频扩散模型中间表征的结构化特性，发现中等噪声水平下全局语义可线性分离而细节特征分散于较低噪声层。基于此观察提出了Gen4U框架，将生成式表征重新用于视频理解任务，展示了扩散模型在高层语义上的潜力。",
+      "llm_tldr": "该论文通过系统性探针分析揭示了视频扩散模型中间表征的结构化特性，发现中等噪声水平下全局语义可线性分离而细节特征分散于较低噪声层。基于此观察提出了Gen4U框架，将生成式表征重新用于视频理解任务，展示了扩散模型在高层语义上的潜力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
