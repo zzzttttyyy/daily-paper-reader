@@ -1,0 +1,481 @@
+Title: Closing the Null Space: Guidance-Aware Quantization for Classifier-Free Diffusion
+
+URL Source: https://arxiv.org/pdf/2607.08241v1
+
+Published Time: Fri, 10 Jul 2026 00:38:18 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+# Closing the Null Space: Guidance-Aware Quantization for Classifier-Free Diffusion 
+
+Abdullah Al Shafi, Sumaiya Rahim Suma 
+
+Department of Computer Science and Engineering Khulna University of Engineering & Technology 
+
+Khulna-9203, Bangladesh 
+
+{abdullah.shafi99, sumaiya.rahim234 }@gmail.com 
+
+Abstract —Deploying classifier-free guidance (CFG) diffusion models under real-world compute budgets requires quantization, yet existing post-training quantization (PTQ) methods treat CFG models as single-branch networks, ignoring the paired condi-tional/unconditional structure that CFG inference fundamentally relies on. This structural blind spot has two consequences. At the system level, the two-pass CFG execution pattern imposes a latency overhead that parameter-count and bit-operation metrics conceal entirely, and commodity INT8 inference stacks fail to realize the theoretical efficiency gains that BOPs calculations promise. At the algorithmic level, calibrating against the guidance gap alone admits an exact null space: a quantized model can achieve perfect gap-fidelity diagnostics while the unconditional branch drifts arbitrarily, corrupting every guided prediction at inference time. This paper terms this the branch-drift trap , proves its existence analytically, and confirms it empirically through a false-positive result in which the best-calibrated model by standard diagnostics simultaneously produces the worst sample quality. To close the trap, Guidance-Aware Mixed Precision (GAMP) is proposed, which calibrates directly on the guided pre-diction, derives per-layer activation-bit sensitivity from guided-output degradation, and allocates bits via a greedy knapsack— provably preventing unconditional branch drift by construction. 
+
+Index Terms —post-training quantization, classifier-free guid-ance, diffusion models, mixed precision, branch-drift trap, null space, inference efficiency 
+
+I. I NTRODUCTION 
+
+Diffusion models [1] have become the dominant framework for high-quality conditional image generation, with classifier-free guidance (CFG) [2] providing the primary control mech-anism at inference time. Deploying these models under mem-ory and latency budgets motivates post-training quantization (PTQ), which compresses a trained model by quantizing its weights and activations without retraining. CFG inference, however, differs fundamentally from the unconditional gener-ation setting that virtually all PTQ methods assume: at every denoising step, the model executes two forward passes—one conditioned on a class label and one on a null token—whose outputs are combined as 
+
+˜ε = ε∅ + w(εy − ε∅), w > 1. (1) This dual-branch structure creates two deployment challenges that the existing PTQ literature has not addressed. The first is a measurement problem. Efficiency metrics such as parameter counts and bit-operations (BOPs) report single-pass costs, invisibly discounting the two-pass per-step overhead that CFG imposes. The same measurement gap affects INT8 deployment: BOPs-predicted speedups assume hardware-matched inference stacks, but commodity ONNX Runtime without TensorRT routes quantized operators through fallback pathways that negate—and in practice reverse—the theoretical gains. The second is a calibration problem, and it is structural. A natural PTQ objective for a CFG model is to calibrate the guidance gap ∆ = εy − ε∅, since DASH’s distillation work [5] demonstrates that preserving ∆ is central to gen-eration quality. This paper shows, however, that a gap-only calibration objective admits an exact null space: there exist quantized models that achieve perfect gap fidelity—near-ideal 
+
+ρ and cos( ∆) scores—while the unconditional branch drifts by an unconstrained vector δ, corrupting the guided prediction at inference time. This phenomenon is termed the branch-drift trap . Unlike the training-time setting in DASH, where an explicit unconditional branch loss and hundreds of thousands of gradient steps over unfrozen weights close this null space automatically, PTQ calibrates only quantization thresholds over frozen weights in a few hundred iterations—a regime in which no gradient mechanism exists to suppress δ.To address both challenges, this paper makes four contribu-tions. 1) CFG latency characterization : the two-pass guided-inference overhead is measured empirically on an NVIDIA T4 GPU across batch sizes and floating-point formats, revealing a consistent 1.99 × tax hidden by all standard efficiency proxies and diagnosing a precise software-stack root cause for the failure of commodity INT8 inference to realize theoretical speedups. 2) Null-space theorem and empirical confirmation : the branch-drift trap is proved formally—showing that gap-only PTQ calibration admits an exact null space in which guided-prediction error is unconstrained—and confirmed empirically through a controlled ablation in which the best-performing model by gap diagnostics simultane-ously produces the worst sample quality of any tested configuration. 3) Guidance-Aware Mixed Precision (GAMP) : a PTQ method that calibrates on the guided prediction directly, closes the null space by construction, and allocates arXiv:2607.08241v1 [cs.CV] 9 Jul 2026 activation bits per layer according to their contribution to guided-output degradation—a CFG-aware sensitivity criterion that the existing single-branch mixed-precision literature does not capture. 4) Deployment guidelines : concrete recommendations for HPEC practitioners on how to report efficiency, validate PTQ calibration, and allocate activation precision for CFG diffusion deployment. II. R ELATED WORK 
+
+Post-training quantization for diffusion models. 
+
+PTQ4DM [14] established the feasibility of diffusion PTQ by collecting multi-timestep calibration data to address time-varying activation statistics. Q-Diffusion [8] introduced skip-connection partitioning and block-wise reconstruction; for text-conditioned models it collects features from both CFG branches, but its reconstruction objective is per-block MSE on each branch independently, not the guided prediction 
+
+˜ε = ε∅ + w∆. PTQD [9] modeled quantization noise as a perturbation of the diffusion SDE, proposing timestep-aware mixed-precision that targets trajectory accumulation—a complementary error source to the branch-level failure identified here. TFMQ-DM [10], APQ-DM [15], and TCAQ-DM [16] introduced further refinements to temporal feature maintenance and per-channel calibration. Despite these advances, no existing method calibrates against ˜ε directly: all treat the CFG model as a single-pass unconditional network during calibration, leaving the branch-drift trap structurally unaddressed. The failure mode is architecture-agnostic—it depends only on the linear combination in (1) and applies equally to convolutional UNets and transformer-based DiT architectures. Existing per-block MSE or per-tensor reconstruction losses, even when fed with dual-branch features, remain gap-like objectives in the terminal output space: they minimize branch-wise discrepancies independently. Because no explicit cou-pling term constrains δ, the null space of Proposition 1 remains reachable—a constant branch offset propagates through the network and achieves low per-block error on both branches simultaneously while severely corrupting ˜ε.
+
+Mixed-precision allocation. BRECQ [7] and HAWQ [11] allocate bit-widths by per-layer sensitivity derived from block-wise reconstruction error or Hessian curvature—single-pass proxies that do not account for CFG’s dual-branch structure. GAMP instead measures sensitivity through ˜εql − ˜εf p l
+
+> 2
+
+, the quantity CFG sampling depends on directly, targeting the deployment-critical failure mode rather than a reconstruction proxy. 
+
+CFG distillation and the DASH null space. DASH [5] compresses a 35.8M-parameter CFG teacher to a 6.1M stu-dent via distillation, introducing ρ and cos( ∆) as guidance-fidelity diagnostics and proving a training-time null space for gap matching under full gradient access. The present work extends this analysis to the PTQ regime, where frozen weights make the null space provably impossible to escape via gap calibration alone, and demonstrates that the diagnostics DASH correctly uses for distillation monitoring become insufficient —and actively misleading—as PTQ calibration objectives. III. M ETHOD 
+
+A. Preliminaries 
+
+At each of K = 50 DDIM [3] steps, two forward passes through the UNet yield εy (xt, t ) (conditional, class label y)and ε∅(xt, t ) (unconditional, null token), combined by (1). The guidance gap ∆ = εy − ε∅ carries the class signal; DASH [5] quantifies its preservation by ρ = E[∥∆q ∥]/E[∥∆f p ∥] (magni-tude ratio; ideal 1) and cos( ∆q , ∆f p ) (directional alignment; ideal 1). Quantization thresholds are optimized via AdaRound-style [6] learnable weight rounding with MSE-optimal acti-vation clipping, over 800 iterations using 1 024 calibration images drawn uniformly from the CIFAR-10 training set; network weights are frozen throughout. Weights are quan-tized per-output-channel (symmetric, signed), providing scale granularity that substantially reduces clipping error at W4; activations are quantized per-tensor (asymmetric, unsigned) with MSE-optimal clipping thresholds. Biases and normal-ization parameters remain at FP32. Bit-operations BOPs =P 
+
+> l
+
+Mlwbab (Ml: layer MACs, wb: weight bits, ab: activation bits) serve as the hardware-agnostic compute metric. The first and last UNet convolutions ( conv_in , conv_out ) remain FP32, consistent with standard diffusion PTQ practice [8]. 
+
+B. The Branch-Drift Trap: Null-Space Analysis 
+
+The most natural PTQ calibration objective for a CFG model is to minimize the guidance-gap reconstruction error: 
+
+Lgap = (εqy − εq
+
+> ∅
+
+) − (εf p y − εf p  
+
+> ∅
+
+) 2
+
+. (2) This is well-motivated: Lgap directly penalizes drift in ∆, the quantity DASH identifies as the primary quality determinant. Yet it is provably insufficient. 
+
+Proposition 1 (Null space of gap-only PTQ) . For any vector 
+
+δ, the assignment εqy = εf p y + δ and εq 
+
+> ∅
+
+= εf p  
+
+> ∅
+
++ δ achieves 
+
+Lgap = 0 , leaving the unconditional branch drift δ entirely unconstrained. Proof. (εqy − εq
+
+> ∅
+
+) = ( εf p y + δ) − (εf p  
+
+> ∅
+
++ δ) = εf p y − εf p  
+
+> ∅
+
+, so 
+
+Lgap = 0 for any δ.The consequence for sample quality follows immediately. 
+
+Proposition 2 (Guided-prediction error under null-space drift) .
+
+Under any null-space solution with drift δ:
+
+˜εq − ˜εf p = δ, (3) 
+
+independent of guidance scale w and regardless of how well the gap is calibrated. Proof. Substitute ∆q = ∆f p (Proposition 1) and εq 
+
+> ∅
+
+= εf p  
+
+> ∅
+
++ δ
+
+into (1): ˜εq − ˜εf p = [( εf p  
+
+> ∅
+
++ δ) + w∆f p ] − [εf p  
+
+> ∅
+
++ w∆f p ] = 
+
+δ.Corollary 1 (Gap-fidelity metrics are insufficient) . ρ = 1 and 
+
+cos( ∆q , ∆f p ) = 1 are simultaneously achievable with ∥δ∥ ≫ 
+
+0. At each of the K DDIM steps, Proposition 2 contributes ∥δ∥
+
+of per-step error; over the full trajectory, ℓ2 error accumulates as O(K ∥δ∥). Guidance-gap metrics are necessary but not sufficient for PTQ sample quality under CFG. 
+
+PTQ provides no mechanism to suppress this drift. In DASH’s distillation setting [5], an explicit unconditional branch loss Lun = εstudent  
+
+> ∅
+
+− εteacher  
+
+> ∅
+> 2
+
+applied over >200K gradient iterations on unfrozen weights directly suppresses δ.In PTQ, threshold optimization has only O(L) degrees of freedom (one clipping range per quantizable layer), and the gap loss reaches Lgap ≈ 0 trivially by shifting both branch outputs by a common offset without genuinely aligning either branch to its full-precision reference. The branch-drift trap is therefore a structural property of any gap-only PTQ objective, not an optimization pathology. At larger guidance scales ( w ∼ 7–15 in text-to-image gener-ation), the guided-prediction magnitude grows as |˜ε| ∝ w∥∆∥
+
+while δ remains fixed in absolute magnitude by (3), making the drift a proportionally larger directional contamination of the sampling score. The branch-drift trap is therefore expected to intensify at production guidance scales. Propositions 1–2 jointly imply that the PTQ objective must constrain the guided prediction ˜ε = ε∅ + w∆ directly. The per-layer guided-output error is defined as: 
+
+E(l) = ˜εql − ˜εf p l
+
+> 2
+
+, (4) where l indexes a quantizable Conv2d or Linear layer; ˜εql
+
+is the full-network guided output when layer l’s quantized thresholds are active—no intermediate feature-map hooks are required. E(l) = 0 requires δ = 0 , closing the null space by construction. GAMP uses E(l) as both its per-layer sensitivity signal and the basis of its calibration objective. 
+
+C. Guidance-Aware Mixed Precision (GAMP) 
+
+Activations are substantially more sensitive than weights to bit-reduction in CFG models; GAMP exploits this asymmetry by fixing all weights to 4 bits and allocating activation bits per layer, concentrating precision where the guided output is most sensitive. The calibration objective is: 
+
+LGAMP = ˜εq − ˜εf p 2
+
+. (5) Algorithm 1 and Fig. 1 give the full procedure. Dual-branch calibration (line 1) prevents the clipping under-estimation that arises when calibrating only on unconditional passes, since the conditional branch has systematically wider activation ranges. Sensitivity profiling (lines 3–7) requires L =49 additional forward passes ( ≈5 min on T4) and is a one-time offline cost. The greedy knapsack (lines 9–13) is near-optimal when per-layer BOPs increments are small relative to the total budget; each A4 →A8 promotion adds at most ∼1 G BOPs against a ∼32 G total, satisfying this condition. Calibrating with LGAMP eliminates the guided-prediction corruption that 
+
+Algorithm 1 GAMP: Guidance-Aware Mixed Precision 
+
+Require: Frozen quantized network M; calibration set D
+
+(1 024 images); quantizable layers L, |L| = 49 ; target avg. activation bits ¯b; guidance scale w
+
+Ensure: Activation-bit assignments {Al}; calibrated thresh-olds  
+
+> 1:
+
+Run D through both conditional and unconditional branches; record per-layer activation statistics  
+
+> 2:
+
+Cache ˜εf p ← εf p  
+
+> ∅
+
++ w(εf p y −εf p  
+
+> ∅
+
+) for all x ∈ D  
+
+> 3:
+
+Set Al ← 8 ∀l; compute Ebase ← 1
+
+> |D|
+
+P ˜εq − ˜εf p 2 
+
+> 4:
+
+for each layer l ∈ L do  
+
+> 5:
+
+Al ← 4 temporarily  
+
+> 6:
+
+sl ← E A4 
+
+> l
+
+− E base // guided-output sensitivity  
+
+> 7:
+
+Al ← 8 
+
+> 8:
+
+end for  
+
+> 9:
+
+Sort L descending by sl / ∆BOPs (l) 
+
+> 10:
+
+Al ← 4 ∀l 
+
+> 11:
+
+while ¯A < ¯b and layers remain do  
+
+> 12:
+
+Promote next-ranked layer: Al ← 8 
+
+> 13:
+
+end while  
+
+> 14:
+
+Calibrate thresholds via LGAMP (Eq. (5)), 800 Adam iterations  
+
+> 15:
+
+return {Al}, calibrated thresholds defines the branch-drift trap: LGAMP = 0 drives ˜εq −˜εf p → 0,which by Proposition 2 removes the shared-drift null space of Proposition 1. IV. E XPERIMENTS 
+
+A. Setup 
+
+The branch-drift trap established in Propositions 1 and 2 is a structural algebraic consequence of (1), independent of dataset size, image resolution, or label-space cardinality: the null-space argument holds for any CFG model that evaluates two forward passes and combines them linearly. Likewise, the ONNX Runtime INT8 bottleneck (Section IV-C) is governed by operator-mapping rules within the software stack, not by image content. CIFAR-10 therefore provides a sufficient and computationally controlled setting for isolating these structural and system-level behaviors without confounding data-scale variables. 
+
+Model and data. The publicly released DASH student checkpoints [5] are used: a 6.1M-parameter ADM UNet [4] (base channels 64, one residual block per scale, attention at 
+
+16 ×16 ) trained on CIFAR-10, 32 ×32 RGB. FP32 evaluation on a single-seed 50k-sample protocol yields FID 13.67; the DASH paper reports 8.87 as a multi-seed mean from its own training pipeline. All PTQ comparisons use the same single-seed protocol; the single-seed variance ( ±2–3 FID at 50k samples) is small relative to the differences reported. 
+
+Baselines. (i) RTN: round-to-nearest, no calibration; (ii) MSE-CAL : AdaRound rounding with MSE activation clipping, dual-branch calibration, uniform precision; (iii) G AP -
+
+> ONLY
+
+: gap objective (2) as the sole calibration target—the Step 1 
+
+Dual-branch calibration 
+
+Step 2 
+
+Cache ˜εf p 
+
+guided outputs 
+
+Step 3 
+
+Per-layer sensitivity sl
+
+Step 4 
+
+Greedy bit allocation 
+
+Step 5 
+
+Threshold calibration 
+
+Mixed-precision model (W4, non-unif. A)         
+
+> Prevents clipping underestimation
+> One-time FP32 reference cache
+> 49 fwd passes
+> ≈5 min on T4
+> Rank by sl/∆BOPs 0/1 knapsack, ¯A= ¯b
+> E(l)→0
+> ⇒δ→0
+> null space closed
+> GAMP-specific offline overhead: ≈22 min on T4
+
+Fig. 1. GAMP calibration pipeline (colors: blue = calibration, purple = cache, orange = sensitivity, green = allocation, teal = calibrate; output box teal-tinted). Dual-branch calibration (Step 1) captures the full activation range of both branches, preventing the clipping underestimation of single-pass calibration. Sensitivity profiling (Step 3) measures each layer’s contribution to guided-prediction error under A4, grounded in E(l) of Eq. (4). Greedy allocation (Step 4) promotes layers A4 →A8 by sensitivity-per-BOPs until the target budget ¯b is met. Calibrating via LGAMP (Step 5, teal) removes the shared-drift null space, closing the branch-drift trap. Overhead is one-time; inference cost equals standard mixed-precision PTQ. TABLE I MEASURED 50-STEP CFG-DDIM LATENCY ON T4. G UIDED = 2 UN ET PASSES /STEP ; UNGUIDED = 1. M EM . IS PEAK ACTIVATION MEMORY 
+
+(T O R C H .C U D A .M A X _M E M O R Y _A L L O C A T E D , RESET BEFORE EACH FORWARD PASS ; EXCLUDES CUDA CONTEXT ). Prec. B Guided (ms) Unguided (ms) Tax Mem (MB) FP32 1 1042.6 534.2 1.95 × 594 FP32 16 1106.4 553.6 2.00 × 685 FP32 64 3936.2 1988.5 1.98 × 1034 FP16 1 1504.7 761.3 1.98 × 40 FP16 16 1479.0 744.5 1.99 × 108 FP16 64 3107.7 1569.8 1.98 × 322 
+
+critical ablation validating Corollary 1; (iv) GAMP (ours) at 
+
+¯b ∈ { 5, 6} average activation bits. 
+
+Metrics. FID and IS (50k samples, torch-fidelity ,
+
+cifar10-train reference) [12], [13]; guidance-gap diag-nostics ρ, cos( ∆) [5]; BOPs per guided step ( = 2 × single-pass BOPs); theoretical packed model size (MB). 
+
+Hardware. The NVIDIA T4 (16 GB) is chosen deliber-ately: as the most widely deployed cost-effective cloud and edge inference accelerator, it ensures the 147 × software-stack gap diagnosed in Section IV-C reflects conditions faced by budget-constrained practitioners, not an unusual hardware configuration. Timing uses PyTorch cuda.Event (20 reps, 8 warmup); INT8 measurements use ONNX Runtime 1.18 (CUDA EP, no TensorRT). 
+
+B. CFG Latency Characterization 
+
+Table I shows a consistent ≈1.99 × CFG overhead across all batch sizes and floating-point formats. Fig. 2 visualizes the overhead; the shaded gap is the pure guidance cost, invisible to all BOPs and parameter-count metrics. A W4A8 quantized model reporting 32.7 G guided-step BOPs carries an implicit additional 32.7 G BOPs of guidance overhead that no prior compression paper credits; reporting single-pass metrics overstates the realized deployment gain by a factor of two. FP16 incurs higher latency at batch 1 ( +44% vs. FP32) due to kernel-launch overhead but is 1.3× faster at batch 64 (31 B=1 B=16 B=64 
+
+0
+
+500 
+
+1000 
+
+1500 
+
+2000 
+
+2500 
+
+3000 
+
+3500  
+
+> Latency (ms)
+> 1.98× 1.99×
+> 1.98×
+
+CFG tax 
+
+Guided (2 passes) 
+
+Unguided (1 pass) 
+
+Fig. 2. CFG tax: guided vs. unguided 50-step latency (FP16, T4) across batch sizes 1, 16, 64. Shaded region is the pure guidance overhead ( ≈1.99 ×), invisible to all BOPs and parameter-count metrics. TABLE II SINGLE -PASS BOP S AND LATENCY ON T4 ( B = 64 ), WITHOUT 
+
+TENSOR RT. G UIDED STEP = 2 × THESE VALUES . ORT INT8: 
+
+4598 /31 .2 ≈ 147 × SLOWER THAN PYTORCH FP16. Path Size (MB) BOPs 1p (G) Theo. ↑ Lat. 1p (ms) PyTorch FP32 24.3 525 1.0 × 39.4 PyTorch FP16 12.2 525 1.0 × 31.2 
+
+ORT FP32 24.5 – – 47.8 ORT INT8 (no TRT) 6.4 32.8 16 × 4598   
+
+> ORT INT8 is 3.8×smaller on disk (6.4 vs. 24.5 MB): weight quantization succeeds; the bottleneck is inference-stack support. This 6.4 MB is the exported ONNX file size (includes operator metadata); Table III’s 6.1 MB is the theoretical bit-packed weight size ( 24 .3/4), a distinct quantity.
+
+vs. 39 ms), while cutting peak memory by 3.2× (322 vs. 1034 MB). 
+
+C. INT8 Deployment Gap: Software-Stack Diagnosis 
+
+Table II documents a stark gap between BOPs-predicted and measured INT8 efficiency. W8A8 single-pass BOPs predict a 16 × speedup over FP32; ORT INT8 without TensorRT delivers a single-pass latency of 4 598 ms against 31.2 ms PyTorch      
+
+> FP32
+> PyTorch
+> FP16
+> ORT
+> FP32
+> ORT INT8
+> (no TRT)
+> 10 2
+> 10 1
+> 10 0
+> 10 1
+> Speedup (log scale)  16×
+> 0.007×
+> Theoretical (BOPs)
+> Measured (T4) Fig. 3. Theoretical speedup (BOPs ratio, grey) vs. measured ONNX Runtime speedup on T4 without TensorRT (log scale). W8A8 BOPs predict 16 ×; ORT INT8 delivers 0.007 ×(≈147 ×slowdown vs. FP16) due to 192 operator-fallback memcpy nodes.
+
+for PyTorch FP16—a ≈147 × slowdown (Fig. 3). The root cause is diagnosed as follows. TensorRT libraries are absent from the Kaggle T4 environment (libnvinfer.so.10 not found ), preventing ONNX Runtime from dispatching quantized operators to the GPU’s INT8 tensor cores. As a result, the quantized ONNX graph contains 192 GPU ↔CPU memcpy nodes (one per quantized operator), each incurring a PCIe round-trip; additionally, UNet downsample Slice 
+
+operations resist dynamic INT8 quantization and execute at FP32 within the nominally INT8 graph. This is a software-stack finding, not a verdict on INT8 arith-metic: the 3.8× disk-size reduction (6.4 vs. 24.5 MB) confirms weight quantization succeeds; the bottleneck is inference-stack support, not arithmetic capability. 
+
+D. Quality, Gap Fidelity, and GAMP 
+
+Finding 1 — Activation precision cliff. Reducing weight precision W8 →W4 at fixed A8 raises FID by 20.1 (10.5 →30.6). Reducing activation precision A8 →A4 at fixed W4 raises FID by 91.8 (30.6 →122.4)—a 4.6 × steeper per-bit degradation. Activations are the precision-critical resource for CFG diffusion models, directly motivating GAMP’s strategy of fixing weight bits and allocating activation bits non-uniformly. 
+
+Finding 2 — Branch-drift trap confirmed. Gap-only-W4A8 achieves the best guidance-gap alignment of any quan-tized configuration ( ρ = 1 .004 , cos( ∆) = 0 .882 ) yet the worst sample quality of the entire sweep: FID 334, exceeding even the W4A4 model (FID 272). This is the exact false positive predicted by Corollary 1: the calibration objective is satisfied near-perfectly while the guided prediction is severely corrupted. The gap optimizer reaches Lgap ≈ 0, consistent with a constant branch shift δ; this drift compounds across 50 DDIM steps, producing near-random samples despite near-ideal gap diagnostics (Fig. 4). The near-ideal ρ and cos( ∆)
+
+combined with severely degraded FID is the signature Corol-                                                                                              
+
+> TABLE III QUALITY AND EFFICIENCY SWEEP , CIFAR-10 (50 KFID, DDIM K= 50 ,
+> TIMESTEP -ADAPTIVE GUIDANCE (TAG) w= 4 .0[5], SINGLE SEED ). BOP S:PER GUIDED STEP (= 2 ×SINGLE -PASS ). S IZE : FP32 24.3 MB; W8 6.1 MB ( 4×); W4 3.0 MB ( 8×). ρ, cos( ∆)→1AND LOWER FID ARE BETTER .†MSE-W8A8 FID/IS MARGINALLY EXCEED FP32 OWING TO SINGLE -SEED VARIANCE (±2–3 FID AT 50 K SAMPLES )AND MILD
+> ADA ROUND REGULARIZATION ; FP32 REMAINS THE QUALITY CEILING .Config avg Aρcos( ∆)FID ↓IS ↑BOPs (G) FP32 32 1.000 1.000 13.67 8.61 –RTN-W8A8 81.501 0.612 48.31 7.18 65.4 MSE-W8A8 †81.252 0.806 10.53 8.89 65.4 RTN-W4A8 81.622 0.580 65.42 6.92 32.7 MSE-W4A8 81.334 0.730 30.62 7.98 32.7 RTN-W4A4 46.277 0.095 272.78 1.56 16.4 MSE-W4A4 43.677 0.169 122.36 3.74 16.4 Gap-only-W4A8 81.004 0.882 334.24 1.26 32.7 GAMP-¯b6 (ours) 6.03 1.509 0.603 39.40 7.42 31.3 GAMP-¯b5 (ours) 5.01 2.151 0.435 40.01 7.49 28.3
+
+lary 1 predicts for a shared-drift solution; directly instrument-ing εq 
+
+> ∅
+
+− εf p  
+
+> ∅
+
+alongside the gap diagnostics would further isolate the shared-drift mechanism from other unconstrained error patterns and is a natural extension of this ablation. 
+
+Finding 3 — GAMP Pareto efficiency. GAMP-¯b6 achieves FID 39.4 at 6.03 average activation bits and 31.3 G BOPs per guided step. A linear reference connecting the two mea-sured uniform endpoints (MSE-W4A4: FID 122.4; MSE-W4A8: FID 30.6) predicts FID ≈76.5 at 6 average bits; GAMP achieves 39.4, a 49% improvement over this uniform-spending reference at matched average precision. GAMP-
+
+¯b5 (28.3 G BOPs, 13% below W4A8) reaches FID 40.0— near-W4A8 quality at lower compute; the same reference at avg A = 5 predicts FID ≈99, confirming that guided-output sensitivity allocation substantially outperforms uniform precision at matched average bits. The near-identical FIDs at 
+
+¯b ∈ { 5, 6} (39.4 vs. 40.0) reflect rapid saturation: the most sensitivity-weighted layers are promoted to A8 first, capturing the bulk of guided-output error reduction within the first knapsack increments (Fig. 5). Notably, GAMP achieves lower FID despite weaker gap scores ( ρ = 1 .509 , cos( ∆) = 0 .603 ), reinforcing that guided-output error, not gap fidelity, governs sample quality. V. C ONCLUSION 
+
+This paper characterizes post-training quantization of CFG diffusion models along three dimensions the existing literature has left unaddressed. Measured profiling on T4 confirms a consistent 1.99 × guided-inference overhead hidden by all standard efficiency metrics. A precise software-stack diagnosis isolates the 147 × INT8 slowdown to an operator-fallback artifact rather than an arithmetic limitation, clarifying that the BOPs-to-latency gap is a deployment-pipeline problem. The branch-drift trap—an exact null space in gap-only PTQ calibration, confirmed at ( cos( ∆) = 0 .882 , FID 334)—is the MSE-W4A8 RTN-W4A8 Gap-only-
+
+W4A8 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+1.2  
+
+> cos(  )
+> cos( )
+> FID
+
+0
+
+50 
+
+100 
+
+150 
+
+200 
+
+250 
+
+300 
+
+350 
+
+400 
+
+> FID
+> Branch-drift
+> trap!
+
+Fig. 4. Guidance-gap fidelity ( cos( ∆), blue) vs. FID (orange) across W4A8 configurations. Gap-only achieves the highest cos( ∆) yet the worst FID, empirically confirming Corollary 1. GAMP recovers near-MSE-W4A8 quality at lower BOPs. 4 5 6 7 8 9
+
+Average activation bits 
+
+20 
+
+40 
+
+60 
+
+80 
+
+100 
+
+120 
+
+> FID
+> 49% gain
+> Linear interp.
+> (uniform baseline)
+> Uniform (MSE-cal)
+> GAMP (ours)
+
+Fig. 5. GAMP Pareto curve: FID vs. average activation bits. GAMP (diamonds) lie well below the linear-spending reference (dashed) connecting MSE-W4A4 and MSE-W4A8, demonstrating that guided-output sensitivity allocation substantially outperforms uniform spending at both tested average bit-widths. 
+
+paper’s central theoretical and empirical contribution. GAMP closes this trap by construction and allocates activation bits by guided-output sensitivity, achieving a 49% FID improvement over the uniform-spending reference at matched average pre-cision ( ¯b6) and near-W4A8 quality at 13% fewer BOPs than the uniform W4A8 counterpart ( ¯b5). For HPEC practitioners, three guidelines follow: report guided-step BOPs; validate PTQ calibration with guided-prediction error rather than gap diagnostics alone; and allocate activation bits by GAMP sensitivity when the activation cliff falls within the compression regime. 
+
+Limitations and future work. Experiments are restricted to 
+
+32 ×32 pixel-space diffusion (CIFAR-10) on a compact 6.1M student; validating GAMP on Stable Diffusion and similar latent CFG models, and on Hopper-generation accelerators (e.g., H100) where INT8 tensor-core support is more mature, is the primary scale-up direction. The branch-drift analysis predicts the trap intensifies with w, motivating ablations at guidance scales w ∼ 7–15 typical of text-to-image generation. Adding an unconditional anchor λ εq 
+
+> ∅
+
+− εf p 
+
+> ∅
+> 2
+
+to Lgap closes the null space provably and is the most direct methodolog-ical extension. Combining GAMP with PTQD-style per-step allocation is the primary algorithmic follow-up. REFERENCES [1] J. Ho, A. Jain, and P. Abbeel, “Denoising diffusion probabilistic models,” in Adv. Neural Inf. Process. Syst. (NeurIPS) , vol. 33, pp. 6840–6851, 2020. [2] J. Ho and T. Salimans, “Classifier-free diffusion guidance,” in NeurIPS Workshop on Deep Generative Models , 2021. [3] J. Song, C. Meng, and S. Ermon, “Denoising diffusion implicit models,” in Proc. Int. Conf. Learning Representations (ICLR) , 2021. [4] P. Dhariwal and A. Nichol, “Diffusion models beat GANs on image syn-thesis,” in Adv. Neural Inf. Process. Syst. (NeurIPS) , vol. 34, pp. 8780– 8794, 2021. [5] A. Al Shafi, K. S. Alam, S. I. Hossain, and E. M. Nguifo, “DASH: Dual-branch score distillation for guidance-calibrated compact diffusion models,” arXiv:2606.00798 , 2026. [Online]. Available: https://arxiv.org/ abs/2606.00798 [6] M. Nagel, R. A. van Baalen, M. Blankevoort, and T. Moons, “Up or down? Adaptive rounding for post-training quantization,” in Proc. Int. Conf. Machine Learning (ICML) , pp. 7197–7206, 2020. [7] Y. Li, R. Gong, X. Tan, Y. Yang, P. Hu, Q. Zhang, F. Yu, W. Wang, and S. Gu, “BRECQ: Pushing the limit of post-training quantization by block reconstruction,” in Proc. Int. Conf. Learning Representations (ICLR) , 2021. [8] X. Li, Y. Liu, L. Chen, M. Dong, Y. Wu, and Y. Li, “Q-Diffusion: Quantizing diffusion models,” in Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV) , pp. 17535–17545, 2023. [9] Y. He, L. Liu, J. Liu, W. Wu, H. Zhou, and B. Zhuang, “PTQD: Accurate post-training quantization for diffusion models,” in Adv. Neural Inf. Process. Syst. (NeurIPS) , vol. 36, 2023. [10] Y. Huang, R. Gong, J. Liu, T. Chen, and X. Liu, “TFMQ-DM: Tem-poral feature maintenance quantization for diffusion models,” in Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR) ,pp. 7362–7371, 2024. [11] Z. Dong, Z. Yao, A. Gholami, M. W. Mahoney, and K. Keutzer, “HAWQ: Hessian AWare quantization of neural networks with mixed-precision,” in Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV) , pp. 293–302, 2019. [12] M. Heusel, H. Ramsauer, T. Unterthiner, B. Nessler, and S. Hochreiter, “GANs trained by a two time-scale update rule converge to a local Nash equilibrium,” in Adv. Neural Inf. Process. Syst. (NeurIPS) , vol. 30, 2017. [13] T. Salimans, I. Goodfellow, W. Zaremba, V. Cheung, A. Radford, and X. Chen, “Improved techniques for training GANs,” in Adv. Neural Inf. Process. Syst. (NeurIPS) , vol. 29, 2016. [14] Y. Shang, Z. Yuan, B. Xie, B. Wu, and Y. Yan, “Post-training quantiza-tion on diffusion models,” in Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR) , pp. 1972–1981, 2023. [15] C. Wang, Z. Wang, X. Xu, Y. Tang, J. Zhou, and J. Lu, “Towards accu-rate post-training quantization for diffusion models,” in Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR) , pp. 16026– 16035, 2024. [16] H. Huang, J. Chen, J. Guo, R. Zhan, and Y. Wang, “TCAQ-DM: Timestep-channel adaptive quantization for diffusion models,” in Proc. AAAI Conf. Artificial Intelligence , vol. 39, no. 16, pp. 17404–17412, 2025.

@@ -6,34 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-11
-- 运行时间：2026-07-11 20:37:47 UTC
+- 最新运行日期：2026-07-12
+- 运行时间：2026-07-12 20:42:49 UTC
 - 运行状态：成功
 - 本次总论文数：4
-- 精读区：3
-- 速读区：1
+- 精读区：1
+- 速读区：3
 
 ### 今日简报（AI）
-今日精选4篇论文，其中两篇物理感知生成与像素空间3D场景重建获9.0高分。  
-最值得关注物理感知镜像生成与像素级3D场景统一重建两大方向。  
-建议深入理解物理约束在生成中的应用，这对提升3D内容真实感至关重要。
-- 详情：[/202607/11/README](/202607/11/README)
+今天精读1篇动态计算与蒸馏结合的加速视频生成论文，速读聚焦扩散模型量化、SGD收敛性及量子-经典混合生成。最值得看的是《Dynamic-in-Few-Step》— 它用一步动态计算实现高效视频生成，性能评分最高（9.0/10）。建议后续重点关注该文的一步蒸馏与动态计算融合思路，这对实际部署很有启发。
+- 详情：[/202607/12/README](/202607/12/README)
 
 ### 精读区论文标签
-1. [PhysMirror: Physics-Aware Mirror Object Generation](/202607/11/2607.03470v1-physmirror-physics-aware-mirror-object-generation)  
+1. [Dynamic-in-Few-Step: Unifying Dynamic Computation and Few-Step Distillation for Efficient Video Generation](/202607/12/2607.06631v1-dynamic-in-few-step-unifying-dynamic-computation-and-few-step-distillation-for-efficient-video-generation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：使用扩散模型生成镜像物体图像
-2. [PixWorld: Unifying 3D Scene Generation and Reconstruction in Pixel Space](/202607/11/2607.05373v1-pixworld-unifying-3d-scene-generation-and-reconstruction-in-pixel-space)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：使用像素空间扩散统一3D场景生成与重建，生成图像
-3. [Breaking Spurious Correlations via Generative Randomization and Cross-Variant Self-Supervised Learning](/202607/11/2607.05850v1-breaking-spurious-correlations-via-generative-randomization-and-cross-variant-self-supervised-learning)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：使用扩散模型生成背景变化的图像变体
+   evidence：视频扩散模型生成
 
 ### 速读区论文标签
-1. [Gen4U: Unifying Video Generation and Understanding via Diffusion](/202607/11/2607.06856v1-gen4u-unifying-video-generation-and-understanding-via-diffusion)  
+1. [Closing the Null Space: Guidance-Aware Quantization for Classifier-Free Diffusion](/202607/12/2607.08241v1-closing-the-null-space-guidance-aware-quantization-for-classifier-free-diffusion)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：扩散模型免训练优化方法
+2. [Non-asymptotic Convergence of Stochastic Gradient Descent in Score-based Generative Models](/202607/12/2607.04775v1-non-asymptotic-convergence-of-stochastic-gradient-descent-in-score-based-generative-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：使用扩散模型进行视频生成
+   evidence：扩散模型生成任务
+3. [An Hybrid Quantum-Classical Diffusion Model for Image Generation](/202607/12/2607.07072v1-an-hybrid-quantum-classical-diffusion-model-for-image-generation)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：图像生成的扩散模型
 
 
 <div class="dpr-home-promo-card">

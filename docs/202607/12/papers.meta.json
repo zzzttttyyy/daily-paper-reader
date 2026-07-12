@@ -1,0 +1,69 @@
+{
+  "label": "2026-07-12",
+  "date": "2026-07-12",
+  "generated_at": "2026-07-12T20:42:56",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202607/12/2607.06631v1-dynamic-in-few-step-unifying-dynamic-computation-and-few-step-distillation-for-efficient-video-generation",
+      "section": "deep",
+      "title_en": "Dynamic-in-Few-Step: Unifying Dynamic Computation and Few-Step Distillation for Efficient Video Generation",
+      "authors": "Yu Cheng, Siyue Yao, Zhongang Qi, Shanyan Guan, Wei Li, Fajie Yuan",
+      "date": "2026-07-07",
+      "pdf": "https://arxiv.org/pdf/2607.06631v1",
+      "score": "9.0",
+      "evidence": "视频扩散模型生成",
+      "tldr": "视频扩散模型推理成本高昂，现有几步蒸馏使用静态架构，忽略了不同噪声阶段的计算需求差异。本文提出后训练加速框架，将动态结构稀疏化融入蒸馏过程，联合优化去噪步长与模型稀疏性，将预训练模型转化为步骤特定的混合模型。引入渐进训练策略和输出展开机制解决联合优化不稳定问题，并设计专用推理引擎。在Wan-14B上，本方法在4步蒸馏基础上再减少24%每步FLOPs，获得1.2倍墙上时间加速，相比50步教师模型实现30倍加速，同时保持竞争性生成质量，且正交于现有加速技术。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Video Diffusion Models (VDMs) have demonstrated superior generation quality but suffer from prohibitive computational costs. While recent few-step distillation techniques significantly accelerate inference, they typically enforce a static model architecture across all denoising stages, ignoring the varying computational demands inherent to different noise levels. In this work, we propose a novel post-training acceleration framework that exploits this redundancy by integrating dynamic structural sparsification directly into the distillation process. Unlike conventional post-hoc compression applied to a fixed diffusion pipeline, our approach jointly optimizes the denoising steps and structured model sparsity, transforming a pre-trained VDM into a compact, step-specific Mixture-of-Models (MoM). To address the training instability arising from this joint optimization, we introduce a Progressive Training Strategy coupled with an Output Rollout Mechanism, which ensures the coherent learning of structural decisions across timesteps. Furthermore, we develop a specialized inference engine to deploy the resulting MoM efficiently. Our method is orthogonal to existing acceleration techniques and highly effective: On Wan-14B, it removes 24% of the per-step FLOPs on top of 4-step distillation, adding a 1.2x wall-clock gain and reaching a 30x speedup over the 50-step teacher while preserving competitive generation quality.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/12/2607.08241v1-closing-the-null-space-guidance-aware-quantization-for-classifier-free-diffusion",
+      "section": "quick",
+      "title_en": "Closing the Null Space: Guidance-Aware Quantization for Classifier-Free Diffusion",
+      "authors": "Abdullah Al Shafi, Sumaiya Rahim Suma",
+      "date": "2026-07-09",
+      "pdf": "https://arxiv.org/pdf/2607.08241v1",
+      "score": "7.0",
+      "evidence": "扩散模型免训练优化方法",
+      "tldr": "现有后训练量化方法将分类器无关引导(CFG)扩散模型视为单分支，忽略其条件/无条件配对结构，导致无条件分支漂移陷阱。本文提出GAMP方法，直接在引导预测上校准，基于引导输出退化推导逐层激活位敏感性，通过贪婪背包分配比特，从结构上防止分支漂移。实证显示，标准诊断下最优模型反而产生最差样本质量，而GAMP有效关闭零空间，提升量化模型性能。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Deploying classifier-free guidance (CFG) diffusion models under real-world compute budgets requires quantization, yet existing post-training quantization (PTQ) methods treat CFG models as single-branch networks, ignoring the paired conditional/unconditional structure that CFG inference fundamentally relies on. This structural blind spot has two consequences. At the system level, the two-pass CFG execution pattern imposes a latency overhead that parameter-count and bit-operation metrics conceal entirely, and commodity INT8 inference stacks fail to realize the theoretical efficiency gains that BOPs calculations promise. At the algorithmic level, calibrating against the guidance gap alone admits an exact null space: a quantized model can achieve perfect gap-fidelity diagnostics while the unconditional branch drifts arbitrarily, corrupting every guided prediction at inference time. This paper terms this the branch-drift trap, proves its existence analytically, and confirms it empirically through a false-positive result in which the best-calibrated model by standard diagnostics simultaneously produces the worst sample quality. To close the trap, Guidance-Aware Mixed Precision (GAMP) is proposed, which calibrates directly on the guided prediction, derives per-layer activation-bit sensitivity from guided-output degradation, and allocates bits via a greedy knapsack -- provably preventing unconditional branch drift by construction.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/12/2607.04775v1-non-asymptotic-convergence-of-stochastic-gradient-descent-in-score-based-generative-models",
+      "section": "quick",
+      "title_en": "Non-asymptotic Convergence of Stochastic Gradient Descent in Score-based Generative Models",
+      "authors": "Stanislas Strasman, Sobihan Surendran, Sylvain Le Corff",
+      "date": "2026-07-06",
+      "pdf": "https://arxiv.org/pdf/2607.04775v1",
+      "score": "6.0",
+      "evidence": "扩散模型生成任务",
+      "tldr": "基于得分的生成模型通过最小化加权去噪得分匹配目标训练，但其随机梯度下降的优化保证尚不明确。本文针对一般得分参数化建立了非凸收敛速率，并针对过参数化两层ReLU网络开发了神经切线核分析，得出沿SGD轨迹的得分近似误差界。研究还量化了重新加权因子对误差的影响，为实践中权重选择提供了理论指导。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Score-based Generative Models (SGMs) have achieved impressive performance in data generation across a wide range of applications. While the statistical properties of their sampling procedures are increasingly well understood, the optimization dynamics underlying their training remain less explored. SGMs are typically trained by minimizing a weighted denoising scorematching objective, yet optimization guarantees with stochastic gradients remain limited. In this work, we study Stochastic Gradient Descent (SGD) for SGMs, contributing results in two complementary regimes. First, for general score parameterizations, we establish a non-convex convergence rate for SGD on the weighted denoising score-matching objective, with explicit dependence on the schedule-dependent weighting factors. Second, for overparameterized two-layer ReLU networks, we develop a Neural Tangent Kernel analysis tailored to diffusion training with stochastic gradients, yielding score-approximation error bounds along the SGD trajectory. Finally, our analysis quantifies the role of the reweighting factor in the score approximation error, providing theoretical guidance for weighting choices used in practice.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/12/2607.07072v1-an-hybrid-quantum-classical-diffusion-model-for-image-generation",
+      "section": "quick",
+      "title_en": "An Hybrid Quantum-Classical Diffusion Model for Image Generation",
+      "authors": "Qipeng Qian, Keli Deng, Yuntao Qian",
+      "date": "2026-07-08",
+      "pdf": "https://arxiv.org/pdf/2607.07072v1",
+      "score": "6.0",
+      "evidence": "图像生成的扩散模型",
+      "tldr": "量子扩散模型在量子态上进行生成学习，但直接用于高维数据面临量子比特成本高和密度算符模拟负担重的问题。本文提出将经典自编码器与混合态量子去噪扩散概率模型（MSQuDDPM）结合的混合生成管道：自编码器将数据压缩到低维潜在空间，使得少量量子比特即可编码；然后量子扩散模型在潜在空间学习生成分布，并通过预测干净状态和解析反向传播简化逆过程。在MNIST图像生成任务上验证了可行性，为有限量子比特预算下的混合量子-经典生成建模提供了实用方案。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Quantum diffusion models provide a physics-consistent route to generative learning by formulating noising and denoising directly on quantum states. However, applying such models to classical high-dimensional data is constrained by the qubit cost of state encoding and the computational burden of simulating large density operators. We propose a scalable hybrid generative pipeline that combines a classical autoencoder for dimensionality reduction with a mixed-state quantum denoising diffusion probabilistic model (MSQuDDPM) operating in the learned latent space. The autoencoder compresses data into compact latent codes that can be embedded into a small-qubit Hilbert space, after which the quantum diffusion model learns a generative distribution over latent density operators and decodes samples back to the original domain. Algorithmically, we simplify the reverse dynamics by predicting an estimate of the clean state $ρ_0$ at timestep $t$ and computing the one-step reverse update via an analytic backward propagation rule, rather than learning an explicit predictor for $ρ_{t-1}$. We demonstrate the proposed approach on MNIST image generation and discuss how mixed-state quantum diffusion can serve as a practical backbone for hybrid quantum--classical generative modeling under realistic qubit budgets.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
