@@ -1,0 +1,253 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-13T21:13:33.375192+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2607.06114v1",
+      "source": "arxiv",
+      "title": "x-Prediction Is All You Need:Training-Free Accelerated Generation via Endpoint Decodability",
+      "abstract": "Diffusion and flow matching models generate high-quality samples, but their ODE samplers often need tens to hundreds of neural function evaluations (NFEs). This remains a practical challenge for released checkpoints, since many accelerators require additional design choices and training cost through retraining, distillation, or trajectory redesign. We investigate a different route based on $x$-prediction. During sampling, standard affine probability paths already expose $x_0$ information: an intermediate state and its path velocity determine a principled estimate of the clean sample. We formalize this property as \\textbf{endpoint decodability} and show that the decoder is the minimum-MSE estimator $\\mathbb{E}[x_0\\mid x_t]$ under the usual $\\ell_2$ objective. This yields \\textbf{Truncated Jump Sampling} (TJS): stop the ODE at an early-exit time $t^*$ and return the decoded $x_0$. TJS requires no retraining, distillation, or architecture change. Across SDXL, SD3.5M, Z-Image-Turbo, and three class-conditional benchmarks, it reduces NFEs by 20--70\\% with near-matched quality. The analysis also shows why endpoint prediction can work without straightening the trajectory, providing inference acceleration without trajectory redesign.",
+      "authors": [
+        "Xin Peng",
+        "Ang Gao"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-07-07T10:24:38+00:00",
+      "link": "https://arxiv.org/pdf/2607.06114v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "proposes training-free accelerated generation via endpoint decodability for diffusion and flow models",
+      "llm_evidence_cn": "提出通过端点可解码性实现扩散和流模型的免训练加速生成",
+      "llm_evidence": "提出通过端点可解码性实现扩散和流模型的免训练加速生成",
+      "canonical_evidence": "提出通过端点可解码性实现扩散和流模型的免训练加速生成",
+      "llm_tldr_en": "x-Prediction introduces endpoint decodability for training-free accelerated diffusion sampling, directly optimizing inference without retraining.",
+      "llm_tldr_cn": "本文针对扩散模型需要大量函数评估的问题，提出基于x预测的端点可解码性，实现免训练加速生成。该方法利用中间状态和速度直接估计干净样本（x0），无需重训练或蒸馏，显著减少采样步数。它直接提供了免训练优化技术，完美匹配用户需求。",
+      "llm_tldr": "本文针对扩散模型需要大量函数评估的问题，提出基于x预测的端点可解码性，实现免训练加速生成。该方法利用中间状态和速度直接估计干净样本（x0），无需重训练或蒸馏，显著减少采样步数。它直接提供了免训练优化技术，完美匹配用户需求。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.09581v1",
+      "source": "arxiv",
+      "title": "Wan-Dancer: A Hierarchical Framework for Minute-scale Coherent Music-to-Dance Generation",
+      "abstract": "Generating long-duration, high-definition, and rhythmically synchronized dance videos directly from music remains a significant challenge, primarily due to the temporal constraints of current diffusion models, which typically fail beyond 20 seconds. Existing approaches, whether they rely on intermediate 3D skeletons or on end-to-end video synthesis, suffer from temporal drift, identity inconsistency, and repetitive motion patterns when extended to longer horizons. To address these limitations, we propose a novel hierarchical framework for minute-scale coherent music-to-dance generation. Our method decouples the process into global keyframe planning and local temporal refinement, leveraging full-track musical context to ensure long-range coherence. Key innovations include dynamic frame rate adaptation via time-mapped RoPE embeddings for precise alignment, an optical-flow-based loss function to enhance motion continuity, and motion-speed control to preserve high-fidelity details during rapid movements. Extensive experiments demonstrate that our framework surpasses the conventional duration barrier, generating stable, 720p/30fps videos exceeding one minute with superior temporal stability. Furthermore, the model exhibits robust versatility across five distinct dance genres, conditioned on both audio and textual prompts, establishing a new state-of-the-art in coherent, long-form dance video synthesis.",
+      "authors": [
+        "Mingyang Huang",
+        "Peng Zhang",
+        "Li Hu",
+        "Guangyuan Wang",
+        "Bang Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.SD"
+      ],
+      "published": "2026-07-10T16:30:29+00:00",
+      "link": "https://arxiv.org/pdf/2607.09581v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "proposes hierarchical framework for minute-scale coherent music-to-dance video generation using diffusion models",
+      "llm_evidence_cn": "提出分层框架用于分钟级连贯音乐到舞蹈视频生成，使用扩散模型",
+      "llm_evidence": "提出分层框架用于分钟级连贯音乐到舞蹈视频生成，使用扩散模型",
+      "canonical_evidence": "提出分层框架用于分钟级连贯音乐到舞蹈视频生成，使用扩散模型",
+      "llm_tldr_en": "Wan-Dancer generates long-duration dance videos with diffusion models via global keyframe planning and local temporal refinement, addressing temporal drift.",
+      "llm_tldr_cn": "本文针对扩散模型难以生成超过20秒长视频的问题，提出Wan-Dancer分层框架。它通过全局关键帧规划和局部时间细化，结合完整音乐上下文，生成长达分钟级的高清、节奏同步舞蹈视频。方法有效抑制了时间漂移和身份不一致，但未强调免训练优化，属于视频生成方法改进。",
+      "llm_tldr": "本文针对扩散模型难以生成超过20秒长视频的问题，提出Wan-Dancer分层框架。它通过全局关键帧规划和局部时间细化，结合完整音乐上下文，生成长达分钟级的高清、节奏同步舞蹈视频。方法有效抑制了时间漂移和身份不一致，但未强调免训练优化，属于视频生成方法改进。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.04113v1",
+      "source": "arxiv",
+      "title": "Asymptotic-Preserving A Posteriori Analysis of Diffusion and Flow-Matching Samplers",
+      "abstract": "Diffusion and flow-matching samplers integrate a learned probability-flow ODE from a large noise scale down to a small terminal floor $σ_{\\min}$, at which the score is stiff and the flow develops a boundary layer. We treat $σ_{\\min}$ as a singular-perturbation parameter and determine which fixed-step samplers are asymptotic-preserving (AP), that is, stable and uniformly accurate as $σ_{\\min}\\to0$, casting the criteria as an a posteriori audit: residual functionals with $σ_{\\min}$-uniform coefficients, computable on a pretrained checkpoint without ground-truth scores or exact trajectories. On the terminal layer, Euler in the $σ$-clock, the deterministic DDIM update, is the unique layer-exact discretization up to affine reparameterization, with rectified flow its flow-matching counterpart; the $λ$-clock is stable only for steps $h\\le h_\\star=1+W(1/e)$, and the uniform-$σ^2$ heat clock stalls a $σ_{\\min}$-independent distance from the data. On two solvable models (rank-deficient Gaussian, symmetric two-point mixture), deterministic samplers remain first-order uniformly accurate with no $\\log(1/σ_{\\min})$ factor, even across a symmetric posterior-switching interface whose distributional budget is a universal constant; the logarithm is charged entirely to the Itô term of stochastic samplers, whose path-KL scales as $Λ^2/N$ against the ODE's $O(Λ^2/N^2)$ budget, with $Λ=\\log(σ_{\\max}/σ_{\\min})$. On the EDM CIFAR-10 checkpoint, spectra measured once predict held-out residual budgets across step count, schedule, and noise level against pre-specified gates with no per-configuration refitting, and calibrate the Itô coefficient at $M_1=1.00\\pm0.01$. The clock decides stability; the noise, not the geometry, charges the logarithm.",
+      "authors": [
+        "Shiheng Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.NA"
+      ],
+      "published": "2026-07-05T04:48:33+00:00",
+      "link": "https://arxiv.org/pdf/2607.04113v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "analyzes diffusion samplers without requiring ground-truth scores, enabling a posteriori audit",
+      "llm_evidence_cn": "分析扩散采样器，无需真实分数，支持事后审计",
+      "llm_evidence": "分析扩散采样器，无需真实分数，支持事后审计",
+      "canonical_evidence": "分析扩散采样器，无需真实分数，支持事后审计",
+      "llm_tldr_en": "Provides asymptotic-preserving analysis and a posteriori audit for diffusion and flow-matching samplers, computable without ground-truth scores or exact trajectories.",
+      "llm_tldr_cn": "扩散和流匹配采样器在终端层面临数值困难，本文将其作为奇异摄动问题处理，确定了哪些固定步长采样器具有渐近保持性质（稳定且均匀精确）。通过提出一种基于残余泛函的后验审计方法，可以在预训练检查点上直接计算，无需真实分数或精确轨迹。该方法为评估和选择采样器提供了免训练的分析工具，有助于优化扩散模型采样。",
+      "llm_tldr": "扩散和流匹配采样器在终端层面临数值困难，本文将其作为奇异摄动问题处理，确定了哪些固定步长采样器具有渐近保持性质（稳定且均匀精确）。通过提出一种基于残余泛函的后验审计方法，可以在预训练检查点上直接计算，无需真实分数或精确轨迹。该方法为评估和选择采样器提供了免训练的分析工具，有助于优化扩散模型采样。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.06173v1",
+      "source": "arxiv",
+      "title": "MobileWan: Closing the Quality Gap for Mobile Video Diffusion",
+      "abstract": "Recent advances in video diffusion have been driven by scaling transformer-based architectures to billions of parameters, substantially improving visual fidelity and motion coherence. In contrast, existing mobile video diffusion models remain limited to relatively small parameter budgets, typically 0.4-1.8B, restricting generation quality. In this work, we show that high-quality mobile video generation does not require small models. Instead, we demonstrate that a server-scale 5B-parameter video diffusion transformer can be deployed efficiently on memory-constrained mobile hardware through recurrent reformulation and structured compression. Starting from Wan2.2-5B, we rely on a recurrence distillation framework that converts video generation into a chunk-wise autoregressive process with constant-memory attention computation. Combined with causal linear attention, the model operates as an RNN at inference time while preserving temporal coherence across chunks. We further propose a learnable attention head pruning method based on binary per-head gates optimized end-to-end using a noise-biased sparsity objective and distillation-based finetuning. Together with sampling-step distillation and memory-optimized VAE decoding, MobileWan becomes the first 5B-scale video diffusion model deployable on a commercial mobile device. Our system generates 5-second 480x832 videos at 16 FPS in 20 seconds end-to-end latency, achieving a VBench score of 83.79 and establishing a new state of the art in mobile video generation. Project page: https://qualcomm-ai-research.github.io/mobilewan",
+      "authors": [
+        "Mohsen Ghafoorian",
+        "Denis Korzhenkov",
+        "Adil Karjauv",
+        "Ioannis Lelekas",
+        "Noor Fathima",
+        "Spyridon Stasis",
+        "Hanno Ackermann",
+        "Boris van Breugel",
+        "Markus Nagel",
+        "Fatih Porikli",
+        "Animesh Karnewar",
+        "Amirhossein Habibian"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-07T11:52:46+00:00",
+      "link": "https://arxiv.org/pdf/2607.06173v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video diffusion model deployment on mobile through compression",
+      "llm_evidence_cn": "通过压缩在移动端部署视频扩散模型",
+      "llm_evidence": "通过压缩在移动端部署视频扩散模型",
+      "canonical_evidence": "通过压缩在移动端部署视频扩散模型",
+      "llm_tldr_en": "MobileWan deploys a 5B-parameter video diffusion transformer on mobile via recurrence distillation and structured compression.",
+      "llm_tldr_cn": "该论文旨在解决移动设备上视频扩散模型质量差的问题，提出通过递归蒸馏和结构化压缩，将服务器级5B参数视频扩散变压器高效部署到移动端。该方法虽需蒸馏训练，但显著提升了移动端视频生成质量，缩小了与服务器的差距。",
+      "llm_tldr": "该论文旨在解决移动设备上视频扩散模型质量差的问题，提出通过递归蒸馏和结构化压缩，将服务器级5B参数视频扩散变压器高效部署到移动端。该方法虽需蒸馏训练，但显著提升了移动端视频生成质量，缩小了与服务器的差距。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.06609v1",
+      "source": "arxiv",
+      "title": "D2PO: Optimizing Diffusion Samplers via Dynamic Preference",
+      "abstract": "We propose D2PO (Dynamic Direct Preference Optimization), a principled framework for optimizing diffusion sampling policies with respect to timestep schedules and classifier-free guidance (CFG) weights. Our work is motivated by a fundamental limitation of existing student-teacher regression frameworks; low-NFE student samplers are trained to mimic high-NFEteachers, often sacrificing high-frequency texture fidelity while preserving coarse global structures, thereby misaligning the sampler with perceptual quality. D2PO addresses this challenge by reformulating sampler optimization as a preference-based alignment problem, leveraging the Direct Preference Optimization (DPO) framework. To make DPO applicable to diffusion samplers, we model the sampling policy as an energy-based model (EBM), transforming preference comparisons into tractable energy differences. We further introduce a novel energy formulation derived directly from the pretrained score network, enabling preference evaluation in perturbed spaces that jointly capture structural consistency and fine-grained details. Moreover, we introduce dynamic preferences, where the preferred samples used for alignment progressively improve as the sampling policies are learned. This self-improving mechanism replaces rigid static teacher supervision with an iterative, preference-guided refinement process, providing progressively stronger alignment signals. Extensive experiments demonstrate that D2PO aligns diffusion samplers with perceptual quality more faithfully, unlocking the full potential of high-quality teachers and consistently outperforming conventional regression-based schedulers under low-NFE constraints.",
+      "authors": [
+        "Jinkyu Kim",
+        "Jinyoung Choi",
+        "Bohyung Han"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-07-07T06:05:42+00:00",
+      "link": "https://arxiv.org/pdf/2607.06609v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "optimizing diffusion sampler policies via dynamic preference optimization",
+      "llm_evidence_cn": "通过动态偏好优化扩散采样器策略",
+      "llm_evidence": "通过动态偏好优化扩散采样器策略",
+      "canonical_evidence": "通过动态偏好优化扩散采样器策略",
+      "llm_tldr_en": "D2PO optimizes timestep schedules and CFG weights for diffusion samplers using dynamic direct preference optimization, improving perceptual quality.",
+      "llm_tldr_cn": "该论文针对低NFE学生采样器牺牲高频纹理的问题，提出D2PO框架，将采样器优化建模为偏好对齐任务，利用直接偏好优化调整时间步调度和分类器自由引导权重。该方法无需重新训练生成模型，可视为训练后优化策略。",
+      "llm_tldr": "该论文针对低NFE学生采样器牺牲高频纹理的问题，提出D2PO框架，将采样器优化建模为偏好对齐任务，利用直接偏好优化调整时间步调度和分类器自由引导权重。该方法无需重新训练生成模型，可视为训练后优化策略。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.06841v1",
+      "source": "arxiv",
+      "title": "Tensor Train Diffusion: Leveraging Low-Rank Structures for High-Dimensional Score-Based Sampling",
+      "abstract": "Diffusion models offer a powerful framework for sampling from complex probability densities by learning to reverse a noising process. A common approach involves solving for the time-reversed stochastic differential equation (SDE), which requires the score function of the evolving sample distribution. The logarithm of this distribution's density is governed by a Hamilton-Jacobi-Bellman (HJB) type partial differential equation (PDE). However, current methods for solving this PDE, such as PINNs or trajectory-based techniques, often suffer from long training times and significant sensitivity to hyperparameter tuning. In this work, we introduce a novel and efficient solver for the underlying HJB equation based on the functional tensor train (FTT) format. The FTT representation leverages latent low-rank structures to efficiently approximate high-dimensional functions, enabling both model compression and rapid computation. By integrating this efficient representation with a backward-in-time iterative scheme derived from backward stochastic differential equations (BSDEs), we develop a fast, robust and accurate sampling method. Our approach overcomes primary bottlenecks of existing techniques, enabling high-fidelity sampling from challenging target distributions with improved efficiency.",
+      "authors": [
+        "Robert Gruhlke",
+        "Julius Berner",
+        "David Sommer",
+        "Lorenz Richter"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-07-07T22:24:10+00:00",
+      "link": "https://arxiv.org/pdf/2607.06841v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "efficient solver for score function PDE without long training",
+      "llm_evidence_cn": "高效的分数函数PDE求解器，无需长时间训练",
+      "llm_evidence": "高效的分数函数PDE求解器，无需长时间训练",
+      "canonical_evidence": "高效的分数函数PDE求解器，无需长时间训练",
+      "llm_tldr_en": "Tensor Train Diffusion solves the HJB equation for score-based sampling using functional tensor train, avoiding lengthy training of PINNs.",
+      "llm_tldr_cn": "扩散模型的分数函数求解通常需训练PINNs或轨迹方法，时间长且超参数敏感。本文提出基于函数张量训练的HJB方程求解器，利用低秩结构高效计算分数，无需长时间训练。在多种高维分布采样任务上，该方法在采样质量和效率上均优于现有方法。",
+      "llm_tldr": "扩散模型的分数函数求解通常需训练PINNs或轨迹方法，时间长且超参数敏感。本文提出基于函数张量训练的HJB方程求解器，利用低秩结构高效计算分数，无需长时间训练。在多种高维分布采样任务上，该方法在采样质量和效率上均优于现有方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
