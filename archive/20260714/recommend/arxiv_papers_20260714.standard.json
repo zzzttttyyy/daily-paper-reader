@@ -1,0 +1,212 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-14T21:27:24.229897+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2607.10781v1",
+      "source": "arxiv",
+      "title": "Is Energy Guidance All You Need? Training-Free Norm Injection for Driving World Models",
+      "abstract": "Driving world models built on large video-diffusion backbones generate realistic scenes but are hard to control: enforcing a traffic norm typically means retraining the backbone or conditioning it on hand-built layouts. We ask whether controllability requires training at all. Our experiment shows that a rectified-flow driving world model, which jointly generates future video and a planned ego trajectory, can have its planned trajectory steered entirely at sampling time by differentiable energy functions that encode driving norms, without knowledge-specific retraining of the diffusion backbone. Concretely, we demonstrate that a world model built on Open-Sora 2.0 MM-DiT backbone can be steered to brake at a counterfactual target by injecting energy guidance at sampling time. However, we find that the generated video does not yet follow the steered trajectory through the backbone's joint self-attention and identify the cross-stream coupling as a crucial requirement for end-to-end-controllable rollouts.",
+      "authors": [
+        "Xiyan Su",
+        "Frank Diermeyer",
+        "Markus Lienkamp"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-07-12T14:17:42+00:00",
+      "link": "https://arxiv.org/pdf/2607.10781v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free norm injection for driving world model video generation",
+      "llm_evidence_cn": "免训练规范注入用于驾驶世界模型视频生成",
+      "llm_evidence": "免训练规范注入用于驾驶世界模型视频生成",
+      "canonical_evidence": "免训练规范注入用于驾驶世界模型视频生成",
+      "llm_tldr_en": "Demonstrates training-free steering of video diffusion world models by injecting energy functions at sampling time, enabling controllable video generation without retraining.",
+      "llm_tldr_cn": "针对驾驶世界模型难以控制的问题，本文提出完全免训练的方法，通过在采样时注入可微能量函数来引导自车轨迹，基于Open-Sora 2.0骨干实现无需重训即可控制车辆刹车等行为，验证了训练时能量引导在视频扩散模型控制中的有效性。",
+      "llm_tldr": "针对驾驶世界模型难以控制的问题，本文提出完全免训练的方法，通过在采样时注入可微能量函数来引导自车轨迹，基于Open-Sora 2.0骨干实现无需重训即可控制车辆刹车等行为，验证了训练时能量引导在视频扩散模型控制中的有效性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.10853v1",
+      "source": "arxiv",
+      "title": "Diversify Diffusion with Temperature Sampling and Variance-Corrective Time Shifting",
+      "abstract": "Diffusion models faithfully reproduce their training distribution, but also inherit its imbalances and leave rare or under-represented modes hard to reach. A natural inference-time remedy is to sample from the high-temperature target $p^{(γ)}_0(x) \\propto p_0(x)^γ$ for $0 < γ< 1$, which flattens dominant modes and lifts rare ones. However, naive score scaling while correctly reweighting modes also inflates the per-mode variance, breaking the reverse diffusion process and degrading sample quality. We introduce variance-corrective time shifting, a training-free fix that queries the network at a shifted timestep and scales the resulting score by $γ$, canceling the variance inflation while preserving the mode reweighting. The correction turns simple temperature sampling into a practical diversity knob for pretrained diffusion and flow-matching backbones with no retraining, and we demonstrate consistent gains at minimal cost to sample quality and condition fidelity across DiT, Stable Diffusion and Motion Diffusion models. We further show that the timing of the temperature intervention enables coarse-to-fine control: high-noise stages drive compositional diversity across modes, while low-noise stages drive local appearance variation under a fixed composition.",
+      "authors": [
+        "Peizhuo Li",
+        "Emre Aksan",
+        "Alexandru-Eugen Ichim",
+        "Thabo Beeler",
+        "Olga Sorkine-Hornung"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-12T17:32:29+00:00",
+      "link": "https://arxiv.org/pdf/2607.10853v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free variance corrective time shifting for temperature sampling",
+      "llm_evidence_cn": "用于温度采样的免训练方差校正时间偏移",
+      "llm_evidence": "用于温度采样的免训练方差校正时间偏移",
+      "canonical_evidence": "用于温度采样的免训练方差校正时间偏移",
+      "llm_tldr_en": "Proposes variance-corrective time shifting, a training-free fix that enables high-temperature sampling for diffusion models without quality degradation.",
+      "llm_tldr_cn": "为了解决扩散模型在高温采样时方差膨胀导致质量下降的问题，该文提出了一种无需训练的方差校正时间偏移方法。该方法通过在偏移时间步查询网络并缩放分数，消除了方差膨胀同时保留了模式重加权效果。实验表明，该训练自由技术有效提升了稀有模式的采样质量，是一种通用的扩散模型免训练优化策略。",
+      "llm_tldr": "为了解决扩散模型在高温采样时方差膨胀导致质量下降的问题，该文提出了一种无需训练的方差校正时间偏移方法。该方法通过在偏移时间步查询网络并缩放分数，消除了方差膨胀同时保留了模式重加权效果。实验表明，该训练自由技术有效提升了稀有模式的采样质量，是一种通用的扩散模型免训练优化策略。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.11081v1",
+      "source": "arxiv",
+      "title": "Controlling Motion Transfer in Diffusion Transformers via Attention Heads",
+      "abstract": "Diffusion Transformers (DiTs) have advanced video generation with high-quality, temporally coherent results. However, extending them to motion transfer, which requires following reference motion while aligning with a target prompt, remains challenging due to limited understanding of motion and structure representations within DiTs. We analyze video DiTs at the attention-head level and identify distinct heads specialized for motion and spatial structure. Based on this insight, we propose a head-aware controllable motion transfer framework that requires no parameter updates. Our method refines motion cues from motion-specialized heads via semantic correspondence guidance and preserves structure through selective feature injection. This head-level control not only enables accurate motion transfer but also provides an interpretable foundation for controllable video generation with DiTs.",
+      "authors": [
+        "Sunyoung Jung",
+        "Jiwoo Park",
+        "Yoonseok Choi",
+        "Kyobin Choo",
+        "Ming-Hsuan Yang",
+        "Seong Jae Hwang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-13T04:44:14+00:00",
+      "link": "https://arxiv.org/pdf/2607.11081v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free motion transfer for video diffusion",
+      "llm_evidence_cn": "无需训练的视频扩散运动迁移方法",
+      "llm_evidence": "无需训练的视频扩散运动迁移方法",
+      "canonical_evidence": "无需训练的视频扩散运动迁移方法",
+      "llm_tldr_en": "Identifies motion-specialized attention heads in video Diffusion Transformers and proposes a head-aware training-free framework for controllable motion transfer.",
+      "llm_tldr_cn": "针对视频扩散Transformer中运动迁移的难题，该文首先分析了注意头层面的运动与结构表征，识别出专门负责运动和空间结构的注意头。基于此，提出一个无需参数更新的头部感知可控运动迁移框架，通过语义对应引导精炼运动线索，并通过选择性特征注入保持结构。该方法无需额外训练即可实现高质量的运动迁移，为视频扩散模型的免训练优化提供了新思路。",
+      "llm_tldr": "针对视频扩散Transformer中运动迁移的难题，该文首先分析了注意头层面的运动与结构表征，识别出专门负责运动和空间结构的注意头。基于此，提出一个无需参数更新的头部感知可控运动迁移框架，通过语义对应引导精炼运动线索，并通过选择性特征注入保持结构。该方法无需额外训练即可实现高质量的运动迁移，为视频扩散模型的免训练优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.11655v1",
+      "source": "arxiv",
+      "title": "Feature-Space Guided Diffusion for Realistic Ultrasound Image Synthesis",
+      "abstract": "Conditional diffusion models can generate anatomically plausible medical ultrasound (US) images, but anatomical plausibility alone does not ensure realistic B-mode appearance. Most US pipelines adapt standard generative architectures and condition them on anatomical masks, or use guidance mechanisms that reinforce the same anatomical signal. However, B-mode US images are shaped by acquisition-dependent properties such as speckle texture, tissue contrast, and attenuation. Using a frozen US foundation model, we show that standard conditional diffusion baselines remain separated from real images in representation space. In this work, we propose Feature-Space Candidate Guidance (FSCG), a training-free sampling strategy to reduce this gap. At sampling time, FSCG applies local k-NN feature correction and selects the best of multiple stochastic candidates according to their feature-space energy. In this way, the mask defines the anatomy, while FSCG steers samples toward the real US domain. Across three different datasets, FSCG reduces average FID64 by 56\\%, FID192 by 57\\%, and nearest-neighbour feature distance by 47\\% over standard conditional diffusion sampling, outperforming alternative inference-time guidance baselines. The results suggest that domain-aware feature representations can reveal and reduce realism gaps in medical diffusion synthesis without retraining the generator. Our code is available at https://github.com/marinadominguez/FSCG.",
+      "authors": [
+        "Marina Domínguez",
+        "Nélida Mirabet-Herranz",
+        "Valery Naranjo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-13T15:05:21+00:00",
+      "link": "https://arxiv.org/pdf/2607.11655v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sampling strategy for diffusion image generation",
+      "llm_evidence_cn": "扩散图像生成的免训练采样策略",
+      "llm_evidence": "扩散图像生成的免训练采样策略",
+      "canonical_evidence": "扩散图像生成的免训练采样策略",
+      "llm_tldr_en": "Proposes Feature-Space Candidate Guidance (FSCG), a training-free sampling strategy that uses a frozen ultrasound foundation model to reduce the gap between generated and real ultrasound images.",
+      "llm_tldr_cn": "针对条件扩散模型生成的超声图像在B-mode外观上与真实图像存在差距的问题，本文提出特征空间候选引导（FSCG），一种无需训练的采样策略。通过在采样时利用冻结的超声基础模型进行特征空间引导，缩小生成图像与真实图像在表示空间中的差异。实验表明该方法有效提升了生成图像的真实感，且不增加训练成本。该方法为医学图像生成提供了一种轻量级免训练优化方案。",
+      "llm_tldr": "针对条件扩散模型生成的超声图像在B-mode外观上与真实图像存在差距的问题，本文提出特征空间候选引导（FSCG），一种无需训练的采样策略。通过在采样时利用冻结的超声基础模型进行特征空间引导，缩小生成图像与真实图像在表示空间中的差异。实验表明该方法有效提升了生成图像的真实感，且不增加训练成本。该方法为医学图像生成提供了一种轻量级免训练优化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.06481v1",
+      "source": "arxiv",
+      "title": "Prompt-Adapter Context Routing for Parameter-Efficient Multi-Shot Long Video Extrapolation",
+      "abstract": "We present PACR-Video, a parameter-efficient framework for multi-shot long video extrapolation that preserves recurring entities, scene structure, visual style, and causal progression without full generator fine-tuning. PACR-Video keeps a text-to-video diffusion transformer frozen and augments it with low-rank temporal adapters conditioned by learned shot-role prompt tokens. To maintain long-horizon coherence, it builds a recursive prompt bank that stores compact entity, location, action, and style prompts from previous shots, then routes them through adapter gates according to predicted narrative dependencies. A Shot-Local/Story-Global tuning objective combines next-shot reconstruction, cross-shot identity contrast, and prompt sparsity regularization, while an adapter composition schedule balances early-shot visual consistency with later-shot event progression and viewpoint change. Across six multi-shot and long-video benchmarks, PACR-Video outperforms text-to-video, tuning-based, memory-augmented, streaming, and recursive-context baselines on distributional quality, semantic alignment, identity consistency, temporal smoothness, motion stability, transition coherence, and human preference. These results show that compact prompt routing and lightweight temporal adaptation provide sufficient controllable capacity for stable long video extrapolation.",
+      "authors": [
+        "Anna Córdoba",
+        "Adam Puente Tercero",
+        "Nerea Angulo Hijo",
+        "Mar Linares Tercero",
+        "Julia Barrientos",
+        "Ainhoa Miranda",
+        "Jesús Olivera"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-07T16:41:25+00:00",
+      "link": "https://arxiv.org/pdf/2607.06481v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video extrapolation without full generator fine-tuning",
+      "llm_evidence_cn": "无需完整生成器微调的视频外推",
+      "llm_evidence": "无需完整生成器微调的视频外推",
+      "canonical_evidence": "无需完整生成器微调的视频外推",
+      "llm_tldr_en": "PACR-Video enables multi-shot long video extrapolation without full model fine-tuning, using frozen diffusion transformer plus learned adapters.",
+      "llm_tldr_cn": "本文提出PACR-Video，用于多片段长视频外推，无需对完整生成器进行微调。方法保持文本到视频扩散Transformer冻结，仅训练少量低秩时间适配器。虽然仍需训练适配器，但避免了昂贵的全模型训练，属于参数高效优化。在保持时序一致性和角色身份方面表现良好。",
+      "llm_tldr": "本文提出PACR-Video，用于多片段长视频外推，无需对完整生成器进行微调。方法保持文本到视频扩散Transformer冻结，仅训练少量低秩时间适配器。虽然仍需训练适配器，但避免了昂贵的全模型训练，属于参数高效优化。在保持时序一致性和角色身份方面表现良好。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

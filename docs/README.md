@@ -6,40 +6,37 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-13
-- 运行时间：2026-07-13 21:19:39 UTC
+- 最新运行日期：2026-07-14
+- 运行时间：2026-07-14 21:31:12 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：1
-- 速读区：5
+- 本次总论文数：5
+- 精读区：4
+- 速读区：1
 
 ### 今日简报（AI）
-今日精读1篇满分论文，速读5篇，聚焦训练加速、舞蹈生成与移动视频扩散。  
-最值得关注的是《x-Prediction Is All You Need》提出的无训练加速生成方法，以及《Wan-Dancer》实现的分钟级连贯音乐到舞蹈生成。  
-建议研究者跟进新颖的端点可解码性思想，对生成质量有启发；普通读者可留意舞蹈生成与移动端视频应用的最新突破。
-- 详情：[/202607/13/README](/202607/13/README)
+今日精读两篇9分论文：无训练范数注入驱动世界模型与扩散模型多样性优化，速读一篇6分视频外推方法。  
+最值得关注“无训练范数注入”与“温度采样+方差校正时间偏移”两个创新方向。  
+建议优先精读这两篇高分论文，理解无训练范式与扩散多样性调优的核心机制。
+- 详情：[/202607/14/README](/202607/14/README)
 
 ### 精读区论文标签
-1. [x-Prediction Is All You Need:Training-Free Accelerated Generation via Endpoint Decodability](/202607/13/2607.06114v1-x-prediction-is-all-you-needtraining-free-accelerated-generation-via-endpoint-decodability)  
-   标签：评分：10.0/10、query:tfree-diff
-   evidence：提出通过端点可解码性实现扩散和流模型的免训练加速生成
+1. [Is Energy Guidance All You Need? Training-Free Norm Injection for Driving World Models](/202607/14/2607.10781v1-is-energy-guidance-all-you-need-training-free-norm-injection-for-driving-world-models)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练规范注入用于驾驶世界模型视频生成
+2. [Diversify Diffusion with Temperature Sampling and Variance-Corrective Time Shifting](/202607/14/2607.10853v1-diversify-diffusion-with-temperature-sampling-and-variance-corrective-time-shifting)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：用于温度采样的免训练方差校正时间偏移
+3. [Controlling Motion Transfer in Diffusion Transformers via Attention Heads](/202607/14/2607.11081v1-controlling-motion-transfer-in-diffusion-transformers-via-attention-heads)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：无需训练的视频扩散运动迁移方法
+4. [Feature-Space Guided Diffusion for Realistic Ultrasound Image Synthesis](/202607/14/2607.11655v1-feature-space-guided-diffusion-for-realistic-ultrasound-image-synthesis)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：扩散图像生成的免训练采样策略
 
 ### 速读区论文标签
-1. [Wan-Dancer: A Hierarchical Framework for Minute-scale Coherent Music-to-Dance Generation](/202607/13/2607.09581v1-wan-dancer-a-hierarchical-framework-for-minute-scale-coherent-music-to-dance-generation)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：提出分层框架用于分钟级连贯音乐到舞蹈视频生成，使用扩散模型
-2. [Asymptotic-Preserving A Posteriori Analysis of Diffusion and Flow-Matching Samplers](/202607/13/2607.04113v1-asymptotic-preserving-a-posteriori-analysis-of-diffusion-and-flow-matching-samplers)  
+1. [Prompt-Adapter Context Routing for Parameter-Efficient Multi-Shot Long Video Extrapolation](/202607/14/2607.06481v1-prompt-adapter-context-routing-for-parameter-efficient-multi-shot-long-video-extrapolation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：分析扩散采样器，无需真实分数，支持事后审计
-3. [MobileWan: Closing the Quality Gap for Mobile Video Diffusion](/202607/13/2607.06173v1-mobilewan-closing-the-quality-gap-for-mobile-video-diffusion)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：通过压缩在移动端部署视频扩散模型
-4. [D2PO: Optimizing Diffusion Samplers via Dynamic Preference](/202607/13/2607.06609v1-d2po-optimizing-diffusion-samplers-via-dynamic-preference)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：通过动态偏好优化扩散采样器策略
-5. [Tensor Train Diffusion: Leveraging Low-Rank Structures for High-Dimensional Score-Based Sampling](/202607/13/2607.06841v1-tensor-train-diffusion-leveraging-low-rank-structures-for-high-dimensional-score-based-sampling)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：高效的分数函数PDE求解器，无需长时间训练
+   evidence：无需完整生成器微调的视频外推
 
 
 <div class="dpr-home-promo-card">
