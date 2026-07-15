@@ -6,37 +6,34 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-14
-- 运行时间：2026-07-14 21:31:12 UTC
+- 最新运行日期：2026-07-15
+- 运行时间：2026-07-15 20:36:17 UTC
 - 运行状态：成功
-- 本次总论文数：5
-- 精读区：4
+- 本次总论文数：4
+- 精读区：3
 - 速读区：1
 
 ### 今日简报（AI）
-今日精读两篇9分论文：无训练范数注入驱动世界模型与扩散模型多样性优化，速读一篇6分视频外推方法。  
-最值得关注“无训练范数注入”与“温度采样+方差校正时间偏移”两个创新方向。  
-建议优先精读这两篇高分论文，理解无训练范式与扩散多样性调优的核心机制。
-- 详情：[/202607/14/README](/202607/14/README)
+1) 今日精选2篇高分论文：聚焦扩散模型服务优化与视频生成缓存加速。
+2) 最值得关注的方向：FlashDiff实现扩散模型的高效区域执行与调度，ACID提出视频生成的自适应缓存策略，均为9.0/10高分。
+3) 建议优先精读这两篇，掌握提升生成模型推理效率的核心方法。
+- 详情：[/202607/15/README](/202607/15/README)
 
 ### 精读区论文标签
-1. [Is Energy Guidance All You Need? Training-Free Norm Injection for Driving World Models](/202607/14/2607.10781v1-is-energy-guidance-all-you-need-training-free-norm-injection-for-driving-world-models)  
+1. [FlashDiff: Efficient Regional Execution and Scheduling for Diffusion Model Serving](/202607/15/2607.12121v1-flashdiff-efficient-regional-execution-and-scheduling-for-diffusion-model-serving)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练规范注入用于驾驶世界模型视频生成
-2. [Diversify Diffusion with Temperature Sampling and Variance-Corrective Time Shifting](/202607/14/2607.10853v1-diversify-diffusion-with-temperature-sampling-and-variance-corrective-time-shifting)  
+   evidence：扩散模型推理的免训练系统优化
+2. [ACID: Adaptive Caching for vIDeo generation](/202607/15/2607.12358v1-acid-adaptive-caching-for-video-generation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：用于温度采样的免训练方差校正时间偏移
-3. [Controlling Motion Transfer in Diffusion Transformers via Attention Heads](/202607/14/2607.11081v1-controlling-motion-transfer-in-diffusion-transformers-via-attention-heads)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：无需训练的视频扩散运动迁移方法
-4. [Feature-Space Guided Diffusion for Realistic Ultrasound Image Synthesis](/202607/14/2607.11655v1-feature-space-guided-diffusion-for-realistic-ultrasound-image-synthesis)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：扩散图像生成的免训练采样策略
+   evidence：自适应缓存加速视频扩散，无需重新训练
+3. [Wan-Dancer: A Hierarchical Framework for Minute-scale Coherent Music-to-Dance Generation](/202607/15/2607.09581v2-wan-dancer-a-hierarchical-framework-for-minute-scale-coherent-music-to-dance-generation)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：使用分层框架的分钟级连贯音乐到舞蹈视频生成
 
 ### 速读区论文标签
-1. [Prompt-Adapter Context Routing for Parameter-Efficient Multi-Shot Long Video Extrapolation](/202607/14/2607.06481v1-prompt-adapter-context-routing-for-parameter-efficient-multi-shot-long-video-extrapolation)  
+1. [Steering Diffusion Models via Class-Contrastive Influence for Few-Shot Medical Classification](/202607/15/2607.12464v1-steering-diffusion-models-via-class-contrastive-influence-for-few-shot-medical-classification)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：无需完整生成器微调的视频外推
+   evidence：扩散模型的免训练样本选择准则
 
 
 <div class="dpr-home-promo-card">

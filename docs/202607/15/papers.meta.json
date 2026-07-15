@@ -1,0 +1,69 @@
+{
+  "label": "2026-07-15",
+  "date": "2026-07-15",
+  "generated_at": "2026-07-15T20:36:24",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202607/15/2607.12121v1-flashdiff-efficient-regional-execution-and-scheduling-for-diffusion-model-serving",
+      "section": "deep",
+      "title_en": "FlashDiff: Efficient Regional Execution and Scheduling for Diffusion Model Serving",
+      "authors": "Yaqi Qiao, Ping He, Songrun Xie, Ayush Barik, Chensong Zhang, Zhengzhong Tu, Fan Lai",
+      "date": "2026-07-13",
+      "pdf": "https://arxiv.org/pdf/2607.12121v1",
+      "score": "9.0",
+      "evidence": "扩散模型推理的免训练系统优化",
+      "tldr": "扩散模型服务面临延迟高、吞吐量低的挑战，现有多GPU并行化因通信开销过大而效果有限。FlashDiff通过自适应区域执行和调度，利用各区域和步骤的差异化细化需求，仅执行必要计算并回收空闲资源。在真实图像、视频和音频工作负载上，延迟降低30-97%，吞吐量提升1.2-2.2倍。该系统为扩散模型高效服务提供了新范式。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion models have become the central backbone for modern image, video, and audio generation, but their efficient service remains a challenge. Unlike autoregressive decoding, diffusion inference repeatedly updates high-dimensional spatial or temporal latents over many denoising steps. This all-region execution pattern makes generation latency high and limits serving throughput. Existing multi-GPU parallelization methods can reduce per-step computation, but often introduce substantial activation exchange overhead, causing communication to offset or even outweigh the benefits of parallel execution.   This paper presents FlashDiff, a diffusion serving system that improves inference efficiency through adaptive regional execution and scheduling. FlashDiff is based on the observation that diffusion refinement is not uniform across latent regions or denoising steps: different regions often stabilize at different rates, while neighboring steps exhibit strong temporal correlation. FlashDiff leverages these properties to selectively execute only regions that require further refinement and to reallocate the resulting compute slack across concurrent serving requests. FlashDiff consists of three mechanisms. First, it decomposes the latent representation into coherent execution regions using early-stage attention signals, preserving semantic structure while exposing fine-grained parallelism. Second, it uses a lightweight runtime controller to estimate region activity and bypass low-impact updates when further refinement is unlikely to affect output quality. Third, it applies an affinity-aware online scheduler that co-locates dependent regions, balances residual load across GPUs, and reuses reclaimed compute capacity to improve serving efficiency. Across real-world image, video, and audio workloads, FlashDiff reduces end-to-end serving latency by 30-97% and improves throughput by 1.2-2.2x.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/15/2607.12358v1-acid-adaptive-caching-for-video-generation",
+      "section": "deep",
+      "title_en": "ACID: Adaptive Caching for vIDeo generation",
+      "authors": "Om Agrawal, Saurabh Agarwal, Aditya Akella",
+      "date": "2026-07-14",
+      "pdf": "https://arxiv.org/pdf/2607.12358v1",
+      "score": "9.0",
+      "evidence": "自适应缓存加速视频扩散，无需重新训练",
+      "tldr": "视频扩散模型推理速度慢，现有缓存方法采用固定阈值控制漂移，导致速度与质量难以平衡。本文提出ACID，通过实时监测漂移信号变化率，在关键步骤自动切换到低阈值，其余步骤积极缓存，实现自适应缓存策略。在TeaCache等三个方法和HunyuanVideo等三个模型上，ACID在几乎不损失质量（PSNR<0.3dB）的情况下，相比无缓存基线加速2.16倍，相比保守固定阈值额外加速38%。该方法轻量级、即插即用，拓展了速度-质量Pareto边界。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Video diffusion models produce high-quality generations but remain slow at inference due to their sequential denoising procedure. Caching-based acceleration methods address this by reusing intermediate model outputs: leading dynamic approaches such as TeaCache, EasyCache, and DiCache accumulate a drift signal and skip expensive model evaluations when accumulated drift stays below a fixed threshold τ. This threshold controls an apparent tradeoff - raising it yields faster generation at the cost of visual quality, while lowering it preserves quality but sacrifices speed. We show this tradeoff is not fundamental; it is an artifact of holding τ constant throughout denoising. We identify the existence of critical steps - timesteps where the drift signal changes rapidly - and show that applying a low threshold selectively at these steps while caching aggressively elsewhere recovers most of the quality of conservative caching at substantially higher inference speeds. Building on this insight, we propose ACID, a lightweight, training-free wrapper that monitors the rate of change of each method's existing drift signal to dynamically switch between a low and a high threshold. ACID is signal-agnostic and modular: it requires no retraining and plugs directly into existing dynamic caching methods without modifying their core mechanisms. Evaluated across three caching methods (TeaCache, EasyCache, DiCache) and three open-source video diffusion models (HunyuanVideo, Wan 2.1, CogVideoX), ACID consistently expands the Pareto frontier of visual quality versus inference speed beyond what any fixed threshold achieves. In particular, on TeaCache and HunyuanVideo, ACID achieves up to 2.16x speedup over the no-caching baseline, and up to 38% additional speedup over the conservative fixed-threshold baseline with negligible (<0.3 dB PSNR, <0.01 SSIM, <0.01 LPIPS) quality degradation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/15/2607.09581v2-wan-dancer-a-hierarchical-framework-for-minute-scale-coherent-music-to-dance-generation",
+      "section": "deep",
+      "title_en": "Wan-Dancer: A Hierarchical Framework for Minute-scale Coherent Music-to-Dance Generation",
+      "authors": "Mingyang Huang, Peng Zhang, Li Hu, Guangyuan Wang, Bang Zhang",
+      "date": "2026-07-10",
+      "pdf": "https://arxiv.org/pdf/2607.09581v2",
+      "score": "8.0",
+      "evidence": "使用分层框架的分钟级连贯音乐到舞蹈视频生成",
+      "tldr": "现有扩散模型生成音乐驱动舞蹈视频常受限于20秒以内，存在时间漂移和身份不一致。提出层次化框架，通过全局关键帧规划和局部细化解耦生成，利用全曲上下文保持长程连贯性。创新采用动态帧率自适应（时间映射RoPE）和光流损失提升运动连续性，并引入运动速度控制。实验生成超过一分钟的720p/30fps稳定视频，在五种舞蹈风格中均达到新最优。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Generating long-duration, high-definition, and rhythmically synchronized dance videos directly from music remains a significant challenge, primarily due to the temporal constraints of current diffusion models, which typically fail beyond 20 seconds. Existing approaches, whether they rely on intermediate 3D skeletons or on end-to-end video synthesis, suffer from temporal drift, identity inconsistency, and repetitive motion patterns when extended to longer horizons. To address these limitations, we propose a novel hierarchical framework for minute-scale coherent music-to-dance generation. Our method decouples the process into global keyframe planning and local temporal refinement, leveraging full-track musical context to ensure long-range coherence. Key innovations include dynamic frame rate adaptation via time-mapped RoPE embeddings for precise alignment, an optical-flow-based loss function to enhance motion continuity, and motion-speed control to preserve high-fidelity details during rapid movements. Extensive experiments demonstrate that our framework surpasses the conventional duration barrier, generating stable, 720p/30fps videos exceeding one minute with superior temporal stability. Furthermore, the model exhibits robust versatility across five distinct dance genres, conditioned on both audio and textual prompts, establishing a new state-of-the-art in coherent, long-form dance video synthesis.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/15/2607.12464v1-steering-diffusion-models-via-class-contrastive-influence-for-few-shot-medical-classification",
+      "section": "quick",
+      "title_en": "Steering Diffusion Models via Class-Contrastive Influence for Few-Shot Medical Classification",
+      "authors": "Jeeyung Kim, Erfan Esmaeili, Qiang Qiu",
+      "date": "2026-07-14",
+      "pdf": "https://arxiv.org/pdf/2607.12464v1",
+      "score": "6.0",
+      "evidence": "扩散模型的免训练样本选择准则",
+      "tldr": "少样本医学图像分类中，现有扩散模型数据增强忽视样本对分类任务的有用性。本文提出类对比影响（C2I）标准，基于梯度影响量化样本效用，发现高C2I样本即困难边界样本能优化决策边界。通过强化学习以C2I奖励微调扩散模型，引导生成类信息样本。在多个基准上，该方法提升分类准确性与鲁棒性，表明任务导向的合成增强优于单纯追求图像质量。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "When labeled data are scarce, off-the-shelf diffusion models can augment training sets for few-shot medical image classification, but not all generated samples are equally useful for the downstream task. Existing approaches largely improve synthetic data by increasing realism, diversity, or domain adaptation, while overlooking a more fundamental question: how should sample usefulness for classification be measured and optimized? We address this with Class-Contrastive Influence (C2I), a criterion that quantifies a sample's usefulness through its gradient-based influence on the classifier. We find that effective samples exhibit a strong C2I gap: their loss gradients align with validation gradients from the same class and oppose those from other classes. Our analysis further suggests that such high-C2I samples are hard, boundary-proximal examples that help refine the decision boundary and improve robustness. Building on this insight, we fine-tune diffusion models with reinforcement learning using a C2I-based reward to steer generation toward class-informative samples. Across several few-shot medical imaging benchmarks, C2I-guided generation improves downstream accuracy and robustness over diffusion-based augmentation baselines, showing that synthetic augmentation is most effective when guided by task usefulness rather than image quality alone.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

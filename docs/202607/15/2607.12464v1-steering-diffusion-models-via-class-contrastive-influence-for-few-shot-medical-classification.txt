@@ -1,0 +1,904 @@
+Title: Steering Diffusion Models via Class-Contrastive Influence for Few-Shot Medical Classification
+
+URL Source: https://arxiv.org/pdf/2607.12464v1
+
+Published Time: Wed, 15 Jul 2026 12:01:08 GMT
+
+Number of Pages: 27
+
+Markdown Content:
+# Steering Diffusion Models via Class-Contrastive Influence for Few-Shot Medical Classification 
+
+Jeeyung Kim , Erfan Esmaeili, and Qiang Qiu 
+
+Purdue University, West Lafayette, USA 
+
+{jkim17, efakhabi, qqiu}@purdue.edu 
+
+Abstract. When labeled data are scarce, off-the-shelf diffusion models can augment training sets for few-shot medical image classification, but not all generated samples are equally useful for the downstream task. Ex-isting approaches largely improve synthetic data by increasing realism, diversity, or domain adaptation, while overlooking a more fundamen-tal question: how should sample usefulness for classification be measured and optimized? We address this with Class-Contrastive Influence (C2I), a criterion that quantifies a sample’s usefulness through its gradient-based influence on the classifier. We find that effective samples exhibit a strong C2I gap: their loss gradients align with validation gradients from the same class and oppose those from other classes. Our anal-ysis further suggests that such high-C2I samples are hard, boundary-proximal examples that help refine the decision boundary and improve robustness. Building on this insight, we fine-tune diffusion models with reinforcement learning using a C2I-based reward to steer generation to-ward class-informative samples. Across several few-shot medical imaging benchmarks, C2I-guided generation improves downstream accuracy and robustness over diffusion-based augmentation baselines, showing that synthetic augmentation is most effective when guided by task usefulness rather than image quality alone. 
+
+# 1 Introduction 
+
+Data augmentation is a standard tool for learning under label scarcity, and recent diffusion models [22] have made synthetic augmentation especially attractive for few-shot classification. Prior work has mostly tried to improve synthetic data by increasing realism, diversity, or quantity, either by generating label-preserving variants of real images [13, 30, 38] or by fine-tuning generators on limited in-domain data [15, 31, 38]. However, the resulting downstream gains are often in-consistent. Some generated samples substantially improve the classifier, while others contribute little despite appearing similarly plausible. Figure 1 illustrates this discrepancy: different subsets of generated images can lead to markedly dif-ferent classification performance even when their visual quality is comparable. We argue that the central limitation of current practice is therefore not gen-eration quality alone, but the lack of a principled notion of task usefulness . In low-data regimes, where every added example matters, the key question is not arXiv:2607.12464v1 [cs.CV] 14 Jul 2026 2 J. Kim et al. 
+
+how to generate more realistic images, but how to generate synthetic images that are actually useful for classification.    
+
+> Fig. 1: We fine-tune Stable Diffusion on 32 BreastMNIST images per class and generate 20 synthetic images per class for Sets 1 and 2. Original only uses only real images. Set 1 produces stronger classification AUC than Set 2.
+
+A criterion for sample effectiveness. We address this question through 
+
+Class-Contrastive Influence (C2I), a criterion that evaluates a sample by how its training signal interacts with the downstream classification task. We find that a sample is most useful when its loss gradient aligns with validation gradients from the same class while opposing those from other classes, yielding a strong class-contrastive signal and therefore a high C2I score. Our analysis provides theoretical support for this view: maximizing C2I draws features toward the global mean of the validation set, which tends to lie near the decision boundary. As a result, high-C2I samples are typically hard, boundary-proximal examples. Training on such samples encourages the classifier to refine its decision boundary, leading to improved generalization. 
+
+RL fine-tuning diffusion models for effective data augmentation. 
+
+Building on this insight, we propose a general fine-tuning scheme that turns an off-the-shelf diffusion model into a targeted data generator for classification, as depicted in Figure 2. We design a reward based on C2I that scores generations by the degree to which their induced classifier gradients align with same-class validation gradients and oppose other-class gradients. We then fine-tune the gen-erator with reinforcement learning (RL) to maximize C2I, steering toward hard, class-informative regions of the data manifold. The method is plug-and-play, requiring no architectural modifications to the generator or the classifier, and uses only a validation split to compute influence signals. Unlike prior approaches that focus on realism or diversity, C2I explicitly optimizes for task usefulness, enabling the generator to produce examples that sharpen decision boundaries. 
+
+Scope and setting. We evaluate this targeted augmentation in few-shot medical image classification, a regime where label scarcity and distribution shift routinely limit performance and where realistic yet task-useful synthetic data can be especially valuable. We compare against strong baselines, including standard transformation-based and other diffusion-based augmentation methods. Across multiple datasets with limited labels, our C2I-guided generator consistently im-proves accuracy and robustness, yielding models that generalize more effectively under domain shift without adding test-time generation overhead .
+
+Contributions. Steering Diffusion Models via C2I 3 
+
+> Fig. 2: Overview of Class-Contrastive Influence (C2I). Gradients from gener-ated and validation samples are compared, and the C2I reward is computed from their alignment: encouraging positive alignment with same-class validation gradients and negative alignment with opposite-class gradients. This reward, defined jointly by the classifier, generated data, and validation data, guides reinforcement learning fine-tuning of the generator toward decision-boundary-proximal samples.
+
+– We formalize effectiveness through Class-Contrastive Influence (C2I) and show that high-C2I samples correspond to hard examples. 
+
+– We propose an RL-based scheme that leverages C2I as a reward to opti-mize diffusion models for generating boundary-proximal, class-informative samples. 
+
+– On multiple few-shot tasks, C2I consistently outperforms standard and diffusion-based augmentation baselines, establishing it as a principled strategy for low-data regimes. Together, our study suggests a shift in using diffusion models for augmentation: rather than relying on realism and diversity, we should optimize generation for its downstream influence on the classifier. By aligning synthetic data with validation gradients, C2I turns off-the-shelf diffusion models into targeted generators that strengthen decision boundaries where labeled data are most scarce. 
+
+# 2 Preliminary 
+
+This section outlines the key concepts underlying our method. Section 2.1 defines notation, Section 2.2 reviews gradient-based influence estimation, and Section 2.3 presents the RL framework for fine-tuning diffusion models. 
+
+2.1 Notation 
+
+Let the number of classes be K ≥ 2. We write the training set as D = SKc=1 Dc
+
+and the validation set as V = SKc=1 Vc, where Dc and Vc contain samples of class 
+
+c. We use small Latin letters for vectors (e.g., image samples and feature vectors) 
+
+x, v, h ∈ Rd, and Greek letters α, β, . . . for scalars. The reward is computed over 
+
+sets of images: a set is a batch x = {x(j)}nj=1 generated by the diffusion model, 4 J. Kim et al. 
+
+conditioned on a specific class c; thus x ⊂ D c. Validation samples are denoted by v ∈ V c. We denote the diffusion model by ϵθ and the ViT-based classifier [6] by fϕ. The cross-entropy loss with respect to fϕ is written as ℓ(x; ϕ). The cross-entropy loss for K-way classification is written as ℓ(x; ϕ).
+
+2.2 Gradient-based Influence Estimation 
+
+[20] quantifies a training example’s influence by tracking its impact on valida-tion loss using gradient information. If x is a training sample, v a validation sample, the change in the validation loss by a single parameter update can be approximated as 
+
+ℓ(v; ft+1 ) − ℓ(v; ft) = −ηt ⟨∇ ℓ(x; ft), ∇ℓ(v; ft)⟩
+
++ O
+
+
+
+∥∇ ℓ(v; ft)∥2
+
+. (1) where ft represents the model at training iteration t, and ℓ(·; ·) is the loss func-tion. This approximation suggests that if the loss gradients are positively aligned (i.e. ∇ℓ(x) ∼ γ∇ℓ(v), γ > 0), the training sample is maximally effective in re-ducing validation loss. [33] extend this observation to Large Language Models (LLMs) with sev-eral modifications: (1) adapting gradient estimation to the Adam optimizer, (2) normalizing with cosine similarity, (3) computing only LoRA [12] gradients for efficiency, and (4) applying random projection [19] for dimensionality reduction. We adopt these modifications to compute influence, as they are well suited for large transformer-based models. Specifically, for a classification model fϕ, let  ˜∇ℓ ∈ RQ and  ˜Γ ∈ RQ denote the SGD and Adam optimizer LoRA gradients, respectively. The choice of optimizer (SGD or Adam) is not fundamental to our method. We used the Adam optimizer in our experiments, as it is commonly employed for training ViT classifiers. Given a set x ∈ D c of training samples and a validation sample v ∈ V ¯c for some c, ¯c ∈ { 0, 1}, we compute Influence as 
+
+Aϕ(x, v ) ≜ cos ( ∇ℓ(v; ϕ), Γ (x; ϕ)) , (2) where LoRA gradients are projected into a low  q-dimensional space via random projection  Π ∈ RQ×q , such that  ∇ℓ(v; ϕ) = Π⊤ ˜∇ℓ(v; ϕ).
+
+2.3 Reinforcement Learning Framework for Fine-tuning Diffusion Models 
+
+Reinforcement learning (RL) fine-tuning enhances diffusion models by optimiz-ing generation through reward feedback rather than likelihood maximization. The objective is to maximize the expected reward, i.e. LRL = Epθ (x) [r(x)] , op-timized using denoising diffusion policy optimization (DDPO) [3]. To support Steering Diffusion Models via C2I 5
+
+multi-step updates, DDPO uses importance sampling, resulting in the gradient: 
+
+∇θ JDDRL = E
+
+" TX
+
+> t=1
+
+wt(θ) · ∇ θ log pθ (xt−1|xt, C ) r(x0, C )
+
+#
+
+,wt(θ) ≜ pθ (xt−1 | xt, C )
+
+pθold (xt−1 | xt, C ) .
+
+(3) where  θ is the model,  C the context,  xt the intermediate state, and  x0 the final output 1. This formulation aligns diffusion models with task-specific objectives, enabling preference-guided generation. 
+
+# 3 The Proposed Method 
+
+In this section, we introduce a principled data augmentation strategy to improve classification performance. We argue that the usefulness of a synthetic sample should be judged by its influence on the downstream classifier, and that this criterion should guide the generation process to enable targeted data generation. To this end, we formalize what makes training samples effective through the notion of influence and propose an RL-based fine-tuning framework for diffu-sion models that encourages the generation of such samples. Section 3.1 defines 
+
+class-contrastive influence as a key property of effective samples, Section 3.2 es-tablishes its theoretical connection to sample hardness , and Section 3.3 presents the RL fine-tuning framework. An overview of our approach is provided in Fig-ure 2. 
+
+3.1 Class-Contrastive Influence as a Key Property of Effective Samples 
+
+We begin by analyzing what makes a sample effective for classification, using gradient-based influence (defined in eq. (2)) to quantify its impact on validation loss. While selecting data with high influence scores is a successful strategy in some settings like fine-tuning LLMs [33], this principle can fail in classification. The reason is that the validation set contains conflicting signals from different classes; a sample that helps one class may harm another. As a result, raw, class-agnostic influence scores show no correlation with classification performance, as illustrated in Appendix Figure 6. To understand this failure, we analyze influence scores on a per-class basis. As shown in Figure 3a, we find a distinct, class-contrastive pattern: a sample’s influence is consistently positive on validation data from its own class and neg-ative on data from other classes. Theoretical analysis in Appendix A.1 confirms that this phenomenon holds more generally. This insight leads us to hypothesize that a sample’s value lies not in its overall influence, but in its ability to create a large separation, or gap, between the influence distributions of different classes.      
+
+> 1With a slight abuse of notation, we find it convenient to use the same notation x0
+> to denote the class membership x∈ D 0in later sections.
+
+6 J. Kim et al.   
+
+> (a) (b) (c)
+
+Fig. 3: (a) With the BrestMNIST dataset, we compute influence between synthesized 
+
+malignant images and validation samples. They show positive scores with malignant 
+
+and negative with benign , demonstrating clear separation. (b) The average of C2I is negatively correlated with validation loss ( r = −0.241 , p = 0 .015 ), unlike raw influence scores (Figure 6). (c) Relationship between C2I and the signed distance to the decision boundary in logistic regression. Samples with higher C2I tend to lie closer to decision boundary, corresponding to harder examples. 
+
+To formalize this, we propose quantifying this separation in a binary classifi-cation task. For each synthetic sample x (conditioned on one class) and validation set Vc from class c ∈ { 0, 1}, we compute the class-specific mean and variance of influence: 
+
+μc(x, Vc) ≜ 1
+
+N
+
+> N
+
+X
+
+> j=1
+
+Aϕ(x, v jc ) (4) 
+
+σ2 
+
+> c
+
+(x, Vc) ≜ 1
+
+N − 1
+
+> N
+
+X
+
+> j=1
+
+ Aϕ(x, v jc ) − μc
+
+2 , c ∈ { 0, 1}.
+
+in which Aϕ is defined in (2). Using these statistics, we introduce the Class-Contrastive Influence (C2I) score, which measures the influence gap: 
+
+C2I(x, V; ϕ) = (μ0 − μ1)2
+
+pσ20 + σ21
+
+, (5) which penalizes distributional overlap while amplifying mean separation, making it analogous to a class-separability score. 
+
+Multi-class extension. While we present C2I for binary classification, extending to K classes is immediate. Let xa be a training sample from class a, and let 
+
+Vb = {vjb }Nj=1 be validation samples from class b. We define the class-conditional mean influence 
+
+μab (xa, Vb) ≜ 1
+
+N
+
+> N
+
+X
+
+> j=1
+
+Aϕ(xa, v jb ), (6) and set the C2I reward as the softmax score of the matching class: 
+
+C2I( xa) ≜ exp( μaa )
+
+PKb=1 exp( μab ) . (7) Steering Diffusion Models via C2I 7
+
+For K = 2 , this reduces to C2I( xa) = σ(μaa −μab ), matching the binary objective (cf. C2I in Eq. (5)). See Appendix A.3 for more details. Crucially, experimental results in Figure 3b confirm a consistent correlation between the C2I score and classification effectiveness (See Appendix B.1 for experimental details). This establishes that the influence gap between classes is a key determinant of sample usefulness. This naturally raises the next question: 
+
+why are samples with a large influence gap particularly effective? 
+
+In the next section, we uncover the property of C2I that explains their value for training. 
+
+3.2 Understanding Class-Contrastive Influence through Sample Hardness 
+
+In this section, we theoretically and empirically show that samples with large 
+
+Class-Contrastive Influence (C2I) improve classification performance due to their connection to sample hardness . Our main theoretical result shows that the train-ing example maximizing C2I is approximately the dataset average — which lies closer to the decision boundary than any individual class mean, and therefore has the highest classification loss. This explains why C2I selects “hard” examples that are most informative for the classifier. 
+
+Theoretical evidence. We first show that, in the context of logistic regression, maximizing C2I induces a feature-averaging effect that moves samples closer to the decision boundary—a known property of hard examples [26]. 
+
+Theorem 1. Consider a Logistic Regression model with output probabilities p(x) = 
+
+Sigmoid (w⊤x), x, w ∈ Rd and cross-entropy loss ℓ(x). Let  V0 and  V1 be vali-dation sets containing  N/ 2 samples from class 0 and class 1 respectively and 
+
+V = V0 ∪ V1 (for even N ). Consider the cosine similarity between the loss gra-dients of a sample  x and a validation sample  vi as: 
+
+A(x, v i) = ∇ℓ(x) · ∇ ℓ(vi)
+
+∥∇ ℓ(x)∥ ∥∇ ℓ(vi)∥ ,
+
+and define μc(x) = 1
+
+> N
+
+P 
+
+> i∈Vc
+
+A(x, v i). Then the sample  x that maximizes the absolute class influence gap  |μ0(x) − μ1(x)| is given by the convex combination 
+
+x⋆ = X
+
+> vi∈V
+
+αivi, αi = 1/∥vi∥
+
+P  
+
+> vj∈V
+
+1/∥vj ∥ . (8) Here αi > 0 for all i = 1 , · · · , N and P 
+
+> i
+
+αi = 1 . When the variance of |vi| is small (e.g., when the origin lies far from the data clusters), αi ≈ 1/N and x⋆
+
+approaches the global average of the validation set. This averaging effect directly relates to hardness. In logistic regression, if the class means ¯v0 and ¯v1 are predicted correctly (i.e., p(¯ v0) > 12 and p(¯ v1) < 12 ), then the global average ¯v = 12 (¯ v0 + ¯ v1) exhibits higher loss and lower confidence than either class mean (see Lemma 2 in Appendix A.2). Thus, Theorem 1 implies 8 J. Kim et al. 
+
+that maximizing C2I drives features toward the global mean across classes in the validation dataset, naturally producing harder examples. Ultimately, this forces the generator to create boundary-hugging, “hard” examples rather than safe, prototypical ones. This analysis rests on logistic regression and is intended as intuition rather than a guarantee for deep classifiers. 
+
+Empirical evidence. Figure 3c empirically confirms this link: in a logistic regression setup, samples with higher C2I lie closer to the decision boundary, supporting their interpretation as hard examples. In this toy experiment, logistic regression is trained on the Breast Cancer dataset [32], where the original 30-dimensional features are reduced with PCA for visualization. The distance to the decision boundary is measured by the classification logit. We further validate this observation in a larger-scale setting with our ViT classifier. As training progresses and C2I increases, features of diffusion-generated synthetic images move closer to the centroids of validation features (Fig. 4a). At the same time, the distance between synthetic class clusters decreases (Fig. 4b), indicating that features from different classes become more aligned. These theoretical and empirical findings establish that high C2I is connected to sample hardness. Since prior work [10, 17, 24–26, 36] has shown that hard examples improve robustness and generalization, our results explain the trend in Figure 3b: maximizing C2I guides diffusion models to generate harder, useful samples that help classifiers refine their decision boundaries. 
+
+3.3 Maximizing Class-Contrastive Influence in Diffusion Models via RL 
+
+Motivated by the previous findings, we hypothesize that generating images with high C2I can improve classification performance. To this end, we fine-tune a pre-trained T2I diffusion model within a reinforcement learning (RL) framework that encourages the generation of such samples. 
+
+Few-shot learning setup and model preparation. We consider a few-shot learning scenario where the training set D contains only a few labeled samples per class. Both the diffusion model ϵθ and the classifier fϕ are trained on D, as detailed in Sec. 4. For the classifier, we save a checkpoint after a epochs, denoted ϕa, which is later used for gradient computation. 
+
+RL fine-tuning procedure. We precompute validation gradients for each class using the fine-tuned classification model fϕa . Specifically, we collect the set of projected validation gradients for each class as G val  
+
+> c
+
+= ∇ℓ(v; ϕa) v ∈ V c , c =0, 1. During RL fine-tuning, we compute projected gradients of generated samples 
+
+Γ (x; ϕa) on-the-fly. Then,  Γ (x; ϕa), Gval  
+
+> c
+
+, are used to compute the reward based on C2I. The reward for the  i-th set of generated samples  xi is then defined as: 
+
+r(xi, V; ϕa) = C2I(xi, V; ϕa) = 
+
+ μ0(xi, V0) − μ(xi, V1)2
+
+pσ2(xi, V0) + σ2(xi, V1) . (9) Steering Diffusion Models via C2I 9   
+
+> (a) (b)
+> (c) (d)
+> Fig. 4: (a) During RL fine-tuning, increasing class-contrastive influence (C2I) pulls synthetic features closer to the mean of validation features. (b) The inter-class feature distance of synthetic images decreases during RL fine-tuning, indicating greater feature similarity. (c) The average C2I reward steadily increases during RL fine-tuning. (d) Samples generated after RL fine-tuning exhibit higher C2I, improved AUC, and lower validation loss.
+
+In practice, the same reward is assigned to all samples in each generated xi.Each minibatch during fine-tuning consists of multiple such sets: xminibatch =x1 
+
+> c
+
+, . . . , xnc , x1¯c , . . . , xn 
+
+> ¯c
+
+. The overall RL objective is defined as the expected reward across the distribution of generated samples: 
+
+LRL = Epθ (x) [r(x, V; ϕa)] . (10) 
+
+# 4 Experiments 
+
+In this section, we evaluate our method on few-shot medical image classification tasks. 
+
+Few-shot setup and model preparation. We adopt a few-shot regime with 16 or 32 labeled samples per class for training ( D) and use a validation set ( V) solely to provide gradient feedback for RL. The classifier fϕ is a ViT-B/16 pre-trained on ImageNet [5, 21], and the generator ϵθ is Stable Diffusion 2.1 (SD) [22]; both models are adapted to D using LoRA [12]. For the diffusion model, we follow the fine-tuning protocol of [15], updating LoRA weights on the linear projections within attention layers of both the text encoder and the U-Net. 
+
+RL-guided diffusion fine-tuning. We perform RL fine-tuning of SD [3] guided by the C2I reward eq. (9). At each RL step, a ViT-B/16 trained on the few-shot set supplies the gradients used to compute the reward. We select the diffusion checkpoint with the highest average reward within the first 30 epochs and use 10 J. Kim et al. 
+
+Table 1: AUC scores across datasets and augmentation methods. + denotes the train-ing data augmentation. P.MNIST denotes PneumoniaMNIST. Bold values indicate the best performance in average.                                                          
+
+> Backbone Method BreastMNIST DermaMNIST-binary P.MNIST Avg.
+> ViT Original only 0.828 0.846 0.941 0.873 + RandAugment 0.858 0.824 0.954 0.879 + RandomErasing 0.873 0.839 0.945 0.885 + Mixup 0.823 0.845 0.890 0.867 + DataDream 0.822 0.819 0.958 0.866 + Dataset Expansion 0.844 0.852 0.943 0.880 + DistDiff 0.764 0.805 0.938 0.784 + Ours 0.885 0.853 0.945 0.894
+> ResNet18 Original only 0.815 0.777 0.935 0.842 + RandAugment 0.764 0.787 0.936 0.829 + RandomErasing 0.758 0.747 0.900 0.802 + DataDream 0.844 0.804 0.947 0.865 + Dataset Expansion 0.804 0.831 0.956 0.864 + Ours 0.854 0.836 0.956 0.882
+
+it to synthesize 500 images per class for augmentation, following [15]. Examples of synthetic images generated by our method are provided in Appendix B.3. 
+
+Classifier training. To evaluate downstream performance, we train classi-fiers on datasets augmented by different methods. We assess cross-architecture generalization by training both ViT-B/16 (the backbone used during RL) and ResNet-18 (not used during RL), thereby testing whether RL-guided augmenta-tion transfers to unseen model families. Each model uses standard optimization settings, detailed in Appendix B.3, and the best checkpoint is selected by vali-dation AUC. 
+
+Datasets and Evaluation. We evaluate our approach on three MedMNIST benchmarks [34]: BreastMNIST , DermaMNIST (binary: DermaMNIST-binary ; multi-class: 
+
+DermaMNIST-all ; see Appendix B.3 for details), and PneumoniaMNIST . In all cases, images are processed at a 224 ×224 resolution to maintain high-fidelity features for the classifier. To simulate a few-shot setting, we randomly sample 16 labeled examples per class for training (32 per class for BreastMNIST ). Details of the validation set are provided in Appendix B.3. We evaluate the classification model under two test settings: (1) using the original clean test images, and (2) using noisy test images. The latter assesses the robustness of the learned decision boundary. We apply three types of input noise to the test images: salt-and-pepper noise (amount 0.01), Gaussian blur (radius 2), and JPEG compression (quality 25%). Given the class imbalance across all benchmarks, we report AUC as the primary evaluation metric, as it provides a more robust measure than accuracy. 
+
+Baselines. We compare against diffusion-based augmentation baselines includ-ing DataDream [15], Dataset Expansion [38], and DistDiff [40] as well as stan-dard augmentation methods including RandAugment [4], RandomErasing [39], and Mixup [37]. In addition, we evaluate a simple baseline for generat-Steering Diffusion Models via C2I 11 
+
+Table 2: Robustness results (AUC) under different types of noise across three datasets. Bold values indicate the best performance in average.                                                  
+
+> Dataset Noise Type Original only Dataset Exp. DataDream Ours
+> DermaMNIST-binary Salt&Pepper 0.766 0.813 0.810 0.830 JPEG 0.806 0.800 0.821 0.831 Blur 0.827 0.848 0.828 0.841 Avg. 0.800 0.820 0.820 0.834
+> BreastMNIST Salt&Pepper 0.764 0.772 0.817 0.832 JPEG 0.760 0.804 0.814 0.816 Blur 0.758 0.727 0.765 0.810 Avg. 0.761 0.768 0.799 0.819
+> PneumoniaMNIST Salt&Pepper 0.868 0.861 0.823 0.792 JPEG 0.922 0.907 0.950 0.940 Blur 0.930 0.881 0.956 0.946 Avg. 0.907 0.883 0.910 0.893
+
+ing hard examples, where SD is fine-tuned solely on validation images that were misclassified by the classifier. Details of the experimental setup and results are provided in Appendix B.3. 
+
+4.1 Results Improving classification performance and robustness with augmented training data. Table 1 shows that our method consistently outperforms exist-ing augmentation strategies across datasets and backbones, achieving the higher average AUC overall. Whereas several baselines occasionally underperform rel-ative to using only the original images, our approach reliably improves perfor-mance. Notably, the gains with ResNet-18 indicate that the synthesized sam-ples are broadly informative and transfer beyond the backbone used during RL fine-tuning. In addition, we evaluate model robustness under different types of noise. As shown in Table 2, our method achieves notable improvements in AUC under noisy conditions in both DermaMNIST-binary and BreastMNIST, and showing comparable results with DataDream in PneumoniaMNIST. These results sug-gest that the generated samples help establish a more stable and generalizable decision boundary. While Dataset Expansion and DataDream offer moderate gains, their performance is less consistent across noise types and datasets. 
+
+Generalization to multi-class classification. We evaluated our method on the DermaMNIST-all dataset, which contains seven classes, using the multi-class formulation of C2I defined in (7) in A.3. As shown in Table 3, applying our approach leads to improved classification accuracy. 
+
+Effect of RL fine-tuning with C2I. First, we examine how C2I evolves under RL fine-tuning. Figure 4c shows a steady increase in the mean reward, 12 J. Kim et al.                   
+
+> Table 3: Test classification accuracy on DermaMNIST-all (7-class). Baselines: Original (Orig.), Random Erasing (R-E), RandAugment (R-A), and DataDream.
+> Method Orig. R-E R-A DataDream Ours
+> Accuracy 0.648 0.664 0.669 0.660 0.683 Table 4: AUC on BreastMNIST with varying RL fine-tuning epochs.
+> Method Epoch 10 Epoch 15 Epoch 20
+> AUC 0.83 0.86 0.89
+
+indicating that the diffusion model progressively generates samples with higher 
+
+C2I. As training proceeds, the features of diffusion-generated images move closer to the centroids of validation features (Fig. 4a), while the distance between class clusters decreases (Fig. 4b), suggesting the generation of harder examples near the decision boundary. Finally, we evaluate whether this augmentation reduces validation loss and improves AUC. Details of the experimental setup are provided in Appendix B.1. As shown in Figure 4d, both metrics improve, confirming that our method produces more effective samples. 
+
+Effect of RL training epochs on performance. Table 4 reports the effect of RL fine-tuning duration on classification performance in BreastMNIST. Test AUC consistently increases with the number of RL training epochs, reaching 0.89 at epoch 20. This trend indicates that longer RL fine-tuning enables the diffusion model to generate more informative samples, thereby improving downstream classification performance. 
+
+The effect of the number of synthesized images for augmentation. The number of synthetic images per class is treated as a hyperparameter. Figure 5 shows that our method (green) consistently outperforms baseline approaches across all training sizes, achieving higher AUC. Its performance steadily im-proves as more synthesized data are added, demonstrating the effectiveness of our generation strategy. In contrast, DataDream and Dataset Expansion exhibit the opposite trend, adding more synthesized samples leads to a decline in AUC. 
+
+Computation cost comparison. For cost comparison, all experiments were conducted on a single NVIDIA A100 GPU. RL fine-tuning ran for 30 epochs and required about 5 GPU hours, while classifier training on few-shot examples was lightweight, completing in roughly 10 minutes. Once RL training was complete, image generation incurred no additional cost beyond standard SD sampling. In contrast, Dataset Expansion introduced inference overhead, with each generated image requiring an additional 25 seconds for its test-time optimization proce-dure. Steering Diffusion Models via C2I 13    
+
+> Fig. 5: AUC with varying numbers Nof synthesized images. Results are averaged over 5 random seeds to ensure statistical significance.
+
+# 5 Related Work 
+
+Diffusion models for data augmentation. T2I diffusion models are widely used to improve classification by augmenting training data [2, 7, 9, 11, 13, 14, 23, 28, 30, 38]. A common strategy [9, 14, 28, 30, 38] is to add noise to original samples and denoise them with pre-trained diffusion models, thereby enhancing diversity. However, these approaches often target natural images close to the pretraining distribution (e.g., animals [15, 31, 38] or objects [16]), limiting effec-tiveness on out-of-distribution tasks. Others [15, 38] fine-tune diffusion models on small labeled sets to generate domain-aligned data. In contrast, we fine-tune T2I diffusion models to explicitly improve the utility of generated samples for classification. 
+
+Influence estimation from gradients. Gradient-based influence estimation is widely used for data selection [18, 20, 29]. We follow [20], who approximate training dynamics to estimate a sample’s influence on held-out data. [33] recently applied this approach to select instruction-tuning data for LLMs, extending it to Adam optimization and LoRA fine-tuning [12]. This method is also compatible with ViT [6], which we adopt as our backbone. Unlike these approaches, we use influence not to select or reweight existing data but to define a reward signal for generating new data. 
+
+RL fine-tuning of diffusion models. Reinforcement learning (RL) has been explored to fine-tune diffusion models beyond supervised objectives. RL-based methods, such as RLHF, align generative models with user preferences or domain-specific goals [3, 8, 35]. 14 J. Kim et al. 
+
+# 6 Conclusion 
+
+We investigated how to fine-tune diffusion models to generate more effective training samples for few-shot classification. Our analysis showed that the most useful samples exhibit a large influence gap between two classes: their gradients are aligned with validation samples from the same class and misaligned with others. Leveraging this insight, we proposed a reinforcement learning approach using a Class-Contrastive Influence reward. Our method effectively improve clas-sification performance across medical imaging tasks. However, our study has certain limitations. Our method introduces additional computational overhead compared to using original training data alone. 
+
+# References 
+
+1. Ali, M.S., Miah, M.S., Haque, J., Rahman, M.M., Islam, M.K.: An enhanced tech-nique of skin cancer classification using deep convolutional neural network with transfer learning models. Machine Learning with Applications 5, 100036 (2021) 2. Azizi, S., Kornblith, S., Saharia, C., Norouzi, M., Fleet, D.J.: Synthetic data from diffusion models improves imagenet classification. arXiv preprint arXiv:2304.08466 (2023) 3. Black, K., Janner, M., Du, Y., Kostrikov, I., Levine, S.: Training diffusion models with reinforcement learning. arXiv preprint arXiv:2305.13301 (2023) 4. Cubuk, E.D., Zoph, B., Shlens, J., Le, Q.V.: Randaugment: Practical automated data augmentation with a reduced search space. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition workshops. pp. 702–703 (2020) 5. Deng, J., Dong, W., Socher, R., Li, L.J., Li, K., Fei-Fei, L.: Imagenet: A large-scale hierarchical image database. In: 2009 IEEE Conference on Computer Vision and Pattern Recognition. pp. 248–255. IEEE (2009) 6. Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., Dehghani, M., Minderer, M., Heigold, G., Gelly, S., et al.: An image is worth 16x16 words: Transformers for image recognition at scale. arXiv preprint arXiv:2010.11929 (2020) 7. Du, X., Sun, Y., Zhu, J., Li, Y.: Dream the impossible: Outlier imagination with diffusion models. Advances in Neural Information Processing Systems 36 , 60878– 60901 (2023) 8. Fan, Y., Watkins, O., Du, Y., Liu, H., Ryu, M., Boutilier, C., Abbeel, P., Ghavamzadeh, M., Lee, K., Lee, K.: Dpok: Reinforcement learning for fine-tuning text-to-image diffusion models. Advances in Neural Information Processing Sys-tems 36 , 79858–79885 (2023) 9. Fu, Y., Chen, C., Qiao, Y., Yu, Y.: Dreamda: Generative data augmentation with diffusion models. arXiv preprint arXiv:2403.12803 (2024) 10. Hacohen, G., Weinshall, D.: On the power of curriculum learning in training deep networks. In: International conference on machine learning. pp. 2535–2544. PMLR (2019) 11. He, R., Sun, S., Yu, X., Xue, C., Zhang, W., Torr, P., Bai, S., Qi, X.: Is syn-thetic data from generative models ready for image recognition? arXiv preprint arXiv:2210.07574 (2022) Steering Diffusion Models via C2I 15 12. Hu, E.J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., Chen, W., et al.: Lora: Low-rank adaptation of large language models. ICLR 1(2), 3 (2022) 13. Huang, T., Liu, J., You, S., Xu, C.: Active generation for image classification. In: European Conference on Computer Vision. pp. 270–286. Springer (2024) 14. Islam, K., Zaheer, M.Z., Mahmood, A., Nandakumar, K.: Diffusemix: Label-preserving data augmentation with diffusion models. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 27621– 27630 (2024) 15. Kim, J.M., Bader, J., Alaniz, S., Schmid, C., Akata, Z.: Datadream: Few-shot guided dataset generation. In: European Conference on Computer Vision. pp. 252– 268. Springer (2024) 16. Krause, J., Stark, M., Deng, J., Fei-Fei, L.: 3d object representations for fine-grained categorization. In: Proceedings of the IEEE international conference on computer vision workshops. pp. 554–561 (2013) 17. Liu, W., Tsang, I.W., Klaus-Robert, M., et al.: An easy-to-hard learning paradigm for multiple classes and multiple labels. Journal of Machine Learning Research 
+
+18 (94), 1–38 (2017) 18. Mirzasoleiman, B., Bilmes, J., Leskovec, J.: Coresets for data-efficient training of machine learning models. In: International Conference on Machine Learning. pp. 6950–6960. PMLR (2020) 19. Park, S.M., Georgiev, K., Ilyas, A., Leclerc, G., Madry, A.: Trak: Attributing model behavior at scale. arXiv preprint arXiv:2303.14186 (2023) 20. Pruthi, G., Liu, F., Kale, S., Sundararajan, M.: Estimating training data influence by tracing gradient descent. Advances in Neural Information Processing Systems 
+
+33 , 19920–19930 (2020) 21. Ridnik, T., Ben-Baruch, E., Noy, A., Zelnik-Manor, L.: Imagenet-21k pretraining for the masses. arXiv preprint arXiv:2104.10972 (2021) 22. Rombach, R., Blattmann, A., Lorenz, D., Esser, P., Ommer, B.: High-resolution image synthesis with latent diffusion models. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). pp. 10684– 10695 (2022) 23. Shipard, J., Wiliem, A., Thanh, K.N., Xiang, W., Fookes, C.: Diversity is definitely needed: Improving model-agnostic zero-shot classification via stable diffusion. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recog-nition. pp. 769–778 (2023) 24. Shrivastava, A., Gupta, A., Girshick, R.: Training region-based object detectors with online hard example mining. In: Proceedings of the IEEE conference on com-puter vision and pattern recognition. pp. 761–769 (2016) 25. Song, W., Lin, Y., Li, B.: Towards general deepfake detection with dynamic cur-riculum. arXiv preprint arXiv:2410.11162 (2024) 26. Srinidhi, C.L., Martel, A.L.: Improving self-supervised learning with hardness-aware dynamic curriculum learning: an application to digital pathology. In: Pro-ceedings of the IEEE/CVF International Conference on Computer Vision. pp. 562– 571 (2021) 27. Tahir, M., Naeem, A., Malik, H., Tanveer, J., Naqvi, R.A., Lee, S.W.: Dscc_net: multi-classification deep learning models for diagnosing of skin cancer using der-moscopic images. Cancers 15 (7), 2179 (2023) 28. Trabucco, B., Doherty, K., Gurinas, M., Salakhutdinov, R.: Effective data augmen-tation with diffusion models. arXiv preprint arXiv:2302.07944 (2023) 16 J. Kim et al. 29. Wang, X., Pham, H., Michel, P., Anastasopoulos, A., Carbonell, J., Neubig, G.: Optimizing data usage via differentiable rewards. In: International Conference on Machine Learning. pp. 9983–9995. PMLR (2020) 30. Wang, Z., Mao, J., Wang, X., Yamasaki, T.: Training data synthesis with difficulty controlled diffusion model. arXiv preprint arXiv:2411.18109 (2024) 31. Wang, Z., Wei, L., Wang, T., Chen, H., Hao, Y., Wang, X., He, X., Tian, Q.: Enhance image classification via inter-class image mixup with diffusion model. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 17223–17233 (2024) 32. Wolberg, W., Mangasarian, O., Street, N., Street, W.: Breast Cancer Wisconsin (Diagnostic). UCI Machine Learning Repository (1993), DOI: https://doi.org/10.24432/C5DW2B 33. Xia, M., Malladi, S., Gururangan, S., Arora, S., Chen, D.: Less: Selecting influential data for targeted instruction tuning. arXiv preprint arXiv:2402.04333 (2024) 34. Yang, J., Shi, R., Wei, D., Liu, Z., Zhao, L., Ke, B., Pfister, H., Ni, B.: Medmnist v2-a large-scale lightweight benchmark for 2d and 3d biomedical image classification. Scientific Data 10 (1), 41 (2023) 35. Yang, K., Tao, J., Lyu, J., Ge, C., Chen, J., Shen, W., Zhu, X., Li, X.: Using human feedback to fine-tune diffusion models without any reward model. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 8941–8951 (2024) 36. Yuan, Z., Mou, L., Wang, Q., Zhu, X.X.: From easy to hard: Learning language-guided curriculum for visual question answering on remote sensing data. IEEE transactions on geoscience and remote sensing 60 , 1–11 (2022) 37. Zhang, H., Cisse, M., Dauphin, Y.N., Lopez-Paz, D.: mixup: Beyond empirical risk minimization. arXiv preprint arXiv:1710.09412 (2017) 38. Zhang, Y., Zhou, D., Hooi, B., Wang, K., Feng, J.: Expanding small-scale datasets with guided imagination. Advances in neural information processing systems 36 ,76558–76618 (2023) 39. Zhong, Z., Zheng, L., Kang, G., Li, S., Yang, Y.: Random erasing data augmenta-tion. In: Proceedings of the AAAI conference on artificial intelligence. vol. 34, pp. 13001–13008 (2020) 40. Zhu, H., Yang, L., Yong, J.H., Yin, H., Jiang, J., Xiao, M., Zhang, W., Wang, B.: Distribution-aware data expansion with diffusion models. Advances in Neural Information Processing Systems 37 , 102768–102795 (2024) Steering Diffusion Models via C2I 17 
+
+# A Additional Details on the Proposed Method 
+
+A.1 Theoretical Evidence for the Opposite-signed Similarities in Figure 3a 
+
+In this section, we present theoretical evidence to explain the emergence of opposite-signed similarities across different class labels. Specifically, we explore the relationship between the gradient of the loss and the gradient of the feature vector in two different scenarios. Consider a binary classification model in which the predicted classification probability of sample x is given by p(x) = Sigmoid (w⊤h(x; θ)) . Here, w ∈ Rd is the classifier vector, h(x; θ) ∈ Rd the feature vector corresponding to sample x
+
+and depending on parameters θ. We drop dependence on θ from the notation to reduce clutter. First, we analyze gradients w.r.t the classifier head w alone. For any two samples x, x ′, we have the following relation between loss gradients. 
+
+∇wℓ(x) · ∇ wℓ(x′) = e(x)e(x′)h(x) · h(x′), (11) where 
+
+e(x) = 
+
+ p(x) x ∈ D0
+
+p(x) − 1 x ∈ D1
+
+. (12) This shows that if the two samples belong to opposite classes and their features have positive alignment, their loss gradients will be negatively aligned. In con-trast, if the samples belong to the same class, their feature alignment has the same sign as their loss gradient alignment. If h(x) is the output of a ReLU acti-vation layer, as in the case of ResNet (cf. GeLU used in ViT), the features of any two samples will tend to be positively aligned, regardless of their class labels. As a result, the gradient alignment (w.r.t the classifier head) will agree with Figure 3a. We now extend this analysis to gradients with respect to the parameters of the final layer in a ReLU-based feature extractor. Consider a feature extractor defined as: 
+
+hi(x) = ReLU (X
+
+> j
+
+Wij h(−1)  
+
+> j
+
+(x)) , (13) and h(−1) is the representation in the next-to-last layer. Gradient of the feature vector w.r.t W takes the following form: 
+
+∇W hi(x) ≡ ∂h i(x)
+
+∂W jk 
+
+= δij h(−1)  
+
+> k
+
+(x)Θ hi(x), (14) where Θ is the step function. For any two samples x, x ′, the inner product be-tween loss gradients will be 
+
+∇W ℓ(x) · ∇ W ℓ(x′) = e(x)e(x′) X
+
+> jk
+
+∂(w⊤h(x)) 
+
+∂W jk 
+
+∂(w⊤h(x′)) 
+
+∂W jk 
+
+. (15) 18 J. Kim et al. 
+
+According to Eq. (14), 
+
+∂(w⊤h(x)) 
+
+∂W jk 
+
+= wj h(−1)  
+
+> k
+
+(x)Θ hi(x), (16) so that the dot product will be 
+
+∂(w⊤h(x)) 
+
+∂W jk 
+
+· ∂(w⊤h(x′)) 
+
+∂W jk 
+
+= ( wj )2h(−1)  
+
+> k
+
+(x)h(−1)  
+
+> k
+
+(x′)Θ hi(x)Θ hi(x′) ≥ 0.
+
+(17) Using this result in Eq. (15), it is clear that ∇W ℓ(x) · ∇ W ℓ(x′) is positive for same-class samples and negative for opposite-class samples. This result further confirms the observation of opposite-signed similarities across different classes in Figure 3a. 
+
+A.2 Proof of Theorem 1 
+
+In this section, we provide proofs for Theorem 1 in Section 3.2 and exhibit more results. 
+
+Lemma 1. In a Logistic Regression model with output probabilities p(x) = Sigmoid (w⊤x), x, w ∈
+
+Rd and cross-entropy loss ℓ(x), we have 
+
+cos  ∇ℓ(x), ∇ℓ(x′) = s(x)s(x′) cos( x, x ′), (18) 
+
+with s(x) = +1 if x is in class 0 and s(x) = −1 if in class 1. Proof. We begin by computing the gradient of the cross-entropy loss  ℓ(x) for a sample  x with label  y ∈ { 0, 1}. Using  p(x) = Sigmoid (w⊤x), we have ∇wℓ(x) = 
+
+e(x)x, where 
+
+e(x) = 
+
+(
+
+p(x), if x ∈ D0,p(x) − 1, if x ∈ D1. (19) The inner product of gradients between sample  x and a validation sample  v
+
+is: 
+
+∇ℓ(x) · ∇ ℓ(v) = e(x)e(v) x · v.  (20) Define the class sign function as: 
+
+s(x) = 
+
+(
+
++1 , x ∈ D0,
+
+−1, x ∈ D1.
+
+Assuming the gradients are nonzero, the cosine similarity is: 
+
+cos  ∇ℓ(x), ∇ℓ(x′) = ∇ℓ(x) · ∇ ℓ(v)
+
+∥∇ ℓ(x)∥∥∇ ℓ(v)∥ = s(x)s(v) x · v
+
+∥x∥∥ v∥ . (21) Steering Diffusion Models via C2I 19 
+
+If x and x′ belong to opposite classes but exhibit strong feature alignment, their loss gradients will be highly dissimilar, resulting in a larger C2I. In other words, when samples from different classes share similar features (reflected through their gradient alignment), we observe an increase in C2I.
+
+In what follows, we demonstrate that in the case of logistic regression, max-imizing C2I induces a feature averaging effect. This, in turn, generates samples that lie nearer to the decision boundary, making them more challenging to clas-sify. Note that we present results in terms of the alignment gap |μ0 − μ1| instead of C2I so that the calculations are simpler and easier to interpret 2.
+
+Theorem 1. Consider a Logistic Regression model with output probabilities p(x) = 
+
+Sigmoid (w⊤x), x, w ∈ Rd and cross-entropy loss ℓ(x). Let  V0 and  V1 be vali-dation sets containing  N/ 2 samples from class 0 and class 1 respectively and 
+
+V = V0 ∪ V1 (for even N ). consider the cosine similarity between the loss gradi-ents of a sample  x and a validation sample  vi as: 
+
+A(x, v i) = ∇ℓ(x) · ∇ ℓ(vi)
+
+∥∇ ℓ(x)∥ ∥∇ ℓ(vi)∥ , (22) 
+
+and define μc(x) = 1
+
+> N
+
+P 
+
+> i∈Vc
+
+A(x, v i). Then the sample  x that maximizes the absolute class-alignment gap  |μ0(x) − μ1(x)| is given by the convex combination 
+
+x⋆ = X
+
+> vi∈V
+
+αivi, αi = 1/∥vi∥
+
+P  
+
+> vj∈V
+
+1/∥vj ∥ . (23) 
+
+Proof. The mean cosine similarity to each class is: 
+
+μ0(x) = 1
+
+N
+
+X
+
+> vi∈D0
+
+A(x, v i), μ1(x) = 1
+
+N
+
+X
+
+> vi∈D1
+
+A(x, v i).
+
+Using Lemma 1, the alignment gap is: 
+
+|μ0 − μ1| = 1
+
+N
+
+X
+
+> vi∈D0
+
+A(x, v i) − X
+
+> vi∈D1
+
+A(x, v i) = 1
+
+N
+
+X
+
+> vi∈D
+
+s(vi)A(x, v i)
+
+= 1
+
+N
+
+X
+
+> vi∈D
+
+s(x)s(vi)2 x · vi
+
+∥x∥∥ vi∥ = 1
+
+N
+
+1
+
+∥x∥
+
+X
+
+> vi∈D
+
+x · vi
+
+∥vi∥ , (24) where we used that  s(x)2 = 1 . To find the vector x that maximizes the quantity above, note that the bias parameter is absorbed into w, so that x has the form: 
+
+x =
+
+ ˜x
+
+1
+
+
+
+. (25)  
+
+> 2
+
+Finding the optimal solution with C2I leads to finding the roots of a cubic poly-nomial, which although analytically solvable, gives little insight about the nature of the solution. 20 J. Kim et al. 
+
+Therefore, 
+
+f (˜ x) ≡ (μ0 − μ1)2 = (˜ x · a + β)2
+
+∥˜x∥2 + 1 , (26) in which 
+
+a = 1
+
+N
+
+X
+
+> vi∈D
+
+˜vi
+
+p∥˜vi∥2 + 1 , β = 1
+
+N
+
+X
+
+> vi∈D
+
+1
+
+p∥˜vi∥2 + 1 . (27) The maximum of f (˜ x) can be found by setting the first derivative to zero: 
+
+˜x⋆ = aβ . (28) Defining 
+
+αi = 1
+
+β
+
+1
+
+p∥˜vi∥2 + 1 , (29) we have 
+
+˜x⋆ = X
+
+> vi∈D
+
+αi ˜vi. (30) For all vi, since the last dimension is equal to 1 according to Eq. (25), and since P 
+
+> i
+
+αi = 1 , it follows that the last dimension of x⋆ is one too. Thus, we can write the final result in terms of x and vi as: 
+
+x⋆ = X
+
+> vi∈D
+
+αivi, αi = 1/∥vi∥
+
+P  
+
+> vj∈D
+
+1/∥vj ∥ . (31) To interpret this result, let us consider a case where vi = ¯v + δv i and 
+
+max  
+
+> i
+
+∥δv i∥/∥¯v∥ = ε for some 0 < ε < 1. This condition describes a situation where deviations from the mean vector are smaller than the magnitude of the mean vector. In this case, 
+
+1
+
+∥vi∥ = 1
+
+∥¯v∥ + δv i · ¯v
+
+∥¯v∥2 + O(ε2). (32) As a result, 
+
+αi = 
+
+> 1
+> ∥¯v∥
+
++ δv i·¯v 
+
+> ∥¯v∥3
+
++ O(ε2) 
+
+> N
+> ∥¯v∥
+
++  
+
+> P
+> iδv i·¯v
+> ∥¯v∥3
+
++ O(ε2) = 1
+
+N + δv i · ¯v
+
+∥¯v∥2 + O(ε2). (33) We can approximate x⋆ as follows. 
+
+x⋆ = X
+
+> vi∈D
+
+αivi = ¯ v + X
+
+> vi∈D
+
+(¯ v + δv i)δv i · ¯v
+
+∥¯v∥2 + O(ε2) = ¯ v + O(ε2). (34) Here, we used the fact that the contribution of ¯v in the numerator cancels out when summed over vi, and we are left with two factors of δv i which is O(ε2).Therefore, the deviation of x⋆ from the dataset average is small. This result helps us in interpreting x⋆ in terms of “hard examples”. In the following, we show that dataset average has a high classification loss because it is closer to the decision boundary than each cluster average. Steering Diffusion Models via C2I 21 
+
+Lemma 2. Let a binary logistic regression model predict the probability of class 1 via 
+
+ˆp(x) = Sigmoid (w⊤x),
+
+for  w ∈ Rd. Let  μ0 and  μ1 denote the means of the class-0 and class-1 inputs, respectively, and assume 
+
+ˆp(μ0) = 12 − ε0, ˆp(μ1) = 12 + ε1,
+
+for some  0 < ε 0, ε 1 < 1/2. Let  ¯μ = πμ 1 + (1 − π)μ0 be the overall dataset mean for class prior  π ∈ (0 , 1) .Then the model’s predicted probability of the correct label at  ¯μ is strictly less than at either class mean: 
+
+Pr(ˆ y = 1 | ¯μ) < Pr(ˆ y = 1 | μ1), Pr(ˆ y = 0 | ¯μ) < Pr(ˆ y = 0 | μ0), (35) 
+
+and the classification loss is lower bounded by 
+
+ℓ(¯ μ) > log 
+
+ 21 + 2 max ( ε0, ε 1)
+
+
+
+, 0 < ε 0, ε 1 < 12 . (36) 
+
+Proof. Let  z0 = w⊤μ0, z1 = w⊤μ1, and  δ = w⊤ ¯μ = πz 1 + (1 − π)z0, where 
+
+0 < π < 1 is the ratio of class 1 number of samples to the size of the whole dataset. By assumption, 
+
+ˆp(μ0) = Sigmoid (z0) = 12 − ε0 ⇒ z0 < 0. (37) 
+
+ˆp(μ1) = Sigmoid (z1) = 12 + ε1 ⇒ z1 > 0. (38) This assumption means that the model has a roughly correct guess about the class, as is the case with pretrained models. Since  δ is a strict convex combination of  z0 and  z1, we have z0 < δ < z 1. By strict monotonicity of the sigmoid function, it follows that Sigmoid (z0) < Sigmoid (δ) < Sigmoid (z1) , i.e., 
+
+12 − ε0 < ˆp(¯ μ) < 12 + ε1. (39) From the inequality above, we arrive at the final conclusion about model confi-dence 
+
+Pr(ˆ y = 1 | ¯μ) = ˆ p(¯ μ) < ˆp(μ1) = Pr(ˆ y = 1 | μ1), (40) 
+
+Pr(ˆ y = 0 | ¯μ) = 1 − ˆp(¯ μ) < 1 − ˆp(μ0) = Pr(ˆ y = 0 | μ0). (41) Therefore, the prediction at the mixture mean  ¯μ is strictly less confident than at either class mean. To find the lower bound for the loss, note that if a data point at ¯μ has label y = 0 , then its cross-entropy loss lower bounded by 
+
+ℓ(¯ μ; y = 0) = − log(1 − ˆp(¯ μ)) > − log( 12 + ε0). (42) 22 J. Kim et al. 
+
+Otherwise, if a data point at ¯μ has label y = 1 , then its cross-entropy loss lower bounded by 
+
+ℓ(¯ μ; y = 1) = − log(ˆ p(¯ μ)) > − log( 12 + ε1). (43) Therefore 
+
+ℓ(¯ μ) > min 
+
+
+
+− log( 12 + ε0), − log( 12 + ε1)
+
+
+
+= log 
+
+ 21 + 2 max( ε0, ε 1)
+
+
+
+. (44) In the following, we consider extensions to more general cases. 
+
+A.3 Extension to Multi-classification Tasks 
+
+Although we have laid out our method in a binary classification setting, its generalization to multi-class problems is straightforward. We define the Class-Contrastive Influence as the softmax over mean influence functions defined in (7). Specifically, if indexes a and b are classes that the training sample x and the validation sample v belong to, the average influence score is 
+
+μab (xa, Vb) ≜ 1
+
+N
+
+> N
+
+X
+
+> j=1
+
+Aϕ(xa, v jb ). (45) We define the Class-Contrastive Influence for a training sample xa belonging to class a as: 
+
+C2I(xa) = Softmax (μab ) = exp( μaa )
+
+P 
+
+> b
+
+exp( μab ) . (46) This quantity will be our reward for the RL fine-tuning of the diffusion model. This formulation reduces in the special case of binary classification to a sim-ilar formula as C2I in (5). Note that in the binary case, 
+
+C2I(xa) = Sigmoid (μaa − μab ), (47) which is consistent with maximizing the influence gap as proposed in the paper. Our experiments show that this reward function leads to a stable RL optimiza-tion. 
+
+A.4 Analyzing x∗ of C2I in general feature extractors 
+
+Consider a binary classification problem with model 
+
+p(x) = sigmoid( z(x; ϕ)) , z(x; ϕ) = w⊤h(x; ϕ). (48) Then, following similar steps as in the proof for Theorem 1, we find that 
+
+μ0 − μ1 = 1
+
+N
+
+X
+
+> vi∈D
+
+s(vi) Aϕ(x, v i)
+
+= 1
+
+N
+
+1
+
+∥∇ z(x; ϕ)∥ ∇z(x; ϕ) · X
+
+> vi∈D
+
+∇z(vi; ϕ)
+
+∥∇ z(vi; ϕ)∥ . (49) Steering Diffusion Models via C2I 23 
+
+The influence gap |μ0 − μ1| is maximized if the gradient of the logit z(x; ϕ) is aligned with the average of z(vi; ϕ) over the validation set. This result obviously reduces to the statement in Theorem 1 where in Logistic Regression we have 
+
+z = w⊤x. For a general model, finding the input x⋆ with the maximal influence gap is analytically intractable, as it involves the gradient of z w.r.t. to input x.That said, an upper bound for |μ0 − μ1| will be realized if 
+
+∇z(x; ϕ) ∝ X
+
+> vi∈D
+
+∇z(vi; ϕ)
+
+∥∇ z(vi; ϕ)∥ . (50) 
+
+# B Experimental Setup and Additional Results 
+
+B.1 Experiment details for Figure 3b, Figure 4d and Figure 6. 
+
+We first generate synthetic images and create 10 distinct sets for each class, each composed of 20 images. Then, we construct a total of  10 ×10 = 100  training sets. Each set is combined with the few-shot original samples used to fine-tune Stable Diffusion (SD), and we train a classification model on each combination. We log both the validation loss and validation AUC at the iteration that achieves the lowest validation loss. When computing  Γ in Eq. 2, we use a batch size of 20, ensuring that all samples belong to the same class. In contrast, for computing  ∇ℓ
+
+in Eq. (2), we use a batch size of 1. We observe that  C2I is positively correlated with the validation AUC and negatively correlated with the validation loss, as shown in Figure 3b. In contrast, influence does not exhibit such correlations, as also shown in Figure 6. After RL fine-tuning, we generate new images using the RL-optimized SD model and repeat the procedure described above. Figure 4d demonstrates that RL fine-tuning increases  C2I, leading to higher validation AUC and lower validation loss. 
+
+B.2 Direct Application of Influence Score to Classification Task 
+
+We compute the average influence score for each class (Eq. (2)) and examine its correlation with validation loss. As shown in Figure 6, no consistent relationship is observed, suggesting influence alone is insufficient in this setting. 
+
+B.3 Main Experiments 
+
+DermaMNIST: Multi-class and Binary Setup For DermaMNIST, we consider two evaluation scenarios. First, we use the original 7-class (multi-class) setting as-is. Second, we construct a binary setting by restricting evaluation to two clinically relevant classes—benign and malignant melanocytic lesions, following standard practice suggested in [1, 27]. This recasts DermaMNIST as a binary classification task. 24 J. Kim et al.  
+
+> Fig. 6: The average of original influence scores does not corrleate with validation loss.
+
+Dataset splits and statistics. We provide the data statistics used for validation and testing in Table 5. When training the diffusion model via RL, we use a class-balanced validation set. This is constructed by randomly sampling  min( |V 0|, |V 1|)
+
+examples from each class. In contrast, when training the classification model, we use the full (original) validation set without balancing.             
+
+> Table 5: Number of samples per class (label 0 / label 1) in the balanced validation set, original validation set, and test set.
+> Dataset Balanced validation set Original validation set Test set
+> BreastMNIST 21 / 21 21 / 57 42 / 114 PneumoniaMNIST 135 / 135 135 / 389 234 / 390 DermaMNIST-binary 111 / 111 671 / 111 1341 / 223
+
+Results with a smaller validation set. For PneumoniaMNIST, the validation set is relatively large (Table 5). To examine the effect of validation size, we conducted an additional experiment by reducing it to 16 samples per class, matching the number of few-shot training samples. As shown in Table 6, even with a much smaller validation set, our method maintains comparable performance, demon-strating robustness to validation set size. Diffusion model fine-tuning. In RL fine-tuning, we fine-tune the diffusion model using a RL framework adapted from [3]. We present hyperparameters used in Table 7. 
+
+Classification model fine-tuning. In Pretraining, we fine-tune a ViT-B/16 model pre-trained on ImageNet using LoRA for 20 epochs on the same few-shot subset. Steering Diffusion Models via C2I 25                            
+
+> Model Ours (135 val/class) Ours (16 val/class)
+> ViT 0.945 0.946 ResNet-50 0.930 0.937 ResNet-18 0.956 0.946
+> Average 0.944 0.943
+> Table 6: Classifier performance on PneumoniaMNIST with different validation set sizes for RL fine-tuning.
+> Table 7: Hyperparameters used in diffusion model RL fine-tuning.
+> Component Value / Setting
+> Backbone model Stable Diffusion 2.1 fine-tuned in Step 1 pretraining LoRA rank 16 LoRA α16 Mixed precision float 16 The number of inference steps 50 ETA 0.1 Guidance scale 0.2 Learning rate 3×10 −4
+> Batch size 28 Clip range 1×10 −4
+
+We set the LoRA rank and alpha to 16, and use a LoRA dropout rate of 0.1. When training with augmented data, we use the augmented training sets gener-ated by different augmentation methods to train classification models for down-stream evaluation. To assess the generalizability of our approach, we test two architectures: ViT-B/16, which was used during RL fine-tuning, and ResNet18, which was not. The ViT-B/16 model is initialized with ImageNet pretraining, whereas the ResNet18 model is trained from scratch. The hyperparameters used for each model are summarized in Table 8. For the baseline methods RandAugment and RandomErasing, we use the PyTorch transforms implementations: RandAugment and RandomErasing , respec-tively, with their default arguments. 
+
+Baselines. DataDream [15] is our primary baseline which provides the starting checkpoint for RL fine-tuning. We also include Dataset Expansion [38] and Dist-Diff [40], diffusion-based augmentation methods that incorporates noise injection and classifier guidance; we use the original implementation. For transformation-based data augmentation, we evaluate RandAugment [4], RandomErasing [39] and Mixup [37]. 
+
+Comparison with the simple baseline to make hard examples. We implemented a simple baseline where Stable Diffusion is fine-tuned using only the validation images that were misclassified by the classifier. Specifically, we first trained a 26 J. Kim et al.                       
+
+> Table 8: Hyperparameters used for classifier training.
+> Component ViT-B/16 ResNet18
+> Initialization LoRA fine-tuning Trained from scratch LoRA rank / α16 / 16 –Batch size 32 32 Learning rate 5×10 −41×10 −4
+> Warm-up epochs 55LR scheduler Linear decay Linear decay Epochs 100 100 Early stopping criterion Validation AUC Validation AUC
+
+classifier using few-shot examples, and then identified the misclassified validation samples. For instance, in the BreastMNIST dataset, the validation set contains 21 samples per class. The trained classifier misclassified 15 of these samples— 9 from class 0 and 6 from class 1. We used these 15 misclassified images to fine-tune Stable Diffusion and then generated 500 synthetic images per class, consistent with our main experimental setup. The results of this baseline are provided below in Table 9.      
+
+> Table 9: Comparison of AUC scores on BreastMNIST between the original classifier, the simple misclassified-sample baseline, and our proposed method.
+> Dataset Method AUC
+> BreastMNIST Original Only 0.828 BreastMNIST Simple Baseline (misclassified samples) 0.778 BreastMNIST Our Method 0.885
+
+Training sample size for BreastMNIST. For BreastMNIST, we use 32 samples per class instead of 16 to ensure reliable classifier training. Preliminary experi-ments showed that using only 16 samples per class resulted in significantly lower classification performance (e.g., accuracy around 66%), compared to DermaM-NIST (75%) and PneumoniaMNIST (87%). Since this classifier serves as the reward model for RL fine-tuning, lower performance on BreastMNIST led to unreliable gradient-based reward signals. Increasing the sample size to 32 per class resulted in 70% accuracy and yielded a more stable classifier for use in RL fine-tuning. 
+
+Experiment details for Figure 5. We first synthesize 500 samples using various data augmentation techniques, following the practical setup in [15]. For experi-ments involving fewer than 500 samples, we randomly sample 5 different subsets using different random seeds and train a separate classification model for each subset. Steering Diffusion Models via C2I 27 
+
+Computing resources. All reinforcement learning (RL) training experiments are conducted using a single NVIDIA A100 GPU with 40GB of memory. 
+
+Generated samples. Figure 7 provides representative synthetic images generated by our method, which are later used to augment BreastMNIST and DermaMNIST-binary training.
