@@ -6,34 +6,37 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-15
-- 运行时间：2026-07-15 20:36:17 UTC
+- 最新运行日期：2026-07-16
+- 运行时间：2026-07-16 20:20:44 UTC
 - 运行状态：成功
-- 本次总论文数：4
+- 本次总论文数：5
 - 精读区：3
-- 速读区：1
+- 速读区：2
 
 ### 今日简报（AI）
-1) 今日精选2篇高分论文：聚焦扩散模型服务优化与视频生成缓存加速。
-2) 最值得关注的方向：FlashDiff实现扩散模型的高效区域执行与调度，ACID提出视频生成的自适应缓存策略，均为9.0/10高分。
-3) 建议优先精读这两篇，掌握提升生成模型推理效率的核心方法。
-- 详情：[/202607/15/README](/202607/15/README)
+1) 今日推荐5篇论文，聚焦高效扩散模型推理优化与视频生成前沿。  
+2) 《Xema》提出细粒度内存管理与自动配置实现扩散模型高效推理（9.0分），《Concurrent Image Understanding》创新自校正耦合马尔可夫跳跃过程统一图像理解与生成（8.0分）。  
+3) 建议优先精读这两篇，重点关注推理加速与多任务融合思路，为后续应用扩散模型提供新工具。
+- 详情：[/202607/16/README](/202607/16/README)
 
 ### 精读区论文标签
-1. [FlashDiff: Efficient Regional Execution and Scheduling for Diffusion Model Serving](/202607/15/2607.12121v1-flashdiff-efficient-regional-execution-and-scheduling-for-diffusion-model-serving)  
+1. [Xema: Efficient Diffusion Serving through Fine-Grained Memory Management and Auto-Configuration](/202607/16/2607.11136v1-xema-efficient-diffusion-serving-through-fine-grained-memory-management-and-auto-configuration)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：扩散模型推理的免训练系统优化
-2. [ACID: Adaptive Caching for vIDeo generation](/202607/15/2607.12358v1-acid-adaptive-caching-for-video-generation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：自适应缓存加速视频扩散，无需重新训练
-3. [Wan-Dancer: A Hierarchical Framework for Minute-scale Coherent Music-to-Dance Generation](/202607/15/2607.09581v2-wan-dancer-a-hierarchical-framework-for-minute-scale-coherent-music-to-dance-generation)  
+   evidence：无需额外训练的内存高效扩散模型服务系统
+2. [Concurrent Image Understanding and Generation: Self-Correcting Coupled Markov Jump Processes](/202607/16/2607.13188v1-concurrent-image-understanding-and-generation-self-correcting-coupled-markov-jump-processes)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：使用分层框架的分钟级连贯音乐到舞蹈视频生成
+   evidence：通过自校正耦合马尔可夫跳跃过程实现掩码扩散模型的免训练采样优化
+3. [Kaleido: Algorithm-Hardware Co-Design for Video Diffusion Transformers by Exploiting Latent Space Correlations](/202607/16/2607.13770v1-kaleido-algorithm-hardware-co-design-for-video-diffusion-transformers-by-exploiting-latent-space-correlations)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：加速视频扩散变换器且无需额外训练
 
 ### 速读区论文标签
-1. [Steering Diffusion Models via Class-Contrastive Influence for Few-Shot Medical Classification](/202607/15/2607.12464v1-steering-diffusion-models-via-class-contrastive-influence-for-few-shot-medical-classification)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：扩散模型的免训练样本选择准则
+1. [LongE2V: Long-Horizon Event-based Video Reconstruction, Prediction, and Frame Interpolation with Video Diffusion Models](/202607/16/2607.08770v1-longe2v-long-horizon-event-based-video-reconstruction-prediction-and-frame-interpolation-with-video-diffusion-models)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：基于扩散模型的视频生成，但需要微调
+2. [The Seriality Gap in Video Diffusion Models](/202607/16/2607.13031v1-the-seriality-gap-in-video-diffusion-models)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：识别视频扩散中的序列性差距，提出自回归生成作为免训练改进方法
 
 
 <div class="dpr-home-promo-card">

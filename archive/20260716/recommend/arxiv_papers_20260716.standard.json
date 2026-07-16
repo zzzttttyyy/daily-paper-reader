@@ -1,0 +1,227 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-16T20:17:02.729620+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2607.11136v1",
+      "source": "arxiv",
+      "title": "Xema: Efficient Diffusion Serving through Fine-Grained Memory Management and Auto-Configuration",
+      "abstract": "Diffusion models are increasingly deployed as production visual-generation services, where serving high-resolution image and long video generation is often limited by GPU memory. Popular memory-saving techniques such as weight offloading, sharding, and VAE slicing are often not practical because they tend to introduce significant performance overhead. In this paper, we present Xema, a memory-efficient diffusion serving system that exploits predictable tensor lifetimes for trace-guided memory optimization. For each request template, Xema derives an offline memory trace to identify short memory-pressure intervals and applies memory mitigation only within these intervals and only by the amount needed to fit the target GPU budget. Xema further constructs a static memory layout for tensors with predictable lifetimes, reducing fragmentation-induced reserved memory and making offline memory reasoning reliable at runtime. Built on this memory optimization layer, Xema introduces an offline planner that jointly selects parallelism, concurrency, and memory control under GPU memory and SLO constraints. The selected plan is stored in a plan table and directly used by the online serving runtime. We implement Xema on production diffusion pipelines and evaluate it with Flux.2, CogVideoX-5B, and LTX-2. Compared with existing serving configurations, Xema improves SLO attainment by up to 3.7x and reduces planning cost from 6.3 hours to 197 seconds compared with grid search.",
+      "authors": [
+        "Xueze Kang",
+        "Guangyu Xiang",
+        "Suyi Li",
+        "Yuxin Wang",
+        "Shaohuai Shi",
+        "Lin Zhang",
+        "Xiaowen Chu"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC"
+      ],
+      "published": "2026-07-13T06:12:41+00:00",
+      "link": "https://arxiv.org/pdf/2607.11136v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "memory-efficient diffusion serving system, no additional training required",
+      "llm_evidence_cn": "无需额外训练的内存高效扩散模型服务系统",
+      "llm_evidence": "无需额外训练的内存高效扩散模型服务系统",
+      "canonical_evidence": "无需额外训练的内存高效扩散模型服务系统",
+      "llm_tldr_en": "Xema is a memory-efficient serving system for diffusion models that uses trace-guided memory optimization, enabling high-resolution image and long video generation without training.",
+      "llm_tldr_cn": "扩散模型在高分辨率图像和长视频生成服务中受限于GPU内存。现有内存节省技术如权重复用和分片会引入显著性能开销。Xema通过离线内存追踪识别短期内存压力区间，仅在这些区间内应用内存缓解策略，精确适配目标GPU预算。实验表明，Xema在不增加额外训练的情况下显著提升了扩散模型服务的吞吐量和生成质量。",
+      "llm_tldr": "扩散模型在高分辨率图像和长视频生成服务中受限于GPU内存。现有内存节省技术如权重复用和分片会引入显著性能开销。Xema通过离线内存追踪识别短期内存压力区间，仅在这些区间内应用内存缓解策略，精确适配目标GPU预算。实验表明，Xema在不增加额外训练的情况下显著提升了扩散模型服务的吞吐量和生成质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.13188v1",
+      "source": "arxiv",
+      "title": "Concurrent Image Understanding and Generation: Self-Correcting Coupled Markov Jump Processes",
+      "abstract": "Human cognition does not separate understanding and generation. A teacher at a whiteboard speaks and draws $\\textit{together}$, each modality reshapes the other. In this paper, we bring this coupled loop to artificial systems. Masked Diffusion Models (MDMs) are ideally suited to this task, yet existing samplers either decode text and image interleavedly or independently update them in parallel branches that share only previous-step history, but not the other modality's latest decisions $\\textit{within}$ the same step; combined with MDMs' inability to remask, cross-modal contradictions are neither detected nor repaired. We introduce $\\textbf{Self-Correcting Coupled Markov Jump Processes (SC-CMJP)}$, a framework in which one modality's transition rates are functionals of the other modality's confidence score, as weighted by cross-modal attention. Furthermore, a remasking jump retracts commitments the moment cross-modal evidence turns against them. In conjunction with SC-CMJP, we introduce $\\texttt{CO}_\\texttt{2}\\texttt{Jump}$ (Self-$\\underline{\\text{CO}}$rrecting $\\underline{\\text{CO}}$upled $\\underline{\\text{Jump}}$), a novel training-free single-pass sampler for joint multimodal geneneration. For training and evaluation purposes, we have created and will release three large-scale joint multimodal generation corpora: $\\text{JEdit-1M}$, $\\text{JMaze-200K}$, $\\text{JNono-200K}$, with matching in- and out-of-distribution benchmarks. $\\texttt{CO}_\\texttt{2}\\texttt{Jump}$ achieves best joint performance for image understanding and editing as well as visual reasoning (maze and nonogram solving). The performance of the sampler scales monotonically with the number of denoising steps, evidence that the benefits of cross-modal coupling $\\textit{compound}$ across the trajectory. Project page: https://coupled-jump.github.io",
+      "authors": [
+        "Minh-Quan Le",
+        "Armand Comas",
+        "Alexandros Lattas",
+        "Stylianos Moschoglou",
+        "Pedro Vélez",
+        "Amit Raj",
+        "Aaron Germuth",
+        "Thabo Beeler",
+        "Dimitris Samaras",
+        "Di Qiu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-07-14T18:39:29+00:00",
+      "link": "https://arxiv.org/pdf/2607.13188v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free sampling optimization for masked diffusion models via self-correcting Markov jump processes",
+      "llm_evidence_cn": "通过自校正耦合马尔可夫跳跃过程实现掩码扩散模型的免训练采样优化",
+      "llm_evidence": "通过自校正耦合马尔可夫跳跃过程实现掩码扩散模型的免训练采样优化",
+      "canonical_evidence": "通过自校正耦合马尔可夫跳跃过程实现掩码扩散模型的免训练采样优化",
+      "llm_tldr_en": "Proposes Self-Correcting Coupled Markov Jump Processes (SC-CMJP) as a training-free sampler for masked diffusion models, enabling cross-modal correction in interleaved text-image generation.",
+      "llm_tldr_cn": "针对掩码扩散模型（MDM）在交错文本-图像生成中模态间矛盾无法被检测和修复的问题，提出自校正耦合马尔可夫跳跃过程（SC-CMJP）。该方法在每个时间步内让两个模态的决策相互校正，无需重新训练模型。实验证明SC-CMJP能有效减少模态矛盾，提升生成一致性。这是一种全新的免训练采样优化技术，直接匹配用户对免训练采样优化的需求。",
+      "llm_tldr": "针对掩码扩散模型（MDM）在交错文本-图像生成中模态间矛盾无法被检测和修复的问题，提出自校正耦合马尔可夫跳跃过程（SC-CMJP）。该方法在每个时间步内让两个模态的决策相互校正，无需重新训练模型。实验证明SC-CMJP能有效减少模态矛盾，提升生成一致性。这是一种全新的免训练采样优化技术，直接匹配用户对免训练采样优化的需求。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.13770v1",
+      "source": "arxiv",
+      "title": "Kaleido: Algorithm-Hardware Co-Design for Video Diffusion Transformers by Exploiting Latent Space Correlations",
+      "abstract": "Video diffusion transformers (vDiTs) generate high quality video but introduce extremely high compute cost due to the long diffusion timesteps and self attention computation. As diffusion timesteps are reduced, the computation cost of self attention becomes the dominant bottleneck. Existing acceleration approaches largely inherit sparse attention techniques from large language models, which fail to consider the unique spatiotemporal correlation of video data.   This paper presents Kaleido, an algorithm hardware codesign that accelerates all operations in vDiTs by exploiting channel-wise spatiotemporal correlations in latent space. Based on this insight, we propose a lightweight channelwise reuse algorithm that skips redundant computations by reusing partial results while preserving higher generative quality than prior methods (>17 dB). To efficiently support this algorithm, we design a systolic array like accelerator with reconfigurable processing elements and a lightweight data dispatcher to mitigate irregular sparsity and data access patterns introduced by our reuse algorithm. Evaluations across three mainstream vDiT models show that Kaleido achieves up to 5.9x speedup and 16.0x energy savings over state of the art accelerators.",
+      "authors": [
+        "Wenxuan Miao",
+        "Haosong Liu",
+        "Weiming Hu",
+        "Zihan Liu",
+        "Aiyue Chen",
+        "Jianlin Yu",
+        "Yiwu Yao",
+        "Yiming Gan",
+        "Jieru Zhao",
+        "Jingwen Leng",
+        "Minyi Guo",
+        "Yu Feng"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR",
+        "cs.AI"
+      ],
+      "published": "2026-07-15T12:31:19+00:00",
+      "link": "https://arxiv.org/pdf/2607.13770v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "accelerates video diffusion transformers without additional training",
+      "llm_evidence_cn": "加速视频扩散变换器且无需额外训练",
+      "llm_evidence": "加速视频扩散变换器且无需额外训练",
+      "canonical_evidence": "加速视频扩散变换器且无需额外训练",
+      "llm_tldr_en": "Kaleido proposes algorithm-hardware co-design for video diffusion transformers, exploiting latent spatiotemporal correlations to accelerate self-attention, achieving speedup without retraining.",
+      "llm_tldr_cn": "视频扩散变换器(vDiT)生成高质量视频但计算成本极高。Kaleido提出算法-硬件协同设计方案，利用潜在空间中的通道级时空相关性，设计轻量级通道重用算法，跳过冗余计算，显著加速所有操作。实验表明该方法在保持生成质量的同时大幅降低推理延迟，为视频扩散模型的高效部署提供了新思路。",
+      "llm_tldr": "视频扩散变换器(vDiT)生成高质量视频但计算成本极高。Kaleido提出算法-硬件协同设计方案，利用潜在空间中的通道级时空相关性，设计轻量级通道重用算法，跳过冗余计算，显著加速所有操作。实验表明该方法在保持生成质量的同时大幅降低推理延迟，为视频扩散模型的高效部署提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.08770v1",
+      "source": "arxiv",
+      "title": "LongE2V: Long-Horizon Event-based Video Reconstruction, Prediction, and Frame Interpolation with Video Diffusion Models",
+      "abstract": "Recovering high-quality video from sparse event streams is a challenging task. Regression methods often blur textures, while existing generative models struggle with long-term stability. We propose LongE2V, a novel approach that leverages pre-trained video diffusion priors to jointly handle event-based video reconstruction, prediction, and frame interpolation. By fine-tuning a foundational video model, our approach achieves high data efficiency and superior perceptual quality. We introduce Autoregressive Unrolling and Adaptive Context Switching to mitigate temporal drift in extremely long sequences. We also propose Reencoding Alignment with Cross Residual Correction to ensure precise bidirectional consistency during frame interpolation. Furthermore, Event Voxel Density Augmentation ensures robustness across varying sensor resolutions. Extensive experiments on real-world benchmarks demonstrate that LongE2V outperforms state-of-the-art methods across all three tasks, exhibiting exceptional temporal coherence and zero-shot generalization. Project page: https://cdfan0627.github.io/LongE2V-page/",
+      "authors": [
+        "Cheng-De Fan",
+        "Chun-Wei Tuan Mu",
+        "Chen-Wei Chang",
+        "Chin-Yang Lin",
+        "Kun-Ru Wu",
+        "Yu-Chee Tseng",
+        "Yu-Lun Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-09T17:59:52+00:00",
+      "link": "https://arxiv.org/pdf/2607.08770v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "video generation using diffusion models, though requires fine-tuning",
+      "llm_evidence_cn": "基于扩散模型的视频生成，但需要微调",
+      "llm_evidence": "基于扩散模型的视频生成，但需要微调",
+      "canonical_evidence": "基于扩散模型的视频生成，但需要微调",
+      "llm_tldr_en": "LongE2V uses pre-trained video diffusion priors with fine-tuning, autoregressive unrolling, and adaptive context switching for event-based video reconstruction, prediction, and interpolation.",
+      "llm_tldr_cn": "从稀疏事件流恢复高质量视频具有挑战性，回归方法会模糊纹理，现有生成模型缺乏长期稳定性。LongE2V基于预训练视频扩散模型，通过自回归展开和自适应上下文切换缓解长序列的时间漂移，采用重编码对齐和交叉残差修正确保双向一致性。该方法在保持数据效率的同时实现了优越的感知质量。",
+      "llm_tldr": "从稀疏事件流恢复高质量视频具有挑战性，回归方法会模糊纹理，现有生成模型缺乏长期稳定性。LongE2V基于预训练视频扩散模型，通过自回归展开和自适应上下文切换缓解长序列的时间漂移，采用重编码对齐和交叉残差修正确保双向一致性。该方法在保持数据效率的同时实现了优越的感知质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.13031v1",
+      "source": "arxiv",
+      "title": "The Seriality Gap in Video Diffusion Models",
+      "abstract": "When one ball strikes another, then another, video models should predict the consequences of each bounce. In controlled experiments on multi-ball hard-sphere dynamics, we find that the performance of standard bidirectional video diffusion degrades as the causal chain lengthens, even when provided more denoising steps. In a length-matched single-ball control, where ball-ball interactions are absent, the degradation largely disappears, isolating dependent-event structure rather than video length as the cause. Across intervention studies, methods that increase effective serial computation improve performance disproportionately, including autoregressive/blockwise generation and architectural depth. We identify this pattern as the seriality gap: a mismatch between tasks requiring growing serial computation and video diffusion models whose denoising loop does not provide scalable serial compute. We then prove that, for deterministic video prediction, denoising steps do not add serial computation beyond the backbone, indicating a structural obstacle for video diffusion on serial reasoning and simulation tasks.",
+      "authors": [
+        "Jorge Diaz Chao",
+        "Konpat Preechakul",
+        "Yuxi Liu",
+        "Yutong Bai"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "published": "2026-07-14T17:59:22+00:00",
+      "link": "https://arxiv.org/pdf/2607.13031v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "identifies seriality gap in video diffusion and proposes autoregressive generation as training-free improvement",
+      "llm_evidence_cn": "识别视频扩散中的序列性差距，提出自回归生成作为免训练改进方法",
+      "llm_evidence": "识别视频扩散中的序列性差距，提出自回归生成作为免训练改进方法",
+      "canonical_evidence": "识别视频扩散中的序列性差距，提出自回归生成作为免训练改进方法",
+      "llm_tldr_en": "The paper discovers a seriality gap in video diffusion models where performance degrades with causal chain length, and shows that autoregressive/blockwise generation (training-free) mitigates this issue.",
+      "llm_tldr_cn": "该论文在视频扩散模型中发现序列性差距：随着因果链长度增加，模型性能下降。通过对照实验，作者分离出多球交互导致的问题。进一步干预研究表明，增加有效序列计算（如自回归/分块生成和网络深度）能显著改善性能。这些方法无需重新训练，可直接用于提升视频扩散模型对复杂动态的建模能力。",
+      "llm_tldr": "该论文在视频扩散模型中发现序列性差距：随着因果链长度增加，模型性能下降。通过对照实验，作者分离出多球交互导致的问题。进一步干预研究表明，增加有效序列计算（如自回归/分块生成和网络深度）能显著改善性能。这些方法无需重新训练，可直接用于提升视频扩散模型对复杂动态的建模能力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
