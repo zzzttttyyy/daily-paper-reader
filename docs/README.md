@@ -6,37 +6,41 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-16
-- 运行时间：2026-07-16 20:20:44 UTC
+- 最新运行日期：2026-07-17
+- 运行时间：2026-07-17 20:45:47 UTC
 - 运行状态：成功
-- 本次总论文数：5
-- 精读区：3
-- 速读区：2
+- 本次总论文数：7
+- 精读区：4
+- 速读区：3
 
 ### 今日简报（AI）
-1) 今日推荐5篇论文，聚焦高效扩散模型推理优化与视频生成前沿。  
-2) 《Xema》提出细粒度内存管理与自动配置实现扩散模型高效推理（9.0分），《Concurrent Image Understanding》创新自校正耦合马尔可夫跳跃过程统一图像理解与生成（8.0分）。  
-3) 建议优先精读这两篇，重点关注推理加速与多任务融合思路，为后续应用扩散模型提供新工具。
-- 详情：[/202607/16/README](/202607/16/README)
+今日聚焦视频生成与扩散模型，精读两篇高分论文分别研究自适应缓存和概念抑制评估。最值得关注的方向是视频生成效率优化（ACID缓存机制）和文本到视频模型中的概念安全控制（推理时抑制）。建议普通读者优先了解这两个方向，它们分别解决了视频生成的速度瓶颈和内容安全可控问题。
+- 详情：[/202607/17/README](/202607/17/README)
 
 ### 精读区论文标签
-1. [Xema: Efficient Diffusion Serving through Fine-Grained Memory Management and Auto-Configuration](/202607/16/2607.11136v1-xema-efficient-diffusion-serving-through-fine-grained-memory-management-and-auto-configuration)  
+1. [ACID: Adaptive Caching for vIDeo generation](/202607/17/2607.12358v2-acid-adaptive-caching-for-video-generation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：无需额外训练的内存高效扩散模型服务系统
-2. [Concurrent Image Understanding and Generation: Self-Correcting Coupled Markov Jump Processes](/202607/16/2607.13188v1-concurrent-image-understanding-and-generation-self-correcting-coupled-markov-jump-processes)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：通过自校正耦合马尔可夫跳跃过程实现掩码扩散模型的免训练采样优化
-3. [Kaleido: Algorithm-Hardware Co-Design for Video Diffusion Transformers by Exploiting Latent Space Correlations](/202607/16/2607.13770v1-kaleido-algorithm-hardware-co-design-for-video-diffusion-transformers-by-exploiting-latent-space-correlations)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：加速视频扩散变换器且无需额外训练
+   evidence：针对视频扩散模型的自适应缓存加速，无需额外训练
+2. [Inference-Time Concept Suppression and Video-Centric Evaluation for Text-to-Video Models](/202607/17/2607.14194v1-inference-time-concept-suppression-and-video-centric-evaluation-for-text-to-video-models)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：文本到视频的免训练推理时概念抑制
+3. [CODA: Algorithm-Hardware Co-design for Edge Video Diffusion via NMP-Enabled Compute-Cache Operator Disaggregation](/202607/17/2607.14908v1-coda-algorithm-hardware-co-design-for-edge-video-diffusion-via-nmp-enabled-compute-cache-operator-disaggregation)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：针对边缘视频扩散的免训练跨时间步缓存
+4. [TanGO: Training-Free 3D Editing via Tangent-Space Guidance and Optimization](/202607/17/2607.14927v1-tango-training-free-3d-editing-via-tangent-space-guidance-and-optimization)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练3D编辑，使用切空间引导
 
 ### 速读区论文标签
-1. [LongE2V: Long-Horizon Event-based Video Reconstruction, Prediction, and Frame Interpolation with Video Diffusion Models](/202607/16/2607.08770v1-longe2v-long-horizon-event-based-video-reconstruction-prediction-and-frame-interpolation-with-video-diffusion-models)  
+1. [Markov Chain Monte Carlo with Diffusion Paths](/202607/17/2607.11631v1-markov-chain-monte-carlo-with-diffusion-paths)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：基于扩散模型的视频生成，但需要微调
-2. [The Seriality Gap in Video Diffusion Models](/202607/16/2607.13031v1-the-seriality-gap-in-video-diffusion-models)  
+   evidence：使用扩散路径的MCMC改进采样
+2. [ReBind: Multi-Reference Video Editing via Structured Instructions with Explicit Reference Relationships](/202607/17/2607.14681v1-rebind-multi-reference-video-editing-via-structured-instructions-with-explicit-reference-relationships)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：识别视频扩散中的序列性差距，提出自回归生成作为免训练改进方法
+   evidence：免训练视频编辑框架，引入显式参考关系
+3. [Rare Concept Generation via Counterfactual Inference in Diffusion Models](/202607/17/2607.14765v1-rare-concept-generation-via-counterfactual-inference-in-diffusion-models)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：反事实推理用于稀有概念生成，可能免训练
 
 
 <div class="dpr-home-promo-card">

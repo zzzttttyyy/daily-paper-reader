@@ -1,0 +1,294 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-17T20:39:12.831531+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2607.12358v2",
+      "source": "arxiv",
+      "title": "ACID: Adaptive Caching for vIDeo generation",
+      "abstract": "Video diffusion models produce high-quality generations but remain slow at inference due to their sequential denoising procedure. Caching-based acceleration methods address this by reusing intermediate model outputs: leading dynamic approaches such as TeaCache, EasyCache, and DiCache accumulate a drift signal and skip expensive model evaluations when accumulated drift stays below a fixed threshold $τ$. This threshold controls an apparent tradeoff - raising it yields faster generation at the cost of visual quality, while lowering it preserves quality but sacrifices speed. We show this tradeoff is not fundamental; it is an artifact of holding $τ$ constant throughout denoising. We identify the existence of critical steps - timesteps where the drift signal changes rapidly - and show that applying a low threshold selectively at these steps while caching aggressively elsewhere recovers most of the quality of conservative caching at substantially higher inference speeds. Building on this insight, we propose ACID, a lightweight, training-free wrapper that monitors the rate of change of each method's existing drift signal to dynamically switch between a low and a high threshold. ACID is signal-agnostic and modular: it requires no retraining and plugs directly into existing dynamic caching methods without modifying their core mechanisms. Evaluated across three caching methods (TeaCache, EasyCache, DiCache) and three open-source video diffusion models (HunyuanVideo, Wan 2.1, CogVideoX), ACID consistently expands the Pareto frontier of visual quality versus inference speed beyond what any fixed threshold achieves. In particular, on TeaCache and HunyuanVideo, ACID achieves up to 2.16x speedup over the no-caching baseline, and up to 38% additional speedup over the conservative fixed-threshold baseline with negligible (<0.3 dB PSNR, <0.01 SSIM, <0.01 LPIPS) quality degradation.",
+      "authors": [
+        "Om Agrawal",
+        "Saurabh Agarwal",
+        "Aditya Akella"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-14T05:17:24+00:00",
+      "link": "https://arxiv.org/pdf/2607.12358v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "adaptive caching for video diffusion without extra training",
+      "llm_evidence_cn": "针对视频扩散模型的自适应缓存加速，无需额外训练",
+      "llm_evidence": "针对视频扩散模型的自适应缓存加速，无需额外训练",
+      "canonical_evidence": "针对视频扩散模型的自适应缓存加速，无需额外训练",
+      "llm_tldr_en": "Proposes ACID, an adaptive caching method for video diffusion models that adjusts the drift threshold dynamically to accelerate inference without training, showing improved quality-speed tradeoff.",
+      "llm_tldr_cn": "视频扩散模型推理速度慢，现有缓存方法使用固定阈值导致质量-速度权衡非最优。本文提出自适应缓存方法ACID，通过动态调整漂移阈值，在无需额外训练的情况下显著加速视频生成。实验表明，ACID在保持生成质量的同时大幅提升推理速度，突破了固定阈值带来的限制。",
+      "llm_tldr": "视频扩散模型推理速度慢，现有缓存方法使用固定阈值导致质量-速度权衡非最优。本文提出自适应缓存方法ACID，通过动态调整漂移阈值，在无需额外训练的情况下显著加速视频生成。实验表明，ACID在保持生成质量的同时大幅提升推理速度，突破了固定阈值带来的限制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.14194v1",
+      "source": "arxiv",
+      "title": "Inference-Time Concept Suppression and Video-Centric Evaluation for Text-to-Video Models",
+      "abstract": "Text-to-video (T2V) generators can synthesize realistic and temporally coherent videos, but controllably removing a target concept from a generator remains difficult.   Unlike text-to-image concept erasure, T2V unlearning must suppress a target concept that may persist across frames while preserving non-target subjects, actions, scenes, and temporal structure.   We propose \\textbf{SIRUS}, a training-free inference-time framework for concept-level T2V unlearning.   Given textual aliases of a target concept, SIRUS localizes target-related prompt evidence and suppresses target expression during sampling, without updating the text encoder or denoising network.   We further introduce a video-oriented evaluation framework for T2V unlearning that separately measures target forgetting, non-target preservation, video quality, jailbreak robustness, and efficiency, using video-level failure criteria, frame-level residue statistics, paired preservation analysis, VBench-based quality diagnostics, and deployment overhead measurement.   Across five safety, object, and style concepts on CogVideoX, SIRUS reaches 70.4\\% average forgetting success and 25.7\\% average frame hit, compared with 44.4\\% / 47.2\\% for VideoEraser, while reducing the average VBench quality drop from -0.043 to -0.016, yielding the strongest forgetting-quality trade-off among fully evaluated baselines.   Transfer experiments on Wan2.2 further suggest that SIRUS generalizes across modern T2V backbones.",
+      "authors": [
+        "Wenxuan Chen",
+        "Wenjie Feng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-15T16:26:09+00:00",
+      "link": "https://arxiv.org/pdf/2607.14194v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free inference-time concept suppression for text-to-video",
+      "llm_evidence_cn": "文本到视频的免训练推理时概念抑制",
+      "llm_evidence": "文本到视频的免训练推理时概念抑制",
+      "canonical_evidence": "文本到视频的免训练推理时概念抑制",
+      "llm_tldr_en": "Presents SIRUS, a training-free inference-time framework for concept-level unlearning in text-to-video models, suppressing target concepts without model updates.",
+      "llm_tldr_cn": "针对文本到视频模型概念移除困难的问题，该论文提出SIRUS，一个无需训练的推理时框架：利用文本别名定位目标概念，在采样过程中抑制其表达，不更新编码器或去噪网络。同时引入面向视频的评估体系。实验表明该方法能有效移除目标概念并保持视频连贯性，且完全无需额外训练。",
+      "llm_tldr": "针对文本到视频模型概念移除困难的问题，该论文提出SIRUS，一个无需训练的推理时框架：利用文本别名定位目标概念，在采样过程中抑制其表达，不更新编码器或去噪网络。同时引入面向视频的评估体系。实验表明该方法能有效移除目标概念并保持视频连贯性，且完全无需额外训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.14908v1",
+      "source": "arxiv",
+      "title": "CODA: Algorithm-Hardware Co-design for Edge Video Diffusion via NMP-Enabled Compute-Cache Operator Disaggregation",
+      "abstract": "Deploying Video Diffusion Models (VDMs) on edge devices is appealing for localized and privacy-preserving generation, but their iterative Transformer-based denoising remains too slow for practical local inference. Cross-Timestep Caching (CTC) has emerged as a promising direction for reducing redundant computation, reusing activations across adjacent denoising steps rather than modifying model weights, while largely preserving generation fidelity. However, on memory-constrained edge GPUs, CTC requires a massive cache footprint that quickly exceeds on-device VRAM and forces the cache into host memory. More fundamentally, cache operators remain tightly interleaved and chain-dependent with native compute operators, so naive near-memory offloading still incurs repeated PCIe exchanges for residual and fusion computations, turning cache reuse into a communication- and serialization-bound execution flow. We therefore propose CODA, an algorithm-hardware co-designed architecture centered on Compute-Cache Operator Disaggregation. CODA separates dense compute paths and memory-bound cache paths across the xPU and a lightweight DIMM-side near-memory engine, reorganizes fragmented cache activity into hardware-friendly coalesced segments, and exploits Classifier-Free Guidance (CFG) branch independence to overlap xPU compute with cache-side execution. Experiments show that CODA achieves up to 1.80x end-to-end speedup and 1.74x higher energy efficiency, while preserving competitive generation quality compared with a state-of-the-art caching algorithm.",
+      "authors": [
+        "Yuanpeng Zhang",
+        "YuXuan Wu",
+        "Yitong Xiao",
+        "Chenhao Xue",
+        "Yi Ren",
+        "Cong Li",
+        "Yihan Yin",
+        "Dimin Niu",
+        "Guangyu Sun"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR",
+        "cs.DC"
+      ],
+      "published": "2026-07-16T12:28:01+00:00",
+      "link": "https://arxiv.org/pdf/2607.14908v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free cross-timestep caching for edge video diffusion",
+      "llm_evidence_cn": "针对边缘视频扩散的免训练跨时间步缓存",
+      "llm_evidence": "针对边缘视频扩散的免训练跨时间步缓存",
+      "canonical_evidence": "针对边缘视频扩散的免训练跨时间步缓存",
+      "llm_tldr_en": "Proposes CODA, an algorithm-hardware co-design that enables training-free cross-timestep caching for video diffusion models on edge devices, significantly reducing latency without modifying weights.",
+      "llm_tldr_cn": "本文提出CODA框架，通过算法-硬件协同设计，在边缘设备上实现视频扩散模型的免训练跨时间步缓存（CTC）。该方法在不修改模型权重的前提下，利用计算-缓存算子解耦技术解决显存瓶颈，大幅降低推理延迟。实验表明，CODA在保持生成质量的同时，将边缘视频扩散速度提升数倍，为实时隐私保护生成提供可行方案。",
+      "llm_tldr": "本文提出CODA框架，通过算法-硬件协同设计，在边缘设备上实现视频扩散模型的免训练跨时间步缓存（CTC）。该方法在不修改模型权重的前提下，利用计算-缓存算子解耦技术解决显存瓶颈，大幅降低推理延迟。实验表明，CODA在保持生成质量的同时，将边缘视频扩散速度提升数倍，为实时隐私保护生成提供可行方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.14927v1",
+      "source": "arxiv",
+      "title": "TanGO: Training-Free 3D Editing via Tangent-Space Guidance and Optimization",
+      "abstract": "While recent flow-matching 3D generative models (e.g., VecSet) adopt structured representations, their tokens share global context, causing conventional training-free editing to suffer from semantic artifacts such as collapsed preserved regions or incomplete transformations. To address this, we propose TanGO, a training-free framework that enables adaptive per-token steering in the tangent space of generative dynamics. To realize this selective control, we formulate a one-step optimal control rule and determine the strength of each token's control signal using a von Mises-Fisher inspired directional discrepancy derived from the source and target velocity fields. Experiments show that TanGO substantially reduces structural artifacts and achieves state-of-the-art performance, outperforming existing 3D editing baselines. The code is publicly available at https://github.com/siw00-lim/TanGO.",
+      "authors": [
+        "Siwoo Lim",
+        "Sunjae Yoon",
+        "Gwanhyeong Koo",
+        "Hyeonseo Yun",
+        "Chang D. Yoo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-16T12:42:50+00:00",
+      "link": "https://arxiv.org/pdf/2607.14927v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free 3D editing via tangent-space guidance",
+      "llm_evidence_cn": "免训练3D编辑，使用切空间引导",
+      "llm_evidence": "免训练3D编辑，使用切空间引导",
+      "canonical_evidence": "免训练3D编辑，使用切空间引导",
+      "llm_tldr_en": "TanGO is a training-free framework for 3D editing using tangent-space guidance and optimization, reducing artifacts without additional training.",
+      "llm_tldr_cn": "现有训练免费编辑方法在3D生成模型中产生语义伪影。本文提出TanGO，一个无需训练的框架，通过在生成动力学切空间中进行自适应逐令牌引导，实现精确编辑。实验表明，TanGO显著减少结构伪影，实现稳定编辑。",
+      "llm_tldr": "现有训练免费编辑方法在3D生成模型中产生语义伪影。本文提出TanGO，一个无需训练的框架，通过在生成动力学切空间中进行自适应逐令牌引导，实现精确编辑。实验表明，TanGO显著减少结构伪影，实现稳定编辑。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.11631v1",
+      "source": "arxiv",
+      "title": "Markov Chain Monte Carlo with Diffusion Paths",
+      "abstract": "Sampling from multimodal distributions is a longstanding challenge for classical local Markov chain Monte Carlo (MCMC) methods. A popular remedy is to introduce a sequence of intermediate distributions that interpolate between the target and a simpler reference. The classical choice, tempering, raises the density to a power, but distorts the relative weights of asymmetric modes and can lead to poor mixing. We instead propose interpolating along the diffusion path, the marginals of a noising diffusion process that carries the target toward a Gaussian. This path preserves the relative weights of the modes and enjoys favorable mixing properties, which we make precise through a spectral-gap analysis of the corresponding ideal transition kernel. Sampling along the path requires its intermediate scores, which can be estimated from the unnormalized target through variational approaches, yielding only an approximate sampler. To remove the resulting bias, we introduce the Metropolis-adjusted diffusion path (MAD-Path) sampler, which corrects the diffusion-path proposal in an augmented path space and leaves the target invariant regardless of the accuracy of the learned score or the discretization error. We further quantify how these two errors affect the acceptance probability, providing guidance for practical tuning. Experiments on a range of Bayesian posteriors show that MAD-Path improves global exploration and mode-weight estimation relative to tempering-based MCMC methods and unadjusted diffusion samplers.",
+      "authors": [
+        "Han Chen",
+        "Sifan Liu",
+        "Jun Yang"
+      ],
+      "primary_category": "stat.CO",
+      "categories": [
+        "stat.CO",
+        "stat.ML"
+      ],
+      "published": "2026-07-13T14:48:19+00:00",
+      "link": "https://arxiv.org/pdf/2607.11631v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "MCMC with diffusion paths for improved sampling",
+      "llm_evidence_cn": "使用扩散路径的MCMC改进采样",
+      "llm_evidence": "使用扩散路径的MCMC改进采样",
+      "canonical_evidence": "使用扩散路径的MCMC改进采样",
+      "llm_tldr_en": "Proposes interpolating along diffusion paths for MCMC, preserving mode weights and improving mixing, applicable to diffusion model sampling without extra training.",
+      "llm_tldr_cn": "传统MCMC在多模态分布采样中性能差。本文提出沿扩散路径插值的MCMC方法，保留模式相对权重并改善混合。该方法可应用于扩散模型的采样过程，无需额外训练，理论分析支持其优越性。",
+      "llm_tldr": "传统MCMC在多模态分布采样中性能差。本文提出沿扩散路径插值的MCMC方法，保留模式相对权重并改善混合。该方法可应用于扩散模型的采样过程，无需额外训练，理论分析支持其优越性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.14765v1",
+      "source": "arxiv",
+      "title": "Rare Concept Generation via Counterfactual Inference in Diffusion Models",
+      "abstract": "Rare concept generation focuses on synthesizing customized images conditioned on text prompts that describe objects with unusual attributes. Previous works failed to align the generated images with rare concepts, resulting in incorrect attribute rendering or inconsistent composition of concepts. Such failures, as we observed, stem from the inherent common knowledge bias in the training stage of diffusion models, where objects are strongly associated with their common attributes, making it difficult to break these associations when generating rare concepts. To address such challenges, in this paper, we propose a novel Counterfactual Inference-based Diffusion approach, dubbed CI-Diff. CI-Diff blocks the interference of the model's inherent common knowledge bias and utilizes the Natural Direct Effect to capture the independent influence of the text prompt of rare concepts on image generation so that decoupling the unusual attributes from the rare concepts. To this end, we reformulate the classifier-free guidance mechanism to highlight the atypical attributes. To the best of our knowledge, we are the first to introduce causal inference into the rare concept generation task. Extensive experiments on the RareBench benchmark validate the superiority of CI-Diff over state-of-the-art diffusion models. Our code can be accessed from https://github.com/200204jzy/CI-Diff.",
+      "authors": [
+        "Zhengyuan Jiang",
+        "Haipeng Liu",
+        "Meng Wang",
+        "Yang Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-16T09:49:06+00:00",
+      "link": "https://arxiv.org/pdf/2607.14765v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "counterfactual inference for rare concept generation, potentially training-free",
+      "llm_evidence_cn": "反事实推理用于稀有概念生成，可能免训练",
+      "llm_evidence": "反事实推理用于稀有概念生成，可能免训练",
+      "canonical_evidence": "反事实推理用于稀有概念生成，可能免训练",
+      "llm_tldr_en": "CI-Diff uses counterfactual inference to mitigate common knowledge bias in diffusion models for rare concept generation without extra training.",
+      "llm_tldr_cn": "扩散模型在生成稀有概念时受常见知识偏差影响，导致属性错误。本文提出CI-Diff，基于反事实推理在推理阶段阻断偏差干扰，无需额外训练即可生成符合稀有概念的图像。实验证明该方法有效改善了属性渲染和概念组合。",
+      "llm_tldr": "扩散模型在生成稀有概念时受常见知识偏差影响，导致属性错误。本文提出CI-Diff，基于反事实推理在推理阶段阻断偏差干扰，无需额外训练即可生成符合稀有概念的图像。实验证明该方法有效改善了属性渲染和概念组合。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.14681v1",
+      "source": "arxiv",
+      "title": "ReBind: Multi-Reference Video Editing via Structured Instructions with Explicit Reference Relationships",
+      "abstract": "Recent diffusion-based video generation models have made significant progress in multi-reference image-conditioned video editing. However, existing methods still struggle to coordinate information from multiple visual sources accurately. We identify a critical deficiency in existing approaches. Existing editing instructions lack explicit reference relationships, and most multimodal large language models (MLLMs) cannot generate them reliably. To address this problem, we propose ReBind, a systematic framework that introduces semantic instructions with embedded reference tokens as the intermediate representation for multi-reference image-conditioned video editing. Our key insight is embedding reference tokens at semantic positions to eliminate ambiguity and establish precise bindings between visual attributes and their sources. We develop ReBind-Instruct, a specialized MLLM that learns to establish explicit bindings between visual attributes and their reference sources through a two-stage progressive scheme for precise reference relationships. We further develop ReBind-Edit, which enables lightweight adaptation of text-to-video models to coordinate multiple references by binding visual attributes to their designated sources. Extensive experiments demonstrate that ReBind substantially outperforms general-purpose MLLMs in instruction quality and achieves state-of-the-art performance among open-source methods on reference image conditioned video editing. Our project webpage: https://rebind-mrv2v.github.io/.",
+      "authors": [
+        "Xinyu Liu",
+        "Shihao Li",
+        "Weihong Lin",
+        "Xinlong Chen",
+        "Yang Shi",
+        "Yujin Han",
+        "Yiyang Cai",
+        "Yanghao Wang",
+        "Ruibin Yuan",
+        "Yuanxing Zhang",
+        "Pengfei Wan",
+        "Wenhan Luo",
+        "Yike Guo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-16T07:43:27+00:00",
+      "link": "https://arxiv.org/pdf/2607.14681v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free framework for video editing with explicit reference relationships",
+      "llm_evidence_cn": "免训练视频编辑框架，引入显式参考关系",
+      "llm_evidence": "免训练视频编辑框架，引入显式参考关系",
+      "canonical_evidence": "免训练视频编辑框架，引入显式参考关系",
+      "llm_tldr_en": "ReBind introduces semantic instructions with embedded reference tokens for multi-reference video editing, requiring no parameter updates and improving editing accuracy.",
+      "llm_tldr_cn": "多参考图像条件视频编辑中，现有方法难以准确协调多个视觉信息源。本文提出ReBind框架，通过嵌入参考标记的语义指令作为中间表示，无需参数更新即可实现精确编辑。实验表明该方法在保持视频一致性的同时提升了编辑可控性，是一种免训练的有效方案。",
+      "llm_tldr": "多参考图像条件视频编辑中，现有方法难以准确协调多个视觉信息源。本文提出ReBind框架，通过嵌入参考标记的语义指令作为中间表示，无需参数更新即可实现精确编辑。实验表明该方法在保持视频一致性的同时提升了编辑可控性，是一种免训练的有效方案。",
+      "llm_tags": [
+        "query:tfree-diff:composite"
+      ],
+      "matched_query_tag": "query:tfree-diff:composite",
+      "matched_query_text": "Papers central to 请帮我查找扩散模型图像/视频生成的免训练优化相关论文, especially work that connects or combines: diffusion models for generative tasks; image generation using diffusion models; video generation with diffusion models; optimization methods that do not require training for diffusion models; What are training free sampling optimization techniques for diffusion model image generation?; How to improve diffusion model video generation without additional training?; Survey of training free methods for diffusion models in image and video generation..",
+      "matched_requirement_id": "req-composite-tfree-diff",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
