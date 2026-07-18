@@ -6,41 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-17
-- 运行时间：2026-07-17 20:45:47 UTC
+- 最新运行日期：2026-07-18
+- 运行时间：2026-07-18 21:07:53 UTC
 - 运行状态：成功
-- 本次总论文数：7
-- 精读区：4
+- 本次总论文数：4
+- 精读区：1
 - 速读区：3
 
 ### 今日简报（AI）
-今日聚焦视频生成与扩散模型，精读两篇高分论文分别研究自适应缓存和概念抑制评估。最值得关注的方向是视频生成效率优化（ACID缓存机制）和文本到视频模型中的概念安全控制（推理时抑制）。建议普通读者优先了解这两个方向，它们分别解决了视频生成的速度瓶颈和内容安全可控问题。
-- 详情：[/202607/17/README](/202607/17/README)
+今日精选四篇扩散模型论文，聚焦医学影像生成、高效推理、实时解码与理论统一。最值得关注精读的《TCAM-Diff》在医疗扩散模型中引入三平面感知交叉注意力（8.0分），以及速读中《FlashDiff》的扩散模型服务调度优化（7.0分）。建议优先精读《TCAM-Diff》以了解最新医学生成范式，再速读《FlashDiff》获取推理加速思路。
+- 详情：[/202607/18/README](/202607/18/README)
 
 ### 精读区论文标签
-1. [ACID: Adaptive Caching for vIDeo generation](/202607/17/2607.12358v2-acid-adaptive-caching-for-video-generation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：针对视频扩散模型的自适应缓存加速，无需额外训练
-2. [Inference-Time Concept Suppression and Video-Centric Evaluation for Text-to-Video Models](/202607/17/2607.14194v1-inference-time-concept-suppression-and-video-centric-evaluation-for-text-to-video-models)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：文本到视频的免训练推理时概念抑制
-3. [CODA: Algorithm-Hardware Co-design for Edge Video Diffusion via NMP-Enabled Compute-Cache Operator Disaggregation](/202607/17/2607.14908v1-coda-algorithm-hardware-co-design-for-edge-video-diffusion-via-nmp-enabled-compute-cache-operator-disaggregation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：针对边缘视频扩散的免训练跨时间步缓存
-4. [TanGO: Training-Free 3D Editing via Tangent-Space Guidance and Optimization](/202607/17/2607.14927v1-tango-training-free-3d-editing-via-tangent-space-guidance-and-optimization)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练3D编辑，使用切空间引导
+1. [TCAM-Diff: Triplane-Aware Cross-Attention Medical Diffusion Model](/202607/18/2607.13812v1-tcam-diff-triplane-aware-cross-attention-medical-diffusion-model)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：使用扩散模型进行医学图像生成
 
 ### 速读区论文标签
-1. [Markov Chain Monte Carlo with Diffusion Paths](/202607/17/2607.11631v1-markov-chain-monte-carlo-with-diffusion-paths)  
+1. [FlashDiff: Efficient Regional Execution and Scheduling for Diffusion Model Serving](/202607/18/2607.12121v2-flashdiff-efficient-regional-execution-and-scheduling-for-diffusion-model-serving)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：使用扩散路径的MCMC改进采样
-2. [ReBind: Multi-Reference Video Editing via Structured Instructions with Explicit Reference Relationships](/202607/17/2607.14681v1-rebind-multi-reference-video-editing-via-structured-instructions-with-explicit-reference-relationships)  
+   evidence：免训练的扩散模型服务优化
+2. [FlashDecoder: Real-Time Latent-to-Pixel Streaming Decoder with Transformers](/202607/18/2607.14898v1-flashdecoder-real-time-latent-to-pixel-streaming-decoder-with-transformers)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：免训练视频编辑框架，引入显式参考关系
-3. [Rare Concept Generation via Counterfactual Inference in Diffusion Models](/202607/17/2607.14765v1-rare-concept-generation-via-counterfactual-inference-in-diffusion-models)  
+   evidence：用于潜变量扩散模型的视频解码器
+3. [Sticky Jump Diffusions: A Unifying View of Masked, Continuous, and Hybrid Diffusion](/202607/18/2607.10951v1-sticky-jump-diffusions-a-unifying-view-of-masked-continuous-and-hybrid-diffusion)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：反事实推理用于稀有概念生成，可能免训练
+   evidence：扩散模型统一理论
 
 
 <div class="dpr-home-promo-card">
