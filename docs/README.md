@@ -6,32 +6,35 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-18
-- 运行时间：2026-07-18 21:07:53 UTC
+- 最新运行日期：2026-07-19
+- 运行时间：2026-07-19 21:09:07 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：1
-- 速读区：3
+- 本次总论文数：5
+- 精读区：3
+- 速读区：2
 
 ### 今日简报（AI）
-今日精选四篇扩散模型论文，聚焦医学影像生成、高效推理、实时解码与理论统一。最值得关注精读的《TCAM-Diff》在医疗扩散模型中引入三平面感知交叉注意力（8.0分），以及速读中《FlashDiff》的扩散模型服务调度优化（7.0分）。建议优先精读《TCAM-Diff》以了解最新医学生成范式，再速读《FlashDiff》获取推理加速思路。
-- 详情：[/202607/18/README](/202607/18/README)
+今天精选了两篇高分论文，分别聚焦基于Doob h-变换的灵活流式图像编辑和通过MLP稀疏性截断加速扩散多模态大模型。最值得关注的方向是图像编辑的流式框架与多模态模型的高效推理加速。普通读者下一步可重点了解h-变换在图像编辑中的创新应用，以及稀疏性加速如何降低计算成本。
+- 详情：[/202607/19/README](/202607/19/README)
 
 ### 精读区论文标签
-1. [TCAM-Diff: Triplane-Aware Cross-Attention Medical Diffusion Model](/202607/18/2607.13812v1-tcam-diff-triplane-aware-cross-attention-medical-diffusion-model)  
+1. [h-Flow: Flexible Flow-based Image Editing via Doob's h-Transform](/202607/19/2607.10800v1-h-flow-flexible-flow-based-image-editing-via-doobs-h-transform)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练的流式图像编辑
+2. [Seeing the End at Step Zero: Accelerating Diffusion MLLMs via MLP Sparsity-Aware Truncation](/202607/19/2607.14557v1-seeing-the-end-at-step-zero-accelerating-diffusion-mllms-via-mlp-sparsity-aware-truncation)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：通过稀疏性检测的免训练加速扩散MLLMs
+3. [ReBind: Multi-Reference Video Editing via Structured Instructions with Explicit Reference Relationships](/202607/19/2607.14681v1-rebind-multi-reference-video-editing-via-structured-instructions-with-explicit-reference-relationships)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：使用扩散模型进行医学图像生成
+   evidence：基于扩散的视频编辑与生成
 
 ### 速读区论文标签
-1. [FlashDiff: Efficient Regional Execution and Scheduling for Diffusion Model Serving](/202607/18/2607.12121v2-flashdiff-efficient-regional-execution-and-scheduling-for-diffusion-model-serving)  
+1. [RFMSR: Residual Flow Matching for Image Super-Resolution](/202607/19/2607.12753v1-rfmsr-residual-flow-matching-for-image-super-resolution)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：免训练的扩散模型服务优化
-2. [FlashDecoder: Real-Time Latent-to-Pixel Streaming Decoder with Transformers](/202607/18/2607.14898v1-flashdecoder-real-time-latent-to-pixel-streaming-decoder-with-transformers)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：用于潜变量扩散模型的视频解码器
-3. [Sticky Jump Diffusions: A Unifying View of Masked, Continuous, and Hybrid Diffusion](/202607/18/2607.10951v1-sticky-jump-diffusions-a-unifying-view-of-masked-continuous-and-hybrid-diffusion)  
+   evidence：使用流匹配的图像超分辨率
+2. [Hierarchical Denoising For Multi-Step Visual Reasoning](/202607/19/2607.15278v1-hierarchical-denoising-for-multi-step-visual-reasoning)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：扩散模型统一理论
+   evidence：因果视频生成中的分层去噪
 
 
 <div class="dpr-home-promo-card">
