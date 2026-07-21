@@ -1,0 +1,69 @@
+{
+  "label": "2026-07-21",
+  "date": "2026-07-21",
+  "generated_at": "2026-07-21T20:50:35",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202607/21/2607.16307v1-cobind-stage-aware-compositional-binding-for-training-free-text-to-image-generation",
+      "section": "deep",
+      "title_en": "CoBind: Stage-Aware Compositional Binding for Training-Free Text-to-Image Generation",
+      "authors": "Kaijie Chen, Ethan Caldwell, Mira Vossen, Julian Hartwell, Serena Whitlock, Adrian Bellamy",
+      "date": "2026-07-14",
+      "pdf": "https://arxiv.org/pdf/2607.16307v1",
+      "score": "9.0",
+      "evidence": "免训练的文本到图像生成，结合组合绑定",
+      "tldr": "扩散文本到图像模型在复杂多实体提示中常出现对象遗漏或属性错配。现有训练免费方法仅加强注意力，未建模属性归属和阶段约束。CoBind解析提示为组合图，先建立实体关系布局，再通过跨实体对比优化绑定属性，并逐步放松结构引导。在T2I-CompBench++和GenEval上显著提升属性绑定和空间关系，同时保持视觉质量，无需额外训练。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion-based text-to-image models often fail on complex prompts involving multiple entities, attributes, and relations, producing object omissions, incorrect attribute assignments, or reversed spatial layouts. Existing training-free methods mainly strengthen token-level attention, but do not explicitly model which attributes belong to which entities or when different constraints should be enforced during denoising.   We introduce \\textbf{CoBind}, a training-free framework for stage-aware compositional binding. CoBind parses a prompt into a composition graph of entities, attributes, and relations. It first establishes the global layout using entity-completeness and relation constraints, then binds attributes to their target entities through contrastive cross-entity optimization. Structural guidance is gradually relaxed in later denoising steps to preserve textures and visual details. CoBind also adapts the guidance strength according to the current satisfaction of each constraint, reducing unnecessary latent updates.   CoBind requires no retraining or additional annotations. Experiments on T2I-CompBench++, GenEval, and multiple diffusion backbones show consistent improvements in attribute binding, spatial relations, and complex compositional generation while maintaining competitive visual quality.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/21/2607.17634v1-mixdiffusion-mixing-diffusion-based-uni-condition-text-to-image-generation-models-for-multi-condition-image-synthesis",
+      "section": "deep",
+      "title_en": "MixDiffusion: Mixing Diffusion-based Uni-condition Text-to-Image Generation Models for Multi-condition Image Synthesis",
+      "authors": "Pengcheng Wan, Liang Han, Lin Xu, Bowen Xiao, Liqiang Nie",
+      "date": "2026-07-20",
+      "pdf": "https://arxiv.org/pdf/2607.17634v1",
+      "score": "9.0",
+      "evidence": "通过混合扩散模型实现免训练多条件图像合成",
+      "tldr": "现有扩散生成模型通常只支持单一控制条件，限制了生成灵活性。MixDiffusion提出一种无需训练的多条件文本到图像生成框架，通过理论推导的噪声分布集成公式，协同多个预训练的单条件扩散模型，支持边界框、关键点、草图、深度图、参考图像和文本等任意数量条件。该方法易于部署且可扩展至新模态，在多种条件组合下取得高质量生成结果。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Recent advances in text-to-image (T2I) generation have enabled controllable image synthesis by incorporating conditions beyond text. However, most existing diffusion-based methods are limited to a single type of control condition (e.g., bounding boxes or keypoints), which restricts their flexibility. To address this limitation, we propose MixDiffusion, a training-free diffusion framework for multi-condition T2I generation. MixDiffusion theoretically supports an arbitrary number of control conditions, including bounding boxes, keypoints, sketches, depth maps, reference images, and text, by collaboratively integrating multiple pre-trained uni-condition diffusion models. The key insight of the proposed approach is to derive the predicted noise distribution in each denoising step of the diffusion-based multi-condition image generation model from the predicted noise distributions of multiple diffusion-based uni-condition models with a derived integration formula, which is supported by rigorous theory proof. Owing to its training-free nature, MixDiffusion is easy to deploy and readily extensible to new control modalities.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/21/2607.17972v1-difa-inference-time-forward-process-alignment-for-diffusion-models",
+      "section": "deep",
+      "title_en": "DiFA: Inference-Time Forward-Process Alignment for Diffusion Models",
+      "authors": "Shigui Li, Delu Zeng",
+      "date": "2026-07-20",
+      "pdf": "https://arxiv.org/pdf/2607.17972v1",
+      "score": "9.0",
+      "evidence": "扩散模型免训练推理时数据预测精化",
+      "tldr": "扩散模型推理常被视作数值积分问题，忽略了去噪过程的不确定性。本文提出DiFA，将推理时的数据预测精炼重定义为序列状态估计，借鉴卡尔曼滤波聚合历史预测，构建前向对齐的时间一致性，并引入偏差引导机制保留细节。在CIFAR-10和ImageNet上，DiFA显著提升了FID、IS和FD-DINOv2等指标。该方法无需训练，通过对齐推理与前向统计结构，有效提升了生成保真度。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "The prevailing inference framework for diffusion models formulates generation fundamentally as a problem of numerical integration. This perspective casts the model as an exact estimator, neglecting the inherent statistical uncertainty of the denoising process. In this work, we propose Forward-Process Aligned Diffusion prediction (\\textbf{DiFA}), a training-free framework that reframes inference-time data prediction refinement as a sequential state estimation problem. Rather than reusing past outputs solely for numerical integration, DiFA treats iterative data predictions along the reverse trajectory as correlated observations to build a forward-aligned temporal consensus. Inspired by Kalman filtering, this consensus aggregates historical predictions according to structural consistency and noise-level compatibility. To counteract the over-smoothing tendency of temporal consensus, we introduce a deviation guidance mechanism to adaptively preserve residual details. Empirically, DiFA yields significant improvements on CIFAR-10 and ImageNet across the evaluated metrics, including FID, IS, and FD-DINOv2, demonstrating that aligning inference with the forward statistical structure substantially improves generative fidelity.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/21/2607.17884v1-st-veto-spatio-temporal-token-veto-for-diffusion-mllms-via-taylor-prediction-and-visual-grounding",
+      "section": "quick",
+      "title_en": "ST-Veto: Spatio-Temporal Token Veto for Diffusion MLLMs via Taylor Prediction and Visual Grounding",
+      "authors": "Keuntae Kim, Beomseok Lee, Hyunwoo Kim, Yong Suk Choi",
+      "date": "2026-07-20",
+      "pdf": "https://arxiv.org/pdf/2607.17884v1",
+      "score": "7.0",
+      "evidence": "扩散多模态大语言模型的免训练令牌弃选",
+      "tldr": "现有视觉语言模型使用链式思维推理存在顺序生成成本高、错误累积及自纠正有限的问题。扩散多模态大模型通过无序去噪实现高效迭代细化，但其推理能力提升尚未充分探索。本文提出无需训练的空间-时间Token否决方法，利用二阶泰勒预测捕捉置信度动态以否决时间不稳定Token，并通过图像注意力质量过滤接地薄弱Token，替换为更安全候选。在多个扩散多模态大模型和推理基准上，该方法准确率最高提升9%，且不增加额外训练或生成成本，显著优于标准解码策略和先前推理方法。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Vision Language Models (VLMs) achieve strong reasoning with Chain-of-Thought (CoT) prompting but incur high sequential-generation cost, error accumulation, and limited self-correction. Diffusion Multimodal Large Language Models (dMLLMs) unmask tokens in an order-agnostic process, improving efficiency and enabling iterative refinement, yet their reasoning and how to enhance it remain underexplored. We propose a training-free method, Spatio-Temporal Token Veto (ST-Veto), which leverages the ability to observe all token positions at each diffusion step. Rather than relying only on current-step confidence, ST-Veto vetoes temporally unstable tokens via second-order Taylor prediction of confidence dynamics and filters weakly grounded tokens using image-attention mass, swapping them with safer candidates. Across multiple dMLLMs and multimodal reasoning benchmarks, ST-Veto consistently outperforms standard decoding policies and prior VLM reasoning methods, improving accuracy by up to 9% with no additional training or generation cost. Analyses show that ST-Veto steers generation toward higher-confidence, better-grounded paths.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
