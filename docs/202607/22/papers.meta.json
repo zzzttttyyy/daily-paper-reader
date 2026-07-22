@@ -1,0 +1,39 @@
+{
+  "label": "2026-07-22",
+  "date": "2026-07-22",
+  "generated_at": "2026-07-22T20:32:48",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202607/22/2607.18436v1-surprise-forcing-what-to-remember-when-to-skip-in-long-video-generation",
+      "section": "deep",
+      "title_en": "Surprise Forcing: What to Remember, When to Skip in Long Video Generation",
+      "authors": "Shuwei Shi, Zhen Li, Muyao Niu, Chuanhao Li, Bo Zheng, Kaipeng Zhang, Yinqiang Zheng",
+      "date": "2026-07-20",
+      "pdf": "https://arxiv.org/pdf/2607.18436v1",
+      "score": "9.0",
+      "evidence": "长视频生成的训练无关框架，含自适应记忆和跳过机制。",
+      "tldr": "流式自回归扩散生成分钟级视频时，其有界上下文和固定去噪调度导致滚动键值缓存遗忘重要视觉证据，且各生成块接受相同去噪步数，资源分配不均。本文提出无训练框架Surprise Forcing，包括Surprise-Gated Memory Bank：用全局偏差和最近邻新颖性判定被驱逐帧的价值，通过反馈控制预算选择性保留至外部记忆；以及Surprise-Aware Denoising：根据首次去噪后的帧间余弦距离估计块难度，用局部百分位调度器跳过简单块的中间步骤。在VBench系列基准上，该方法在维持实时流式吞吐量的同时，显著提升长时一致性和生成质量。该工作首次将在线资源分配策略融入视频生成，为高效长视频合成开辟新途径。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Streaming autoregressive diffusion makes minute-scale video synthesis practical, but its bounded context and fixed denoising schedule allocate resources uniformly across a highly non-stationary sequence. A rolling key-value cache forgets distant visual evidence even when that evidence remains important, while every generated chunk receives the same number of denoising passes irrespective of its actual difficulty. We introduce Surprise Forcing, a training-free framework that treats both limitations as online resource-allocation problems. A Surprise-Gated Memory Bank summarizes evicted frames with value-token descriptors, evaluates them using complementary global-deviation and nearest-neighbor novelty signals, and regulates admission through a feedback-controlled budget in normalized score space. Priority-based replacement and relevance-aware routing then keep the external memory compact and useful. In parallel, Surprise-Aware Denoising estimates chunk difficulty from the maximum adjacent-frame cosine distance after the first denoising pass and uses a local percentile scheduler to skip intermediate steps for comparatively easy chunks. Experiments on VBench, VBench-Long, and VBench-2.0 show that the proposed allocation strategy improves long-horizon consistency and visual quality while retaining real-time streaming throughput.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/22/2607.19333v1-provable-diffusion-based-posterior-sampling-for-linear-inverse-problems-via-ddim",
+      "section": "deep",
+      "title_en": "Provable diffusion-based posterior sampling for linear inverse problems via DDIM",
+      "authors": "Yuchen Jiao, Na Li, Changxiao Cai, Yuxin Chen, Gen Li",
+      "date": "2026-07-21",
+      "pdf": "https://arxiv.org/pdf/2607.19333v1",
+      "score": "8.0",
+      "evidence": "无需训练的轻量DDIM修改用于后验采样",
+      "tldr": "扩散模型在逆问题上表现优异但缺乏理论保证。本文提出PDDIM，沿测量算子奇异方向进行坐标-wise的DDIM更新，根据信噪比在扩散先验与测量预测间切换，证明采样器收敛到贝叶斯后验。在图像恢复任务中，该方法在多数指标上优于现有方法，实现了高效且可证明的后验采样。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion-based methods have achieved remarkable empirical success in solving inverse problems. However, many existing posterior samplers either lack rigorous theoretical guarantees or incur substantial computational overhead. We propose a simple and efficient algorithm, called \\pddim, for solving linear inverse problems with diffusion priors via a DDIM-type sampler. Our method requires only lightweight, coordinate-wise modifications to the standard DDIM update, while explicitly incorporating the measurement model. The key idea is to perform posterior sampling separately along each singular direction of the measurement operator: for each direction, the sampler follows the learned diffusion prior when the observation signal-to-noise ratio (SNR) is below the corresponding diffusion SNR, and switches to a calibrated measurement-based predictor otherwise. We prove that the proposed sampler converges to the Bayesian posterior conditioned on the measurements. Empirical results show that the proposed sampler performs favorably against existing diffusion-based posterior samplers across a range of image restoration tasks, achieving the best performance on the majority of evaluation metrics considered. Overall, our results convert posterior sampling for noisy linear inverse problems to simple coordinate-wise DDIM updates, yielding an efficient, easy-to-implement algorithm with provable posterior consistency.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

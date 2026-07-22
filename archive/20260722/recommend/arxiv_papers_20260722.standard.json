@@ -1,0 +1,97 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-22T20:30:22.473680+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 0,
+    "quick_skim_target": 11,
+    "quick_selected": 0
+  },
+  "deep_dive": [
+    {
+      "id": "2607.18436v1",
+      "source": "arxiv",
+      "title": "Surprise Forcing: What to Remember, When to Skip in Long Video Generation",
+      "abstract": "Streaming autoregressive diffusion makes minute-scale video synthesis practical, but its bounded context and fixed denoising schedule allocate resources uniformly across a highly non-stationary sequence. A rolling key-value cache forgets distant visual evidence even when that evidence remains important, while every generated chunk receives the same number of denoising passes irrespective of its actual difficulty. We introduce Surprise Forcing, a training-free framework that treats both limitations as online resource-allocation problems. A Surprise-Gated Memory Bank summarizes evicted frames with value-token descriptors, evaluates them using complementary global-deviation and nearest-neighbor novelty signals, and regulates admission through a feedback-controlled budget in normalized score space. Priority-based replacement and relevance-aware routing then keep the external memory compact and useful. In parallel, Surprise-Aware Denoising estimates chunk difficulty from the maximum adjacent-frame cosine distance after the first denoising pass and uses a local percentile scheduler to skip intermediate steps for comparatively easy chunks. Experiments on VBench, VBench-Long, and VBench-2.0 show that the proposed allocation strategy improves long-horizon consistency and visual quality while retaining real-time streaming throughput.",
+      "authors": [
+        "Shuwei Shi",
+        "Zhen Li",
+        "Muyao Niu",
+        "Chuanhao Li",
+        "Bo Zheng",
+        "Kaipeng Zhang",
+        "Yinqiang Zheng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T18:37:58+00:00",
+      "link": "https://arxiv.org/pdf/2607.18436v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free framework for long video generation with adaptive memory and skipping.",
+      "llm_evidence_cn": "长视频生成的训练无关框架，含自适应记忆和跳过机制。",
+      "llm_evidence": "长视频生成的训练无关框架，含自适应记忆和跳过机制。",
+      "canonical_evidence": "长视频生成的训练无关框架，含自适应记忆和跳过机制。",
+      "llm_tldr_en": "Introduces Surprise Forcing, a training-free framework that dynamically allocates resources in long video generation by gating memory and skipping denoising passes based on surprise.",
+      "llm_tldr_cn": "流式自回归扩散模型在长视频生成中均匀分配计算资源，导致效率低下和远距离遗忘。本文提出Surprise Forcing，一种训练无关框架，通过惊喜门控记忆库和自适应去噪跳过策略优化资源分配。该方法无需额外训练即可提升长视频生成效率和质量。实验证明了其在保持时序连贯性下的加速效果。",
+      "llm_tldr": "流式自回归扩散模型在长视频生成中均匀分配计算资源，导致效率低下和远距离遗忘。本文提出Surprise Forcing，一种训练无关框架，通过惊喜门控记忆库和自适应去噪跳过策略优化资源分配。该方法无需额外训练即可提升长视频生成效率和质量。实验证明了其在保持时序连贯性下的加速效果。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.19333v1",
+      "source": "arxiv",
+      "title": "Provable diffusion-based posterior sampling for linear inverse problems via DDIM",
+      "abstract": "Diffusion-based methods have achieved remarkable empirical success in solving inverse problems. However, many existing posterior samplers either lack rigorous theoretical guarantees or incur substantial computational overhead. We propose a simple and efficient algorithm, called \\pddim, for solving linear inverse problems with diffusion priors via a DDIM-type sampler. Our method requires only lightweight, coordinate-wise modifications to the standard DDIM update, while explicitly incorporating the measurement model. The key idea is to perform posterior sampling separately along each singular direction of the measurement operator: for each direction, the sampler follows the learned diffusion prior when the observation signal-to-noise ratio (SNR) is below the corresponding diffusion SNR, and switches to a calibrated measurement-based predictor otherwise. We prove that the proposed sampler converges to the Bayesian posterior conditioned on the measurements. Empirical results show that the proposed sampler performs favorably against existing diffusion-based posterior samplers across a range of image restoration tasks, achieving the best performance on the majority of evaluation metrics considered. Overall, our results convert posterior sampling for noisy linear inverse problems to simple coordinate-wise DDIM updates, yielding an efficient, easy-to-implement algorithm with provable posterior consistency.",
+      "authors": [
+        "Yuchen Jiao",
+        "Na Li",
+        "Changxiao Cai",
+        "Yuxin Chen",
+        "Gen Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "stat.ML"
+      ],
+      "published": "2026-07-21T17:53:36+00:00",
+      "link": "https://arxiv.org/pdf/2607.19333v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free lightweight DDIM modification for posterior sampling",
+      "llm_evidence_cn": "无需训练的轻量DDIM修改用于后验采样",
+      "llm_evidence": "无需训练的轻量DDIM修改用于后验采样",
+      "canonical_evidence": "无需训练的轻量DDIM修改用于后验采样",
+      "llm_tldr_en": "Proposes PDDIM, a simple training-free algorithm for linear inverse problems via coordinate-wise modifications to DDIM that incorporate measurement model.",
+      "llm_tldr_cn": "该论文针对扩散模型求解逆问题缺乏理论保证或计算开销大的问题，提出PDDIM方法。它通过对标准DDIM更新进行轻量级坐标式修改，显式融入测量模型，实现后验采样。在多个线性逆问题上的实验表明PDDIM兼具理论保证和高效率，且无需额外训练，是一种实用的免训练采样技术。",
+      "llm_tldr": "该论文针对扩散模型求解逆问题缺乏理论保证或计算开销大的问题，提出PDDIM方法。它通过对标准DDIM更新进行轻量级坐标式修改，显式融入测量模型，实现后验采样。在多个线性逆问题上的实验表明PDDIM兼具理论保证和高效率，且无需额外训练，是一种实用的免训练采样技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": []
+}
