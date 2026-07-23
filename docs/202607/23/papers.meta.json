@@ -1,0 +1,69 @@
+{
+  "label": "2026-07-23",
+  "date": "2026-07-23",
+  "generated_at": "2026-07-23T21:33:48",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202607/23/2607.20125v1-headcast-casting-attention-heads-for-efficient-autoregressive-video-generation",
+      "section": "deep",
+      "title_en": "HeadCast: Casting Attention Heads for Efficient Autoregressive Video Generation",
+      "authors": "Jinliang Shen, Lianghao Su, Zheming Li, Kang He, ZiLiang Lai, Yanbing Jiang, Chengru Song",
+      "date": "2026-07-22",
+      "pdf": "https://arxiv.org/pdf/2607.20125v1",
+      "score": "10.0",
+      "evidence": "通过注意力头分类实现自回归视频扩散模型的免训练即插即用加速",
+      "tldr": "自回归视频扩散模型的KV缓存随帧增长导致注意力计算成为主要瓶颈，现有驱逐策略引起帧间闪烁或需重训练。HeadCast无需训练，通过短预热后一次性将注意力头分类为Sink、Dummy、Spatial和Global四类，并重构为头特定缓存路径。保留Global头维持长程一致性，Spatial路径在固定网格上运算，节省随分辨率增加。在720P和1080P上分别实现1.62倍和1.95倍加速，质量与全注意力持平且无闪烁。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Autoregressive (AR) video diffusion models have become a promising paradigm for long and streaming video synthesis, but the continuously growing Key-Value (KV) cache makes attention the dominant inference cost, especially at high resolution where each frame contributes many tokens. Existing remedies either evict the cache with coarse heuristics that cause inter-frame flickering, or require model re-training. We propose HeadCast, a training-free, plug-and-play acceleration framework built on the observation that a pre-trained AR model's attention heads exhibit stable, heterogeneous behaviors. After a short warm-up, HeadCast performs a one-time classification at the maximum-noise step that sorts every head into one of four archetypes: Sink, Dummy, Spatial, and Global, and restructures the monolithic KV cache into head-specific pathways. Crucially, it retains the Global heads that preserve the long-range temporal consistency aggressive eviction destroys. Because the Spatial pathway operates on a fixed-size grid, its savings grow with resolution: across state-of-the-art AR models, HeadCast accelerates inference by up to 1.62x at 720P and 1.95x at 1080P, while keeping VBench quality on par with full attention and largely flicker-free. Code is available at https://github.com/sjlgaga/HeadCast .",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/23/2607.20048v1-importance-aware-obs-pruning-for-diffusion-models",
+      "section": "deep",
+      "title_en": "Importance-Aware OBS Pruning for Diffusion Models",
+      "authors": "Ba-Thinh Lam, Srijan Das, Hieu Le",
+      "date": "2026-07-22",
+      "pdf": "https://arxiv.org/pdf/2607.20048v1",
+      "score": "9.0",
+      "evidence": "扩散模型图像生成的免训练剪枝",
+      "tldr": "针对扩散模型剪枝中忽略语义信息的问题，提出重要性感知剪枝框架，利用条件信号或注意力图生成空间重要性图，指导参数裁剪以保留关键区域。该方法无需重新训练，在MS-COCO数据集上高压缩比下仍保持主体保真度和结构正确性，证实内容感知目标对生成模型压缩的重要性。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We propose importance-aware pruning for diffusion models, a training-free framework that prioritizes preserving parameters critical to semantically salient image regions. To do so, we incorporate spatial importance maps -- derived from conditioning signals or model attention -- into the pruning objective. This produces parameter rankings aligned with perceptual relevance rather than uniform reconstruction error. On MS-COCO dataset, our proposed approach consistently retains subject fidelity and structural correctness at high compression ratios where conventional pruning causes visible degradation. These results demonstrate that content-aware objectives are key to perceptually faithful compression of generative models.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/23/2607.19725v1-analytic-distribution-of-classifier-free-guidance-for-schedule-design",
+      "section": "deep",
+      "title_en": "Analytic Distribution of Classifier-Free Guidance for Schedule Design",
+      "authors": "Enze Jiang, Zheng Ma",
+      "date": "2026-07-22",
+      "pdf": "https://arxiv.org/pdf/2607.19725v1",
+      "score": "8.0",
+      "evidence": "CFG的解析分布实现扩散图像生成的免训练调度优化",
+      "tldr": "分类器无关引导(CFG)是扩散模型条件生成的标准机制，但常被近似为p0^ω q0^{1-ω}的产物分布。本文通过概率流ODE推导CFG诱导分布的精确路径积分表示，揭示CFG通过指数路径积分修正调整分布，并引入时间依赖调度权重。基于此提出分布引导CFG(DG-CFG)，在Stable Diffusion 1.5上提升生成质量，改善多样性-保真度权衡，减少采样步数。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Classifier-free guidance (CFG) is the default mechanism for conditional generation in diffusion models, but the distribution sampled by its deterministic guided dynamics is not captured by the usual product-distribution heuristic $p_0^ωq_0^{1-ω}$. We analyze CFG through the probability flow ODE and derive exact analytic path-integral representations of the induced distributions for both constant and time-dependent guidance. The resulting formulas show that CFG modifies $p_{t_0}$ by an exponential path-integral correction, and that a time-dependent schedule enters this correction through the weight $ω(t)-1$. This characterization explains how score discrepancies accumulate along sampling trajectories and motivates Distribution-Guided CFG (DG-CFG), a schedule that balances timestep contributions while accounting for signal strength and low-noise score-error amplification. A toy model with analytic scores closely verifies the predicted distributions. On Stable Diffusion~1.5, DG-CFG improves generation and yields a stronger diversity--fidelity trade-off across guidance strengths, with especially clear gains when strong guidance causes saturation and quality degradation in constant and heuristic schedules. Across NFE budgets, DG-CFG reaches fixed image-quality targets with fewer sampling steps, reducing the sampling cost needed to achieve target metrics.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/23/2607.20293v1-evolving-cache-schedules-for-fast-diffusion-policy-inference",
+      "section": "quick",
+      "title_en": "Evolving Cache Schedules for Fast Diffusion Policy Inference",
+      "authors": "Siying Wang, Kangye Ji, Di Wang, Fei Cheng",
+      "date": "2026-07-22",
+      "pdf": "https://arxiv.org/pdf/2607.20293v1",
+      "score": "7.0",
+      "evidence": "扩散模型推理的免训练缓存调度优化",
+      "tldr": "扩散策略通过迭代去噪实现强视觉运动控制，但计算开销大。现有缓存方法均匀分配计算，忽略了不同块间的冗余差异，导致效率欠佳。本文提出EVO，一种训练无关的加速框架，通过进化搜索全局调度缓存刷新，跳过冗余计算并保持性能。该方法引入冗余感知初始化和目标条件早停，离线优化调度可直接用于预训练策略。在操作基准上，EVO几乎保持完整性能，实现8.05倍加速，FLOPs从15.77G降至1.96G。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion policies achieve strong visuomotor control by iteratively denoising action chunks, but repeated denoising makes real-time deployment computationally demanding. Cache-based methods reduce inference cost by reusing intermediate activations, but existing training-free schedules typically allocate computation uniformly across blocks, ignoring heterogeneous redundancy across blocks and leading to a suboptimal performance-efficiency trade-off. To bridge this gap, we introduce Evolving Cache Schedules (EVO), a training-free acceleration framework that globally schedules cache refreshes via evolutionary search. EVO represents each candidate as a complete schedule over the block-timestep lattice. Thus, redundant transformer computations during iterative denoising can be skipped through cache reuse while preserving closed-loop rollout performance. To make the search practical, EVO introduces redundancy-aware initialization, which seeds the population with promising schedules, and target-conditioned early stopping, which verifies and terminates once a desired performance target is reached. The offline-optimized schedule can be directly plugged into pretrained diffusion policies without retraining. Extensive manipulation benchmarks show that EVO preserves near-full performance while substantially reducing computation, achieving up to 8.05x action-generation speedup and reducing FLOPs from 15.77G to as low as 1.96G. Source code is available at https://github.com/pillom/EVO.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

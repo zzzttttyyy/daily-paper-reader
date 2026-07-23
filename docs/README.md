@@ -6,27 +6,34 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-22
-- 运行时间：2026-07-22 20:32:42 UTC
+- 最新运行日期：2026-07-23
+- 运行时间：2026-07-23 21:33:41 UTC
 - 运行状态：成功
-- 本次总论文数：2
-- 精读区：2
-- 速读区：0
+- 本次总论文数：4
+- 精读区：3
+- 速读区：1
 
 ### 今日简报（AI）
-今日精读2篇高影响力论文，重点聚焦长视频生成与扩散模型后验采样。最值得关注的是分数9.0的《Surprise Forcing》，探讨长视频中“何时记忆、何时跳过”的机制；另一篇8.0的论文则用DDIM实现可证明的线性逆问题后验采样。建议先阅读《Surprise Forcing》中关于选择性保留与跳过的核心思路，再结合后一篇理解扩散模型的实用采样优化。
-- 详情：[/202607/22/README](/202607/22/README)
+今日推荐4篇论文，精读3篇，视频生成与扩散模型优化研究获高分关注。
+最值得关注《HeadCast》中注意力头投射实现高效自回归视频生成，以及《Importance-Aware OBS Pruning》中的重要性感知剪枝方法。
+建议深入阅读这两篇高分论文以把握视频生成和模型压缩前沿，同时速读《Evolving Cache Schedules》了解扩散策略推理加速。
+- 详情：[/202607/23/README](/202607/23/README)
 
 ### 精读区论文标签
-1. [Surprise Forcing: What to Remember, When to Skip in Long Video Generation](/202607/22/2607.18436v1-surprise-forcing-what-to-remember-when-to-skip-in-long-video-generation)  
+1. [HeadCast: Casting Attention Heads for Efficient Autoregressive Video Generation](/202607/23/2607.20125v1-headcast-casting-attention-heads-for-efficient-autoregressive-video-generation)  
+   标签：评分：10.0/10、query:tfree-diff
+   evidence：通过注意力头分类实现自回归视频扩散模型的免训练即插即用加速
+2. [Importance-Aware OBS Pruning for Diffusion Models](/202607/23/2607.20048v1-importance-aware-obs-pruning-for-diffusion-models)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：长视频生成的训练无关框架，含自适应记忆和跳过机制。
-2. [Provable diffusion-based posterior sampling for linear inverse problems via DDIM](/202607/22/2607.19333v1-provable-diffusion-based-posterior-sampling-for-linear-inverse-problems-via-ddim)  
+   evidence：扩散模型图像生成的免训练剪枝
+3. [Analytic Distribution of Classifier-Free Guidance for Schedule Design](/202607/23/2607.19725v1-analytic-distribution-of-classifier-free-guidance-for-schedule-design)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：无需训练的轻量DDIM修改用于后验采样
+   evidence：CFG的解析分布实现扩散图像生成的免训练调度优化
 
 ### 速读区论文标签
-- 本次无速读推荐。
+1. [Evolving Cache Schedules for Fast Diffusion Policy Inference](/202607/23/2607.20293v1-evolving-cache-schedules-for-fast-diffusion-policy-inference)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：扩散模型推理的免训练缓存调度优化
 
 
 <div class="dpr-home-promo-card">
