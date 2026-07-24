@@ -1,0 +1,296 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-24T21:14:36.915546+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2607.21326v1",
+      "source": "arxiv",
+      "title": "SlerpFlow: Spherical Trajectory Correction for Rectified Flow Inversion",
+      "abstract": "Rectified-flow-based diffusion transformers, particularly FLUX, have demonstrated outstanding performance in high-quality image generation. However, achieving fast and accurate inversion--transforming images back to latent noise for faithful reconstruction and editing--remains a challenging bottleneck due to the discretization errors of linear solvers. This paper introduces SlerpFlow, a straightforward yet highly effective zero-shot approach that unlocks the full potential of FLUX for high-fidelity inversion and editing. Unlike existing approaches (e.g., RF-Solver) that rely on complex numerical approximations such as high-order Taylor expansions to correct trajectory errors, we present a geometric view based on the Manifold Hypothesis: the empirically observed trajectory curvature is not a numerical artifact, but rather serves as a necessary \"centripetal force\" that constrains the flow to remain on the data manifold. Guided by this insight, SlerpFlow integrates Spherical Linear Interpolation (Slerp) to rectify flow velocity directions on the hypersphere, strictly adhering to the intrinsic curvature of the latent space. Crucially, by caching the corrected velocity for subsequent steps, SlerpFlow achieves high-precision inversion while maintaining the computational efficiency of a first-order Euler solver. Extensive experiments on FLUX-based reconstruction and editing tasks demonstrate that SlerpFlow improves reconstruction fidelity and achieves stronger semantic alignment in editing without requiring additional training. Code is available at https://github.com/0answer0/SlerpFlow.",
+      "authors": [
+        "Wenbin Duan",
+        "Yan Shu",
+        "Zhuoyuan Fu",
+        "Fangmin Zhao",
+        "Yan Li",
+        "Yaru Zhao",
+        "Binyang Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-23T13:55:21+00:00",
+      "link": "https://arxiv.org/pdf/2607.21326v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "zero-shot trajectory correction for rectified flow inversion without training",
+      "llm_evidence_cn": "零样本轨迹校正，无需训练，实现免训练优化",
+      "llm_evidence": "零样本轨迹校正，无需训练，实现免训练优化",
+      "canonical_evidence": "零样本轨迹校正，无需训练，实现免训练优化",
+      "llm_tldr_en": "SlerpFlow proposes a zero-shot geometric correction method for FLUX inversion, enabling high-fidelity reconstruction and editing without any training, directly addressing training-free optimization for diffusion model image generation.",
+      "llm_tldr_cn": "SlerpFlow提出了一种零样本的几何轨迹校正方法，针对FLUX等整流流扩散模型的图像反转任务。该方法基于流形假设，用球面线性插值纠正离散化误差，无需任何额外训练即可实现高保真重建和编辑。实验表明，SlerpFlow在图像编辑和反转任务上显著优于现有方法，且计算开销低。这项工作为扩散模型的免训练采样优化提供了新思路，直接满足用户在图像生成中的免训练优化需求。",
+      "llm_tldr": "SlerpFlow提出了一种零样本的几何轨迹校正方法，针对FLUX等整流流扩散模型的图像反转任务。该方法基于流形假设，用球面线性插值纠正离散化误差，无需任何额外训练即可实现高保真重建和编辑。实验表明，SlerpFlow在图像编辑和反转任务上显著优于现有方法，且计算开销低。这项工作为扩散模型的免训练采样优化提供了新思路，直接满足用户在图像生成中的免训练优化需求。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.21591v1",
+      "source": "arxiv",
+      "title": "Inference-Time Scaling of Diffusion Models via Progressive Seed Pruning",
+      "abstract": "Diffusion and flow-matching models dominate conditional image generation, yet inference-time scaling for these models is far less developed than for autoregressive language models. Because final quality is highly sensitive to the initial noise seed, many approaches spend extra compute on seed search or resampling under a black-box reward, but typically maintaining a constant memory footprint throughout inference. We show that relaxing this constraint enables an underexplored inference-time scaling axis: by front-loading exploration, evaluating many seeds early, and pruning aggressively, we can use a fixed compute budget more effectively. \\emph{Progressive Seed Pruning} (\\PSP) scores intermediate denoised estimates and progressively narrows the candidate set so that only promising trajectories are fully denoised, while keeping the total number of model evaluations fixed. Across diffusion and flow-matching backbones, \\PSP \\ consistently improves reward-guided selection and achieves higher GenEval scores (automated) and better human evaluation on prompt-alignment than best-of-$N$, importance-sampling, and tree-search baselines at matched compute. Project page: https://www.vision.caltech.edu/psp. Code: https://github.com/rogerioagjr/psp.",
+      "authors": [
+        "Rogerio Guimaraes",
+        "Pietro Perona"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-23T17:59:46+00:00",
+      "link": "https://arxiv.org/pdf/2607.21591v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "inference-time scaling via progressive seed pruning, training-free optimization for diffusion image generation",
+      "llm_evidence_cn": "通过渐进种子剪枝实现推理时扩展，是免训练优化技术",
+      "llm_evidence": "通过渐进种子剪枝实现推理时扩展，是免训练优化技术",
+      "canonical_evidence": "通过渐进种子剪枝实现推理时扩展，是免训练优化技术",
+      "llm_tldr_en": "Progressive Seed Pruning (PSP) improves diffusion image quality by exploring many noise seeds early and pruning aggressively, achieving better compute-quality trade-off without additional training.",
+      "llm_tldr_cn": "本论文提出渐进种子剪枝（PSP）方法，在推理时对噪声种子进行前向加载探索和逐步剪枝，从而在固定计算预算下更高效地利用资源。该方法无需任何额外训练，显著提升了条件图像生成的质量。PSP为扩散模型的推理时扩展提供了新方向，直接回答了用户关于免训练采样优化技术的需求。",
+      "llm_tldr": "本论文提出渐进种子剪枝（PSP）方法，在推理时对噪声种子进行前向加载探索和逐步剪枝，从而在固定计算预算下更高效地利用资源。该方法无需任何额外训练，显著提升了条件图像生成的质量。PSP为扩散模型的推理时扩展提供了新方向，直接回答了用户关于免训练采样优化技术的需求。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.15667v1",
+      "source": "arxiv",
+      "title": "PE-Field 4D: Video Generation Models as Canvas",
+      "abstract": "Diffusion Transformers have recently achieved strong performance in video generation, yet controlling scene geometry under viewpoint changes and camera motion remains challenging. In this work, we revisit the role of positional encoding in video diffusion transformers and show that it provides a useful spatial bias for geometry-aware control. Specifically, if reference tokens are encoded according to their projected locations in the target view, the denoising model is encouraged to retrieve content from position aligned regions of the input video. Building on this observation, we introduce a geometry-aware cross-attention mechanism that enables target video latent tokens to attend to structured context tokens derived from reference images or frames. To establish correspondence between the reference content and the target camera trajectory, we equip the context tokens with a projected positional encoding scheme that combines target-view 2D reprojection with depth-aware disambiguation. At the same time, we preserve the original spatiotemporal positional encoding of the generated video latent, allowing geometric guidance to be injected while maintaining consistency with the video model's native latent structure. The resulting framework provides a simple and effective approach for controllable video generation. It improves spatial controllability in viewpoint-dependent editing tasks, including camera re-trajectory, novel-view video synthesis, and geometry-aware video editing, while preserving the generative prior of the underlying video diffusion model. The code is available at: https://github.com/MTLab/PE-Field.",
+      "authors": [
+        "Yunpeng Bai",
+        "Haoxiang Li",
+        "Qixing Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-17T06:22:14+00:00",
+      "link": "https://arxiv.org/pdf/2607.15667v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video generation with geometry-aware diffusion transformers",
+      "llm_evidence_cn": "具有几何感知的扩散变压器视频生成",
+      "llm_evidence": "具有几何感知的扩散变压器视频生成",
+      "canonical_evidence": "具有几何感知的扩散变压器视频生成",
+      "llm_tldr_en": "PE-Field 4D uses positional encoding for geometry-aware video generation via diffusion transformers.",
+      "llm_tldr_cn": "为解决视频扩散中场景几何控制问题，重新利用位置编码提供空间偏置，提出几何感知交叉注意力机制，实现可控视频生成。",
+      "llm_tldr": "为解决视频扩散中场景几何控制问题，重新利用位置编码提供空间偏置，提出几何感知交叉注意力机制，实现可控视频生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.16339v1",
+      "source": "arxiv",
+      "title": "LaCache: Exact Caching and Precision-Adaptive Inference for Diffusion Large Language Models",
+      "abstract": "Diffusion-based Large Language Models(DLLMs) enable parallel generation via Semi-Autoregressive (SAR) decoding in text generation. However, current methods suffer from severe operator-level redundancy: they recompute the entire sequence during denoising steps, ignoring that the prefix and masked suffix remain invariant within a block. We propose LaCache, a training-free acceleration framework that alleviates this redundancy through lossless caching and mixed precision. Specifically, LaCache employs Lossless State Memoization (LSM) by caching three types of intermediate results: (i) EmbedCache for embedding outputs, (ii) RoPECache for token-wise pre-attention states, and (iii) FACache for the online softmax statistics within FlashAttention. These caches allow the model to skip redundant computation on unchanged tokens without altering the output. To further alleviate memory-bandwidth bottlenecks, LaCache inegrates a per-group FP8 quantization strategy for FFN layers, tailored to step-dependent activation distributions across the diffusion process. Experiments demonstrate that LaCache alone achieves approximately 1.3X end-to-end speedup over vanilla DLLM. When combined with existing acceleration methods, LaCache reaches up to 40.2X end-to-end speedup while maintaining comparable task accuracy.",
+      "authors": [
+        "Xingru Chen",
+        "Zelang Liang",
+        "Yongjia Ma",
+        "Jiqing Zhan",
+        "Shuling Yang",
+        "Lian Wen",
+        "Kun Zhan"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-07-16T10:49:15+00:00",
+      "link": "https://arxiv.org/pdf/2607.16339v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free acceleration via caching for diffusion LLMs",
+      "llm_evidence_cn": "针对扩散LLM的免训练缓存加速",
+      "llm_evidence": "针对扩散LLM的免训练缓存加速",
+      "canonical_evidence": "针对扩散LLM的免训练缓存加速",
+      "llm_tldr_en": "LaCache introduces training-free caching and mixed precision to accelerate diffusion LLMs, reducing redundancy in denoising steps.",
+      "llm_tldr_cn": "扩散大语言模型在去噪步骤中存在大量计算冗余。LaCache通过无损缓存和混合精度实现免训练加速，缓存嵌入、预注意力状态等中间结果。实验表明该方法在保持生成质量的同时显著降低推理延迟，为扩散模型的生成效率提供了通用优化方案。",
+      "llm_tldr": "扩散大语言模型在去噪步骤中存在大量计算冗余。LaCache通过无损缓存和混合精度实现免训练加速，缓存嵌入、预注意力状态等中间结果。实验表明该方法在保持生成质量的同时显著降低推理延迟，为扩散模型的生成效率提供了通用优化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.17612v1",
+      "source": "arxiv",
+      "title": "Rarity-Aware Discrete Diffusion with Spatially Consistent Decoding for Photo-Realistic Image Super-Resolution",
+      "abstract": "Continuous diffusion models have become the dominant paradigm for photo-realistic image Super-Resolution (SR), but they typically formulate reconstruction as continuous signal-level denoising and incorporate semantic priors through external conditioning modules. This makes it less direct to exploit the unified token-based scaling paradigm of modern multimodal models. Autoregressive models provide a more native semantic representation by modeling images as discrete visual tokens, yet their causal decoding is inefficient for high-resolution reconstruction. Discrete diffusion offers a promising middle ground by enabling non-causal, parallel prediction over visual tokens. However, directly adapting discrete diffusion to SR remains non-trivial due to two task-specific challenges: (1) the long-tailed distribution of visual tokens, which under-represents rare but perceptually critical textures; and (2) spatially inconsistent parallel decoding, which may introduce isolated artifacts. To address these issues, we propose DiMOO-SR, a rarity-aware multimodal discrete diffusion framework for photo-realistic image SR. During training, Inverse Frequency Sampling (IFS) prioritizes under-represented but information-rich tokens. During inference, Spatial Consistency Ranking (SCR) refines token confidence using local neighborhood agreement to improve structural coherence. Extensive experiments on widely used real-world SR benchmarks demonstrate that DiMOO-SR achieves competitive perceptual quality with only a few parallel decoding steps, highlighting the potential of discrete diffusion for generative image super-resolution. The code will be released upon publication.",
+      "authors": [
+        "Ao Li",
+        "Yapeng Du",
+        "Yi Xin",
+        "Lei Zhu",
+        "Le Zhang",
+        "Guangtao Zhai",
+        "Ce Zhu",
+        "Xiaohong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T07:01:01+00:00",
+      "link": "https://arxiv.org/pdf/2607.17612v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "image super-resolution using discrete diffusion models",
+      "llm_evidence_cn": "使用离散扩散模型的图像超分辨率",
+      "llm_evidence": "使用离散扩散模型的图像超分辨率",
+      "canonical_evidence": "使用离散扩散模型的图像超分辨率",
+      "llm_tldr_en": "Rarity-aware discrete diffusion with spatially consistent decoding for photo-realistic image super-resolution.",
+      "llm_tldr_cn": "针对连续扩散模型在超分辨率中难以统一token化的问题，提出基于稀有度感知的离散扩散方法，结合空间一致性解码，实现高质量、并行化的图像超分辨率。",
+      "llm_tldr": "针对连续扩散模型在超分辨率中难以统一token化的问题，提出基于稀有度感知的离散扩散方法，结合空间一致性解码，实现高质量、并行化的图像超分辨率。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.20940v1",
+      "source": "arxiv",
+      "title": "Ms. Forcing: Efficient Streaming Video Generation with Multi-Scale Patchification and Attention",
+      "abstract": "Streaming video diffusion models have made substantial progress toward interactive and dynamic world simulation, but the nested autoregressive and denoising loops of conventional next-frame generation hinder real-time deployment. Recent rolling-window methods pipeline denoising across multiple consecutive frames at different noise levels, improving throughput and long-horizon stability. However, they tokenize every state at the same fine spatial granularity, leaving substantial noise-dependent redundancy in the joint denoising window. We propose Ms.Forcing, an efficient streaming video generation paradigm that adapts spatial granularity to each state's noise level. Its Multi-Scale Patchification (MSP) assigns coarser patches to noisier states, reducing the active-window token count by 45%, while Multi-Scale Self-Attention (MSSA) matches the density of visible non-sink keys and values to each query scale to further reduce attention cost. Because both schedules are fixed by window position, Ms.Forcing retains a static, hardware-friendly computation graph. We further introduce Homogeneous-Noise-Level DMD (H-DMD), which assembles each fake video from clean predictions sharing the same source noise level, thereby reducing the mismatch between DMD training sequences and inference-time rollouts. The multi-scale design helps offset the additional training cost of backpropagating through overlapping windows. We include both quantitative and qualitative experiments to show that Ms.Forcing reaches 22.84 FPS on a single H200 GPU, 39.6% faster than Rolling Forcing, while significantly improving VBench scores in both short video and long video generation setting.",
+      "authors": [
+        "Zekun Li",
+        "Xiaoyan Cong",
+        "Hongyu Li",
+        "Zhiyang Dou",
+        "Chuan Guo",
+        "Abhay Mittal",
+        "Sizhe An",
+        "Srinath Sridhar"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-23T05:35:31+00:00",
+      "link": "https://arxiv.org/pdf/2607.20940v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "efficient streaming video generation using diffusion models",
+      "llm_evidence_cn": "利用扩散模型的高效流式视频生成",
+      "llm_evidence": "利用扩散模型的高效流式视频生成",
+      "canonical_evidence": "利用扩散模型的高效流式视频生成",
+      "llm_tldr_en": "Ms.Forcing adapts spatial granularity to noise levels in streaming video diffusion, reducing redundancy and improving throughput.",
+      "llm_tldr_cn": "针对流式视频扩散模型冗余计算问题，提出Ms.Forcing方法，通过多尺度分块自适应调整空间粒度，减少冗余，显著提升生成效率并保持长期稳定性。",
+      "llm_tldr": "针对流式视频扩散模型冗余计算问题，提出Ms.Forcing方法，通过多尺度分块自适应调整空间粒度，减少冗余，显著提升生成效率并保持长期稳定性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.21504v1",
+      "source": "arxiv",
+      "title": "Texture++: Elevating 3D Asset Texture Resolution with a Region-Aware Diffusion Model",
+      "abstract": "Numerous 3D assets are discarded due to low texture resolution, while current super-resolution models ignore texture maps and focus on natural images. An efficient and generalizable texture super-resolution model can revitalize a large corpus of aging yet valuable assets across industries such as film and video games. We present Texture++, a novel framework for texture super-resolution, which enhances the low-resolution textures of assets to produce high-resolution, high-quality results. Specifically, we reformulate the task of super-resolution in UV space into performing it across multiple rendered views and merging the outputs. Firstly, to achieve more complete and continuous textures in the view space, we propose an adaptive view selection strategy to integrate textures dispersed across UV texture patches. Furthermore, we introduce a quadtree-based texture region organization method for combining super-resolved textures from different viewpoints, providing masks to distinguish regions that require improvement. Finally, we design a diffusion-based super-resolution model that enhances the texture resolution for specified masked regions, seamlessly integrating with surrounding regions. Through comprehensive evaluations, we demonstrate that our approach yields textures with substantially improved detail and coherence over existing methods.",
+      "authors": [
+        "Shuaiwei Wang",
+        "Shi Li",
+        "Jieting Xu",
+        "Yuchi Huo",
+        "Qi Wang",
+        "Wenting Zheng",
+        "Rengan Xie"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-23T16:52:10+00:00",
+      "link": "https://arxiv.org/pdf/2607.21504v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "texture super-resolution using region-aware diffusion model",
+      "llm_evidence_cn": "使用区域感知扩散模型的纹理超分辨率",
+      "llm_evidence": "使用区域感知扩散模型的纹理超分辨率",
+      "canonical_evidence": "使用区域感知扩散模型的纹理超分辨率",
+      "llm_tldr_en": "Texture++ enhances 3D asset texture resolution via region-aware diffusion and multi-view merging.",
+      "llm_tldr_cn": "针对3D资产纹理分辨率低的问题，提出Texture++框架，将UV空间超分辨率转为多视图渲染后合并，并自适应选择视图，提升纹理高质量。",
+      "llm_tldr": "针对3D资产纹理分辨率低的问题，提出Texture++框架，将UV空间超分辨率转为多视图渲染后合并，并自适应选择视图，提升纹理高质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
