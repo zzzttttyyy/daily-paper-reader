@@ -1,0 +1,69 @@
+{
+  "label": "2026-07-25",
+  "date": "2026-07-25",
+  "generated_at": "2026-07-25T20:03:09",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202607/25/2607.21553v1-sana-video-20-hybrid-linear-attention-with-attention-residuals-for-efficient-video-generation",
+      "section": "deep",
+      "title_en": "SANA-Video 2.0: Hybrid Linear Attention with Attention Residuals for Efficient Video Generation",
+      "authors": "Junsong Chen, Jincheng Yu, Yitong Li, Shuchen Xue, Haozhe Liu, Jingyu Xin, Yuyang Zhao, Tian Ye, Zhangjie Wu, Zian Wang, Daquan Zhou, Ping Luo, Song Han, Enze Xie",
+      "date": "2026-07-23",
+      "pdf": "https://arxiv.org/pdf/2607.21553v1",
+      "score": "9.0",
+      "evidence": "使用扩散变压器模型进行视频生成",
+      "tldr": "1比例插入门控softmax锚点恢复全秩交互，并引入块注意力残差传播特征。在5B和14B规模上，该模型在单GPU实现720p视频生成，达到全softmax质量的同时，前向传播加速3.2倍，结合优化后更快。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We introduce SANA-Video 2.0, a hybrid video diffusion transformer instantiated at 5B and 14B scales under a unified architecture. Designed to generate high-quality video up to 720p on a single GPU, SANA-Video 2.0 matches full-softmax video DiTs in quality while retaining the favorable long-sequence scaling of linear attention. To avoid quadratic attention throughout, Hybrid Linear-Softmax Attention combines gated linear attention for O(N)-dominated mixing with periodic gated-softmax anchors at a 3:1 ratio, restoring the full-rank token interactions that pure linear attention lacks. To propagate these refreshed representations across depth, Block Attention Residuals (AttnRes) route completed block summaries into later linear layers, enabling anchor-feature reuse and boosting deep-layer effective rank by ~12%. Through from-scratch training, SANA-Video 2.0 learns the complete hybrid directly rather than linearizing pretrained models, with reduced-resolution proxy studies establishing 25% softmax as the optimal quality-efficiency trade-off. With 40-step sampling, SANA-Video 2.0 achieves a VBench score of 84.30 in 13.2s at 480p on a single H100, remaining competitive with far larger softmax video DiTs at a fraction of the latency. Its compiled DiT forward pass is 3.2x faster than a matched full-softmax baseline at 720p/60s, a gap that expands with video duration. Furthermore, full-stack Sol-Engine optimization (kernel fusion, caching, and sparse attention) accelerates this hardware-friendly backbone by a further 3.58x, bringing the 5B pipeline to 13.06s at 720p/5s and making it 120x faster than Wan 2.2-A14B on one H100. Overall, our hybrid design recovers softmax-level expressiveness at substantially reduced cost, unlocking scalable long, high resolution video generation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/25/2607.17585v2-pixel-space-diffusion-transformers",
+      "section": "quick",
+      "title_en": "Pixel-Space Diffusion Transformers",
+      "authors": "Renye Yan, Jikang Cheng, You Wu, Ling Liang, Wei Peng, Athanasios V. Vasilakos, Qingyu Zhao, Yu Zhang, Yimao Cai, Kilian M. Pohl, Guoying Zhao",
+      "date": "2026-07-20",
+      "pdf": "https://arxiv.org/pdf/2607.17585v2",
+      "score": "7.0",
+      "evidence": "使用像素空间扩散变压器进行图像生成",
+      "tldr": "潜在扩散模型因固定VAE分词器丢弃细节、生成与重建目标错配，限制高保真度。像素空间扩散直接建模原始像素，消除瓶颈并支持端到端优化，但面临高维建模挑战。本文综述像素空间扩散Transformer (pDiT) 的架构、连续生成机制及统一多模态方法，总结代表性工作与关键挑战。指出其有望弥合视觉理解与生成鸿沟，推动高保真端到端基础模型发展。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Latent diffusion models (LDMs) enable efficient high-resolution image synthesis by denoising in a VAE-compressed latent space. However, fixed visual tokenizers can discard fine textures and structural details, while separate representation and diffusion training creates a mismatch between reconstruction and generation objectives. These limitations have renewed interest in pixel-space diffusion, which models raw pixels directly, removes the VAE bottleneck, and supports end-to-end optimization. This formulation better matches the demands of high-fidelity generation but introduces challenges in high-dimensional modeling, including noise scheduling, loss weighting, token efficiency, and scalable architecture design. Pixel-space modeling also offers a promising basis for unified multimodal systems: raw pixels, text, and task conditions can be represented in a shared token space and jointly processed by a single Transformer, narrowing the gap between visual understanding and generation. This paper reviews Pixel-Space Diffusion Transformers (pDiTs) from the perspectives of model architecture, continuous generative mechanisms, and unified multimodal modeling. We summarize representative methods, identify key technical challenges, and discuss future directions toward high-fidelity, end-to-end vision foundation models that integrate generation and understanding.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/25/2607.15585v1-speed-one-step-pixel-diffusion-for-high-quality-video-frame-interpolation",
+      "section": "quick",
+      "title_en": "SPEED: One-Step Pixel Diffusion for High-quality Video Frame Interpolation",
+      "authors": "Zihao Zhang, Haoyu Zhao, Siqian Yang, Yidi Wu, Yudong Jiang, Zuxuan Wu",
+      "date": "2026-07-17",
+      "pdf": "https://arxiv.org/pdf/2607.15585v1",
+      "score": "6.0",
+      "evidence": "使用一步像素扩散模型进行视频帧插值",
+      "tldr": "视频帧插值中，潜在扩散模型损失细节且多步采样耗内存。SPEED提出一步像素扩散框架，用渐进多阶段架构学习多尺度表示，噪声更新注意力机制减少50%计算，漂移感知采样实现一步推理。在SNU-FILM上LPIPS降低8.8%，推理快63.3%，内存少10.6%；4K基准LPIPS提升51.5%。该工作首次实现高质量一步像素扩散，兼顾效率与性能。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Despite the success of diffusion models in Video Frame Interpolation (VFI), existing methods still suffer from two critical limitations. First, latent diffusion inevitably loses fine-grained details when reconstructing images from latent representations back to the pixel space. Second, multi-step sampling incurs prohibitive memory consumption and inference latency. To address these issues, we propose SPEED, a one-step pixel diffusion framework for high-quality VFI. Specifically, SPEED employs a progressive multi-stage architecture with dynamic patch scaling to effectively learn multi-scale motion, structural, and appearance representations. Furthermore, we propose a novel Noise-Update-Only Attention mechanism to prevent semantic degradation of the clean condition frames while reducing the computational overhead by nearly 50%. Besides, we introduce a Drift-aware Timestep Sampling strategy coupled with a tailored training objective to directly predict images in the pixel space, enabling one-step inference without compromising the quality of the generated frames. Extensive experiments show that SPEED achieves state-of-the-art performance. On SNU-FILM, SPEED reduces LPIPS by 8.8% while delivering 63.3% faster inference and 10.6% lower memory usage. On challenging 4K benchmarks, it further surpasses prior methods by up to 51.5% in LPIPS.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202607/25/2607.16361v1-spatial-transport-of-integration-error-in-generative-odes",
+      "section": "quick",
+      "title_en": "Spatial Transport of Integration Error in Generative ODEs",
+      "authors": "Songheng Yin",
+      "date": "2026-07-17",
+      "pdf": "https://arxiv.org/pdf/2607.16361v1",
+      "score": "6.0",
+      "evidence": "扩散采样积分误差分析",
+      "tldr": "生成式ODE在少步采样时积分误差分布不均。本研究通过符号源-传输核算发现，终点误差主要来自其他区域传输而非本地注入。利用线性化动力学可重建误差方向（余弦相似度0.81-0.87），且模型自身能预测误差落点。训练中惩罚注入变化可降低误差，揭示了误差空间传输机制，为改进采样提供新方向。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "A trained flow or diffusion model is usually run with only a handful of solver steps, and the integration error this leaves behind is unevenly distributed across the image. We ask where that error is injected and how it reaches the endpoint, and answer with a signed source-and-transport accounting of few-step integration error, tested to first order. A perturbation experiment on five models at 256^2 resolution shows the learned dynamics spread local disturbances widely: near the start of sampling, under 10% of the summed endpoint response remains at the source. Signed one-step truncation residuals, propagated through the model's own linearized dynamics, reconstruct much of the endpoint error's direction and regional structure (cosine 0.81-0.87), and a region's error owes more to what arrives from elsewhere than to its own injection. Structure-destroying nulls, with protocols frozen before evaluation, locate what carries the account: randomizing contribution signs halves it, and reassigning which region receives each contribution, with content, norms, and signs intact, destroys it entirely. Where the injections land is readable from the model itself. The variation of its velocity or prediction field along the trajectory, a structure that emerges during training, predicts the final per-region gap (within-image rho of 0.57-0.70 on fine trajectories, weaker from the cheap solve alone). The prediction is partial because endpoint error depends not only on injected magnitude but on its sign, timing, and transport through the learned dynamics. A training penalty on the injected variation lowers few-step error, so the structure is one a model can be trained to change.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
