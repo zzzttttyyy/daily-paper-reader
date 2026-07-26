@@ -6,34 +6,35 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-25
-- 运行时间：2026-07-25 20:03:01 UTC
+- 最新运行日期：2026-07-26
+- 运行时间：2026-07-26 20:02:40 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：1
-- 速读区：3
+- 本次总论文数：5
+- 精读区：3
+- 速读区：2
 
 ### 今日简报（AI）
-今日推荐4篇论文，精读重点为9.0高分的《SANA-Video 2.0》，主打混合线性注意力与注意力残差实现高效视频生成。  
-最值得关注的是该工作对长视频生成效率的突破，同时像素空间扩散Transformer和一步像素插值也值得速览。  
-建议优先深入SANA-Video 2.0的注意力机制设计，再评估速读论文中与像素级建模的互补思路。
-- 详情：[/202607/25/README](/202607/25/README)
+今日精选5篇论文，重点精读2篇高分工作，速读2篇相关进展。最值得关注的是Pixel-Space扩散Transformer与ElasticTTT视频编辑技术，均获9.0分好评。建议优先精读这两篇，把握扩散模型在图像生成与视频编辑中的前沿优化方向。
+- 详情：[/202607/26/README](/202607/26/README)
 
 ### 精读区论文标签
-1. [SANA-Video 2.0: Hybrid Linear Attention with Attention Residuals for Efficient Video Generation](/202607/25/2607.21553v1-sana-video-20-hybrid-linear-attention-with-attention-residuals-for-efficient-video-generation)  
+1. [Pixel-Space Diffusion Transformers](/202607/26/2607.17585v1-pixel-space-diffusion-transformers)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：使用扩散变压器模型进行视频生成
+   evidence：像素空间扩散变换器用于高保真图像生成
+2. [ElasticTTT: Prior-Preserving Test-Time Tuning for Video Editing](/202607/26/2607.21529v1-elasticttt-prior-preserving-test-time-tuning-for-video-editing)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：提出了无需训练的测试时调优方法用于视频编辑，无需额外训练即可提升视频生成
+3. [Test-Time Registers as Global Priors for Tokenized Image Generation](/202607/26/2607.16824v2-test-time-registers-as-global-priors-for-tokenized-image-generation)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：利用测试时寄存器特征作为即插即用信号，无需重训练
 
 ### 速读区论文标签
-1. [Pixel-Space Diffusion Transformers](/202607/25/2607.17585v2-pixel-space-diffusion-transformers)  
+1. [KroQuant: Kronecker-Structured Block Transforms for Efficient Post-Training Quantization of Diffusion Transformers](/202607/26/2607.21446v1-kroquant-kronecker-structured-block-transforms-for-efficient-post-training-quantization-of-diffusion-transformers)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：使用像素空间扩散变压器进行图像生成
-2. [SPEED: One-Step Pixel Diffusion for High-quality Video Frame Interpolation](/202607/25/2607.15585v1-speed-one-step-pixel-diffusion-for-high-quality-video-frame-interpolation)  
+   evidence：提出针对扩散Transformer的后训练量化方法，无需额外训练
+2. [HarmoHOI: Harmonizing Appearance and 3D Motion for Multi-view Hand-Object Interaction Synthesis](/202607/26/2607.17097v1-harmohoi-harmonizing-appearance-and-3d-motion-for-multi-view-hand-object-interaction-synthesis)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：使用一步像素扩散模型进行视频帧插值
-3. [Spatial Transport of Integration Error in Generative ODEs](/202607/25/2607.16361v1-spatial-transport-of-integration-error-in-generative-odes)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：扩散采样积分误差分析
+   evidence：基于扩散的多视角手物交互视频生成框架
 
 
 <div class="dpr-home-promo-card">
