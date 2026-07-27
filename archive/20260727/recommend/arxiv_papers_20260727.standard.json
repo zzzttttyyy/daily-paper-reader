@@ -1,0 +1,274 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-27T21:19:00.361944+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2607.19064v2",
+      "source": "arxiv",
+      "title": "Mage-Flow: An Efficient Native-Resolution Foundation Model for Image Generation and Editing",
+      "abstract": "Large-scale visual generators are increasingly capable but costly to train, fine-tune, and deploy. We introduce Mage-Flow, a compact 4B-scale generative stack for efficient text-to-image generation and instruction-based image editing. The stack is built from two co-designed components: Mage-VAE, a lightweight high-fidelity latent tokenizer, and a Native-Resolution Multimodal Diffusion Transformer trained with rectified flow matching. Mage-VAE uses one-step diffusion-style encoding and decoding with anchor-latent regularization, preserving the reconstruction quality of strong public VAEs while reducing tokenization cost by more than an order of magnitude. Together with native-resolution packing and stack-level CUDA kernel fusion, the stack supports flexible-resolution training and improves end-to-end training throughput by about $2.5\\times$. Built on this foundation, we develop a complete model family with Base, RL-aligned, and Turbo variants for both generation and editing. Diffusion-NFT improves prompt following, text rendering, aesthetic quality, and editing fidelity, while few-step distillation with adversarial perceptual guidance produces 4-step Turbo models for low-latency inference. Despite its compact scale, Mage-Flow and Mage-Flow-Edit achieves competitive performance across standard generation and editing benchmarks. More importantly, the Turbo variants make high-resolution generation and editing practical for interactive use: at $1024^2$ resolution on a single NVIDIA A100 GPU, Mage-Flow-Turbo generates an image in 0.59s, and Mage-Flow-Edit-Turbo edits an image in 1.02s, while maintaining a small memory footprint. These results show that careful tokenizer--backbone--system co-design can deliver strong high-resolution generation and editing within an efficient 4B model family.",
+      "authors": [
+        "Xinjie Zhang",
+        "Peng Zhang",
+        "Shicheng Zheng",
+        "Jinghao Guo",
+        "Zhaoyang Jia",
+        "Yifei Shen",
+        "Xun Guo",
+        "Yuxuan Luo",
+        "Jiahao Li",
+        "Wenxuan Xie",
+        "Fanyi Pu",
+        "Xiaoyi Zhang",
+        "Kaichen Zhang",
+        "Zongyu Guo",
+        "Tianci Bi",
+        "Dongnan Gui",
+        "Zhening Liu",
+        "Zimo Wen",
+        "Zihan Zheng",
+        "Senqiao Yang",
+        "Xiao Li",
+        "Jinglu Wang",
+        "Bin Li",
+        "Yan Lu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "cs.MM",
+        "eess.IV"
+      ],
+      "published": "2026-07-21T12:55:34+00:00",
+      "link": "https://arxiv.org/pdf/2607.19064v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "efficient text-to-image generation with diffusion transformer and VAE",
+      "llm_evidence_cn": "高效文本到图像生成，结合扩散Transformer和VAE",
+      "llm_evidence": "高效文本到图像生成，结合扩散Transformer和VAE",
+      "canonical_evidence": "高效文本到图像生成，结合扩散Transformer和VAE",
+      "llm_tldr_en": "Introduces Mage-Flow, a compact 4B-scale stack for efficient text-to-image generation and editing, using Mage-VAE and native-resolution diffusion transformer trained with rectified flow.",
+      "llm_tldr_cn": "该论文提出Mage-Flow，一个4B参数量的紧凑生成栈，用于高效文本到图像生成和编辑。其核心包括轻量高保真变分自编码器Mage-VAE和原生分辨率多模态扩散Transformer，通过矩形流匹配训练。在保证生成质量的同时大幅降低计算成本。",
+      "llm_tldr": "该论文提出Mage-Flow，一个4B参数量的紧凑生成栈，用于高效文本到图像生成和编辑。其核心包括轻量高保真变分自编码器Mage-VAE和原生分辨率多模态扩散Transformer，通过矩形流匹配训练。在保证生成质量的同时大幅降低计算成本。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.21848v1",
+      "source": "arxiv",
+      "title": "Closing the Loop: Training-Free Revisit Consistency for Autoregressive Generative Rendering",
+      "abstract": "Recent conditional video generation models have shown promising potentials to transform 3D engine renderings, such as depth maps and untextured geometry, into photorealistic videos for gaming and immersive content creation. These applications require long-horizon auto-regressive generation that continuously synthesizes new frames while preserving a persistent 3D world. Auto-regressive generators synthesize video chunk by chunk with a bounded KV cache, so when the camera revisits a location after its context has been evicted, the model often regenerates inconsistent appearance, even though the conditioning renderings (e.g., depth) remain perfectly aligned with the underlying geometry.We address this revisit inconsistency without any post-training by exploiting correspondences the 3D engine already provides: temporal correspondence retrieves pose-matched historical latent chunks into the KV cache as loop-closure memory, while spatial correspondence from camera pose and depth reprojection biases token-level attention toward geometrically corresponding regions of the retrieved chunks. We demonstrate our method on loop-closure trajectories mined from TartanAir and TartanGround dataset to mirror complicate real-world application scenarios, where it outperforms existing training-free baselines on revisit consistency without losing overall video quality. Project Page: https://wenchao-m.github.io/ClosetheLoop.github.io/",
+      "authors": [
+        "Wenchao Ma",
+        "Changran Liu",
+        "Sharon X. Huang",
+        "Haomiao Jiang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-23T22:33:52+00:00",
+      "link": "https://arxiv.org/pdf/2607.21848v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free revisit consistency for video generation",
+      "llm_evidence_cn": "免训练重访一致性用于视频生成",
+      "llm_evidence": "免训练重访一致性用于视频生成",
+      "canonical_evidence": "免训练重访一致性用于视频生成",
+      "llm_tldr_en": "Addresses revisit inconsistency in autoregressive video generation without training, using a closed-loop correction mechanism that leverages conditioning signals.",
+      "llm_tldr_cn": "自回归视频生成面临重访场景外观不一致的问题。该论文提出一种完全免训练的方法，通过闭环校正机制利用深度等条件信号重新对齐外观，无需任何额外训练或微调，在保持生成速度的同时显著提升了长视频的时序一致性，为视频生成免训练优化提供了新方案。",
+      "llm_tldr": "自回归视频生成面临重访场景外观不一致的问题。该论文提出一种完全免训练的方法，通过闭环校正机制利用深度等条件信号重新对齐外观，无需任何额外训练或微调，在保持生成速度的同时显著提升了长视频的时序一致性，为视频生成免训练优化提供了新方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.21987v1",
+      "source": "arxiv",
+      "title": "Diffusion-guided optimization for full waveform inversion",
+      "abstract": "We present a diffusion-guided full waveform inversion (FWI) study in which pretrained diffusion generative models are used as learned regularizers inside a PDE-constrained seismic inversion loop. We compare three training-free guidance strategies: Manifold-Preserving Guided Diffusion (MPGD), SDEdit-based initialization, and Split Gibbs Diffusion Sampling (SGDS), which alternates between FWI likelihood updates and diffusion-prior denoising. The proposed workflow keeps wave-equation modeling in the inversion loop and uses a geological prior to stabilize model components that are weakly constrained by the seismic data. Controlled GeoFWI experiments, benchmark-scale Marmousi and Overthrust tests, a difficult Sigsbee2A salt test, and noise-degradation studies show that SGDS improves reconstruction quality relative to conventional L2 and total-variation regularized FWI in clean and moderately noisy synthetic settings. Overall, these experiments demonstrate that diffusion-guided optimization can serve as a practical learned regularization strategy for synthetic FWI benchmarks while preserving the wave-equation modeling loop.",
+      "authors": [
+        "Yiran Shen",
+        "Yangkang Chen",
+        "Björn Engquist"
+      ],
+      "primary_category": "physics.geo-ph",
+      "categories": [
+        "physics.geo-ph"
+      ],
+      "published": "2026-07-24T05:22:10+00:00",
+      "link": "https://arxiv.org/pdf/2607.21987v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free guidance strategies for diffusion model optimization",
+      "llm_evidence_cn": "免训练引导策略用于扩散模型优化",
+      "llm_evidence": "免训练引导策略用于扩散模型优化",
+      "canonical_evidence": "免训练引导策略用于扩散模型优化",
+      "llm_tldr_en": "Proposes three training-free guidance strategies (MPGD, SDEdit, SGDS) using pretrained diffusion models as regularizers for full waveform inversion, demonstrating improved stability and accuracy.",
+      "llm_tldr_cn": "该论文针对全波形反演中的正则化问题，提出使用预训练扩散模型作为学习正则化器，并比较了三种免训练引导策略：流形保持引导扩散、SDEdit初始化和分裂吉布斯扩散采样。这些方法无需额外训练，在多个地震反演基准上提高了模型稳定性和反演精度，为免训练扩散优化提供了新思路。",
+      "llm_tldr": "该论文针对全波形反演中的正则化问题，提出使用预训练扩散模型作为学习正则化器，并比较了三种免训练引导策略：流形保持引导扩散、SDEdit初始化和分裂吉布斯扩散采样。这些方法无需额外训练，在多个地震反演基准上提高了模型稳定性和反演精度，为免训练扩散优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.22091v1",
+      "source": "arxiv",
+      "title": "Spectral Prior for Reducing Exposure Bias in Diffusion Models",
+      "abstract": "Diffusion models typically suffer from error accumulation during iterative sampling, commonly referred to as exposure bias. We reveal systematic frequency-dependent discrepancies between training and inference, which can be interpreted as frequency-dependent SNR error. Crucially, the direction of this mismatch varies across models and timesteps, indicating that fixed correction rules do not generalize. We propose Spectral Alignment (SPA), a lightweight, guidance-based method that calibrates the power spectrum of intermediate predictions to a pre-computed prior. Our approach consists of two stages: (1) offline fitting of a parametric spectrum model from training data, and (2) inference-time guidance via efficient FFT-based gradient computation. SPA introduces minimal computational overhead (3-4\\%) and is complementary to Classifier-Free Guidance (CFG). We demonstrate consistent improvements across diverse architectures, from pixel-space models (DDPM, ADM) to latent diffusion models (SD2.0, SDXL) and flow-matching models (SD3.5, FLUX). Our implementation is available at https://github.com/SonyResearch/SPA.",
+      "authors": [
+        "Yuya Kobayashi",
+        "Masato Ishii",
+        "Yuhta Takida",
+        "Takashi Shibuya",
+        "Yuki Mitsufuji"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-24T08:37:04+00:00",
+      "link": "https://arxiv.org/pdf/2607.22091v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free inference-time guidance method for diffusion models",
+      "llm_evidence_cn": "扩散模型的免训练推理时指导方法",
+      "llm_evidence": "扩散模型的免训练推理时指导方法",
+      "canonical_evidence": "扩散模型的免训练推理时指导方法",
+      "llm_tldr_en": "Proposes Spectral Alignment (SPA), a lightweight guidance method that calibrates power spectrum during inference without additional training, reducing exposure bias in diffusion models.",
+      "llm_tldr_cn": "本文针对扩散模型采样过程中的曝光偏差问题，提出频谱对齐（SPA）方法。该方法在推理阶段通过离线拟合训练数据的谱先验，然后利用FFT梯度计算进行轻量级指导，无需重新训练模型。实验表明SPA能有效降低频率依赖的误差，提升生成质量。该工作属于免训练优化技术，可应用于图像生成。",
+      "llm_tldr": "本文针对扩散模型采样过程中的曝光偏差问题，提出频谱对齐（SPA）方法。该方法在推理阶段通过离线拟合训练数据的谱先验，然后利用FFT梯度计算进行轻量级指导，无需重新训练模型。实验表明SPA能有效降低频率依赖的误差，提升生成质量。该工作属于免训练优化技术，可应用于图像生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.22241v1",
+      "source": "arxiv",
+      "title": "AgentHOI: Multi-Agent Reasoning for Human-Object-Interaction Video Generation via Implicit Representation Alignment",
+      "abstract": "Recent advances in video diffusion models have spurred interest in human-object interaction (HOI) video generation, which demands fine-grained control over interaction logic beyond single-subject animation. However, existing HOI methods rely heavily on explicit motion control, limiting scalability and generalization across diverse objects and interactions. In this study, we propose AgentHOI, a text-driven HOI video generation following a thinking-before-generation framework that bridges the gap between high-level textual intent and physical execution through multi-agent reasoning over perception, interaction, and motion planning. Building upon the generated interaction plans, we further strengthen text-driven motion understanding. We introduce an implicit text-motion alignment strategy that distills text-to-motion priors into the video diffusion model, enabling robust HOI synthesis without explicit motion inputs at inference. Experiments show that AgentHOI significantly improves interaction naturalness, object appearance preservation, and adherence to complex textual instructions across challenging object-centric scenarios such as wearing and riding. The code is available at https://github.com/bone-11/agenthoi.",
+      "authors": [
+        "Ziyao Huang",
+        "Shunkai Li",
+        "Juan Cao",
+        "Chenyu Li",
+        "Youliang Zhang",
+        "Zixiang Zhou",
+        "Cong Wang",
+        "Yuan Zhou",
+        "Qinglin Lu",
+        "Fan Tang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-24T12:17:57+00:00",
+      "link": "https://arxiv.org/pdf/2607.22241v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "HOI video generation with diffusion models and multi-agent reasoning",
+      "llm_evidence_cn": "人类-物体交互视频生成，使用扩散模型和多智能体推理",
+      "llm_evidence": "人类-物体交互视频生成，使用扩散模型和多智能体推理",
+      "canonical_evidence": "人类-物体交互视频生成，使用扩散模型和多智能体推理",
+      "llm_tldr_en": "Proposes AgentHOI, a text-driven HOI video generation framework using multi-agent reasoning and diffusion models, improving interaction logic control without explicit motion control.",
+      "llm_tldr_cn": "该论文提出AgentHOI，一种文本驱动的人类-物体交互视频生成框架。采用多智能体推理实现思考-生成范式，通过隐式表示对齐增强交互逻辑控制，无需显式运动控制。实验表明在多种物体和交互场景下生成质量优于现有方法。",
+      "llm_tldr": "该论文提出AgentHOI，一种文本驱动的人类-物体交互视频生成框架。采用多智能体推理实现思考-生成范式，通过隐式表示对齐增强交互逻辑控制，无需显式运动控制。实验表明在多种物体和交互场景下生成质量优于现有方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.19344v1",
+      "source": "arxiv",
+      "title": "Appearance Pointers -- Multimodal Region Control of Diffusion Transformers",
+      "abstract": "Controllable image generation remains challenging for creative professionals, who often require precise regional control over materials, object identities, and spatial arrangements that cannot be reliably achieved through text prompting alone. Diffusion Transformers (DiTs) can natively ingest heterogeneous tokens stemming from texts and images, but they lack mechanisms for determining where and how these tokens should influence the output. We introduce appearance pointers, compact tokens that guide DiTs toward the correct appearance cues at the correct spatial locations by aligning text or image inputs with user-specified masks. Appearance pointers are produced by a region correspondence network and refined through a spatial aggregation mechanism, enabling the model to handle multiple regional descriptions without significantly increasing token load. Our approach introduces the first modality-agnostic interface for localized multimodal control in a DiT without retraining the base model from scratch. Across a range of metrics, our single model reaches or surpasses the performance of modality-specific state of the art methods, offering a simple and extensible path toward precise, region-aware, multimodal guidance in generative image synthesis.",
+      "authors": [
+        "Rahul Sajnani",
+        "Yulia Gryaditskaya",
+        "Radomír Měch",
+        "Srinath Sridhar",
+        "Matheus Gadelha"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.GR"
+      ],
+      "published": "2026-07-21T17:59:12+00:00",
+      "link": "https://arxiv.org/pdf/2607.19344v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "controllable image generation with appearance pointers for diffusion transformers",
+      "llm_evidence_cn": "使用外观指针的扩散Transformer可控图像生成",
+      "llm_evidence": "使用外观指针的扩散Transformer可控图像生成",
+      "canonical_evidence": "使用外观指针的扩散Transformer可控图像生成",
+      "llm_tldr_en": "Introduces appearance pointers for regional control of diffusion transformers, enabling precise appearance guidance without text-only prompting.",
+      "llm_tldr_cn": "该论文提出外观指针，用于引导扩散Transformer（DiT）在指定空间位置呈现正确外观。通过区域对应网络生成指针，并经过空间聚合机制精炼，实现对材料、物体身份和空间布局的精细控制。无需大量文本描述即可实现区域可控生成。",
+      "llm_tldr": "该论文提出外观指针，用于引导扩散Transformer（DiT）在指定空间位置呈现正确外观。通过区域对应网络生成指针，并经过空间聚合机制精炼，实现对材料、物体身份和空间布局的精细控制。无需大量文本描述即可实现区域可控生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
