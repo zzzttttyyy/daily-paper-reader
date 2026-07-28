@@ -6,40 +6,56 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-27
-- 运行时间：2026-07-27 21:26:09 UTC
+- 最新运行日期：2026-07-28
+- 运行时间：2026-07-28 21:43:44 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：5
-- 速读区：1
+- 本次总论文数：12
+- 精读区：6
+- 速读区：6
 
 ### 今日简报（AI）
-1) 今日精读两篇8.0/10的高分论文，主攻高效原生分辨率图像生成与无训练自回归渲染一致性。
-2) 最值得关注的是Mage-Flow的原生分辨率生成框架及Closing the Loop的免训练自回归渲染优化，分别解决效率与闭环问题。
-3) 建议先精读Mage-Flow掌握原生分辨率生成范式，再结合Closing the Loop对比理解自回归模型的改进策略。
-- 详情：[/202607/27/README](/202607/27/README)
+今日精读聚焦流式多智能体自回归扩散模型和扩散模型多维层级特征缓存，两篇均获9.0高分。最值得关注的方向是流式多智能体扩散与多维特征缓存技术。建议优先精读这两篇论文，并留意速读中无训练一致性方法与MXFP4注意力量化技术。
+- 详情：[/202607/28/README](/202607/28/README)
 
 ### 精读区论文标签
-1. [Mage-Flow: An Efficient Native-Resolution Foundation Model for Image Generation and Editing](/202607/27/2607.19064v2-mage-flow-an-efficient-native-resolution-foundation-model-for-image-generation-and-editing)  
+1. [Streaming Multi-Agent Autoregressive Diffusion Model with World State Registers](/202607/28/2607.21594v1-streaming-multi-agent-autoregressive-diffusion-model-with-world-state-registers)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：多智能体视频扩散模型
+2. [OmniCache: Multidimensional Hierarchical Feature Caching For Diffusion Models](/202607/28/2607.23844v1-omnicache-multidimensional-hierarchical-feature-caching-for-diffusion-models)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：针对扩散模型图像和视频的免训练特征缓存
+3. [Manifold-Constrained Noise Optimization for Diverse Diffusion Sampling](/202607/28/2607.23937v1-manifold-constrained-noise-optimization-for-diverse-diffusion-sampling)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：无需训练的流形约束噪声优化用于多样化图像生成
+4. [Sol-Attn: Accelerating Video Generation Inference via On-the-Fly Attention Sparsification](/202607/28/2607.24027v1-sol-attn-accelerating-video-generation-inference-via-on-the-fly-attention-sparsification)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练注意力稀疏化加速视频扩散模型推理
+5. [Rarity-Aware Discrete Diffusion with Spatially Consistent Decoding for Photo-Realistic Image Super-Resolution](/202607/28/2607.17612v2-rarity-aware-discrete-diffusion-with-spatially-consistent-decoding-for-photo-realistic-image-super-resolution)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：高效文本到图像生成，结合扩散Transformer和VAE
-2. [Closing the Loop: Training-Free Revisit Consistency for Autoregressive Generative Rendering](/202607/27/2607.21848v1-closing-the-loop-training-free-revisit-consistency-for-autoregressive-generative-rendering)  
+   evidence：图像超分辨率的离散扩散方法
+6. [ShotPlan: Cinematic Video Generation with Learnable Planning Token](/202607/28/2607.17675v1-shotplan-cinematic-video-generation-with-learnable-planning-token)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：免训练重访一致性用于视频生成
-3. [Diffusion-guided optimization for full waveform inversion](/202607/27/2607.21987v1-diffusion-guided-optimization-for-full-waveform-inversion)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：免训练引导策略用于扩散模型优化
-4. [Spectral Prior for Reducing Exposure Bias in Diffusion Models](/202607/27/2607.22091v1-spectral-prior-for-reducing-exposure-bias-in-diffusion-models)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：扩散模型的免训练推理时指导方法
-5. [AgentHOI: Multi-Agent Reasoning for Human-Object-Interaction Video Generation via Implicit Representation Alignment](/202607/27/2607.22241v1-agenthoi-multi-agent-reasoning-for-human-object-interaction-video-generation-via-implicit-representation-alignment)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：人类-物体交互视频生成，使用扩散模型和多智能体推理
+   evidence：电影感视频生成扩散模型
 
 ### 速读区论文标签
-1. [Appearance Pointers -- Multimodal Region Control of Diffusion Transformers](/202607/27/2607.19344v1-appearance-pointers----multimodal-region-control-of-diffusion-transformers)  
+1. [Closing the Loop: Training-Free Revisit Consistency for Autoregressive Generative Rendering](/202607/28/2607.21848v2-closing-the-loop-training-free-revisit-consistency-for-autoregressive-generative-rendering)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：自回归视频生成的免训练回访一致性
+2. [CachedSearch: Training-Free Cached Exploration for Test-Time Search in Video Diffusion](/202607/28/2607.23159v1-cachedsearch-training-free-cached-exploration-for-test-time-search-in-video-diffusion)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：视频扩散测试时搜索中的免训练缓存，保持排名
+3. [MXAttention: Data-Free Optimal Scaling and Pre-Normalization Quantization for MXFP4 Attention](/202607/28/2607.24377v1-mxattention-data-free-optimal-scaling-and-pre-normalization-quantization-for-mxfp4-attention)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：视频扩散中MXFP4注意力的数据免校准后训练量化
+4. [Rethinking the Generation Order of Block Diffusion Language Models](/202607/28/2607.24306v1-rethinking-the-generation-order-of-block-diffusion-language-models)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：扩散语言模型的免训练采样
+5. [Self Gradient Forcing: Native Long Video Extrapolation](/202607/28/2607.20368v2-self-gradient-forcing-native-long-video-extrapolation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：使用外观指针的扩散Transformer可控图像生成
+   evidence：视频扩散模型用于长视频外推
+6. [To Erase, or Not to Erase: Robust Training-Free Concept Erasure with Preservation aware Adaptive Ranked Subspace Expansion](/202607/28/2607.23492v1-to-erase-or-not-to-erase-robust-training-free-concept-erasure-with-preservation-aware-adaptive-ranked-subspace-expansion)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：扩散模型的免训练概念擦除
 
 
 <div class="dpr-home-promo-card">
