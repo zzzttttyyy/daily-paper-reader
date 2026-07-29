@@ -1,0 +1,792 @@
+Title: OmniPhys: Knowledge-Graph-Driven Benchmarking and Collective Optimization for Physical Commonsense in Text-to-Image Generation
+
+URL Source: https://arxiv.org/pdf/2607.25641v1
+
+Published Time: Wed, 29 Jul 2026 01:04:47 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# OmniPhys : Knowledge-Graph-Driven Benchmarking and Collective Optimization for Physical Commonsense in Text-to-Image Generation 
+
+## Yajing Xu 
+
+Zhejiang University Hangzhou, Zhejiang, China yajingxu@zju.edu.cn 
+
+## Yarong Lan 
+
+Zhejiang University Hangzhou, Zhejiang, China yrlan16@zju.edu.cn 
+
+## Jiaoyan Chen 
+
+The University of Manchester Manchester, United Kingdom jiaoyan.chen@manchester.ac.uk 
+
+## Yichi Zhang 
+
+Zhejiang University Hangzhou, Zhejiang, China zhangyichi.each@zju.edu.cn 
+
+## Jeff Z. Pan 
+
+The University of Edinburgh Edinburgh, United Kingdom j.z.pan@ed.ac.uk 
+
+## Mingchen Tu 
+
+Zhejiang University Ningbo, Zhejiang, China mingchentz@zju.edu.cn 
+
+## Zhizhen Liu 
+
+Ant Group Hangzhou, Zhejiang, China zhizhen.lzz@antgroup.com 
+
+## Wen Zhang ∗
+
+Zhejiang University Hangzhou, Zhejiang, China zhang.wen@zju.edu.cn 
+
+## Huajun Chen ∗
+
+Zhejiang University Hangzhou, Zhejiang, China huajunsir@zju.edu.cn 
+
+## Abstract 
+
+While text-to-image models exhibit remarkable visual fidelity, they frequently violate fundamental physical commonsense. Existing benchmarks often rely on coarse-grained descriptions, failing to diagnose the mastery of specific physical principles. Moreover, the high stochasticity of generative processes causes current prompt op-timization methods to suffer from "gradient hallucinations," where optimizers are misled by transient visual artifacts rather than sys-temic flaws. To address these challenges, we introduce OmniPhys ,a rigorous benchmark of 1,551 samples grounded in a Physical Knowledge Graph. By aligning PhET simulations with standard cur-ricula, OmniPhys operationalizes a knowledge-to-scenario pipeline that performs diagnostic stress tests via a dual-path verification pro-tocol. We further propose OmniPrompt , an iterative framework that treats physical alignment as a discrete optimization problem. For each query, OmniPrompt aggregates 𝐾 stochastic images into a per-query feedback buffer. Across training, it further merges feed-back from batches of 𝐵 queries before each meta-policy update, filtering seed and query-local noise. Evaluations across 12 repre-sentative T2I models reveal universal physical bottlenecks. Results demonstrate that OmniPrompt significantly enhances physical con-sistency across diverse backbones, proving the transferability and efficacy of our evolved meta-policies. The code and data are avail-able at https://github.com/zjukg/OmniPhys  
+
+> ∗Corresponding Author
+> This work is licensed under a Creative Commons Attribution 4.0 International License.
+> KDD ’26, Jeju Island, Republic of Korea
+> ©2026 Copyright held by the owner/author(s). ACM ISBN 979-8-4007-2259-2/2026/08 https://doi.org/10.1145/3770855.3817552
+
+## CCS Concepts 
+
+• Computing methodologies → Computer vision ; Knowledge representation and reasoning .
+
+## Keywords 
+
+Knowledge Graph, Text-to-Image Generation, Physical Common-sense, Collective Optimization 
+
+ACM Reference Format: 
+
+Yajing Xu, Yarong Lan, Jiaoyan Chen, Yichi Zhang, Jeff Z. Pan, Mingchen Tu, Zhizhen Liu, Wen Zhang, and Huajun Chen. 2026. OmniPhys : Knowledge-Graph-Driven Benchmarking and Collective Optimization for Physical Com-monsense in Text-to-Image Generation. In Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2 (KDD ’26), August 09–13, 2026, Jeju Island, Republic of Korea. ACM, New York, NY, USA, 12 pages. https://doi.org/10.1145/3770855.3817552 
+
+## 1 Introduction 
+
+The rapid advancement of Text-to-Image (T2I) models has rev-olutionized digital content creation, enabling the generation of high-fidelity images from complex natural language descriptions [ 2, 7 , 25 – 27 ]. However, a critical “logical ceiling” has emerged as these models transition from artistic tools to simulators of reality: the persistent violation of physical commonsense. As illustrated in Figure 1, even frontier models fail to respect fundamental laws of nature. Examples include unequal liquid levels in communicating vessels, missing refraction-induced displacement at air-water in-terfaces, and the absence of elastic deformation under mechanical stress. These “physical hallucinations” [ 23 ] reveal that current mod-els primarily rely on superficial pattern recognition rather than an internalized understanding of world physics. Evaluating and rectifying these violations presents two formi-dable challenges. First, existing benchmarks lack the granular-ity and scale required for rigorous diagnostics. Early efforts like Commonsense-T2I [ 10 ] and PhyBench [ 19 ] rely on phenomeno-logical scenarios and provide only coarse-grained analysis at the arXiv:2607.25641v1 [cs.CV] 28 Jul 2026 KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea Yajing Xu et al. Emu 3.5 -Image                                    
+
+> Nano Banana Pro
+> Qwen -Image
+> A wooden chopstick is
+> partially submerged in
+> clear water
+> a glass cup is supported
+> by a foam block
+> milk is poured into a
+> double -container system
+> with a connecting tube
+> and left undisturbed
+> The foam block exhibits no
+> elastic deformation under
+> the weight of the glass cup .
+> The submerged portion
+> of the chopsticks shows
+> no refraction -induced
+> visual displacement at
+> the air -water interface .
+> The liquid levels in the
+> two connected bottles are
+> unequal at equilibrium,
+> directly violating the
+> communicating vessels
+> principle of hydrostatics .
+
+Figure 1: Examples of physical commonsense violations across frontier T2I models, illustrating failures in hydrostat-ics (top, communicating vessels principle), optics (middle, light refraction), and mechanics (bottom, elastic deformation under stress). 
+
+domain level. They may identify general failures in mechanics, but fail to pinpoint specific knowledge gaps. Consequently, they cannot diagnose whether a model lacks mastery of foundational laws, such as Archimedes’ principle or the leverage principle. Second, aligning T2I models with physical constraints presents a unique optimization dilemma. Conventional Supervised Fine-Tuning (SFT) [ 13 , 14 ] and Reinforcement Learning [1, 8, 32] methods are often prohibitively resource-intensive, necessitating both substantial computational overhead and extensive curated datasets of high-fidelity image-text pairs. While discrete prompt optimization provides a lightweight alternative using Large Language Models (LLMs), current methods [24 , 33 , 34 ] primarily focus on direct text-to-text interaction. In T2I scenarios, the LLM acts as an intermediary agent. The optimization goal shifts to improving the output of a secondary system (the T2I model) rather than the LLM itself. This setup is plagued by the high stochasticity of the T2I generation manifold. Consequently, the optimizer often suffers from “gradient hallucinations”: mislead-ing textual gradients caused by (i) transient visual artifacts from a single stochastic sample and/or (ii) query-local failures that do not generalize across the training pool. To overcome these hurdles, we first introduce OmniPhys (short for Omni -category Phys ics), a rigorous benchmark comprising 1,551 curated samples anchored to 14 Physical Knowledge Points (PKPs) organized under three domains (Mechanics, Optics, and Object Properties). Its construction operationalizes a knowledge-to-scenario pipeline grounded in a hierarchical Physical Knowl-edge Graph (PKG) [ 22 ]. To ensure physical rigor, we align PhET 1
+
+Interactive Simulations with standard physics curricula to extract foundational principles across mechanics, optics, and object proper-ties. Our evaluation employs implicit queries that describe a physi-cal scene without explicitly stating the outcome, such as “an iron block is placed in a container of water”. By anchoring each query to a target PKP and its PKG-annotated atomic physical statements, 
+
+> 1https://phet.colorado.edu/
+
+OmniPhys provides a diagnostic “stress test” of a model’s authen-tic reasoning. This design forces the model to derive the correct physical manifestation from its internalized knowledge rather than simple keyword matching. We also implement a Strict Dual-Path Physical Verification Protocol , which combines discriminative VQA probes with descriptive consistency auditing. By requiring a model to both correctly identify the physical outcome and maintain structural consistency in its visual execution, this protocol effec-tively filters out heuristic-based “lucky guesses" and provides a high-fidelity diagnostic of the model’s physical alignment. Building on this diagnostic foundation, we further propose Om-niPrompt , an iterative framework that transforms physical align-ment into a stable, closed-loop optimization process. To mitigate stochastic generation noise, OmniPrompt uses a two-level aggre-gation scheme. At the query level, it consolidates audits over an ensemble of 𝐾 images into a feedback buffer 𝑒 𝑖 . At the optimization level, it merges buffers from a batch of 𝐵 queries before deriving linguistic gradients and updating the meta-policy, so that updates reflect shared physical failures rather than a single query or seed. Consequently, the system evolves high-level instructions that are generalized to diverse physical domains. In summary, our primary contributions are as follows: 
+
+• Systematic Diagnostics: We release OmniPhys , the first T2I benchmark grounded in a Physical Knowledge Graph. Its taxon-omy aligns PhET simulations with standard physics curricula, enabling fine-grained evaluation across 14 PKPs under three domains. 
+
+• Comprehensive Model Analysis: We conduct an extensive study across 12 representative T2I models, including both frontier closed-source engines and diverse open-source architectures. This provides a granular landscape of current physical reasoning capabilities and identifies universal bottlenecks such as optical reflection and structural mechanics. 
+
+• Robust and Transferable Optimization: We propose Om-niPrompt , which addresses “gradient hallucinations” by batch-merging per-query feedback over 𝐵 training queries before each meta-policy update via textual gradient descent. We demonstrate its efficacy across diverse backbones, proving that our evolved meta-policies provide significant and transferable performance gains. 
+
+## 2 Related Work 2.1 Advancements in Text-to-Image Models 
+
+The landscape of T2I synthesis has been recently redefined by a surge in high-fidelity generative capabilities, spanning from styl-ized art to complex photorealism. Driven by breakthroughs in dif-fusion processes [ 2 , 7, 29 ], autoregressive modeling [ 12 , 25 ] and multimodal unified system [ 4 , 6], modern T2I systems can pro-duce stunning visual content; however, their outputs often betray a lack of physical groundedness. Instead of manifesting a princi-pled understanding of reality, these models frequently default to probabilistic associations, leading to conspicuous failures in main-taining structural integrity or fluidic realism. To bridge this gap, we introduce a novel optimization framework that moves beyond mere visual alignment, iteratively refining generative policies to ensure adherence to essential physical laws. OmniPhys: Knowledge-Graph-Driven Benchmarking and Collective Optimization for Physical Commonsense in Text-to-Image Generation KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea (b) Dual -Path Physical Verification Protocol 
+
+(a) OmniPhys Construction Framework                  
+
+> Physic al Knowledge Selection
+> Domain
+> Concept
+> Principles
+> Knowledge
+> Point
+> Physical Knowledge Graph
+> Construction
+> You are a Physics
+> Knowledge
+> Engineer. Your
+> goal is to …
+> Physical Knowledge Graph Augmentation
+> You are an Expert
+> Physics Scenario
+> Designer …
+> PKG -based Data Synthesis
+> {A}…placed…{ B}
+> {A}…resting…{ B}
+> Temp
+> Data
+> iron block soft cushion
+> heavy book rubber ball
+> an iron block is resting on a soft cushion
+> a heavy book is resting on a rubber ball
+> an iron block is placed on a soft cushion
+> a heavy book is placed on a rubber ball
+> "Given an input text -query and its associated
+> physical concepts (phy_know), analyze what the
+> physically plausible state of the objects should be
+> if the text were rendered into an image by a text -
+> to -image model."
+> “a brass cube compresses a soft sponge
+> with mechanical force ”
+> The mechanical force exerted by the brass cube
+> compresses the sponge, leading to visible
+> deformation YES
+> Is the soft sponge visibly deformed under the
+> brass cube? YES /NO
+
+“ a brass cube compresses a soft sponge 
+
+with mechanical force  ”
+
+Gemini VQA/DCS/ Joint 
+
+Figure 2: OmniPhys Infrastructure. (a) Construction: A hierarchical pipeline mapping PhET simulations to a PKG for synthesiz-ing high-fidelity prompts. (b) Verification: a dual-path engine that cross-checks discriminative VQA probes against descriptive consistency statements (DCS). 
+
+## 2.2 Evaluation of Text-to-Image Models 
+
+Evaluating T2I models remains a multi-faceted challenge. Tradi-tional metrics like FID [ 16 ] focus on visual quality, while CLIP-based metrics [ 15 ] measure semantic alignment. To capture higher-order capabilities, benchmarks such as ABC-6K [ 9] and T2I-CompBench [ 17 ] have shifted focus toward compositional reasoning, including spatial relations and attribute binding. More recently, WorldGen-Bench [ 35 ] and WISE [ 20 ] have explored generation grounded in world knowledge, while R2I-Bench [ 3] targets textual common-sense. Despite these efforts, physical commonsense remains under-explored. Initial attempts like Commonsense-T2I [ 10 ] and Phy-Bench [ 19 ] categorize specific physical errors but lack a systematic taxonomy. Unlike prior work, OmniPhys provides a knowledge-graph-driven taxonomy and a strict dual-path verification protocol for fine-grained physical diagnosis; we further pro-pose OmniPrompt, an iterative meta-policy optimization framework built on this diagnostic signal. 
+
+## 3 The OmniPhys Benchmark 
+
+OmniPhys is a knowledge-graph-driven benchmark designed to address the systematic rigor limitations of existing physical commonsense benchmarks [ 10 , 19 ]. As illustrated in Figure 2, the benchmark consists of two synergetic modules: (1) a Construc-tion Framework that synthesizes high-fidelity, implicit physical queries grounded in a Physical Knowledge Graph; and (2) a Dual-Path Physical Verification Protocol that serves as an automated diagnostic engine. Unlike traditional holistic scoring, this proto-col decomposes physical consistency into PKG-grounded coupled probes including discriminative visual questions (VQA) and descrip-tive consistency statements (DCS), thereby ensuring that evaluation is both granular and objective. 
+
+## 3.1 OmniPhys Construction Framework 
+
+As illustrated in Figure 2 (a), our pipeline ensures high-fidelity physical alignment and visual verifiability through the following four distinct stages. 
+
+(1) Physical Knowledge Selection. To ensure physical rigor, we ground our taxonomy in the PhET Interactive Simulations. We align PhET domains with standard physics curricula to extract principles across mechanics, optics and object properties. Subsequently, we use LLM to filter out abstract concepts (e.g., entropy) that lack un-ambiguous visual signatures, retaining only those with observable binary states (e.g., sinking vs. floating). 
+
+(2) Physical Knowledge Graph Construction. We formalize the curated principles into a PKG, defined as G = (V , E) , which serves as the deterministic backbone for data synthesis and evaluation grounding: 
+
+• Node types V: Domain (e.g., Object Properties), Domain Con-cept (e.g., density), Principle (e.g., Archimedes’ principle), and leaf 
+
+Physical Knowledge Points (PKPs) . Each PKP anchors one evalu-able topic and is annotated with one or more atomic physical statements —short, visually verifiable propositions of expected outcomes under the corresponding principle (e.g., float vs. sink vs. suspend under density comparison). These annotations supply PKG-grounded knowledge for synthesis and probe generation; they are not used verbatim as evaluation prompts. 
+
+• Semantic Relations E: Directed edges typed as is-a (Domain 
+
+→ Concept) and derives (Concept/Principle → Principle/PKP, or Concept → PKP when no Principle is defined). Atomic state-ments are stored as node-level annotations on PKPs and are therefore not represented as separate graph nodes or edges. Full PKG statistics, including the number of PKPs and atomic state-ments, are reported in Section 3.1.1. KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea Yajing Xu et al. 
+
+Table 1: PKG coverage by domain. Edge counts include all 
+
+is-a and derives relations within each domain. 
+
+Domain Concept Principle PKP Edge Stmt. 
+
+Mechanics 3 2 6 11 9Object Properties 3 2 3 10 3Optics 1 5 5 11 5
+
+Total 7 9 14 32 17 
+
+(3) Physical Knowledge Graph Augmentation. To improve the completeness of the PKG in covering visualizable physics, we implement an LLM-based augmentation mechanism. Specifically, using each Domain Concept node as a root, we extract its directly associated Principles and PKPs to form contextual prompts for an LLM. The LLM is tasked with generating candidate PKPs within that domain that are not yet included but remain visually verifiable. Generated candidates are filtered for physical accuracy, logical consistency, and image representability before integration into the graph. 
+
+(4) PKG-based Data Synthesis. This stage synthesizes evaluation samples anchored to specific PKPs in the PKG, using the PKP’s atomic physical statements as knowledge constraints while deliber-ately hiding the expected outcome: 
+
+• Scenario Templating: For each target PKP, LLMs generate di-verse scene templates that establish a premise without revealing the result, e.g., “a {object} is placed into a container of {liquid}” .
+
+• Knowledge-Driven Slot Filling: Based on the material and state constraints encoded in the PKP’s atomic statements, com-patible entities are selected to create a clear physical contrast (e.g., {object}: iron block; {liquid}: water). 
+
+• Implicit Synthesis: These components are combined into final implicit prompts that omit the expected physical outcome, such as “an iron block is placed into a container of water” . By excluding outcome-revealing keywords (e.g., “sinking”), the prompt forces physically accurate generation to rely on internalized knowledge rather than textual cues. 
+
+3.1.1 PKG Scale and Coverage. The finalized PKG is G = (V , E) 
+
+with |V | = 33 nodes and |E| = 32 directed edges, organized into four layers— Domain (3), Domain Concept (7), Principle (9), and PKP 
+
+(14)—with 17 atomic physical statements in total (Table 1). Mechan-ics spans buoyancy (solid–fluid, gas, immiscible liquids), leverage, and pressure (including communicating vessels); Object Properties covers mass–volume–density relations and melting; Optics covers propagation, reflection, refraction, diffraction, and interference. Ev-ery PKP satisfies visual verifiability: each atomic statement admits at least one binary observable outcome in image space (e.g., float vs. sink). 
+
+PKG-to-benchmark linkage. OmniPhys samples are synthesized from PKG PKPs. Each sample is anchored to one PKP and includes an implicit prompt 𝑥 , the PKP’s atomic physical statements, and LLM-generated coupled probes (VQA 𝑖 , DCS 𝑖 )𝑛 𝑖 =1, where 𝑛 is sample-specific. The benchmark contains 𝑁 = 1,551 implicit prompts in total. All 14 PKPs are represented in the released benchmark (100% PKP coverage). Mechanics 
+
+> （55.8% ）
+> Optics
+> （24.5% ）
+> Object
+> properties
+> （19.7% ）
+> Leverage principle
+> Density with
+> Buoyancy （gas ）
+> Melt
+> Stress
+> T2I -PhyBench
+> 1551
+> Solubility
+> Mass
+> Density
+> Volume
+> Pressure
+> Density
+> with
+> Buoyancy
+> （Solid 、
+> liquid ）
+> Linear propagation
+> Reflection
+> Light interference
+> Diffraction
+> Refraction
+
+Figure 3: OmniPhys Taxonomy. Hierarchical distribution of 14 PKPs across three domains: Mechanics, Optics, and Object Properties. 
+
+## 3.2 Dual-Path Physical Verification Protocol 
+
+Evaluating physical commonsense requires distinguishing between authentic reasoning and accidental artifacts. We propose Dual-Path Convergence : an image is deemed physically sound only if it passes (1) a Discriminative Path (binary VQA verification) and (2) a Descriptive Path (alignment with LLM-generated DCS probes). 
+
+(1) PKG-Guided Coupled Probe Generation. For each implicit prompt 
+
+𝑥 , we retrieve the atomic physical statements of its anchor PKP and prompt an LLM with (𝑥, {atomic statements }) to generate 𝑛 
+
+coupled units 𝑢 𝑖 = (VQA 𝑖 , DCS 𝑖 )𝑛 𝑖 =1. Here, 𝑛 is sample-specific: it denotes the physical state points that the LLM selects to examine for 𝑥 under PKG constraints, rather than the number of PKG atomic statements. Each unit pairs one discriminative visual question with a matching descriptive consistency statement. Probe generation follows three pillars: 
+
+• Visual-Physical Meta-Template : Restricts output to observ-able, static outcomes while pruning transient processes or invisi-ble quantities unjudgeable from 2D projections. 
+
+• Categorized Few-Shot Logic : Aligns probe generation with the reasoning patterns of the 14 PKG PKPs organized under three domains via expert-curated demonstrations. 
+
+• Coupled Structure : For each LLM-selected physical state point, the generator co-produces a VQA probe and a matching DCS statement. Following this PKG-guided pipeline (see Appendix C), the generator outputs structured JSON arrays of coupled (VQA 𝑖 , DCS 𝑖 )𝑛 𝑖 =1 pairs with gold answers. 
+
+(2) Automated Scoring and Evaluation. We employ a Vision-Language Model (VLM) as an automated evaluator. For each prompt 𝑥 𝑗 , we generate 4 independent images {𝐺 𝑗,𝑘 }4
+
+> 𝑘 =1
+
+. Let 𝑛 𝑗 denote the number of coupled probes generated for prompt 𝑥 𝑗 . For each image 𝐺 𝑗,𝑘 ,we adopt a stringent “all-or-nothing” policy: 
+
+• VQA Score : 𝑆 𝑉 𝑄𝐴 (𝐺 𝑗,𝑘 ) = 1 if the VLM’s responses to all 𝑛 𝑗 gen-erated discriminative probes match the gold answers; otherwise, 
+
+0.OmniPhys: Knowledge-Graph-Driven Benchmarking and Collective Optimization for Physical Commonsense in Text-to-Image Generation KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea Implicit queries         
+
+> Prompt Enhancer
+> Large Language
+> model (LLM)
+> Image Generator Multimodal Evaluator
+> Multimodal Language
+> model (MLLM)
+> MLLM instruction MLLM Feedback
+> Score: 0. Reason:…
+> MLLM Feedback
+> Score: 0. Reason:… MLLM Feedback
+> Score: 0. Reason:…
+> Comprehensive Feedback
+> Score: 0.5
+> Reason: The model’s output
+> consistency was evaluated on
+> 4 samples, with 2 successes.
+> Observed physical violations
+> include …
+> water and kerosene
+> are combined in a
+> transparent container
+> loss .backward ()
+> loss .backward ()
+> 𝐶𝑜𝑙𝑙𝑒𝑐𝑡𝑖𝑣𝑒 𝐹𝑒𝑒𝑑𝑏𝑎𝑐𝑘
+> 𝐵𝑢𝑓𝑓𝑒r (e)
+
+Figure 4: The OmniPrompt Framework. An overview of the iterative alignment loop for physical commonsense in T2I generation. The framework consists of a forward pass for Knowledge-Guided Prompt Enhancement and a backward pass for Meta-Policy Evolution via linguistic gradients. 
+
+• DCS Score : 𝑆 𝐷𝐶𝑆 (𝐺 𝑗,𝑘 ) = 1 if the VLM judges the image to be consistent with all 𝑛 𝑗 generated descriptive consistency state-ments; otherwise, 0.
+
+• Joint Score : 𝑆 𝐽 𝑜𝑖𝑛𝑡 (𝐺 𝑗,𝑘 ) = 𝑆 𝑉 𝑄𝐴 (𝐺 𝑗,𝑘 ) × 𝑆 𝐷𝐶𝑆 (𝐺 𝑗,𝑘 ).The performance for prompt 𝑥 𝑗 is the average Joint Score across its 4 generated images: 
+
+𝑆𝑐𝑜𝑟𝑒 (𝑥 𝑗 ) = 14
+
+> 4
+
+∑︁ 
+
+> 𝑘 =1
+
+𝑆 𝐽 𝑜𝑖𝑛𝑡 (𝐺 𝑗,𝑘 )
+
+The overall performance on OmniPhys is the mean across all 𝑁 =
+
+1, 551 prompts: 
+
+𝑆𝑐𝑜𝑟𝑒 𝐹𝑖𝑛𝑎𝑙 = 1
+
+𝑁 
+
+> 𝑁
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑆𝑐𝑜𝑟𝑒 (𝑥 𝑗 )
+
+This hierarchical scoring ensures that the metric reflects the model’s consistent ability to manifest correct physics rather than isolated successes. 
+
+## 4 The OmniPrompt Framework 
+
+In this section, we present OmniPrompt , an iterative framework that treats physical commonsense alignment as a discrete opti-mization problem over natural-language instructions. The system establishes a closed-loop pipeline that transforms pixel-level physi-cal violations into structured meta-policy updates through a series of specialized linguistic modules. 
+
+## 4.1 System Formalization and Optimization Goal 
+
+We formalize the alignment process as an optimization of the Meta-Policy 𝑃 , which denotes the high-level system instructions that guide prompt transformation. The framework consists of five core components: (1) Prompt Enhancer ( L): An LLM-based agent that expands an implicit query 𝑥 into a physically grounded, visually de-scriptive prompt ˜𝑥 = L( 𝑥 ; 𝑃 ). The meta-policy 𝑃 defines the enhancement strategy and is the only component updated dur-ing training. (2) Stochastic T2I Manifold ( G): A generative module that projects the enhanced prompt ˜𝑥 into a high-dimensional visual mani-fold. We draw an ensemble of samples from G( ˜𝑥 ) to capture the stochastic distribution of physical manifestations. (3) Multimodal Evaluator ( E): A diagnostic module that veri-fies each generated image against the query’s PKG-grounded DCS probes. For every image, E outputs a binary audit score and a concise rationale, then aggregates them into a collective feedback buffer 𝑒 𝑖 (Section 4.2.3). (4) Feedback Calculator ( Γ): A linguistic derivative operator that propagates batch-level feedback through the TextGrad graph in two stages: it first derives a unified prompt-level gradient 𝑔 ˜𝑥 
+
+from the concatenated expansions and feedback buffers, then computes sample-wise meta-gradients {𝑔 (𝑖 ) 
+
+> 𝑃
+
+}𝐵 𝑖 =1 by backpropa-gating through each enhancement branch (Section 4.3). (5) Meta-Policy Optimizer ( Φ): A batch-aware update operator that rewrites 𝑃 from the aggregated meta-gradients via Textual Gradient Descent (Section 4.3.2). 
+
+Optimization Objective. Let X denote the training prompt pool used for meta-policy optimization. For each 𝑥 𝑖 ∈ X , the enhancer produces ˜𝑥 𝑖 = L( 𝑥 𝑖 ; 𝑃 ), and the evaluator returns a collective feed-back buffer 𝑒 𝑖 with ensemble success rate ¯𝑆 𝑖 (Section 4.2.3). Om-niPrompt seeks the meta-policy 
+
+𝑃 ∗ = arg max  
+
+> 𝑃
+
+E𝑥 𝑖 ∼X 
+
+ ¯𝑆 𝑖 
+
+ . (1) Only 𝑃 is updated; the weights of L and G remain fixed. 
+
+## 4.2 Physical Synthesis and Diagnostic Evaluation 
+
+The forward pass transforms an implicit physical query into a structured diagnostic signal through a sequence of knowledge-driven operations. KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea Yajing Xu et al. 
+
+4.2.1 Initialization and Reasoning-before-Synthesis ( L). To bridge the gap between abstract physics and visual manifestation, we initialize the meta-policy 𝑃 with a Reasoning-before-Synthesis 
+
+paradigm (initial template in Appendix A). This design ensures that L infers necessary physical constraints before generating the final description. Specifically, L identifies governing laws and pre-dicts object interactions to synthesize a detailed, visually grounded prompt ˜𝑥 .
+
+4.2.2 Multi-sample Visual Synthesis ( G). The generative module 
+
+G projects ˜𝑥 into the visual domain. To mitigate stochastic gener-ation noise, we draw an ensemble of 𝐾 = 4 independent samples 
+
+I𝑖 = {𝐼 𝑖, 1, . . . , 𝐼 𝑖,𝐾 } from G( ˜𝑥 𝑖 ) for each enhanced prompt. This multi-sample design provides a stable empirical basis to distinguish systemic reasoning failures from transient artifacts. 
+
+4.2.3 Physics-aware Multimodal Evaluation ( E). The Multimodal Evaluator ( E) serves as a diagnostic bridge between visual pixels and linguistic gradients. Expected physical behaviors are specified by the DCS probes associated with each benchmark query, which are generated from the implicit prompt and PKG atomic statements. Unlike methods that rely on a single holistic score [ 24 ], E first per-forms per-image audits and then consolidates them into a collective buffer. 
+
+Operational Protocol. For each image 𝐼 𝑖,𝑗 ∈ I 𝑖 , E scrutinizes the alignment between visual manifestations and expected physical behaviors, producing a binary score 𝑠 𝑖,𝑗 ∈ { 0, 1} and a concise rationale 𝑟 𝑖,𝑗 :
+
+𝑠 𝑖,𝑗 =
+
+(
+
+1, if fully consistent with all DCS probes for 𝑥 𝑖 ,
+
+0, if any DCS constraint is violated . (2) When 𝑠 𝑖,𝑗 = 0, the evaluator pinpoints the violation (e.g., “The object’s reflection angle is inconsistent with the light source”), pro-viding the raw diagnostic signal for optimization. 
+
+Collective Feedback Construction. Per-query aggregation. For each implicit query 𝑥 𝑖 , E consolidates individual audits into a collective feedback buffer 
+
+𝑒 𝑖 = ⟨ ¯𝑆 𝑖 , R𝑖 ⟩, ¯𝑆 𝑖 = 1
+
+𝐾 
+
+> 𝐾
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑠 𝑖,𝑗 , R𝑖 =
+
+> 𝐾
+
+Ê
+
+> 𝑗 =1
+
+𝑟 𝑖,𝑗 . (3) Here, ¯𝑆 𝑖 ∈ [ 0, 1] is the ensemble success rate over 𝐾 images, and 
+
+R𝑖 is the consolidated rationale. É denotes string concatenation. 
+
+## 4.3 Meta-Policy Optimization via Linguistic Gradients 
+
+Batch-level aggregation. After processing a batch of 𝐵 queries through the forward pass, Γ and Φ perform one coupled update on the shared meta-policy 𝑃 . Only the linguistic modules L and the meta-policy 𝑃 
+
+participate in the TextGrad computation graph. Image synthesis ( G)and multimodal evaluation ( E) are external, non-differentiable oper-ators that supply the collective feedback buffer consumed by Γ. The backward pass implements a discrete analog of backpropagation over this linguistic graph. 
+
+4.3.1 Feedback Derivation and Joint Differentiation ( Γ). The Feed-back Calculator ( Γ) propagates batch-level feedback through the graph via a two-stage gradient derivation procedure. 
+
+1. Unified Prompt-level Gradient ( 𝑔 ˜𝑥 ). For batch size 𝐵 , Γ per-forms joint batch differentiation over concatenated expansions and feedback buffers: 
+
+𝑔 ˜𝑥 ≈ Γ
+
+> 𝐵
+
+Ê
+
+> 𝑖 =1
+
+˜𝑥 𝑖 
+
+Ê 𝐵 Ê
+
+> 𝑖 =1
+
+𝑒 𝑖 
+
+!
+
+. (4) The resulting unified critique is broadcast to each expansion branch via idempotent concatenation backward in the linguistic graph. Specifically, 𝑔 ˜𝑥 pinpoints textual flaws that led to the failures re-ported by E, including ambiguous support descriptions and missing explanations of buoyancy-related mechanisms. 
+
+2. Meta-level Gradient Derivation ( {𝑔 (𝑖 ) 
+
+> 𝑃
+
+}). Γ subsequently back-propagates 𝑔 ˜𝑥 to the meta-policy 𝑃 . For each query 𝑖 , it analyzes the causal link between the current instruction 𝑃 (𝑡 ) and the corre-sponding expansion failure: 
+
+𝑔 (𝑖 ) 
+
+> 𝑃
+
+= ∇𝑃 ˜𝑥 𝑖 ≈ Γ
+
+
+
+𝑃 (𝑡 ) , 𝑥 𝑖 , ˜𝑥 𝑖 , 𝑔 ˜𝑥 
+
+
+
+. (5) Each meta-gradient diagnoses why 𝑃 (𝑡 ) failed to guide the enhancer (e.g., missing explicit requirements for structural equilibrium) and provides strategic suggestions for policy refinement. 
+
+4.3.2 Meta-Policy Evolution and Update ( Φ). The Meta-Policy Op-timizer ( Φ) refines 𝑃 via Textual Gradient Descent through a two-stage policy update procedure, using the meta-gradients produced by Γ.
+
+Gradient Aggregation. Each meta-gradient 𝑔 (𝑖 ) 
+
+> 𝑃
+
+is paired with its derivation context and combined into a single textual gradient descent input. This aggregation consolidates batch-level critiques into one update signal and mitigates conflicting sample-wise edits. 
+
+Discrete Policy Update. Φ rewrites 𝑃 (𝑡 ) in one step to obtain the refined meta-policy: 
+
+𝑃 (𝑡 +1) = Φ
+
+
+
+𝑃 (𝑡 ) ; {𝑔 (𝑖 ) 
+
+> 𝑃
+
+}𝐵 𝑖 =1
+
+
+
+. (6) The update is discrete: 𝑃 (𝑡 +1) is a revised natural-language instruc-tion rather than a continuous parameter change. Over successive iterations, 𝑃 gradually incorporates stronger physical constraints, including mechanistic justification and material consistency, which improves alignment across diverse scenarios. 
+
+## 5 Experiments 5.1 Experimental Setup 
+
+5.1.1 OmniPhys Taxonomy. Our benchmark, OmniPhys , comprises 
+
+𝑁 = 1,551 implicit prompts anchored to 14 PKPs from our PKG. As illustrated in Figure 3, samples are organized under three domains: 
+
+• Mechanics (55.8%): Covers fluid–structure interactions and force equilibrium, including density-driven buoyancy (solid– fluid, gas, and immiscible liquids), leverage, and pressure (in-cluding force-induced deformation and communicating vessels). 
+
+• Optics (24.5%): Evaluates ray and wave optics, including linear propagation, reflection, refraction, diffraction, and interference. OmniPhys: Knowledge-Graph-Driven Benchmarking and Collective Optimization for Physical Commonsense in Text-to-Image Generation KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea 
+
+Figure 5: Granular performance across 14 PKPs. Heatmaps show Joint Scores across Optics (left), Object Properties (center), and Mechanics (right). Darker shades represent higher consistency, highlighting systemic bottlenecks like Reflection and Leverage Principle across all architectures. Table 2: Performance of 12 T2I models on the OmniPhys bench-mark ( 𝑁 =1,551 implicit prompts). Scores are reported under the dual-path protocol (VQA, DCS, and Joint). The suffix (ep) denotes the model’s native prompt-enhancement configura-tion (expanded prompt) Model Cat. Params (B) VQA DCS Joint 
+
+SD 3.5 Large Diff 8 0.401 0.158 0.117 FLUX.1-dev Diff 12 0.391 0.140 0.111 HiDream-l1-Full Diff 17 0.387 0.153 0.118 Z-Image-Turbo Diff 6 0.449 0.204 0.156 Qwen-image Diff 27 0.377 0.167 0.131 Qwen-image (ep) Diff 27 0.513 0.220 0.176 JanusPro-7B UM 7 0.348 0.110 0.077 Emu3.5-Image UM 34 0.469 0.216 0.161 Lumina-Image 2.0 AR 2.6 0.371 0.131 0.102 Infinity AR 8 0.401 0.156 0.125 SeedDream-4.0 Closed – 0.514 0.277 0.219 Wan2.6-T2I Closed – 0.491 0.266 0.212 Wan2.6-T2I (ep) Closed – 0.578 0.348 0.272 Nano Banana Pro Closed – 0.572 0.402 0.337 
+
+Figure 6: Performance gains across physical domains. Grouped bar charts show Joint Score improvements of 
+
+OmniPrompt over baselines in Optics, Object Properties, and Mechanics. 
+
+• Object Properties (19.7%): Tests intrinsic material relations, including mass–volume–density consistency and phase change. 
+
+5.1.2 Evaluation Landscape: T2I Models. We benchmark our frame-work against 12 representative T2I models to ensure a robust cross-architecture assessment: 
+
+Figure 7: Granular knowledge point recovery on the JanusPro-7B backbone. This radar chart compares the align-ment of OmniPrompt , TextGrad, and CoT-Aug across 14 PKPs. 
+
+• Open Source : We select models representing three syn-thesis paradigms: Diffusion-based (FLUX.1-dev [ 18 ], SD-3.5-Large [ 7 ], Z-Image-Turbo [ 29 ], HiDream-I1-Full [ 2 ], and Qwen-image [31]), Unified Multimodal (JanusPro-7B [4], Emu3.5-Image [ 6]), and Autoregressive (Infinity-8B [ 12 ], Lumina-Image-2.0 [25]). 
+
+• Closed source : We include three leading commercial en-gines, Wan2.6-T2I [ 30 ], SeedDream-4.0 [ 5 ], and Gemini 3 Pro Image [ 11 ] (“Nano Banana Pro”) to represent the industrial upper bound of generative performance. 
+
+5.1.3 Baseline Configurations. We establish three baselines to iso-late the performance gains from our collective optimization strat-egy: 
+
+• Raw Query : Direct generation using original implicit prompts 
+
+𝑥 from OmniPhys. 
+
+• Zero-shot CoT-Aug (CoT-Aug) : Enhancing prompts 𝑥 us-ing the initial meta-policy 𝑃 (0) without any iterative updates. 
+
+• Instance-level Optimization (TextGrad) : An iterative baseline where the meta-policy is updated using indepen-dent, sample-wise gradients. 
+
+5.1.4 Implementation Details. 
+
+Models and optimization targets. We use GPT-4o (2024-11-20) [ 21 ]as the prompt enhancer, TextGrad backward engine, and meta-policy optimizer; Gemini-2.5-Pro [ 28 ] as the physics-aware multi-modal evaluator. To assess cross-model transfer, evolved policies are evaluated on FLUX.1-dev [ 18 ], JanusPro-7B, and Lumina-Image-2.0 [25]. KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea Yajing Xu et al. 
+
+Data splits and training pool. OmniPhys contains 1,551 prompts in total. For experiments, we use a PKP-balanced subset of 1,387 prompts (train/val/test = 274/274/839; ratio 1:1:3), obtained by down-sampling diffraction of light from 224 to 60. Meta-policy optimiza-tion runs on a fixed pool of 37 training prompts ( ∼2–3 per PKP); validation and test are reserved for rollback and final reporting. 
+
+Evaluation and optimization protocol. During training, E pro-vides DCS-only feedback on the 37 prompt pool; validation and test use the full OmniPhys Dual-Path protocol. Each query uses 
+
+𝐾 = 4 generated images. TextGrad updates are triggered every 𝐵 
+
+accumulated queries; we study 𝐵 ∈ { 2, 4, 6, 8, 10 , 12 }. After each update, the candidate policy is validated on the full validation split; we revert to the previous best policy if the Joint Score does not improve, and stop after 5 consecutive failures (patience = 5, up to 5 epochs). An example of End-to-end illustration ( 𝐵 = 2, 𝐾 = 4) is found in the Appendix E. 
+
+## 5.2 Benchmarking Results on OmniPhys 
+
+Table 2 evaluates 12 T2I models on the full OmniPhys (𝑁 =1,551 )using VQA, DCS, and Joint scores. We observe a persistent gap where VQA scores significantly exceed DCS scores , suggesting that models can pass binary visual probes via simple heuristics but struggle to satisfy the finer descriptive consistency constraints required by DCS. Consequently, we adopt the Joint Score as the primary metric to mitigate this evaluation bias. Overall scores re-main relatively low even for strong systems, which is consistent with the strict all-or-nothing Joint criterion on implicit physical queries. By synthesizing the macro trends from Table 2 with the PKP-level heatmaps in Figure 5, we derive three key observations regarding the current T2I landscape: 
+
+Frontier Models and Domain-Specific Limits. Closed-source mod-els (e.g., Nano Banana Pro , Wan2.6-T2I (ep) ) achieve the strongest overall performance in physical alignment. However, this superior-ity is highly domain-specific. As shown in Figure 5, while commer-cial models excel in Pressure (> 0.60 ), they encounter a persistent bottleneck in Optics , where even top-tier industrial engines achieve near-zero scores on PKPs such as Reflection of light .
+
+Limited Gains from Model Scale. Increased parameter size does not guarantee a breakthrough in physical reasoning. Large-scale models like Emu3.5 (34B) show no transformative advantage over mid-sized counterparts. Scaling primarily improves “texture-based” physics (e.g., material surfaces) but fails on PKPs requiring global mechanical constraints, such as Leverage Principle , which exhibit consistently low scores across models. This confirms that raw ca-pacity cannot substitute for explicit structural priors in prompt formulation. 
+
+Prompt Expansion as a Material Catalyst. Prompt expansion ef-fectively unlocks latent potential by providing explicit physical context. Significant gains are observed in Object Properties PKPs (e.g., Melt , Object properties–mass and density ), as evidenced by the performance leap from Wan2.6-T2I to its enhanced version 
+
+(ep) . These detailed descriptions of volume and state changes help bridge the gap between abstract semantic intent and physical visual synthesis. However, expansion offers minimal improvement on 
+
+Table 3: Main results of OmniPrompt across T2I backbones. Evaluated on the PKP-balanced split. Backbone Model Strategy VQA DCS Joint                                     
+
+> FLUX.1-dev Raw Query 0.389 0.132 0.110 CoT-Aug 0.478 0.252 0.205 TextGrad 0.465 0.260 0.209
+> OmniPrompt (Ours) 0.478 0.281 0.221
+> JanusPro-7B Raw Query 0.333 0.100 0.071 CoT-Aug 0.499 0.305 0.230 TextGrad 0.522 0.321 0.244
+> OmniPrompt (Ours) 0.523 0.322 0.254
+> Lumina-Image 2.0 Raw Query 0.365 0.126 0.102 CoT-Aug 0.465 0.243 0.200 TextGrad 0.469 0.234 0.189
+> OmniPrompt (Ours) 0.472 0.266 0.214
+
+logic-intensive Optics PKPs, supporting our motivation to optimize meta-policies for reasoning-oriented enhancement. 
+
+## 5.3 Effectiveness of OmniPrompt 
+
+Table 3 and Figure 6 summarize the performance of OmniPrompt 
+
+across three representative T2I architectures. By benchmarking against Raw Query , CoT-Aug , and TextGrad , we evaluate the meta-policy’s efficacy in addressing complex physical constraints. 
+
+Optimization Dynamics and Stability. OmniPrompt consistently establishes the highest performance ceiling among compared meth-ods, achieving Joint Scores of 0.221, 0.254, and 0.214 for FLUX.1-dev, JanusPro-7B, and Lumina-Image-2.0, respectively. Comparison with TextGrad highlights the benefit of batch-merged optimization. While single-query, instance-level backward passes are prone to such gradient hallucinations, OmniPrompt aggregates per-query feedback over 𝐵 queries before updating 𝑃 , yielding batch-level diagnostics that are less sensitive to seed- and query-local noise (Appendix D). This robustness is particularly evident on Lumina-Image-2.0, where TextGrad’s sample-wise sensitivity causes it to underperform even the simpler CoT-Aug baseline. 
+
+Physical State Manifestation. Structured physical descriptions (CoT-Aug) significantly improve DCS scores compared to raw queries, notably surging from 0.100 to 0.305 on JanusPro-7B. This suggests that explicit descriptive consistency constraints provide a neces-sary foundation for models to move from simple object recognition toward physically checkable execution. OmniPrompt further refines these descriptions through meta-policy evolution, yielding more consistent manifestations of force and material interactions. 
+
+Domain-Specific Knowledge Recovery. As shown in Figures 6 and 7, the evolved meta-policy is particularly effective on Me-chanics and Object Properties PKPs. OmniPrompt successfully improves challenging cases such as Leverage Principle and Pressure-communicator , which simple text expansion fails to resolve. For material-centric PKPs, it guides the model toward more verifiable vi-sual evidence, such as puddle formation for Melt or clearer volume– density relations for mass–density PKPs. While Reflection of light 
+
+remains difficult, we observe meaningful progress on other Optics OmniPhys: Knowledge-Graph-Driven Benchmarking and Collective Optimization for Physical Commonsense in Text-to-Image Generation KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea 
+
+Figure 8: Cross-Model Policy Generalization. Results show-ing the transfer of meta-policies evolved on open-source backbones to closed-source engines. Table 4: Human evaluation of VQA-DCS probe quality and VLM scoring alignment. For 50 randomly sampled VQA-DCS probes, three physics-trained annotators assessed four crite-ria (validity rates and Gwet’s AC1 coefficients are shown). For 200 generated images, we report the human-VLM agreement rate and inter-annotator reliability (Gwet’s AC1). Evaluation aspect Validity / Agree. Gwet’s AC1 VQA-DCS probes (N=50) 
+
+VQA focus & corr. 98.0% 0.896 DCS physical corr. 96.0% 0.892 DCS visual feas. 96.0% 0.892 VQA-DCS sem. cons. 100.0% 0.986 
+
+Image labeling (N=200) 
+
+Human-VLM agreement 80.0% —Inter-annotator agree. 65.8% (3-way) 0.637 PKPs, including Refraction of light and Diffraction of light , after instruction refinement for visual displacement and fringe patterns. 
+
+## 5.4 Human Evaluation 
+
+To validate the reliability of our automated evaluation pipeline and address concerns about evaluator bias, we conducted a human study with three physics-trained annotators. First, we randomly selected 50 LLM-generated VQA–DCS probe pairs anchored to PKG PKPs and evaluated each on four binary criteria: (i) VQA focus & correctness : whether the VQA question targets the core physical phenomenon and its answer is physically correct; (ii) DCS phys-ical correctness : whether the descriptive consistency statement conforms to established physical laws; (iii) DCS visual feasibility :whether the described state can be unambiguously observed in a static 2D image; and (iv) VQA–DCS consistency : whether the VQA question and the DCS description refer to the same underlying physical state. Second, we assessed the alignment between VLM scoring and human judgment on 200 generated images (50 prompts 
+
+× 4 images from FLUX.1-dev). As shown in Table 4, all four probe criteria achieved high validity rates (96%–100%) with substantial to almost perfect inter-annotator agreement (Gwet’s AC1: 0.892–0.986). On the 200 generated images, the VLM agreed with human majority at 80.0%, and overall anno-tator consensus was moderate-to-substantial (AC1=0.637). These results confirm the physical soundness of our benchmark probes and the reliability of VLM-based scoring. 
+
+## 5.5 Robustness and Generalization 
+
+We evaluate the stability and generalizability of our framework by analyzing optimization trajectories and cross-model transferability. 
+
+Collective Feedback and Stability. As evidenced in our sensitivity study over batch size 𝐵 ∈ { 2, 4, 6, 8, 10 , 12 }, OmniPrompt main-tains a robust performance plateau for JanusPro-7B (0.239–0.254), whereas instance-level TextGrad optimization exhibits volatile fluc-tuations. This stability is primarily attributed to batch-level collec-tive feedback: linguistic gradients are derived only after merging 
+
+𝐵 per-query buffers, which aggregates batch-level linguistic gradi-ents to filter stochastic image artifacts and surface shared physical misconceptions. A comparative diagnostic trace of TextGrad versus OmniPrompt gradients is provided in Appendix D. 
+
+Cross-Model Policy Generalization. We assess the transferability of evolved policies to unseen closed-source engines. As illustrated in Figure 8, meta-policies developed on open-source backbones yield consistent performance gains across diverse targets. Notably, SeedDream-4.0 achieves a 45.7% relative gain in Joint Score when guided by the Lumina-evolved policy. The fact that policies from various backbones yield uniformly high gains suggests that our op-timization captures transferable physical reasoning patterns rather than backbone-specific wording alone. These results support the use of the evolved meta-policy as a physics-aware prompt enhance-ment across diverse generative paradigms. 
+
+## 6 Conclusion 
+
+This paper introduces OmniPhys , a benchmark grounded in a PKG to diagnose reasoning deficits in T2I models. Our evaluation reveals systemic bottlenecks in structural and optical consistency, where models prioritize statistical pixel correlations over physical laws. To address these failures, we propose OmniPrompt , an iterative framework that distills collective feedback to evolve robust and "physics-aware" meta-policies. Experimental results demonstrate that our approach significantly enhances physical alignment and generalizes across diverse generative backbones. 
+
+## Acknowledgments 
+
+This work is funded by National Natural Science Foundation of China (NSFCU23B2055/NSFC62306276), New Generation Artifi-cial Intelligence-National Science and Technology Major Project 2030 (2025ZD0122800), Yongjiang Talent Introduction Programme (2022A-238-G), and Fundamental Research Funds for the Central Universities (226-2023-00138). This work was supported by Ant Group. 
+
+## References  
+
+> [1] Jingkun An, Yinghao Zhu, Zongjian Li, Enshen Zhou, Haoran Feng, Xijie Huang, Bohua Chen, Yemin Shi, and Chengwei Pan. 2025. AGFSync: Leveraging AI-Generated Feedback for Preference Optimization in Text-to-Image Generation. In
+> AAAI-25, Sponsored by the Association for the Advancement of Artificial Intelligence, February 25 - March 4, 2025, Philadelphia, PA, USA , Toby Walsh, Julie Shah, and Zico Kolter (Eds.). AAAI Press, 1746–1754. doi:10.1609/AAAI.V39I2.32168
+
+KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea Yajing Xu et al. 
+
+[2] Qi Cai, Jingwen Chen, Yang Chen, Yehao Li, Fuchen Long, Yingwei Pan, Zhaofan Qiu, Yiheng Zhang, Fengbin Gao, Peihan Xu, Yimeng Wang, Kai Yu, Wenxuan Chen, Ziwei Feng, Zijian Gong, Jianzhuang Pan, Yi Peng, Rui Tian, Siyu Wang, Bo Zhao, Ting Yao, and Tao Mei. 2025. HiDream-I1: A High-Efficient Image Genera-tive Foundation Model with Sparse Diffusion Transformer. CoRR abs/2505.22705 (2025). arXiv:2505.22705 doi:10.48550/ARXIV.2505.22705 [3] Kaijie Chen, Zihao Lin, Zhiyang Xu, Ying Shen, Yuguang Yao, Joy Rimchala, Jiaxin Zhang, and Lifu Huang. 2025. R2I-Bench: Benchmarking Reasoning-Driven Text-to-Image Generation. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing, EMNLP 2025, Suzhou, China, November 4-9, 2025 , Christos Christodoulopoulos, Tanmoy Chakraborty, Carolyn Rose, and Violet Peng (Eds.). Association for Computational Linguistics, 12595–12630. doi:10.18653/V1/2025.EMNLP-MAIN.636 [4] Xiaokang Chen, Zhiyu Wu, Xingchao Liu, Zizheng Pan, Wen Liu, Zhenda Xie, Xingkai Yu, and Chong Ruan. 2025. Janus-Pro: Unified Multimodal Understanding and Generation with Data and Model Scaling. CoRR abs/2501.17811 (2025). arXiv:2501.17811 doi:10.48550/ARXIV.2501.17811 [5] Yunpeng Chen, Yu Gao, Lixue Gong, Meng Guo, Qiushan Guo, Zhiyao Guo, Xi-aoxia Hou, Weilin Huang, Yixuan Huang, Xiaowen Jian, Huafeng Kuang, Zhichao Lai, Fanshi Li, Liang Li, Xiaochen Lian, Chao Liao, Liyang Liu, Wei Liu, Yanzuo Lu, Zhengxiong Luo, Tongtong Ou, Guang Shi, Yichun Shi, Shiqi Sun, Yu Tian, Zhi Tian, Peng Wang, Rui Wang, Xun Wang, Ye Wang, Guofeng Wu, Jie Wu, Wenxu Wu, Yonghui Wu, Xin Xia, Xuefeng Xiao, Shuang Xu, Xin Yan, Ceyuan Yang, Jianchao Yang, Zhonghua Zhai, Chenlin Zhang, Heng Zhang, Qi Zhang, Xinyu Zhang, Yuwei Zhang, Shijia Zhao, Wenliang Zhao, and Wenjia Zhu. 2025. Seedream 4.0: Toward Next-generation Multimodal Image Generation. CoRR 
+
+abs/2509.20427 (2025). arXiv:2509.20427 doi:10.48550/ARXIV.2509.20427 [6] Yufeng Cui, Honghao Chen, Haoge Deng, Xu Huang, Xinghang Li, Jirong Liu, Yang Liu, Zhuoyan Luo, Jinsheng Wang, Wenxuan Wang, Yueze Wang, Chengyuan Wang, Fan Zhang, Yingli Zhao, Ting Pan, Xianduo Li, Zecheng Hao, Wenxuan Ma, Zhuo Chen, Yulong Ao, Tiejun Huang, Zhongyuan Wang, and Xinlong Wang. 2025. Emu3.5: Native Multimodal Models are World Learners. 
+
+CoRR abs/2510.26583 (2025). arXiv:2510.26583 doi:10.48550/ARXIV.2510.26583 [7] Patrick Esser, Sumith Kulal, Andreas Blattmann, Rahim Entezari, Jonas Müller, Harry Saini, Yam Levi, Dominik Lorenz, Axel Sauer, Frederic Boesel, Dustin Podell, Tim Dockhorn, Zion English, and Robin Rombach. 2024. Scaling Rectified Flow Transformers for High-Resolution Image Synthesis. In Forty-first International Conference on Machine Learning, ICML 2024, Vienna, Austria, July 21-27, 2024 .OpenReview.net. https://openreview.net/forum?id=FPnUhsQJ5B [8] Ying Fan, Olivia Watkins, Yuqing Du, Hao Liu, Moonkyung Ryu, Craig Boutilier, Pieter Abbeel, Mohammad Ghavamzadeh, Kangwook Lee, and Kimin Lee. 2023. DPOK: Reinforcement Learning for Fine-tuning Text-to-Image Diffusion Models. 
+
+CoRR abs/2305.16381 (2023). arXiv:2305.16381 doi:10.48550/ARXIV.2305.16381 [9] Weixi Feng, Xuehai He, Tsu-Jui Fu, Varun Jampani, Arjun R. Akula, Pradyumna Narayana, Sugato Basu, Xin Eric Wang, and William Yang Wang. 2023. Training-Free Structured Diffusion Guidance for Compositional Text-to-Image Synthesis. In The Eleventh International Conference on Learning Representations, ICLR 2023, Kigali, Rwanda, May 1-5, 2023 . OpenReview.net. https://openreview.net/forum? id=PUIqjT4rzq7 [10] Xingyu Fu, Muyu He, Yujie Lu, William Yang Wang, and Dan Roth. 2024. Commonsense-T2I Challenge: Can Text-to-Image Generation Models Under-stand Commonsense? CoRR abs/2406.07546 (2024). arXiv:2406.07546 doi:10. 48550/ARXIV.2406.07546 [11] Google DeepMind. 2025. Gemini 3 Pro Image (Nano Banana Pro). https://ai. google.dev/gemini-api/docs/gemini-3. Accessed: 2026-02-09. [12] Jian Han, Jinlai Liu, Yi Jiang, Bin Yan, Yuqi Zhang, Zehuan Yuan, Bingyue Peng, and Xiaobing Liu. 2025. Infinity: Scaling Bitwise AutoRegressive Modeling for High-Resolution Image Synthesis. In IEEE/CVF Conference on Computer Vision and Pattern Recognition, CVPR 2025, Nashville, TN, USA, June 11-15, 2025 . Computer Vision Foundation / IEEE, 15733–15744. doi:10.1109/CVPR52734.2025.01467 [13] Yaru Hao, Zewen Chi, Li Dong, and Furu Wei. 2023. Optimizing Prompts for Text-to-Image Generation. In Advances in Neural Information Process-ing Systems 36: Annual Conference on Neural Information Processing Sys-tems 2023, NeurIPS 2023, New Orleans, LA, USA, December 10 - 16, 2023 ,Alice Oh, Tristan Naumann, Amir Globerson, Kate Saenko, Moritz Hardt, and Sergey Levine (Eds.). http://papers.nips.cc/paper_files/paper/2023/hash/ d346d91999074dd8d6073d4c3b13733b-Abstract-Conference.html [14] Nailei Hei, Qianyu Guo, Zihao Wang, Yan Wang, Haofen Wang, and Wenqiang Zhang. 2024. A User-Friendly Framework for Generating Model-Preferred Prompts in Text-to-Image Synthesis. In Thirty-Eighth AAAI Conference on Artifi-cial Intelligence, AAAI 2024, Thirty-Sixth Conference on Innovative Applications of Artificial Intelligence, IAAI 2024, Fourteenth Symposium on Educational Advances in Artificial Intelligence, EAAI 2014, February 20-27, 2024, Vancouver, Canada ,Michael J. Wooldridge, Jennifer G. Dy, and Sriraam Natarajan (Eds.). AAAI Press, 2139–2147. doi:10.1609/AAAI.V38I3.27986 [15] Jack Hessel, Ari Holtzman, Maxwell Forbes, Ronan Le Bras, and Yejin Choi. 2021. CLIPScore: A Reference-free Evaluation Metric for Image Captioning. In EMNLP (1) . Association for Computational Linguistics, 7514–7528. [16] Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter. 2017. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium. In NIPS . 6626–6637. [17] Kaiyi Huang, Kaiyue Sun, Enze Xie, Zhenguo Li, and Xihui Liu. 2023. T2I-CompBench: A Comprehensive Benchmark for Open-world Composi-tional Text-to-image Generation. In Advances in Neural Information Process-ing Systems 36: Annual Conference on Neural Information Processing Sys-tems 2023, NeurIPS 2023, New Orleans, LA, USA, December 10 - 16, 2023 ,Alice Oh, Tristan Naumann, Amir Globerson, Kate Saenko, Moritz Hardt, and Sergey Levine (Eds.). http://papers.nips.cc/paper_files/paper/2023/hash/ f8ad010cdd9143dbb0e9308c093aff24-Abstract-Datasets_and_Benchmarks.html [18] Black Forest Labs, Stephen Batifol, Andreas Blattmann, Frederic Boesel, Saksham Consul, Cyril Diagne, Tim Dockhorn, Jack English, Zion English, Patrick Esser, Sumith Kulal, Kyle Lacey, Yam Levi, Cheng Li, Dominik Lorenz, Jonas Müller, Dustin Podell, Robin Rombach, Harry Saini, Axel Sauer, and Luke Smith. 2025. FLUX.1 Kontext: Flow Matching for In-Context Image Generation and Editing in Latent Space. CoRR abs/2506.15742 (2025). arXiv:2506.15742 doi:10.48550/ARXIV. 2506.15742 [19] Fanqing Meng, Wenqi Shao, Lixin Luo, Yahong Wang, Yiran Chen, Quanfeng Lu, Yue Yang, Tianshuo Yang, Kaipeng Zhang, Yu Qiao, and Ping Luo. 2024. PhyBench: A Physical Commonsense Benchmark for Evaluating Text-to-Image Models. CoRR 
+
+abs/2406.11802 (2024). arXiv:2406.11802 doi:10.48550/ARXIV.2406.11802 [20] Yuwei Niu, Munan Ning, Mengren Zheng, Bin Lin, Peng Jin, Jiaqi Liao, Kun-Peng Ning, Bin Zhu, and Li Yuan. 2025. WISE: A World Knowledge-Informed Semantic Evaluation for Text-to-Image Generation. CoRR abs/2503.07265 (2025). arXiv:2503.07265 doi:10.48550/ARXIV.2503.07265 [21] OpenAI. 2024. GPT-4o API Documentation (Snapshot: 2024-11-20). https:// platform.openai.com/docs/models/gpt-4o. [22] J.Z. Pan, G. Vetere, J.M. Gomez-Perez, and H. Wu (Eds.). 2017. Exploiting Linked Data and Knowledge Graphs for Large Organisations . Springer. [23] Jeff Z. Pan, Simon Razniewski, Jan-Christoph Kalo, Sneha Singhania, Jiaoyan Chen, Stefan Dietze, Hajira Jabeen, Janna Omeliyanenko, Wen Zhang, Matteo Lissandrini, Russa Biswas, Gerard de Melo, Angela Bonifati, Edlira Vakaj, Mauro Dragoni, and Damien Graux. 2023. Large Language Models and Knowledge Graphs: Opportunities and Challenges. Transactions on Graph Data and Knowl-edge (2023), 1–38. [24] Reid Pryzant, Dan Iter, Jerry Li, Yin Tat Lee, Chenguang Zhu, and Michael Zeng. 2023. Automatic Prompt Optimization with "Gradient Descent" and Beam Search. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, EMNLP 2023, Singapore, December 6-10, 2023 , Houda Bouamor, Juan Pino, and Kalika Bali (Eds.). Association for Computational Linguistics, 7957–7968. doi:10.18653/V1/2023.EMNLP-MAIN.494 [25] Qi Qin, Le Zhuo, Yi Xin, Ruoyi Du, Zhen Li, Bin Fu, Yiting Lu, Jiakang Yuan, Xinyue Li, Dongyang Liu, Xiangyang Zhu, Manyuan Zhang, Will Beddow, Er-wann Millon, Victor Perez, Wenhai Wang, Conghui He, Bo Zhang, Xiaohong Liu, Hongsheng Li, Yu Qiao, Chang Xu, and Peng Gao. 2025. Lumina-Image 2.0: A Unified and Efficient Image Generative Framework. CoRR abs/2503.21758 (2025). arXiv:2503.21758 doi:10.48550/ARXIV.2503.21758 [26] Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Björn Ommer. 2022. High-Resolution Image Synthesis with Latent Diffusion Models. In 
+
+IEEE/CVF Conference on Computer Vision and Pattern Recognition, CVPR 2022, New Orleans, LA, USA, June 18-24, 2022 . IEEE, 10674–10685. doi:10.1109/CVPR52688. 2022.01042 [27] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily L. Denton, Seyed Kamyar Seyed Ghasemipour, Raphael Gontijo Lopes, Burcu Karagol Ayan, Tim Salimans, Jonathan Ho, David J. Fleet, and Mo-hammad Norouzi. 2022. Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding. In Advances in Neural Information Process-ing Systems 35: Annual Conference on Neural Information Processing Sys-tems 2022, NeurIPS 2022, New Orleans, LA, USA, November 28 - Decem-ber 9, 2022 , Sanmi Koyejo, S. Mohamed, A. Agarwal, Danielle Belgrave, K. Cho, and A. Oh (Eds.). http://papers.nips.cc/paper_files/paper/2022/hash/ ec795aeadae0b7d230fa35cbaf04c041-Abstract-Conference.html [28] Gemini Team. 2025. Gemini 2.5: Pushing the Frontier with Advanced Reasoning, Multimodality, Long Context, and Next Generation Agentic Capabilities. CoRR 
+
+abs/2507.06261 (2025). arXiv:2507.06261 doi:10.48550/ARXIV.2507.06261 [29] Z.-Image Team, Huanqia Cai, Sihan Cao, Ruoyi Du, Peng Gao, Steven C. H. Hoi, Zhaohui Hou, Shijie Huang, Dengyang Jiang, Xin Jin, Liangchen Li, Zhen Li, Zhong-Yu Li, David Liu, Dongyang Liu, Junhan Shi, Qilong Wu, Feng Yu, Chi Zhang, Shifeng Zhang, and Shilin Zhou. 2025. Z-Image: An Efficient Image Generation Foundation Model with Single-Stream Diffusion Transformer. CoRR 
+
+abs/2511.22699 (2025). arXiv:2511.22699 doi:10.48550/ARXIV.2511.22699 [30] Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di Chen, Feiwu Yu, Haiming Zhao, Jianxiao Yang, Jianyuan Zeng, Jiayu Wang, Jingfeng Zhang, Jingren Zhou, Jinkai Wang, Jixuan Chen, Kai Zhu, Kang Zhao, Keyu Yan, Lianghua Huang, Xiaofeng Meng, Ningyi Zhang, Pandeng Li, Pingyu Wu, Ruihang Chu, Ruili Feng, Shiwei Zhang, Siyang Sun, Tao Fang, Tianxing Wang, Tianyi Gui, Tingyu Weng, Tong Shen, Wei Lin, Wei Wang, Wei Wang, Wenmeng Zhou, Wente OmniPhys: Knowledge-Graph-Driven Benchmarking and Collective Optimization for Physical Commonsense in Text-to-Image Generation KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea 
+
+Wang, Wenting Shen, Wenyuan Yu, Xianzhong Shi, Xiaoming Huang, Xin Xu, Yan Kou, Yangyu Lv, Yifei Li, Yijing Liu, Yiming Wang, Yingya Zhang, Yitong Huang, Yong Li, You Wu, Yu Liu, Yulin Pan, Yun Zheng, Yuntao Hong, Yupeng Shi, Yutong Feng, Zeyinzi Jiang, Zhen Han, Zhi-Fan Wu, and Ziyu Liu. 2025. Wan: Open and Advanced Large-Scale Video Generative Models. CoRR abs/2503.20314 (2025). arXiv:2503.20314 doi:10.48550/ARXIV.2503.20314 [31] Chenfei Wu, Jiahao Li, Jingren Zhou, Junyang Lin, Kaiyuan Gao, Kun Yan, Sheng-ming Yin, Shuai Bai, Xiao Xu, Yilei Chen, Yuxiang Chen, Zecheng Tang, Zekai Zhang, Zhengyi Wang, An Yang, Bowen Yu, Chen Cheng, Dayiheng Liu, Deqing Li, Hang Zhang, Hao Meng, Hu Wei, Jingyuan Ni, Kai Chen, Kuan Cao, Liang Peng, Lin Qu, Minggang Wu, Peng Wang, Shuting Yu, Tingkun Wen, Wensen Feng, Xiaoxiao Xu, Yi Wang, Yichang Zhang, Yongqiang Zhu, Yujia Wu, Yuxuan Cai, and Zenan Liu. 2025. Qwen-Image Technical Report. CoRR abs/2508.02324 (2025). arXiv:2508.02324 doi:10.48550/ARXIV.2508.02324 [32] Jiazheng Xu, Xiao Liu, Yuchen Wu, Yuxuan Tong, Qinkai Li, Ming Ding, Jie Tang, and Yuxiao Dong. 2023. ImageReward: Learning and Evaluating Hu-man Preferences for Text-to-Image Generation. In Advances in Neural Infor-mation Processing Systems 36: Annual Conference on Neural Information Pro-cessing Systems 2023, NeurIPS 2023, New Orleans, LA, USA, December 10 - 16, 2023 , Alice Oh, Tristan Naumann, Amir Globerson, Kate Saenko, Moritz Hardt, and Sergey Levine (Eds.). http://papers.nips.cc/paper_files/paper/2023/hash/ 33646ef0ed554145eab65f6250fab0c9-Abstract-Conference.html [33] Cilin Yan, Jingyun Wang, Lin Zhang, Ruihui Zhao, Xiaopu Wu, Kai Xiong, Qing-song Liu, Guoliang Kang, and Yangyang Kang. 2025. Efficient and Accurate Prompt Optimization: the Benefit of Memory in Exemplar-Guided Reflection. In Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), ACL 2025, Vienna, Austria, July 27 - Au-gust 1, 2025 , Wanxiang Che, Joyce Nabende, Ekaterina Shutova, and Moham-mad Taher Pilehvar (Eds.). Association for Computational Linguistics, 753–779. https://aclanthology.org/2025.acl-long.37/ [34] Chengrun Yang, Xuezhi Wang, Yifeng Lu, Hanxiao Liu, Quoc V. Le, Denny Zhou, and Xinyun Chen. 2024. Large Language Models as Optimizers. In The Twelfth International Conference on Learning Representations, ICLR 2024, Vienna, Austria, May 7-11, 2024 . OpenReview.net. https://openreview.net/forum?id= Bb4VGOWELI [35] Daoan Zhang, Che Jiang, Ruoshi Xu, Biaoxiang Chen, Zijian Jin, Yutian Lu, Jianguo Zhang, Liang Yong, Jiebo Luo, and Shengda Luo. 2025. WorldGenBench: A World-Knowledge-Integrated Benchmark for Reasoning-Driven Text-to-Image Generation. CoRR abs/2505.01490 (2025). arXiv:2505.01490 doi:10.48550/ARXIV. 2505.01490 
+
+## A Implementation of System Prompt Initialization 
+
+System Prompt Specification for L
+
+Role: You are a prompt expander for image generation. Given a simple input prompt, your job is to expand it into a rich, physically plausible, visually descriptive sentence that guides image models to generate accurate and realistic scenes. 
+
+Step 1: Physical Reasoning 
+
+Reason about the implicit physical states of objects in the prompt. Think through what physical principles are involved and how they influence the object’s behavior. 
+
+Step 2: Generate the expanded descriptive text. 
+
+Combine the original prompt with the physical insights from Step 1 to produce a rich, coherent, and visually specific descrip-tion—optimized for image generation. Finally, output your expanded text in JSON format: {"ex-panded_text": "The final expanded text for image generation — descriptive, concrete, and physics-aware."} 
+
+## B Stability Analysis of Collective Linguistic Gradients 
+
+As illustrated in Figure 9, the scale of collective feedback 𝐵 plays a critical role in balancing the precision of linguistic gradients with computational efficiency. In Figure 9 (a), we observe that JanusPro-7B is highly robust to variations in collective scale, suggesting a relatively smooth optimization landscape. In contrast, FLUX.1-dev exhibits a sharp performance drop outside the 𝐵 ∈ [ 6, 10 ] range, indicating that large-scale Diffusion Transformers (DiTs) are more susceptible to the density of meta-level linguistic gradients. Further-more, Figure 9 (b) highlights the anti-noise capability inherent in our collective feedback mechanism; while instance-level methods (e.g., TextGrad) suffer from stochastic oscillations triggered by out-lier images in the T2I manifold, OmniPrompt leverages cross-sample consensus to maintain a steady upward trajectory toward physical alignment. 
+
+## C Illustration of PKG-Guided Coupled Probe Generation 
+
+For each implicit query 𝑥 , OmniPhys retrieves the anchor PKP’s atomic physical statements and prompts an LLM with a visual-physical template, and PKP-aligned few-shot demonstrations. The LLM selects 𝑛 scene-specific physical state points and co-generates coupled units 𝑢 𝑖 = (VQA 𝑖 , DCS 𝑖 )𝑛 𝑖 =1, where DCS denotes a Descrip-tive Consistency Statement (Section 3.2). 
+
+Case: Reflection in a Flat Mirror (Reflection of light ,
+
+𝑛 = 2)
+
+Input. 𝑥 : “A cylindrical candle sits on a table facing a wall-mounted mirror.” Atomic statements: equal incidence/re-flection angles; object–image equidistance to the mirror. 
+
+Generated units. 
+
+• Unit 1 (size): VQA: “Is the reflected candle smaller than the actual candle?” Ans: no; DCS: same height and width in object and reflection. 
+
+• Unit 2 (distance): VQA: “Is the reflection closer to the mirror than the candle?” Ans: no; DCS: reflection is equidistant behind the mirror; candle-to-reflection distance is twice the object-to-mirror distance. 
+
+Figure 9: Sensitivity analysis and optimization dynamics. (a) Joint Scores across different batch sizes 𝐵 . (b) Step-wise validation trajectories comparing our collective optimization against TextGrad. 
+
+## D Diagnostic Trace of Evolved Linguistic Gradients 
+
+Table 5 contrasts the gradient-update behavior of TextGrad versus 
+
+OmniPrompt . Both runs share the same initial meta-policy 𝑃 (0) ,KDD ’26, August 09–13, 2026, Jeju Island, Republic of Korea Yajing Xu et al. 
+
+Table 5: TextGrad vs. OmniPrompt: representative linguistic-gradient traces (excerpts abbreviated from our logs). 
+
+TextGrad (single-query backward) OmniPrompt ( 𝐵 = 2 batch merge) Stage 1: 𝑔 ˜𝑥 Stage 1: unified 𝑔 ˜𝑥 
+
+Excerpt: “The primary issue is a dense plastic bag floating in mid-air, violating gravity and buoyancy. . . suggest tethering, external support, or a lighter-than-air fill.” 
+
+Excerpt: One merged critique spans the batch: (i) “inflatable toy floating in mid-air without visible support or buoyancy mechanism”; (ii) vague melt/heat wording that should specify concrete transformation (e.g., softening, bubbling). 
+
+Analysis: Feedback is tied to one query’s dominant failure at a time. Analysis: Batch merge produces one 𝑔 ˜𝑥 covering multiple failure modes across the two queries. 
+
+Stage 2: 𝑔 𝑃 Stage 2: {𝑔 (𝑖 ) 
+
+> 𝑃
+
+}2
+
+> 𝑖 =1
+
+Excerpt: “Add explicit emphasis on material and physical properties. . . describe material state (gas/liquid/solid) and container interaction.” 
+
+Excerpt: “Strengthen Reason-before-Synthesis. . . ensure physical laws hold and state the mechanism (e.g., buoyancy, suspension).” (two branch critiques aggregated by Φ.) 
+
+Analysis: Meta-gradient mainly adds content-level directives. Analysis: Meta-gradient targets the reasoning procedure in 𝑃 .
+
+Stage 3: 𝑃 (𝑡 +1) Stage 3: 𝑃 (𝑡 +1)
+
+Excerpt: 5 steps: analyze states → environment → generate → verify →
+
+refine iteratively. 
+
+Excerpt: 8 steps: physical principles → material → environment →
+
+cause–effect → visual cues → edge cases → review → JSON. 
+
+Analysis: Policy grows via appended rules after query-local failures. Analysis: Policy becomes longer but more explicitly staged (principles, materials, validation). 
+
+evaluator E, and ensemble size 𝐾 = 4, and include the same gas-density queries (e.g., a helium-filled inflatable toy in CO 2 and an SF 6-filled plastic bag in H 2). 
+
+TextGrad performs single-query backward: each query is evalu-ated and backpropagated separately, producing query-local 𝑔 ˜𝑥 and 
+
+𝑔 𝑃 before Φ rewrites 𝑃 . OmniPrompt performs batch-merged back-ward with 𝐵 = 2: forward passes accumulate two queries, merged 
+
+( ˜𝑥 𝑖 , 𝑒 𝑖 ) yield one unified 𝑔 ˜𝑥 , two branch-specific meta-gradients 
+
+{𝑔 (𝑖 ) 
+
+> 𝑃
+
+}2
+
+> 𝑖 =1
+
+, and a single Φ update. Stages 1–3 below denote 𝑔 ˜𝑥 , meta-gradients, and 𝑃 (𝑡 +1) (Eqs. 4–6). 
+
+## E End-to-End Illustration of OmniPrompt 
+
+This appendix walks through once OmniPrompt update with 
+
+𝐵 = 2 and 𝐾 = 4, complementing Section 4. External modules: G
+
+(JanusPro-7B), E (Gemini-2.5-Pro); graph participants: L, 𝑃 , Γ, Φ
+
+(GPT-4o). Full instruction templates and the complete training log are in our code release. 
+
+Fixed templates (abbreviated). Meta-policy 𝑃 (0) . Reasoning-before-Synthesis: infer physical states, then emit JSON {"expanded_text": ...} . Evaluator E (training). VLM compares each image against the query’s pre-generated DCS probes ; output format: Score: [0|1]. Reason: [one sentence] . Per-image scores are aggregated into 
+
+𝑒 𝑖 = ⟨ ¯𝑆 𝑖 , R𝑖 ⟩ (Eq. 3). Γ and Φ. Standard TextGrad string-function backward and Textual Gradient Descent; batch loss binds É 
+
+> 𝑖
+
+˜𝑥 𝑖 to merged feedback, yielding one 𝑔 ˜𝑥 and {𝑔 (𝑖 ) 
+
+> 𝑃
+
+}𝐵 𝑖 =1, then one rewrite of 𝑃 .
+
+## E.1 Running Example ( 𝐵 = 2, 𝐾 = 4)
+
+Stage Module Output 
+
+I L 𝑖 = 1: 𝑥 1 (helium toy in sealed CO 2
+
+room) → ˜𝑥 1.
+
+𝑖 = 2: 𝑥 2 (SF 6 bag in sealed H 2 room) 
+
+→ ˜𝑥 2.II G, E For each 𝑖 ∈ {1, 2}: sample 𝐾 = 4
+
+images and form 𝑒 𝑖 = ⟨ ¯𝑆 𝑖 , R𝑖 ⟩ (e.g., 
+
+¯𝑆 1 = 0.50 with unsupported-hovering violations). III loss node Batch merge: É2 
+
+> 𝑖 =1
+
+˜𝑥 𝑖 and É2 
+
+> 𝑖 =1
+
+𝑒 𝑖 
+
+→ TextGrad root. IV Γ One unified 𝑔 ˜𝑥 ; two meta-gradients 
+
+𝑔 (1) 
+
+> 𝑃
+
+, 𝑔 (2) 
+
+> 𝑃
+
+(one per query branch). V Φ Aggregate {𝑔 (1) 
+
+> 𝑃
+
+, 𝑔 (2) 
+
+> 𝑃
+
+} → single up-date 𝑃 (𝑡 +1) .
