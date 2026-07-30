@@ -6,40 +6,38 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-29
-- 运行时间：2026-07-29 21:08:11 UTC
+- 最新运行日期：2026-07-30
+- 运行时间：2026-07-30 21:11:57 UTC
 - 运行状态：成功
 - 本次总论文数：6
-- 精读区：2
-- 速读区：4
+- 精读区：3
+- 速读区：3
 
 ### 今日简报（AI）
-今天精读了两篇视频扩散模型高分论文，速读涉及AIGC检测器攻击、医学图像修补及分数到分布近似理论。  
-最值得关注的是Self Gradient Forcing实现原生长视频外推和TRaM-VSR通过重要性感知token路由与合并完成一步视频超分，均为视频生成效率突破。  
-建议优先深入阅读这两篇精读论文；若涉及AIGC安全或医学影像，可同时浏览TIGA攻击方法和医学图像修补综述。
-- 详情：[/202607/29/README](/202607/29/README)
+今日聚焦扩散模型在图像与视频生成中的忠实性与时序控制，共精读两篇9分论文。最值得看锚定引导提升文生图忠实度及时序先验解耦技术，两者均直接优化生成质量。建议优先精读这两篇，再速览LumaGuide等免训练增强方法。
+- 详情：[/202607/30/README](/202607/30/README)
 
 ### 精读区论文标签
-1. [Self Gradient Forcing: Native Long Video Extrapolation](/202607/29/2607.20368v1-self-gradient-forcing-native-long-video-extrapolation)  
+1. [Anchoring and Steering Diffusion: Enhancing the Faithfulness of Text-to-Image Generation at Inference Time](/202607/30/2607.26647v1-anchoring-and-steering-diffusion-enhancing-the-faithfulness-of-text-to-image-generation-at-inference-time)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：通过噪声和轨迹精炼提升文本到图像生成保真度的免训练推理方法
+2. [TPD: Temporal Prior Decoupling for Text-to-Video Diffusion Models](/202607/30/2607.26706v1-tpd-temporal-prior-decoupling-for-text-to-video-diffusion-models)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：文本到视频扩散模型的免训练框架，解决时序先验抑制问题
+3. [FreqForcing: Autoregressive Long Video Generation via Spectral Self-Anchoring](/202607/30/2607.27110v1-freqforcing-autoregressive-long-video-generation-via-spectral-self-anchoring)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：基于扩散模型的视频生成，需要训练
-2. [TRaM-VSR: Importance-Aware Token Routing and Merging for One-Step Diffusion Video Super-Resolution](/202607/29/2607.22231v1-tram-vsr-importance-aware-token-routing-and-merging-for-one-step-diffusion-video-super-resolution)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：面向一步扩散视频超分辨率的免训练令牌路由与合并
+   evidence：通过频谱自锚定的免训练长视频生成
 
 ### 速读区论文标签
-1. [TIGA: Trajectory-Injected Generative Attack against Black-box AIGC Detectors](/202607/29/2607.25894v1-tiga-trajectory-injected-generative-attack-against-black-box-aigc-detectors)  
+1. [LumaGuide: Distribution Shaping for Training-Free HDR Generation in Diffusion Models](/202607/30/2607.26237v1-lumaguide-distribution-shaping-for-training-free-hdr-generation-in-diffusion-models)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：扩散模型图像生成的免训练采样优化
-2. [Diffusion Models in Medical Image Inpainting: Challenges, Solution Taxonomy, and Future Directions](/202607/29/2607.21904v1-diffusion-models-in-medical-image-inpainting-challenges-solution-taxonomy-and-future-directions)  
+   evidence：扩散模型中免训练分布塑造用于HDR图像生成
+2. [Dual Inversion for Text-to-Image Diffusion Models: From Both Prompt and Noise Perspectives](/202607/30/2607.26735v1-dual-inversion-for-text-to-image-diffusion-models-from-both-prompt-and-noise-perspectives)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：针对文本到图像扩散模型的免训练提示和噪声反转
+3. [FreeShadow: Training-Free Shadow Removal via Illumination Transfer and Selective Content Preservation in Diffusion Models](/202607/30/2607.26715v1-freeshadow-training-free-shadow-removal-via-illumination-transfer-and-selective-content-preservation-in-diffusion-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：扩散模型在医学图像生成中的综述
-3. [From Score Approximation to Distribution Approximation in Score-Based Diffusion Models](/202607/29/2607.22199v1-from-score-approximation-to-distribution-approximation-in-score-based-diffusion-models)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：基于分数的扩散模型理论分析
-4. [OmniPhys: Knowledge-Graph-Driven Benchmarking and Collective Optimization for Physical Commonsense in Text-to-Image Generation](/202607/29/2607.25641v1-omniphys-knowledge-graph-driven-benchmarking-and-collective-optimization-for-physical-commonsense-in-text-to-image-generation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：文本到图像扩散模型的提示优化，免训练优化
+   evidence：基于扩散先验的免训练阴影去除
 
 
 <div class="dpr-home-promo-card">

@@ -1,0 +1,249 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-30T21:06:30.828725+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2607.26647v1",
+      "source": "arxiv",
+      "title": "Anchoring and Steering Diffusion: Enhancing the Faithfulness of Text-to-Image Generation at Inference Time",
+      "abstract": "While text-to-image diffusion models achieve impressive visual quality, they frequently struggle to maintain precise alignment with complex compositional prompts. An effective strategy is to improve the inference process of diffusion models, thereby better leveraging their pretrained priors to address misalignment. Existing training-free methods can be divided into two categories. The first category focuses on improving the randomly sampled initial noise, either performing costly search over noise pools or manipulating sampled noise without ensuring reliable semantic injection. The second category focuses on improving the denoising trajectory, lacking explicit mechanisms to timely diagnose and correct semantic errors. we propose \\textbf{AnchorSteer}, a training-free framework that exerts fine-grained control over \\textbf{both initialization} and \\textbf{the denoising trajectory}. AnchorSteer consists of two synergistic components: \\textbf{Semantic Anchoring} replaces uninformative Gaussian noise with text-aligned initializations via CLIP-based prior extraction and a novel Latent-Prior Score Distillation Sampling (LP-SDS) objective. Specifically, LP-SDS distills CLIP visual priors into the knowledge distribution of diffusion models, mitigating the domain gap between CLIP-based priors and diffusion-based priors. \\textbf{Reflective Steering} transforms passive denoising with an active Think--Erase--Retouch loop that enables mid-generation self-correction. It leverages VLM-based diagnosis to detect semantic deviations and performs targeted latent refinement to suppress erroneous content and recover missing attributes. Extensive experiments on GenEval and T2I-CompBench++ demonstrate that AnchorSteer consistently outperforms existing baselines in text--image alignment while preserving high visual quality.",
+      "authors": [
+        "Xinyi Wang",
+        "Yuyang Huang",
+        "Yalin Su",
+        "Pengcheng Luan",
+        "Tao Zhang",
+        "Feiming Wei",
+        "Wenxian Yu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-29T09:08:57+00:00",
+      "link": "https://arxiv.org/pdf/2607.26647v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free inference-time method to improve text-to-image faithfulness via noise and trajectory refinement",
+      "llm_evidence_cn": "通过噪声和轨迹精炼提升文本到图像生成保真度的免训练推理方法",
+      "llm_evidence": "通过噪声和轨迹精炼提升文本到图像生成保真度的免训练推理方法",
+      "canonical_evidence": "通过噪声和轨迹精炼提升文本到图像生成保真度的免训练推理方法",
+      "llm_tldr_en": "Proposes Anchoring and Steering Diffusion, a training-free method that enhances compositional fidelity by improving initial noise and denoising trajectory.",
+      "llm_tldr_cn": "文本到图像扩散模型难以精确遵从复杂提示，现有免训练方法存在语义注入不可靠或缺乏纠错机制的问题。本文提出锚定与引导扩散方法，在推理时同时优化初始噪声和去噪轨迹：通过锚定确保语义正确注入，通过引导及时修正偏离。实验表明该方法显著提升了提示对齐度，无需额外训练即可实现更忠实的生成。",
+      "llm_tldr": "文本到图像扩散模型难以精确遵从复杂提示，现有免训练方法存在语义注入不可靠或缺乏纠错机制的问题。本文提出锚定与引导扩散方法，在推理时同时优化初始噪声和去噪轨迹：通过锚定确保语义正确注入，通过引导及时修正偏离。实验表明该方法显著提升了提示对齐度，无需额外训练即可实现更忠实的生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.26706v1",
+      "source": "arxiv",
+      "title": "TPD: Temporal Prior Decoupling for Text-to-Video Diffusion Models",
+      "abstract": "Text-to-video diffusion models generate temporally coherent content from natural language, yet when a prompt describes an early scene that persists while a new event emerges on top of it---such as \"a tall sandcastle standing on a beach where a wave rushes in and washes it away\"---generation frequently fails to realize the late-segment event in the corresponding frames. We identify this failure as Temporal Prior Suppression (TPS): the dominant prior of the early segment captures the cross-attention trajectory across the temporal axis and suppresses the guidance signal needed for late-segment realization, a competing tendency existing guidance mechanisms do not model. We introduce Temporal Prior Decoupling (TPD), a training-free framework that restores suppressed late-segment signals during diffusion sampling. TPD constructs a temporal counterfactual by conditioning on the early segment alone, and defines the discrepancy between the full-prompt and counterfactual trajectories as a suppressed signal direction. Rather than removing this direction as in prior subtractive projection methods, TPD restores it through a frame-selective lower-bound constraint resolved jointly over diffusion timestep and video frame, realizing the suppressed event in the late frames without disrupting early-segment coherence: where prior work enforces upper-bound feasibility to remove unwanted semantics, TPD enforces lower-bound feasibility to guarantee suppressed-signal contribution. TPD runs entirely within standard diffusion sampling without retraining, and is defined purely in classifier-free guidance space, making it backbone-agnostic by construction. Experiments show that TPD significantly improves late-concept realization while preserving temporal coherence and visual fidelity, and that the targeted suppression recurs across distinct text-to-video backbones.",
+      "authors": [
+        "Taewon Kang",
+        "Matthias Zwicker"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-29T09:52:20+00:00",
+      "link": "https://arxiv.org/pdf/2607.26706v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free framework for text-to-video diffusion that solves temporal prior suppression",
+      "llm_evidence_cn": "文本到视频扩散模型的免训练框架，解决时序先验抑制问题",
+      "llm_evidence": "文本到视频扩散模型的免训练框架，解决时序先验抑制问题",
+      "canonical_evidence": "文本到视频扩散模型的免训练框架，解决时序先验抑制问题",
+      "llm_tldr_en": "TPD introduces a training-free method to decouple temporal prior in text-to-video diffusion, improving late-segment event generation without any additional training.",
+      "llm_tldr_cn": "文本到视频扩散模型在生成包含持续性场景和突发事件的视频时，后期事件常被压制。TPD提出免训练时序先验解耦框架，通过重新平衡交叉注意力的时间轨迹来恢复后期事件信号。无需训练即可显著提升视频生成质量，尤其处理复杂时序事件。",
+      "llm_tldr": "文本到视频扩散模型在生成包含持续性场景和突发事件的视频时，后期事件常被压制。TPD提出免训练时序先验解耦框架，通过重新平衡交叉注意力的时间轨迹来恢复后期事件信号。无需训练即可显著提升视频生成质量，尤其处理复杂时序事件。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.27110v1",
+      "source": "arxiv",
+      "title": "FreqForcing: Autoregressive Long Video Generation via Spectral Self-Anchoring",
+      "abstract": "Autoregressive video diffusion models enable real-time streaming video generation. However, errors introduced during self-rollout accumulate over long horizons, manifesting as color drift, motion stagnation, and eventual visual collapse. In this paper, we characterize this phenomenon from a frequency-domain perspective: error accumulation appears as a pronounced energy drift in the low-frequency bands. We further investigate the effectiveness of attention sink in the frequency domain, and find that it improves the video quality by alleviating the spectral energy drift to some extent, but cannot fully resolve it. Motivated by the above analysis, we propose FreqForcing, a training-free framework that addresses error accumulation in long-video generation via Spectral Self-Anchoring (SSA). The proposed SSA leverages the low-frequency components of anchor attention to maintain long-horizon visual stability, while preserving dynamic motion through the high-frequency components of local attention. Our FreqForcing extends Self-Forcing pretrained on 5s clips to two-minute generation, achieving 24x extrapolation. Extensive experiments show that FreqForcing outperforms existing training-free methods quantitatively and qualitatively while remaining competitive with representative training-based approaches.",
+      "authors": [
+        "Jiatong Li",
+        "Leo Liang",
+        "Linghe Kong",
+        "Yulun Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-29T16:38:47+00:00",
+      "link": "https://arxiv.org/pdf/2607.27110v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free long video generation via spectral self-anchoring",
+      "llm_evidence_cn": "通过频谱自锚定的免训练长视频生成",
+      "llm_evidence": "通过频谱自锚定的免训练长视频生成",
+      "canonical_evidence": "通过频谱自锚定的免训练长视频生成",
+      "llm_tldr_en": "FreqForcing proposes a training-free framework that addresses error accumulation in autoregressive video diffusion models by anchoring the frequency spectrum during generation, achieving stable long video generation without additional training.",
+      "llm_tldr_cn": "自回归视频扩散模型在长时生成中面临误差累积导致的色彩漂移和崩溃问题。本文提出免训练框架FreqForcing，通过频谱自锚定抑制低频频谱漂移，无需额外训练即可稳定生成长视频。实验表明该方法有效缓解误差累积，显著提升了视频质量和时间一致性，为无需训练的扩散模型长视频生成提供了高效方案。",
+      "llm_tldr": "自回归视频扩散模型在长时生成中面临误差累积导致的色彩漂移和崩溃问题。本文提出免训练框架FreqForcing，通过频谱自锚定抑制低频频谱漂移，无需额外训练即可稳定生成长视频。实验表明该方法有效缓解误差累积，显著提升了视频质量和时间一致性，为无需训练的扩散模型长视频生成提供了高效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.26237v1",
+      "source": "arxiv",
+      "title": "LumaGuide: Distribution Shaping for Training-Free HDR Generation in Diffusion Models",
+      "abstract": "Pretrained diffusion models generate realistic images but are constrained by the statistical biases of their training data, limiting their ability to produce high dynamic range (HDR) content. In this work, we introduce LumaGuide, a training-free framework for distribution shaping in diffusion models. Instead of modifying model parameters, LumaGuide steers the sampling process to match target feature distributions via differentiable energy-based guidance. We instantiate this framework for HDR generation by controlling luminance distributions in perceptually uniform PQ space. Our results show that aligning luminance histograms is sufficient to induce HDR-consistent behavior, including coherent highlights and preserved shadow detail, while maintaining semantic fidelity. Beyond HDR, LumaGuide enables flexible specification of target distributions through data-driven presets, reference images, or text-driven predictors, and extends naturally to video generation with temporal consistency constraints. More broadly, our work demonstrates that controllable generation can be achieved by directly shaping output distributions at sampling time, without retraining diffusion models.",
+      "authors": [
+        "Bowen Chen",
+        "Shreshth Saini",
+        "Balu Adsumilli",
+        "Alan C. Bovik"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-28T20:17:11+00:00",
+      "link": "https://arxiv.org/pdf/2607.26237v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free distribution shaping for HDR image generation in diffusion models",
+      "llm_evidence_cn": "扩散模型中免训练分布塑造用于HDR图像生成",
+      "llm_evidence": "扩散模型中免训练分布塑造用于HDR图像生成",
+      "canonical_evidence": "扩散模型中免训练分布塑造用于HDR图像生成",
+      "llm_tldr_en": "LumaGuide introduces a training-free framework that steers diffusion sampling to match target luminance distributions, enabling HDR image generation without retraining.",
+      "llm_tldr_cn": "预训练扩散模型受限于训练数据的统计偏差，难以生成高动态范围（HDR）内容。LumaGuide提出免训练框架，通过可微分能量引导塑造采样分布，直接控制PQ空间中的亮度分布以生成HDR效果。无需修改模型参数或重新训练，即可生成具有一致高光和阴影细节的HDR图像。",
+      "llm_tldr": "预训练扩散模型受限于训练数据的统计偏差，难以生成高动态范围（HDR）内容。LumaGuide提出免训练框架，通过可微分能量引导塑造采样分布，直接控制PQ空间中的亮度分布以生成HDR效果。无需修改模型参数或重新训练，即可生成具有一致高光和阴影细节的HDR图像。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.26715v1",
+      "source": "arxiv",
+      "title": "FreeShadow: Training-Free Shadow Removal via Illumination Transfer and Selective Content Preservation in Diffusion Models",
+      "abstract": "Existing supervised and unsupervised shadow removal methods often suffer from limited generalization due to the insufficient diversity of available training datasets, while zero-shot methods tend to produce artifacts and require time-consuming test-time optimization. To address these issues, we propose FreeShadow, a training-free shadow removal method built upon pretrained diffusion models, which exploits diffusion priors for shadow removal without any training or optimization. For illumination recovery, we propose an illumination transfer attention (ITA), which re-weights the self-attention maps in diffusion model to transfer illumination cues from non-shadow to shadow regions. For content preservation, we analyze the effects of illumination variations on self-attention maps and latent high-frequency features in diffusion model, and selectively preserve illumination-invariant components to maintain content fidelity while suppressing residual shadows. We further propose local texture-preserving relighting (LTPR) to mitigate local texture misalignment caused by VAE compression. Extensive experiments demonstrate that our method achieves strong generalization and produces realistic shadow-free images.",
+      "authors": [
+        "Yinan Wang",
+        "Yan Huang",
+        "Yong Xu",
+        "Patrick Le Callet"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-29T10:05:36+00:00",
+      "link": "https://arxiv.org/pdf/2607.26715v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free shadow removal using diffusion priors",
+      "llm_evidence_cn": "基于扩散先验的免训练阴影去除",
+      "llm_evidence": "基于扩散先验的免训练阴影去除",
+      "canonical_evidence": "基于扩散先验的免训练阴影去除",
+      "llm_tldr_en": "FreeShadow removes shadows without training by re-weighting self-attention in pretrained diffusion models to transfer illumination from non-shadow to shadow regions.",
+      "llm_tldr_cn": "现有阴影去除方法泛化差或需要测试时优化。本文提出免训练方法FreeShadow，通过光照迁移注意力机制在预训练扩散模型中重加权自注意力图，将非阴影区域的光照线索转移到阴影区域，无需任何训练或优化，实现了高质量阴影去除。",
+      "llm_tldr": "现有阴影去除方法泛化差或需要测试时优化。本文提出免训练方法FreeShadow，通过光照迁移注意力机制在预训练扩散模型中重加权自注意力图，将非阴影区域的光照线索转移到阴影区域，无需任何训练或优化，实现了高质量阴影去除。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.26735v1",
+      "source": "arxiv",
+      "title": "Dual Inversion for Text-to-Image Diffusion Models: From Both Prompt and Noise Perspectives",
+      "abstract": "Prompt inversion, as a typical reverse engineering technique, enables text-to-image (T2I) diffusion models to generate the desired target images without extensive prompt engineering. However, existing prompt inversion methods suffer from significant limitations: (1) gradient-based methods are unstable and uninterpretable, often resulting in generated images with severe artifacts; (2) gradient-free methods yield human-readable prompts but still fail to preserve visual fidelity due to the lack of fine-grained detail alignment. We contend that the limitations stem from treating prompt inversion as a sufficient condition for reverse engineering, ignoring the critical role of the latent noise that encodes structural information. Consequently, we propose Dualin (Dual inversion), a two-stage method that jointly recovers both the semantic prompt and latent noise of the target image. In the first stage, we integrate vision-language model, CLIP and large language model to invert a faithful, human-interpretable hard prompt. In the second stage, unconditional DDIM inversion reconstructs the exact latent noise of the target image, guaranteeing the consistency at the structural information level. Theoretically, we prove that the inverted noise enables flexible image editing without re-optimization. Extensive experiments on diverse datasets demonstrate that Dualin simultaneously generates high-quality inverted prompts and achieves state-of-the-art image fidelity. Additionally, Dualin can establish a robust foundation for the precise and controllable image editing.",
+      "authors": [
+        "Xiaolong Liu",
+        "Junjian Li",
+        "Yuan Xiao",
+        "Jiaqi Deng",
+        "Dayong Ye",
+        "Tianqing Zhu",
+        "Huan Huo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "published": "2026-07-29T10:29:07+00:00",
+      "link": "https://arxiv.org/pdf/2607.26735v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free prompt and noise inversion for T2I diffusion models",
+      "llm_evidence_cn": "针对文本到图像扩散模型的免训练提示和噪声反转",
+      "llm_evidence": "针对文本到图像扩散模型的免训练提示和噪声反转",
+      "canonical_evidence": "针对文本到图像扩散模型的免训练提示和噪声反转",
+      "llm_tldr_en": "Dual Inversion proposes a training-free method that simultaneously optimizes prompt embeddings and noise latents for text-to-image diffusion models, enabling high-fidelity generation without extensive prompt engineering.",
+      "llm_tldr_cn": "现有提示反转方法在文本到图像扩散模型中存在稳定性差或视觉保真度不足的问题。本文提出双反转方法，从提示和噪声两个角度联合优化，无需额外训练即可生成高质量图像。该方法通过平衡提示嵌入和噪声潜码的结构信息，显著提升了生成图像的细节保真度，为免训练采样优化提供了新思路。",
+      "llm_tldr": "现有提示反转方法在文本到图像扩散模型中存在稳定性差或视觉保真度不足的问题。本文提出双反转方法，从提示和噪声两个角度联合优化，无需额外训练即可生成高质量图像。该方法通过平衡提示嵌入和噪声潜码的结构信息，显著提升了生成图像的细节保真度，为免训练采样优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
