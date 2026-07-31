@@ -1,0 +1,502 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-31T20:48:29.606761+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2607.22241v2",
+      "source": "arxiv",
+      "title": "AgentHOI: Multi-Agent Reasoning for Human-Object-Interaction Video Generation via Implicit Representation Alignment",
+      "abstract": "Recent advances in video diffusion models have spurred interest in human-object interaction (HOI) video generation, which demands fine-grained control over interaction logic beyond single-subject animation. However, existing HOI methods rely heavily on explicit motion control, limiting scalability and generalization across diverse objects and interactions. In this study, we propose AgentHOI, a text-driven HOI video generation following a thinking-before-generation framework that bridges the gap between high-level textual intent and physical execution through multi-agent reasoning over perception, interaction, and motion planning. Building upon the generated interaction plans, we further strengthen text-driven motion understanding. We introduce an implicit text-motion alignment strategy that distills text-to-motion priors into the video diffusion model, enabling robust HOI synthesis without explicit motion inputs at inference. Experiments show that AgentHOI significantly improves interaction naturalness, object appearance preservation, and adherence to complex textual instructions across challenging object-centric scenarios such as wearing and riding. The code is available at https://github.com/bone-11/agenthoi.",
+      "authors": [
+        "Ziyao Huang",
+        "Shunkai Li",
+        "Juan Cao",
+        "Chenyu Li",
+        "Youliang Zhang",
+        "Zixiang Zhou",
+        "Cong Wang",
+        "Yuan Zhou",
+        "Qinglin Lu",
+        "Fan Tang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-24T12:17:57+00:00",
+      "link": "https://arxiv.org/pdf/2607.22241v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Text-driven human-object-interaction video generation using video diffusion models",
+      "llm_evidence_cn": "基于视频扩散模型的文本驱动人-物交互视频生成",
+      "llm_evidence": "基于视频扩散模型的文本驱动人-物交互视频生成",
+      "canonical_evidence": "基于视频扩散模型的文本驱动人-物交互视频生成",
+      "llm_tldr_en": "Proposes AgentHOI, a text-driven HOI video generation framework using multi-agent reasoning to bridge textual intent and physical execution, improving scalability and generalization without explicit motion control.",
+      "llm_tldr_cn": "针对现有方法依赖显式运动控制而难以扩展到多样物体和交互的问题，提出AgentHOI，采用先思考后生成的多智能体推理框架，通过感知、交互和运动规划智能体生成交互计划，并利用隐式表示对齐增强文本驱动的人-物交互视频生成。实验表明该方法在多样交互场景下具有更好的扩展性和泛化能力。",
+      "llm_tldr": "针对现有方法依赖显式运动控制而难以扩展到多样物体和交互的问题，提出AgentHOI，采用先思考后生成的多智能体推理框架，通过感知、交互和运动规划智能体生成交互计划，并利用隐式表示对齐增强文本驱动的人-物交互视频生成。实验表明该方法在多样交互场景下具有更好的扩展性和泛化能力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.27842v1",
+      "source": "arxiv",
+      "title": "FeatFix: Reuse What You Verify through Local Exact-Feature Correction for Faster Cached Diffusion Inference",
+      "abstract": "Diffusion models are widely used to generate high-quality images and videos, but their iterative denoising process remains computationally intensive. A growing class of training-free accelerators reduces this cost by reusing cached intermediate features or forecasting future ones. To control draft drift, these methods sometimes compute an exact block feature for verification. Yet the resulting exact feature is typically used only to measure discrepancy or guide a later decision and is then discarded. We find that this previously computed feature can instead be reused for correction. Forwarding it at the verification site resets the local draft residual and reduces downstream feature error. Based on this observation, we introduce FeatFix, a local exact-feature correction method for cached diffusion inference. FeatFix operates at a fixed sparse set of layer--timestep sites. At each selected site, it replaces the complete draft block output with the exact output computed from the same incoming state, avoiding token- or channel-level partial replacement and full-timestep recomputation. Experiments across four image and video backbones show that FeatFix consistently accelerates generation, achieving a speedup of up to $6.70\\times$ over Vanilla while maintaining competitive output quality.",
+      "authors": [
+        "Hanshuai Cui",
+        "Zhiqing Tang",
+        "Zhi Yao",
+        "Qianli Ma",
+        "Fanshuai Meng",
+        "Weijia Jia"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-30T08:23:52+00:00",
+      "link": "https://arxiv.org/pdf/2607.27842v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free cached inference acceleration for diffusion models",
+      "llm_evidence_cn": "针对扩散模型的免训练缓存推理加速",
+      "llm_evidence": "针对扩散模型的免训练缓存推理加速",
+      "canonical_evidence": "针对扩散模型的免训练缓存推理加速",
+      "llm_tldr_en": "FeatFix is a training-free accelerator that reuses the exact block feature computed during verification to correct local draft residuals in cached diffusion inference, reducing downstream feature error and improving speed.",
+      "llm_tldr_cn": "扩散模型推理中的迭代去噪计算开销大，免训练加速方法常通过缓存中间特征减少计算。论文发现验证阶段计算的精确块特征通常只用于衡量差异然后被丢弃，提出FeatFix在验证点重新前向该特征以重置局部草稿残差，从而减小下游特征误差。这一免训练修正策略能在保持质量的同时提升缓存扩散推断的速度，为高效扩散生成提供了新的训练无关优化手段。",
+      "llm_tldr": "扩散模型推理中的迭代去噪计算开销大，免训练加速方法常通过缓存中间特征减少计算。论文发现验证阶段计算的精确块特征通常只用于衡量差异然后被丢弃，提出FeatFix在验证点重新前向该特征以重置局部草稿残差，从而减小下游特征误差。这一免训练修正策略能在保持质量的同时提升缓存扩散推断的速度，为高效扩散生成提供了新的训练无关优化手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.23159v2",
+      "source": "arxiv",
+      "title": "CachedSearch: Training-Free Cached Exploration for Test-Time Search in Video Diffusion",
+      "abstract": "Test-time search lets small video diffusion models rival larger ones, but costs 2-10x more. All candidates are fully denoised, although most are discarded. Training-free caching makes each rollout 2-3x faster at near-lossless quality. Composition is safe only if lossy caching preserves verifier rankings. We present the first study of whether caching corrupts candidate ranking in video test-time search. On Wan2.1-T2V-1.3B with an adaptive caching wrapper (~2x per-candidate speedup), ImageReward scores seed-matched cached and full rollouts. Median per-prompt Spearman rank correlation is 0.905, with 72% top-1 agreement on the VBench suite. VBench-2.0 replicates this result on a harder suite. Recomputing the cached winner at full compute retains 90-94% of the full-search gain. Errors cluster among near-tied candidates, making corruption self-limiting. This finding leads to CachedSearch. It explores every candidate with aggressive caching, then re-generates only the winner at full compute. At N=8, it captures 94.7% of best-of-N's gain at 63% of the cost. Capture rises with width. At matched budget, it searches twice as wide for 38% more gain. The result holds from 1.3B-14B across six models and four families: Wan, LTX, CogVideoX, and Hunyuan. Wan2.1-14B matches the 1.3B model's fidelity. Mid-trajectory pruning multiplies the exploration saving to 3.11x at 88.6% capture. Ports to other model families require recalibrating a single parameter, showing that fidelity tracks architecture rather than parameter count. CachedSearch is training-free, verifier-agnostic, and orthogonal to the search algorithm, making it a plug-in multiplier for test-time scaling.",
+      "authors": [
+        "Shreshth Saini",
+        "Neil Birkbeck",
+        "Yilin Wang",
+        "Balu Adsumilli",
+        "Alan C. Bovik"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CV",
+        "cs.MM"
+      ],
+      "published": "2026-07-25T11:30:59+00:00",
+      "link": "https://arxiv.org/pdf/2607.23159v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free caching to speed up test-time search for video diffusion models",
+      "llm_evidence_cn": "免训练缓存加速视频扩散模型的测试时搜索",
+      "llm_evidence": "免训练缓存加速视频扩散模型的测试时搜索",
+      "canonical_evidence": "免训练缓存加速视频扩散模型的测试时搜索",
+      "llm_tldr_en": "CachedSearch studies whether training-free caching corrupts candidate ranking in video diffusion test-time search, showing high rank correlation and 72% top-1 agreement while doubling per-candidate speed.",
+      "llm_tldr_cn": "视频扩散模型的测试时搜索性能强但计算成本高。本文首次研究训练-free缓存是否会影响候选排名，在Wan2.1-T2V-1.3B上结合自适应缓存，每个候选加速约2倍。结果表明中位Spearman相关系数为0.905，VBench上72%的top-1一致，验证了缓存组合的安全性，并提出了重算获胜者的策略。",
+      "llm_tldr": "视频扩散模型的测试时搜索性能强但计算成本高。本文首次研究训练-free缓存是否会影响候选排名，在Wan2.1-T2V-1.3B上结合自适应缓存，每个候选加速约2倍。结果表明中位Spearman相关系数为0.905，VBench上72%的top-1一致，验证了缓存组合的安全性，并提出了重算获胜者的策略。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.26285v1",
+      "source": "arxiv",
+      "title": "Denoising growth complexity: Data geometry and certified schedules for diffusion sampling",
+      "abstract": "Two central challenges in diffusion-based sampling are the theoretical one of understanding their remarkable effectiveness even in high-dimensional settings, and the practical one of designing algorithms with certified performance guarantees. We show that these questions are intimately connected via the \\emph{denoising growth complexity} ($\\mathsf{DGC}$). It is a geometric measure defined by a log-time weighted integral of the derivative of the denoising mean-squared error along the Gaussian heat flow. We show how the $\\mathsf{DGC}$ increments lead to a simple and explicit bound on the KL error of an Euler scheme applied to the stochastic innovations representation. The bound is local along the path: each step is controlled by the corresponding $\\mathsf{DGC}$ increment and its relative stepsize. This structure allows us to derive KL sampling guarantees for optimized stepsize schedules, both in a simpler single-block setting and in a more refined $K$-block setting. The $\\mathsf{DGC}$ function has a natural martingale structure, which we exploit to develop fully data-certified versions of these algorithms. It also admits information-theoretic upper bounds in terms of covariance, rate distortion, metric entropy, and the Poincar'e constant, thereby recovering and sharpening a range of existing diffusion-sampling guarantees, as well as giving new results. In log heat-time, the fine partition limit is governed by an integral involving the square root of the $\\mathsf{DGC}$ density, whereas a single-block schedule depends on its ordinary integral. This comparison precisely characterizes when adaptation to data geometry yields substantial computational gains, including logarithmic-to-constant separations for simple Gaussian mixture models.",
+      "authors": [
+        "Martin J. Wainwright"
+      ],
+      "primary_category": "math.ST",
+      "categories": [
+        "math.ST",
+        "cs.LG",
+        "math.NA",
+        "stat.ML"
+      ],
+      "published": "2026-07-28T21:26:16+00:00",
+      "link": "https://arxiv.org/pdf/2607.26285v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Introduces denoising growth complexity to derive certified diffusion sampling schedules with explicit error bounds, directly relevant to training-free sampling optimization",
+      "llm_evidence_cn": "提出去噪增长复杂度以获得带显式误差界的认证扩散采样调度，直接关联免训练采样优化",
+      "llm_evidence": "提出去噪增长复杂度以获得带显式误差界的认证扩散采样调度，直接关联免训练采样优化",
+      "canonical_evidence": "提出去噪增长复杂度以获得带显式误差界的认证扩散采样调度，直接关联免训练采样优化",
+      "llm_tldr_en": "Proposes denoising growth complexity, a geometric measure that yields explicit per-step KL error bounds and certified sampling schedules for Euler schemes in diffusion generation.",
+      "llm_tldr_cn": "扩散采样的高效性和可认证精度是理论与实践上的双重挑战。本文提出去噪增长复杂度这一几何度量，通过对高斯热流下去噪均方误差的导数做对数时间加权积分，给出Euler格式KL误差的显式逐路径局部界。该结果可直接指导采样时间表的构建，使每一步误差受控，从而无需训练即可设计有性能保证的扩散采样调度。",
+      "llm_tldr": "扩散采样的高效性和可认证精度是理论与实践上的双重挑战。本文提出去噪增长复杂度这一几何度量，通过对高斯热流下去噪均方误差的导数做对数时间加权积分，给出Euler格式KL误差的显式逐路径局部界。该结果可直接指导采样时间表的构建，使每一步误差受控，从而无需训练即可设计有性能保证的扩散采样调度。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.27036v1",
+      "source": "arxiv",
+      "title": "Mitigating Compounding Error via Video Representation Regularization",
+      "abstract": "Video diffusion-based world models enable long autoregressive video generation for robotics, autonomous driving and simulation tasks, yet sliding-window autoregressive inference suffers from severe error accumulation that degrades frame quality over time. Although this phenomenon has been widely observed, the underlying mechanism of compounding error and how to achieve stable long-horizon generation remain largely unresolved. In this paper, we investigate the internal representation dynamics of video world models and discover that compounding error is tightly coupled with dimensional collapse of hidden representations. Specifically, the effective rank of model representations sharply decreases at the onset of generation drift, revealing a strong connection between representational degradation and long-term rollout instability. Furthermore, we find that pure training data scaling fails to boost model resistance to error drift, contradicting mainstream scaling paradigms. To address this problem, we propose video representation regularization, a lightweight training constraint that stabilizes latent representations and suppresses iterative error accumulation. Compared with Diffusion Forcing, our method achieves improvements from 38.65 to 55.56 and from 44.37 to 72.08 on the Aesthetic Quality and Imaging Quality metrics of VBench. Our work establishes the first connection between autoregressive video drifting and model internal representations, adopts erank as a quantitative metric for error accumulation, reveals counterintuitive scaling limitations for video world models, and presents a simple yet effective regularization strategy to improve long video generation robustness.",
+      "authors": [
+        "Taiye Chen",
+        "Qi Zhang",
+        "Yisen Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-29T15:29:39+00:00",
+      "link": "https://arxiv.org/pdf/2607.27036v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "addresses compounding error in video diffusion world models with representation regularization",
+      "llm_evidence_cn": "针对视频扩散世界模型的复合误差问题，引入表示正则化",
+      "llm_evidence": "针对视频扩散世界模型的复合误差问题，引入表示正则化",
+      "canonical_evidence": "针对视频扩散世界模型的复合误差问题，引入表示正则化",
+      "llm_tldr_en": "Discovers compounding error in video diffusion world models is tied to dimensional collapse of hidden representations, and proposes representation regularization to mitigate it for stable long-horizon generation.",
+      "llm_tldr_cn": "视频扩散世界模型在长时自回归推理中因误差累积导致帧质量下降，本文发现其与隐表示维度塌缩密切相关。在漂移发生时表示的有效秩急剧下降。基于此，提出视频表示正则化方法，通过抑制维度塌缩来稳定长时间生成。实验证明该方法能有效缓解复合误差，提升长时视频生成的稳定性。",
+      "llm_tldr": "视频扩散世界模型在长时自回归推理中因误差累积导致帧质量下降，本文发现其与隐表示维度塌缩密切相关。在漂移发生时表示的有效秩急剧下降。基于此，提出视频表示正则化方法，通过抑制维度塌缩来稳定长时间生成。实验证明该方法能有效缓解复合误差，提升长时视频生成的稳定性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.28611v1",
+      "source": "arxiv",
+      "title": "Chimera: Designing and Chinchilla-Scaling Hybrid Visual Diffusion Transformers",
+      "abstract": "Visual generation increasingly requires high-resolution images, long videos, and multimodal context, making the quadratic cost of full attention prohibitive. We introduce Chimera, a hybrid visual diffusion backbone with a principled scaling recipe. Chimera processes text, image, and video tokens in one raster-ordered stream without positional embeddings. It combines Kimi Delta Attention (KDA) for long-context state tracking with O(N) complexity, interleaved Multi-head Latent Attention (MLA) for direct global interaction, and modality-aware short convolutions for local spatiotemporal context. Sparse Mixture-of-Experts (MoE) layers expand capacity while controlling activated compute. To scale this heterogeneous architecture, we introduce HeteroP, a module-wise scheme that transfers hyperparameters across width and depth according to each tensor's functional fan-in and model depth. HeteroP yields a consistently tuned family used to fit Chinchilla-style compute-optimal laws for activated model size, training-token count, and image-video data ratio. Guided by these laws, we train an 11B-parameter Chimera with 2B activated parameters. Experiments show three results. First, measured by pretraining diffusion loss, the dense backbone is 1.7x as compute-efficient as a matched full-attention Wan-2.1 2B baseline, while the complete system reaches 7.3x. Second, without length-specific fine-tuning, Chimera extrapolates zero-shot from 5-second training clips to 30-second videos, with only 6.5% FID degradation in the last five seconds. Third, the fitted laws show that compute-optimal image pretraining divides compute nearly evenly between activated model size and training-token count, whereas video pretraining modestly favors model size at higher budgets. These results establish a foundation for designing and scaling efficient long-context diffusion architectures.",
+      "authors": [
+        "Chongjian Ge",
+        "Hanwen Jiang",
+        "Tianyu Wang",
+        "Jiuxiang Gu",
+        "Yiran Xu",
+        "Ziwen Chen",
+        "Shaoteng Liu",
+        "Jing Shi",
+        "Yicong Hong",
+        "Zefan Cai",
+        "Hailin Jin",
+        "Hao Tan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-30T17:58:02+00:00",
+      "link": "https://arxiv.org/pdf/2607.28611v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Hybrid visual diffusion transformer for image and video generation with efficient attention",
+      "llm_evidence_cn": "面向图像与视频生成的混合视觉扩散Transformer与高效注意力",
+      "llm_evidence": "面向图像与视频生成的混合视觉扩散Transformer与高效注意力",
+      "canonical_evidence": "面向图像与视频生成的混合视觉扩散Transformer与高效注意力",
+      "llm_tldr_en": "Chimera is a hybrid visual diffusion backbone combining linear-complexity state tracking, multi-head latent attention, and sparse MoE, with a scaling recipe for efficient high-res image and long video generation.",
+      "llm_tldr_cn": "高分辨率图像和长视频生成使全注意力的二次代价难以承受。本文提出混合视觉扩散骨干Chimera，将Kimi Delta注意力、多头部潜在注意力与模态感知短卷积串联，并通过稀疏MoE扩展容量。该架构在统一的栅格化token流中处理文本、图像和视频，无需位置编码，并配套了异质网络的伸缩方案。该方法旨在降低长上下文视觉生成的复杂度，同时保持全局交互能力，为多模态扩散基础模型提供可扩展设计。",
+      "llm_tldr": "高分辨率图像和长视频生成使全注意力的二次代价难以承受。本文提出混合视觉扩散骨干Chimera，将Kimi Delta注意力、多头部潜在注意力与模态感知短卷积串联，并通过稀疏MoE扩展容量。该架构在统一的栅格化token流中处理文本、图像和视频，无需位置编码，并配套了异质网络的伸缩方案。该方法旨在降低长上下文视觉生成的复杂度，同时保持全局交互能力，为多模态扩散基础模型提供可扩展设计。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.21174v1",
+      "source": "arxiv",
+      "title": "Decoupling Cross-Modality Manifold Discrepancy: Leveraging Visible Diffusion Priors for Infrared Super-Resolution",
+      "abstract": "Infrared image super-resolution (IISR) mitigates the limitations imposed by low spatial resolution. Existing methods have recognized that IISR should preserve consistency in global distribution and structural information while enhancing image clarity. However, these methods are either insufficient or overly intrusive, a problem that becomes even more pronounced in diffusion-based models. To address these issues, we propose a dual-path diffusion-based framework for IISR, termed Shift-IISR. The proposed method is designed to improve the consistency of IISR results while preserving the generative capacity of diffusion models. Specifically, we develop a Global Representation Modulation (GRM) module to extract modality-specific information from infrared imagery and guide the global distribution of the diffusion model toward the ground truth. In addition, we introduce a Local Structure Refinement (LSR) module to encourage the model to focus on structural information at each step of the iterative denoising process. Extensive experiments demonstrate that the proposed method effectively improves distributional and structural consistency while maintaining competitive super-resolution performance. The source code of the proposed Shift-IISR can be available at https://github.com/Assassink8/Shift-IISR.",
+      "authors": [
+        "Yunpeng Hua",
+        "Hongwei Yu",
+        "Jiawei Li",
+        "Qiankun Liu",
+        "Huimin Ma",
+        "Jiansheng Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-23T10:59:53+00:00",
+      "link": "https://arxiv.org/pdf/2607.21174v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Diffusion-based infrared image super-resolution framework, leveraging visible diffusion priors",
+      "llm_evidence_cn": "基于扩散的红外图像超分框架，利用可见光扩散先验",
+      "llm_evidence": "基于扩散的红外图像超分框架，利用可见光扩散先验",
+      "canonical_evidence": "基于扩散的红外图像超分框架，利用可见光扩散先验",
+      "llm_tldr_en": "This paper proposes Shift-IISR, a dual-path diffusion framework for infrared super-resolution, with global representation modulation to improve consistency while preserving the generative capacity of diffusion models.",
+      "llm_tldr_cn": "红外图像超分需同时保持全局分布、结构信息与图像清晰度，现有方法在扩散模型中容易出现不一致或过度干预。本文提出Shift-IISR双路径扩散框架，通过全局表示调制模块提取模态信息，并解耦跨模态流形差异，在利用可见光扩散先验的同时保持扩散模型的生成能力。实验表明该方法在红外超分上取得了更好的一致性与生成质量，为跨模态扩散超分提供了新思路。",
+      "llm_tldr": "红外图像超分需同时保持全局分布、结构信息与图像清晰度，现有方法在扩散模型中容易出现不一致或过度干预。本文提出Shift-IISR双路径扩散框架，通过全局表示调制模块提取模态信息，并解耦跨模态流形差异，在利用可见光扩散先验的同时保持扩散模型的生成能力。实验表明该方法在红外超分上取得了更好的一致性与生成质量，为跨模态扩散超分提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.23226v1",
+      "source": "arxiv",
+      "title": "From Score Learning to Discretized Sampling: An End-to-End Generalization Analysis of Diffusion Models",
+      "abstract": "Despite the empirical success of score-based diffusion models, a complete theoretical understanding of how finite-sample learning, network parameterization, and numerical discretization jointly dictate generative quality remains underdeveloped. Existing sampling analyses often evaluate the generative performance conditional on an oracle score or a pre-specified error threshold. In this work, we establish a unified convergence and generalization framework for score-based diffusion models parameterized by practical ResNet-type architectures. We analyze the generalization and convergence properties from the practical finite-sample, discrete-time learning problem of the score function to the ideal continuous-time, population-level objective. Based on the generalization result of the learning problem of score function, we analyze the sampling process induced by the learned score function and provide an end-to-end total variation distance estimate for the generated terminal distribution. This estimate explicitly decomposes the overall generative error into four interpretable components: the truncation error of the forward process, the reverse-time discretization error, the generalization error incorporating both finite data and forward-time discretization, and the training optimization gap. Our results quantitatively characterize how the training sample size, temporal discretization grids, and optimization accuracy jointly control the final fidelity of samples generated by diffusion models.",
+      "authors": [
+        "Jinshu Huang",
+        "Yiming Jiang",
+        "Chunlin Wu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.ST"
+      ],
+      "published": "2026-07-25T14:24:38+00:00",
+      "link": "https://arxiv.org/pdf/2607.23226v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Unified theoretical analysis of score learning and discretized diffusion sampling, relevant to training-free sampling optimization",
+      "llm_evidence_cn": "对分数学习与离散化扩散采样的统一理论分析，可为免训练采样优化提供依据",
+      "llm_evidence": "对分数学习与离散化扩散采样的统一理论分析，可为免训练采样优化提供依据",
+      "canonical_evidence": "对分数学习与离散化扩散采样的统一理论分析，可为免训练采样优化提供依据",
+      "llm_tldr_en": "A unified convergence and generalization framework for score-based diffusion models linking finite-sample score learning, network parameterization, and numerical discretization to generative quality in sampling.",
+      "llm_tldr_cn": "本文建立了一个端到端框架，统一分析基于分数的扩散模型在有限样本、离散时间学习与连续时间理想设定之间的泛化与收敛性质。研究解释了实际网络参数化下分数学习误差和数值离散误差如何共同影响生成质量。理论上为设计更优的采样步长和离散方案提供了支撑，可用于指导免训练的扩散采样优化。",
+      "llm_tldr": "本文建立了一个端到端框架，统一分析基于分数的扩散模型在有限样本、离散时间学习与连续时间理想设定之间的泛化与收敛性质。研究解释了实际网络参数化下分数学习误差和数值离散误差如何共同影响生成质量。理论上为设计更优的采样步长和离散方案提供了支撑，可用于指导免训练的扩散采样优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.22963v1",
+      "source": "arxiv",
+      "title": "PriSAR: 3D Geometric-Prior-Guided Diffusion for Parameter-Controlled SAR Image Generation",
+      "abstract": "Synthetic aperture radar (SAR) image generation can mitigate data scarcity, but controllablegeneration under sparse observation angles remains difficult. Recent SAR generative studies im-prove texture realism, yet explicit geometry-aware control is still limited. This paper studiesthe focused and verifiable setting of intermediate-azimuth completion: 3D-model-derived geo-metric priors guide a diffusion model to synthesize the views missing from sparse-angle trainingdata. GeoDiff-SAR constructs a lightweight multi-bounce ray-tracing prior, encodes the result-ing point cloud, and fuses it with text conditioning while adapting Stable Diffusion 3.5 Mediumthrough low-rank adaptation. On a real four-category aircraft dataset, GeoDiff-SAR reaches anSSIM of 0.812 and azimuth consistency of 0.940, compared with 0.738 and 0.782 for the text-conditioned SD3.5 Medium baseline. The same sparse-angle protocol on five MSTAR vehicleclasses yields an SSIM of 0.878 and azimuth consistency of 0.917. These results support theconclusion that a lightweight 3D geometric prior improves viewpoint adherence for controllableSAR generation; it is intended as generation guidance rather than high-fidelity electromagneticreconstruction.",
+      "authors": [
+        "Fan Zhang",
+        "Xuanting Wu",
+        "Fei Ma",
+        "Qiang Yin",
+        "Yuxin Hu"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV",
+        "cs.CV"
+      ],
+      "published": "2026-07-25T00:09:58+00:00",
+      "link": "https://arxiv.org/pdf/2607.22963v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Diffusion-based parameter-controlled SAR image generation with geometric priors",
+      "llm_evidence_cn": "基于扩散的参数可控SAR图像生成，使用几何先验",
+      "llm_evidence": "基于扩散的参数可控SAR图像生成，使用几何先验",
+      "canonical_evidence": "基于扩散的参数可控SAR图像生成，使用几何先验",
+      "llm_tldr_en": "GeoDiff-SAR uses 3D geometric priors to guide a diffusion model for controllable SAR image synthesis, adapting Stable Diffusion with low-rank adaptation.",
+      "llm_tldr_cn": "该论文研究合成孔径雷达(SAR)图像生成，提出GeoDiff-SAR，利用3D模型导出的几何先验引导扩散模型进行参数可控生成。针对稀疏观测角度下的中间方位角完成任务，它构建轻量多路径光线追踪先验，编码点云并与文本条件融合，通过低秩适应适配Stable Diffusion 3.5 Medium。在真实四类飞机数据集上验证了可控SAR图像生成的纹理真实感与几何一致性。该方法属于扩散图像生成应用，但不是免训练优化。",
+      "llm_tldr": "该论文研究合成孔径雷达(SAR)图像生成，提出GeoDiff-SAR，利用3D模型导出的几何先验引导扩散模型进行参数可控生成。针对稀疏观测角度下的中间方位角完成任务，它构建轻量多路径光线追踪先验，编码点云并与文本条件融合，通过低秩适应适配Stable Diffusion 3.5 Medium。在真实四类飞机数据集上验证了可控SAR图像生成的纹理真实感与几何一致性。该方法属于扩散图像生成应用，但不是免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.28058v1",
+      "source": "arxiv",
+      "title": "Temporal Concentration from Rollout Errors: Implicit Preference Optimization for Text-to-Video Diffusion",
+      "abstract": "Recent advances in preference alignment for diffusion-based video generation, particularly via Direct Preference Optimization (DPO), have significantly improved visual quality. However, temporally sparse artifacts such as motion collapse, object flickering, and color oversaturation remain a major barrier to perceptual realism. Existing methods struggle with these issues due to two key limitations: (1) the preference attribution bottleneck, where offline human annotations are costly and fail to accurately capture learning dynamics, while online reward signals are rollout-aware but often unstable and biased; and (2) temporal credit misallocation, where uniformly applied supervision cannot effectively target the brief segments in which artifacts occur. To address these challenges, we propose concentrated Implicit Preference Optimization (cIPO), a post-training framework for video diffusion models. cIPO derives implicit preference signals directly from the denoising process: given a real video, the model adds forward noise and reconstructs it via iterative denoising, treating the original as the preferred sample and the reconstruction as the dispreferred one. This formulation captures inference-time errors without requiring human annotations or external reward models. Moreover, frame-level discrepancies between original and reconstructed videos reveal when failures occur. cIPO leverages this by computing temporal reconstruction errors and concentrating optimization on high-error segments, enabling more precise correction of failure-prone regions. Extensive experiments demonstrate that cIPO consistently enhances video authenticity and temporal coherence across multiple datasets, highlighting the effectiveness and efficiency of implicit preference with temporally concentrated optimization.",
+      "authors": [
+        "Henglin Liu",
+        "Fangyuan Kong",
+        "Jing Wang",
+        "Yizhou Lin",
+        "Nisha Huang",
+        "Chang Liu",
+        "Xintao Wang",
+        "Pengfei Wan",
+        "Kun Gai",
+        "Xiu Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-30T11:36:48+00:00",
+      "link": "https://arxiv.org/pdf/2607.28058v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Implicit preference optimization for text-to-video diffusion; training-based",
+      "llm_evidence_cn": "文本到视频扩散的隐式偏好优化；基于训练",
+      "llm_evidence": "文本到视频扩散的隐式偏好优化；基于训练",
+      "canonical_evidence": "文本到视频扩散的隐式偏好优化；基于训练",
+      "llm_tldr_en": "Proposes an implicit preference optimization method that temporally concentrates supervision on sparse artifacts in text-to-video diffusion, improving perceptual realism.",
+      "llm_tldr_cn": "该论文针对文本到视频扩散模型中的时间稀疏伪影（如运动坍塌、物体闪烁、颜色过饱和）提出时间集中的隐式偏好优化方法。它克服了现有方法的偏好归因瓶颈和时间信用错配问题，利用展开误差生成隐式偏好信号，并将监督集中于短暂的伪影片段。该方法有效改善了视频感知质量和时间一致性，但属于训练型的偏好优化，而非免训练方法。",
+      "llm_tldr": "该论文针对文本到视频扩散模型中的时间稀疏伪影（如运动坍塌、物体闪烁、颜色过饱和）提出时间集中的隐式偏好优化方法。它克服了现有方法的偏好归因瓶颈和时间信用错配问题，利用展开误差生成隐式偏好信号，并将监督集中于短暂的伪影片段。该方法有效改善了视频感知质量和时间一致性，但属于训练型的偏好优化，而非免训练方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.24124v1",
+      "source": "arxiv",
+      "title": "ViDS: Video Diffusion Shader using 3D Face Tracking",
+      "abstract": "We introduce ViDS, a Video Diffusion Shader that leverages 3D face tracking for expressive and identity-preserving portrait animation. We first reconstruct the identity-specific 3DMM mesh from the reference image, and then animate it using expression and pose parameters from a driving video. Leveraging dense geometric cues from 3DMM normal maps, we employ a video diffusion model as a neural shader to synthesize lifelike portrait animations while preserving the appearance and identity of the reference image. We find that more accurate 3DMM tracking enables finer-grained expression control. We also introduce an autoregressive diffusion sampling process that extends generation beyond the model's native window while reducing discontinuities between adjacent clips. Compared with prior diffusion-based approaches for portrait animation that rely on landmark-based conditioning or implicit motion latents, our method achieves more detailed and consistent expression and pose control while faithfully preserving identity and appearance. Detailed ablation studies validate the effectiveness of our design choices. Project page: https://fusheng-ji.github.io/ViDS/",
+      "authors": [
+        "Wenbo Ji",
+        "Davide Davoli",
+        "Zhe Chen",
+        "Liam Schoneveld",
+        "Matthias Nießner",
+        "Jiapeng Tang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-27T08:06:29+00:00",
+      "link": "https://arxiv.org/pdf/2607.24124v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "autoregressive diffusion sampling extends video generation beyond native window without training",
+      "llm_evidence_cn": "自回归扩散采样可免训练扩展视频生成并减少片段不连续",
+      "llm_evidence": "自回归扩散采样可免训练扩展视频生成并减少片段不连续",
+      "canonical_evidence": "自回归扩散采样可免训练扩展视频生成并减少片段不连续",
+      "llm_tldr_en": "ViDS animates portraits using 3D face tracking and a video diffusion shader, preserving identity and enabling precise expression control. Its training-free autoregressive sampling extends generation beyond the native window and reduces discontinuities between clips.",
+      "llm_tldr_cn": "论文针对视频扩散模型在驱动视频驱动下的肖像动画生成问题，提出基于3D人脸追踪的视频扩散着色器ViDS。该方法通过3DMM网格重构与驱动动画获得几何线索，利用视频扩散模型合成保持身份和外观的逼真动画。同时提出自回归扩散采样，无需额外训练即可将生成扩展到模型原生窗口之外，并减少相邻片段的不连续性。实验表明更精确的3DMM追踪能带来更细粒度的表情控制。",
+      "llm_tldr": "论文针对视频扩散模型在驱动视频驱动下的肖像动画生成问题，提出基于3D人脸追踪的视频扩散着色器ViDS。该方法通过3DMM网格重构与驱动动画获得几何线索，利用视频扩散模型合成保持身份和外观的逼真动画。同时提出自回归扩散采样，无需额外训练即可将生成扩展到模型原生窗口之外，并减少相邻片段的不连续性。实验表明更精确的3DMM追踪能带来更细粒度的表情控制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.28166v1",
+      "source": "arxiv",
+      "title": "Where and When to Commit: Candidate-Aware Decoding for Diffusion Language Models",
+      "abstract": "Diffusion language models (DLMs) expose a provisional prediction at every denoising step, creating an opportunity for generation-time early exit that stops decoding before the schedule is exhausted. Existing early-exit gates decide termination from fixed-region confidence statistics or schedule-dependent rules, evidence too coarse for a decision that freezes every remaining position at once, so they fire prematurely on long chain-of-thought outputs whose answers stabilize only near the end. Adaptive sampling, the other axis of training-free acceleration, paces how quickly positions commit while decoding continues but never verifies that the output itself has stabilized. We introduce a training-free, candidate-aware early-exit framework that keeps the two axes separate and matches each decision to evidence of its own scope. Confidence-Verified Commit (CVC) governs when the sequence may stop by verifying confidence and sustained argmax stability over the dynamically extracted candidate span using a deterministic parser specified from each task's output format. Block-Wise Early Commit (BWEC) governs where to accelerate by applying a cheaper local rule to non-final blocks, while leaving the final block and global termination under CVC. We refer to their combination as LATCH (Localized Acceleration with Tracked-Candidate Halting). Unlike prior methods, LATCH needs no suffix-prompt construction; it is prompt-anchor-free but format-aware. We evaluate LATCH end to end on 11 tasks under zero-shot settings using LLaDA and Dream. LATCH stays within 2.0 percentage points of full-decoding accuracy across all 22 evaluation settings, with one frozen hyperparameter set that transfers cross-backbone untuned, while achieving end-to-end TPS speedups of 9.3-17.8x on short-answer tasks and 2.0-3.3x on long-reasoning tasks.",
+      "authors": [
+        "Chia-Ming Lee",
+        "Ming-Ching Chang",
+        "Xin Li",
+        "Yu-Lun Liu",
+        "Chih-Chung Hsu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-07-30T13:04:47+00:00",
+      "link": "https://arxiv.org/pdf/2607.28166v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free decoding optimization for diffusion language models",
+      "llm_evidence_cn": "面向扩散语言模型的免训练解码优化",
+      "llm_evidence": "面向扩散语言模型的免训练解码优化",
+      "canonical_evidence": "面向扩散语言模型的免训练解码优化",
+      "llm_tldr_en": "This paper introduces a training-free candidate-aware early-exit framework for diffusion language models, improving decoding speed by deciding termination and commitment positions more accurately.",
+      "llm_tldr_cn": "扩散语言模型在每个去噪步都能输出临时预测，但现有早退策略依据固定区域置信度或调度规则，难以在长链式推理中正确判断终止时机。本文提出一种无需训练的候选感知早退框架，通过更细致的候选信息同时决定何时停止解码以及每个位置何时提交，从而加速生成。实验表明该方法在保持输出质量的同时显著提升解码效率，为扩散语言模型的免训练加速提供了新思路。",
+      "llm_tldr": "扩散语言模型在每个去噪步都能输出临时预测，但现有早退策略依据固定区域置信度或调度规则，难以在长链式推理中正确判断终止时机。本文提出一种无需训练的候选感知早退框架，通过更细致的候选信息同时决定何时停止解码以及每个位置何时提交，从而加速生成。实验表明该方法在保持输出质量的同时显著提升解码效率，为扩散语言模型的免训练加速提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
