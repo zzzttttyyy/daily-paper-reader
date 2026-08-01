@@ -1,0 +1,142 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-01T20:58:33.953356+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2607.26529v1",
+      "source": "arxiv",
+      "title": "CineWeaver: Training-Free Reference-Controllable Multi-Shot Long Video Generation for Cinematic Storytelling",
+      "abstract": "Cinematic video generation is challenging for text-to-video diffusion models due to concurrent requirements on multi-shot generation, fine-grained controllability over characters and scenes, and long-form generation across extended temporal horizons. Existing methods rely on customization and retraining to separately address specific requirements, and cannot simultaneously fulfill all the requirements with a unified framework. In this paper, we shed light on the training-free paradigm with the key insight that the difficulty of multi-shot generation arises from a structural bias toward temporal continuity in pretrained video diffusion models, and consequently, propose a unified framework named CineWeaver to achieve reference-controllable multi-shot long-video generation without retraining. We manipulate positional encoding and attention patterns to break temporal continuity during inference to enable clear shot transitions using pretrained video diffusion models. Furthermore, we extend the proposed framework with a shot-routed reference conditioning mechanism for per-shot fine-grained controllability, and develop an anchor memory mechanism to allow long-form generation with consistent global appearance cues. To our best knowledge, CineWeaver is the first unified framework to simultaneously enable \\textbf{long-form}, \\textbf{reference-controllable}, and \\textbf{multi-shot} video generation in a training-free fashion. Experimental results demonstrate that CineWeaver produces high-quality cinematic videos of long durations with consistent identities, stable global appearance, and clear shot transitions. The project page is available at: https://cineweaver.github.io.",
+      "authors": [
+        "Yuyang Huang",
+        "Yabo Chen",
+        "Wenrui Dai",
+        "Ziyang Zheng",
+        "Haibin Huang",
+        "Chi Zhang",
+        "Junni Zou",
+        "Hongkai Xiong",
+        "Xuelong Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-29T06:48:11+00:00",
+      "link": "https://arxiv.org/pdf/2607.26529v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free reference-controllable multi-shot long video generation for cinematic storytelling",
+      "llm_evidence_cn": "训练无关的多镜头长视频生成框架，实现参考可控的电影级叙事",
+      "llm_evidence": "训练无关的多镜头长视频生成框架，实现参考可控的电影级叙事",
+      "canonical_evidence": "训练无关的多镜头长视频生成框架，实现参考可控的电影级叙事",
+      "llm_tldr_en": "CineWeaver is a training-free framework for multi-shot long video generation that overcomes temporal continuity bias and enables reference-controlled cinematic storytelling without retraining.",
+      "llm_tldr_cn": "电影级视频生成对文本到视频扩散模型提出多镜头、细粒度控制和长时生成等并发需求，现有方法依赖定制化重训且难以统一满足。CineWeaver 提出训练无关范式，指出多镜头生成困难源于预训练模型对时间连续性的结构偏好，并据此构建统一框架。无需重新训练即可同时实现多镜头与参考控制，显著提升电影叙事的可用性，是视频生成免训练优化的代表性工作。",
+      "llm_tldr": "电影级视频生成对文本到视频扩散模型提出多镜头、细粒度控制和长时生成等并发需求，现有方法依赖定制化重训且难以统一满足。CineWeaver 提出训练无关范式，指出多镜头生成困难源于预训练模型对时间连续性的结构偏好，并据此构建统一框架。无需重新训练即可同时实现多镜头与参考控制，显著提升电影叙事的可用性，是视频生成免训练优化的代表性工作。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.26646v1",
+      "source": "arxiv",
+      "title": "Genie Sim PanoWorld: An Infinite Indoor 3D World Generation Pipeline via Panoramic Scene Modeling and Simulation",
+      "abstract": "We address the problem of reconstructing a high-fidelity, freely navigable 3D scene from a single $360^\\circ$ panorama, without per-scene optimization or multi-view capture. Existing methods either lack metric trajectory control, which hinders reliable downstream 3D reconstruction, or struggle with large disocclusions under long-range camera motion while requiring high-end multi-GPU servers.We present Genie Sim PanoWorld, a two-stage feed-forward pipeline that bridges generation and reconstruction via an explicit, trajectory-controllable panoramic video. A NavMesh-planned $\\mathrm{SE}(3)$ roaming trajectory is injected into a latent video diffusion model through dense geometry-warped conditioning; long--short trajectory mixed training and a self-consistency objective based on shortcut models together yield high-fidelity video in four CFG-free denoising steps.   A feed-forward panoramic reconstructor then lifts the generated video into a high-fidelity   3D Gaussian scene that supports real-time, free-viewpoint roaming and can be directly used as a simulation-ready asset for embodied AI applications. Experiments show that Genie Sim PanoWorld   outperforms geometry-conditioned baselines in both panoramic video generation and   downstream 3D reconstruction, while generalizing zero-shot to unseen indoor scenes.",
+      "authors": [
+        "Yongxin Su",
+        "Linjie Hou",
+        "Feng Wang",
+        "Jialin Tang",
+        "Zhijun Li",
+        "Qian Wang",
+        "Maoqing Yao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-29T09:08:16+00:00",
+      "link": "https://arxiv.org/pdf/2607.26646v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "video generation with latent video diffusion model and trajectory control",
+      "llm_evidence_cn": "使用潜视频扩散模型生成轨迹可控的全景视频",
+      "llm_evidence": "使用潜视频扩散模型生成轨迹可控的全景视频",
+      "canonical_evidence": "使用潜视频扩散模型生成轨迹可控的全景视频",
+      "llm_tldr_en": "Presents Genie Sim PanoWorld, a video-diffusion pipeline generating trajectory-controllable panoramic videos from a single panorama for infinite indoor 3D world reconstruction, without per-scene optimization.",
+      "llm_tldr_cn": "针对单张360度全景图重建高保真、可自由漫游3D场景的问题，现有方法缺少度量轨迹控制且难以处理大范围遮挡。作者提出Genie Sim PanoWorld两阶段前馈流水线，将导航网格规划的SE(3)漫游轨迹通过几何形变条件注入潜视频扩散模型，生成显式轨迹可控的全景视频。该方法无需逐场景优化或多视角拍摄，可在单GPU上完成从生成到重建的闭环，为无限室内3D世界生成提供了高效路径。",
+      "llm_tldr": "针对单张360度全景图重建高保真、可自由漫游3D场景的问题，现有方法缺少度量轨迹控制且难以处理大范围遮挡。作者提出Genie Sim PanoWorld两阶段前馈流水线，将导航网格规划的SE(3)漫游轨迹通过几何形变条件注入潜视频扩散模型，生成显式轨迹可控的全景视频。该方法无需逐场景优化或多视角拍摄，可在单GPU上完成从生成到重建的闭环，为无限室内3D世界生成提供了高效路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.24665v1",
+      "source": "arxiv",
+      "title": "MMOE: Modernizing Diffusion Transformers with Efficient Expert Design",
+      "abstract": "Modern large language models scale successfully by pairing capacity growth with efficiency, keeping per-token and deployment costs under control as capacity grows. AIGC Foundation Models (AFMs), especially diffusion-transformer backbones, have begun to adopt sparse experts, but recent efforts mostly enlarge total parameter counts and sparsity ratios without importing the efficiency mechanisms that made LLM scaling practical, so generation quality is seldom balanced against training and deployment cost. This raises a natural question: can the architectural principles behind efficient LLM scaling be adapted to AFMs in a more balanced way? We introduce ModernMOE (MMOE), a modernization of SiT-style diffusion transformers that systematically adapts routed experts, shared and lightweight experts, gate-residual routing, and attention-residual information reuse to AIGC generation. Rather than treating MoE as a single plug-in replacement, MMOE studies how different modern expert components affect convergence, efficiency, and generation quality when composed inside a diffusion transformer. Every experiment in this paper is trained on a single eight-GPU H100 node with batch size 256 for 400k steps, an accessible single-machine budget. Under matched training and sampling protocols and at this budget, MMOE reaches lower FID at every recorded checkpoint, that is, it converges faster per training step, than dense and intermediate sparse-expert baselines, and among the sparse variants it attains the best quality-cost balance. Routing analysis further shows stable expert specialization across depth, substantial use of lightweight routes, and modest step-to-step routing changes during denoising. These results suggest that AFMs can follow the balanced scaling path of LLMs by importing proven efficiency designs, rather than by simply increasing total parameters and sparsity ratios.",
+      "authors": [
+        "Yanhao Jia",
+        "Jiepeng Wang",
+        "Haibin Huang",
+        "Chi Zhang",
+        "Erik Cambria",
+        "Xuelong Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR",
+        "cs.LG"
+      ],
+      "published": "2026-07-27T17:05:04+00:00",
+      "link": "https://arxiv.org/pdf/2607.24665v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion transformer architecture with efficient sparse expert design for generative models",
+      "llm_evidence_cn": "面向生成任务的扩散Transformer的高效稀疏专家设计",
+      "llm_evidence": "面向生成任务的扩散Transformer的高效稀疏专家设计",
+      "canonical_evidence": "面向生成任务的扩散Transformer的高效稀疏专家设计",
+      "llm_tldr_en": "Proposes ModernMOE, adapting efficient routed expert design from LLMs to SiT-style diffusion transformers to balance generation quality with training and deployment cost.",
+      "llm_tldr_cn": "扩散Transformer等AIGC基础模型在引入稀疏专家时往往只增加参数量和稀疏率，而忽视训练与部署效率。作者提出ModernMOE，将大规模语言模型中经过验证的高效路由专家设计系统化迁移到SiT风格扩散Transformer，在扩大容量时控制训练和部署成本。实验表明MMOE能够在生成质量与效率之间取得更均衡的折中，为高容量扩散生成模型的高效扩展提供新思路。",
+      "llm_tldr": "扩散Transformer等AIGC基础模型在引入稀疏专家时往往只增加参数量和稀疏率，而忽视训练与部署效率。作者提出ModernMOE，将大规模语言模型中经过验证的高效路由专家设计系统化迁移到SiT风格扩散Transformer，在扩大容量时控制训练和部署成本。实验表明MMOE能够在生成质量与效率之间取得更均衡的折中，为高容量扩散生成模型的高效扩展提供新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
