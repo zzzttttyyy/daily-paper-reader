@@ -1,0 +1,177 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-02T20:55:22.799873+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2607.25078v1",
+      "source": "arxiv",
+      "title": "Diff-ID: Identity Consistent Facial Image Generation and Morphing via Diffusion Models",
+      "abstract": "Generative diffusion models have revolutionized facial image synthesis, yet robust identity preservation in high resolution outputs remains a critical challenge. This issue is especially vital for security systems, biometric authentication, and privacy sensitive applications, where any drift in identity integrity can undermine trust and functionality. We introduce Diff-ID, a diffusion based framework that enforces identity consistency while delivering photorealistic quality. Central to our approach is a custom 210K image dataset synthesized from CelebA-HQ, FFHQ, and LAION-Face and captioned via a fine tuned BLIP model to bolster identity awareness during training. Diff-ID integrates ArcFace and CLIP embeddings through a dual cross attention adapter within a fine tuned Stable Diffusion UNet. To further reinforce identity fidelity, we propose a pseudo discriminator loss based on ArcFace cosine similarity with exponential timestep weighting. Experiments on held out and unseen faces show that Diff-ID does not exceed InstantID in raw ArcFace Face Similarity, but achieves substantially lower FID and the strongest FIQ based identity--realism trade off among the evaluated methods. We also present a unified DDIM based morphing pipeline that enables qualitative facial interpolation without per identity fine tuning. We further argue that identity preservation and photorealism should be evaluated jointly rather than in isolation, as high identity similarity alone does not guarantee realistic outputs. To make this trade off explicit, we report Face Image Quality (FIQ) as a complementary ratio based score that combines identity similarity and perceptual realism while keeping FS and FID as the primary metrics.",
+      "authors": [
+        "Taimoor Rizwan",
+        "Sara Atito",
+        "Muhammad Awais",
+        "Zhenhua Feng",
+        "Josef Kittler"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-27T21:13:29+00:00",
+      "link": "https://arxiv.org/pdf/2607.25078v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "diffusion model for identity-consistent facial image generation",
+      "llm_evidence_cn": "基于扩散模型的身份一致人脸图像生成",
+      "llm_evidence": "基于扩散模型的身份一致人脸图像生成",
+      "canonical_evidence": "基于扩散模型的身份一致人脸图像生成",
+      "llm_tldr_en": "Introduces Diff-ID, a diffusion-based framework for identity-consistent facial image generation and morphing, integrating ArcFace and CLIP embeddings via dual cross attention.",
+      "llm_tldr_cn": "针对高分辨率人脸图像生成中的身份保持难题，本文提出Diff-ID扩散框架，结合ArcFace和CLIP嵌入的双重交叉注意力，在生成过程中强制身份一致性。通过构建21万张带标题的人脸图像数据集并进行身份感知训练，Diff-ID在保持照片级真实感的同时实现鲁棒的身份保持。该方法在人脸生成和变形任务上均显示出优于现有方法的身份一致性。该工作为安全系统和隐私敏感应用提供了更可信的人脸生成方案。",
+      "llm_tldr": "针对高分辨率人脸图像生成中的身份保持难题，本文提出Diff-ID扩散框架，结合ArcFace和CLIP嵌入的双重交叉注意力，在生成过程中强制身份一致性。通过构建21万张带标题的人脸图像数据集并进行身份感知训练，Diff-ID在保持照片级真实感的同时实现鲁棒的身份保持。该方法在人脸生成和变形任务上均显示出优于现有方法的身份一致性。该工作为安全系统和隐私敏感应用提供了更可信的人脸生成方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.27634v1",
+      "source": "arxiv",
+      "title": "4DHumanDiff: Direct Text-to-4DGS Generation for Consistent 360-Degree Dynamic Humans",
+      "abstract": "Generating high-quality 360-degree dynamic human assets from text prompts is challenging. Existing methods usually synthesize monocular or multi-view videos first and then fit a 4D representation, which is expensive and often causes incomplete geometry or view-inconsistent renderings. We present 4DHumanDiff, a diffusion framework that directly generates dynamic humans represented by 4D Gaussian Splatting (4DGS) from text prompts. By modeling the structured 4D representation space end-to-end, 4DHumanDiff avoids video pre-generation and per-scene reconstruction, making it better suited for view-consistent and temporally coherent asset generation. The model uses a 3D U-Net backbone with temporal attention for motion-aware generation. We further construct a large-scale text-to-4DGS dataset with 60,000 high-quality pairs, and introduce 2D regularization and training-free 4D interpolation to improve rendering quality and motion smoothness. Experiments show that 4DHumanDiff generates consistent 360-degree dynamic humans within one minute, achieves better temporal and multi-view consistency, and reduces inference time by more than 10x.",
+      "authors": [
+        "Renlong Wu",
+        "Haoran Chen",
+        "Yuxiang Wei",
+        "Xiaowei Jin",
+        "Wangmeng Zuo",
+        "Hui Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-30T03:45:34+00:00",
+      "link": "https://arxiv.org/pdf/2607.27634v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "diffusion framework for generating 4D dynamic humans from text prompts",
+      "llm_evidence_cn": "基于扩散模型的文本到4D动态人体生成框架",
+      "llm_evidence": "基于扩散模型的文本到4D动态人体生成框架",
+      "canonical_evidence": "基于扩散模型的文本到4D动态人体生成框架",
+      "llm_tldr_en": "Proposes 4DHumanDiff, a diffusion framework that directly generates consistent 360-degree dynamic humans as 4D Gaussian Splatting from text prompts, avoiding video pre-generation and per-scene reconstruction.",
+      "llm_tldr_cn": "针对从文本生成高质量360度动态人体资产的问题，现有方法通常先合成视频再拟合4D表示，代价高且易产生几何不完整或视角不一致。本文提出4DHumanDiff，通过端到端建模4D高斯溅射表示，直接生成运动感知的4D动态人体，避免了视频预生成和逐场景重建。模型采用3D U-Net骨干与时间注意力，实现了视角一致且时间连贯的资产生成。该工作为4D人物生成提供了新的直接生成范式。",
+      "llm_tldr": "针对从文本生成高质量360度动态人体资产的问题，现有方法通常先合成视频再拟合4D表示，代价高且易产生几何不完整或视角不一致。本文提出4DHumanDiff，通过端到端建模4D高斯溅射表示，直接生成运动感知的4D动态人体，避免了视频预生成和逐场景重建。模型采用3D U-Net骨干与时间注意力，实现了视角一致且时间连贯的资产生成。该工作为4D人物生成提供了新的直接生成范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.23023v1",
+      "source": "arxiv",
+      "title": "OmniMate: Open-Ended Real-Time Streaming Audio-Visual Generation for Interactive Avatars",
+      "abstract": "Recent advances in diffusion-based generative models have enabled real-time audio-driven avatar generation and unified audio-visual synthesis, providing a promising foundation for interactive avatar systems. However, extending these models to real-time interactive streaming remains challenging, as the generation horizon is unknown in advance and cross-modal identity consistency gradually degrades during long-term generation. To address these challenges, we propose OmniMate, a unified framework for open-ended real-time interactive audio-visual avatar generation. OmniMate jointly synthesizes visual content, speech, and audio effects in real time, enabling natural and immersive multi-turn interactions. To achieve adaptive response progression, we introduce a Generation Progress Controller (GPC) that explicitly models the generation progress of each streaming chunk, allowing the model to complete responses according to the desired progress and achieve seamless transitions between execution and listening states. To preserve long-term cross-modal identity consistency, we propose a Multi-Reference Conditioning Module (MRCM), which leverages multiple reference images and a reference speech segment to provide persistent visual and speaker identity cues throughout long-duration streaming interactions. Extensive experiments on an interaction-oriented adaptation of VerseBench demonstrate that OmniMate achieves high-quality, low-latency streaming generation while maintaining strong long-term audio-visual consistency. The results further show that OmniMate supports realistic, coherent, and responsive interactive avatar experiences over extended multi-turn conversations.",
+      "authors": [
+        "Quanyue Song",
+        "Yishan He",
+        "Yanbo Ding",
+        "Zhixiang He",
+        "Yongxiang Li",
+        "Caigui Jiang",
+        "Zhi Zhi Guo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-25T03:42:52+00:00",
+      "link": "https://arxiv.org/pdf/2607.23023v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "diffusion-based real-time audio-visual avatar generation",
+      "llm_evidence_cn": "基于扩散模型的实时音视频虚拟形象生成",
+      "llm_evidence": "基于扩散模型的实时音视频虚拟形象生成",
+      "canonical_evidence": "基于扩散模型的实时音视频虚拟形象生成",
+      "llm_tldr_en": "Proposes OmniMate, a unified diffusion-based framework for open-ended real-time interactive audio-visual avatar generation, jointly synthesizing visuals, speech, and audio effects in real time.",
+      "llm_tldr_cn": "针对实时交互式虚拟形象生成中生成时域未知和身份一致性退化的问题，本文提出OmniMate统一框架，基于扩散模型联合实时合成视觉、语音和音效，支持开放式多轮交互。框架通过自适应响应进度设计实现长时生成中的身份一致性。实验表明其支持自然沉浸的多轮实时交互。该工作推动了扩散模型在实时交互式音视频生成中的应用。",
+      "llm_tldr": "针对实时交互式虚拟形象生成中生成时域未知和身份一致性退化的问题，本文提出OmniMate统一框架，基于扩散模型联合实时合成视觉、语音和音效，支持开放式多轮交互。框架通过自适应响应进度设计实现长时生成中的身份一致性。实验表明其支持自然沉浸的多轮实时交互。该工作推动了扩散模型在实时交互式音视频生成中的应用。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.25275v1",
+      "source": "arxiv",
+      "title": "ScaleResfusion: Residual Rectified Flow based on Residual Vector Field",
+      "abstract": "Real-world Image Restoration (Real-IR) aims to recover high-quality (HQ) images from complex and unknown degradations. Although recent diffusion-based methods have substantially improved perceptual quality, their current designs leave two key challenges unresolved. Methods that start from Gaussian noise are slow and often less faithful to the degraded input. Residual-based methods usually train from scratch, which makes it hard to exploit modern pre-trained generative priors. In this paper, we present ScaleResfusion, a scalable diffusion framework for real-world image restoration built on pre-trained text-to-image rectified-flow models. The core of our method is Residual Rectified Flow, which introduces the residual term R into Standard Rectified Flow. Instead of starting from pure noise, it uses a residual transport path that starts from noisy low-quality (LQ) images and admits an exact acceleration point. By learning the residual vector field, Residual Rectified Flow keeps the output distribution and linear diffusion process consistent with the pre-trained rectified-flow models. This makes parameter-efficient fine-tuning possible at scale. We further introduce a knowledge-distillation pipeline to reduce sampling cost while maintaining restoration quality. Extensive experiments on multiple real-world restoration tasks show that ScaleResfusion achieves state-of-the-art performance with much higher efficiency. These results suggest a practical and scalable way to adapt large pre-trained diffusion models to real-world image restoration. Our code and models are available at https://github.com/YukinoshitaLove/ScaleResfusion.",
+      "authors": [
+        "Zhenning Shi",
+        "Chen Xu",
+        "Junhao Zhang",
+        "Kefei Zhang",
+        "Linjie Liu",
+        "Zhedong Zheng",
+        "Tao Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-28T04:26:05+00:00",
+      "link": "https://arxiv.org/pdf/2607.25275v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion-based image restoration using pretrained rectified flow",
+      "llm_evidence_cn": "基于预训练rectified-flow的扩散图像恢复",
+      "llm_evidence": "基于预训练rectified-flow的扩散图像恢复",
+      "canonical_evidence": "基于预训练rectified-flow的扩散图像恢复",
+      "llm_tldr_en": "Proposes ScaleResfusion, a scalable diffusion framework for real-world image restoration built on pre-trained text-to-image rectified-flow models, using Residual Rectified Flow.",
+      "llm_tldr_cn": "针对真实图像恢复中扩散模型从高斯噪声出发导致的慢和忠实度不足，以及残差方法难以利用预训练生成先验的问题，本文提出ScaleResfusion，一种基于预训练文本到图像rectified-flow模型的残差修正流扩散框架。其核心是引入残差项的Residual Rectified Flow，可扩展地用于真实图像恢复。该方法在利用现代预训练先验的同时提高了恢复效率和质量。该工作为扩散模型在图像恢复任务中的应用提供了可扩展方案。",
+      "llm_tldr": "针对真实图像恢复中扩散模型从高斯噪声出发导致的慢和忠实度不足，以及残差方法难以利用预训练生成先验的问题，本文提出ScaleResfusion，一种基于预训练文本到图像rectified-flow模型的残差修正流扩散框架。其核心是引入残差项的Residual Rectified Flow，可扩展地用于真实图像恢复。该方法在利用现代预训练先验的同时提高了恢复效率和质量。该工作为扩散模型在图像恢复任务中的应用提供了可扩展方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -6,31 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-01
-- 运行时间：2026-08-01 21:01:46 UTC
+- 最新运行日期：2026-08-02
+- 运行时间：2026-08-02 20:59:07 UTC
 - 运行状态：成功
-- 本次总论文数：3
+- 本次总论文数：4
 - 精读区：2
-- 速读区：1
+- 速读区：2
 
 ### 今日简报（AI）
-今日精读3篇论文，聚焦视频生成与3D世界建模，最高分9.0。  
-最值得关注：CineWeaver实现免训练参考可控的多镜头长视频叙事，Genie Sim PanoWorld则构建无限室内3D世界。  
-建议优先精读CineWeaver，其对电影级自动生成有直接启发。
-- 详情：[/202608/01/README](/202608/01/README)
+今日精读4篇论文，聚焦扩散模型在身份一致人脸生成与4D动态人体建模，均获8.0高分。最值得关注：Diff-ID实现面部图像生成与形变中的身份保持，4DHumanDiff支持文本驱动的360度动态人体生成。若想快速入门，优先精读这两篇高分工作，速读可关注交互式音视频生成与残差流模型扩展。
+- 详情：[/202608/02/README](/202608/02/README)
 
 ### 精读区论文标签
-1. [CineWeaver: Training-Free Reference-Controllable Multi-Shot Long Video Generation for Cinematic Storytelling](/202608/01/2607.26529v1-cineweaver-training-free-reference-controllable-multi-shot-long-video-generation-for-cinematic-storytelling)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：训练无关的多镜头长视频生成框架，实现参考可控的电影级叙事
-2. [Genie Sim PanoWorld: An Infinite Indoor 3D World Generation Pipeline via Panoramic Scene Modeling and Simulation](/202608/01/2607.26646v1-genie-sim-panoworld-an-infinite-indoor-3d-world-generation-pipeline-via-panoramic-scene-modeling-and-simulation)  
+1. [Diff-ID: Identity Consistent Facial Image Generation and Morphing via Diffusion Models](/202608/02/2607.25078v1-diff-id-identity-consistent-facial-image-generation-and-morphing-via-diffusion-models)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：使用潜视频扩散模型生成轨迹可控的全景视频
+   evidence：基于扩散模型的身份一致人脸图像生成
+2. [4DHumanDiff: Direct Text-to-4DGS Generation for Consistent 360-Degree Dynamic Humans](/202608/02/2607.27634v1-4dhumandiff-direct-text-to-4dgs-generation-for-consistent-360-degree-dynamic-humans)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：基于扩散模型的文本到4D动态人体生成框架
 
 ### 速读区论文标签
-1. [MMOE: Modernizing Diffusion Transformers with Efficient Expert Design](/202608/01/2607.24665v1-mmoe-modernizing-diffusion-transformers-with-efficient-expert-design)  
+1. [OmniMate: Open-Ended Real-Time Streaming Audio-Visual Generation for Interactive Avatars](/202608/02/2607.23023v1-omnimate-open-ended-real-time-streaming-audio-visual-generation-for-interactive-avatars)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：基于扩散模型的实时音视频虚拟形象生成
+2. [ScaleResfusion: Residual Rectified Flow based on Residual Vector Field](/202608/02/2607.25275v1-scaleresfusion-residual-rectified-flow-based-on-residual-vector-field)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向生成任务的扩散Transformer的高效稀疏专家设计
+   evidence：基于预训练rectified-flow的扩散图像恢复
 
 
 <div class="dpr-home-promo-card">
