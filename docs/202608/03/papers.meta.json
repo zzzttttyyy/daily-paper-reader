@@ -1,0 +1,69 @@
+{
+  "label": "2026-08-03",
+  "date": "2026-08-03",
+  "generated_at": "2026-08-03T21:13:39",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202608/03/2607.29122v1-a-frozen-pixel-space-diffusion-model-can-guide-itself-with-its-own-samples",
+      "section": "deep",
+      "title_en": "A Frozen Pixel-Space Diffusion Model Can Guide Itself with Its Own Samples",
+      "authors": "Zixuan Fu, Chong Wang, Lanqing Guo, Kailai Zhou, Jiahao Nie, Bihan Wen",
+      "date": "2026-07-31",
+      "pdf": "https://arxiv.org/pdf/2607.29122v1",
+      "score": "9.0",
+      "evidence": "针对冻结像素空间扩散模型图像生成的免训练自引导优化",
+      "tldr": "像素空间扩散模型需同时捕捉全局结构和局部纹理，训练成本高。本文发现冻结的预训练像素扩散模型可自我引导：中间层经轻量解码头得到低频粗预测，最终层细化高频细节，利用两者差异作为采样引导方向。用模型生成样本训练该头即可，无需真实图像。在ImageNet上，所提合成自我引导（SSG）使FID降低超50%，且适配计算不足全模型训练的1%。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Pixel-space diffusion models aim to learn an end-to-end generator directly over raw pixels. This is challenging because a single model must capture both global structure and local texture in the same high-dimensional space. While recent work improves pixel diffusion through alternative prediction targets, training objectives, and architectures, these advances typically require training a new model from scratch. We show there is a cheaper, complementary strategy: \\textbf{a frozen, pretrained pixel diffusion model can guide itself}. Our key observation is that intermediate layers of a pretrained pixel diffusion transformer can be decoded into coarse predictions that capture the main low-frequency structure, while the final layers progressively refine local, high-frequency details. We therefore attach a lightweight prediction head to an intermediate layer, keep the backbone frozen, and use the discrepancy between the intermediate and final predictions as a self-guidance direction during sampling. To train this head, we further find that real images are not necessary. Instead, model-generated samples suffice and even outperform real images for training the head, especially in enhancing the high-frequency components that pixel diffusion tends to underfit. Across multiple pixel diffusion models on ImageNet, our \\textbf{Synthetic Self-Guidance (SSG)} consistently improves generation while adapter training requires less than 1$\\%$ of full-model training compute: it reduces FID by over 50$\\%$ across the evaluated JiT variants without classifier-free guidance (CFG) and further improves strong baselines with CFG, e.g., JiT-H/16 from 1.86 to 1.67 and PixelREPA-H/16 from 1.81 to 1.59. Our code is available at https://github.com/zfu006/SSG.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/03/2607.25321v1-physics-grounded-fluid-video-generation-with-a-simulation-dataset-and-dual-stream-optical-flow-supervision",
+      "section": "deep",
+      "title_en": "Physics-Grounded Fluid Video Generation with a Simulation Dataset and Dual-Stream Optical-Flow Supervision",
+      "authors": "Ruijie Su, Yuanzhi Liang, Xiaohua Xie, Jianhuang Lai",
+      "date": "2026-07-28",
+      "pdf": "https://arxiv.org/pdf/2607.25321v1",
+      "score": "8.0",
+      "evidence": "基于仿真数据集与光流监督的视频扩散模型生成",
+      "tldr": "视频扩散模型生成的流体常违背物理规律，如液柱断裂、水位不升。原因在于训练语料缺乏显式运动监督。为此构建包含1638段MPM模拟视频和2320段真实泼洒视频的数据集，并提出双流图像到视频架构，在RGB解码器旁增设光流解码器，用端点误差和平滑损失训练，通过零初始化卷积融合。在1.3B和14B模型上，物理常识和视频质量分数最高提升8.75和4.65，且光流端点误差低至0.54像素。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Video diffusion models generate visually compelling content but routinely violate elementary physics when the subject involves fluids: liquid columns break apart in mid-air, container water levels fail to rise as liquid is poured in, and splashes disperse without regard to momentum or gravity. We attribute this gap to the fact that large-scale video-text corpora contain almost no explicit motion supervision, so models learn to imitate fluid appearance rather than dynamics. We address this with two contributions. First, we build a physics-simulation fluid dataset combining 1,638 MPM-simulated pouring/sloshing videos with 2,320 keyword-filtered real pouring videos mined from stock footage, plus two held-out test sets: a 1,515-video real-video benchmark and an 18-prompt text-to-first-frame generalization benchmark. Second, we introduce a dual-stream image-to-video architecture built on a pretrained diffusion-transformer video generator. It augments the standard RGB decoder with a lightweight Optical-Flow Decoder branch trained with explicit end-point-error and smoothness losses, fused into the RGB stream via zero-initialized convolutions so the pretrained backbone starts undisturbed. Only the two decoders are updated; the encoder, temporal transformer, and text encoder remain frozen. Across two model scales (1.3B and 14B) and two test sets, our method improves VideoPhy-2 Physical-Commonsense and Video-Quality scores over the frozen backbone by up to 8.75 and 4.65 points, outperforms a leading open competitor, and is preferred by human raters in a blind study. A direct optical-flow read-out evaluation further shows an end-point error as low as 0.54 pixels in-distribution, confirming the model has internalized a coherent motion prior rather than merely improving surface appearance.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/03/2607.29545v1-moroute-dynamic-routing-for-in-context-multimodal-video-generation",
+      "section": "deep",
+      "title_en": "MoRoute: Dynamic Routing for In-Context Multimodal Video Generation",
+      "authors": "Chong Gao, Jie Ma, Zhan Peng, Chongxiao Wang, Haoxue Wu, Jun Liang, Guanbin Li, Jing Li",
+      "date": "2026-07-31",
+      "pdf": "https://arxiv.org/pdf/2607.29545v1",
+      "score": "8.0",
+      "evidence": "面向多模态视频扩散生成的免训练动态路由",
+      "tldr": "多模态视频生成需统一文本、图像、视频条件，但连接预训练VLM与视频DiT存在挑战。现有方法多注入固定层或联合训练，难以复用异质骨干。MoRoute将两者视为异质专家，通过轻量级块级路由器为每个DiT块动态选择最相关VLM层，并统一引入参考图像和源视频作为上下文条件。在三个基准上平均分提升0.15、0.18、0.34，显著优于最佳方法，实现了自适应理解与生成对应。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Multimodal video generation aims to generate and edit videos conditioned on arbitrary combinations of text, images, and videos within a single model, allowing diverse tasks to share complementary data and generative priors. Unifying these tasks requires multimodal understanding of diverse conditions, which is typically provided by a pretrained vision-language model (VLM). A key challenge is how to connect the VLM's hierarchical multimodal representations with a pretrained video diffusion transformer (DiT). Existing methods either inject features from only the final or a few manually selected VLM layers, or jointly train architecture-matched understanding and generation streams, making it difficult to reuse heterogeneous pretrained backbones. We introduce MoRoute, a unified multimodal video generation framework that formulates a frozen VLM and a pretrained video DiT with different architectures as heterogeneous experts connected through dynamic layer routing. For each input, a lightweight block-wise router enables every DiT block to select the VLM layer most relevant to its generation stage, thereby learning an adaptive correspondence between multimodal understanding and video synthesis. MoRoute further incorporates reference images and source videos directly into the DiT token sequence through unified in-context conditioning, preserving fine-grained visual details across diverse generation and editing tasks. Experiments on IntelligentVBench, OpenVE-Bench, and RefVIE-Bench show that MoRoute consistently surpasses the best competing method on each benchmark, improving the average score by 0.15, 0.18, and 0.34 on a 1-5 scale, respectively.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/03/2607.29337v1-dualdit-a-conditional-dual-output-diffusion-transformer-for-joint-oct-image-and-segmentation-mask-generation",
+      "section": "quick",
+      "title_en": "DualDiT: A Conditional Dual-Output Diffusion Transformer for Joint OCT Image and Segmentation Mask Generation",
+      "authors": "Fernando García-Torres, Rocío del Amor, Sandra Morales, Álvaro Barroso, Peter Heiduschka, Björn Kemper, Valery Naranjo",
+      "date": "2026-07-31",
+      "pdf": "https://arxiv.org/pdf/2607.29337v1",
+      "score": "7.0",
+      "evidence": "扩散Transformer联合生成医学图像与掩膜，匹配扩散模型图像生成需求",
+      "tldr": "光学相干断层扫描中小鼠视网膜分层结构微小，人工标注成本高，带掩膜数据稀缺。现有联合图像与分割掩膜生成主要基于U-Net，扩散Transformer仍鲜有探索。DualDiT通过预训练VAE将图像和掩膜映射至共享潜空间，执行条件扩散联合生成。其FID达56.14，显著优于DDPM和LDM，专家判别混淆率高，且生成数据增广能提升下游分割的Dice和IoU。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Background and Objective: Generating realistic medical images with anatomically accurate segmentation masks helps address the shortage of annotated data in medical imaging, particularly in optical coherence tomography (OCT) of mouse eyes, where manual retinal layer delineation is labour-intensive due to tiny structures and required expertise, resulting in scarce datasets. While diffusion models perform well in medical image synthesis, joint image-mask generation has relied mainly on U-Net-based denoisers, leaving diffusion transformers largely unexplored. Methods: We propose a conditional dual-output Diffusion Transformer (DualDiT) for joint synthesis of OCT B-scans and segmentation masks of the upper retinal cell layers in ex vivo mouse retina. DualDiT encodes both modalities into a shared latent space via a pretrained VAE, concatenates their latent representations, and performs conditional diffusion over the joint tensor. We compared DualDiT against two adapted diffusion baselines: DDPM and LDM. Generative quality was assessed via Fréchet Inception Distance (FID) and spatial FID (sFID); practical utility via synthetic data augmentation for downstream U-Net segmentation; and perceptual realism via evaluation by three domain experts. Results: DualDiT achieved the best generative quality (FID 56.14, sFID 114.35), outperforming DDPM and LDM. Expert panels misclassified 46% of synthetic samples as real and 42% of real samples as synthetic. Adding DualDiT-generated images and masks improved Dice and IoU scores on a held-out segmentation test set. Conclusions: DualDiT shows that transformer-based diffusion models can effectively learn the joint distribution of OCT images and segmentation masks, surpassing DDPM- and LDM-based baselines in generative fidelity, downstream utility, and perceptual realism, highlighting its potential for data augmentation in annotation-scarce medical imaging.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

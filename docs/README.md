@@ -6,32 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-02
-- 运行时间：2026-08-02 20:59:07 UTC
+- 最新运行日期：2026-08-03
+- 运行时间：2026-08-03 21:13:31 UTC
 - 运行状态：成功
 - 本次总论文数：4
-- 精读区：2
-- 速读区：2
+- 精读区：3
+- 速读区：1
 
 ### 今日简报（AI）
-今日精读4篇论文，聚焦扩散模型在身份一致人脸生成与4D动态人体建模，均获8.0高分。最值得关注：Diff-ID实现面部图像生成与形变中的身份保持，4DHumanDiff支持文本驱动的360度动态人体生成。若想快速入门，优先精读这两篇高分工作，速读可关注交互式音视频生成与残差流模型扩展。
-- 详情：[/202608/02/README](/202608/02/README)
+今日精读两篇生成模型论文，速读一篇医学影像生成论文；其中冻结像素空间扩散模型的自引导方法获得9.0高分。最值得关注的方向是扩散模型自引导机制，以及物理约束下的流体视频生成（8.0分）。建议优先精读那篇9.0分的自引导扩散模型论文，理解其创新点。
+- 详情：[/202608/03/README](/202608/03/README)
 
 ### 精读区论文标签
-1. [Diff-ID: Identity Consistent Facial Image Generation and Morphing via Diffusion Models](/202608/02/2607.25078v1-diff-id-identity-consistent-facial-image-generation-and-morphing-via-diffusion-models)  
+1. [A Frozen Pixel-Space Diffusion Model Can Guide Itself with Its Own Samples](/202608/03/2607.29122v1-a-frozen-pixel-space-diffusion-model-can-guide-itself-with-its-own-samples)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：针对冻结像素空间扩散模型图像生成的免训练自引导优化
+2. [Physics-Grounded Fluid Video Generation with a Simulation Dataset and Dual-Stream Optical-Flow Supervision](/202608/03/2607.25321v1-physics-grounded-fluid-video-generation-with-a-simulation-dataset-and-dual-stream-optical-flow-supervision)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：基于扩散模型的身份一致人脸图像生成
-2. [4DHumanDiff: Direct Text-to-4DGS Generation for Consistent 360-Degree Dynamic Humans](/202608/02/2607.27634v1-4dhumandiff-direct-text-to-4dgs-generation-for-consistent-360-degree-dynamic-humans)  
+   evidence：基于仿真数据集与光流监督的视频扩散模型生成
+3. [MoRoute: Dynamic Routing for In-Context Multimodal Video Generation](/202608/03/2607.29545v1-moroute-dynamic-routing-for-in-context-multimodal-video-generation)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：基于扩散模型的文本到4D动态人体生成框架
+   evidence：面向多模态视频扩散生成的免训练动态路由
 
 ### 速读区论文标签
-1. [OmniMate: Open-Ended Real-Time Streaming Audio-Visual Generation for Interactive Avatars](/202608/02/2607.23023v1-omnimate-open-ended-real-time-streaming-audio-visual-generation-for-interactive-avatars)  
+1. [DualDiT: A Conditional Dual-Output Diffusion Transformer for Joint OCT Image and Segmentation Mask Generation](/202608/03/2607.29337v1-dualdit-a-conditional-dual-output-diffusion-transformer-for-joint-oct-image-and-segmentation-mask-generation)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：基于扩散模型的实时音视频虚拟形象生成
-2. [ScaleResfusion: Residual Rectified Flow based on Residual Vector Field](/202608/02/2607.25275v1-scaleresfusion-residual-rectified-flow-based-on-residual-vector-field)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：基于预训练rectified-flow的扩散图像恢复
+   evidence：扩散Transformer联合生成医学图像与掩膜，匹配扩散模型图像生成需求
 
 
 <div class="dpr-home-promo-card">
