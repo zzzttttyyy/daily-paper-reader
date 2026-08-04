@@ -6,32 +6,47 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-03
-- 运行时间：2026-08-03 21:13:31 UTC
+- 最新运行日期：2026-08-04
+- 运行时间：2026-08-04 21:44:03 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：3
-- 速读区：1
+- 本次总论文数：9
+- 精读区：6
+- 速读区：3
 
 ### 今日简报（AI）
-今日精读两篇生成模型论文，速读一篇医学影像生成论文；其中冻结像素空间扩散模型的自引导方法获得9.0高分。最值得关注的方向是扩散模型自引导机制，以及物理约束下的流体视频生成（8.0分）。建议优先精读那篇9.0分的自引导扩散模型论文，理解其创新点。
-- 详情：[/202608/03/README](/202608/03/README)
+今日精读聚焦长视频生成与扩散推理加速，速读涵盖布局可控生成及扩散视觉语言模型。最值得关注：FreqForcing 通过频谱自锚定提升自回归长视频生成，OnlineCache 以动态缓存与纠错机制降低扩散推理开销。建议优先研读这两篇高分工作，并关注扩散模型在高效生成与视觉语言任务中的联动潜力。
+- 详情：[/202608/04/README](/202608/04/README)
 
 ### 精读区论文标签
-1. [A Frozen Pixel-Space Diffusion Model Can Guide Itself with Its Own Samples](/202608/03/2607.29122v1-a-frozen-pixel-space-diffusion-model-can-guide-itself-with-its-own-samples)  
+1. [FreqForcing: Autoregressive Long Video Generation via Spectral Self-Anchoring](/202608/04/2607.27110v2-freqforcing-autoregressive-long-video-generation-via-spectral-self-anchoring)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：针对冻结像素空间扩散模型图像生成的免训练自引导优化
-2. [Physics-Grounded Fluid Video Generation with a Simulation Dataset and Dual-Stream Optical-Flow Supervision](/202608/03/2607.25321v1-physics-grounded-fluid-video-generation-with-a-simulation-dataset-and-dual-stream-optical-flow-supervision)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：基于仿真数据集与光流监督的视频扩散模型生成
-3. [MoRoute: Dynamic Routing for In-Context Multimodal Video Generation](/202608/03/2607.29545v1-moroute-dynamic-routing-for-in-context-multimodal-video-generation)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：面向多模态视频扩散生成的免训练动态路由
+   evidence：面向长视频扩散生成误差累积的免训练框架
+2. [OnlineCache: Learning Dynamic Caching Policies with Error Correction for Efficient Diffusion Inference](/202608/04/2607.29398v1-onlinecache-learning-dynamic-caching-policies-with-error-correction-for-efficient-diffusion-inference)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：带误差校正的动态缓存策略用于高效扩散推理
+3. [Disagree to Accelerate: Closing the Loop on Diffusion Feature Forecasts](/202608/04/2608.01740v1-disagree-to-accelerate-closing-the-loop-on-diffusion-feature-forecasts)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：面向扩散采样加速的免训练特征预测及可信度信号
+4. [WorldDynCache: Risk-Controlled Latent Dynamics Approximation for Diffusion World Model](/202608/04/2608.01845v1-worlddyncache-risk-controlled-latent-dynamics-approximation-for-diffusion-world-model)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：用于视频生成中扩散世界模型的高效免训练缓存
+5. [EchoCache: Energy-Guided Cross-Modal Caching for Efficient Audio-Driven Video Generation](/202608/04/2608.02474v1-echocache-energy-guided-cross-modal-caching-for-efficient-audio-driven-video-generation)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：无需训练的缓存方法，加速音频驱动视频扩散推理
+6. [Token Radius Attention for Efficient Video Generation](/202608/04/2608.02504v1-token-radius-attention-for-efficient-video-generation)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：用于扩散Transformer视频生成的免训练注意力稀疏化框架
 
 ### 速读区论文标签
-1. [DualDiT: A Conditional Dual-Output Diffusion Transformer for Joint OCT Image and Segmentation Mask Generation](/202608/03/2607.29337v1-dualdit-a-conditional-dual-output-diffusion-transformer-for-joint-oct-image-and-segmentation-mask-generation)  
+1. [InstancePin: Instance-Addressable Layout-to-Image Diffusion via Coordinate Pinning](/202608/04/2608.00588v1-instancepin-instance-addressable-layout-to-image-diffusion-via-coordinate-pinning)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：扩散Transformer联合生成医学图像与掩膜，匹配扩散模型图像生成需求
+   evidence：用于图像生成的实例可寻址布局到图像扩散
+2. [DAVET: Denoising-Aware Visual Evidence Trajectory Allocation for Diffusion Vision-Language Models](/202608/04/2608.01821v1-davet-denoising-aware-visual-evidence-trajectory-allocation-for-diffusion-vision-language-models)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：免训练的去噪感知视觉证据分配以加速扩散视觉语言模型
+3. [Where Does Generative Difficulty Reside? An Empirical Study of Target Representations](/202608/04/2608.00626v1-where-does-generative-difficulty-reside-an-empirical-study-of-target-representations)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：对扩散图像生成中目标表示的经验研究
 
 
 <div class="dpr-home-promo-card">
