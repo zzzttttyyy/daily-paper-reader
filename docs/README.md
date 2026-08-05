@@ -6,47 +6,41 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-04
-- 运行时间：2026-08-04 21:44:03 UTC
+- 最新运行日期：2026-08-05
+- 运行时间：2026-08-05 21:01:02 UTC
 - 运行状态：成功
-- 本次总论文数：9
-- 精读区：6
-- 速读区：3
+- 本次总论文数：7
+- 精读区：3
+- 速读区：4
 
 ### 今日简报（AI）
-今日精读聚焦长视频生成与扩散推理加速，速读涵盖布局可控生成及扩散视觉语言模型。最值得关注：FreqForcing 通过频谱自锚定提升自回归长视频生成，OnlineCache 以动态缓存与纠错机制降低扩散推理开销。建议优先研读这两篇高分工作，并关注扩散模型在高效生成与视觉语言任务中的联动潜力。
-- 详情：[/202608/04/README](/202608/04/README)
+今日聚焦扩散模型与视频推理加速，精读2篇高分论文，速读3篇覆盖仿真无关采样、水印及频域流匹配。最值得关注的是《Rectify Then Diffuse》的概念解耦思路与《SPADE》的稀疏注意力加速引擎，均获9.0/10高分。建议优先精读这两篇，从可控生成和推理效率两个维度把握当前扩散模型的前沿进展。
+- 详情：[/202608/05/README](/202608/05/README)
 
 ### 精读区论文标签
-1. [FreqForcing: Autoregressive Long Video Generation via Spectral Self-Anchoring](/202608/04/2607.27110v2-freqforcing-autoregressive-long-video-generation-via-spectral-self-anchoring)  
+1. [Rectify Then Diffuse: Disentangling Concepts Before Denoising Trajectory Unfolds](/202608/05/2608.03135v1-rectify-then-diffuse-disentangling-concepts-before-denoising-trajectory-unfolds)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：面向长视频扩散生成误差累积的免训练框架
-2. [OnlineCache: Learning Dynamic Caching Policies with Error Correction for Efficient Diffusion Inference](/202608/04/2607.29398v1-onlinecache-learning-dynamic-caching-policies-with-error-correction-for-efficient-diffusion-inference)  
+   evidence：在标准去噪前一次性修正初始注意力分配的免训练文本到图像扩散组合生成框架
+2. [SPADE: An Input-Adaptive Sparse Attention Engine for Fast Video Diffusion Models Inference](/202608/05/2608.03335v1-spade-an-input-adaptive-sparse-attention-engine-for-fast-video-diffusion-models-inference)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：带误差校正的动态缓存策略用于高效扩散推理
-3. [Disagree to Accelerate: Closing the Loop on Diffusion Feature Forecasts](/202608/04/2608.01740v1-disagree-to-accelerate-closing-the-loop-on-diffusion-feature-forecasts)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：面向扩散采样加速的免训练特征预测及可信度信号
-4. [WorldDynCache: Risk-Controlled Latent Dynamics Approximation for Diffusion World Model](/202608/04/2608.01845v1-worlddyncache-risk-controlled-latent-dynamics-approximation-for-diffusion-world-model)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：用于视频生成中扩散世界模型的高效免训练缓存
-5. [EchoCache: Energy-Guided Cross-Modal Caching for Efficient Audio-Driven Video Generation](/202608/04/2608.02474v1-echocache-energy-guided-cross-modal-caching-for-efficient-audio-driven-video-generation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：无需训练的缓存方法，加速音频驱动视频扩散推理
-6. [Token Radius Attention for Efficient Video Generation](/202608/04/2608.02504v1-token-radius-attention-for-efficient-video-generation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：用于扩散Transformer视频生成的免训练注意力稀疏化框架
+   evidence：免训练的稀疏注意力引擎，加速视频扩散模型推理
+3. [JoyAI-Video-Edit: Real-Time Open-Ended Video Editing with Autoregressive Diffusion](/202608/05/2608.03974v1-joyai-video-edit-real-time-open-ended-video-editing-with-autoregressive-diffusion)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：自回归扩散实现视频生成与编辑
 
 ### 速读区论文标签
-1. [InstancePin: Instance-Addressable Layout-to-Image Diffusion via Coordinate Pinning](/202608/04/2608.00588v1-instancepin-instance-addressable-layout-to-image-diffusion-via-coordinate-pinning)  
+1. [Simulation-free and finite-time diffusion model](/202608/05/2608.03117v1-simulation-free-and-finite-time-diffusion-model)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：用于图像生成的实例可寻址布局到图像扩散
-2. [DAVET: Denoising-Aware Visual Evidence Trajectory Allocation for Diffusion Vision-Language Models](/202608/04/2608.01821v1-davet-denoising-aware-visual-evidence-trajectory-allocation-for-diffusion-vision-language-models)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：免训练的去噪感知视觉证据分配以加速扩散视觉语言模型
-3. [Where Does Generative Difficulty Reside? An Empirical Study of Target Representations](/202608/04/2608.00626v1-where-does-generative-difficulty-reside-an-empirical-study-of-target-representations)  
+   evidence：统一免模拟训练与有限时间生成的扩散模型参考过程设计框架
+2. [FARI: Robust One-Step Inversion for Watermarking in Diffusion Models](/202608/05/2607.26723v1-fari-robust-one-step-inversion-for-watermarking-in-diffusion-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：对扩散图像生成中目标表示的经验研究
+   evidence：面向扩散图像水印的免训练一步反演，支持低NFE推理优化
+3. [WaiT for the Signal: Simple Frequency-Aware Flow-Matching](/202608/05/2607.28760v1-wait-for-the-signal-simple-frequency-aware-flow-matching)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：频率感知流匹配图像生成，与扩散生成框架相关但并非免训练
+4. [HyperbolicDiffusion: Sharp & Scalable Tiled Generation on the Hyperbolic Plane](/202608/05/2608.03422v1-hyperbolicdiffusion-sharp--scalable-tiled-generation-on-the-hyperbolic-plane)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：双曲平面上的免训练分块扩散生成与几何融合
 
 
 <div class="dpr-home-promo-card">

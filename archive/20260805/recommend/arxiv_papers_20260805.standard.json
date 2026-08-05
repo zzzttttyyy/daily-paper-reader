@@ -1,0 +1,313 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-05T20:55:02.866975+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2608.03135v1",
+      "source": "arxiv",
+      "title": "Rectify Then Diffuse: Disentangling Concepts Before Denoising Trajectory Unfolds",
+      "abstract": "Text-to-image diffusion models can generate individual concepts well, but they often omit or merge concepts incorrectly with multiple concepts. We trace these failures to an early coordination bottleneck: before denoising begins, prompt-conditioned attention may allocate different concepts to strongly overlapping spatial support, which can keep their attention coupled as denoising proceeds. This observation motivates treating compositional generation as a boundary-condition problem rather than repeatedly controlling the evolving trajectory. To this end, we propose Rectify-then-Diffuse (RTD), a training-free framework that rectifies the initial allocation once before standard denoising. Firstly, we propose Soft-Overlap Disentanglement (SOD), which converts normalized overlap between pilot concept maps into a differentiable and layout-agnostic separation objective. Secondly, we introduce Isotropic Gradient Rectification (IGR), which normalizes the SOD gradient and applies a bounded latent displacement with a consistent scale across prompts and initializations. Extensive experiments show that RTD achieves state-of-the-art compositional fidelity and robust gains. On the AE-Bench object pair subset, RTD improves BLIP-VQA by 45.8% and ImageReward by 19.6% over CO3 while running 2.3$\\times$ faster. Code will be released at https://github.com/Z-yiwei/rectify-then-diffuse",
+      "authors": [
+        "Ning Zhu",
+        "An Chen",
+        "Mengfei Zhao",
+        "Juntao Xu",
+        "Jingze Liang",
+        "Boyuan Gu",
+        "Liang-Jian Deng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-04T05:03:17+00:00",
+      "link": "https://arxiv.org/pdf/2608.03135v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free framework rectifying initial attention allocation for compositional text-to-image diffusion",
+      "llm_evidence_cn": "在标准去噪前一次性修正初始注意力分配的免训练文本到图像扩散组合生成框架",
+      "llm_evidence": "在标准去噪前一次性修正初始注意力分配的免训练文本到图像扩散组合生成框架",
+      "canonical_evidence": "在标准去噪前一次性修正初始注意力分配的免训练文本到图像扩散组合生成框架",
+      "llm_tldr_en": "This training-free method improves multi-concept text-to-image generation by rectifying the initial prompt-conditioned attention allocation once before standard denoising, using soft-overlap disentanglement to avoid concept omission and merging.",
+      "llm_tldr_cn": "论文针对文本到图像扩散模型在多个概念组合生成时容易遗漏或错误合并概念的问题，将其归因于去噪开始前注意力分配的早期协调瓶颈。为此提出免训练框架Rectify-then-Diffuse，在标准去噪流程开始前一次性修正初始概念分配，并设计软重叠解耦方法减少概念间的空间重叠。该方法无需额外训练即可改善组合生成的准确性与一致性，为组合式文本到图像生成提供了简洁有效的边界条件求解方案。",
+      "llm_tldr": "论文针对文本到图像扩散模型在多个概念组合生成时容易遗漏或错误合并概念的问题，将其归因于去噪开始前注意力分配的早期协调瓶颈。为此提出免训练框架Rectify-then-Diffuse，在标准去噪流程开始前一次性修正初始概念分配，并设计软重叠解耦方法减少概念间的空间重叠。该方法无需额外训练即可改善组合生成的准确性与一致性，为组合式文本到图像生成提供了简洁有效的边界条件求解方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.03335v1",
+      "source": "arxiv",
+      "title": "SPADE: An Input-Adaptive Sparse Attention Engine for Fast Video Diffusion Models Inference",
+      "abstract": "Video diffusion transformers (vDiTs) generate high quality but pay quadratic self-attention cost, making inference prohibitive at video-token scales. The challenge is input-adaptive sparsity: selecting critical Q/K/V tokens with negligible overhead and executing them for end-to-end gains. We present SPADE, a training-free sparse-attention engine of three parts: (i) vDiT-SSR, a specification defining 3D blocking candidates and formalizing dynamic masks via Summarizer/Estimator expressions; (ii) runtime scheme generation using SICS and a head-wise policy; and (iii) an executor with low-overhead index search, flash block-sparse attention, and kernel grouping. Across Hunyuan-Video and Wan 2.1/2.2 for text-to-video and image-to-video generation, SPADE raises sparsity and speed while preserving quality, accelerating attention by 2.26x-3.40x and end-to-end inference by 1.49x-1.80x. Our code is open-sourced at https://github.com/6somehow/DAC-SPADE.",
+      "authors": [
+        "Shanghao Liu",
+        "Renze Chen",
+        "Size Zheng",
+        "Yuanqiang Liu",
+        "Yun",
+        "Liang",
+        "Hailong Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-04T08:47:57+00:00",
+      "link": "https://arxiv.org/pdf/2608.03335v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sparse attention engine for faster video diffusion inference",
+      "llm_evidence_cn": "免训练的稀疏注意力引擎，加速视频扩散模型推理",
+      "llm_evidence": "免训练的稀疏注意力引擎，加速视频扩散模型推理",
+      "canonical_evidence": "免训练的稀疏注意力引擎，加速视频扩散模型推理",
+      "llm_tldr_en": "SPADE accelerates video diffusion transformers with a training-free input-adaptive sparse attention engine, yielding end-to-end speedups on text-to-video and image-to-video generation.",
+      "llm_tldr_cn": "视频扩散Transformer因二次自注意力代价导致推理开销巨大。SPADE提出一种免训练的输入自适应稀疏注意力引擎，通过定义3D分块候选、运行时方案生成和低开销执行器来动态选择关键Q/K/V标记。在Hunyuan-Video与Wan 2.1/2.2的文生视频和图生视频任务上验证了端到端加速。该工作为视频扩散推理提供了一条无需额外训练的性能优化路径。",
+      "llm_tldr": "视频扩散Transformer因二次自注意力代价导致推理开销巨大。SPADE提出一种免训练的输入自适应稀疏注意力引擎，通过定义3D分块候选、运行时方案生成和低开销执行器来动态选择关键Q/K/V标记。在Hunyuan-Video与Wan 2.1/2.2的文生视频和图生视频任务上验证了端到端加速。该工作为视频扩散推理提供了一条无需额外训练的性能优化路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.03974v1",
+      "source": "arxiv",
+      "title": "JoyAI-Video-Edit: Real-Time Open-Ended Video Editing with Autoregressive Diffusion",
+      "abstract": "Real-time video editing requires low-latency causal generation with bounded computational resources while preserving source fidelity and long-term temporal consistency. We present JoyAI-Video-Edit, a 16B-parameter autoregressive diffusion framework for real-time, open-ended video editing without access to future frames or a predefined video duration. Our method combines chunk-wise autoregressive adaptation, Source-Anchored Distribution Matching Distillation (SA-DMD), and Long-Horizon Autoregressive Distillation to reduce train--inference mismatch, preserve source fidelity during two-step generation, and mitigate accumulated temporal drift. Extensive automatic and human evaluations show that JoyAI-Video-Edit substantially outperforms existing streaming editors and remains competitive with strong offline systems on both short and long videos. The complete system achieves end-to-end 720p video editing at approximately 30 FPS on a single Nvidia B200 GPU. Code is available at https://github.com/jd-opensource/JoyAI-Video-Edit.",
+      "authors": [
+        "Yicheng Xiao",
+        "Wenxun Dai",
+        "Xinran Qin",
+        "Lin Song",
+        "Maoquan Zhang",
+        "Hang Xu",
+        "Yukang Chen",
+        "Yitong Li",
+        "Guohui Zhang",
+        "Yuan Zhang",
+        "Xuying Zhang",
+        "Tommy Zhang",
+        "Jianlong Yuan",
+        "Peihao Li",
+        "Shuai Lu",
+        "Siming Fu",
+        "Chuyang Zhao",
+        "Xin Han",
+        "Jie Huang",
+        "Wenbo Li",
+        "Guoqing Ma",
+        "Wei Huang",
+        "Xiaojuan Qi",
+        "Haoyang Huang",
+        "Nan Duan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-04T17:40:48+00:00",
+      "link": "https://arxiv.org/pdf/2608.03974v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "autoregressive diffusion for video generation and editing",
+      "llm_evidence_cn": "自回归扩散实现视频生成与编辑",
+      "llm_evidence": "自回归扩散实现视频生成与编辑",
+      "canonical_evidence": "自回归扩散实现视频生成与编辑",
+      "llm_tldr_en": "JoyAI-Video-Edit is a 16B autoregressive diffusion framework for real-time open-ended video editing, using chunk-wise adaptation and dual distillation to reduce training-inference mismatch and temporal drift.",
+      "llm_tldr_cn": "实时视频编辑需要低延迟因果生成、有限算力约束，并要同时保持源保真度和长期时间一致性。本文提出JoyAI-Video-Edit，一个160亿参数的自回归扩散框架，支持无需未来帧和预设时长的开放式视频编辑。方法结合分块自回归适应、源锚定分布匹配蒸馏和长程自回归蒸馏，以减少训练与推理差异、在两步生成中保持源保真并抑制时间漂移。大量自动和人工评测表明，该方法在实时视频编辑质量上显著超过现有方法。",
+      "llm_tldr": "实时视频编辑需要低延迟因果生成、有限算力约束，并要同时保持源保真度和长期时间一致性。本文提出JoyAI-Video-Edit，一个160亿参数的自回归扩散框架，支持无需未来帧和预设时长的开放式视频编辑。方法结合分块自回归适应、源锚定分布匹配蒸馏和长程自回归蒸馏，以减少训练与推理差异、在两步生成中保持源保真并抑制时间漂移。大量自动和人工评测表明，该方法在实时视频编辑质量上显著超过现有方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.03117v1",
+      "source": "arxiv",
+      "title": "Simulation-free and finite-time diffusion model",
+      "abstract": "The performance of generative diffusion models is determined by the choice of the reference diffusion process connecting the empirical and prior distributions. Conventional approaches typically trade off simulation-free training against finite-time generation. We propose a framework for designing the reference process that achieves both simultaneously. The key idea is to prescribe tractable time-dependent conditional distributions and then construct the reference process realizing them as its marginals. This framework reveals that score matching is not fundamental to diffusion-model training but instead emerges naturally through reversal of the reference process. We further show that conditional flow matching arises as the small-noise limit of the proposed framework.",
+      "authors": [
+        "Kentaro Kaba",
+        "Masayuki Ohzeki",
+        "Yuki Sughiyama"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-04T04:39:14+00:00",
+      "link": "https://arxiv.org/pdf/2608.03117v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Diffusion model training framework unifying simulation-free training with finite-time generation",
+      "llm_evidence_cn": "统一免模拟训练与有限时间生成的扩散模型参考过程设计框架",
+      "llm_evidence": "统一免模拟训练与有限时间生成的扩散模型参考过程设计框架",
+      "canonical_evidence": "统一免模拟训练与有限时间生成的扩散模型参考过程设计框架",
+      "llm_tldr_en": "This paper designs reference processes for diffusion models to achieve both simulation-free training and finite-time generation, showing score matching is emergent rather than fundamental and linking to conditional flow matching.",
+      "llm_tldr_cn": "论文针对生成扩散模型在免模拟训练与有限时间生成之间的权衡问题，提出通过指定显式时间相关条件分布来构造参考过程的新框架，使二者同时实现。该框架揭示分数匹配并非扩散模型训练的本质，而是参考过程反转的自然产物，并证明条件流匹配是其小噪声极限。这一发现为设计更高效的扩散训练与生成方案提供了统一视角。",
+      "llm_tldr": "论文针对生成扩散模型在免模拟训练与有限时间生成之间的权衡问题，提出通过指定显式时间相关条件分布来构造参考过程的新框架，使二者同时实现。该框架揭示分数匹配并非扩散模型训练的本质，而是参考过程反转的自然产物，并证明条件流匹配是其小噪声极限。这一发现为设计更高效的扩散训练与生成方案提供了统一视角。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.26723v1",
+      "source": "arxiv",
+      "title": "FARI: Robust One-Step Inversion for Watermarking in Diffusion Models",
+      "abstract": "Inversion-based watermarking is a promising approach to authenticate diffusion-generated images, yet practical use is bottlenecked by inversion that is both slow and error-prone. While the primary challenge in the watermarking setting is robustness against external distortions, existing approaches over-optimize internal truncation error, and because that error scales with the sampler step size, they are inherently confined to high-NFE (number of function evaluations) regimes that cannot meet the dual demands of speed and robustness. In this work, we have two key observations: (i) the inversion trajectory has markedly lower curvature than the forward generation path does, making it highly compressible and amenable to low-NFE approximation; and (ii) in inversion for watermark verification, the trade-off between speed and truncation error is less critical, since external distortions dominate the error. A faster inverter provides a dual benefit: it is not only more efficient, but it also enables end-to-end adversarial training to directly target robustness, a task that is computationally prohibitive for the original, lengthy inversion trajectories. Building on this, we propose \\textbf{FARI} (\\textbf{F}ast \\textbf{A}symmetric \\textbf{R}obust \\textbf{I}nversion), a one-step inversion framework paired with lightweight adversarial LoRA fine-tuning of the denoiser for watermark extraction. While consolidation slightly increases internal error, FARI delivers large gains in both speed and robustness: with approximately 20 minutes of fine-tuning on a single NVIDIA RTX A6000 GPU, it surpasses 50-step DDIM inversion on watermark-verification robustness while dramatically reducing inference time. Code and pretrained models are available at https://github.com/0xD009/FARI.",
+      "authors": [
+        "Jindong Yang",
+        "Han Fang",
+        "Weiming Zhang",
+        "Nenghai Yu",
+        "Kejiang Chen"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "published": "2026-07-29T10:13:55+00:00",
+      "link": "https://arxiv.org/pdf/2607.26723v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free one-step inversion for watermarking diffusion images at low NFE",
+      "llm_evidence_cn": "面向扩散图像水印的免训练一步反演，支持低NFE推理优化",
+      "llm_evidence": "面向扩散图像水印的免训练一步反演，支持低NFE推理优化",
+      "canonical_evidence": "面向扩散图像水印的免训练一步反演，支持低NFE推理优化",
+      "llm_tldr_en": "Robust one-step inversion for watermarking diffusion images, exploiting low-curvature inversion trajectories for low-NFE approximation without retraining. Contributes training-free optimization for diffusion models.",
+      "llm_tldr_cn": "针对扩散模型反演水印速度慢且易错的问题，作者发现反演轨迹比生成路径曲率更低、更可压缩，因而提出FARI，在极低函数评估次数下实现鲁棒的一步反演，兼顾速度与鲁棒性。该方法无需重新训练模型，为扩散模型的免训练推理优化提供了新思路。",
+      "llm_tldr": "针对扩散模型反演水印速度慢且易错的问题，作者发现反演轨迹比生成路径曲率更低、更可压缩，因而提出FARI，在极低函数评估次数下实现鲁棒的一步反演，兼顾速度与鲁棒性。该方法无需重新训练模型，为扩散模型的免训练推理优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.28760v1",
+      "source": "arxiv",
+      "title": "WaiT for the Signal: Simple Frequency-Aware Flow-Matching",
+      "abstract": "As image generation models scale to ever higher resolutions, global coherence, local detail, and texture fidelity become critical axes for generation quality. However, standard flow matching treats all spatial frequencies uniformly, ignoring the natural frequency hierarchy where high-frequency bands become indistinguishable from pure noise far earlier than coarse structures. We introduce WaiT, a Wavelet-aware image Transformer that decomposes generation into coarse and fine bands via lossless wavelets. True to its name, the high-frequency bands wait for the signal: staying pure noise until coarse structure has emerged, then joining the flow for joint refinement. Since standard FID discards fine-grained detail through aggressive downsampling, we introduce a more stringent three-axis evaluation protocol to assess quality at native resolution. On ImageNet 512x512, WaiT achieves a pixel-space FID of 1.43 and is Pareto-optimal across all three axes, reducing sampling compute by up to 50%. With our largest 2B model, we set a new state-of-the-art FID of 1.3 for pixel-space models on ImageNet 512 resolution. Our formulation outperforms even the strongest latent-space models on texture fidelity, and scales seamlessly to high-resolution OpenImages and to video generation, achieving a state-of-the-art FVD of 0.84 on Kinetics-600 with no algorithmic modifications.",
+      "authors": [
+        "Krunoslav Lehman Pavasovic",
+        "Théophane Vallaeys",
+        "Stéphane Mallat",
+        "Giulio Biroli",
+        "Luke Zettlemoyer",
+        "Brian Karrer",
+        "Jakob Verbeek"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-07-30T18:26:19+00:00",
+      "link": "https://arxiv.org/pdf/2607.28760v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Frequency-aware flow-matching image generation, related to diffusion generative framework but not training-free",
+      "llm_evidence_cn": "频率感知流匹配图像生成，与扩散生成框架相关但并非免训练",
+      "llm_evidence": "频率感知流匹配图像生成，与扩散生成框架相关但并非免训练",
+      "canonical_evidence": "频率感知流匹配图像生成，与扩散生成框架相关但并非免训练",
+      "llm_tldr_en": "WaiT introduces a wavelet-aware image Transformer for flow-matching generation that keeps high-frequency bands as pure noise until coarse structure emerges, then joins them for joint refinement, plus a stricter FID variant.",
+      "llm_tldr_cn": "论文针对高分辨率图像生成中标准流匹配对所有空间频率一视同仁、忽略高频带更早变成纯噪声这一自然层级问题，提出WaiT。该方法利用无损小波将生成分解为粗粒度和细粒度频带，让高频带先保持纯噪声，待粗结构形成后再加入流进行联合细化，并设计了更严格的FID变体以保留细节。WaiT为频率感知的扩散与流匹配生成提供了简单有效的新范式。",
+      "llm_tldr": "论文针对高分辨率图像生成中标准流匹配对所有空间频率一视同仁、忽略高频带更早变成纯噪声这一自然层级问题，提出WaiT。该方法利用无损小波将生成分解为粗粒度和细粒度频带，让高频带先保持纯噪声，待粗结构形成后再加入流进行联合细化，并设计了更严格的FID变体以保留细节。WaiT为频率感知的扩散与流匹配生成提供了简单有效的新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.03422v1",
+      "source": "arxiv",
+      "title": "HyperbolicDiffusion: Sharp & Scalable Tiled Generation on the Hyperbolic Plane",
+      "abstract": "Planar tiled diffusion denoises overlapping windows of one rectangular canvas. The hyperbolic plane has no such canvas, and its area grows exponentially with radius. We introduce HyperbolicDiffusion, a training-free method for generating finite visual fields directly on the hyperbolic plane H2. Our Hyperbolic Blooming Cover reduces window placement to a compact dynamic program that runs in seconds while providing strong theoretical guarantees. Permanent surface IDs form a shared latent canvas: a standard diffusion model denoises local windows, whose predictions are fused back onto H2. Because curvature causes residual disagreement and blur at multi-window junctions, a geometry-derived second stage re-noises and repairs precisely those regions. The resulting fields are sharp, reprojectable, and consistent across viewpoints, providing a prompt-driven generative counterpart to Escher's Circle Limit series.",
+      "authors": [
+        "Hugo Caselles-Dupré"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-04T10:13:16+00:00",
+      "link": "https://arxiv.org/pdf/2608.03422v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free tiled diffusion generation on hyperbolic plane with geometric fusion",
+      "llm_evidence_cn": "双曲平面上的免训练分块扩散生成与几何融合",
+      "llm_evidence": "双曲平面上的免训练分块扩散生成与几何融合",
+      "canonical_evidence": "双曲平面上的免训练分块扩散生成与几何融合",
+      "llm_tldr_en": "HyperbolicDiffusion extends diffusion generation to the hyperbolic plane with a training-free blooming cover and geometry-guided repair stage, enabling scalable tiled image generation without additional training.",
+      "llm_tldr_cn": "平面分块扩散模型依赖于矩形画布上的重叠窗口去噪，而双曲平面没有这样的画布。HyperbolicDiffusion提出训练-free方法，直接在双曲平面上生成有限视觉场。它通过双曲盛开花覆盖将窗口放置简化为动态规划，并利用永久表面ID共享潜变量画布，融合局部窗口预测。为解决曲率引起的多窗口拼接模糊，第二阶段的几何修复会重新噪声并修正这些区域，实现清晰可扩展的分块生成。",
+      "llm_tldr": "平面分块扩散模型依赖于矩形画布上的重叠窗口去噪，而双曲平面没有这样的画布。HyperbolicDiffusion提出训练-free方法，直接在双曲平面上生成有限视觉场。它通过双曲盛开花覆盖将窗口放置简化为动态规划，并利用永久表面ID共享潜变量画布，融合局部窗口预测。为解决曲率引起的多窗口拼接模糊，第二阶段的几何修复会重新噪声并修正这些区域，实现清晰可扩展的分块生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
