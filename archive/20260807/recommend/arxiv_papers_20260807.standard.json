@@ -1,52 +1,206 @@
 {
   "mode": "standard",
-  "generated_at": "2026-08-07T01:42:47.824110+00:00",
+  "generated_at": "2026-08-07T20:36:59.060423+00:00",
   "stats": {
     "mode": "standard",
     "tag_count": 1,
-    "deep_divecandidates": 1,
+    "deep_divecandidates": 5,
     "deep_cap": 6,
-    "deep_selected": 1,
-    "quick_candidates": 7,
+    "deep_selected": 5,
+    "quick_candidates": 10,
     "quick_skim_target": 11,
-    "quick_selected": 7
+    "quick_selected": 10
   },
   "deep_dive": [
     {
-      "id": "2608.04818v1",
+      "id": "2608.05237v1",
       "source": "arxiv",
-      "title": "Rethinking Pixel Mean Flows via Interval Denoiser",
-      "abstract": "Modern diffusion and flow-based models are increasingly moving toward few-step, latent-free generation to bypass the computational overhead of multi-step sampling and the reconstruction bottlenecks of external autoencoders. We propose the Interval Denoiser, a theoretically rigorous framework for latent-free generation. Derived directly from the flow matching ODE, it establishes an exact analytical mapping for intermediate trajectory states. Unlike prior formulations, our prediction is shown to reside on a low-dimensional manifold across any time interval, making the regression tractable for a network operating directly on pixels. Furthermore, by avoiding empirical algebraic substitutions, our formulation correctly isolates the pure time derivative to prevent biased gradient evaluations and ensure exact first-order optimization. By analyzing this objective, we equip our framework with residual clipping and a time-sampling curriculum, enabling effective long-interval training and improving few-step performance. Trained from scratch on ImageNet 256x256, our model achieves an FID of 4.55 in one step (1-NFE) and 3.98 in two steps (2-NFE) without perceptual losses.",
+      "title": "In-Context Forcing: Uncovering Context Effects in Autoregressive Video Diffusion",
+      "abstract": "Current few-step autoregressive video diffusion models depend on previous fully denoised clean frames as context for all denoising steps of the current frame. However, these clean frames leak excessive local details, which causes the model to take shortcuts, resulting in compromised temporal semantics and dynamics. Inspired by the perspective of diffusion as masking, we explore the impact of noisy contexts on few-step autoregressive generation. Yet, simply applying contexts with the same noise levels provides insufficient guidance, leading to poor temporal consistency. To resolve this dilemma, we introduce In-Context Forcing, a progressive autoregressive paradigm that utilizes contexts with decreasing noise levels. By applying less masking to distant frames and more masking to adjacent ones, this approach provides adaptive guidance, effectively ensuring both robust temporal consistency and high inter-frame dynamics. Furthermore, by decoupling the strict dependence on previous clean frames, our paradigm enables cross-frame parallel denoising, achieving substantial inference acceleration without sacrificing performance. Extensive experiments on VBench demonstrate that our method significantly outperforms state-of-the-art approaches in both visual fidelity and inference speed.",
       "authors": [
-        "Alexander Zaytsev",
-        "Dmitry Baranchuk",
-        "Alexander Korotin",
-        "Aibek Alanov"
+        "Lingxiao Yang",
+        "Liu Liu",
+        "Moran Li",
+        "Han Feng",
+        "Wenjian Cao",
+        "Jiangning Zhang",
+        "Ye Shi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-05T13:54:31+00:00",
+      "link": "https://arxiv.org/pdf/2608.05237v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "training-free progressive autoregressive inference-time method to improve few-step video diffusion generation",
+      "llm_evidence_cn": "面向少步视频扩散的免训练、测试时自回归生成改进方法",
+      "llm_evidence": "面向少步视频扩散的免训练、测试时自回归生成改进方法",
+      "canonical_evidence": "面向少步视频扩散的免训练、测试时自回归生成改进方法",
+      "llm_tldr_en": "Introduces In-Context Forcing, an inference-time autoregressive paradigm that feeds decreasingly noisy contexts to few-step video diffusion models, improving temporal consistency without additional training.",
+      "llm_tldr_cn": "针对当前少步自回归视频扩散模型使用完全干净的先前帧作上下文、导致时间语义和动态受损的问题，论文提出上下文强制（In-Context Forcing）方法。该方法在生成当前帧时提供噪声水平递减的上下文，以保留全局语义同时避免局部细节泄漏。作为测试时策略，它无需额外训练即可提升视频生成的时间一致性和动态质量。实验表明该范式能有效改善少步视频扩散生成。",
+      "llm_tldr": "针对当前少步自回归视频扩散模型使用完全干净的先前帧作上下文、导致时间语义和动态受损的问题，论文提出上下文强制（In-Context Forcing）方法。该方法在生成当前帧时提供噪声水平递减的上下文，以保留全局语义同时避免局部细节泄漏。作为测试时策略，它无需额外训练即可提升视频生成的时间一致性和动态质量。实验表明该范式能有效改善少步视频扩散生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.05976v1",
+      "source": "arxiv",
+      "title": "Diff-VF: Training-free High-quality Long Video Generation via Diffusion Model",
+      "abstract": "Recently, diffusion models have made great progress in video generation. However, most existing video diffusion models are trained with short videos, and degrade when extrapolated to long videos, struggling to maintain long-range temporal coherence while retaining diverse motions. To generate consistent, high-quality and dynamic long videos, we propose Diff-VF, a training-free, plug-and-play and model-agnostic framework that converts existing short-video diffusion backbones into long-video generators without modifying or fine-tuning the base model. Diff-VF couples three complementary strategies: Hybrid Noise Initialization (HNI) to constrain global semantics, Weighted Window Sampling (WWS) to remove inter-window discontinuities, and Temporal Extended Sampling (TES) to establish long-range dependencies with a timestep-varying fusion. We further extend Diff-VF to long-video enhancement via Skip Residual Guidance that balances fidelity and realism through timestep-dependent guidance. VBench-Long evaluation results show that Diff-VF achieves a more favorable balance between temporal coherence and motion diversity than base models and recent training-free long video generation baselines, including FreeNoise, FreeLong, and RIFLEx, while maintaining competitive frame-wise quality. Experiments on two base models demonstrate the applicability to video diffusion models with different spatial-temporal modeling strategies. Extensive ablations validate the contribution of each component and hyperparameters.",
+      "authors": [
+        "Haoning Yang",
+        "Xinyuan Chen",
+        "Yaohui Wang",
+        "Guo Lu"
       ],
       "primary_category": "cs.CV",
       "categories": [
         "cs.CV"
       ],
-      "published": "2026-08-05T13:22:43+00:00",
-      "link": "https://arxiv.org/pdf/2608.04818v1",
+      "published": "2026-08-06T12:53:46+00:00",
+      "link": "https://arxiv.org/pdf/2608.05976v1",
       "tags": [
         "keyword:tfree-diff",
         "query:tfree-diff"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "training-free few-step latent-free image generation via Interval Denoiser",
-      "llm_evidence_cn": "通过区间去噪器实现免训练少步无潜空间图像生成",
-      "llm_evidence": "通过区间去噪器实现免训练少步无潜空间图像生成",
-      "canonical_evidence": "通过区间去噪器实现免训练少步无潜空间图像生成",
-      "llm_tldr_en": "Interval Denoiser derives an exact analytical mapping for intermediate flow states, enabling few-step latent-free image generation and preventing biased gradients.",
-      "llm_tldr_cn": "针对多步采样和外部自编码器的计算开销，提出区间去噪器（Interval Denoiser），从flow matching ODE出发为中间轨迹状态建立精确解析映射。该预测位于低维流形上，使直接基于像素的网络回归变得可行，并避免经验代数替换带来的梯度偏差。该框架支持少步、无潜空间生成，是面向图像生成的免训练采样优化方法。",
-      "llm_tldr": "针对多步采样和外部自编码器的计算开销，提出区间去噪器（Interval Denoiser），从flow matching ODE出发为中间轨迹状态建立精确解析映射。该预测位于低维流形上，使直接基于像素的网络回归变得可行，并避免经验代数替换带来的梯度偏差。该框架支持少步、无潜空间生成，是面向图像生成的免训练采样优化方法。",
+      "llm_evidence_en": "Proposes a training-free, plug-and-play framework to convert short-video diffusion models into long-video generators",
+      "llm_evidence_cn": "提出免训练的即插即用框架，将短视频扩散模型扩展为长视频生成器",
+      "llm_evidence": "提出免训练的即插即用框架，将短视频扩散模型扩展为长视频生成器",
+      "canonical_evidence": "提出免训练的即插即用框架，将短视频扩散模型扩展为长视频生成器",
+      "llm_tldr_en": "Introduces Diff-VF, a training-free and model-agnostic framework that converts short-video diffusion backbones into long-video generators via hybrid noise initialization, weighted window sampling, and temporal extension, improving coherence and motion diversity.",
+      "llm_tldr_cn": "现有视频扩散模型大多在短片上训练，外推到长视频时难以保持长时间时间连贯性和运动多样性。为此提出Diff-VF，一种免训练、即插即用且与模型无关的框架，无需微调即可将短视频扩散骨干扩展为长视频生成器。它结合混合噪声初始化约束全局语义、加权窗口采样消除窗口间断以及时间扩展保持动态。实验表明，该方法在长视频生成上显著提升了时间连贯性和质量，为无需额外训练的长视频生成提供了实用方案。",
+      "llm_tldr": "现有视频扩散模型大多在短片上训练，外推到长视频时难以保持长时间时间连贯性和运动多样性。为此提出Diff-VF，一种免训练、即插即用且与模型无关的框架，无需微调即可将短视频扩散骨干扩展为长视频生成器。它结合混合噪声初始化约束全局语义、加权窗口采样消除窗口间断以及时间扩展保持动态。实验表明，该方法在长视频生成上显著提升了时间连贯性和质量，为无需额外训练的长视频生成提供了实用方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.04701v1",
+      "source": "arxiv",
+      "title": "UniWorld-View: Large-Baseline View Synthesis via Video Diffusion Models",
+      "abstract": "The abundance of casually captured monocular videos and images on social media provides a valuable source for immersive content creation, where generating novel views from such sparse observations can greatly enhance user experiences. However, producing photorealistic and geometrically consistent views with precise camera control remains challenging when input coverage is extremely limited. Reconstruction-based approaches such as NeRF and 3D Gaussian Splatting (3DGS) deteriorate severely under sparse inputs and fail to explicitly handle occlusions. Generative methods ease data requirements but still struggle with large-baseline view synthesis due to inaccurate or implicit geometric guidance. To overcome these limitations, we introduce UniWorld-View, a unified framework for controllable large-baseline novel view synthesis from monocular inputs. UniWorld-View integrates explicit 3D guidance with generative diffusion modeling to enable precise camera control and geometrically consistent view generation. The geometric guidance is obtained through an occlusion-aware point cloud rendering strategy that resolves visibility ambiguities and provides accurate priors for diffusion-based synthesis. By coupling this rendering strategy with powerful video diffusion backbones, UniWorld-View achieves high-fidelity novel view generation even under extreme camera motions and wide-baseline changes, and can further provide multi-view videos for downstream dynamic 3DGS reconstruction. Experiments on the WorldScore benchmark and zero-shot NVS benchmarks demonstrate the effectiveness of UniWorld-View in controllability, geometric consistency, and visual fidelity.",
+      "authors": [
+        "Haiyang Zhou",
+        "Wangbo Yu",
+        "Chaoran Feng",
+        "Xunyu Zhou",
+        "Yonghong Tian",
+        "Li Yuan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-05T11:10:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.04701v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Uses video diffusion models for novel view synthesis from sparse monocular inputs",
+      "llm_evidence_cn": "利用视频扩散模型从稀疏单目输入合成新视角",
+      "llm_evidence": "利用视频扩散模型从稀疏单目输入合成新视角",
+      "canonical_evidence": "利用视频扩散模型从稀疏单目输入合成新视角",
+      "llm_tldr_en": "Proposes UniWorld-View, a generative method leveraging video diffusion models to synthesize photorealistic and geometrically consistent novel views under sparse input coverage, addressing limitations of reconstruction and generative baselines.",
+      "llm_tldr_cn": "针对稀疏观测下新视角合成面临真实感与几何一致性难以兼顾的问题，现有重建方法在稀疏输入下退化严重，生成方法又缺乏显式几何引导。本文提出UniWorld-View，利用视频扩散模型作为生成先验，并结合显式几何约束来合成大基线新视角。实验表明该方法能够生成照片级逼真且几何一致的新视图，显著优于NeRF和3DGS等重建式方法。这一工作展示了视频扩散模型在稀疏视角合成中的潜力。",
+      "llm_tldr": "针对稀疏观测下新视角合成面临真实感与几何一致性难以兼顾的问题，现有重建方法在稀疏输入下退化严重，生成方法又缺乏显式几何引导。本文提出UniWorld-View，利用视频扩散模型作为生成先验，并结合显式几何约束来合成大基线新视角。实验表明该方法能够生成照片级逼真且几何一致的新视图，显著优于NeRF和3DGS等重建式方法。这一工作展示了视频扩散模型在稀疏视角合成中的潜力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.05450v1",
+      "source": "arxiv",
+      "title": "MOSAIK: Multi-Patch Content-Aware Spatial Allocation of Image Tokens for Efficient Generation",
+      "abstract": "Pixel-space diffusion models avoid the reconstruction ceiling of latent diffusion models by generating directly in image space. However, their substantially higher token count makes generation expensive due to the quadratic complexity of self-attention. Several existing efficiency methods reduce this cost by using larger patches at selected denoising steps, thereby representing the image with fewer tokens. Yet, each step still uses a single patch size uniformly across the entire image, overlooking that different regions suffer different fidelity losses when coarsened. We introduce MOSAIK, a damage-guided framework that varies patch size across regions and denoising steps. MOSAIK adapts the PixelDiT backbone to generate arbitrary heterogeneous patch layouts, and a lightweight predictor uses intermediate denoising features to estimate the fidelity loss caused by coarsening each region. Given a token budget, our damage-guided layout predictor assigns fine patches to sensitive regions and coarse patches elsewhere. Remarkably, while reducing FLOPs by 70% and token count by 83%, MOSAIK matches the full-compute PixelDiT on GenEval and its DPG-Bench score drops by only 1.0 point. Compared to diverse efficiency paradigms, including temporal patch scheduling and feature caching, our approach delivers highly competitive performance at moderate budgets and consistently outperforms these baselines in highly constrained compute regimes.",
+      "authors": [
+        "Mohammadreza Hami",
+        "Mohammadreza Samadi",
+        "Chao Gao",
+        "Negar Hassanpour"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-05T22:52:41+00:00",
+      "link": "https://arxiv.org/pdf/2608.05450v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free patch allocation for efficient pixel-space diffusion image generation",
+      "llm_evidence_cn": "免训练的补丁分配策略，用于像素空间扩散模型的高效图像生成",
+      "llm_evidence": "免训练的补丁分配策略，用于像素空间扩散模型的高效图像生成",
+      "canonical_evidence": "免训练的补丁分配策略，用于像素空间扩散模型的高效图像生成",
+      "llm_tldr_en": "MOSAIK addresses the high token cost of pixel-space diffusion by introducing a damage-guided framework that adaptively allocates patch sizes across image regions and denoising steps. This training-free efficiency method reduces self-attention complexity while preserving generation fidelity, outperforming uniform-patch baselines.",
+      "llm_tldr_cn": "像素空间扩散模型直接在图像空间生成，但令牌数量多导致自注意力计算成本高。现有效率方法通常整图使用同一补丁大小，忽略不同区域的保真度差异。MOSAIK 提出损伤引导框架，按区域和去噪步骤动态变化补丁大小，在保持生成质量的同时降低计算开销。该方法无需重新训练，为像素级扩散模型提供高效的采样优化方案。",
+      "llm_tldr": "像素空间扩散模型直接在图像空间生成，但令牌数量多导致自注意力计算成本高。现有效率方法通常整图使用同一补丁大小，忽略不同区域的保真度差异。MOSAIK 提出损伤引导框架，按区域和去噪步骤动态变化补丁大小，在保持生成质量的同时降低计算开销。该方法无需重新训练，为像素级扩散模型提供高效的采样优化方案。",
       "llm_tags": [
         "query:tfree-diff"
       ],
       "matched_query_tag": "query:tfree-diff",
       "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
       "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.06231v1",
+      "source": "arxiv",
+      "title": "EmoWorld: A Decoupled Affective Field for Controllable Emotional Video Generation",
+      "abstract": "Emotion shapes how viewers interpret a scene, yet existing video generators entangle global atmosphere, affect-bearing semantic cues, and temporal progression within a single text condition. We present EmoWorld, a framework that decouples these factors within a frozen flow-matching video diffusion transformer (Video DiT). A one-time preparation stage extracts layer-specific affect directions and a reusable cue library from geometry-preserving neutral and emotion-edited panoramas. At inference, Visual Atmosphere Steering (VAS) injects atmosphere directions into hidden states, Semantic Affective Steering (SAS) isolates a separately scalable prompt residual for semantic cues, and Temporal Affective Steering (TAS) interpolates endpoint residual fields across denoising and video time. On Wan2.2, VAS improves target-emotion alignment by 19% while reducing a temporal-fluctuation proxy by 48%; SAS improves target-emotion alignment by 37% and increases detected affect-bearing cues by 36%; and TAS improves transition monotonicity by 15% over the strongest baseline. EmoWorld is evaluated across 27 emotion categories in text-to-video and image-to-video settings, demonstrates portability across multiple Video-DiT backbones, and supports camera-conditioned composition without updating generator parameters.",
+      "authors": [
+        "Bingyuan Wang",
+        "Baistan Zhyldyzbekov",
+        "Kunyu Feng",
+        "Zeyu Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-06T16:20:23+00:00",
+      "link": "https://arxiv.org/pdf/2608.06231v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Training-free controllable emotional video generation on a frozen Video DiT",
+      "llm_evidence_cn": "在冻结的Video DiT上免训练控制情感视频生成",
+      "llm_evidence": "在冻结的Video DiT上免训练控制情感视频生成",
+      "canonical_evidence": "在冻结的Video DiT上免训练控制情感视频生成",
+      "llm_tldr_en": "EmoWorld decouples atmosphere, semantic cues, and temporal progression for emotional video generation by steering a frozen flow-matching Video DiT at inference, providing training-free controllable generation.",
+      "llm_tldr_cn": "现有视频生成器将全局氛围、情感语义线索和时间进程耦合在单个文本条件中，难以独立控制情感。EmoWorld 在冻结的流匹配视频扩散Transformer上，通过一次性准备阶段提取层特定情感方向和可复用提示库。推理时利用视觉氛围引导、语义情感引导和时间情感引导分别注入不同层状态，实现无需额外训练的可控情感视频生成。该方法在保持几何一致性的同时提供精细的情感控制。",
+      "llm_tldr": "现有视频生成器将全局氛围、情感语义线索和时间进程耦合在单个文本条件中，难以独立控制情感。EmoWorld 在冻结的流匹配视频扩散Transformer上，通过一次性准备阶段提取层特定情感方向和可复用提示库。推理时利用视觉氛围引导、语义情感引导和时间情感引导分别注入不同层状态，实现无需额外训练的可控情感视频生成。该方法在保持几何一致性的同时提供精细的情感控制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
       "selection_source": "fresh_fetch"
     }
   ],
@@ -81,96 +235,19 @@
         "query:tfree-diff"
       ],
       "llm_score": 7.0,
-      "llm_evidence_en": "Pretrained video diffusion models as 4D renderers via world-grounded conditioning",
-      "llm_evidence_cn": "利用世界坐标条件将预训练视频扩散模型用作4D渲染器",
-      "llm_evidence": "利用世界坐标条件将预训练视频扩散模型用作4D渲染器",
-      "canonical_evidence": "利用世界坐标条件将预训练视频扩散模型用作4D渲染器",
-      "llm_tldr_en": "DAR projects a neural 4D G-buffer from animated meshes and injects it into pretrained video diffusion models via a widened control adapter, enabling joint camera and animation control.",
-      "llm_tldr_cn": "预训练视频扩散模型可在给定动画网格、相机轨迹和参考图像时充当渲染器。本文提出DAR，通过将动画网格投影的4D G-缓冲（跟踪、世界坐标、法线）经加宽的控制适配器注入预训练模型，扩展了Wan2.2的相机控制，实现相机运动与场景内部动画的联合控制，同时保留图像到视频的先验。该工作为基于预训练视频模型的4D生成渲染提供了有效的条件表示。",
-      "llm_tldr": "预训练视频扩散模型可在给定动画网格、相机轨迹和参考图像时充当渲染器。本文提出DAR，通过将动画网格投影的4D G-缓冲（跟踪、世界坐标、法线）经加宽的控制适配器注入预训练模型，扩展了Wan2.2的相机控制，实现相机运动与场景内部动画的联合控制，同时保留图像到视频的先验。该工作为基于预训练视频模型的4D生成渲染提供了有效的条件表示。",
+      "llm_evidence_en": "video generation with diffusion models, conditioned on animated mesh",
+      "llm_evidence_cn": "利用扩散模型进行视频生成，以动画网格为条件",
+      "llm_evidence": "利用扩散模型进行视频生成，以动画网格为条件",
+      "canonical_evidence": "利用扩散模型进行视频生成，以动画网格为条件",
+      "llm_tldr_en": "This paper proposes DAR, a reference-guided renderer that turns pretrained video diffusion models into 4D renderers by injecting neural G-buffer conditions from animated meshes, extending camera control while preserving the image-to-video prior.",
+      "llm_tldr_cn": "这篇论文提出DAR，将预训练视频扩散模型扩展为4D渲染器，通过从动画网格投影神经G-buffer并注入加宽的控制适配器来协调相机运动与场景内动画，同时保留图像到视频的先验知识。核心是一种联合相机与几何的表示方法，使视频主干网络能同时遵守外部相机参数和内部物体运动，解决了纯相机光线条件无法表达场景内动画的问题。该方法在扩展视频模型功能的同时保持原生成先验，推动视频生成走向可编辑的4D内容控制。",
+      "llm_tldr": "这篇论文提出DAR，将预训练视频扩散模型扩展为4D渲染器，通过从动画网格投影神经G-buffer并注入加宽的控制适配器来协调相机运动与场景内动画，同时保留图像到视频的先验知识。核心是一种联合相机与几何的表示方法，使视频主干网络能同时遵守外部相机参数和内部物体运动，解决了纯相机光线条件无法表达场景内动画的问题。该方法在扩展视频模型功能的同时保持原生成先验，推动视频生成走向可编辑的4D内容控制。",
       "llm_tags": [
         "query:tfree-diff"
       ],
       "matched_query_tag": "query:tfree-diff",
       "matched_query_text": "video generation with diffusion models",
       "matched_requirement_id": "req-3",
-      "selection_source": "fresh_fetch",
-      "quick_tier": "7"
-    },
-    {
-      "id": "2607.29679v1",
-      "source": "arxiv",
-      "title": "Scaling Properties of Text Conditioning in Visual Generation",
-      "abstract": "We study empirical scaling properties for text conditioning in visual generation. Such properties have rarely been measured because diffusion loss does not scale with the number of tokens in natural-language prompts. Surprisingly, we find that the converged diffusion loss scales with the amount of structured language in the prompt. To quantify structured language, we adapt two complementary measures: a white-box likelihood metric (GPG) and a black-box attribute metric (ED). Across controlled training runs, the converged diffusion loss decreases approximately linearly with GPG and follows a power law with ED. Guided by these scaling properties, we improve \\emph{diffusability} by constructing structured prompts with semantic and geometric annotations derived from images, and improve \\emph{promptability} by training a prompter through supervised fine-tuning, cold-start, and verifier-gated on-policy distillation. The resulting system outperforms all evaluated open-weight models on nearly every compositional, reasoning, and world-knowledge benchmark, while matching or surpassing the strongest closed-weight models on most evaluations.",
-      "authors": [
-        "Zilong Chen",
-        "Chaorui Deng",
-        "Kunchang Li",
-        "Hongyi Yuan",
-        "Haoqi Fan"
-      ],
-      "primary_category": "cs.CV",
-      "categories": [
-        "cs.CV"
-      ],
-      "published": "2026-07-31T17:56:52+00:00",
-      "link": "https://arxiv.org/pdf/2607.29679v1",
-      "tags": [
-        "keyword:tfree-diff",
-        "query:tfree-diff"
-      ],
-      "llm_score": 6.0,
-      "llm_evidence_en": "training-free prompt structuring to improve diffusion-based visual generation quality",
-      "llm_evidence_cn": "通过构建结构化提示词来無训练地提升扩散视觉生成质量",
-      "llm_evidence": "通过构建结构化提示词来無训练地提升扩散视觉生成质量",
-      "canonical_evidence": "通过构建结构化提示词来無训练地提升扩散视觉生成质量",
-      "llm_tldr_en": "Studies scaling laws of text conditioning in visual generation, finding diffusion loss scales with structured language; constructs structured prompts to improve diffusability without retraining.",
-      "llm_tldr_cn": "文本条件在视觉生成中的缩放性质很少被系统测度，因为扩散损失不随自然语言提示词中的token数变化。本文发现收敛的扩散损失与提示中的结构化语言数量有关，并引入两种度量来量化。利用这些缩放性质，通过构造包含语义与几何标注的结构化提示来提升可扩散性，从而在没有额外训练的情况下改善图像生成质量。为提示工程提供了理论指导。",
-      "llm_tldr": "文本条件在视觉生成中的缩放性质很少被系统测度，因为扩散损失不随自然语言提示词中的token数变化。本文发现收敛的扩散损失与提示中的结构化语言数量有关，并引入两种度量来量化。利用这些缩放性质，通过构造包含语义与几何标注的结构化提示来提升可扩散性，从而在没有额外训练的情况下改善图像生成质量。为提示工程提供了理论指导。",
-      "llm_tags": [
-        "query:tfree-diff"
-      ],
-      "matched_query_tag": "query:tfree-diff",
-      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
-      "matched_requirement_id": "req-5",
-      "selection_source": "fresh_fetch",
-      "quick_tier": "6"
-    },
-    {
-      "id": "2608.03284v1",
-      "source": "arxiv",
-      "title": "Test-Time Scaling for Safe Text-Guided Image Generation via Intermediate Clean Estimates",
-      "abstract": "Ensuring safety and policy compliance in text-to-image diffusion models remains a critical challenge, as benign or adversarial prompts can often elicit prohibited content, e.g. nudity and protected intellectual property. While training-based unlearning methods are effective, they are computationally expensive and prone to catastrophic interference with general capabilities. Conversely, existing test-time defenses are primarily prompt-centric, relying on modifying textual descriptions only, and overlook the visual signals for detection. In this paper, we propose to leverage the intermediate clean image estimated during the generation process and employ a sparse margin objective to detect prohibited concepts. When a violation is detected, we immediately intervene by optimizing a structured low-rank residual in the text-conditioning space via truncated backpropagation. This design allows weight-preserving detection, keeps non-violating inference latency nearly unchanged as the maximum budget increases, and offers flexibility in safety performance via test-time scaling. Extensive experiments on Stable Diffusion v1.4 and v3.5 across nudity removal, IP protection, and style erasure demonstrate superior performance across suppression, fidelity and preservation compared to prior weight-preserving baselines, providing a scalable and flexible solution for safe generative deployment.",
-      "authors": [
-        "Jinya Sakurai",
-        "Shueicheng Yan",
-        "Xun Xu"
-      ],
-      "primary_category": "cs.CV",
-      "categories": [
-        "cs.CV",
-        "cs.AI"
-      ],
-      "published": "2026-08-04T08:00:15+00:00",
-      "link": "https://arxiv.org/pdf/2608.03284v1",
-      "tags": [
-        "keyword:tfree-diff",
-        "query:tfree-diff"
-      ],
-      "llm_score": 7.0,
-      "llm_evidence_en": "training-free test-time method that uses intermediate clean estimates to optimize safe text-to-image generation",
-      "llm_evidence_cn": "免训练测试时方法，利用中间干净估计优化文本到图像生成的安全性",
-      "llm_evidence": "免训练测试时方法，利用中间干净估计优化文本到图像生成的安全性",
-      "canonical_evidence": "免训练测试时方法，利用中间干净估计优化文本到图像生成的安全性",
-      "llm_tldr_en": "This paper proposes a training-free test-time safety mechanism for text-to-image diffusion, using intermediate clean estimates and a sparse margin objective to detect and suppress prohibited content without costly unlearning.",
-      "llm_tldr_cn": "文本到图像扩散模型可能被恶意或对抗性提示诱导生成违规内容，而训练式遗忘方法计算昂贵且易破坏通用能力。本文利用生成过程中的中间干净图像估计，配合稀疏边界目标检测禁止概念，在测试时调整生成以规避违规输出。该方法作为不依赖额外训练的推理期优化手段，能够在不重新训练模型的前提下提升图像生成的安全性。它为扩散模型图像生成的采样过程提供了一种新的免训练干预思路。",
-      "llm_tldr": "文本到图像扩散模型可能被恶意或对抗性提示诱导生成违规内容，而训练式遗忘方法计算昂贵且易破坏通用能力。本文利用生成过程中的中间干净图像估计，配合稀疏边界目标检测禁止概念，在测试时调整生成以规避违规输出。该方法作为不依赖额外训练的推理期优化手段，能够在不重新训练模型的前提下提升图像生成的安全性。它为扩散模型图像生成的采样过程提供了一种新的免训练干预思路。",
-      "llm_tags": [
-        "query:tfree-diff"
-      ],
-      "matched_query_tag": "query:tfree-diff",
-      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
-      "matched_requirement_id": "req-5",
       "selection_source": "fresh_fetch",
       "quick_tier": "7"
     },
@@ -204,13 +281,13 @@
         "query:tfree-diff"
       ],
       "llm_score": 6.0,
-      "llm_evidence_en": "pretrained video diffusion models as renderers with camera-plus-geometry conditioning",
-      "llm_evidence_cn": "将预训练视频扩散模型用作渲染器，结合相机与几何条件控制",
-      "llm_evidence": "将预训练视频扩散模型用作渲染器，结合相机与几何条件控制",
-      "canonical_evidence": "将预训练视频扩散模型用作渲染器，结合相机与几何条件控制",
-      "llm_tldr_en": "DAR turns pretrained video diffusion into a 4D renderer by injecting a neural G-buffer from an animated mesh through a widened control adapter, preserving the image-to-video prior and obeying camera and scene motion.",
-      "llm_tldr_cn": "针对预训练视频扩散模型在4D生成渲染中的条件表达问题，提出DAR参考引导渲染器，将动画网格的神经4D G-buffer（跟踪、世界坐标和法线）投影并通过加宽的控制适配器注入视频主干，同时保留预训练图像到视频先验。该方法在相机运动与场景内部动画之间建立了联合控制接口，使视频模型能遵循网格指定的世界状态。实验表明DAR能有效扩展Wan2.2的相机控制能力，提升生成视频对相机轨迹和场景运动的保真度。",
-      "llm_tldr": "针对预训练视频扩散模型在4D生成渲染中的条件表达问题，提出DAR参考引导渲染器，将动画网格的神经4D G-buffer（跟踪、世界坐标和法线）投影并通过加宽的控制适配器注入视频主干，同时保留预训练图像到视频先验。该方法在相机运动与场景内部动画之间建立了联合控制接口，使视频模型能遵循网格指定的世界状态。实验表明DAR能有效扩展Wan2.2的相机控制能力，提升生成视频对相机轨迹和场景运动的保真度。",
+      "llm_evidence_en": "pretrained video diffusion models used as 4D renderers with animated mesh conditioning",
+      "llm_evidence_cn": "预训练视频扩散模型结合动画网格条件用于 4D 渲染",
+      "llm_evidence": "预训练视频扩散模型结合动画网格条件用于 4D 渲染",
+      "canonical_evidence": "预训练视频扩散模型结合动画网格条件用于 4D 渲染",
+      "llm_tldr_en": "Pretrained video diffusion models can render animated mesh scenes with world-grounded conditioning. This paper proposes DAR, which injects a neural 4D G-buffer through a widened control adapter, extending Wan2.2's camera control to combined camera and geometry for consistent 4D generation.",
+      "llm_tldr_cn": "预训练视频扩散模型在给定动画网格、相机轨迹和参考图像时可以作为渲染器。DAR 方法通过投影神经 4D G-buffer（跟踪、世界位置、法线）并经过加宽的控制适配器注入模型，同时保持图像到视频的先验，从而联合控制相机运动与场景动画。这扩展了现有相机控制方法，为视频扩散模型用于 4D 生成渲染提供了新途径。",
+      "llm_tldr": "预训练视频扩散模型在给定动画网格、相机轨迹和参考图像时可以作为渲染器。DAR 方法通过投影神经 4D G-buffer（跟踪、世界位置、法线）并经过加宽的控制适配器注入模型，同时保持图像到视频的先验，从而联合控制相机运动与场景动画。这扩展了现有相机控制方法，为视频扩散模型用于 4D 生成渲染提供了新途径。",
       "llm_tags": [
         "query:tfree-diff"
       ],
@@ -221,37 +298,189 @@
       "quick_tier": "6"
     },
     {
-      "id": "2608.04655v1",
+      "id": "2608.02487v1",
       "source": "arxiv",
-      "title": "CSGen: A Multi-Domain Curvilinear Structure Generation Model via Hierarchical Multimodal Diffusion",
-      "abstract": "Curvilinear structure analysis is an important and fundamental task in multimedia. However, the controllable generation of images with precise curvilinear structure objects remains an open challenge. To address this, we propose CSGen, a hierarchical multimodal diffusion model that synthesizes high-fidelity images precisely aligned with multiple control conditions. The CSGen is built upon three key innovations: 1) We construct a multi-domain and multimodal dataset, including over 24K samples from 5 domains and 7 different types of annotations, to train the unified generation model. 2) We propose a novel hierarchical progressive control strategy that decouples topology clues from visual context by a phased signal injection, mitigating semantic drift while ensuring the topological integrity of sparse structures. 3) We design a sparsity-aware loss re-weighting mechanism to address the extreme sparsity of curvilinear structures, significantly enhancing the attention on thin and fragile structures during optimization. Extensive experiments demonstrate that CSGen generates images with superior structure accuracy and visual realism, significantly improving downstream segmentation performance while maintaining robustness across diverse prompts. Our results confirm CSGen as a scalable, data-centric paradigm for the analysis of complex curvilinear structures in diverse multimedia applications. Code and dataset are available at https://github.com/ShanZard/CSGen.",
+      "title": "Computational and Statistical Guarantees of the \\textit{c}-Rectified flow",
+      "abstract": "Recently, rectified flow has emerged as a fundamental framework for large-scale image generation, powering state-of-the-art systems such as FLUX.1 and Stable Diffusion 3. Despite its remarkable empirical success, the computational and statistical guarantees of iterative rectified flow have remained largely unexplored. We address this problem by studying \\textit{c}-rectified flow, a cost-aware class of rectified flow that projects velocity fields onto a gradient class while preserving endpoint marginals. The ordinary rectified flow can fail to recover the optimal transport coupling: in a Gaussian case study, the iteration converges to the optimal coupling if and only if the source and target covariance matrices commute. In contrast, under suitable compactness and uniform-integrability assumptions, iterative \\textit{c}-rectified flow always converges to the optimal transport coupling. We further establish quantitative one-step contraction and exponential convergence guarantees under projection-stability assumptions for both quadratic and strongly convex displacement costs. Finally, under a Hölder ball assumption, we develop new minimax-optimal score estimation rates and show that, when combined with iterative \\textit{c}-rectified flow, they yield a rate-optimal estimator of the optimal transport for the dimension \\(d \\ge 3\\) and a nearly parametric rate for \\(d=1,2\\).",
       "authors": [
-        "Zhe Shan",
-        "Ziming Yang",
-        "Lei Zhou",
-        "Wenwen Zhang",
-        "Cong Lin",
-        "Xia Xie"
+        "Leda Wang",
+        "Zhehao Xu",
+        "Qiang Liu",
+        "Harrison H. Zhou"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG",
+        "math.OC",
+        "math.PR",
+        "math.ST"
+      ],
+      "published": "2026-08-03T16:53:29+00:00",
+      "link": "https://arxiv.org/pdf/2608.02487v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Theory for rectified flow in large-scale image generation",
+      "llm_evidence_cn": "大规模图像生成中修正流的理论分析",
+      "llm_evidence": "大规模图像生成中修正流的理论分析",
+      "canonical_evidence": "大规模图像生成中修正流的理论分析",
+      "llm_tldr_en": "Provides computational and statistical guarantees for c-rectified flow, a cost-aware variant that projects velocity fields onto a gradient class, improving optimal transport coupling in image generation.",
+      "llm_tldr_cn": "修正流是FLUX.1和Stable Diffusion 3等大规模图像生成系统的基础，但其迭代修正流的理论保证尚属空白。本文研究c-修正流，一种保持端点边缘分布并将速度场投影到梯度类的代价感知变体。在高斯案例中，普通修正流仅在协方差矩阵可交换时收敛到最优耦合，而c-修正流在合适条件下能保证收敛。该工作为迭代修正流的实践提供了理论支撑。",
+      "llm_tldr": "修正流是FLUX.1和Stable Diffusion 3等大规模图像生成系统的基础，但其迭代修正流的理论保证尚属空白。本文研究c-修正流，一种保持端点边缘分布并将速度场投影到梯度类的代价感知变体。在高斯案例中，普通修正流仅在协方差矩阵可交换时收敛到最优耦合，而c-修正流在合适条件下能保证收敛。该工作为迭代修正流的实践提供了理论支撑。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.02406v1",
+      "source": "arxiv",
+      "title": "A Unified Kullback--Leibler Divergence Analysis of Generative Diffusion Models via Entropy Production Rate",
+      "abstract": "We introduce a unified framework for the error analysis of generative models based on the entropy production rate of the forward-reverse diffusion process pair. For a pair of continuity equation flows, the rate admits a closed velocity form identity whose time integral decomposes the terminal Kullback--Leibler (KL) divergence into the sum of an initialization error, a score approximation error, and a time-discretization error. By analyzing the entropy production at the level of marginal distributions, rather than in path space, our framework yields a sharp convergence rate of $\\mathcal{O}(h^2)$   for the Euler-Maruyama sampler, where $h$   is the step size. This improves upon the $\\mathcal{O}(h)$ rates typically obtained from Girsanov's path-space analyses. Furthermore, our framework unifies the analysis of score-based SDEs, probability-flow ODEs, and stochastic interpolants by varying diffusion coefficients within a single inequality, revealing the trade-off between deterministic and stochastic sampling. Numerical experiments confirm the predicted scaling with step size and terminal time.",
+      "authors": [
+        "Han Wu",
+        "Zhiwen Zhang"
+      ],
+      "primary_category": "math.NA",
+      "categories": [
+        "math.NA",
+        "stat.ML"
+      ],
+      "published": "2026-08-03T15:49:08+00:00",
+      "link": "https://arxiv.org/pdf/2608.02406v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "provides sharp discretization error analysis for diffusion samplers, informing training-free sampling optimization",
+      "llm_evidence_cn": "给出扩散采样器离散化误差的尖锐界，为免训练采样优化提供理论指导",
+      "llm_evidence": "给出扩散采样器离散化误差的尖锐界，为免训练采样优化提供理论指导",
+      "canonical_evidence": "给出扩散采样器离散化误差的尖锐界，为免训练采样优化提供理论指导",
+      "llm_tldr_en": "Introduces an entropy-production-rate framework that decomposes terminal KL divergence into initialization, score, and discretization errors, and proves an improved O(h^2) Euler-Maruyama sampling convergence rate.",
+      "llm_tldr_cn": "论文提出一个基于熵产生率的统一分析框架，将生成式扩散模型的终末KL散度分解为初始化误差、分数近似误差和时间离散化误差。通过从边际分布层面分析熵产生，证明了Euler-Maruyama采样器的收敛阶提升到O(h^2)，优于常见的O(h)结果。该工作为理解扩散采样误差和改进免训练采样器提供了理论支撑。",
+      "llm_tldr": "论文提出一个基于熵产生率的统一分析框架，将生成式扩散模型的终末KL散度分解为初始化误差、分数近似误差和时间离散化误差。通过从边际分布层面分析熵产生，证明了Euler-Maruyama采样器的收敛阶提升到O(h^2)，优于常见的O(h)结果。该工作为理解扩散采样误差和改进免训练采样器提供了理论支撑。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.03284v1",
+      "source": "arxiv",
+      "title": "Test-Time Scaling for Safe Text-Guided Image Generation via Intermediate Clean Estimates",
+      "abstract": "Ensuring safety and policy compliance in text-to-image diffusion models remains a critical challenge, as benign or adversarial prompts can often elicit prohibited content, e.g. nudity and protected intellectual property. While training-based unlearning methods are effective, they are computationally expensive and prone to catastrophic interference with general capabilities. Conversely, existing test-time defenses are primarily prompt-centric, relying on modifying textual descriptions only, and overlook the visual signals for detection. In this paper, we propose to leverage the intermediate clean image estimated during the generation process and employ a sparse margin objective to detect prohibited concepts. When a violation is detected, we immediately intervene by optimizing a structured low-rank residual in the text-conditioning space via truncated backpropagation. This design allows weight-preserving detection, keeps non-violating inference latency nearly unchanged as the maximum budget increases, and offers flexibility in safety performance via test-time scaling. Extensive experiments on Stable Diffusion v1.4 and v3.5 across nudity removal, IP protection, and style erasure demonstrate superior performance across suppression, fidelity and preservation compared to prior weight-preserving baselines, providing a scalable and flexible solution for safe generative deployment.",
+      "authors": [
+        "Jinya Sakurai",
+        "Shueicheng Yan",
+        "Xun Xu"
       ],
       "primary_category": "cs.CV",
       "categories": [
         "cs.CV",
         "cs.AI"
       ],
-      "published": "2026-08-05T10:12:19+00:00",
-      "link": "https://arxiv.org/pdf/2608.04655v1",
+      "published": "2026-08-04T08:00:15+00:00",
+      "link": "https://arxiv.org/pdf/2608.03284v1",
       "tags": [
         "keyword:tfree-diff",
         "query:tfree-diff"
       ],
       "llm_score": 7.0,
-      "llm_evidence_en": "Hierarchical multimodal diffusion model for controllable curvilinear image generation",
-      "llm_evidence_cn": "用于可控曲线结构图像生成的分层多模态扩散模型",
-      "llm_evidence": "用于可控曲线结构图像生成的分层多模态扩散模型",
-      "canonical_evidence": "用于可控曲线结构图像生成的分层多模态扩散模型",
-      "llm_tldr_en": "CSGen is a hierarchical multimodal diffusion model that synthesizes high-fidelity curvilinear images aligned with multiple control conditions using phased signal injection and a large multi-domain dataset.",
-      "llm_tldr_cn": "生成具有精确曲线结构对象的高保真图像仍具挑战。CSGen提出分层多模态扩散模型，构建包含5个域、7种标注类型的多域多模态数据集，并采用分层渐进控制策略，将拓扑线索与视觉上下文分阶段注入，从而在多种控制条件下合成与条件精确对齐的高保真图像。该模型统一了多域可控生成，为曲线结构图像的精细生成提供了新的思路。",
-      "llm_tldr": "生成具有精确曲线结构对象的高保真图像仍具挑战。CSGen提出分层多模态扩散模型，构建包含5个域、7种标注类型的多域多模态数据集，并采用分层渐进控制策略，将拓扑线索与视觉上下文分阶段注入，从而在多种控制条件下合成与条件精确对齐的高保真图像。该模型统一了多域可控生成，为曲线结构图像的精细生成提供了新的思路。",
+      "llm_evidence_en": "training-free test-time method for text-to-image diffusion generation that leverages intermediate clean estimates for safety",
+      "llm_evidence_cn": "面向文生图扩散模型的免训练测试时方法，利用中间干净估计检测违规内容",
+      "llm_evidence": "面向文生图扩散模型的免训练测试时方法，利用中间干净估计检测违规内容",
+      "canonical_evidence": "面向文生图扩散模型的免训练测试时方法，利用中间干净估计检测违规内容",
+      "llm_tldr_en": "Uses intermediate clean images estimated during diffusion generation to detect prohibited content with a sparse margin objective, improving safety of text-to-image models without additional training.",
+      "llm_tldr_cn": "针对文生图扩散模型可能被对抗提示诱导生成违规内容的问题，论文提出一种测试时防御方法。它利用生成过程中估计的中间干净图像，通过稀疏间隔目标检测禁止概念，而无需修改文本或重新训练模型。该方法避免了训练式遗忘的高计算成本和对通用能力的破坏，为文本到图像生成提供了更安全的免训练保护。",
+      "llm_tldr": "针对文生图扩散模型可能被对抗提示诱导生成违规内容的问题，论文提出一种测试时防御方法。它利用生成过程中估计的中间干净图像，通过稀疏间隔目标检测禁止概念，而无需修改文本或重新训练模型。该方法避免了训练式遗忘的高计算成本和对通用能力的破坏，为文本到图像生成提供了更安全的免训练保护。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.03937v1",
+      "source": "arxiv",
+      "title": "Progressive Learning of a Diffusion-based Inpainting Model for Separating Overlapped Fingerprints",
+      "abstract": "Overlapped friction ridge patterns are a recurring problem in latent fingerprints recovered from crime scenes and in live-scan scenarios where residual fingerprints on the sensor may corrupt subsequent acquisitions. Existing approaches for separating overlapped fingerprints either rely on rule-based orientation field completion that requires strong domain knowledge or train end-to-end deep neural networks that do not account for domain-specific considerations. This work introduces a diffusion-based pipeline for separating component fingerprints from an image containing overlapping friction ridge patterns. We formulate the separation problem as an inpainting task and progressively learn a diffusion model for this task in multiple stages. Starting from a pre-trained Stable Diffusion model, we progressively incorporate a fingerprint prior, add the ability to complete partial fingerprints, and finally propose \\textbf{overlap-aware inpainting} that reconstructs each component print using a diffusion inpainting model based on multi-channel conditioning. Experiments on two public datasets demonstrate that component fingerprints reconstructed using the proposed diffusion-based inpainting method can match with their mated counterparts with very high probability.",
+      "authors": [
+        "Noor Hussein",
+        "Anil K. Jain",
+        "Karthik Nandakumar"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CR"
+      ],
+      "published": "2026-08-04T17:08:46+00:00",
+      "link": "https://arxiv.org/pdf/2608.03937v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion-based image inpainting for fingerprint separation",
+      "llm_evidence_cn": "基于扩散模型的图像修复用于重叠指纹分离",
+      "llm_evidence": "基于扩散模型的图像修复用于重叠指纹分离",
+      "canonical_evidence": "基于扩散模型的图像修复用于重叠指纹分离",
+      "llm_tldr_en": "Overlapped fingerprints are hard to separate; this paper formulates separation as inpainting and progressively trains a diffusion model, achieving accurate component restoration. It demonstrates diffusion-based image generation for forensic applications.",
+      "llm_tldr_cn": "重叠指纹分离是法医图像处理中的难题，现有方法依赖领域知识或训练端到端网络。本文将分离问题建模为图像修复任务，并渐进式地训练扩散模型，逐步恢复重叠的脊线模式。实验表明该方法能有效分离重叠指纹，为扩散模型在专业图像生成中的应用提供了新实例。",
+      "llm_tldr": "重叠指纹分离是法医图像处理中的难题，现有方法依赖领域知识或训练端到端网络。本文将分离问题建模为图像修复任务，并渐进式地训练扩散模型，逐步恢复重叠的脊线模式。实验表明该方法能有效分离重叠指纹，为扩散模型在专业图像生成中的应用提供了新实例。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.04818v1",
+      "source": "arxiv",
+      "title": "Rethinking Pixel Mean Flows via Interval Denoiser",
+      "abstract": "Modern diffusion and flow-based models are increasingly moving toward few-step, latent-free generation to bypass the computational overhead of multi-step sampling and the reconstruction bottlenecks of external autoencoders. We propose the Interval Denoiser, a theoretically rigorous framework for latent-free generation. Derived directly from the flow matching ODE, it establishes an exact analytical mapping for intermediate trajectory states. Unlike prior formulations, our prediction is shown to reside on a low-dimensional manifold across any time interval, making the regression tractable for a network operating directly on pixels. Furthermore, by avoiding empirical algebraic substitutions, our formulation correctly isolates the pure time derivative to prevent biased gradient evaluations and ensure exact first-order optimization. By analyzing this objective, we equip our framework with residual clipping and a time-sampling curriculum, enabling effective long-interval training and improving few-step performance. Trained from scratch on ImageNet 256x256, our model achieves an FID of 4.55 in one step (1-NFE) and 3.98 in two steps (2-NFE) without perceptual losses.",
+      "authors": [
+        "Alexander Zaytsev",
+        "Dmitry Baranchuk",
+        "Alexander Korotin",
+        "Aibek Alanov"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-05T13:22:43+00:00",
+      "link": "https://arxiv.org/pdf/2608.04818v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Pixel-space diffusion/flow generation with an interval denoiser",
+      "llm_evidence_cn": "基于区间去噪器的像素空间扩散/流生成",
+      "llm_evidence": "基于区间去噪器的像素空间扩散/流生成",
+      "canonical_evidence": "基于区间去噪器的像素空间扩散/流生成",
+      "llm_tldr_en": "Introduces Interval Denoiser, a theoretically grounded framework for latent-free diffusion/flow generation that maps intermediate trajectory states analytically and avoids biased gradients for few-step pixel sampling.",
+      "llm_tldr_cn": "现代扩散和流模型趋向于少步、免潜变量生成，但中间轨迹状态的回归难以处理。本文提出区间去噪器，基于流匹配ODE推导出中间状态的精确解析映射，并证明预测位于低维流形上。该方法避免经验代数替换带来的梯度偏差，使直接在像素上训练更易行。它为少步潜在无关生成提供了理论严谨的新范式。",
+      "llm_tldr": "现代扩散和流模型趋向于少步、免潜变量生成，但中间轨迹状态的回归难以处理。本文提出区间去噪器，基于流匹配ODE推导出中间状态的精确解析映射，并证明预测位于低维流形上。该方法避免经验代数替换带来的梯度偏差，使直接在像素上训练更易行。它为少步潜在无关生成提供了理论严谨的新范式。",
       "llm_tags": [
         "query:tfree-diff"
       ],
@@ -289,13 +518,13 @@
         "query:tfree-diff"
       ],
       "llm_score": 6.0,
-      "llm_evidence_en": "Text-to-image diffusion foundation models fine-tuned for nuclear energy concepts",
-      "llm_evidence_cn": "面向核能概念微调的文本到图像扩散基础模型",
-      "llm_evidence": "面向核能概念微调的文本到图像扩散基础模型",
-      "canonical_evidence": "面向核能概念微调的文本到图像扩散基础模型",
-      "llm_tldr_en": "This work builds a 1,000-image nuclear energy dataset and fine-tunes Stable Diffusion XL and other diffusion models, improving domain-specific text-to-image generation for nuclear concepts.",
-      "llm_tldr_cn": "通用文本到图像扩散模型在核工程等专业领域常生成物理错误或概念不一致的图像。本文构建了包含1000张核能图像及标题的数据集，并微调Stable Diffusion XL等三个开源扩散模型，系统研究了面向专业领域的文本到图像生成适配。结果表明，领域微调显著提升了模型生成核能相关图像的物理正确性与概念一致性，为专业领域图像生成提供了可行路径。",
-      "llm_tldr": "通用文本到图像扩散模型在核工程等专业领域常生成物理错误或概念不一致的图像。本文构建了包含1000张核能图像及标题的数据集，并微调Stable Diffusion XL等三个开源扩散模型，系统研究了面向专业领域的文本到图像生成适配。结果表明，领域微调显著提升了模型生成核能相关图像的物理正确性与概念一致性，为专业领域图像生成提供了可行路径。",
+      "llm_evidence_en": "fine-tuning text-to-image diffusion models for nuclear domain adaptation",
+      "llm_evidence_cn": "微调文本到图像扩散模型以适配核工程领域",
+      "llm_evidence": "微调文本到图像扩散模型以适配核工程领域",
+      "canonical_evidence": "微调文本到图像扩散模型以适配核工程领域",
+      "llm_tldr_en": "General-purpose text-to-image models often fail in specialized domains. NuclearDiffusion curates 1,000 nuclear energy images and fine-tunes Stable Diffusion XL and other open models, producing physically consistent images and showing the value of domain-specific diffusion adaptation.",
+      "llm_tldr_cn": "通用文本到图像模型在核工程等专业领域常生成物理或概念错误的图像。NuclearDiffusion 构建包含反应堆、燃料循环等概念的千张核能图像数据集，对 Stable Diffusion XL 等开源扩散模型进行微调。微调后的模型能够生成领域一致的核能概念图，减轻了通用模型缺乏领域知识的问题。",
+      "llm_tldr": "通用文本到图像模型在核工程等专业领域常生成物理或概念错误的图像。NuclearDiffusion 构建包含反应堆、燃料循环等概念的千张核能图像数据集，对 Stable Diffusion XL 等开源扩散模型进行微调。微调后的模型能够生成领域一致的核能概念图，减轻了通用模型缺乏领域知识的问题。",
       "llm_tags": [
         "query:tfree-diff"
       ],
@@ -306,42 +535,85 @@
       "quick_tier": "6"
     },
     {
-      "id": "2608.04701v1",
+      "id": "2608.06125v1",
       "source": "arxiv",
-      "title": "UniWorld-View: Large-Baseline View Synthesis via Video Diffusion Models",
-      "abstract": "The abundance of casually captured monocular videos and images on social media provides a valuable source for immersive content creation, where generating novel views from such sparse observations can greatly enhance user experiences. However, producing photorealistic and geometrically consistent views with precise camera control remains challenging when input coverage is extremely limited. Reconstruction-based approaches such as NeRF and 3D Gaussian Splatting (3DGS) deteriorate severely under sparse inputs and fail to explicitly handle occlusions. Generative methods ease data requirements but still struggle with large-baseline view synthesis due to inaccurate or implicit geometric guidance. To overcome these limitations, we introduce UniWorld-View, a unified framework for controllable large-baseline novel view synthesis from monocular inputs. UniWorld-View integrates explicit 3D guidance with generative diffusion modeling to enable precise camera control and geometrically consistent view generation. The geometric guidance is obtained through an occlusion-aware point cloud rendering strategy that resolves visibility ambiguities and provides accurate priors for diffusion-based synthesis. By coupling this rendering strategy with powerful video diffusion backbones, UniWorld-View achieves high-fidelity novel view generation even under extreme camera motions and wide-baseline changes, and can further provide multi-view videos for downstream dynamic 3DGS reconstruction. Experiments on the WorldScore benchmark and zero-shot NVS benchmarks demonstrate the effectiveness of UniWorld-View in controllability, geometric consistency, and visual fidelity.",
+      "title": "Sample-Adaptive Latent Rewards for Uncertainty-Guided Diffusion Post-Training",
+      "abstract": "Latent reward models can supervise visual diffusion models without decoding intermediate states into pixel space. This makes alignment with human preferences more efficient. However, existing latent reward models output only scalar scores. They do not estimate the uncertainty of each prediction. The generator therefore cannot determine which feedback is reliable. This can drive optimization in the wrong direction and lead to reward hacking. We propose \\textsc{SURE}, a unified latent-space framework for image and video diffusion models. It learns reward distributions and directly uses their reliability to guide dense post-training. First, we propose sample-adaptive latent reward model (\\textsc{SURE-LRM}). It predicts a Gaussian utility for each noisy latent. Its mean predicts the reward score. Its variance reflect the uncertainty of prediction without human annotation. The learned distribution then guides post-training through uncertainty-guided reward feedback learning (\\textsc{SURE-REFL}). This method provides uncertainty-guided dense feedback along the denoising trajectory. At selected transitions, \\textsc{SURE-REFL} queries the frozen \\textsc{SURE-LRM}. It converts detached variance into reliability weights for samples at the same transition. Each weighted reward is backpropagated only through its local transition. The entire process remains in latent space and requires neither pixel-space decoding nor the full denoising graph. Experiments show that \\textsc{SURE-LRM} improves preference prediction over strong baselines. \\textsc{SURE-REFL} achieves the sota performance among various metrics and further improves optimization stability. It also achieves the highest VBench quality, semantic, and total scores among the evaluated methods.",
       "authors": [
-        "Haiyang Zhou",
-        "Wangbo Yu",
-        "Chaoran Feng",
-        "Xunyu Zhou",
-        "Yonghong Tian",
-        "Li Yuan"
+        "Rui Li",
+        "Yuanzhi Liang",
+        "Ke Hao",
+        "Ziqiao Weng",
+        "Haibin Huang",
+        "Chi Zhang",
+        "XueLong Li"
       ],
       "primary_category": "cs.CV",
       "categories": [
         "cs.CV"
       ],
-      "published": "2026-08-05T11:10:52+00:00",
-      "link": "https://arxiv.org/pdf/2608.04701v1",
+      "published": "2026-08-06T14:55:42+00:00",
+      "link": "https://arxiv.org/pdf/2608.06125v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Diffusion model post-training framework for image and video generation",
+      "llm_evidence_cn": "面向图像与视频扩散模型的后训练对齐框架",
+      "llm_evidence": "面向图像与视频扩散模型的后训练对齐框架",
+      "canonical_evidence": "面向图像与视频扩散模型的后训练对齐框架",
+      "llm_tldr_en": "Proposes SURE, a latent-space framework for image and video diffusion that learns reward distributions with uncertainty to guide dense post-training, reducing reward hacking.",
+      "llm_tldr_cn": "现有潜在奖励模型仅输出标量分数，无法估计预测的不确定性，容易导致奖励黑客攻击。SURE 提出统一的潜在空间框架，为图像和视频扩散模型学习奖励分布，并利用其可靠性指导密集后训练。该方法通过样本自适应的潜在奖励模型直接利用不确定性，使优化更加鲁棒。实验表明该框架能有效提升扩散模型与人类偏好的一致性。",
+      "llm_tldr": "现有潜在奖励模型仅输出标量分数，无法估计预测的不确定性，容易导致奖励黑客攻击。SURE 提出统一的潜在空间框架，为图像和视频扩散模型学习奖励分布，并利用其可靠性指导密集后训练。该方法通过样本自适应的潜在奖励模型直接利用不确定性，使优化更加鲁棒。实验表明该框架能有效提升扩散模型与人类偏好的一致性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.04887v1",
+      "source": "arxiv",
+      "title": "STEP-OPD: Rethinking Output Targets and Internal Dynamics in On-Policy Distillation for Diffusion Models",
+      "abstract": "On-policy distillation (OPD) has become an effective approach for consolidating multiple task-specialized image generation models into a single student. However, existing OPD methods optimize the student mainly to match the teacher's output velocity, making the teacher the upper limit of the optimization objective. While output-level supervision alone leaves the student's blockwise representation evolution underconstrained, which weakens the transfer of capabilities that must be progressively developed across layers. We propose STEP-OPD, an on-policy distillation framework for image generation that extends the student's learning target beyond the teacher and introduces explicit constraints on its internal representation evolution. Instead of treating the teacher as the final target, we use the velocity difference between each task-specific teacher and the shared base model as a direction for further learning and add a scaled version of this difference to the teacher velocity. In addition, we align the direction and magnitude of representation changes between the student and teacher, enabling the student to learn how representations are progressively transformed across network blocks. Experiments on compositional alignment, text rendering, and human preference show that our method consistently improves Standard OPD methods. In particular, it increases the GenEval score of DiffusionOPD from 0.927 to 0.961, while also improving OCR and all preference-based metrics. The resulting unified student surpasses the corresponding single-task teachers across all three capability groups, showing that output extrapolation enables beyond-teacher learning. And representation change alignment provides complementary guidance for the student's internal transformations.",
+      "authors": [
+        "Qingyan Wei",
+        "Guangzhao Li",
+        "Xiaobing Tu",
+        "Yinggui Wang",
+        "Xiantao Zhang",
+        "Jinkui Ren",
+        "Xiaohong Liu",
+        "Linfeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-05T14:11:27+00:00",
+      "link": "https://arxiv.org/pdf/2608.04887v1",
       "tags": [
         "keyword:tfree-diff",
         "query:tfree-diff"
       ],
       "llm_score": 6.0,
-      "llm_evidence_en": "video diffusion models for large-baseline view synthesis",
-      "llm_evidence_cn": "使用视频扩散模型进行大基线视角合成",
-      "llm_evidence": "使用视频扩散模型进行大基线视角合成",
-      "canonical_evidence": "使用视频扩散模型进行大基线视角合成",
-      "llm_tldr_en": "UniWorld-View uses video diffusion models for large-baseline view synthesis from sparse monocular videos, producing photorealistic views with camera control.",
-      "llm_tldr_cn": "从社交媒体上稀疏的单目视频/图像生成新视角很有价值，但NeRF和3DGS在稀疏输入下退化严重，生成式方法也缺乏精确几何引导。UniWorld-View利用视频扩散模型来建模大基线新视角合成，在极有限的输入下生成逼真且几何一致的视图，并支持相机控制。该方法属于视频扩散模型的下游应用，而非采样优化技术。",
-      "llm_tldr": "从社交媒体上稀疏的单目视频/图像生成新视角很有价值，但NeRF和3DGS在稀疏输入下退化严重，生成式方法也缺乏精确几何引导。UniWorld-View利用视频扩散模型来建模大基线新视角合成，在极有限的输入下生成逼真且几何一致的视图，并支持相机控制。该方法属于视频扩散模型的下游应用，而非采样优化技术。",
+      "llm_evidence_en": "diffusion-based image generation and model distillation",
+      "llm_evidence_cn": "基于扩散的图像生成与模型蒸馏",
+      "llm_evidence": "基于扩散的图像生成与模型蒸馏",
+      "canonical_evidence": "基于扩散的图像生成与模型蒸馏",
+      "llm_tldr_en": "STEP-OPD improves on-policy distillation for diffusion image generation by going beyond teacher output matching and constraining blockwise internal representations, enabling a single student to consolidate multiple task-specialized models.",
+      "llm_tldr_cn": "在多任务扩散模型蒸馏中，已有在策略蒸馏主要让学生匹配教师模型的输出速度，限制了学生的能力上限，且对中间层表征演化约束不足。STEP-OPD提出将学习目标扩展到超越教师输出，并对学生网络的块状内部表征施加显式约束，从而更完整地迁移多层逐步构建的能力。该框架用于图像生成模型的合并，使一个学生模型能够更好地继承多个专家模型的不同技能，提升蒸馏后模型的综合生成能力。",
+      "llm_tldr": "在多任务扩散模型蒸馏中，已有在策略蒸馏主要让学生匹配教师模型的输出速度，限制了学生的能力上限，且对中间层表征演化约束不足。STEP-OPD提出将学习目标扩展到超越教师输出，并对学生网络的块状内部表征施加显式约束，从而更完整地迁移多层逐步构建的能力。该框架用于图像生成模型的合并，使一个学生模型能够更好地继承多个专家模型的不同技能，提升蒸馏后模型的综合生成能力。",
       "llm_tags": [
         "query:tfree-diff"
       ],
       "matched_query_tag": "query:tfree-diff",
-      "matched_query_text": "video generation with diffusion models",
-      "matched_requirement_id": "req-3",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
       "selection_source": "fresh_fetch",
       "quick_tier": "6"
     }
