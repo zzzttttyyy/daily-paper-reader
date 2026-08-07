@@ -6,41 +6,46 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-05
-- 运行时间：2026-08-05 21:01:02 UTC
+- 最新运行日期：2026-08-07
+- 运行时间：2026-08-07 01:50:39 UTC
 - 运行状态：成功
-- 本次总论文数：7
-- 精读区：3
-- 速读区：4
+- 本次总论文数：8
+- 精读区：1
+- 速读区：7
 
 ### 今日简报（AI）
-今日聚焦扩散模型与视频推理加速，精读2篇高分论文，速读3篇覆盖仿真无关采样、水印及频域流匹配。最值得关注的是《Rectify Then Diffuse》的概念解耦思路与《SPADE》的稀疏注意力加速引擎，均获9.0/10高分。建议优先精读这两篇，从可控生成和推理效率两个维度把握当前扩散模型的前沿进展。
-- 详情：[/202608/05/README](/202608/05/README)
+今日共读8篇，精读《Rethinking Pixel Mean Flows via Interval Denoiser》获9.0高分，为最大亮点。  
+值得关注像素均值流与区间去噪的推理新范式，以及视频模型转4D渲染、文本生图安全缩放等应用方向。  
+建议优先精读高分论文，再浏览速读中的多模态扩散与生成方法，把握前沿趋势。
+- 详情：[/202608/07/README](/202608/07/README)
 
 ### 精读区论文标签
-1. [Rectify Then Diffuse: Disentangling Concepts Before Denoising Trajectory Unfolds](/202608/05/2608.03135v1-rectify-then-diffuse-disentangling-concepts-before-denoising-trajectory-unfolds)  
+1. [Rethinking Pixel Mean Flows via Interval Denoiser](/202608/07/2608.04818v1-rethinking-pixel-mean-flows-via-interval-denoiser)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：在标准去噪前一次性修正初始注意力分配的免训练文本到图像扩散组合生成框架
-2. [SPADE: An Input-Adaptive Sparse Attention Engine for Fast Video Diffusion Models Inference](/202608/05/2608.03335v1-spade-an-input-adaptive-sparse-attention-engine-for-fast-video-diffusion-models-inference)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练的稀疏注意力引擎，加速视频扩散模型推理
-3. [JoyAI-Video-Edit: Real-Time Open-Ended Video Editing with Autoregressive Diffusion](/202608/05/2608.03974v1-joyai-video-edit-real-time-open-ended-video-editing-with-autoregressive-diffusion)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：自回归扩散实现视频生成与编辑
+   evidence：通过区间去噪器实现免训练少步无潜空间图像生成
 
 ### 速读区论文标签
-1. [Simulation-free and finite-time diffusion model](/202608/05/2608.03117v1-simulation-free-and-finite-time-diffusion-model)  
+1. [Video Models as Native 4D Renderers: World-Grounded Conditioning from Animated Mesh](/202608/07/2608.00094v2-video-models-as-native-4d-renderers-world-grounded-conditioning-from-animated-mesh)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：统一免模拟训练与有限时间生成的扩散模型参考过程设计框架
-2. [FARI: Robust One-Step Inversion for Watermarking in Diffusion Models](/202608/05/2607.26723v1-fari-robust-one-step-inversion-for-watermarking-in-diffusion-models)  
+   evidence：利用世界坐标条件将预训练视频扩散模型用作4D渲染器
+2. [Test-Time Scaling for Safe Text-Guided Image Generation via Intermediate Clean Estimates](/202608/07/2608.03284v1-test-time-scaling-for-safe-text-guided-image-generation-via-intermediate-clean-estimates)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：免训练测试时方法，利用中间干净估计优化文本到图像生成的安全性
+3. [CSGen: A Multi-Domain Curvilinear Structure Generation Model via Hierarchical Multimodal Diffusion](/202608/07/2608.04655v1-csgen-a-multi-domain-curvilinear-structure-generation-model-via-hierarchical-multimodal-diffusion)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：用于可控曲线结构图像生成的分层多模态扩散模型
+4. [Scaling Properties of Text Conditioning in Visual Generation](/202608/07/2607.29679v1-scaling-properties-of-text-conditioning-in-visual-generation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向扩散图像水印的免训练一步反演，支持低NFE推理优化
-3. [WaiT for the Signal: Simple Frequency-Aware Flow-Matching](/202608/05/2607.28760v1-wait-for-the-signal-simple-frequency-aware-flow-matching)  
+   evidence：通过构建结构化提示词来無训练地提升扩散视觉生成质量
+5. [Video Models as Native 4D Renderers: World-Grounded Conditioning from Animated Mesh](/202608/07/2608.00094v1-video-models-as-native-4d-renderers-world-grounded-conditioning-from-animated-mesh)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：频率感知流匹配图像生成，与扩散生成框架相关但并非免训练
-4. [HyperbolicDiffusion: Sharp & Scalable Tiled Generation on the Hyperbolic Plane](/202608/05/2608.03422v1-hyperbolicdiffusion-sharp--scalable-tiled-generation-on-the-hyperbolic-plane)  
+   evidence：将预训练视频扩散模型用作渲染器，结合相机与几何条件控制
+6. [NuclearDiffusion: Text-to-Image Foundation Models for Learning Nuclear Energy Concepts](/202608/07/2608.04030v1-nucleardiffusion-text-to-image-foundation-models-for-learning-nuclear-energy-concepts)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：双曲平面上的免训练分块扩散生成与几何融合
+   evidence：面向核能概念微调的文本到图像扩散基础模型
+7. [UniWorld-View: Large-Baseline View Synthesis via Video Diffusion Models](/202608/07/2608.04701v1-uniworld-view-large-baseline-view-synthesis-via-video-diffusion-models)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：使用视频扩散模型进行大基线视角合成
 
 
 <div class="dpr-home-promo-card">
