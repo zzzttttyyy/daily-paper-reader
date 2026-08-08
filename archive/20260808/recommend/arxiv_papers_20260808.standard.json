@@ -1,0 +1,255 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-08T19:57:56.188123+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2608.04655v1",
+      "source": "arxiv",
+      "title": "CSGen: A Multi-Domain Curvilinear Structure Generation Model via Hierarchical Multimodal Diffusion",
+      "abstract": "Curvilinear structure analysis is an important and fundamental task in multimedia. However, the controllable generation of images with precise curvilinear structure objects remains an open challenge. To address this, we propose CSGen, a hierarchical multimodal diffusion model that synthesizes high-fidelity images precisely aligned with multiple control conditions. The CSGen is built upon three key innovations: 1) We construct a multi-domain and multimodal dataset, including over 24K samples from 5 domains and 7 different types of annotations, to train the unified generation model. 2) We propose a novel hierarchical progressive control strategy that decouples topology clues from visual context by a phased signal injection, mitigating semantic drift while ensuring the topological integrity of sparse structures. 3) We design a sparsity-aware loss re-weighting mechanism to address the extreme sparsity of curvilinear structures, significantly enhancing the attention on thin and fragile structures during optimization. Extensive experiments demonstrate that CSGen generates images with superior structure accuracy and visual realism, significantly improving downstream segmentation performance while maintaining robustness across diverse prompts. Our results confirm CSGen as a scalable, data-centric paradigm for the analysis of complex curvilinear structures in diverse multimedia applications. Code and dataset are available at https://github.com/ShanZard/CSGen.",
+      "authors": [
+        "Zhe Shan",
+        "Ziming Yang",
+        "Lei Zhou",
+        "Wenwen Zhang",
+        "Cong Lin",
+        "Xia Xie"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-05T10:12:19+00:00",
+      "link": "https://arxiv.org/pdf/2608.04655v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "diffusion-based controllable image generation",
+      "llm_evidence_cn": "使用扩散模型进行可控图像生成",
+      "llm_evidence": "使用扩散模型进行可控图像生成",
+      "canonical_evidence": "使用扩散模型进行可控图像生成",
+      "llm_tldr_en": "CSGen is a hierarchical multimodal diffusion model for controllable generation of images with precise curvilinear structures, using a multi-domain dataset and hierarchical progressive control.",
+      "llm_tldr_cn": "CSGen提出一种层级多模态扩散模型，用于生成具有精确曲线结构的高保真图像。针对可控生成曲线结构对象的难题，它构建了包含5个领域、7种标注类型的多域多模态数据集，并提出层级渐进控制策略将拓扑线索与视觉上下文解耦。实验表明CSGen能精确对齐多种控制条件生成图像，为多媒体中曲线结构分析提供新工具。",
+      "llm_tldr": "CSGen提出一种层级多模态扩散模型，用于生成具有精确曲线结构的高保真图像。针对可控生成曲线结构对象的难题，它构建了包含5个领域、7种标注类型的多域多模态数据集，并提出层级渐进控制策略将拓扑线索与视觉上下文解耦。实验表明CSGen能精确对齐多种控制条件生成图像，为多媒体中曲线结构分析提供新工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.02799v1",
+      "source": "arxiv",
+      "title": "A Hyperfinite Framework for Score-Based Generative Modeling",
+      "abstract": "Score-based diffusion models are typically formulated using continuous-time stochastic differential equations and measure-theoretic stochastic calculus. In this paper, we develop a hyperfinite formulation of score-based generative modeling within the framework of Nonstandard Analysis. Starting from an internal diffusion process on a hyperfinite grid, we derive the associated infinitesimal generator and establish its correspondence with the classical Fokker--Planck equation. We then obtain a hyperfinite backward-mean identity that yields the reverse-time drift and provides a constructive derivation of the reverse-time SDE. Building on these results, we show that minimization of an internal score-matching objective recovers the score function required by the reverse-time dynamics, thereby connecting score estimation with generative sampling directly at the hyperfinite level. Under suitable assumptions, we further derive a hyperfinite Girsanov formula and establish a relationship between likelihood optimization and Fisher-divergence objectives. Finally, we analyze the second-order consistency of the hyperfinite dynamics and show that the leading correction term depends explicitly on the fourth moment of the increment distribution, with the Gaussian value $κ=3$ eliminating the leading dispersion contribution. Taken together, these results provide a unified hyperfinite framework for diffusion-based generative modeling--while laying foundations for further extensions--that links discrete grid dynamics, reverse-time diffusion, score matching, and likelihood-based formulations within a common nonstandard setting.",
+      "authors": [
+        "Sunder Ram Krishnan"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.AI",
+        "cs.LG",
+        "math.PR"
+      ],
+      "published": "2026-08-03T18:51:44+00:00",
+      "link": "https://arxiv.org/pdf/2608.02799v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "score-based diffusion generative modeling theory",
+      "llm_evidence_cn": "基于分数的扩散生成模型理论",
+      "llm_evidence": "基于分数的扩散生成模型理论",
+      "canonical_evidence": "基于分数的扩散生成模型理论",
+      "llm_tldr_en": "Develops a hyperfinite nonstandard-analysis formulation of score-based diffusion, deriving reverse-time drift and score-matching guarantees.",
+      "llm_tldr_cn": "基于分数的扩散模型通常依赖连续时间随机微分方程和测度论随机微积分。该文在非标准分析框架下给出超有限网格上的内部扩散过程建模，推导出无穷小生成元与Fokker-Planck方程的对应关系。通过超有限后向均值恒等式构造反演时间漂移并恢复反向SDE，证明内部分数匹配目标可恢复所需分数函数。该工作为扩散生成模型的数学基础提供了新的构造性视角。",
+      "llm_tldr": "基于分数的扩散模型通常依赖连续时间随机微分方程和测度论随机微积分。该文在非标准分析框架下给出超有限网格上的内部扩散过程建模，推导出无穷小生成元与Fokker-Planck方程的对应关系。通过超有限后向均值恒等式构造反演时间漂移并恢复反向SDE，证明内部分数匹配目标可恢复所需分数函数。该工作为扩散生成模型的数学基础提供了新的构造性视角。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.04956v1",
+      "source": "arxiv",
+      "title": "ContextMaster: Interactive Multi-Shot Video Creation via Fixed-Budget Sparse Context Routing",
+      "abstract": "Recent video models increasingly support generation, reference conditioning, and editing within a single model, yet typically expose them as separate operations over fixed inputs. Practical creation unfolds across multiple shots, requiring one model to generate from text, follow a reference, or edit source footage while maintaining shared history. We formalize this setting as interactive multi-shot video creation (IMVC) and introduce ContextMaster, a unified model with a role-aware context representation for these operations. An interactive model must retain access to an expanding history without allowing the context read cost at each denoising step to grow. ContextMaster combines reusable clean context states with fixed budget sparse context routing and uses ConstraintSink to keep task constraints visible. To address the dual challenges of sparse context access and inference with few denoising steps, we propose a two-stage privileged context distillation framework, which transfers full context behavior from a dense teacher through consistency distillation and then refines deployment rollouts with distribution matching. Experiments on the three primitive tasks demonstrate improved task fulfillment and consistency across shots over specialized baselines. User studies further validate flexibly composed workflows, while the model reaches 16 FPS on a single GPU.",
+      "authors": [
+        "Xu Guo",
+        "Zhengxuan Wei",
+        "Xinghui Li",
+        "Hanzhuo Huang",
+        "Xinyu Liu",
+        "Xiangyang Luo",
+        "Min Wei",
+        "Yiran Zhu",
+        "Qiulin Wang",
+        "Yulong Xu",
+        "Xintao Wang",
+        "Pengfei Wan",
+        "Qi Fan",
+        "Xiangwang Hou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-05T15:27:26+00:00",
+      "link": "https://arxiv.org/pdf/2608.04956v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Presents interactive multi-shot video creation with fixed-budget sparse context routing, building on recent video diffusion models.",
+      "llm_evidence_cn": "提出基于固定预算稀疏上下文路由的交互式多镜头视频创作方法，基于近期视频扩散模型。",
+      "llm_evidence": "提出基于固定预算稀疏上下文路由的交互式多镜头视频创作方法，基于近期视频扩散模型。",
+      "canonical_evidence": "提出基于固定预算稀疏上下文路由的交互式多镜头视频创作方法，基于近期视频扩散模型。",
+      "llm_tldr_en": "ContextMaster formalizes interactive multi-shot video creation and proposes a role-aware context representation with fixed-budget sparse routing to manage expanding history without growing denoising cost.",
+      "llm_tldr_cn": "针对实际创作中多镜头视频生成需要共享历史但上下文读取成本会随去噪步骤增长的问题，ContextMaster提出角色感知上下文表示和固定预算稀疏路由。它在保持生成、编辑等多种操作统一的同时，控制每一步去噪的上下文读取成本，支持交互式多镜头创作。",
+      "llm_tldr": "针对实际创作中多镜头视频生成需要共享历史但上下文读取成本会随去噪步骤增长的问题，ContextMaster提出角色感知上下文表示和固定预算稀疏路由。它在保持生成、编辑等多种操作统一的同时，控制每一步去噪的上下文读取成本，支持交互式多镜头创作。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.29079v1",
+      "source": "arxiv",
+      "title": "Faster but Different: Diagnosing and Controlling Content Drift in Accelerated Multimodal Diffusion Language Models",
+      "abstract": "Training-free acceleration makes diffusion-based multimodal large language models (dMLLMs) more deployable, but it may silently change generated content. We study this serving-time consistency problem on 300 real images, comparing Fast-dLLM outputs with the same model's unaccelerated outputs. Across the mild parallelism induced in our long-form setting (1.05--1.25 committed tokens per step), confidence-threshold tuning changes decoding behavior but not baseline agreement. State-refresh ablations and an image-swap intervention instead identify stale visual and generated-text states as contributors to drift. For the tested Fast-dLLM implementation, shortening the KV-cache refresh interval yields a monotonic speed--agreement frontier and near-exact agreement at a measured 1.3x speedup. The initial diagnosis also appears with dLLM-Cache and LaViDa, although dLLM-Cache recovers agreement only after both caches are tightened, which removes its speed advantage. Independent prompts and images reproduce the threshold-insensitivity and refresh recovery. A targeted audit finds genuine content substitution in half of 50 low-agreement pairs. In a separate blinded two-annotator evaluation, the pooled accelerated-minus-baseline factual-error difference is 0.00 (95% CI [-0.17,+0.17]); this sample detects no difference but does not establish factual equivalence. Finally, none of the tested adaptive or smoothed-refresh variants beats the fixed interval at matched compute. Our contribution is a paired diagnostic and an implementation-scoped consistency control, not an accuracy or safety guarantee.",
+      "authors": [
+        "Yaoxuan Dou",
+        "Yang Shu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-07-31T06:58:02+00:00",
+      "link": "https://arxiv.org/pdf/2607.29079v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free acceleration and drift control for diffusion models",
+      "llm_evidence_cn": "扩散模型的免训练加速与内容漂移控制",
+      "llm_evidence": "扩散模型的免训练加速与内容漂移控制",
+      "canonical_evidence": "扩散模型的免训练加速与内容漂移控制",
+      "llm_tldr_en": "Training-free acceleration can silently change outputs of diffusion-based multimodal LLMs. Experiments on 300 images identify stale visual/text states as causes of content drift; shortening KV-cache refresh interval yields monotonic speed-consistency gains, offering a diagnosis and control recipe for training-free diffusion acceleration.",
+      "llm_tldr_cn": "免训练加速让扩散多模态大语言模型更实用，但也可能静默改变生成内容。作者在300张真实图像上比较Fast-dLLM加速与未加速输出，发现置信度阈值调参并不能提高基线一致性，而状态刷新消融与图像交换实验表明陈旧视觉和文本状态是漂移主因。针对所测实现，缩短KV缓存刷新间隔可以单调地提升速度与一致性。这项工作为免训练加速扩散模型提供了一套诊断和控制内容漂移的方法。",
+      "llm_tldr": "免训练加速让扩散多模态大语言模型更实用，但也可能静默改变生成内容。作者在300张真实图像上比较Fast-dLLM加速与未加速输出，发现置信度阈值调参并不能提高基线一致性，而状态刷新消融与图像交换实验表明陈旧视觉和文本状态是漂移主因。针对所测实现，缩短KV缓存刷新间隔可以单调地提升速度与一致性。这项工作为免训练加速扩散模型提供了一套诊断和控制内容漂移的方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.06240v1",
+      "source": "arxiv",
+      "title": "PRISM: Distribution-Gated Flow Matching for Controllable Unpaired Image Translation",
+      "abstract": "Unpaired image-to-image translation must decide, per image, what to change and what to preserve without paired supervision. Many diffusion-based unpaired translators control preservation through a single global noise or guidance value applied across the image, which cannot separate content to keep from appearance to change. We present PRISM, a GAN-free flow-matching framework that replaces this global control with a learned per-feature gate. The gate's spatial prior is derived from each source feature's standardized distance to the target feature distribution, so features far from the target are freed while target-consistent features are preserved. The same gate controls both the initialization, which mixes the real source latent with a task-matched corruption, and the transport timing during Ordinary Differential Equation (ODE) integration. The corruption is matched to the task, content-anchored (AdaIN) for structure-preserving translation and partially anchored for structure-changing translation, and the gate can be overridden locally at inference from text or a detector without retraining, preserving important structures of the original image while still generating realistic results. We evaluate PRISM on five natural and biomedical benchmarks (AFHQ cat->dog, CelebA-HQ appearance translation, day->night relighting, virtual staining, and breast frozen->permanent histopathology). Among the evaluated methods under a shared same-split protocol, PRISM attains the best Inception FID and KID on four benchmarks and a competitive result on the fifth, and on histopathology yields the nuclei-count ratio closest to the ideal, supporting a favorable balance between target realism and structural preservation.",
+      "authors": [
+        "Elad Yoshai",
+        "Natan T. Shaked"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-06T16:26:43+00:00",
+      "link": "https://arxiv.org/pdf/2608.06240v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "flow-matching image generation/translation",
+      "llm_evidence_cn": "基于流匹配（扩散变体）的图像生成与翻译",
+      "llm_evidence": "基于流匹配（扩散变体）的图像生成与翻译",
+      "canonical_evidence": "基于流匹配（扩散变体）的图像生成与翻译",
+      "llm_tldr_en": "PRISM uses a learned per-feature gate in a GAN-free flow-matching framework to control which features change during unpaired image translation, preserving target-consistent content while freeing divergent features.",
+      "llm_tldr_cn": "PRISM针对非配对图像翻译中难以分离保留内容与改变外观的问题，提出一种无GAN的流匹配框架。它用每个特征到目标分布的标准化距离学习逐特征门控，门控同时控制初始化与生成过程。相比全局控制方法，PRISM能更好地保留目标一致的内容，同时改变不匹配的部分，实现了更可控的翻译。",
+      "llm_tldr": "PRISM针对非配对图像翻译中难以分离保留内容与改变外观的问题，提出一种无GAN的流匹配框架。它用每个特征到目标分布的标准化距离学习逐特征门控，门控同时控制初始化与生成过程。相比全局控制方法，PRISM能更好地保留目标一致的内容，同时改变不匹配的部分，实现了更可控的翻译。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.29679v1",
+      "source": "arxiv",
+      "title": "Scaling Properties of Text Conditioning in Visual Generation",
+      "abstract": "We study empirical scaling properties for text conditioning in visual generation. Such properties have rarely been measured because diffusion loss does not scale with the number of tokens in natural-language prompts. Surprisingly, we find that the converged diffusion loss scales with the amount of structured language in the prompt. To quantify structured language, we adapt two complementary measures: a white-box likelihood metric (GPG) and a black-box attribute metric (ED). Across controlled training runs, the converged diffusion loss decreases approximately linearly with GPG and follows a power law with ED. Guided by these scaling properties, we improve \\emph{diffusability} by constructing structured prompts with semantic and geometric annotations derived from images, and improve \\emph{promptability} by training a prompter through supervised fine-tuning, cold-start, and verifier-gated on-policy distillation. The resulting system outperforms all evaluated open-weight models on nearly every compositional, reasoning, and world-knowledge benchmark, while matching or surpassing the strongest closed-weight models on most evaluations.",
+      "authors": [
+        "Zilong Chen",
+        "Chaorui Deng",
+        "Kunchang Li",
+        "Hongyi Yuan",
+        "Haoqi Fan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-31T17:56:52+00:00",
+      "link": "https://arxiv.org/pdf/2607.29679v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free prompt structuring to improve diffusion generation",
+      "llm_evidence_cn": "免训练提示词结构化提升扩散生成",
+      "llm_evidence": "免训练提示词结构化提升扩散生成",
+      "canonical_evidence": "免训练提示词结构化提升扩散生成",
+      "llm_tldr_en": "Finds scaling laws between diffusion loss and structured language in prompts; then constructs semantic and geometric annotated prompts that improve diffusability without training.",
+      "llm_tldr_cn": "针对视觉生成中文本条件化缩放性质难以测量的难题，本文提出用白盒似然指标GPG和黑盒属性指标ED量化提示词中的结构化语言，并在受控训练中发现收敛扩散损失随GPG近似线性下降、随ED呈幂律。基于这些规律，作者从语义和几何标注构造结构化提示词以改善可扩散性。实验表明该免训练提示工程能有效降低扩散损失，为改进视觉生成提供了数据侧优化依据。",
+      "llm_tldr": "针对视觉生成中文本条件化缩放性质难以测量的难题，本文提出用白盒似然指标GPG和黑盒属性指标ED量化提示词中的结构化语言，并在受控训练中发现收敛扩散损失随GPG近似线性下降、随ED呈幂律。基于这些规律，作者从语义和几何标注构造结构化提示词以改善可扩散性。实验表明该免训练提示工程能有效降低扩散损失，为改进视觉生成提供了数据侧优化依据。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
