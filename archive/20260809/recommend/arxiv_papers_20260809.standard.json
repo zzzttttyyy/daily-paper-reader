@@ -1,0 +1,138 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-09T19:28:55.145841+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.01298v1",
+      "source": "arxiv",
+      "title": "UDT: Reconciling U-Nets and Diffusion Transformers with Data-Adaptive Token Reduction",
+      "abstract": "Diffusion Transformers (DiTs) have emerged as a core architecture in generative modeling due to their scalability and adaptability to multimodal tasks. DiTs comprise isotropic transformer blocks, and learn representations progressively across depth, where the denoising objective drives later layers to focus on fine-detail reconstruction. This results in degraded representation quality and an imbalanced encoder-decoder behavior. Prior approaches such as representation alignment (REPA) mitigate this by encouraging stronger early representations via training regularization. Alternatively, U-Net-style DiT architectures introduce explicit multi-scale encoder-decoder structures for improved convergence. But they build on standard U-Net wisdom via learnable operators for spatial downsampling, which are not well-suited to transformer architectures, introducing inefficiencies and compatibility issues with components such as cross-attention and representation regularization. In this work, we propose UDT, a U-Net diffusion transformer that combines the representation power of DiTs with the encoding-decoding benefits of U-Nets, through data-adaptive token merging for downsampling and upsampling, while preserving the DiT token dimension. Our baseline UDT architecture outperforms existing U-Net DiTs and achieves performance comparable to REPA across all model sizes. Furthermore, using architectural optimization and REPA, UDT outperforms SiT's 7.9 FID at 1400 epochs (w/o CFG) within 40 epochs (~ 40x faster convergence) for XL model size on 256x256 ImageNet. Finally, it achieves strong image generation performance with CFG, reaching FID of 1.38 (320 epochs) with SD-VAE and 1.35 (500 epochs) with VA-VAE, providing a new backbone for DiTs with strong empirical benefits.",
+      "authors": [
+        "Junno Yun",
+        "Yaşar Utku Alçalar",
+        "Mehmet Akçakaya"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-08-02T15:07:21+00:00",
+      "link": "https://arxiv.org/pdf/2608.01298v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Data-adaptive token reduction for diffusion transformers in image generation",
+      "llm_evidence_cn": "面向图像生成的扩散Transformer数据自适应令牌缩减",
+      "llm_evidence": "面向图像生成的扩散Transformer数据自适应令牌缩减",
+      "canonical_evidence": "面向图像生成的扩散Transformer数据自适应令牌缩减",
+      "llm_tldr_en": "UDT introduces data-adaptive token reduction into DiTs to emulate U-Net encoder-decoder structure, improving representation quality and convergence for diffusion image generation.",
+      "llm_tldr_cn": "扩散Transformer的均匀各向同性块导致后期层过度聚焦细节重建，表示质量退化。论文提出数据自适应令牌缩减UDT，在不破坏DiT架构的前提下引入类似U-Net的多尺度编码-解码行为。该方法根据输入数据动态裁剪令牌，使模型表示更均衡、收敛更快。图像生成实验表明UDT优于标准DiT与表示对齐方法，为扩散Transformer提供了一种实用改进。",
+      "llm_tldr": "扩散Transformer的均匀各向同性块导致后期层过度聚焦细节重建，表示质量退化。论文提出数据自适应令牌缩减UDT，在不破坏DiT架构的前提下引入类似U-Net的多尺度编码-解码行为。该方法根据输入数据动态裁剪令牌，使模型表示更均衡、收敛更快。图像生成实验表明UDT优于标准DiT与表示对齐方法，为扩散Transformer提供了一种实用改进。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.01978v1",
+      "source": "arxiv",
+      "title": "Proxy Avatar Meets Low-Rank Caching: Real-Time One-Shot Emotion-Controllable Portrait Animation",
+      "abstract": "Audio-driven portrait animation has advanced rapidly with diffusion-based generative models, yet real-time one-shot generation with expressive emotion control remains challenging. Existing methods often suffer from insufficient emotion-aware motion priors and expensive appearance computation during multi-step denoising. To address these issues, we propose Proxy Avatar Meets Low-Rank Caching, a cascaded framework for real-time one-shot emotion-controllable portrait animation. Instead of directly generating the target portrait from audio, our method uses a Gaussian-based emotion proxy avatar as a reusable motion generator, which is trained once on a single identity to produce expressive driving videos from audio and emotion labels. Since the proxy avatar only provides motion rather than target appearance or geometry, a large-scale one-shot retargeting model further extracts identity-independent motion from the proxy performance and adapts it to arbitrary target portraits. To improve inference efficiency, we introduce zero-shot appearance reuse with low-rank caching, which caches reference appearance features at the initial denoising step and models subsequent feature variations using lightweight low-rank adapters. Extensive experiments demonstrate that our method achieves stronger emotional expressiveness, better identity-preserving animation, and substantially reduced inference cost, enabling real-time one-shot portrait animation.",
+      "authors": [
+        "Haijie Yang",
+        "Jindi Bao",
+        "Yixuan Dong",
+        "Hongliang Zhang",
+        "Jian Bi",
+        "Hao Tang",
+        "Zhenyu Zhang",
+        "Jianjun Qian",
+        "Jian Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-03T09:41:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.01978v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Diffusion-based audio-driven portrait video generation with low-rank caching for real-time efficiency",
+      "llm_evidence_cn": "基于扩散模型的音频驱动人像视频生成，通过低秩缓存实现实时效率提升",
+      "llm_evidence": "基于扩散模型的音频驱动人像视频生成，通过低秩缓存实现实时效率提升",
+      "canonical_evidence": "基于扩散模型的音频驱动人像视频生成，通过低秩缓存实现实时效率提升",
+      "llm_tldr_en": "Proxy Avatar combines a trained emotion proxy avatar with low-rank caching to enable real-time one-shot emotion-controllable portrait animation from audio in a diffusion-based cascaded framework.",
+      "llm_tldr_cn": "音频驱动人像动画虽进展迅速，但实时单样本生成仍受表情运动先验不足和去噪计算开销大限制。本文提出代理头像与低秩缓存结合的级联框架，先由高斯表情代理头像生成驱动视频，再利用缓存机制加速目标人像渲染。实验实现实时可控的表情人像动画，表明缓存策略能有效降低扩散视频生成成本。",
+      "llm_tldr": "音频驱动人像动画虽进展迅速，但实时单样本生成仍受表情运动先验不足和去噪计算开销大限制。本文提出代理头像与低秩缓存结合的级联框架，先由高斯表情代理头像生成驱动视频，再利用缓存机制加速目标人像渲染。实验实现实时可控的表情人像动画，表明缓存策略能有效降低扩散视频生成成本。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.03929v1",
+      "source": "arxiv",
+      "title": "Latent Reward Registers for Diffusion Preference Alignment",
+      "abstract": "Aligning diffusion models with human preferences usually relies on a sparse terminal reward evaluated on the final generated samples, presenting a severe temporal credit-assignment challenge across the multi-step denoising process. We propose Latent Reward Registers, a mechanism that estimates terminal preference directly from intermediate noisy latents by prepending learnable, position-free register tokens to the input sequence of a frozen Diffusion Transformer (DiT). This independent readout mechanism extracts latent reward evidence without altering the generator's hidden states or velocity field. The resulting dense, differentiable reward signal throughout the full denoising process facilitates two alignment strategies. For training, Reward-Gradient On-Policy Distillation (RG-OPD) distills reward-guided updates along on-policy trajectories, bypassing the computationally expensive rollouts of standard policy gradients. For inference, Reward-Guided Sampling (RGS) steers trajectories via magnitude-matched reward gradients without parameter updates. Empirically, at high noise levels (u = 0.8), the registers reach the highest pairwise accuracy among the evaluated latent reward models. Furthermore, RG-OPD outperforms online reinforcement learning baselines while reducing GPU hours by up to 33x, and RGS establishes a new state-of-the-art among training-free methods, strictly enhancing both alignment and perceptual metrics. Code and weights are available at https://github.com/Guanys-dar/latent-reward-register",
+      "authors": [
+        "Yuanshen Guan",
+        "Zipeng Feng",
+        "Zhiwei Xiong",
+        "Peiqin Sun"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "published": "2026-08-04T17:00:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.03929v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Dense latent reward readout for diffusion transformers, enabling reward-guided alignment",
+      "llm_evidence_cn": "为扩散Transformer提供密集潜在奖励读取，支持奖励导向对齐",
+      "llm_evidence": "为扩散Transformer提供密集潜在奖励读取，支持奖励导向对齐",
+      "canonical_evidence": "为扩散Transformer提供密集潜在奖励读取，支持奖励导向对齐",
+      "llm_tldr_en": "Latent Reward Registers estimate terminal preferences from intermediate noisy latents by prepending learnable register tokens to a frozen DiT, supplying dense reward signals for two alignment strategies.",
+      "llm_tldr_cn": "扩散模型偏好对齐通常只使用最终样本的稀疏奖励，导致时间信用分配困难。论文提出潜在奖励寄存器，在冻结的扩散Transformer输入序列中插入可学习寄存器令牌，直接从中间噪声潜在表示估计终局偏好，得到全程密集可微奖励。该机制支持在线策略梯度和奖励梯度两种对齐策略，且不改变生成器隐状态。实验证明其有效改善了扩散模型的对齐质量，是一种轻量独立的偏好读取方案。",
+      "llm_tldr": "扩散模型偏好对齐通常只使用最终样本的稀疏奖励，导致时间信用分配困难。论文提出潜在奖励寄存器，在冻结的扩散Transformer输入序列中插入可学习寄存器令牌，直接从中间噪声潜在表示估计终局偏好，得到全程密集可微奖励。该机制支持在线策略梯度和奖励梯度两种对齐策略，且不改变生成器隐状态。实验证明其有效改善了扩散模型的对齐质量，是一种轻量独立的偏好读取方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

@@ -1,0 +1,2011 @@
+LATENT REWARD REGISTERS FOR
+DIFFUSION PREFERENCE ALIGNMENT
+Yuanshen Guan1,2, Zipeng Feng1, Zhiwei Xiong2∗, Peiqin Sun1∗
+1Kling Team
+2University of Science and Technology of China
+guanys@mail.ustc.edu.cn
+zwxiong@ustc.edu.cn
+{fengzipeng, sunpeiqin}@kuaishou.com
+ABSTRACT
+Aligning diffusion models with human preferences usually relies on a sparse ter-
+minal reward evaluated on the final generated samples, presenting a severe tem-
+poral credit-assignment challenge across the multi-step denoising process. We
+propose Latent Reward Registers, a mechanism that estimates terminal preference
+directly from intermediate noisy latents by prepending learnable, position-free
+register tokens to the input sequence of a frozen Diffusion Transformer (DiT).
+This independent readout mechanism extracts latent reward evidence without al-
+tering the generator’s hidden states or velocity field. The resulting dense, dif-
+ferentiable reward signal throughout the full denoising process facilitates two
+alignment strategies. For training, Reward-Gradient On-Policy Distillation (RG-
+OPD) distills reward-guided updates along on-policy trajectories, bypassing the
+computationally expensive rollouts of standard policy gradients. For inference,
+Reward-Guided Sampling (RGS) steers trajectories via magnitude-matched re-
+ward gradients without parameter updates.
+Empirically, at high noise levels
+(u=0.8), the registers reach the highest pairwise accuracy among the evalu-
+ated latent reward models. Furthermore, RG-OPD outperforms online reinforce-
+ment learning baselines while reducing GPU hours by up to 33×, and RGS
+establishes a new state-of-the-art among training-free methods, strictly enhanc-
+ing both alignment and perceptual metrics. Code and weights are available at
+https://github.com/Guanys-dar/latent-reward-register
+1
+INTRODUCTION
+While diffusion and flow-matching models have achieved remarkable success in generating high-
+fidelity visual content, aligning these models with human preferences remains a critical challenge.
+Current methods generally rely on reward maximization (Lee et al., 2023; Clark et al., 2024; Liu
+et al., 2025; Zheng et al., 2026). An external reward model evaluates the final generated image, and
+the generator is updated to maximize this scalar score, thereby improving perceptual quality and
+prompt alignment.
+Existing alignment methods typically fall into two paradigms. Reward backpropagation (Lee et al.,
+2023; Wu et al., 2024; Clark et al., 2024; Prabhudesai et al., 2023) unrolls the sampling trajectory to
+compute exact gradients from a differentiable reward model. While this enables fast optimization, it
+often leads to mode collapse. Alternatively, online reinforcement learning (RL) (Black et al., 2023;
+Liu et al., 2025; Xue et al., 2025; Zheng et al., 2026) formulates generation as a sequential policy
+optimized via policy gradients. This mitigates mode collapse but introduces high variance and low
+sample efficiency.
+Both paradigms face the same bottleneck: they rely on a single scalar reward evaluated only on
+the fully generated image. Because this terminal score cannot be easily attributed to specific inter-
+mediate steps, the supervision is severely delayed. To pass this delayed signal back, reward back-
+propagation must unroll long generation chains in memory, making it prone to over-optimization.
+Online RL, on the other hand, requires a large number of samples to keep gradient variance under
+∗Corresponding author.
+1
+arXiv:2608.03929v1  [cs.LG]  4 Aug 2026
+
+
+Dense Reward via Finetuning
+𝑧𝑇
+Finetuned
+DiT Layers
+MLP
+Head
+Step-wise
+Reward
+…
+𝑧𝑇
+Latent Reward Registers (Ours)
+Frozen
+DiT Layers
+MLP
+Head
+Reward
+Registers
+Noisy Latent
+Reward 
+Gradient 𝜵𝑹
+𝑧𝑇
+…
+Registers
+𝑧𝑡
+Step-wise
+Reward
+𝑧𝑇
+Sparse Terminal Reward
+VLM
+(Heavy)
+Terminal
+Reward
+Decoder
+𝑧𝑡
+𝑧𝑇
+𝑧𝑡
+𝑧0
+Figure 1: Latent Reward Registers vs. existing paradigms. Unlike conventional alignment meth-
+ods that rely on delayed, sparse feedback from a clean image (Left) or require intrusive fine-tuning
+of the generator (Middle), our approach (Right) appends learnable registers to a frozen DiT. This en-
+ables the direct estimation of step-wise rewards from intermediate noisy latents (zt). Consequently,
+we derive dense, differentiable reward gradients (∇R) for generation while keeping the pretrained
+generative dynamics fully intact.
+control. Furthermore, adapting the generator to a novel reward function requires full retraining, as
+these terminal objectives offer no straightforward mechanism for test-time guidance.
+Our central insight is that DiT internal representations already encode sufficient evidence about the
+final output quality, well before the trajectory reaches a fully denoised state. Even under heavy noise,
+these features capture emerging global structure, prompt alignment, and overall trajectory viability.
+Rather than propagating a single endpoint score backward through a full rollout, we can therefore
+estimate the expected terminal preference directly from each intermediate latent, turning sparse
+terminal feedback into a dense, step-wise reward signal without requiring complex approximations.
+Building on this insight, we introduce Latent Reward Registers, a non-intrusive mechanism that
+turns a frozen DiT into an accurate, step-wise reward model. As illustrated in Fig. 1, a small set
+of learnable, position-free register tokens is added as global readouts to aggregate reward-relevant
+evidence from the intermediate representations of the frozen transformer. A lightweight readout
+head then predicts the expected terminal preference directly from any intermediate latent. By dif-
+ferentiating this prediction with respect to the latent, we obtain a local reward gradient at every
+denoising step. Because the registers do not modify the generator’s hidden states or velocity predic-
+tions, the pretrained generative dynamics remain fully intact. As a result, the framework provides
+dense, differentiable reward supervision with minimal computation overhead.
+This dense reward signal supports alignment during both training and inference.
+For training,
+Reward-Gradient On-Policy Distillation (RG-OPD) distills reward-guided updates along on-policy
+trajectories, bypassing the computationally expensive rollouts of standard policy gradients. For
+inference, Reward-Guided Sampling (RGS) steers trajectories via magnitude-matched reward gra-
+dients without parameter updates, allowing multiple objectives to be composed at test time. Our
+contributions are summarized below.
+• Reliable latent reward signals. Latent Reward Registers estimate step-wise rewards directly
+from intermediate noisy latents. Even at high noise levels, their pairwise ranking accuracy remains
+competitive with external reward models that require fully denoised images.
+• Efficient training-time alignment. By distilling register-guided on-policy trajectories, RG-OPD
+surpasses online RL baselines in alignment quality while reducing GPU hours by up to 33×.
+• Effective inference-time alignment. RGS steers trajectories using the derived latent reward gra-
+dients without parameter updates, improving target rewards while maintaining a superior reward–
+quality trade-off relative to existing training-free sampling methods.
+2
+RELATED WORK
+Diffusion Preference Alignment.
+Preference alignment for text-to-image generators is dominated
+by training-time methods. Reward backpropagation (Lee et al., 2023; Clark et al., 2024; Prabhudesai
+2
+
+
+et al., 2023) differentiates through the denoising chain to optimize the generator directly, while on-
+line reinforcement learning (Liu et al., 2025; Zheng et al., 2026) treats generation as a policy refined
+with policy gradients. These training-time approaches inherently bind the model to a fixed objective
+and incur heavy training costs. Furthermore, their reliance on sparse endpoint rewards complicates
+credit assignment across denoising steps. Training-free alignment offers an inference-time alterna-
+tive, but existing schemes incur substantial computational overhead, whether through iterative search
+and optimization (Yeh et al., 2025; Tang et al., 2025) or guidance gradients that become unstable at
+high noise levels (Song et al., 2023). Our approach instead extracts a dense, differentiable step-wise
+reward directly in the latent space, keeping alignment efficient at both training and inference time.
+Latent Reward Models.
+Most reward models operate on clean, decoded images (Xu et al., 2023;
+Kirstain et al., 2023; Ma et al., 2025). Applying them to intermediate states would require forming a
+clean estimate from each intermediate latent via expensive VAE decoding at every step. Moreover,
+the resulting signals are noisy or unreliable on heavily corrupted inputs. Recent latent reward mod-
+els instead evaluate noisy states directly, drawing evidence from selected internal features (Zhang
+et al., 2025), early cross-attention maps (Cui et al., 2026), or separate process reward models (Mi
+et al., 2025; Go et al., 2026; Yang et al., 2024). Existing methods typically rely on heuristic feature
+engineering or computationally heavy auxiliary networks. Latent Reward Registers instead append
+lightweight, position-free register tokens to a frozen DiT, establishing a differentiable reward mech-
+anism that avoids manual feature selection and leaves the base generator unaltered. This design
+directly supports both RG-OPD and RGS.
+Test-time Guidance.
+Guidance methods steer a pretrained generator without retraining it. Clas-
+sifier guidance injects the gradient of an auxiliary classifier into the score estimate (Dhariwal &
+Nichol, 2021), and classifier-free guidance (CFG) extrapolates between conditional and uncondi-
+tional predictions to strengthen prompt adherence (Ho & Salimans, 2022); the latter is standard in
+modern text-to-image diffusion. RGS continues this lineage: it leaves the generator and its native
+text guidance untouched and appends a reward-gradient correction whose magnitude is matched to
+the sampler’s own displacement. Because the correction is derived from latent registers at interme-
+diate steps, sampling needs neither image decoding nor a separate reward-model backbone.
+3
+METHOD
+To address the temporal credit-assignment problem in preference alignment, we construct a dense,
+differentiable reward signal directly from intermediate latent states, providing a unified supervision
+mechanism for both training and inference time alignment. The proposed framework consists of
+three core components:
+• Latent Reward Registers (Sec. 3.1): A lightweight mechanism that predicts the expected ter-
+minal preference using learnable register tokens and frozen DiT features. This auxiliary stream
+extracts step-wise reward signals from intermediate noisy latents without perturbing the original
+velocity field (Fig. 2).
+• Reward-Gradient On-Policy Distillation (Sec. 3.2): A training-time alignment strategy that
+constructs detached one-step optimization targets along the student’s sampling trajectory. This
+bypasses backpropagation through complete denoising chains and eliminates the high variance of
+rollout-level policy gradients.
+• Reward-Guided Sampling (Sec. 3.3): An inference-time alignment technique that steers latent
+trajectories using magnitude-matched, step-wise reward gradients, requiring no additional param-
+eter updates.
+3.1
+REWARD REGISTER MECHANISM
+Motivation.
+Conventional image reward models supervise only the terminal generated image, and
+applying them to intermediate states would require repeated decoding that exposes the reward signal
+to noisy artifacts. DiT representations, in contrast, encode prompt alignment, layout, and appear-
+ance early in the generation process. We therefore introduce a lightweight side-stream readout that
+predicts terminal preference directly from a noisy latent zi. Unlike a static feature probe, the register
+state persists across multiple frozen DiT blocks, accumulating evidence across depth. Because it de-
+3
+
+
+Noisy Latent !!"#$
+4096 tokens
+Tokens + Registers
+Frozen DiT Backbone with Reward Register
+Block 0
+…
+Block 1
+Block 11
+Inside one block
+A horse wearing 
+glasses, standing on 
+the grass during the 
+dawn
+Trainable register state "! send to next block
+""%&
+Text Prompt
+154 tokens
+Reward 
+registers
+(32 tokens)
+Image 
+tokens
+(Pooled 256 
+tokens)
+Text tokens
+(154 tokens)
+Reward head (+5% Parameters)
+Fuse
+w/ Joint 
+Attention 
++ FFN
+32 fused 
+register 
+tokens
+HPS
+head
+Image
+Reward
+head
+Pickscore
+head
+Pairwise 
+Ranking 
+Loss
+>
+(Multi-head) Latent Reward Estimation
+Reward Registers !
+K=32 trainable tokens
+At timestep t
+No Attn.
+Image-Text
+Cross Attn
+[Img-q,Text-k]
+Text Self-
+Attention
+[Text-q, Text-k]
+Image Self-
+Attention
+[Img-q, Img-k]
+Text-image
+Cross Attn
+[Text-q, Img-k]
+Reward Register Attention
+[Reward-q, Reward·Img·Text-k]
+[Image, Text] V.s
+Residual
+Keys : [Reward, Image, Text] 
+Queries : [Text, Image, Reward]
+Reward V.s
+Concat.
+FFN
+!!"%&
+Figure 2: Overview of the Reward Register mechanism. Learnable registers establish a non-
+intrusive auxiliary stream through a frozen DiT. These registers derive representations from frozen
+image and text features without altering the original token sequence, thereby strictly preserving the
+original velocity field. A lightweight fusion module then combines the final register states with in-
+termediate backbone representations for multi-head latent reward estimation under pairwise ranking
+supervision.
+rives representations from the backbone without altering the spatial token sequence, the side stream
+provides differentiable step-wise supervision while preserving the original velocity field.
+Notation.
+Let zσ denote a latent state at continuous noise level σ ∈[0, 1], with sampling proceed-
+ing from σmax to 0. During reward-register training and evaluation, we use u interchangeably with
+σ to denote the same normalized noise level, and paired clean latents zclean are forward-noised as
+zu = (1 −u)zclean + uϵ. For a numerical schedule σ0 > · · · > σN = 0, we write zi := zσi.
+Non-intrusive reward registers.
+We initialize K learnable, position-free register tokens Q(0) ∈
+RK×d as global readouts (Darcet et al., 2024). For each latent state, we set Q(0)
+i
+= Q(0). Let
+H(l)
+i
+= [H(l)
+i,img, H(l)
+i,txt] denote the native image and text hidden states at block l for latent zi.
+For the initial L transformer blocks, the registers share a single trainable query projection W ϕ
+Q
+while reusing the frozen key, value, output, normalization, and noise-level-gating modules from
+each block. Letting ¯Q(l)
+i , ¯H(l)
+i,img, and ¯H(l)
+i,txt denote the σi-conditioned normalized states, the update
+is:
+K(l)
+i
+=
+h
+¯Q(l)
+i W (l)
+K , ¯H(l)
+i,imgW (l)
+K , ¯H(l)
+i,txtW (l)
+K,txt
+i
+,
+V (l)
+i
+=
+h
+¯Q(l)
+i W (l)
+V , ¯H(l)
+i,imgW (l)
+V , ¯H(l)
+i,txtW (l)
+V,txt
+i
+,
+Q(l+1)
+i
+= Q(l)
+i
++ γ(l)
+i
+⊙Attn
+
+¯Q(l)
+i W ϕ
+Q, K(l)
+i , V (l)
+i
+
+W (l)
+O ,
+(1)
+where γ(l)
+i
+is the frozen backbone’s σi-conditioned attention gate. This design isolates the side
+stream: native image and text streams are computed independently of the registers, and for single-
+stream architectures (e.g., FLUX.1-dev) the native sequence serves directly as the combined input
+context. The registers also bypass the block feed-forward networks, so the original denoiser hidden
+states and velocity predictions stay strictly invariant. Finally, the register states are fused with pooled
+frozen features from selected blocks through a lightweight attention module, producing shared per-
+register features Ui ∈RK×d for the reward heads.
+4
+
+
+Algorithm 1 Reward-Gradient On-Policy Distillation (RG-OPD). Detached one-step reward-
+tilted targets are constructed at states visited by the current student.
+1: Input: prompt distribution C; frozen reference field vref; frozen reward register {r(m)
+ϕ
+}; sampler
+steps {Si}N−1
+i=0 ; guidance schedule {αi}N−1
+i=0 ; optimized steps J
+2: Output: reward-aligned student field vθ
+3: Initialize vθ ←vref
+4: for each training round do
+5:
+Sample prompts c ∼C
+6:
+Sample a student trajectory {zi}N
+i=0 using vθ and set ¯zi ←zi
+7:
+for i = 0, . . . , N −1 do
+8:
+Compute µref
+i
+←Si(¯zi; vref)
+9:
+if αi > 0 then
+10:
+Compute the detached single- or multi-reward direction gi
+11:
+else
+12:
+Set gi ←0
+13:
+end if
+14:
+Compute and store the teacher target µRG
+i
+using Eq. 4
+15:
+end for
+16:
+Shuffle the stored trajectories into training minibatches
+17:
+for i ∈J do
+18:
+Evaluate the student mean Si(¯zi; vθ)
+19:
+Accumulate Eq. 5 and update only θ
+20:
+end for
+21: end for
+Reward prediction and learning.
+For reward objective m, the latent score is
+r(m)
+ϕ
+(zi, c, σi) = 1
+K
+K
+X
+k=1
+h(m)
+ϕ
+(Ui,k) ,
+m = 1, . . . , M,
+(2)
+where h(m)
+ϕ
+is a reward-specific two-layer MLP. For a pair (a, b), let s(m)
+ab
+be the sign of the score
+difference assigned by endpoint reward model m, and let d(m)
+ab
+= r(m)
+ϕ
+(zu,a, c, u) −r(m)
+ϕ
+(zu,b, c, u).
+Each head is trained with the noise-aware Thurstone pairwise-ranking objective (Thurstone, 1927)
+together with the DiNa-LRM variance adjustment (Liu et al., 2026): the loss penalizes disagreement
+between the signs of d(m)
+ab
+and s(m)
+ab , and the assumed comparison variance grows with the sampled
+noise level. Images within a prompt group share the same noise level and Gaussian noise realization,
+which controls corruption as a pairwise confound while preserving differences between the under-
+lying clean images. The backbone stays frozen; only the registers, shared query projection, fusion
+readout, and reward heads are optimized, and an exponential moving average of the parameters is
+used for evaluation and downstream use. The learned score preserves the rankings induced by the
+endpoint reward models rather than estimating a calibrated reward value.
+Shared reward direction.
+Both RG-OPD and RGS utilize gradients derived from the learned
+latent scores. For a single reward objective m, the gradient is g(m)(z) = ∇zr(m)
+ϕ
+(z, c, σ). For multi-
+reward optimization we normalize each gradient to unit root-mean-square (RMS) and sum them, so
+that variations in gradient magnitude across heads do not dominate the aggregate direction. We
+define unitRMS(x) := x/ max(RMS(x), δrms), with RMS computed across all latent dimensions
+per sample and δrms > 0 for numerical stability. The resulting single- or multi-reward direction
+g(z) is detached before being used in either an RG-OPD target or an RGS update.
+3.2
+REWARD-GRADIENT ON-POLICY DISTILLATION
+Reward-Gradient On-Policy Distillation (RG-OPD) generates step-wise supervision at states ac-
+tively visited by the current student model, adapting the training distribution to the evolving student
+rather than relying on fixed offline teacher trajectories. This mechanism performs local one-step dis-
+5
+
+
+Algorithm 2 Reward-Guided Sampling.
+A frozen reward register adds magnitude-matched
+reward-gradient corrections to an otherwise unchanged reference sampler.
+1: Input: prompt c; frozen reference field vref; frozen reward register {r(m)
+ϕ
+}; sampler steps
+{Si}N−1
+i=0 ; noise levels {σi}N
+i=0; guidance schedule {αi}N−1
+i=0 ; selected heads M
+2: Output: generated image x
+3: Initialize z0 ∼N(0, I) and set schedule σ0 > · · · > σN = 0
+4: for i = 0, . . . , N −1 do
+5:
+Compute µref
+i
+←Si(zi; vref) and ∆zref
+i
+←µref
+i
+−zi
+6:
+if αi > 0 then
+7:
+Compute and detach the direction gi aggregated over the selected heads M
+8:
+Compute zi+1 via Eq. 7
+9:
+else
+10:
+Set zi+1 ←µref
+i
+11:
+end if
+12: end for
+13: Decode zN to obtain x
+tillation, entirely bypassing backpropagation through the full sampling chain and avoiding rollout-
+level policy-gradient estimation.
+Let Si(z; v) denote the deterministic one-step sampler mean associated with the transition from σi to
+σi+1 under velocity field v. From a student rollout {zi}N
+i=0, we define the detached state ¯zi = sg(zi)
+and evaluate the frozen reference generator to obtain
+µref
+i
+= Si(¯zi; vref),
+∆zref
+i
+= µref
+i
+−¯zi.
+(3)
+Evaluating the shared reward direction at the detached state gives gi = g(¯zi). The reward-tilted
+teacher mean is
+µRG
+i
+= µref
+i
++ αi RMS
+ ∆zref
+i
+
+· unitRMS(gi).
+(4)
+The coefficient αi controls the relative scale of the reward correction with respect to the reference
+displacement. It is zero on unguided steps, for which the target reduces to the frozen reference mean
+and acts as an explicit retention constraint.
+For deterministic flow-matching trajectories, we optimize the mean squared error between the stu-
+dent’s one-step mean and the detached teacher target. Let D be the number of scalar latent dimen-
+sions and J ⊆{0, . . . , N −1} the configured set of optimized denoising steps. Then
+LRG-OPD(θ) =
+1
+|J |D
+X
+i∈J
+Si(¯zi; vθ) −sg
+ µRG
+i
+2
+2 .
+(5)
+The reference generator and reward register remain frozen, and gradients update only the student
+parameters θ. Algorithm 1 summarizes the procedure; backbone-specific parameterizations and the
+choice of J are implementation details reported in Appendix B.
+3.3
+REWARD-GUIDED SAMPLING
+Reward-Guided Sampling (RGS) utilizes the learned latent reward field to steer the generation pro-
+cess at inference time. With the generator and the register both frozen, RGS uses the original sampler
+as a baseline reference and applies a reward-gradient correction after each active solver step. Let Si
+denote the deterministic solver transition from σi to σi+1, incorporating any native text guidance.
+The reference mean and displacement are given by:
+µref
+i
+= Si(zi; vref),
+∆zref
+i
+= µref
+i
+−zi.
+(6)
+For an active step, the register yields the detached single- or multi-reward direction gi = g(zi). The
+trajectory advances according to:
+zi+1 = µref
+i
++ αi RMS(∆zref
+i ) unitRMS(gi),
+(7)
+where αi controls the relative scale of the reward correction with respect to the reference displace-
+ment. Because Eq. 7 depends on the displacement of a complete reference-solver step, it composes
+6
+
+
+Table 1: High-noise pairwise preference accuracy (%) on four benchmarks. Latent reward
+models score noisy states at u=0.8, whereas endpoint reward models score clean images. Red bold
+and blue underline mark the best and second-best results within each model category.
+Pairwise Preference Accuracy (%)
+Model
+Backbone
+ImageReward
+HPDv2
+HPDv3
+GenAI-Bench
+Avg
+Endpoint Reward Models
+ImageReward
+CLIP
+65.15
+73.95
+58.74
+63.41
+65.31
+PickScore
+CLIP
+62.73
+79.44
+65.67
+69.98
+69.45
+HPSv2
+CLIP
+65.62
+82.58
+64.69
+67.62
+70.13
+HPSv3
+Qwen2VL-7B
+67.03
+85.36
+76.03
+70.95
+74.84
+Latent Reward Models
+LRM-SD1.5
+SD-1.5
+55.88
+64.80
+52.37
+52.46
+56.38
+LRM-SDXL
+SDXL
+58.13
+66.49
+52.87
+54.67
+58.04
+PAVRM
+SD3-Medium
+56.76
+73.52
+68.18
+57.20
+63.91
+Diffusion Probe
+SD3-Medium
+58.67
+75.29
+68.68
+57.14
+64.95
+DiNa-LRM
+SD3-Medium
+60.10
+78.76
+68.08
+58.94
+66.47
+Reward Register
+SD3-Medium
++HPS
+61.84
+78.46
+69.96
+61.41
+67.92
++ImageReward
+63.32
+75.73
+63.20
+62.61
+66.22
++Raw score-sum
+63.12
+78.10
+69.10
+62.95
+68.32
+with deterministic solvers of any order, and the reward correction is applied exactly once after that
+step.
+Applying corrections at low noise levels brings marginal benefit and can distort fine details, so
+we use a three-band schedule: αi = αearly for σi > σhi, αi = αmid for σlo < σi ≤σhi, and
+αi = 0 otherwise, with αearly > αmid. Algorithm 2 outlines RGS; backbone-specific sampling
+configurations are detailed in Appendix B.
+4
+EXPERIMENTS
+We evaluate the framework along three axes: prediction accuracy of Latent Reward Registers on
+noisy latents, training efficiency of RG-OPD against RL and reward backpropagation baselines,
+and inference effectiveness of RGS relative to training-free sampling methods. Primary evaluations
+use SD3-Medium, with FLUX.1-dev providing cross-architecture evidence; we then ablate register
+designs and analyze noise robustness. Full protocols and extended analyses appear in the Appendix.
+4.1
+LATENT REWARD PREDICTION
+Setup.
+We append K=32 register tokens to a frozen SD3-Medium backbone, training only the
+auxiliary branch. We measure pairwise preference accuracy across four benchmarks totaling 54,170
+pairs: ImageReward (Xu et al., 2023), HPDv2 (Wu et al., 2023), HPDv3 (Ma et al., 2025), and
+GenAI-Bench (Li et al., 2024). Accuracy is defined as the frequency with which a model assigns
+a higher score to the human-preferred image within a held-out pair. Latent reward models, includ-
+ing our method, evaluate paired latents forward-noised to the high-noise regime u=0.8. Standard
+endpoint models (ImageReward, PickScore, HPSv2, HPSv3) score the clean decoded images, pro-
+viding a cross-regime reference. We compare against five latent reward baselines: LRM (Zhang
+et al., 2025) on SD1.5 and SDXL, PAVRM (Mi et al., 2025)(re-implemented on SD3-Medium),
+Diffusion Probe (Cui et al., 2026), and DiNa-LRM (Liu et al., 2026). For fair comparison, Table 1
+matches our backbone to the SD3-Medium baselines; Appendix C details FLUX.1-dev results.
+Results.
+The reward register predicts preferences accurately from noisy inputs: it outperforms all
+latent baselines on three of the four benchmarks (Table 1) and remains highly competitive on the
+7
+
+
+0.2
+0.4
+0.5
+0.6
+0.8
+forward-noise level  u
+50.0
+52.5
+55.0
+57.5
+60.0
+62.5
+65.0
+67.5
+macro accuracy (%)
+ chance
+Macro (HPDv3 + GenAI-Bench)
+0.2
+0.4
+0.5
+0.6
+0.8
+forward-noise level  u
+50
+55
+60
+65
+70
+accuracy (%)
+ chance
+HPDv3
+0.2
+0.4
+0.5
+0.6
+0.8
+forward-noise level  u
+50
+52
+54
+56
+58
+60
+62
+accuracy (%)
+ chance
+GenAI-Bench
+Reward Register (Ours)
+DiNa-LRM
+PAVRM
+DiffusionProbe
+LRM-SD1.5
+Figure 3: Preference accuracy across noise levels. Pairwise preference accuracy of latent reward
+models scored at noise level u.
+Table 2: Training-time preference alignment on SD3-Medium and FLUX.1-dev. HPSv3 and
+ImageReward are optimization targets, MUSIQ and CLIP-IQA measure no-reference perceptual
+quality. Red bold and blue underline mark the best and second-best results within each category.
+SD3-Medium
+FLUX.1-dev
+Method
+HPSv3↑
+IR↑
+MUSIQ↑
+CIQA↑
+HPSv3↑
+IR↑
+MUSIQ↑
+CIQA↑
+Baselines
+Base + CFG
+8.55
+1.183
+73.2
+0.694
+9.89
+1.142
+72.9
+0.669
+ReFL +HPS
+10.84
+1.341
+67.0
+0.512
+12.00
+1.337
+56.8
+0.428
+ReFL +IR
+9.69
+1.678
+75.0
+0.716
+9.31
+1.293
+62.7
+0.425
+AlignProp +HPS
+11.20
+1.472
+68.1
+0.580
+11.83
+1.241
+59.4
+0.481
+AlignProp +IR
+9.51
+1.611
+71.2
+0.491
+9.47
+1.213
+68.2
+0.577
+Flow-GRPO +HPS
+10.26
+1.349
+74.3
+0.692
+12.06
+1.212
+75.9
+0.697
+Flow-GRPO +IR
+9.45
+1.297
+74.1
+0.705
+11.13
+1.377
+75.7
+0.702
+Diffusion-NFT +HPS
+9.51
+0.995
+72.4
+0.551
+11.54
+1.056
+75.1
+0.695
+Diffusion-NFT +IR
+9.68
+1.221
+74.4
+0.686
+11.50
+1.241
+74.1
+0.699
+Reward Register with on-policy distillation (Ours)
+Reward Register (OPD) +HPS
+11.57
+1.336
+74.9
+0.726
+12.38
+1.229
+74.4
+0.648
+Reward Register (OPD) +IR
+10.98
+1.444
+72.1
+0.674
+10.82
+1.367
+75.6
+0.704
+Reward Register (OPD) +MH
+11.62
+1.417
+74.0
+0.704
+11.91
+1.346
+75.0
+0.681
+fourth, despite evaluating heavily corrupted latents. Clean-image reward models score uncorrupted
+inputs and are included as a reference point rather than a matched comparison. Appendix C shows
+that these prediction capabilities transfer to FLUX.1-dev.
+4.2
+REWARD-GRADIENT ON-POLICY DISTILLATION
+Setup.
+We benchmark RG-OPD against reward-backpropagation (ReFL, AlignProp) and online
+RL methods (Flow-GRPO, Diffusion-NFT). All approaches update the generator weights. Evalua-
+tions utilize matched prompts, seeds, resolutions, and metric pipelines. HPSv3 and ImageReward
+serve as the optimization targets, while MUSIQ and CLIP-IQA assess reward-independent percep-
+tual quality. Appendix B details the complete training protocol.
+Results.
+RG-OPD attains the highest HPSv3 scores on both architectures while keeping a balanced
+multi-reward profile (Table 2). Reward-backpropagation baselines, by contrast, often maximize
+target metrics at the expense of visible perceptual degradation, a classic signature of reward over-
+optimization. In contrast, RG-OPD achieves a superior Pareto frontier between reward alignment
+and perceptual quality. Figure 4 shows this qualitatively: under matched prompts and seeds, RG-
+8
+
+
+Figure 4: Qualitative comparison of training-time alignment. We compare the visual results
+of our RG-OPD against baseline methods, including CFG, ReFL, AlignProp, Flow-GRPO, and
+Diffusion-NFT. The generated samples demonstrate that our approach achieves better prompt align-
+ment and higher perceptual quality without introducing visible artifacts.
+OPD preserves prompt-relevant content and perceptual quality without the artifacts exhibited by
+several baselines.
+4.3
+REWARD-GUIDED SAMPLING
+Setup.
+We compare RGS with the training-free baselines DNO and Demon under matched
+prompts, seeds, resolutions, and metrics. All methods keep the generator frozen; DNO and Demon
+optimize or search per sample using external reward models, whereas RGS uses analytical gradi-
+ents from the latent reward register at each active step. HPSv3 and ImageReward quantify target
+alignment, and MUSIQ (Ke et al., 2021) and CLIP-IQA (Wang et al., 2023) measure no-reference
+perceptual quality. Extended protocol details are given in Appendix B.
+Results.
+Each single-head RGS variant improves its target metric relative to the CFG baseline
+while preserving perceptual quality, and RGS reaches the highest HPSv3 score among all evaluated
+training-free methods, with a favorable reward–quality trade-off under ImageReward optimization.
+Figure 5 gives the corresponding qualitative comparison; prompts and seeds are matched to hold
+input variation fixed, strictly isolating the observed improvements to the proposed guidance mecha-
+nism rather than prompt or seed selection.
+Beyond alignment accuracy, RGS demonstrates a distinct memory efficiency advantage. Because
+it shares the frozen denoiser backbone, peak memory stays comparable to unguided CFG and well
+below that of guided baselines, which require separate external scorer networks (Table 10).
+9
+
+
+Table 3: Reward-Guided Sampling with frozen SD3-Medium and FLUX.1-dev generators.
+RGS provides the strongest HPS alignment and a favorable reward–quality trade-off among the
+evaluated training-free methods. HPSv3 and ImageReward (IR) are optimization targets; MUSIQ
+and CLIP-IQA (CIQA) measure perceptual quality. DNO and Demon use HPSv3 for their +HPS
+variants. Red bold and blue underline mark the best and second-best results within each backbone.
+SD3-Medium
+FLUX.1-dev
+Method
+HPSv3↑
+IR↑
+MUSIQ↑
+CIQA↑
+HPSv3↑
+IR↑
+MUSIQ↑
+CIQA↑
+Baselines
+Base + CFG
+8.55
+1.183
+73.2
+0.694
+9.89
+1.142
+72.9
+0.669
+DNO +HPS
+8.85
+1.272
+73.1
+0.698
+9.64
+1.191
+71.9
+0.655
+Demon +HPS
+9.09
+1.311
+73.0
+0.685
+9.56
+1.209
+68.2
+0.605
+DNO +IR
+8.19
+1.454
+72.3
+0.693
+9.25
+1.350
+69.5
+0.632
+Demon +IR
+8.90
+1.596
+72.5
+0.674
+9.27
+1.501
+68.2
+0.603
+Reward-Guided Sampling (Ours)
+Reward Register +HPS
+10.70
+1.347
+75.0
+0.728
+11.03
+1.212
+73.3
+0.715
+Reward Register +IR
+10.12
+1.465
+73.0
+0.694
+10.38
+1.297
+73.2
+0.710
+Reward Register +MH
+10.48
+1.413
+74.1
+0.723
+10.80
+1.276
+73.5
+0.717
+Figure 5: Comparison of training-free sampling methods. CFG, DNO, Demon, and our single-
+and multi-head RGS variants use matched prompts and seeds within each backbone.
+4.4
+ANALYSIS
+Register design.
+The persistent register state is the main driver of accuracy. Removing the register
+causes the largest performance drop, while the skip-FFN design and the trainable query projection
+each add complementary gains (Table 4). Reducing the number of readout layers, by contrast, has
+little effect, indicating that persistent side-stream aggregation matters more than deep multi-scale
+feature extraction.
+Training efficiency.
+Dense reward gradients provide continuous supervision throughout the de-
+noising process, which accelerates convergence substantially relative to policy-gradient RL. On-
+policy trajectories meanwhile track the evolving student distribution. As Figure 6 shows, RG-OPD
+reaches Flow-GRPO-equivalent HPSv3 levels 14.0×–33.2× faster in GPU hours on both back-
+bones. To enable high-frequency monitoring of training dynamics, the efficiency trajectories are
+evaluated on a designated validation subset of 256 prompts. In contrast, the ultimate performance
+10
+
+
+Table 4: Reward Register Design Ablation. Pairwise preference accuracy evaluated across four
+benchmarks. ∆quantifies the deviation in average accuracy relative to the full deployed method.
+Bold indicates the optimal performance within each respective column.
+Variant
+Pairwise Preference Accuracy (%)
+∆
+ImageReward
+HPDv2
+HPDv3
+GenAI-Bench
+Avg
+Full method
+63.12
+78.10
+69.10
+62.95
+68.32
+—
+w/o reward register
+56.86
+74.12
+65.42
+60.76
+64.29
+−4.03
+w/o skip-FFN
+58.15
+77.82
+68.54
+60.38
+66.23
+−2.09
+w/o trainable q-proj
+58.20
+77.62
+68.62
+60.42
+66.21
+−2.11
+w/ layers [4]
+59.39
+79.32
+69.57
+61.69
+67.49
+−0.83
+w/ layers [4, 8]
+60.01
+79.90
+70.35
+61.30
+67.89
+−0.43
+0
+10
+20
+30
+40
+50
+60
+70
+80
+GPU hours (8× H800)
+8
+9
+10
+11
+HPSv3 
+10.89
+9.77
+10.84
+(a) SD3-Medium
+CFG base
+33.2× faster
+0
+20
+40
+60
+80
+100
+120
+140
+GPU hours (8× H800)
+9.5
+10.0
+10.5
+11.0
+11.5
+HPSv3 
+11.59
+11.43
+11.36
+(b) FLUX.1-dev
+CFG base
+14.0× faster
+Base
+RG-OPD (ours)
+ReFL
+Flow-GRPO
+Figure 6: Training efficiency of RG-OPD. We compare the HPSv3 optimization trajectories of
+RG-OPD and Flow-GRPO against aggregate GPU hours on SD3-Medium and FLUX.1-dev. The
+curves indicate that RG-OPD requires fewer GPU hours to reach equivalent reward thresholds. This
+acceleration comes from the dense, step-wise gradients extracted from the latent reward registers.
+benchmarks in Table 2 are comprehensively assessed over the full 400/800 prompt–seed testing set,
+ensuring rigorous and unbiased final metrics.
+Multi-head RGS.
+Multi-reward RGS balances competing objectives. Where single-head guid-
+ance targets one reward, the multi-head variant maintains a balanced profile across reward and per-
+ceptual metrics, consistent with the trends in Table 3 and Figure 8. This supports the effectiveness
+of the equal-RMS aggregation strategy for multi-objective composition.
+Robustness in high-noise regimes.
+DiNa-LRM performs competitively at low noise but degrades
+sharply as the latent inputs become uninformative, whereas the register retains accuracy throughout
+(Figure 3). This robustness matters precisely in the high-noise regime used for early guidance, where
+the register acts as a continuous step-wise signal rather than a late-stage endpoint proxy.
+Additional analyses.
+Appendix E demonstrates that alignment improvements persist across vary-
+ing sampling budgets, guidance strengths, and deterministic ODE solvers. It also analyzes the tem-
+poral accumulation of reward corrections along the generated trajectory. Appendix C empirically
+validates that the constituent register heads preserve the relative ranking distributions established by
+their corresponding endpoint reward models.
+5
+CONCLUSION
+In this work, we demonstrate that intermediate DiT representations capture terminal reward infor-
+mation early in the denoising process. Building on this insight, we propose Latent Reward Reg-
+11
+
+
+0
+100
+200
+300
+Epoch
+0
+2
+4
+Reward change
+(a) Register reward (HPS head)
+0
+50
+100
+150
+200
+250
+Epoch
+0.30
+0.31
+0.32
+HPSv2 
+(b) Evaluation HPSv2
+0
+50
+100
+150
+200
+250
+Epoch
+1.10
+1.15
+1.20
+1.25
+1.30
+ImageReward 
+(c) Evaluation ImageReward
+rt = 0.20
+rt = 0.40
+Figure 7: Effect of reward tilt (rt) during RG-OPD training. Training dynamics are compared
+between rt=0.20 and rt=0.40. The results show that a larger reward scale accelerates convergence
+and yields a higher peak performance. Moreover, the upward trend of the internal latent reward
+(a) remains consistent with the endpoint HPSv2 evaluation (b), indicating alignment between the
+intermediate proxy and the terminal objective. ImageReward (c) is evaluated as an independent,
+unoptimized metric to monitor the overall generation quality during the process.
+CFG
+HPS head
+ImageReward head
+Pickscore head
+Multi-head
+Figure 8: Multi-head RGS. Multi-head reward gradients achieve a balanced performance across
+different reward metrics, compared to single-head RGS under identical settings.
+isters, a non-intrusive auxiliary stream that predicts endpoint rewards directly from intermediate
+noisy latents. The resulting dense reward field supports two alignment strategies. Reward-Gradient
+On-Policy Distillation (RG-OPD) utilizes step-wise gradient supervision to outperform online RL
+baselines in efficiency and alignment, while avoiding the over-optimization typical of direct reward
+backpropagation. Furthermore, Reward-Guided Sampling (RGS) applies magnitude-matched reg-
+ister gradients to steer generation without parameter updates, improving multi-objective target re-
+wards while preserving perceptual quality. Ultimately, by resolving the credit assignment problem,
+this framework establishes a reliable latent reward model for diffusion RL.
+12
+
+
+REFERENCES
+Kevin Black, Michael Janner, Yilun Du, Ilya Kostrikov, and Sergey Levine. Training diffusion
+models with reinforcement learning. arXiv preprint arXiv:2305.13301, 2023.
+Kevin Clark, Paul Vicol, Kevin Swersky, and David Fleet. Directly fine-tuning diffusion models on
+differentiable rewards. In International Conference on Learning Representations, volume 2024,
+pp. 4793–4822, 2024.
+Benlei Cui, Bukun Huang, Zhizeng Ye, Xuemei Dong, Tuo Chen, Hui Xue, Dingkang Yang, Long-
+tao Huang, Jingqun Tang, and Haiwen Hong. Diffusion probe: Generated image result prediction
+using cnn probes, 2026. URL https://arxiv.org/abs/2602.23783.
+Timoth´ee Darcet, Maxime Oquab, Julien Mairal, and Piotr Bojanowski. Vision transformers need
+registers. In International Conference on Learning Representations, 2024.
+Prafulla Dhariwal and Alexander Nichol. Diffusion models beat GANs on image synthesis. In
+Advances in Neural Information Processing Systems, 2021.
+Hyojun Go, Hyungjin Chung, Prune Truong, Goutam Bhat, Li Mi, Zhaochong An, Zixiang Zhao,
+Dominik Narnhofer, Serge Belongie, Federico Tombari, and Konrad Schindler. Stitched value
+model for diffusion alignment. arXiv preprint arXiv:2605.19804, 2026.
+Ernst Hairer, Syvert P. Nørsett, and Gerhard Wanner. Solving Ordinary Differential Equations I:
+Nonstiff Problems, volume 8 of Springer Series in Computational Mathematics. Springer, 2nd
+revised edition, 1993. doi: 10.1007/978-3-540-78862-1.
+Jonathan Ho and Tim Salimans.
+Classifier-free diffusion guidance.
+arXiv preprint
+arXiv:2207.12598, 2022.
+Junjie Ke, Qifei Wang, Yilin Wang, Peyman Milanfar, and Feng Yang. MUSIQ: Multi-scale image
+quality transformer. In IEEE/CVF International Conference on Computer Vision, 2021.
+Yuval Kirstain, Adam Polyak, Uriel Singer, Shahbuland Matiana, Joe Penna, and Omer Levy.
+Pick-a-pic: An open dataset of user preferences for text-to-image generation. arXiv preprint
+arXiv:2305.01569, 2023.
+Kimin Lee, Hao Liu, Moonkyung Ryu, Olivia Watkins, Yuqing Du, Craig Boutilier, Pieter Abbeel,
+Mohammad Ghavamzadeh, and Shixiang Shane Gu. Aligning text-to-image models using human
+feedback. arXiv preprint arXiv:2302.12192, 2023.
+Baiqi Li, Zhiqiu Lin, Deepak Pathak, Jiayao Li, Yixin Fei, Kewen Wu, Tiffany Ling, Xide Xia,
+Pengchuan Zhang, Graham Neubig, and Deva Ramanan. GenAI-Bench: Evaluating and improv-
+ing compositional text-to-visual generation. arXiv preprint arXiv:2406.13743, 2024.
+Yaron Lipman, Ricky T. Q. Chen, Heli Ben-Hamu, Maximilian Nickel, and Matthew Le. Flow
+matching for generative modeling. In International Conference on Learning Representations,
+2023.
+Gongye Liu, Bo Yang, Yida Zhi, Zhizhou Zhong, Lei Ke, Didan Deng, Han Gao, Yongxiang Huang,
+Kaihao Zhang, Hongbo Fu, and Wenhan Luo. Beyond VLM-based rewards: Diffusion-native
+latent reward modeling. arXiv preprint arXiv:2602.11146, 2026.
+Jie Liu, Gongye Liu, Jiajun Liang, Yangguang Li, Jiaheng Liu, Xintao Wang, Pengfei Wan,
+Di Zhang, and Wanli Ouyang. Flow-GRPO: Training flow matching models via online RL. In
+Advances in Neural Information Processing Systems (NeurIPS), 2025.
+Yuhang Ma, Xiaoshi Wu, Keqiang Sun, and Hongsheng Li. HPSv3: Towards wide-spectrum human
+preference score. arXiv preprint arXiv:2508.03789, 2025.
+Xiaoyue Mi, Wenqing Yu, Jiesong Lian, Shibo Jie, Ruizhe Zhong, Zijun Liu, Guozhen Zhang,
+Zixiang Zhou, Zhiyong Xu, Yuan Zhou, Qinglin Lu, and Fan Tang. Video generation models are
+good latent reward models. arXiv preprint arXiv:2511.21541, 2025.
+13
+
+
+Mihir Prabhudesai, Anirudh Goyal, Deepak Pathak, and Katerina Fragkiadaki. Aligning text-to-
+image diffusion models with reward backpropagation, 2023.
+Jiaming Song, Qinsheng Zhang, Hongxu Yin, Morteza Mardani, Ming-Yu Liu, Jan Kautz, Yongxin
+Chen, and Arash Vahdat. Loss-guided diffusion models for plug-and-play controllable generation.
+In International Conference on Machine Learning, 2023.
+Zhiwei Tang, Jiangweizhi Peng, Jiasheng Tang, Mingyi Hong, Fan Wang, and Tsung-Hui Chang.
+Tuning-free alignment of diffusion models with direct noise optimization. In International Con-
+ference on Machine Learning, 2025.
+Louis L. Thurstone. A law of comparative judgment. Psychological Review, 34(4):273–286, 1927.
+Jianyi Wang, Kelvin C. K. Chan, and Chen Change Loy. Exploring CLIP for assessing the look and
+feel of images. In AAAI Conference on Artificial Intelligence, 2023.
+Xiaoshi Wu, Yiming Hao, Keqiang Sun, Yixiong Chen, Feng Zhu, Rui Zhao, and Hongsheng Li.
+Human preference score v2: A solid benchmark for evaluating human preferences of text-to-
+image synthesis. arXiv preprint arXiv:2306.09341, 2023.
+Xiaoshi Wu, Yiming Hao, Manyuan Zhang, Keqiang Sun, Zhaoyang Huang, Guanglu Song, Yu Liu,
+and Hongsheng Li.
+Deep reward supervisions for tuning text-to-image diffusion models.
+In
+European Conference on Computer Vision (ECCV), 2024.
+Jiazheng Xu, Xiao Liu, Yuchen Wu, Yuxuan Tong, Qinkai Li, Ming Ding, Jie Tang, and Yuxiao
+Dong. Imagereward: Learning and evaluating human preferences for text-to-image generation.
+arXiv preprint arXiv:2304.05977, 2023.
+Zeyue Xue, Jie Wu, Yu Gao, Fangyuan Kong, Lingting Zhu, Mengzhao Chen, Zhiheng Liu, Wei
+Liu, Qiushan Guo, Weilin Huang, et al. DanceGRPO: Unleashing GRPO on visual generation.
+arXiv preprint arXiv:2505.07818, 2025.
+Shentao Yang, Tianqi Chen, and Mingyuan Zhou. A dense reward view on aligning text-to-image
+diffusion with preference. arXiv preprint arXiv:2402.08265, 2024.
+Po-Hung Yeh, Kuang-Huei Lee, and Jun-Cheng Chen. Training-free diffusion model alignment with
+sampling demons. In International Conference on Learning Representations, 2025.
+Tao Zhang, Cheng Da, Kun Ding, Huan Yang, Kun Jin, Yan Li, Tingting Gao, Di Zhang, Shiming
+Xiang, and Chunhong Pan. Diffusion model as a noise-aware latent reward model for step-level
+preference optimization. In Advances in Neural Information Processing Systems (NeurIPS), 2025.
+Kaiwen Zheng, Huayu Chen, Haotian Ye, Haoxiang Wang, Qinsheng Zhang, Kai Jiang, Hang Su,
+Stefano Ermon, Jun Zhu, and Ming-Yu Liu. DiffusionNFT: Online diffusion reinforcement with
+forward process. In International Conference on Learning Representations (ICLR), 2026.
+14
+
+
+A
+APPENDIX OVERVIEW
+This appendix contains supplementary material: the experimental protocols, extended results for
+Latent Reward Registers, training-time alignment, and Reward-Guided Sampling (RGS), and direc-
+tions for future research.
+1. Experimental Settings (Appendix B)
+• Reward register training (Appendix B)
+• Reward-gradient on-policy distillation (Appendix B)
+• Reward-Guided Sampling (Appendix B)
+2. Additional Reward-Register Results (Appendix C)
+• Pairwise preference accuracy (Appendix C.1)
+• Rank agreement with endpoint reward models (Appendix C.2)
+3. Additional Training-Time Alignment Results (Appendix D)
+• Qualitative results (Appendix D.1)
+4. Additional Reward-Guided Sampling Results (Appendix E)
+• Magnitude-matched CFG-direction control (Appendix E.1)
+• Inference cost (Appendix E.2)
+• Sampling budgets and guidance strengths (Appendix E.3)
+• Reward along the guided trajectory (Appendix E.4)
+• Robustness to the ODE solver (Appendix E.5)
+• Qualitative comparison across prompts (Appendix E.6)
+5. Future Work (Appendix F)
+B
+EXPERIMENTAL SETTINGS
+Reward Register Training Setting
+Table 6 lists the hyperparameters and configuration details for
+training the reward register that were omitted from the main text, distinguishing backbone-specific
+architectural choices from the shared optimization settings.
+For the evaluation on the HPDv3 benchmark, 28 designated test pairs that exhibited data overlap
+with the SD3 training corpus were excluded. The remaining evaluation benchmarks detailed in
+Table 1 constitute independent validation sets.
+Reward-Gradient On-Policy Distillation Setting
+Table 5 lists the optimization configurations
+and hyperparameters for SD3-Medium and FLUX.1-dev. Direct epoch-to-epoch comparisons be-
+tween RG-OPD and the online RL baselines would be misleading, since the two paradigms con-
+sume data at different rates; the main text therefore reports computational efficiency in aggregate
+GPU hours.
+Table 5: RG-OPD optimization details. Model checkpoints were selected using a validation set
+disjoint from the final test set. Computational budgets are reported in terms of GPU hours and
+optimizer updates to facilitate fair comparison across paradigms with varying rollout densities.
+Setting
+SD3-Medium Configuration
+FLUX.1-dev Configuration
+Student adaptation
+LoRA; merged for evaluation
+LoRA; merged for evaluation
+Training length
+60–100 epochs
+150 epochs
+Training rollout
+10 FlowMatch Euler steps
+10 FlowMatch Euler steps
+Optimized denoising steps J
+First 9 of 10 rollout steps
+(ρ = 0.99)
+First 9 of 10 rollout steps
+(ρ = 0.99)
+Teacher reward tilt αi
+{0.20, 0.40, 0.50} for σi>0.2; 0
+otherwise
+0.80 for σi>0.2; 0 otherwise
+Flow-GRPO / Diffusion-NFT
+LoRA r=32/α=64; 6-step SDE;
+100 epochs
+LoRA r=32/α=64; 6-step SDE;
+100 epochs
+Rollout samples (RL baselines)
+1,152 rollout images per epoch
+1,152 rollout images per epoch
+15
+
+
+Table 6: Reward-register training details. This table outlines the backbone-specific configuration
+and shared training hyperparameters. Values spanning both columns indicate shared settings across
+architectures.
+Setting
+SD3-Medium
+FLUX.1-dev
+Register-equipped blocks L
+12 (of 38)
+8 (of 19 double blocks)
+Feature-snapshot blocks L
+{4, 8, 12}
+{9, 19, 28}
+Register tokens K
+32
+Image-token pooling
+64 × 64 to 16 × 16
+Readout attention heads
+8
+Endpoint reward objectives
+HPSv3, ImageReward
+Training data
+30,652 prompt groups, 4 images/group
+Validation data
+300 prompt groups
+Data split
+98/1/1 by prompt
+Training length
+3 epochs
+Batch size
+64
+Precision / optimizer
+bf16 AdamW
+Learning rate
+5 × 10−5
+Weight decay
+0.01
+Warmup / schedule
+1,000 steps / constant
+Gradient clipping
+1.0
+EMA decay
+0.999
+Table 7: Reward-Guided Sampling details. Both SD3-Medium and FLUX.1-dev employ identical
+noise interval bands, with backbone-specific sampling step counts and mid-band guidance magni-
+tudes.
+Setting
+SD3-Medium
+FLUX.1-dev
+Resolution
+1024 × 1024
+1024 × 1024
+Sampler
+FlowMatch Euler
+FlowMatch Euler
+Sampling steps
+42
+40
+Text guidance
+CFG scale 4.5
+Embedded guidance 3.5
+Early band (σi > 0.8)
+αearly = 0.30
+αearly = 0.30
+Mid band (0.2 < σi ≤0.8)
+αmid = 0.05
+αmid = 0.10
+Low-noise tail (σi ≤0.2)
+0
+0
+Multi-head combination
+Equal-weight sum of unit-RMS per-head gradients
+Correction mode
+Additive; no spatial gradient filtering
+Reward-Guided Sampling Setting
+Table 7 documents the sampling configurations and guidance
+hyperparameters omitted from the main text.
+C
+ADDITIONAL REWARD-REGISTER RESULTS
+C.1
+PAIRWISE PREFERENCE ACCURACY
+Pairwise preference accuracy measures how often a model scores the human-preferred image higher
+within a held-out pair. The evaluation spans the ImageReward, HPDv2, HPDv3, and GenAI-Bench
+datasets, with 54,170 pairs in total; the HPDv3 set is restricted to 14,372 pairs after 28 samples are
+excluded for overlap with the training data. Endpoint reward models are evaluated on fully decoded,
+pristine images, while latent reward models score pairs that have been forward-noised to u=0.8.
+Across both backbones, +Raw score-sum denotes an unweighted ensemble of the constituent
+register heads.
+On FLUX.1-dev the raw score-sum ensemble reaches an average accuracy of 70.00% (Table 8),
+confirming that the register mechanism transfers to an alternative frozen backbone.
+16
+
+
+Table 8: FLUX.1-dev high-noise pairwise preference accuracy (%). The register mechanism,
+coupled with a frozen FLUX.1-dev backbone, is systematically evaluated at a noise level of u=0.8,
+adhering strictly to the evaluation protocols and benchmark datasets established in Table 1.
+Variant
+ImageReward
+HPDv2
+HPDv3
+GenAI-Bench
+Avg
++HPS
+62.12
+81.18
+73.30
+61.75
+69.59
++ImageReward
+63.13
+78.84
+65.86
+63.42
+67.81
++Raw score-sum
+63.46
+81.20
+72.36
+62.96
+70.00
+0.00
+0.25
+0.50
+0.75
+1.00
+u = 0.2
+Register Ranking Pct.
+top-k
+bottom-k
+=0.82
+HPS
+ideal ranking
+top-k
+bottom-k
+=0.80
+ImageReward
+top-k
+bottom-k
+=0.78
+PickScore
+0.00
+0.25
+0.50
+0.75
+1.00
+u = 0.5
+Register Ranking Pct.
+top-k
+bottom-k
+=0.83
+top-k
+bottom-k
+=0.82
+top-k
+bottom-k
+=0.79
+0.00
+0.25
+0.50
+0.75
+1.00
+HPS Endpoint Ranking Pct.
+0.00
+0.25
+0.50
+0.75
+1.00
+u = 0.8
+Register Ranking Pct.
+top-k
+bottom-k
+=0.81
+0.00
+0.25
+0.50
+0.75
+1.00
+ImageReward Endpoint Ranking Pct.
+top-k
+bottom-k
+=0.82
+0.00
+0.25
+0.50
+0.75
+1.00
+PickScore Endpoint Ranking Pct.
+top-k
+bottom-k
+=0.76
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+Frequency Density
+Figure 9: Rank agreement between register heads and endpoint reward models. The figure
+displays the joint probability density of ranking percentiles derived from register-head evaluations
+on noised latents, contrasted with corresponding percentiles obtained from endpoint models on fully
+decoded images. The parameter ρ denotes the Spearman rank correlation coefficient, and the diago-
+nal line represents theoretically perfect rank preservation.
+C.2
+RANK AGREEMENT WITH ENDPOINT REWARD MODELS
+Each register head preserves the ranking behavior of its corresponding endpoint reward model
+at high noise. Figure 9 compares the ranking percentiles the register assigns to noised latents with
+those of the endpoint models on fully denoised images, over a sample of 800 images. The Spearman
+correlation ρ ranges from 0.76 to 0.83 and stays stable across noise levels u ∈{0.2, 0.5, 0.8}.
+17
+
+
+D
+ADDITIONAL TRAINING-TIME ALIGNMENT RESULTS
+D.1
+QUALITATIVE RESULTS
+Figure 10 provides additional qualitative examples of training-time alignment. Each row uses the
+same text prompt and initial latent seed, so the comparison reflects consistent gains in prompt ad-
+herence and visual quality across prompts.
+E
+ADDITIONAL REWARD-GUIDED SAMPLING RESULTS
+E.1
+MAGNITUDE-MATCHED CFG-DIRECTION CONTROL
+To separate the effect of correction magnitude from correction direction, the CFG Control baseline
+replaces the RGS reward gradient with the SD3 conditional-unconditional residual. At each active
+step the applied correction is αi RMS(∆zref
+i ) unitRMS((σi+1 −σi)(vcond −vuncond)), following
+the same αi schedule as RGS. The two controls therefore share the per-step magnitude-matching
+rule and differ only in the direction applied.
+CFG Control improves some perceptual and reward metrics relative to standard CFG but does not
+approach the alignment of RGS (Table 9). Since the correction magnitude is identical, this compar-
+ison isolates the learned reward direction as the driver of the improvements.
+Table 9: Magnitude-matched direction control on SD3-Medium. The CFG Control mechanism
+is formulated to exactly match the per-step root-mean-square (RMS) magnitude of our proposed
+correction, while strictly orienting the update vector along the standard CFG residual rather than the
+learned reward direction. All evaluations adhere to the fixed prompt and seed protocol defined in
+Table 3. Red bold and blue underline denote the highest and second-highest performance metrics
+within each respective category.
+Method
+HPSv3↑
+IR↑
+MUSIQ↑
+CIQA↑
+Base + CFG
+8.55
+1.183
+73.2
+0.694
+CFG Control
+8.50
+1.214
+74.14
+0.720
+Reward Register +HPS
+10.70
+1.347
+75.01
+0.728
+Reward Register +IR
+10.12
+1.465
+73.00
+0.694
+Reward Register +MH
+10.48
+1.413
+74.10
+0.723
+E.2
+INFERENCE COST OF REWARD-GUIDED SAMPLING
+Reward Register has a memory footprint comparable to standard CFG and an inference la-
+tency competitive with the most efficient guided baselines (Table 10). All reported numbers are
+measured end-to-end on a single uncontended H800 GPU in bf16, generating 10242 images over 42
+steps with CFG scale 4.5 and batch size 1. Each method runs in its own process and is averaged over
+ten runs after ten warm-up runs. In the standard deployment the register shares the frozen denoiser
+and text encoders of the sampler, so the memory overhead is limited to the 147.6 M trainable param-
+eters of the read path and reward head: peak memory rises only from 16.9 GiB to 17.6 GiB versus
+unguided CFG (a 1.04× factor). Baselines that require separate neural backbones instead consume
+27–34 GiB. Computationally, each guided step adds roughly 50 ms and 5.9 TFLOPs on top of the
+12.4 TFLOPs of a base generation step.
+End-to-end latency is 1.80× that of standard CFG, slightly above PAVRM (1.67×) but far below
+Diffusion Probe (2.63×) and the decode-then-ImageReward pipeline (4.12×). Restricting guidance
+to the early phase (σi > 0.8, i.e., 18 of the 42 steps) lowers the overhead to 1.34× CFG while
+keeping roughly 80% of the HPSv3 gains of the full scheduler.
+18
+
+
+Figure 10: Extended qualitative comparison of training-time alignment. We provide additional
+visual examples comparing our RG-OPD framework against baseline methods across a diverse set
+of text prompts.
+19
+
+
+Table 10: Inference cost of RGS on SD3-Medium. Comparison of trainable parameter budgets,
+memory footprints, and computational overhead against existing guided baselines. SD3 with stan-
+dard CFG is provided as the unguided reference. ∆FLOP/step denotes the marginal computational
+overhead relative to a base CFG step. The early-only configuration applies guidance exclusively
+during the first 18 of 42 steps (where σi > 0.8). Bold indicates the most efficient performance
+among guided methods (lower is better).
+Method
+Params↓
+Peak mem↓
+Reward Eval./step↓
+∆FLOP/step↓
+Latency/img↓
+(M)
+(GiB)
+(ms)
+(TFLOP)
+(s, ×CFG)
+Reference (no reward)
+SD3 + CFG
+—
+16.9
+—
+12.4 (base)
+2.99 (1.00×)
+Guided baselines (separate reward backbone)
+PAVRM
+691.4
+31.3
+40
++4.1
+4.98 (1.67×)
+Diffusion Probe
+15.3
+34.3
+108
++11.5
+7.85 (2.63×)
+Decode+ImageReward
+446.7
+27.3
+215
++10.2
+12.32 (4.12×)
+Reward Register (frozen generator, reward register)
+Reward Register +HPS
+147.6
+17.6
+50
++5.9
+5.38 (1.80×)
+Reward Register +HPS (early-only)
+147.6
+17.6
+50
++5.9
+4.00 (1.34×)
+0
+5
+10
+15
+20
+25
+30
+Denoising Step
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Z-Score (SDs above CFG mean)
+HPS-Head
+0
+5
+10
+15
+20
+25
+30
+Denoising Step
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+PickScore-Head
+0
+5
+10
+15
+20
+25
+30
+Denoising Step
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+ImageReward-Head
+CFG (no guidance)
+λ=0.10
+λ=0.13
+λ=0.15
+λ=0.17
+λ=0.20
+Figure 11: Reward progression during generation under uniform guidance. Register-head eval-
+uations are plotted as z-scores, normalized against the per-step distribution of the unguided CFG
+baseline. Curves denote different guidance strengths α (labeled as λ in the legend), with shaded
+regions indicating variance across diverse text prompts.
+E.3
+RGS ACROSS SAMPLING BUDGETS AND STRENGTHS
+Figure 12 evaluates uniform guidance strengths under sampling budgets of 10, 20, 30, and 40 steps,
+in contrast to the two-band scheduler used in the main deployment (42 steps). Guidance improves
+every metric relative to the CFG baseline at all budgets, and the targeted reward metrics generally
+rise with guidance strength. No-reference metrics such as CLIP-IQA and MUSIQ also exceed the
+CFG baseline but plateau, or vary only marginally, at higher strengths. The parameter λ in the figure
+legends is mathematically equivalent to the guidance strength α defined in the method section.
+E.4
+REWARD ALONG THE RGS TRAJECTORY
+The reward-gradient correction exhibits progressive accumulation along the generation tra-
+jectory, proportionally scaling with the specified guidance magnitude. This auxiliary analysis
+uses a uniform guidance strength α ∈[0.10, 0.20] rather than the two-band scheduler of the main
+deployment. Figure 11 tracks the register-head scores for HPSv3, PickScore, and ImageReward
+through the denoising process. The correction raises the scores by 2–3.3 standard deviations rela-
+tive to the CFG baseline mean, and the ordering of guidance strengths is preserved across all three
+evaluators.
+20
+
+
+Figure 12: Effect of sampling budgets and guidance strengths. Panels evaluate distinct metrics
+against the total number of generation steps. We compare the standard CFG baseline with RGS at
+various uniform guidance scales α (labeled as λ). Target rewards scale positively with guidance in-
+tensity, while no-reference perceptual quality consistently outperforms the CFG baseline, plateauing
+at higher guidance levels.
+E.5
+ROBUSTNESS TO THE ODE SOLVER
+The primary results in the main text are based on first-order Euler integration of the generative flow
+ODE (Lipman et al., 2023). To verify whether RGS generalizes beyond this specific discretization,
+we evaluate the RGS protocol detailed in Appendix B using four additional classical numerical
+integrators (Hairer et al., 1993). These include the two-step Adams–Bashforth (AB2) method, which
+is a multistep method requiring a single model evaluation per step analogous to Euler; the explicit
+midpoint method; Heun’s method (a trapezoidal predictor–corrector); and the classical fourth-order
+Runge–Kutta (RK4) method. RGS composes with higher-order solvers in the same way as with
+Euler: the reward gradient is computed once at the beginning of each step, the solver’s internal
+velocity evaluations use standard CFG forwards, and the reward-gradient correction from Sec. 3.3
+is applied to the solver output afterwards. Its magnitude is scaled relative to the step displacement,
+αi · RMS(∆z), with no hyperparameter re-tuning. For these experiments, we implement the three-
+band RGS schedule from Sec. 3.3. The guidance strengths are set to αearly=0.30 for the high-noise
+phase (σ>0.8) and αmid ∈{0.05, 0.10} for the mid-range phase (σ>0.2). The latter encompasses
+both the standard deployed configuration and an augmented mid-band variant, while guidance is
+omitted in the low-noise tail. The evaluation is conducted on a subset of 250 prompts from the
+balanced benchmark, with two seeds per prompt. Generations are performed at 10242 resolution
+over 42 steps with a CFG scale of 4.5 using single-head RGS. Each solver’s respective CFG baseline
+and the two RGS configurations are evaluated on matched prompt–seed pairs. Because these runs
+use a 250-prompt subset, the baseline CFG numbers deviate slightly from those in Table 3, which
+uses the full 400-prompt set.
+The findings are summarized as follows:
+(1) RGS is robust across solvers. As Table 11 shows, RGS reproduces the gains seen with Euler
+under every integrator: paired per-image HPSv3 rises by roughly two points over the corresponding
+same-solver CFG baseline, with consistent improvements in the other optimized reward metrics and
+in no-reference quality. The drift attributable to RGS stays controlled relative to each solver’s base-
+21
+
+
+Table 11: Performance of RGS across diverse ODE integrators. The FID↓metric is calculated
+relative to the unguided Euler CFG reference set for the standard CFG evaluation rows (quantifying
+purely integrator-induced drift), and relative to the corresponding same-solver CFG reference set for
+the RGS evaluation rows (isolating the specific distributional drift attributable to RGS). RGS yields
+consistent improvements across all target reward and perceptual quality metrics under every solver.
+Solver
+Method
+Reward Model ↑
+Quality / Mode drift
+(NFE)
+(αmid)
+HPSv3 ImgReward PickScore FID↓MUSIQ↑CLIP-IQA↑
+Euler (1)
+CFG
+8.33
+0.977
+0.870
+0.0
+73.0
+0.697
++Reward Register (0.05)
+10.34
+1.167
+0.888
+64.8
+74.9
+0.730
++Reward Register (0.10)
+10.44
+1.154
+0.888
+69.3
+74.2
+0.712
+AB2 (1)
+CFG
+8.29
+0.995
+0.869
+40.1
+72.8
+0.686
++Reward Register (0.05)
+10.31
+1.167
+0.887
+66.5
+74.8
+0.731
++Reward Register (0.10)
+10.37
+1.160
+0.887
+72.2
+74.2
+0.716
+Midpoint (2) CFG
+8.35
+0.996
+0.870
+45.0
+72.7
+0.681
++Reward Register (0.05)
+10.14
+1.167
+0.887
+63.4
+74.7
+0.728
++Reward Register (0.10)
+10.25
+1.155
+0.886
+69.1
+74.2
+0.715
+Heun (2)
+CFG
+8.27
+1.008
+0.869
+42.6
+72.8
+0.687
++Reward Register (0.05)
+10.11
+1.167
+0.887
+64.2
+74.6
+0.727
++Reward Register (0.10)
+10.25
+1.155
+0.886
+69.7
+74.1
+0.716
+RK4 (4)
+CFG
+8.38
+1.006
+0.871
+46.8
+72.9
+0.685
++Reward Register (0.05)
+10.17
+1.170
+0.888
+63.8
+74.6
+0.728
++Reward Register (0.10)
+10.27
+1.152
+0.887
+70.0
+74.0
+0.715
+line, so the magnitude-matched correction generalizes across integrators without per-solver tuning
+or any compromise in no-reference quality.
+(2) Cross-solver FID mostly reflects trajectory decorrelation, not generative degradation.
+Changing the integrator introduces an FID of 40–47 relative to the Euler CFG baseline while the
+other six metrics stay similar. For a fixed latent seed, different solvers converge to distinct but
+qualitatively comparable endpoints, so the drift induced by guidance must be measured against the
+corresponding solver’s own baseline, as in Table 11.
+(3) Higher-order solvers attenuate the reward gain only marginally. Midpoint, Heun, and RK4
+yield HPSv3 gains of +1.79 to +1.98, versus +2.01 to +2.11 for Euler and AB2. We hypothesize
+that applying the reward displacement at the end of each step exposes it to the internal evaluations
+of higher-order solvers, which partially undo the off-manifold correction during the next integration
+step. The attenuation is only 5–10% of the total reward gain and does not change the qualitative
+conclusions. Since the single-evaluation AB2 solver closely matches Euler, both offer the best
+reward–quality trade-off among the integrators tested.
+E.6
+QUALITATIVE COMPARISON ACROSS PROMPTS
+We additionally test RGS under a flat strength α=0.15, complementing the deployed schedule in
+Table 7. Figure 13 uses a matched prompt and seed to isolate the effect of guidance strength;
+increasing α progressively instantiates stronger preference-aligned details.
+F
+FUTURE WORK
+Our results show that reward-gradient guidance applied to noisy latents under a frozen generator
+improves preference alignment while keeping no-reference quality intact. Two directions seem es-
+pecially promising for future exploration:
+(1) Few-Step Architectures and Video Generation. A natural next step is to evaluate latent re-
+ward registers on few-step distilled samplers and video diffusion models. For video generation, the
+22
+
+
+Figure 13: Qualitative impact of guidance strength variation. This progression illustrates gen-
+erated samples subject to monotonically increasing guidance strengths (α), synthesized using an
+identical text prompt and initial latent seed. The visual sequence demonstrates the progressive in-
+stantiation and refinement of preference-aligned details in correlation with the applied guidance
+magnitude.
+register mechanism will require structural adaptations to enforce temporal consistency and coherent
+motion dynamics across high-dimensional latent sequences.
+(2) From RLHF to RLVR. The proposed framework is not inherently limited to subjective human
+preferences. We plan to explore its integration with RLVR, where the same non-intrusive latent
+readout could enforce objective criteria—ranging from high-level factual fidelity and spatial reason-
+ing to low-level physical plausibility and strict structural constraints typically found in traditional
+inverse reconstruction problems.
+23

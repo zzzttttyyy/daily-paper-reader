@@ -1,0 +1,54 @@
+{
+  "label": "2026-08-09",
+  "date": "2026-08-09",
+  "generated_at": "2026-08-09T19:31:13",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202608/09/2608.01298v1-udt-reconciling-u-nets-and-diffusion-transformers-with-data-adaptive-token-reduction",
+      "section": "quick",
+      "title_en": "UDT: Reconciling U-Nets and Diffusion Transformers with Data-Adaptive Token Reduction",
+      "authors": "Junno Yun, Yaşar Utku Alçalar, Mehmet Akçakaya",
+      "date": "2026-08-02",
+      "pdf": "https://arxiv.org/pdf/2608.01298v1",
+      "score": "7.0",
+      "evidence": "面向图像生成的扩散Transformer数据自适应令牌缩减",
+      "tldr": "扩散Transformer各向同性结构导致深层过度聚焦细节、编解码不平衡。现有U-Net式DiT采用可学习下采样算子，与transformer不兼容。本文提出UDT，通过数据自适应token合并实现上下采样，保持token维度，融合U-Net编解码优势与DiT表示能力。UDT baseline超越现有U-Net DiT，结合REPA后仅需40epoch即达到SiT 1400epoch的FID 7.9，约40倍加速；有CFG时FID达1.38。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion Transformers (DiTs) have emerged as a core architecture in generative modeling due to their scalability and adaptability to multimodal tasks. DiTs comprise isotropic transformer blocks, and learn representations progressively across depth, where the denoising objective drives later layers to focus on fine-detail reconstruction. This results in degraded representation quality and an imbalanced encoder-decoder behavior. Prior approaches such as representation alignment (REPA) mitigate this by encouraging stronger early representations via training regularization. Alternatively, U-Net-style DiT architectures introduce explicit multi-scale encoder-decoder structures for improved convergence. But they build on standard U-Net wisdom via learnable operators for spatial downsampling, which are not well-suited to transformer architectures, introducing inefficiencies and compatibility issues with components such as cross-attention and representation regularization. In this work, we propose UDT, a U-Net diffusion transformer that combines the representation power of DiTs with the encoding-decoding benefits of U-Nets, through data-adaptive token merging for downsampling and upsampling, while preserving the DiT token dimension. Our baseline UDT architecture outperforms existing U-Net DiTs and achieves performance comparable to REPA across all model sizes. Furthermore, using architectural optimization and REPA, UDT outperforms SiT's 7.9 FID at 1400 epochs (w/o CFG) within 40 epochs (~ 40x faster convergence) for XL model size on 256x256 ImageNet. Finally, it achieves strong image generation performance with CFG, reaching FID of 1.38 (320 epochs) with SD-VAE and 1.35 (500 epochs) with VA-VAE, providing a new backbone for DiTs with strong empirical benefits.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/09/2608.03929v1-latent-reward-registers-for-diffusion-preference-alignment",
+      "section": "quick",
+      "title_en": "Latent Reward Registers for Diffusion Preference Alignment",
+      "authors": "Yuanshen Guan, Zipeng Feng, Zhiwei Xiong, Peiqin Sun",
+      "date": "2026-08-04",
+      "pdf": "https://arxiv.org/pdf/2608.03929v1",
+      "score": "7.0",
+      "evidence": "为扩散Transformer提供密集潜在奖励读取，支持奖励导向对齐",
+      "tldr": "扩散模型与人类偏好对齐常依赖最终生成样本上的稀疏终端奖励，这带来了多步去噪过程中的严重时间信用分配问题。本文提出Latent Reward Registers机制，在冻结的扩散Transformer输入序列中前置可学习且位置无关的寄存器token，直接从中期噪声潜变量读出终端奖励估计，生成密集、可微分的奖励信号，且不干扰生成器隐藏状态或速度场。基于该信号提出RG-OPD训练策略和RGS推理策略，实验表明高噪声下寄存器成对准确率最佳，RG-OPD相比在线RL减少33倍GPU时间，RGS在无训练方法中达到新SOTA，同时提升对齐与感知指标。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Aligning diffusion models with human preferences usually relies on a sparse terminal reward evaluated on the final generated samples, presenting a severe temporal credit-assignment challenge across the multi-step denoising process. We propose Latent Reward Registers, a mechanism that estimates terminal preference directly from intermediate noisy latents by prepending learnable, position-free register tokens to the input sequence of a frozen Diffusion Transformer (DiT). This independent readout mechanism extracts latent reward evidence without altering the generator's hidden states or velocity field. The resulting dense, differentiable reward signal throughout the full denoising process facilitates two alignment strategies. For training, Reward-Gradient On-Policy Distillation (RG-OPD) distills reward-guided updates along on-policy trajectories, bypassing the computationally expensive rollouts of standard policy gradients. For inference, Reward-Guided Sampling (RGS) steers trajectories via magnitude-matched reward gradients without parameter updates. Empirically, at high noise levels (u = 0.8), the registers reach the highest pairwise accuracy among the evaluated latent reward models. Furthermore, RG-OPD outperforms online reinforcement learning baselines while reducing GPU hours by up to 33x, and RGS establishes a new state-of-the-art among training-free methods, strictly enhancing both alignment and perceptual metrics. Code and weights are available at https://github.com/Guanys-dar/latent-reward-register",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/09/2608.01978v1-proxy-avatar-meets-low-rank-caching-real-time-one-shot-emotion-controllable-portrait-animation",
+      "section": "quick",
+      "title_en": "Proxy Avatar Meets Low-Rank Caching: Real-Time One-Shot Emotion-Controllable Portrait Animation",
+      "authors": "Haijie Yang, Jindi Bao, Yixuan Dong, Hongliang Zhang, Jian Bi, Hao Tang, Zhenyu Zhang, Jianjun Qian, Jian Yang",
+      "date": "2026-08-03",
+      "pdf": "https://arxiv.org/pdf/2608.01978v1",
+      "score": "6.0",
+      "evidence": "基于扩散模型的音频驱动人像视频生成，通过低秩缓存实现实时效率提升",
+      "tldr": "音频驱动肖像动画虽快速进步，但实时一次性生成且情感可控仍是挑战。现有方法缺乏情感感知运动先验，且多步去噪中外观计算昂贵。本文提出Proxy Avatar与低秩缓存级联框架：先以高斯情感代理头像生成运动，再用一次性重定向模型适配任意目标肖像，最后通过零样本外观复用与低秩缓存提升效率。实验表明该方法情感表达更强、身份保持更好、推理成本大幅降低，实现实时动画。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Audio-driven portrait animation has advanced rapidly with diffusion-based generative models, yet real-time one-shot generation with expressive emotion control remains challenging. Existing methods often suffer from insufficient emotion-aware motion priors and expensive appearance computation during multi-step denoising. To address these issues, we propose Proxy Avatar Meets Low-Rank Caching, a cascaded framework for real-time one-shot emotion-controllable portrait animation. Instead of directly generating the target portrait from audio, our method uses a Gaussian-based emotion proxy avatar as a reusable motion generator, which is trained once on a single identity to produce expressive driving videos from audio and emotion labels. Since the proxy avatar only provides motion rather than target appearance or geometry, a large-scale one-shot retargeting model further extracts identity-independent motion from the proxy performance and adapts it to arbitrary target portraits. To improve inference efficiency, we introduce zero-shot appearance reuse with low-rank caching, which caches reference appearance features at the initial denoising step and models subsequent feature variations using lightweight low-rank adapters. Extensive experiments demonstrate that our method achieves stronger emotional expressiveness, better identity-preserving animation, and substantially reduced inference cost, enabling real-time one-shot portrait animation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
