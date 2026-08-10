@@ -1,0 +1,54 @@
+{
+  "label": "2026-08-10",
+  "date": "2026-08-10",
+  "generated_at": "2026-08-10T20:44:52",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202608/10/2608.07003v1-hrdit-training-free-high-resolution-image-generation-with-off-the-shelf-diffusion-transformer-models",
+      "section": "deep",
+      "title_en": "HRDiT: Training-Free High-Resolution Image Generation with Off-the-Shelf Diffusion Transformer Models",
+      "authors": "Yu Xue, Haoxuan Qu, Zhuoling Li, Hongbin Xu, Jianxiong Yin, Simon See, Hossein Rahmani, Jun Liu",
+      "date": "2026-08-07",
+      "pdf": "https://arxiv.org/pdf/2608.07003v1",
+      "score": "10.0",
+      "evidence": "无需训练地适配现成DiT实现高分辨率图像生成",
+      "tldr": "训练free的高分辨率图像生成近期受到关注，但现有方法多针对U-Net，对扩散Transformer（DiT）模型适配有限。DiT在限制分辨率下生成能力强，但用于高分辨率存在空间混乱和生成耗时长的问题。我们提出HRDiT，无需训练即可适配现成DiT模型，解决上述挑战。实验显示该方法有效，代码已开源。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Training-free text-to-high-resolution image generation has recently attracted growing research attention. However, existing studies on this task primarily focus on adapting off-the-shelf U-Net-based diffusion models to high resolutions, with limited progress on adapting off-the-shelf Diffusion Transformer (DiT) models despite their strong text-to-image generation capabilities at limited resolutions. In this work, we find two key challenges particularly hindering the application of off-the-shelf DiT models for high-resolution image synthesis in a training-free manner, namely, spatial disorder and long generation time. To address these challenges, we propose a novel method tailored to adapt off-the-shelf DiT models for high-resolution image synthesis. Extensive experiments show the efficacy of our method. Our code is available at: https://github.com/zylwithxy/HRDiT.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/10/2608.06981v1-local-epistemic-uncertainty-guided-active-sampling-for-plug-and-play-diffusive-image-restoration",
+      "section": "deep",
+      "title_en": "Local Epistemic Uncertainty Guided Active Sampling for Plug-and-play Diffusive Image Restoration",
+      "authors": "Jiaqi Zhang, Zheng Pang, Rongrong Gao, Qiyuan Zhang, Yang Yang",
+      "date": "2026-08-07",
+      "pdf": "https://arxiv.org/pdf/2608.06981v1",
+      "score": "8.0",
+      "evidence": "面向扩散图像恢复的即插即用主动采样，基于局部认知不确定性引导",
+      "tldr": "扩散模型在图像复原中效果显著，但现有方法依赖固定数据约束和均匀步长，忽视生成过程的动态性，导致空间非均匀退化下结构失真与细节丢失，且均匀步长带来计算冗余。本文提出LEADer框架，在空间域利用像素级不确定性动态调节零空间先验强度，平衡细节与伪影抑制；在时间域通过不确定性迹自适应剪枝轨迹，加速收敛。理论证明其严格数据一致性且误差有界。该即插即用方法可集成于多种DMIR基线，显著提升性能并降低采样时间。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion models have demonstrated remarkable effectiveness in image restoration tasks. However, when guiding image reconstruction, existing Diffusion Model-based Image Restoration (DMIR) methods typically rely on fixed data constraints and uniform step sizes, thereby overlooking the dynamic nature of the generative process. Such rigid designs render the models vulnerable to spatially non-uniform degradations, thus resulting in structural distortions and loss of fine details. Meanwhile, uniform step sizes introduce computational redundancy, whereas naïve step reduction strategies tend to accumulate approximation errors. To address these limitations, we propose a Local Epistemic Uncertainty Guided Active Sampling framework (LEADer). In the spatial domain, LEADer leverages pixel-wise uncertainty to dynamically modulate the prior strength within the null space, which effectively balances detail preservation and artifact suppression. In the temporal domain, it quantifies sampling stability via the uncertainty trace to enable adaptive trajectory pruning, thereby accelerating convergence. Theoretical proofs demonstrate that our framework achieves strict data consistency, while the trajectory pruning strategy admits a deterministic error bound, thereby guaranteeing stable convergence under skip sampling. Notably, our plug-and-play method can be seamlessly integrated into various DMIR baselines. Extensive experiments show that LEADer improves the performance of multiple state-of-the-art DMIR methods, while significantly reducing sampling time with negligible memory overhead. Code is available at https://github.com/JiaqiZhang-Sengoku/LEADer.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/10/2608.07463v1-mirrorworld-taming-video-diffusion-models-for-mirror-reflection-generation",
+      "section": "quick",
+      "title_en": "MirrorWorld: Taming Video Diffusion Models for Mirror Reflection Generation",
+      "authors": "Youjun Zhao, Alex Warren, Gary K. L. Tam, Rynson W. H. Lau",
+      "date": "2026-08-07",
+      "pdf": "https://arxiv.org/pdf/2608.07463v1",
+      "score": "7.0",
+      "evidence": "通过反射感知视频修复生成镜面反射的视频扩散模型框架",
+      "tldr": "视频扩散模型虽能高保真合成，但镜子反射生成因需与场景内容一致而颇具挑战。MirrorWorld提出反射感知视频修复框架，通过语义关系蒸馏与几何变换对齐，分别建模反射内容与空间布局。所构建的统一基准上，其重建质量超过图像方法与视频修复基线，为镜子反射生成提供了新方案。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Recent advances in video diffusion models (VDMs) have enabled high-fidelity video synthesis. However, generating mirror reflections remains challenging because the content within a mirror must remain consistent with the surrounding scene. Existing VDMs are not specifically designed to model scene-to-mirror relationships, which can lead to reflections with incorrect content or inconsistent spatial arrangements. We observe that mirror reflection generation involves two complementary challenges: determining what scene content should be reflected and how the reflected content should be spatially arranged within the mirror region. Motivated by this observation, we propose MirrorWorld, a reflection-aware video inpainting framework that models scene-to-mirror relationships during generation. Specifically, we introduce Semantic Relation Distillation (SRD), which transfers relational information from a frozen visual foundation model to encourage semantic associations between visible scene content and mirror regions. We further propose Geometric Transformation Alignment (GTA), which learns a transformation that guides the spatial arrangement of reflected content. The two components play complementary roles, with SRD modeling what should be reflected and GTA modeling how it should be arranged. To facilitate research on this problem, we construct a benchmark for video mirror reflection generation by repurposing four existing video mirror datasets into a unified reflection reconstruction task. Experimental results show that MirrorWorld achieves improved reflection reconstruction quality over representative image-based reflection generation methods and strong video inpainting baselines.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
