@@ -1,0 +1,406 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-11T21:01:36.476943+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2608.07572v1",
+      "source": "arxiv",
+      "title": "BRACE: Taming Sharp Irregularities via Barycentric Rational Forecasting for Fast Diffusion Transformers Inference",
+      "abstract": "Diffusion Transformers (DiTs) have demonstrated exceptional performance in high-fidelity image and video generation. To alleviate their massive computational overhead, temporal feature caching has been proposed to bypass redundant computations. However, existing cache-then-forecast methods driven by derivative-based polynomials often cause severe quality degradation under high acceleration due to unstable long-step predictions. To address this bottleneck, we propose Barycentric Rational Forecasting with Chebyshev Enhancement (BRACE). Motivated by the observation that DiT feature trajectories are globally smooth yet frequently exhibit sharp irregularities and local non-smoothness, BRACE shifts the paradigm from derivative-driven polynomial extrapolation to feature-driven rational forecasting. Specifically, it maintains a local sliding window to cache sparse historical features and leverages adapted Chebyshev weights to formulate a barycentric rational function, directly aggregating these raw features to ensure numerical stability. Extensive experiments demonstrate that BRACE achieves state-of-the-art quality-efficiency trade-offs across various DiT architectures with negligible computational overhead.",
+      "authors": [
+        "Jinlong Yang",
+        "Jinke Wu",
+        "Lizilin",
+        "Yao Zhou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-04T11:24:53+00:00",
+      "link": "https://arxiv.org/pdf/2608.07572v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free temporal feature caching and barycentric rational forecasting for fast diffusion transformer inference",
+      "llm_evidence_cn": "面向扩散Transformer快速推理的免训练时间特征缓存与重心有理预测方法",
+      "llm_evidence": "面向扩散Transformer快速推理的免训练时间特征缓存与重心有理预测方法",
+      "canonical_evidence": "面向扩散Transformer快速推理的免训练时间特征缓存与重心有理预测方法",
+      "llm_tldr_en": "BRACE accelerates diffusion transformer image and video generation by caching and forecasting temporal features with barycentric rational interpolation, handling sharp irregularities without training.",
+      "llm_tldr_cn": "扩散Transformer能生成高保真图像和视频，但迭代去噪带来巨大计算开销。现有缓存后预测方法基于导数多项式，在强加速下长步预测不稳定导致质量退化。BRACE观察到DiT特征轨迹整体平滑但局部尖锐，提出基于重心有理插值和Chebyshev增强的预测机制，以稳定处理这些不规则性。该方法在保持生成质量的同时大幅提高加速比，是一种免训练的高效推理方案。",
+      "llm_tldr": "扩散Transformer能生成高保真图像和视频，但迭代去噪带来巨大计算开销。现有缓存后预测方法基于导数多项式，在强加速下长步预测不稳定导致质量退化。BRACE观察到DiT特征轨迹整体平滑但局部尖锐，提出基于重心有理插值和Chebyshev增强的预测机制，以稳定处理这些不规则性。该方法在保持生成质量的同时大幅提高加速比，是一种免训练的高效推理方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.08770v1",
+      "source": "arxiv",
+      "title": "A Mean-Field Framework for Inference-Time Distributional Control of Diffusion Models",
+      "abstract": "Diffusion models are increasingly used as controllable samplers, whose generations can be steered at inference time according to a chosen reward function. While such rewards are typically defined on individual samples, for many applications it is desirable to steer according to distribution-level rewards, for example to calibrate with population-level information or to encourage diversity. In both cases, simply incorporating the reward gradient into the dynamics, while often effective, comes with few theoretical guarantees on the sampled distribution. For pointwise rewards, recent work has therefore sought to develop a principled framework for targeting a prescribed tilted distribution using particle reweighting. However, an analogous theoretically-grounded approach for distributional rewards is currently lacking. In this work, we formulate inference-time distributional control as targeting a tilted measure under a mean-field framework, and derive a weighted interacting particle scheme to target it in a principled manner. Our framework recovers pointwise-reward steering as a special case, while providing a theoretical foundation for existing batch-level steering methods. Empirically, we verify that the procedure correctly targets the prescribed distribution in tractable low-dimensional settings, and investigate its behaviour in higher-dimensional protein conformation tasks.",
+      "authors": [
+        "Samuel Howard",
+        "Nikolas Nüsken"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-08-09T15:41:01+00:00",
+      "link": "https://arxiv.org/pdf/2608.08770v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Inference-time distributional control of diffusion models without training, via particle reweighting.",
+      "llm_evidence_cn": "免训练的扩散模型推理时分布控制，通过粒子重加权实现。",
+      "llm_evidence": "免训练的扩散模型推理时分布控制，通过粒子重加权实现。",
+      "canonical_evidence": "免训练的扩散模型推理时分布控制，通过粒子重加权实现。",
+      "llm_tldr_en": "Develops a mean-field inference-time framework that steers diffusion sampling toward prescribed distribution-level rewards via particle reweighting, with theoretical guarantees.",
+      "llm_tldr_cn": "针对扩散模型推理时控制多局限于个体奖励且缺乏理论保证的问题，提出平均场框架处理分布级奖励，通过粒子重加权将采样分布引导至目标倾斜分布，并可用于鼓励多样性或校准群体统计。该框架为免训练的推理时分布控制提供了理论基础，可推广至图像和视频生成中的分布级约束。",
+      "llm_tldr": "针对扩散模型推理时控制多局限于个体奖励且缺乏理论保证的问题，提出平均场框架处理分布级奖励，通过粒子重加权将采样分布引导至目标倾斜分布，并可用于鼓励多样性或校准群体统计。该框架为免训练的推理时分布控制提供了理论基础，可推广至图像和视频生成中的分布级约束。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.09244v1",
+      "source": "arxiv",
+      "title": "In-Loop Model Adaptation with Coupled Latent-Noise Guidance for High-Fidelity Subject-Driven Text-to-Image Generation",
+      "abstract": "Text-to-image diffusion models have achieved remarkable success in generating high-quality images from a given text prompt. Subject-driven generation aims to synthesize customized images to mimic the appearance of subjects in given reference images within different visual contexts specified by the text prompts. The central challenge here is that, when the reference image changes, the diffusion model cannot efficiently adapt to different visual contexts while consistently maintaining the subject identity. Existing methods either train the model with a large domain-specific dataset or fine-tune the model using the reference image for hundreds of iterations before actual image generation. In this work, we explore a new approach, called \\textit{In-Loop Model Adaptation} (IMA), which adapts the core diffusion model at each generation step during the actual process of image generation, without being trained on the reference image before the generation process. To this end, we establish a DDIM inversion chain that maps the reference image to a sequence of latent, as well as a text-to-image generation chain which generates the image from the text prompt only. We then introduce a masked latent consistency loss and a noise regularization loss to characterize the latent-noise difference between the diffusion model and these two chains at each generation step. This coupled latent-noise loss is used to guide the in-loop model adaptation to preserve the subject identity specified by the reference image while maintaining accurate alignment with the text prompt, resulting in high-fidelity text-to-image generation. Our extensive experiments demonstrate that our proposed IMA method significantly improves the performance of subject-driven text-to-image generation.",
+      "authors": [
+        "Yushun Tang",
+        "Weiming Chen",
+        "Siyi Liu",
+        "Yi Zhang",
+        "Feng Wu",
+        "Zhihai He"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-10T08:07:28+00:00",
+      "link": "https://arxiv.org/pdf/2608.09244v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Training-free in-loop model adaptation for subject-driven text-to-image diffusion generation",
+      "llm_evidence_cn": "面向主题驱动文生图扩散生成的免训练循环内模型自适应",
+      "llm_evidence": "面向主题驱动文生图扩散生成的免训练循环内模型自适应",
+      "canonical_evidence": "面向主题驱动文生图扩散生成的免训练循环内模型自适应",
+      "llm_tldr_en": "Proposes in-loop model adaptation with coupled latent-noise guidance for subject-driven text-to-image diffusion, achieving high identity fidelity without dataset training or per-reference fine-tuning.",
+      "llm_tldr_cn": "主题驱动文生图需要在不同文本语境中保持参考图像的主体身份，现有方法常依赖大规模数据集训练或对每张参考图进行数百步微调，代价高昂。本文提出循环内模型自适应与耦合潜在噪声引导，在生成过程中高效适配参考图像，避免额外训练。实验表明该方法能在保持高保真身份一致性的同时快速适应不同视觉语境。这为主观定制图像生成提供了一条免训练的实用路径。",
+      "llm_tldr": "主题驱动文生图需要在不同文本语境中保持参考图像的主体身份，现有方法常依赖大规模数据集训练或对每张参考图进行数百步微调，代价高昂。本文提出循环内模型自适应与耦合潜在噪声引导，在生成过程中高效适配参考图像，避免额外训练。实验表明该方法能在保持高保真身份一致性的同时快速适应不同视觉语境。这为主观定制图像生成提供了一条免训练的实用路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.09373v1",
+      "source": "arxiv",
+      "title": "Preserve More Details: Mitigating Content Drift in Real-World Image Super-Resolution",
+      "abstract": "Real-world image super-resolution (Real-ISR) aims to reconstruct high-quality (HQ) images from low-quality (LQ) inputs subject to diverse real-world degradations. Recent advances have leveraged the LQ inputs and natural image priors learned by Stable Diffusion models to achieve impressive results. However, existing methods often overlook insufficient clarity of LQ inputs inevitably induce content drift in the generated HQ images. This manifests primarily as visual detail degradation and textual semantic shift, severely compromising both fidelity and perceptual quality. To address this challenge, we propose FSP-Diff, a novel one-step diffusion model featuring a dual-pathway architecture. This architecture comprises a Detail-Conditioned Pathway for injecting structured details to recover fine structures, and a Detail-Modulated Semantic Pathway that refines semantic guidance using structured details to mitigate semantic deviations. Extensive experiments on standard Real-ISR benchmarks demonstrate that FSP-Diff surpasses existing one-step diffusion methods in both quantitative and qualitative metrics.",
+      "authors": [
+        "Chunxiao Liu",
+        "Wei Liu",
+        "Anbin Xiong",
+        "Erli Meng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-10T09:50:27+00:00",
+      "link": "https://arxiv.org/pdf/2608.09373v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Image super-resolution using Stable Diffusion prior, one-step diffusion model.",
+      "llm_evidence_cn": "使用Stable Diffusion先验进行图像超分，单步扩散模型。",
+      "llm_evidence": "使用Stable Diffusion先验进行图像超分，单步扩散模型。",
+      "canonical_evidence": "使用Stable Diffusion先验进行图像超分，单步扩散模型。",
+      "llm_tldr_en": "Addresses content drift in real-world image super-resolution using Stable Diffusion priors; proposes FSP-Diff, a one-step dual-pathway diffusion model that conditions on detail patches to preserve fidelity and reduce semantic shift.",
+      "llm_tldr_cn": "针对真实世界图像超分中低质量输入易导致生成内容漂移的问题，提出FSP-Diff单步扩散模型，通过双路径架构和细节条件补丁注入更多低层细节，抑制视觉退化与文本语义偏移。实验表明该方法在常见真实退化设定下显著提升生成图像的保真度与感知质量，证明了细节保持对扩散先验超分的重要性。",
+      "llm_tldr": "针对真实世界图像超分中低质量输入易导致生成内容漂移的问题，提出FSP-Diff单步扩散模型，通过双路径架构和细节条件补丁注入更多低层细节，抑制视觉退化与文本语义偏移。实验表明该方法在常见真实退化设定下显著提升生成图像的保真度与感知质量，证明了细节保持对扩散先验超分的重要性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.09226v1",
+      "source": "arxiv",
+      "title": "RL-Native Distillation: Exploiting Scored Trajectories for Few-Step Image Generation",
+      "abstract": "Efficient text-to-image generation requires both reinforcement-learning (RL)-based reward alignment and few-step distillation, yet these procedures are typically performed sequentially, increasing training cost and risking the loss of reward gains during compression. We instead take an RL-native perspective: diffusion RL already generates reward-scored finite-step trajectories, whose intermediate states provide a natural source of distillation supervision rather than a disposable byproduct of sampling. Based on this insight, we propose REST (Reward-Enhanced Scored-Trajectory Distillation), a single-stage RL-distillation co-training framework that attaches a decoupled student to an arbitrary RL teacher. The student learns segment-wise from the teacher's evolving rollout trajectories while leaving the original teacher optimization unchanged. To prevent uniform imitation from preserving undesirable low-reward behaviors, we further introduce Advantage-Modulated Distillation (AMD), which transforms rollout advantages into signed weights over a base distillation loss. AMD strengthens supervision from preferred trajectories and mildly repels the student from low-reward ones. The resulting framework is lightweight and plug-and-play, requires no extra image rollouts, no separate distillation dataset, and no adversarial training. Experiments on compositional generation, visual text rendering, and human-preference alignment show that REST enables few-step CFG-free inference that matches or surpasses its 40-step RL teacher, with an overall additional training cost below 25% over pure RL. REST improves DrawBench PickScore over RTDMD by 0.82 while requiring only one-fifth of the training iterations.",
+      "authors": [
+        "Yuhan Li",
+        "Fangao Zeng",
+        "Sicong Kang",
+        "Mengfei Xu",
+        "Hao Zhou",
+        "Wei Li",
+        "Pipei Huang",
+        "Bingbing Ni"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-10T07:49:05+00:00",
+      "link": "https://arxiv.org/pdf/2608.09226v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Text-to-image generation with diffusion models, few-step distillation and RL alignment.",
+      "llm_evidence_cn": "扩散模型文生图，少步蒸馏与强化学习对齐。",
+      "llm_evidence": "扩散模型文生图，少步蒸馏与强化学习对齐。",
+      "canonical_evidence": "扩散模型文生图，少步蒸馏与强化学习对齐。",
+      "llm_tldr_en": "Proposes REST, a one-stage RL-distillation co-training framework that uses reward-scored trajectories from diffusion RL as supervision for few-step student, reducing training cost and preserving reward alignment in text-to-image generation.",
+      "llm_tldr_cn": "针对现有文本到图像生成中RL对齐与少步蒸馏串行执行、成本高且易丢失奖励收益的问题，提出REST框架，将扩散RL产生的带有奖励评分的有限步轨迹直接用于学生模型的分段蒸馏，实现单阶段协同训练。实验证明该方法在降低训练开销的同时保持奖励对齐和生成质量，为奖励驱动的少步扩散生成提供了更高效的训练范式。",
+      "llm_tldr": "针对现有文本到图像生成中RL对齐与少步蒸馏串行执行、成本高且易丢失奖励收益的问题，提出REST框架，将扩散RL产生的带有奖励评分的有限步轨迹直接用于学生模型的分段蒸馏，实现单阶段协同训练。实验证明该方法在降低训练开销的同时保持奖励对齐和生成质量，为奖励驱动的少步扩散生成提供了更高效的训练范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.02575v1",
+      "source": "arxiv",
+      "title": "Pseudorandom Streams within Diffusion Models Act as Learnable Inputs That Affect Generation Quality",
+      "abstract": "Diffusion models rely on stochastic inputs, yet on finite-precision hardware, the \"randomness\" they consume is realized as deterministic numerical orbits generated by pseudorandom rules. Accessible orbit structure can become a learnable input and affect both training and generation because the realized loss and its gradient depend on the concrete pseudorandom values consumed at each optimization step. A small multilayer perceptron predicts the next value of an orbit from its recent history, measuring general sequence predictability. A diffusion probe replaces real images with online random tensors while preserving the diffusion architecture and training objective, measuring whether the target system can exploit orbit structure. After controlling marginal statistics and screening out clear dynamical and finite-precision failures, the remaining orbits still produce markedly different diffusion losses and generation quality on MNIST and CIFAR-10. Both measures show strong rank correlations with macroscopic generation degradation, although their local rankings differ. After normalization by the IID baseline, the probe loss and the real-data diffusion loss approximately follow an empirical power law, with different exponents on the two datasets. These results suggest that a pseudorandom source is not only a distributional choice, but also a model-dependent structured input.",
+      "authors": [
+        "Shengzhi Deng",
+        "Chenqi Ye",
+        "Yanze Guo"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-08-03T17:50:54+00:00",
+      "link": "https://arxiv.org/pdf/2608.02575v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "pseudorandom noise inputs affect diffusion sampling quality",
+      "llm_evidence_cn": "伪随机噪声输入影响扩散采样质量",
+      "llm_evidence": "伪随机噪声输入影响扩散采样质量",
+      "canonical_evidence": "伪随机噪声输入影响扩散采样质量",
+      "llm_tldr_en": "This paper demonstrates that pseudorandom streams in diffusion models act as learnable inputs that affect generation quality, with MLP predictability and diffusion probes revealing exploitable orbit structure.",
+      "llm_tldr_cn": "扩散模型在有限精度硬件上使用的随机性实际是确定性伪随机轨道。本文研究发现这些轨道结构可被简单模型预测，且扩散训练过程能够利用这种可预测性，从而影响生成质量。作者用多层感知机和扩散探针证明伪随机流是一种可学习输入。该发现对采样优化有启示：选择或优化伪随机种子可能成为免训练提升生成质量的手段。",
+      "llm_tldr": "扩散模型在有限精度硬件上使用的随机性实际是确定性伪随机轨道。本文研究发现这些轨道结构可被简单模型预测，且扩散训练过程能够利用这种可预测性，从而影响生成质量。作者用多层感知机和扩散探针证明伪随机流是一种可学习输入。该发现对采样优化有启示：选择或优化伪随机种子可能成为免训练提升生成质量的手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.09322v1",
+      "source": "arxiv",
+      "title": "Diffusion Image Editing via Asynchronous Token Decoding",
+      "abstract": "Text-guided diffusion image editing aims to modify semantic attributes of an image while preserving its identity, layout, and background. However, naïvely switching the text condition during sampling often causes global drift, as denoising dynamics propagate changes across tokens and can disrupt unedited regions. To address this issue, we propose \\textbf{A}synchronous \\textbf{T}oken \\textbf{D}ecoding \\textbf{Edit} (ATDEdit), an inference-time framework that views each sampler step as a parallel update of a globally coupled token matrix and enables token-indexed condition switching with differentiated update policies. Instead of applying synchronous target-conditioned updates to all tokens, ATDEdit estimates editable locations using token-wise conditional surprisal and applies target-conditioned corrections to the selected token set. It supplies source key/value memory at keep-token positions and projects selected keep-token latent rows back to their source values; these operations promote background preservation but do not constitute a pixel-level invariance guarantee. This approach combines local editing and background preservation without external or user-provided spatial masks and without model fine-tuning. On PIE-Bench, ATDEdit achieves the strongest reported preservation metrics, including 27.44~dB PSNR and 0.055 LPIPS, while retaining competitive semantic alignment.",
+      "authors": [
+        "Yang Shi",
+        "Liangsi Lu",
+        "Minzhe Guo",
+        "Yifeng Xie",
+        "Yanhui Chen",
+        "Jingchao Wang",
+        "Xuhang Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-10T09:02:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.09322v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "presents ATDEdit, an inference-time training-free framework for text-guided diffusion image editing",
+      "llm_evidence_cn": "提出ATDEdit，一种用于文本引导扩散图像编辑的推理时免训练框架",
+      "llm_evidence": "提出ATDEdit，一种用于文本引导扩散图像编辑的推理时免训练框架",
+      "canonical_evidence": "提出ATDEdit，一种用于文本引导扩散图像编辑的推理时免训练框架",
+      "llm_tldr_en": "ATDEdit is a training-free inference-time framework for diffusion image editing that uses token-indexed condition switching with asynchronous updates to prevent global drift, improving editing accuracy while preserving unedited regions.",
+      "llm_tldr_cn": "本文针对文本引导扩散图像编辑中切换条件导致全局漂移的问题，提出异步Token解码编辑（ATDEdit）。该方法将每次采样视为全局耦合Token矩阵的并行更新，通过token级的条件显著性估计可编辑位置，并采用差异化更新策略。实验表明ATDEdit在保持未编辑区域不变的同时实现更准确的语义编辑，且无需任何训练。",
+      "llm_tldr": "本文针对文本引导扩散图像编辑中切换条件导致全局漂移的问题，提出异步Token解码编辑（ATDEdit）。该方法将每次采样视为全局耦合Token矩阵的并行更新，通过token级的条件显著性估计可编辑位置，并采用差异化更新策略。实验表明ATDEdit在保持未编辑区域不变的同时实现更准确的语义编辑，且无需任何训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.04827v1",
+      "source": "arxiv",
+      "title": "Intrinsic-Hybrid Latent Diffusion Models for Generative Modeling on Unknown Manifolds",
+      "abstract": "We introduce the Intrinsic Hybrid Latent Diffusion Model (ILDM), a generative framework that integrates probabilistic dimensionality reduction with geometry-aware diffusion on unknown manifolds. While diffusion models (DMs) have achieved state-of-the-art results in high-dimensional data synthesis, they rely on large training datasets and ignore intrinsic geometric structure. Latent diffusion models (LDMs) address the high dimensionality by learning a latent space, but they typically impose a Euclidean structure, failing to capture the underlying manifold geometry, especially problematic in data-sparse regimes. ILDM addresses these limitations by interpreting the latent space as a chart of an unknown Riemannian manifold, with geometry and uncertainty quantified through a probabilistic decoder. The forward process is a hybrid diffusion that switches between Riemannian and Euclidean dynamics based on local uncertainty, where the Riemannian component is governed by a probabilistic metric tensor derived from the decoder. To learn the generative dynamics, we introduce an approximate denoising score matching method tailored to the hybrid diffusion setting, enabling a backward process defined by hybrid Langevin dynamics. Experiments on COIL-100, MNIST, and cardiac MRI datasets demonstrate that ILDM significantly improves generation quality, achieving lower FID and LPIPS scores compared to standard diffusion and latent diffusion models.",
+      "authors": [
+        "Yizhu Wang",
+        "Mu Niu",
+        "Xiaochen Yang"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-08-05T13:28:08+00:00",
+      "link": "https://arxiv.org/pdf/2608.04827v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion-based generative modeling on manifolds",
+      "llm_evidence_cn": "基于扩散的流形生成建模",
+      "llm_evidence": "基于扩散的流形生成建模",
+      "canonical_evidence": "基于扩散的流形生成建模",
+      "llm_tldr_en": "Intrinsic-Hybrid Latent Diffusion Model treats the latent space as a chart on an unknown Riemannian manifold, combining probabilistic dimensionality reduction with geometry-aware diffusion for better generative modeling in sparse data regimes.",
+      "llm_tldr_cn": "潜扩散模型通常假设欧氏潜在空间，忽略了数据所在流形的几何结构，在数据稀疏场景下生成质量下降。本文提出本征混合潜扩散模型ILDM，将潜空间视为未知黎曼流形的图表，在概率降维的同时进行几何感知扩散。ILDM能够同时学习流形几何与生成过程，在低样本学习中展现出优势。实验证明其在高维数据合成上优于传统潜扩散模型，为几何感知生成建模提供了新思路。",
+      "llm_tldr": "潜扩散模型通常假设欧氏潜在空间，忽略了数据所在流形的几何结构，在数据稀疏场景下生成质量下降。本文提出本征混合潜扩散模型ILDM，将潜空间视为未知黎曼流形的图表，在概率降维的同时进行几何感知扩散。ILDM能够同时学习流形几何与生成过程，在低样本学习中展现出优势。实验证明其在高维数据合成上优于传统潜扩散模型，为几何感知生成建模提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.08555v1",
+      "source": "arxiv",
+      "title": "SC-Diff: Semantically Calibrated Diffusion for Visible-to-Infrared Image Translation",
+      "abstract": "Visible-to-infrared image translation provides a practical way to expand infrared training data using abundant visible images. Diffusion models are promising for this task because of their strong generative performance. However, existing diffusion-based methods typically use semantic priors only as external conditions, without explicitly regulating token interactions within the denoising network. Consequently, they struggle to preserve object locations, shapes, and semantic layouts required for reliable annotation reuse. We propose SC-Diff, a semantically calibrated latent diffusion framework that uses semantic priors for both conditional guidance and internal self-attention calibration. A pretrained SAM3 model with predefined text prompts first extracts category-specific semantic masks from visible images. These masks are merged into a semantic map and fused with the visible image as the input condition. The same map is converted into token-level semantic labels to calibrate self-attention in the denoising network. Based on these labels, we introduce Semantic-Guided Self-Attention Calibration (SGSC), which adaptively applies positive biases to query-key pairs of the same category. The query-wise calibration strength depends on the dispersion of attention across semantic categories and the attention assigned to the query's own category. The original attention scores further modulate the bias, giving greater calibration to same-category keys with stronger responses. This soft calibration reduces cross-category interference while retaining global contextual interactions, thereby improving semantic consistency in generated infrared images. Extensive experiments show that SC-Diff improves perceptual quality and produces more effective synthetic training data for downstream infrared object detection.",
+      "authors": [
+        "Junyin Zhang",
+        "Siyu Huang",
+        "Jianxiong Ye",
+        "Haowei Gong",
+        "Ruicheng Zhang",
+        "Deyu Meng",
+        "Chenqiang Gao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-09T07:57:40+00:00",
+      "link": "https://arxiv.org/pdf/2608.08555v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "semantically calibrated latent diffusion for visible-to-infrared image translation; training-based image generation",
+      "llm_evidence_cn": "语义校准潜扩散用于可见光到红外图像翻译，属于训练式图像生成",
+      "llm_evidence": "语义校准潜扩散用于可见光到红外图像翻译，属于训练式图像生成",
+      "canonical_evidence": "语义校准潜扩散用于可见光到红外图像翻译，属于训练式图像生成",
+      "llm_tldr_en": "SC-Diff calibrates semantic priors in both conditioning and internal self-attention of a latent diffusion model for visible-to-infrared translation, improving layout preservation but requiring training.",
+      "llm_tldr_cn": "可见光到红外图像翻译可扩充红外训练数据，但扩散方法只用语义先验作外部条件，难以保持目标位置和语义布局。SC-Diff提出语义校准潜扩散框架，将语义先验同时用于条件引导和内部自注意力校准。实验表明该方法能更好地保留物体位置、形状与语义布局。该工作属于训练式图像生成方法，与免训练需求没有直接关系。",
+      "llm_tldr": "可见光到红外图像翻译可扩充红外训练数据，但扩散方法只用语义先验作外部条件，难以保持目标位置和语义布局。SC-Diff提出语义校准潜扩散框架，将语义先验同时用于条件引导和内部自注意力校准。实验表明该方法能更好地保留物体位置、形状与语义布局。该工作属于训练式图像生成方法，与免训练需求没有直接关系。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.08594v1",
+      "source": "arxiv",
+      "title": "SDDBMs: Soft Denoising Diffusion Bridge Models",
+      "abstract": "Diffusion bridge models leverage Doob's \\(h\\)-transform to construct stochastic transports between arbitrary endpoint distributions, and have shown strong potential in image-to-image translation and restoration. However, most existing bridge models rely on hard endpoint conditioning, which forces the terminal state to match a prescribed target exactly. This hard constraint induces terminal-boundary singularities: the terminal law collapses to a Dirac measure, and the resulting drift coefficients become ill-conditioned near the endpoint. In this paper, we propose Soft Denoising Diffusion Bridge Models (SDDBMs), a generalized framework that regularizes diffusion bridges directly at the level of their terminal constraints. Instead of imposing an exact endpoint, SDDBMs prescribe a non-degenerate Gaussian terminal marginal under the transformed path measure, with a flexible terminal center and variance. Starting from this prescribed marginal, we develop a complete closed-form construction of the soft bridge, including the Gaussian terminal reweighting and soft \\(h\\)-function, the induced Gaussian forward marginals and \\(\\mathbf{x}_0\\)-free dynamics. Theoretically, SDDBMs provide a unified probabilistic perspective that encompasses existing diffusion bridge models, including DDBMs, GOUB, and UniDB, as special cases under specific parameter choices. Extensive experiments on image restoration tasks demonstrate that SDDBMs achieve improved numerical stability and superior generation quality over existing bridge-based methods.",
+      "authors": [
+        "Shiyi Qi",
+        "Kun He",
+        "Mingmou Liu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-09T09:19:46+00:00",
+      "link": "https://arxiv.org/pdf/2608.08594v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion bridge model for image-to-image translation and restoration; diffusion image generation but training-based",
+      "llm_evidence_cn": "面向图像翻译与复原的扩散桥模型，属于扩散图像生成但需要训练",
+      "llm_evidence": "面向图像翻译与复原的扩散桥模型，属于扩散图像生成但需要训练",
+      "canonical_evidence": "面向图像翻译与复原的扩散桥模型，属于扩散图像生成但需要训练",
+      "llm_tldr_en": "SDDBMs soften endpoint conditioning in diffusion bridges to remove terminal singularities, improving image-to-image translation and restoration; relevant to diffusion image generation but requires training.",
+      "llm_tldr_cn": "现有扩散桥模型依赖硬端点约束，使终端分布坍缩为狄拉克测度并导致漂移系数病态。本文提出软去噪扩散桥模型，在终端约束层面进行正则化，不要求精确匹配端点。该框架消除了端点奇异，提升了图像到图像翻译与复原的稳定性和质量。尽管属于需要训练的生成模型，其思路对扩散图像生成方法具有借鉴意义。",
+      "llm_tldr": "现有扩散桥模型依赖硬端点约束，使终端分布坍缩为狄拉克测度并导致漂移系数病态。本文提出软去噪扩散桥模型，在终端约束层面进行正则化，不要求精确匹配端点。该框架消除了端点奇异，提升了图像到图像翻译与复原的稳定性和质量。尽管属于需要训练的生成模型，其思路对扩散图像生成方法具有借鉴意义。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
