@@ -1,0 +1,808 @@
+Title: MDLMPE: Distribution Aware Positional Encoding for Masked Diffusion Language Models
+
+URL Source: https://arxiv.org/pdf/2608.03769v1
+
+Published Time: Wed, 05 Aug 2026 01:27:11 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# MDLMPE: Distribution Aware Positional Encoding for Masked Diffusion Language Models 
+
+## Tong Ling 1, Hang Lei 2, Feng Xiao 2, Changhui Sun 3, Jiahang Xie 4, Hao Liu 2, Lu Liu 2, Yanlong Du 2
+
+> 1
+
+University Chinese Academic of Science 
+
+> 2
+
+HUJING Digital Media & Entertainment Group 
+
+> 3
+
+State Key Laboratory for Novel Software Technology, Nanjing University, China 
+
+> 4
+
+School of Data Science, Fudan University, Shanghai, China 
+
+Abstract 
+
+Masked diffusion language models (MDLMs) enable paral-lel generation and bidirectional context modeling, but their positional context differs fundamentally from that of autore-gressive (AR) models. Whereas AR decoding exposes a con-tiguous prefix, MDLM denoising produces dynamic, non-contiguous configurations of revealed and masked tokens. Conventional positional encodings such as RoPE capture se-quence order and pairwise displacement but remain insensi-tive to this evolving token-availability structure. To address this limitation, we propose MDLMPE, a positional encod-ing designed specifically for masked diffusion. To the best of our knowledge, MDLMPE is the first method to make positional representations explicitly aware of the changing revealed/masked configuration. It represents token availabil-ity as a binary sequence, applies distance-aware Gaussian weighting, and projects the resulting pattern through a cosine basis to obtain distribution-aware positional features. These features are added to token embeddings and mapped by a lightweight MLP to angular offsets that modulate the standard RoPE phases. Extensive experiments on LLaDA and DREAM demonstrate that MDLMPE generally outperforms conven-tional positional encoding methods across supervised fine-tuning, pretraining, zero-shot evaluation, and block-diffusion settings. Further ablations show that the complete combina-tion of availability state, Gaussian locality, spectral basis, and embedding injection yields the strongest result. These results establish the evolving token-availability distribution as a use-ful positional signal for masked diffusion language models. 
+
+## 1 Introduction 
+
+Autoregressive (AR) large language models (Radford et al. 2019; Brown et al. 2020; Touvron et al. 2023) have trans-formed language modeling, yet their left-to-right factoriza-tion imposes sequential generation and causal, unidirec-tional attention. Bidirectional pretraining enriches contex-tual representations, but AR decoding remains sequential. This limitation motivates masked diffusion language models (MDLMs), which iteratively denoise a masked sequence and support parallel generation, flexible generation orders (Stern et al. 2019), and bidirectional context modeling (Nie et al. 2025; Ye et al. 2025; Song et al. 2025). Systems includ-ing LLaDA (Nie et al. 2025), DREAM (Ye et al. 2025), and LLaDA2.0 (Bie et al. 2025) show that this paradigm can scale to billions of parameters while retaining com-petitive language-modeling ability. As scalability becomes established, a more specific question emerges: how should positional context be represented when the visible sequence state changes throughout denoising? This question arises because MDLM generation exposes a positional structure that AR decoding never encounters. An AR model reveals a contiguous prefix, whereas an MDLM may recover tokens in a non-contiguous order. A token can retain the same absolute index while the semantic evidence available around it changes as other positions are revealed or re-masked. Its prediction depends not only on where it is located, but also on how the available context is organized. Figure 1 shows this contrast by comparing the monotonic AR prefix with the evolving position availability of MDLM gen-eration. As highlighted by the two red boxes, the two masked tokens remain at fixed sequence positions throughout denois-ing, while the distribution of surrounding tokens continually changes; existing positional encoding methods cannot reflect this evolving contextual structure. The limitation becomes clearer when viewed through Rotary Position Embedding (RoPE) (Su et al. 2024), the mainstream positional encoding used by MDLM backbones. RoPE associates each index with a rotation and represents the relation between two positions through their distance-dependent phase difference. This geometry is suited to AR generation: every visible prefix position contains a real to-ken, so pairwise displacement provides a reliable description of where usable context is located. In an MDLM, however, the same indices and displacement may occur under dif-ferent revealed/masked configurations. The attention rela-tion should therefore reflect both pairwise distance and the distribution of available evidence around the two positions. This observation suggests three requirements for a position-distribution representation: (i) revealed-token density, which estimates the amount of semantic evidence; (ii) target-relative distance to the revealed-token distribution, which indicates contextual relevance; and (iii) the global topology of the revealed/masked pattern, which distinguishes distributional structures that isolated indices cannot express. This objective also distinguishes MDLMPE from RoPE adaptations for long-context diffusion models (Liu et al. 2025; He et al. 2025). LongLLaDA applies NTK-based ex-trapolation, while UltraLLaDA modifies RoPE during post-training for 128K contexts. These methods address coordi-nate behavior beyond the pretraining length; our focus is arXiv:2608.03769v1 [cs.CL] 4 Aug 2026 Figure 1: Position availability in AR and masked diffusion generation. AR exposes a contiguous prefix, whereas MDLM denoising reveals a changing, non-contiguous set of response positions. 
+
+Figure 2: Instruction post-training accuracies for the four table settings, ordered left to right as LLaDA-8B Tulu, DREAM-7B Tulu, LLaDA-8B SmolTalk, and DREAM-7B SmolTalk. Dashed blue circles denote RoPE and solid orange squares denote MDLMPE. the revealed/masked availability pattern within the current denoising sequence. Motivated by this gap, we propose MDLMPE , a posi-tional encoding that makes the denoising state an explicit positional signal. MDLMPE represents real and masked to-kens as a binary availability sequence. It then applies target-centered Gaussian weighting so that the representation re-flects where revealed evidence lies relative to each token; for an attention pair, the two centered views are averaged into a joint distribution. A cosine-basis projection converts this pattern into distribution-aware features. MDLMPE uses them through two complementary paths: token features are added to embeddings, while a lightweight MLP maps pair features to angular offsets for RoPE. The resulting design preserves RoPE’s relative-position geometry while making both token representations and attention rotations responsive to the evolving mask pattern. To determine whether this positional signal is useful both when adapting existing checkpoints and when learning from scratch, we evaluate MDLMPE on LLaDA and DREAM. The matched 7B/8B post-training results summarized in Figure 2 show improvements across most knowledge, reasoning, and code tasks on both Tulu and SmolTalk, with broadly com-parable performance on the remaining tasks. This consis-tency across model architectures and training datasets mo-tivates our subsequent controlled evaluations, which cover 100M-parameter pretraining and zero-shot evaluation, block diffusion, and component ablations. Our contributions are threefold: 
+
+• We introduce MDLMPE, a positional encoding for MDLMs that explicitly models the evolving position-distribution structure induced by the revealed/masked to-ken configuration. 
+
+• We identify the changing token-availability pattern as a distinctive challenge of MDLM decoding and construct a Gaussian-weighted, cosine-projected representation of this pattern. 
+
+• Extensive experiments on LLaDA and DREAM demon-strate improvements over conventional positional encod-ings, while controlled ablations characterize how the MDLMPE components combine. 
+
+## 2 Related Work 
+
+Positional encoding. Position encoding provides the co-ordinate system through which attention distinguishes or-der (Vaswani et al. 2017). Existing designs instantiate this role in different ways: absolute encodings attach vectors to indices (Devlin et al. 2019); relative methods modify atten-tion by pairwise displacement (Shaw, Uszkoreit, and Vaswani 2018; Dai et al. 2019; He et al. 2021); RoPE rotates queries and keys (Su et al. 2024); and ALiBi adds a head-specific distance bias (Press, Smith, and Lewis 2022). Position Inter-polation and YaRN further extend pretrained coordinates to longer contexts (Chen et al. 2023; Peng et al. 2024). Although these methods differ in form, they share a fixed-coordinate premise: an index is mapped to a vector, rotation, or bias independently of the current observation state. Ex-trapolation methods modify the rotary spectrum or training positions—xPos changes the parameterization (Sun et al. 2023), LongRoPE uses non-uniform rescaling (Ding et al. 2024), and PoSE trains on skipped indices (Zhu et al. 2024)— but retain this premise. LongLLaDA and UltraLLaDA like-wise adapt RoPE for long-context diffusion models (Liu et al. 2025; He et al. 2025); MDLMPE addresses a different ques-tion by conditioning an in-window position on the observed availability state. This distinction is largely hidden in AR decoding, where the causal mask and revealed prefix coincide, but becomes consequential in an MDLM that exposes both tokens and masks. An index-only encoding states that two positions are 
+
+k steps apart without indicating whether either has nearby usable evidence. MDLMPE therefore retains RoPE’s index relation while adding the observed/masked configuration to the residual stream and rotary coordinates. 
+
+Masked diffusion language modeling. In parallel, diffu-sion language modeling has progressed from extending con-tinuous denoising (Ho, Jain, and Abbeel 2020; Nichol and Dhariwal 2021; Song et al. 2021) to categorical states (Austin et al. 2021a; Hoogeboom et al. 2021) toward increasingly ca-pable text generators. Diffusion-LM, DiffuSeq, and iterative masked generation establish text settings (Li et al. 2022; Gong et al. 2023; Ghazvininejad et al. 2019; Gu, Wang, and Zhao 2019; Chang et al. 2022); SEDD, MD4, RADD, and TESS refine objectives or parameterizations (Lou, Meng, and Ermon 2024; Shi et al. 2024; Ou et al. 2025; Mahabadi et al. 2024); and LLaDA, DREAM, LLaDA2.0, and Seed Diffusion scale the approach (Nie et al. 2025; Ye et al. 2025; Bie et al. 2025; Song et al. 2025). Together, these advances improve diffusion objectives, scale, and generation strategies, yet the denoiser still re-peatedly infers missing tokens from a partially observed se-quence. Diffusion time is usually encoded globally, whereas the spatial layout of the observed subset remains implicit in mask-token activations and attention. DiffusionBERT, Block Diffusion, and DFlash modify the objective, gener-ation factorization, or speculative-drafting mechanism (He et al. 2023; Arriola et al. 2025; Chen, Liang, and Liu 2026). MDLMPE complements these directions: it leaves their gen-eration machinery unchanged and adds a coordinate derived from the realized availability pattern. 
+
+## 3 Method 
+
+The preceding discussion identifies a representation gap: masked denoising needs positional signals that follow the changing mask state, distinguish both the amount and loca-tion of available evidence, and preserve the geometry of a RoPE-pretrained backbone. MDLMPE meets these require-ments with a shared availability encoder and two comple-mentary paths: token-centered features enrich the residual stream, while pair-centered features adjust selected rotary relations. 
+
+3.1 Availability-Aware Positional Representation 
+
+The first requirement is state sensitivity. Although an MDLM can identify individual [MASK] tokens, their spatial ar-rangement remains entangled with content. We expose this structure explicitly through a minimal content-free state. For 
+
+x = ( x1, . . . , x L), define 
+
+bt = I[xt̸ = xmask ]at, bt ∈ { 0, 1}, (1) where at ∈ { 0, 1} excludes attention-invalid positions. The signal therefore changes as soon as a token is revealed, with-out encoding lexical content or clean targets. State alone, however, does not express how strongly each revealed position should influence a target. Because nearby and distant evidence need not be equally useful, a normalized truncated Gaussian converts the global mask pattern into a target-relative neighborhood: 
+
+wi,t =exp 
+
+
+
+− (i−t)2
+
+> 2σ2
+
+
+
+I[|i − t| ≤ W ]at
+
+PLu=1 exp 
+
+
+
+− (i−u)2
+
+> 2σ2
+
+
+
+I[|i − u| ≤ W ]au + ε, (2) where W is the radius and σ = max( ρW, 1) . Normalization stabilizes boundaries; truncation controls locality and cost. We use W/L = 3 /16 and ρ = 1 /4 (e.g., W = 192 , σ = 48 
+
+at L = 1024 ). The symmetric kernel models bidirectional evidence without a learned left/right preference. Local weighting makes the representation target-relative, but a weighted count would still collapse equal-density lay-outs. We therefore preserve their topology on RoPE’s mul-tiscale frequency grid. For F = dh/2 rotary pairs, let 
+
+ct,f = 12 [1 + sin( tω f )] be a nonnegative shifted-sine co-ordinate and form 
+
+ui,f =
+
+> L
+
+X
+
+> t=1
+
+wi,t btct,f ,di,f =
+
+> L
+
+X
+
+> t=1
+
+wi,t atct,f + ε, ri,f = ui,f 
+
+di,f 
+
+.
+
+(3) with 0 ≤ ri,f ≤ 1. Low frequencies summarize broad avail-ability and higher frequencies retain finer changes, distin-guishing the equal-density layouts in Figure 4. Figure 3: Gaussian local encoding for one position (top) and the pair-level distribution used by the rotary branch (bot-tom). The token-centered upper construction supplies the embedding branch. For an attention pair (i, j ), the imple-mented rotary branch averages the two weighted sequences as gij,t = 12 (gi,t + gj,t ).Once this topology has been encoded, it must enter the model at the granularity required by each path. Let ui =(ui, 1, . . . , u i,F ) and di = ( di, 1, . . . , d i,F ) denote the token-centered availability numerator and its all-valid reference. Token embeddings use zi = Wpui + bp and eei = ei + γzi,with γ ≤ 0.10 initialized to 0.01 . For the pair branch, define 
+
+Ai ≡ ui and Di ≡ di. The symmetric pair feature is 
+
+rij = g(Ai, Di, Aj , Dj ), [rij ]f = Ai,f + Aj,f 
+
+Di,f + Dj,f 
+
+,
+
+(4) which is equivalent to uij,f = 12 (ui,f + uj,f ), dij,f = 
+
+> 12
+
+(di,f + dj,f ), and rij,f = uij,f /d ij,f in Figure 3. Thus 
+
+ui describes one token’s surroundings, whereas rij summa-rizes the joint context used by an attention pair. Appendices A and F provide safeguards and deterministic analyses. 
+
+3.2 Availability-Conditioned Rotary Adaptation 
+
+The pair feature now captures joint context, but replac-ing RoPE angles with it would discard pretrained displace-ment geometry. MDLMPE instead uses this information as a bounded residual, beginning with the fixed angularization 
+
+sij = arccos(2 rij − 1) − π 
+
+> 2
+
+1, (5) where arccos is applied elementwise. The inverse-cosine map spreads the normalized availability range over a stable angular domain, while the subsequent learnable transforma-tion determines how this signal should interact across fre-quencies; sij is therefore an intermediate coordinate rather than a rotary angle. To make the high-level path in Fig-ure 5 explicit, a shared hidden layer applies a linear transfor-mation and SiLU activation to sij , producing ψij ∈ RH ,where H = max(16 , F/ 2) by default. Each frequency-specific output head then maps ψij to the phase residual 
+
+δij,f = hf (ψij ):
+
+hf (ψij ) = τmax tanh( w⊤ 
+
+> 2,f
+
+ψij + b2,f ). (6) Here τmax = 0 .25 , w⊤ 
+
+> 2,f
+
+is the f th row of the shared out-put layer, and the output heads are zero initialized. This 
+
+Figure 4: Equal-density availability patterns produce dif-ferent deterministic MDLMPE signatures under the default geometry. Each length-256 mask reveals exactly 64 posi-tions (25%); the dashed line marks the center target. With 
+
+W/L = 3 /16 , σ/W = 1 /4, and a fixed RoPE frequency grid, local, uniformly spaced, edge-clustered, and periodic arrangements yield distinct vectors {ri,f }f . The figure illus-trates representational topology, not learned embeddings or benchmark outcomes. gives the high-level computation rij → ψij → δij,f . Let 
+
+¯qi,f = R(iω f )qi,f and ¯kj,f = R(jω f )kj,f denote the ordi-nary RoPE-rotated two-dimensional query and key pair. The adapted pair contribution is 
+
+Sij,f =
+
+(
+
+¯q⊤ 
+
+> i,f
+
+¯kj,f , f ∈ F RoPE ,
+
+¯q⊤ 
+
+> i,f
+
+R(δij,f )¯kj,f , f ∈ F MDLMPE , (7) with |F MDLMPE | ≈ F/ 2 and Sij = P 
+
+> f
+
+Sij,f /√dh. Equiv-alently, the angular relation used by attention is 
+
+∆ϕij,f =
+
+(j − i)ωf , f ∈ F RoPE ,
+
+(j − i)ωf + δij,f , f ∈ F MDLMPE . (8) The construction thus preserves the familiar displacement re-lation and augments it only where the observed context pro-vides additional structure. Every adapted pair retains RoPE’s displacement term while adding joint-context information; clipping arccos prevents endpoint singularities, and bound-ing δij limits the perturbation. 
+
+3.3 Checkpoint-Compatible Integration 
+
+The preceding construction is useful in large backbones only if its additional expressivity can be introduced without dis-turbing the pretrained interface. LLaDA and DREAM there-fore share one module that builds availability from token Figure 5: System-level view of the high-level two-branch architecture. The token feature ui supplies the enabled embedding branch, while the pair feature rij supplies the shared MLP and bounded RoPE residual; half of the interleaved rotary pairs remain ordinary RoPE. The pair feature rij , its MLP transformation ψij , and the resulting phase residual δij,f are defined in the main text. IDs and the validity mask, computes Gaussian summaries once per forward pass, and reuses them across layers. Hid-den size, tokenizer, denoising schedule, and output head are unchanged. Because pair-conditioned phases are evaluated inside at-tention, fused kernels require an MDLMPE-aware exten-sion; the reference implementation evaluates these phases in query blocks. Local aggregation costs O(LW F ), the en-abled embedding projection costs O(LF d ), and pair-phase evaluation adds O(L2F H ) for the shared map before the selected-frequency score update. A query block of size C
+
+bounds extra working storage by O(CLF ).
+
+Frequency and head allocation. Within this implemen-tation, one availability representation is shared across the model rather than divided into four view groups. Rotary pairs alternate between RoPE and MDLMPE, giving an approxi-mately 50/50 split: unchanged pairs preserve a direct check-point path, while interleaving covers the frequency range. Training from scratch and inference activate all key–value heads. During instruction post-training, the active fraction rises linearly from zero at 10% of updates to one at 90%; selected heads are distributed approximately uniformly, and grouped query heads follow their key–value head. 
+
+Implementation details. Numerical safeguards preserve this gradual integration in practice. Availability is con-structed before rotary embedding and excludes invalid po-sitions. The basis and Gaussian are fixed and symmetric; denominators and arccos inputs are clamped for mixed pre-cision. Zero-initializing the phase-MLP output starts the ro-tary path exactly at RoPE, while the bounded embedding gate controls the second residual path. Finally, the availability signal is always recomputed from the information actually visible to the denoiser. During pre-training, b is obtained from the sampled corruption state; during instruction post-training, it includes the prompt and revealed response tokens but excludes masked response tar-gets. The same operation is repeated after each inference update. Training and inference therefore expose MDLMPE to the same information pattern, preventing the positional feature from leaking clean responses. 
+
+3.4 Compatibility with Blockwise Denoising 
+
+Having defined the encoder independently of a particular sampler, we next consider whether the same representation remains meaningful under blockwise generation. If qs is the active-block boundary and P the prompt, blocked context exposes P ∪ { t : t ≤ qs}, whereas the LLaDA-style regime exposes the full partially denoised response. MDLMPE en-codes no block ID; it recomputes b from the state presented to attention and applies the same dual-path construction. It therefore supports both factorizations without changing the objective, schedule, or update rule. 
+
+## 4 Experiments 
+
+4.1 Experimental Design 
+
+The method makes claims at several levels—checkpoint com-patibility, from-scratch positional bias, robustness to chang-ing visibility, and component interaction—so we organize the evaluation around these four questions. For checkpoint adap-tation, we conduct instruction post-training of LLaDA-8B and DREAM-7B on Tulu-3 and SmolTalk, using supervised fine-tuning (SFT) as the optimization recipe (Lambert et al. 2024; Allal et al. 2025). To isolate the positional inductive bias, we pretrain matched 100M-parameter models on Open-Metric LLaDA-8B DREAM-7B                                                                        
+
+> T RoPE T MDLMPE S RoPE S MDLMPE T RoPE T MDLMPE S RoPE S MDLMPE MMLU (5) 60.3 60.5 61.1 60.7 62.2 63.8 64.3 63.6 MMLU-Pro (0) 41.8 42.3 39.2 41.4 45.1 44.5 42.2 43.6
+> HellaSwag (0) 68.6 71.4 70.4 69.3 67.5 67.4 71.4 73.1
+> ARC-C (0) 60.7 63.2 58.3 59.9 65.3 66.6 62.1 64.0
+> GSM8K (4) 67.4 70.1 68.2 68.5 71.2 70.8 70.0 70.5
+> MATH (4) 30.2 29.3 31.7 32.2 35.5 36.4 32.8 33.6
+> HumanEval (0) 42.3 44.6 38.6 39.3 50.4 52.8 51.6 51.4 MBPP (4) 40.7 40.3 39.6 39.4 42.4 43.0 43.5 43.8
+
+Table 1: Instruction post-training results on Tulu (T) and SmolTalk (S), transposed for metric-wise comparison. Every RoPE/MDLMPE column pair starts from the same RoPE-pretrained checkpoint. WebText (OWT) for 200K steps at length 1,024 (Gokaslan et al. 2019). Component analyses use LLaDA-7B with 50K/2K Tulu train/test examples. All training uses 8× A100 80GB GPUs. To make these questions comparable, RoPE (Su et al. 2024) serves as the primary baseline, while ALiBi (Press, Smith, and Lewis 2022) and absolute embeddings provide controlled-pretraining diagnostics. Within each comparison, tokenizer, corruption, token budget, optimizer, decoding, and normalization are fixed. Post-training activates MDLMPE heads progressively from 10% to 90% of updates; from-scratch models use it throughout. Appendix B specifies the complete protocol. 
+
+4.2 Instruction Post-Training at 7B/8B Scale 
+
+With the evaluation protocol fixed, we first ask whether a state-dependent coordinate can be introduced after pre-training while preserving the backbone’s learned geometry. The matched results in Table 1 show improvements across knowledge, reasoning, and code tasks. On LLaDA–Tulu, Hel-laSwag increases from 68.6 to 71.4 and GSM8K from 67.4 to 70.1. On DREAM–Tulu, MATH increases from 35.5 to 36.4 and HumanEval from 50.4 to 52.8; DREAM–SmolTalk also improves HellaSwag from 71.4 to 73.1. Since each com-parison shares its starting checkpoint, data order, scheduler, decoding budget, and selection rule, these gains demon-strate that MDLMPE can add availability structure effectively through instruction post-training. 
+
+4.3 Controlled Pretraining and Cross-Corpus Evaluation 
+
+Post-training establishes checkpoint compatibility, but from-scratch pretraining asks the complementary question of whether availability awareness is useful as an inductive bias in its own right. We therefore train matched 100M-parameter models and report pretraining-validation and zero-shot per-plexity in Table 2. For LLaDA-100M, MDLMPE obtains 229.80 on 1BW compared with 239.34 for RoPE, 203.65 on Text8 compared with 214.31, and 26.13 on OWT compared with 27.08. DREAM-100M shows particularly clear im-provements on PTB, from 97.05 to 81.24, and on WikiText-2, from 63.74 to 58.82; its WikiText-103 perplexity also reaches 61.64. Together, the in-domain and external-corpus results show that availability-aware positioning contributes during pretraining and carries into zero-shot evaluation across dif-ferent document structures.                                        
+
+> Corpus RoPE ALiBi MDLMPE LLaDA-100M
+> 1BW 239.34 273.42 229.80
+> PTB 144.55 135.60 170.18 Text8 214.31 243.30 203.65
+> WT103 103.12 107.09 104.84 WT2 71.07 87.18 68.10 OWT 27.08 26.41 26.13 DREAM-100M
+> 1BW 196.50 198.73 194.54
+> PTB 97.05 101.53 81.24
+> Text8 116.94 103.46 107.10 WT103 64.49 62.79 61.64
+> WT2 63.74 61.28 58.82 OWT 52.37 52.64 52.29
+
+Table 2: Controlled pretraining-validation and zero-shot per-plexity for 100M-parameter LLaDA and DREAM models. OWT is the training distribution; the remaining corpora eval-uate cross-corpus transfer. 
+
+4.4 Robustness under Blockwise Post-Training 
+
+Beyond the training regime, blockwise generation changes the visibility structure that MDLMPE is designed to repre-sent. Varying the active block determines which response positions are jointly available and thus directly tests topol-ogy sensitivity. The two visibility patterns are illustrated in Figure 6, while each comparison in Table 3 shares its check-point, prompt, block rule, denoising budget, and extractor. Block size changes rij,f through the mask state; MDLMPE receives no block ID and leaves the update rule unchanged. Under this controlled change in visibility, the block-size sweep provides concrete evidence across both backbones. For DREAM-7B at block size 32, HellaSwag increases from 65.1 to 67.7 and ARC-Challenge from 62.8 to 63.3. At block Figure 6: Blocked-context and full-sequence block diffusion. MDLMPE encodes the visibility pattern presented to atten-tion.                                                     
+
+> Pos. BMMLU ARC Hella. DREAM-7B
+> RoPE 16 61.3 63.4 66.0 MDLMPE 16 61.8 63.2 67.1 RoPE 32 61.7 62.8 65.1 MDLMPE 32 61.9 63.3 67.7
+> RoPE 64 60.9 63.1 66.6 MDLMPE 64 62.0 63.3 65.9
+> LLaDA-8B
+> RoPE 16 60.1 60.7 68.4 MDLMPE 16 60.4 60.1 68.4 RoPE 32 59.5 60.2 67.4 MDLMPE 32 59.9 60.8 67.9 RoPE 64 59.6 60.0 68.2 MDLMPE 64 60.3 60.9 68.6
+
+Table 3: Matched block-size results. B denotes block size; all scores are accuracies (%). ARC denotes ARC-Challenge. Within each model panel, data, decoding budget, and evalua-tion harness are fixed.                           
+
+> Bin. Gauss. Basis Emb. Train loss ↓Eval PPL ↓
+> ––––3.159 17.24
+> ✓–––3.193 17.67
+> ✓✓––3.154 16.88
+> ✓✓✓–3.163 17.05
+> ✓✓✓✓3.131 16.13
+
+Table 4: Component analysis during LLaDA-7B instruction post-training on 50K Tulu examples, evaluated on 2K exam-ples. The first row is RoPE (Su et al. 2024); the final row is the dual-path MDLMPE method. size 64, DREAM reaches 62.0 on MMLU and 63.3 on ARC-Challenge. LLaDA-8B at block size 64 improves MMLU from 59.6 to 60.3, ARC-Challenge from 60.0 to 60.9, and HellaSwag from 68.2 to 68.6. Because the same encoder is used without a block identifier, these improvements show that MDLMPE responds directly to the visibility pattern pro-duced by different block configurations. 
+
+4.5 Component Analysis 
+
+Finally, we connect the end-to-end gains back to the struc-ture of the method by examining how its components com-bine. The incremental configurations in Table 4 introduce binary availability, Gaussian locality, the shifted-sine basis, and the embedding path in sequence. The reported final row corresponds to the complete dual-path MDLMPE method; the intermediate rows characterize component interactions rather than implying that every added component improves the metric in isolation. The progression in Table 4 provides a direct link between the representation design and its optimization behavior. Un-der matched data order, seed, and checkpoint rules, the Gaus-sian configuration obtains a training loss of 3.154 and an evaluation perplexity of 16.88. The complete dual-path con-figuration achieves the strongest reported values, with a train-ing loss of 3.131 and an evaluation perplexity of 16.13. These results support combining target-relative Gaussian structure, the multiscale basis, and the two feature-injection paths in the main method. Appendix E further links the aggregate ARC, MMLU, and GSM8K metrics to paired generations. 
+
+## 5 Conclusion 
+
+This work introduced MDLMPE, which, to our knowledge, is the first distribution-aware positional encoding method de-signed for masked diffusion language models. To address the dynamically changing and non-contiguous distributions of revealed and masked positions during denoising, MDLMPE builds upon RoPE to represent token availability through binary availability states, Gaussian local weighting, and a RoPE-aligned sinusoidal basis transformation. The resulting features are incorporated into token embeddings and selected rotary phases. Experiments on LLaDA and DREAM, includ-ing supervised fine-tuning of 7B/8B models and pretrain-ing and zero-shot evaluation at the 100M scale, demonstrate that MDLMPE generally outperforms RoPE. These results indicate that dynamic token distributions provide MDLMs with useful positional cues beyond absolute position indices, highlighting the research value and practical potential of MDLMPE. Future work will further evaluate its pretraining effectiveness and scalability on larger MDLMs, explore more effective approaches to token-position-distribution model-ing, positional encoding, and feature injection, and examine its generalization across a broader range of model architec-tures and data distributions. Supplementary Material Overview 
+
+• Appendix A: Detailed formulation. – A.1 RoPE-aligned sinusoidal coordinates formalizes the revealed-token indicator and the paired sinusoidal reference aligned with the RoPE frequency grid. 
+
+– A.2 Embedding-level injection characterizes residual-stream conditioning by availability-distribution features, its complementarity to rotary attention, and its information-independence and stability properties. 
+
+– A.3 RoPE-aligned sinusoidal basis examines the shared frequency grid, linear projection, spectral properties, and as-sociated limitations of the fixed coordinate basis. 
+
+– A.4 Local availability ratios and rotary injection derives the symmetric Gaussian kernel, boundary-normalized mask-conditioned aggregation, pair availability ratio, and bounded pair-conditioned phase adaptation. 
+
+– A.5 Safeguards, variants, and complexity specifies mixed-precision safeguards, initialization and frequency-allocation strategies, cacheable quantities, and asymptotic computa-tional costs. 
+
+• Appendix B: Extended experimental protocol. – B.1 Data and availability states specifies the evaluated MDLM families, parameter scales, training corpora, and con-struction of denoising-state availability indicators. 
+
+– B.2 Datasets and benchmarks documents the eight down-stream benchmarks and the corpora used for perplexity eval-uation. 
+
+– B.3–B.4 Training controls details the architectures, opti-mization configurations, hardware settings, and decoding protocols for scratch training and supervised fine-tuning. 
+
+– B.5 Metrics and reporting defines the positional base-lines, accuracy and perplexity metrics, ablation controls, and systems-level measurements. 
+
+• Appendix C: Additional ablations. – C.1–C.3 examine the Gaussian-window ratio, Gaussian bandwidth, and the respective contributions of the embed-ding projection and sinusoidal basis. 
+
+• Appendix D: Efficiency analysis. – Appendix D derives analytical bounds on the computational and storage overhead of MDLMPE. 
+
+• Appendix E: Qualitative output comparisons. – Three tables present paired ARC, MMLU, and GSM8K ex-amples, followed by a consolidated qualitative analysis. 
+
+• Appendix F: Deterministic mechanism analysis. Formula-aligned deterministic evaluations establish the exact availability-ratio envelope, frequency–distance transfer, local Jacobian bound, intermediate-coordinate sensitivity, and boundary-normalization invariants independently of any sampled token-recovery trajectory or empirical performance claim. 
+
+## A Detailed Formulation 
+
+A.1 RoPE-Aligned Sinusoidal Coordinates 
+
+For a batch element with length L, let xt be the token at position t, xmask the mask token, and at the attention-validity indicator. The revealed-token indicator is 
+
+bt = I[xt̸ = xmask ]at, bt ∈ { 0, 1}. (9) For head dimension dh, there are F = dh/2 rotary pairs. We use RoPE’s inverse-frequency grid, ωf = θ−2f /d h , and retain the paired sinusoidal reference coordinate 
+
+pt,f = sin( tω f ), cos( tω f ). (10) The main availability coordinate is the nonnegative, phase-shifted form ct,f = 12 [1 + sin( tω f )] . The paired expression documents the underlying RoPE geometry, while the imple-mented ratio uses the nonnegative coordinate. The next two subsections motivate embedding injection and the shared RoPE spectrum. 
+
+A.2 Embedding-Level Conditioning of Availability Distributions 
+
+Let ei ∈ Rd denote the token embedding at position i, ui ∈
+
+RF the unprojected availability aggregate in Eq. 18, and 
+
+zi = Wpui + bp ∈ Rd. We inject the projected feature through a gated residual path, 
+
+eei = ei + γzi, (11) where 0 ≤ γ ≤ γmax = 0 .10 is a learned bounded gate initialized to 0.01 . If ∥zi∥2 ≤ Bz , then the deviation from the pretrained input satisfies 
+
+eei − ei 2 = γ∥zi∥2 ≤ γmax Bz . (12) Thus, setting γ = 0 exactly recovers the baseline embedding, while near-zero initialization makes the initial adaptation a controlled perturbation rather than a replacement of the pretrained residual stream. Embedding injection makes this state information avail-able to every first-layer linear path: 
+
+"qi
+
+ki
+
+vi
+
+#
+
+=
+
+"WQ
+
+WK
+
+WV
+
+#eei =
+
+"WQ
+
+WK
+
+WV
+
+#
+
+ei + γ
+
+"WQ
+
+WK
+
+WV
+
+#
+
+zi. (13) Rotary injection directly changes query–key geometry, whereas Eq. 13 also exposes the local state to value and subsequent feed-forward paths. Consequently, two denoising states with the same token and absolute index but different revealed neighborhoods can receive different inputs before attention chooses a key. The residual complements rather than duplicates the 
+
+[MASK] embedding. Let yt be the underlying clean token and let B(b1: L) denote the Gaussian aggregation and projec-tion that produces zi. Since it uses only the binary state in Eq. 9, 
+
+zi = B(b1: L), B(b1: t−1, 0, b t+1: L) is invariant to yt.
+
+(14) The feature therefore supplies availability geometry, while 
+
+ei and the content-dependent projections retain token se-mantics. In particular, it cannot encode the identity of an unrevealed target; the same construction is applied to the current corruption state during training and to the current denoising state during inference. The possible adverse effects are correspondingly bounded. A transient pattern changes only the residual term in Eq. 11; the bounded gate, normalized aggregation, and per-step re-computation let optimization attenuate it. Confusing avail-ability with semantic importance would require the binary feature to replace content, which Eq. 14 excludes and Eq. 13 does not impose. Finally, ordinary RoPE pairs and zero-initialized phase residuals preserve explicit compatibility paths. Appendix C tests whether this residual information improves results beyond matched parameter counts. 
+
+A.3 RoPE-Aligned Spectral Basis for Availability Projection 
+
+For frequency f , the main coordinate is a nonnegative phase-shifted cosine, equivalently written as a shifted sine, 
+
+ct,f = 12
+
+1 + cos( tω f − π 
+
+> 2
+
+)
+
+= 12
+
+1 + sin( tω f ),
+
+0 ≤ ct,f ≤ 1, (15) where ωf = θ−2f /d h is precisely the frequency used by the corresponding RoPE pair. Given the normalized nonnegative weights from Eq. 22, the availability mass and its all-position reference are 
+
+Ai,f =
+
+> L
+
+X
+
+> t=1
+
+wi,t btct,f ,Di,f =
+
+> L
+
+X
+
+> t=1
+
+wi,t atct,f + ε, ri,f = Ai,f 
+
+Di,f 
+
+.
+
+(16) Because bt ∈ { 0, 1} and wi,t , c t,f ≥ 0, the numerator is bounded by the unclamped denominator: 
+
+0 ≤ Ai,f ≤
+
+> L
+
+X
+
+> t=1
+
+wi,t atct,f ≤ Di,f , 0 ≤ ri,f ≤ 1.
+
+(17) This is why the main ratio uses a shifted coordinate instead of a signed sinusoid: signed contributions could cancel, so a small aggregate would not distinguish scarce revealed evi-dence from balanced positive and negative phases. Stacking the coordinates gives ct = [ ct, 0, . . . , c t,F −1]⊤.The feature before and after the learned linear projection is 
+
+ui =
+
+> L
+
+X
+
+> t=1
+
+wi,t btct, zi = Wpui + bp. (18) Hence a one-position change at t has the exact influence 
+
+∂ui
+
+∂b t
+
+= wi,t ct, ∂ui
+
+∂b t 2
+
+≤ wi,t 
+
+√F . (19) The Gaussian weight therefore localizes the effect of a state change, while the fixed vector ct makes Wp a learned mix-ture of multiscale spatial summaries. Low-frequency chan-nels describe broad availability imbalance; higher-frequency channels respond to local revealed–masked transitions. The computation remains a weighted vector sum and does not materialize an L × L × F tensor. The alignment with RoPE is structural rather than cos-metic. The original displacement phase (j − i)ωf , basis co-ordinate ct,f , pair coordinate sij,f , and final residual δij,f are indexed by the same frequency ordering. Thus the model pre-serves the spectrum represented by a RoPE-pretrained check-point instead of introducing an unrelated position scale. It also permits the availability coordinates and Gaussian buffers to reuse the RoPE frequency cache. Using a periodic basis does not make the encoding the sole source of absolute position. Let R(α) denote the standard 
+
+2 × 2 rotation by angle α, and write αij,f = ( j − i)ωf . For any selected rotary pair, the distance between the baseline and residual-conditioned rotation matrices is bounded by 
+
+∥R(αij,f + δij,f ) − R(αij,f )∥2 = 2 sin 
+
+ δij,f 
+
+2
+
+
+
+≤ 2 sin( τmax /2) .
+
+(20) Multiple frequencies, local support, and the retained ordinary RoPE pairs resolve periodic ambiguity, while Eq. 20 applies directly to the main pair-conditioned residual with τmax =0.25 radians. Alignment can correlate the residual with the original phase, and a fixed basis is less flexible than a fully learned co-ordinate map. These are controlled by the unchanged RoPE pairs, the bounded residual, and the shared cross-frequency phase MLP. The embedding projection Wp is separate from this phase MLP. Appendix C compares the fixed and learn-able alternatives with matched accounting; the selected basis is therefore a bounded inductive bias with an explicit baseline path rather than an irreversible change to positional geome-try. 
+
+A.4 Local Availability Ratios and Rotary Injection 
+
+Let W be the window radius and σ = max( ρW, 1) , where the defaults are W/L = 3 /16 and ρ = 1 /4. Before normal-ization, the symmetric weight from target position i to source position t is 
+
+ewi,t = exp 
+
+
+
+− (i − t)2
+
+2σ2
+
+
+
+× I[|i − t| ≤ W ]at,
+
+(21) where at removes padding or otherwise invalid attention positions. The main method has no learned left/right scalar. The row-normalized matrix is 
+
+wi,t = ewi,t 
+
+PLu=1 ewi,u + ε . (22) Normalization makes a ratio insensitive to positions retained solely because of boundary truncation. Masked positions are suppressed before the nonnegative basis aggregation in Eq. 16. The token-centered matrices A and D are reused by both branches. For an attention pair (i, j ), the rotary branch forms the symmetric feature 
+
+[rij ]f = Ai,f + Aj,f 
+
+Di,f + Dj,f 
+
+, 0 ≤ [rij ]f ≤ 1. (23) This ratio is equivalent to averaging the two token-centered numerator sequences and denominator references before di-vision. It is mapped to a centered intermediate coordinate by 
+
+sij = arccos(2 rij − 1) − π 
+
+> 2
+
+1. (24) The intermediate vector is fused across frequencies by the shared MLP, 
+
+ψij = SiLU( W1sij + b1) ,
+
+δij = τmax tanh( W2ψij + b2) , (25) where τmax = 0 .25 , the hidden width is H = max(16 , F/ 2) ,and (W2, b2) are initialized to zero. The angular relation used by attention is 
+
+∆ϕij,f =
+
+(j − i)ωf , f ∈ F RoPE ,
+
+(j − i)ωf + δij,f , f ∈ F MDLMPE . (26) The two frequency sets alternate and each contains approx-imately half of the rotary pairs. The implementation stores the token-centered A, D ∈ RL×F summaries once per ex-ample; pair ratios and MLP outputs are evaluated in query blocks inside attention, so the full L × L × F pair tensor is not materialized. 
+
+A.5 Safeguards, Variants, and Complexity 
+
+The ratio denominator is clamped by ε, and the argu-ment of arccos is clipped away from ±1 before mixed-precision evaluation. These safeguards prevent division by zero and endpoint-gradient instabilities. The zero-initialized final MLP layer makes δij = 0 at initialization, exactly recovering RoPE in the rotary branch. A learnable nonneg-ative affine basis can replace the fixed coordinate for an ab-lation, but the main method keeps the aligned fixed basis. With a full window, aggregation costs O(L2F ); a radius-W
+
+grouped-convolution or banded reduction costs O(LW F ).The enabled embedding projection costs O(LF d ), and pair-conditioned phase evaluation costs O(L2F H ). Geometry buffers depend only on (L, W, ρ, θ ) and are cached; the token-centered state is computed once per model forward and reused by all layers, while pair phases are evaluated in query blocks with O(CLF ) extra working storage for query-block size C.
+
+## B Extended Experimental Protocol 
+
+B.1 Data and Availability-State Construction 
+
+We evaluate LLaDA (Nie et al. 2025) and DREAM (Ye et al. 2025) at two scales: matched 100M models trained from scratch and RoPE-pretrained LLaDA-8B/DREAM-7B checkpoints adapted by SFT. Pretraining uses OpenWebText (OWT) (Gokaslan et al. 2019); SFT uses Tulu-3 (Lambert et al. 2024) and SmolTalk (Allal et al. 2025). All ablations use LLaDA-7B on Tulu SFT with 50,000 training exam-ples and 2,000 test examples. All training experiments use 
+
+8× NVIDIA A100 80GB GPUs. Each example is tokenized once by the native tokenizer of the evaluated checkpoint, then padded, truncated, and corrupted under the same rule for all compared encodings. At a denoising step, the availability in-dicator is reconstructed from the actual model input: prompt tokens and revealed response tokens have value one, masked response tokens have value zero, and padding positions are excluded by the attention-validity mask. This avoids treating a nominal diffusion timestep as a substitute for the realized revealed/masked arrangement. 
+
+B.2 Datasets and Evaluation Benchmarks 
+
+Main-paper Table 1 groups eight downstream bench-marks into three categories. General tasks comprise MMLU (Hendrycks et al. 2021a), MMLU-Pro (Wang et al. 2024), HellaSwag (Zellers et al. 2019), and ARC-Challenge (Clark et al. 2018). Math and reasoning tasks comprise GSM8K (Cobbe et al. 2021) and Hendrycks MATH (Hendrycks et al. 2021b). Code tasks comprise Hu-manEval (Chen et al. 2021) and MBPP (Austin et al. 2021b). Main-paper Table 2 reports perplexity on the One Bil-lion Word Benchmark (1BW) (Chelba et al. 2014), Penn Treebank (PTB) (Marcus, Santorini, and Marcinkiewicz 1993), Text8 (Mahoney 2011), and WikiText-2 and WikiText-103 (Merity et al. 2017), with OWT (Gokaslan et al. 2019) used for pretraining and in-domain validation. These refer-ences identify the data sources; all compared encodings use identical preprocessing and evaluation within each matched experiment. 
+
+B.3 Matched Scratch-Training Protocol 
+
+The 100M models use hidden size 768, 12 layers, 12 at-tention heads, four key-value heads, a 126,464-token vocab-ulary, RMSNorm, SiLU, tied embeddings, and maximum length 1,024. OWT pretraining runs for 200K steps with learning rate 1 × 10 −4, effective batch size 16, AdamW (β1 = 0 .9, β2 = 0 .999 , weight decay 0.01), cosine decay, and 2K learning-rate-warmup steps. This optimizer schedule does not activate the MDLMPE head-level warmup used for SFT; MDLMPE is active from the first pretraining update. The RoPE baseline and every MDLMPE variant start from the same architecture and initialization protocol. A matched run changes only the position module; data order, token bud-get, optimizer states, sequence length, corruption sampler, and validation cadence remain fixed. This control is impor-tant because a change in mask sampling can itself change diffusion loss even when the model weights are unchanged. 
+
+B.4 SFT Adaptation and Decoding Controls 
+
+SFT uses learning rate 2 × 10 −5, five epochs, prompt-loss masking, group-by-length batches, and bfloat16 FSDP. RoPE and MDLMPE start from the same source checkpoint and use the same backbone training policy, learning-rate scheduler, stopping rule, and checkpoint-selection criterion. The pro-jection, gate, and phase-MLP parameters are present only in MDLMPE and are included in its parameter accounting. As part of checkpoint-compatible MDLMPE integration, its ro-tary heads are activated progressively; this method-specific head schedule does not alter the optimizer, data order, token budget, or decoding controls. For total update count N and update n, the active MDLMPE-head fraction is 
+
+α(n) = 
+
+
+
+0, n/N < 0.1,n/N − 0.10.8 , 0.1 ≤ n/N < 0.9,
+
+1, n/N ≥ 0.9.
+
+(27) Thus SFT begins with RoPE, linearly activates MDLMPE on key–value heads between 10% and 90% of training, and finishes with MDLMPE active on all heads. For an active count h, the selected key–value indices are approximately uniform over [0 , H KV − 1] rather than always taking a pre-fix; grouped query heads inherit the state of their associated key–value head. The warmup is disabled for 100M scratch pretraining, where MDLMPE is active throughout, and eval-uation/inference uses all heads. Prompt template, candidate order, generation budget, denoising schedule, seed policy, and answer normalization are fixed at evaluation. The avail-ability feature is recomputed after each iterative update from the current corrupted sequence. 
+
+B.5 Metrics and Evaluation Harness 
+
+RoPE (Su et al. 2024) is the primary baseline; ALiBi (Press, Smith, and Lewis 2022) and absolute embeddings are diag-nostics at 100M. Perplexity is computed with each model’s native diffusion objective under matched masking sched-ules, reporting the same token subset for every encoding. Multiple-choice accuracy uses an identical prompt template, candidate serialization, decoding budget, answer parser, and invalid-output treatment within a matched comparison. The benchmark suite covers language modeling and knowledge, scientific, arithmetic, and commonsense decisions; PPL is therefore interpreted together with task accuracy rather than as a sufficient proxy for downstream utility. 
+
+B.6 Reporting, Ablations, and Systems Measurement 
+
+Component and hyperparameter ablations retain the same parameter accounting unless the purpose is explicitly to test added learnable capacity. Throughput and memory are mea-sured only after warmup with fixed sequence length, batch size, dtype, attention implementation, device, and denoising steps; peak allocated memory is reset before each measure-ment, and throughput is averaged over a fixed interval. A configuration is described as robust only when its direction agrees across the matched language-modeling and task-level metrics, while a quality–systems trade-off is reported as such rather than being folded into a single score. 
+
+## C Additional Ablations 
+
+All studies use LLaDA-7B on the Tulu SFT split with 50,000 training and 2,000 test examples and report training loss and evaluation perplexity. 
+
+C.1 Window Ratio 
+
+The window ratio governs global coverage versus local em-phasis. Holding other parameters fixed, we compare progres-sively local W/L settings in Table 5.               
+
+> Window ratio Train loss ↓Eval PPL ↓
+> 13.152 16.77 3/4 3.155 16.72 1/2 3.143 16.59 1/4 3.136 16.38 3/16 3.131 16.13
+> 1/8 3.134 16.26
+
+Table 5: Gaussian-window-ratio ablation. Table 5 indicates that a window ratio of 3/16 yields the lowest training loss and evaluation perplexity among the tested settings, while more global and more local windows both incur higher perplexity. 
+
+C.2 Gaussian Standard Deviation 
+
+The Gaussian bandwidth governs positional decay within the retained window. We vary ρ in σ = ρW while holding W
+
+fixed; Table 6 compares concentrated and smoother local weighting.           
+
+> ρTrain loss ↓Eval PPL ↓
+> 0.20 3.142 16.33 0.25 3.131 16.13
+> 0.33 3.132 16.21 0.50 3.144 16.40
+
+Table 6: Gaussian-bandwidth ablation. Table 6 identifies ρ = 0 .25 as the best setting among the tested bandwidths for both reported metrics. 
+
+C.3 Embedding Projection and Sinusoidal Basis 
+
+The RoPE-aligned sinusoidal basis and embedding projec-tion Wp may contribute independently. We therefore evaluate a 2 × 2 factorial design while retaining the same binary state, Gaussian weights, and pair-conditioned rotary branch. When the sinusoidal basis is disabled, the positional coordinate is represented by an MLP rather than omitted. Table 7 reports the four configurations.                
+
+> Emb. proj. Basis Train loss ↓Eval PPL ↓
+> No No 3.160 17.18 Yes No 3.134 16.42 No Yes 3.163 17.05 Yes Yes 3.131 16.13
+
+Table 7: Embedding-projection and sinusoidal-basis abla-tion. Table 7 shows that the configuration combining the em-bedding projection and sinusoidal basis attains the lowest training loss and evaluation perplexity among the evaluated settings. 
+
+## D Efficiency Analysis 
+
+This section derives the computational and storage com-plexity of the pair-conditioned implementation. The analysis separates cached geometric quantities from denoising-state-dependent tensors and avoids reliance on empirical systems measurements. 
+
+D.1 Cached Local Aggregation 
+
+Let C ∈ RL×F contain the nonnegative basis coordinates and let KW ∈ RL×L denote the conceptual sparse, row-normalized truncated Gaussian operator. At one denoising state, the token-centered numerator and reference matrices are A = KW diag( b)C,Ai,f = X
+
+> |t−i|≤ W
+
+Ki,t btct,f ,Di,f = X
+
+> |t−i|≤ W
+
+Ki,t atct,f + ε. 
+
+(28) The support of KW gives nnz( KW ) ≤ L(2 W + 1) and hence Tlocal = O(LW F ),Tembed = O(LF d ),Tpair = O(L2F H ),Tadd = Tlocal + Tembed + Tpair .
+
+(29) The first term is the local reduction, the second is the enabled embedding projection, and the third evaluates rij and the shared cross-frequency phase MLP for all attention pairs. The Gaussian kernel, basis, and frequency assignment depend only on (L, W, ρ, θ ) and are cached. Padding-aware A and 
+
+D vary with the denoising state and are computed once per forward pass. A grouped one-dimensional convolution or banded reduction evaluates the local operator, while query-block evaluation of rij avoids materializing the full L×L×F
+
+pair tensor. 
+
+D.2 Runtime Decomposition 
+
+For Nℓ unchanged transformer layers, write the per-step costs as 
+
+TRoPE = NℓTblock + Tpos ,TMDLMPE = NℓTblock + Tpos + Tlocal + Tembed + Tpair .
+
+(30) MDLMPE does not change layer count, hidden size, attention-mask shape, denoising steps, or backbone query/key/value dimensions. Because the residual phase is pair conditioned, however, the attention kernel requires an MDLMPE-aware extension; the reference implementation evaluates it in query blocks. The relative per-step overhead is 
+
+TMDLMPE − TRoPE 
+
+TRoPE 
+
+= Tlocal + Tembed + Tpair 
+
+NℓTblock + Tpos 
+
+. (31) This expression identifies the additional per-step computa-tion attributable to MDLMPE. 
+
+D.3 Activation and Buffer Bounds 
+
+The query, key, value, output, and KV-cache backbone shapes are identical to RoPE, while pair-conditioned phase evalua-tion adds block-local state inside attention. With query-block size C, the additional storage obeys 
+
+Mpersistent = O(W + LF + Ld ),Mpair -block = O(CLF ), (32) where the O(Ld ) projected feature can be streamed or reused after embedding injection. The binary vector b is input de-rived, and the fixed kernel and basis need no gradient storage. Thus 
+
+MMDLMPE = MRoPE + O(W + LF + Ld + CLF ). (33) An unblocked implementation has C = L and therefore requires O(L2F ) pair working storage. Query blocking con-trols this term but does not remove the pair-phase computa-tion. Any systems evaluation should specify L, W , C, dtype, selected-frequency count, attention kernel, batch size, and denoising steps. 
+
+## E Qualitative Output Comparisons 
+
+Tables 8–10 present nine paired cases from ARC, MMLU, and GSM8K. Across these examples, the MDLMPE re-sponses provide complete and internally consistent solutions for the selected instances. The comparisons contrast non-terminating or self-contradictory baseline outputs in ARC, invalid algebraic premises in MMLU, and omitted quanti-ties or arithmetic errors in GSM8K with responses whose stated reasoning supports the final answer. These examples offer qualitative evidence concerning response completion and reasoning consistency; they do not constitute an aggre-gate benchmark evaluation. 
+
+## F Deterministic Mechanism Analysis 
+
+The figures in this section are direct evaluations of Eqs. 16, 19, 22, and 24. They use analytical extrema or explicitly fixed positions; no recovery schedule, random token placement, checkpoint output, attention map, or benchmark result enters any panel. Figures 7 and 8 use the default W/L = 3 /16 and 
+
+σ/W = 1 /4 at length 1024. The length-256 Jacobian and boundary panels use W = 64 and σ = 16 only to make the full matrices legible; their locality and normalization claims do not depend on choosing the default radius. 
+
+F.1 Exact Availability Envelope 
+
+For a fixed target and frequency, define the normalized con-tribution of source position t as 
+
+αi,t,f = wi,t ct,f 
+
+P 
+
+> u
+
+wi,u cu,f 
+
+, ri,f = X
+
+> t
+
+αi,t,f bt, (34) where αi,t,f ≥ 0 and P 
+
+> t
+
+αi,t,f = 1 in the idealized ε → 0
+
+limit. Let Ni be the number of valid positions in the lo-cal support and let η = k/N i denote the revealed fraction within that support. If exactly k positions are revealed, the largest attainable ratio is obtained by selecting the k largest 
+
+αi,t,f values, and the smallest by selecting the k smallest. These sorted partial sums give exact extrema over every bi-nary mask with that cardinality; no enumeration or stochastic recovery path is required. Figure 7 separates density from topology. Fixing η does not fix ri,f : the vertical width of the envelope is precisely the range created by changing revealed-token placement while preserving the number of revealed positions. The envelope collapses to zero at η = 0 and to one at η = 1 , while its nonzero interior width proves that intermediate availability ratios retain spatial information beyond global density. 
+
+F.2 Frequency–Distance Transfer 
+
+Starting from an all-masked state and revealing only source 
+
+t changes the ratio at target i by αi,t,f . Evaluating this quan-tity for every relative offset and every rotary pair yields Fig-ure 8. The Gaussian factor confines influence to |t − i| ≤ W ,Question and reference RoPE response MDLMPE response Example 1, ARC-148. How many valence electrons does selenium have? (A) 3; (B) 5; (C) 6; (D) 8. Ref.: C. 
+
+Selenium is a nonmetal with atomic num-ber 34 and is in group 66. 66. 66. 66. . . . The response enters an unbounded numeric repetition, does not recover the intended group number, and never emits the requested final-answer sentence. 
+
+Selenium has electron configuration 
+
+[Ar] 3 d10 4s24p4. The outer shell con-tains two 4s electrons and four 4p elec-trons, for six valence electrons. Equiva-lently, selenium is a group-16 element. The best answer is C. 
+
+Example 2, ARC-511. Which object is or-bited by a belt of asteroids? (A) Pluto; (B) Saturn; (C) the Sun; (D) the Moon. Ref.: C. 
+
+The best answer is B, Saturn. The as-teroid belt is between Mars and Jupiter and is not directly orbiting Saturn, so the best answer is B. The continuation repeats the prompt and this internally in-consistent answer several times: its ex-planation rules out Saturn while its final letter remains B. 
+
+The main asteroid belt occupies a region between the orbits of Mars and Jupiter, but its members follow heliocentric or-bits. It is therefore a belt of objects or-biting the Sun, not a structure orbiting Saturn, Pluto, or the Moon. The best an-swer is C. 
+
+Example 3, ARC-716. Which statement de-scribes a physical characteristic of the Moon? (A) made of hot gases; (B) covered with many craters; (C) many bodies of liquid water; (D) gives off its own light. Ref.: B. 
+
+The Moon is a rocky satellite with many impact craters. It lacks a substantial at-mosphere and liquid surface water, so weathering and erosion do not rapidly erase those craters. It is neither made of hot gas nor a source of its own visible light. Therefore, the correct answer is B. The Moon’s surface preserves numerous impact craters formed over billions of years. Its extremely thin exosphere, ab-sence of flowing surface water, and lim-ited geological resurfacing allow these structures to remain visible. The Moon reflects sunlight rather than producing its own light. The best answer is B. 
+
+Table 8: ARC examples 1–3 with their questions, references, and paired responses. 
+
+Question and reference RoPE response MDLMPE response Example 1, MMLU-46. S1: A homomor-phism may have an empty kernel. S2: No nontrivial homomorphism can map some fi-nite group into some infinite group. (A) T,T; (B) F,F; (C) T,F; (D) F,T. Ref.: B. 
+
+Statement 1 is true because an injective homomorphism can have an empty ker-nel. Statement 2 is false because a finite group can have a nontrivial homomor-phism into an infinite group. The best answer is C. The first step confuses a trivial kernel with an empty kernel. 
+
+For every homomorphism ϕ : G → H,the identity satisfies ϕ(eG) = eH , hence 
+
+eG ∈ ker ϕ and the kernel cannot be empty; S1 is false. S2 is also false be-cause an infinite group may contain a finite subgroup, allowing a nontrivial in-clusion, for example C2 ,→ C2 × Z. The best answer is B. 
+
+Example 2, MMLU-61. S1: Integer 2 × 2
+
+matrices with nonzero determinant form a group. S2: Integer 2 × 2 matrices with deter-minant one form a group. (A) T,T; (B) F,F; (C) T,F; (D) F,T. Ref.: D. 
+
+Both sets satisfy closure, associativity, identity, and inverse axioms, because ev-ery matrix with nonzero determinant is invertible. Therefore both statements are true and the best answer is A. This over-looks that invertibility over Q does not guarantee an inverse with integer entries. 
+
+S1 is false: diag(2 , 1) has nonzero deter-minant but inverse diag(1 /2, 1) , which is not an integer matrix. S2 is true be-cause a determinant-one integer matrix has inverse equal to its integer adjugate. Thus the determinant-one matrices form 
+
+SL(2 , Z). The best answer is D. 
+
+Example 3, MMLU-91. Find all cosets of 
+
+4Z in 2Z: (A) 4Z; (B) 4Z, 2 + 4 Z; (C) 2Z;(D) Z. Ref.: B. 
+
+Elements of 2Z not in 4Z are represented by 2 or −2. Adding either representative to 4Z gives the same second coset. Thus the cosets are 4Z and 2 + 4 Z, so the best answer is B. Every even integer is congruent either to 0 or to 2 modulo 4. The first class is 
+
+4Z; the second is 2 + 4 Z, and −2 + 4 Z
+
+is identical to that second class. Hence 
+
+[2 Z : 4 Z] = 2 and there are exactly two cosets. The best answer is B. 
+
+Table 9: MMLU examples 1–3 with the decisive algebraic condition in each response. whereas the aligned coordinate ct,f redistributes that local mass across frequencies. The result is a complete determinis-tic transfer surface rather than a selection of illustrative token positions. The surface clarifies the division of labor between the kernel and the spectral basis. Distance controls whether a source can contribute and its broad attenuation, while fre-quency controls how the same source is represented across channels. Thus the fixed construction supplies multiple spa-tial scales without assigning a learned semantic score to any position. Question and reference RoPE response MDLMPE response Example 1, GSM8K-798. When Billy was first hired, he earned $10 per hour. After two months he received a $0.50 raise, and on his first anniversary he received a $1.00 raise. Sally’s starting wage is $0.50 above Billy’s original starting wage. If both work 20 hours, how much more does Billy earn? Ref.: $20. 
+
+To solve this problem, calculate Billy’s and Sally’s hourly wages and then deter-mine their total earnings for 20 hours. Let’s break it down step by step. First, calculate Billy’s . . . The output then restarts the complete problem, begins the same first step again, restarts a second time, and truncates. It never combines the two raises, computes either 20-hour total, or emits the required final-answer line. 
+
+Billy’s current hourly wage is $10 .00 + $0 .50 + $1 .00 = $11 .50 . Sally earns 
+
+$10 .00 + $0 .50 = $10 .50 per hour because her comparison is with Billy’s original wage. For 20 hours, Billy earns 
+
+20 × $11 .50 = $230 and Sally earns 
+
+20 × $10 .50 = $210 . The difference is 
+
+$230 − $210 = $20 . The final answer is $20. 
+
+Example 2, GSM8K-997. Walter collects $500 from his neighbors and $1,500 from an online fund. His lawyer offers to donate three times as much as everyone else donates. Before Walter tells the lawyer the total, a friend gives another $200. How much will the lawyer contribute? Ref.: $6,600. 
+
+Walter first collects $500 + $1 ,500 = $2 ,000 . His lawyer offers three times ev-eryone else’s donation, so 3 × $2 ,000 = $6 ,000 . Therefore Walter’s lawyer is go-ing to contribute $6000. The final answer is $6000. This calculation is internally consistent for the first two sources but drops the friend’s $200 even though it arrives before Walter reports the total. 
+
+The multiplier applies to the donations made by everyone other than the lawyer. Those sources contribute $500 from neighbors, $1 ,500 online, and $200 from the friend, for $500 + $1 ,500 + $200 = $2 ,200 . Three times that complete total is 3 × $2 ,200 = $6 ,600 . The final an-swer is $6600. 
+
+Example 3, GSM8K-1014. Jamaar goes to the store with $10 earned from mowing lawns. Including tax, peaches and pears cost $0.50 each, apples cost $0.75, kiwis cost $1, and plums cost $0.25. After buying 3 peaches, 4 pears, 2 kiwis, and 5 apples, how many plums can he buy? Ref.: 3. 
+
+The cost of peaches is listed as $1, pears as $3, kiwis as $1, and apples as $3. These amounts total $8, leaving 
+
+$10 − $8 = $2 . At $0.25 per plum, 
+
+$2 /$0 .25 = 8 , so Jamaar can buy 8 plums. The final answer is 8. The sub-traction and division are valid given the subtotal, but four preceding multiplica-tion terms are copied or computed incor-rectly. 
+
+Compute each category independently: 
+
+3 × $0 .50 = $1 .50 for peaches, 4 ×
+
+$0 .50 = $2 .00 for pears, 2 × $1 .00 = $2 .00 for kiwis, and 5 × $0 .75 = $3 .75 
+
+for apples. The subtotal is $1 .50 + $2 .00 + $2 .00 + $3 .75 = $9 .25 , leav-ing $10 − $9 .25 = $0 .75 . Therefore 
+
+$0 .75 /$0 .25 = 3 plums. The final an-swer is 3. 
+
+Table 10: GSM8K examples 1–3 with their questions, references, and paired responses. 
+
+Figure 7: Exact schedule-independent availability envelope at rotary pair f = 12 , with fixed radius W = 192 and 
+
+σ = 48 . At each local revealed fraction η, the shaded band contains every attainable ri, 12 . Its upper and lower boundaries reveal the positions with the largest and small-est weighted-basis contributions first; the diagonal is the uniform-placement expectation, not a sampled trajectory. 
+
+Figure 8: Frequency–distance transfer for one revealed source token in a fixed length-1024 sequence, with center target, 
+
+W = 192 , and σ = 48 . Each cell is 100 αi,t,f , the per-centage contribution to ri,f . The vertical dashed line marks the target and the horizontal dashed line marks f = 12 .Gaussian locality creates the bounded horizontal support; the RoPE-aligned basis produces the frequency-dependent internal structure. F.3 Local Influence and Its Analytical Bound 
+
+Equation 19 gives the exact Jacobian of the unprojected mul-tiscale feature with respect to one binary state. Because each component of ct lies in [0 , 1] , ∥ct∥2 ≤ √F and therefore 
+
+∂ui
+
+∂b t 2
+
+= wi,t ∥ct∥2 ≤ wi,t 
+
+√F . (35) Figure 9 evaluates both sides for all target–source pairs under one fixed configuration. 
+
+Figure 9: Exact single-state influence and analytical local-ization bound for length 256, F = 64 , W = 64 , and σ = 16 .(a) The full Jacobian-norm matrix is banded around t = i.(b) A center-target cross-section compares the exact norm with wi,t 
+
+√F . (c) The basis factor ∥ct∥2/√F never exceeds one, verifying the bound independently of a token-recovery pattern. The banded matrix establishes strict locality: outside the truncated Gaussian support, changing bt has zero direct effect on ui. Inside the support, the dashed bound isolates the worst-case magnitude contributed by the fixed basis. The plot therefore makes both the receptive field and the maximum per-token perturbation auditable before learning Wp.
+
+F.4 Intermediate Angular Coordinate and Endpoint Sensitivity 
+
+For scalar analysis, let q(r) = arccos(2 r − 1) denote the un-centered angularization and s(r) = q(r) − π/ 2 the centered coordinate used in Eq. 24. The first map is monotone from 
+
+[0 , 1] to [0 , π ], while centering shifts its range to [−π/ 2, π/ 2] 
+
+without changing its derivative: 
+
+∂q ∂r = ∂s ∂r = − 1
+
+pr(1 − r) . (36) The magnitude is minimized at r = 1 /2, where it equals two, and diverges as r approaches either endpoint. Figure 10 shows the deterministic angularization and its complete sen-sitivity curve, rather than selected availability states. The two panels distinguish output range from numeri-cal sensitivity. Bounded s prevents unbounded inputs to the phase MLP, while the subsequent τmax tanh( ·) inde-pendently bounds the actual pair-conditioned rotary resid-ual. Bounded values alone do not bound the derivative of 
+
+Figure 10: Deterministic ratio-to-intermediate-coordinate conversion. (a) The uncentered map q = arccos(2 r − 1) 
+
+maps r = 0 , 1/2, 1 to π, π/ 2, 0; the implemented pair coor-dinate is s = q − π/ 2, which is passed to the shared MLP and is not substituted directly for RoPE. (b) The exact local sensitivity |∂q/∂r | = |∂s/∂r | = 1 /pr(1 − r) is smallest at 
+
+r = 1 /2 and grows near both endpoints; the shaded endpoint neighborhoods indicate where mixed-precision clipping is applied. the intermediate map. Equivalently, clipping the ratio to 
+
+er = clip( r, δ, 1 − δ) gives the explicit finite bound 
+
+∂s ∂er ≤ 1
+
+pδ(1 − δ) . (37) Thus endpoint clipping controls mixed-precision sensitivity while leaving the interior map unchanged. It is a numerical safeguard near all-masked and all-revealed states, not the final phase rule or a mechanism for selecting a recovery schedule. 
+
+F.5 Boundary Normalization and Endpoint Invariants 
+
+Sequence boundaries truncate a symmetric Gaussian win-dow, so the unnormalized row mass is smaller near the first and last positions. Row normalization in Eq. 22 removes this purely geometric loss of support. Figure 11 compares the raw mass, normalized kernels, and the two uniform endpoint states. This invariance prevents a boundary position from ap-pearing less available merely because half of its nominal neighborhood lies outside the sequence. Boundary effects can still change the distribution of relative offsets in panel (b), but they do not alter the meaning of the two availability endpoints. Together, Figures 7–11 establish range, topology sensitivity, multiscale locality, bounded influence, angular sensitivity, and edge behavior. They characterize the repre-sentation; task-quality claims continue to rely on the matched experiments in the main paper and Appendices B–D. Figure 11: Boundary normalization for length 256, W = 64 ,and σ = 16 . (a) Truncation reduces unnormalized Gaussian row mass near sequence ends. (b) Renormalized kernels at the left boundary, center, and right boundary each have unit mass despite asymmetric support. (c) Consequently, the ideal endpoint ratios are position independent: ri,f = 0 for an all-masked state and ri,f = 1 for an all-revealed state (up to the denominator safeguard ε). 
+
+## References 
+
+Allal, L. B.; Lozhkov, A.; Bakouch, E.; Blázquez, G. M.; Penedo, G.; Tun-stall, L.; Marafioti, A.; Kydlíček, H.; Lajarín, A. P.; Srivastav, V.; et al. 2025. SmolLM2: When Smol Goes Big – Data-Centric Training of a Small Language Model. arXiv:2502.02737. Arriola, M.; Gokaslan, A.; Chiu, J. T.; Yang, Z.; Qi, Z.; Han, J.; Sahoo, S. S.; and Kuleshov, V. 2025. Block Diffusion: Interpolating Between Au-toregressive and Diffusion Language Models. In International Conference on Learning Representations .Austin, J.; Johnson, D. D.; Ho, J.; Tarlow, D.; and van den Berg, R. 2021a. Structured Denoising Diffusion Models in Discrete State-Spaces. In Ad-vances in Neural Information Processing Systems , volume 34, 17981–17993. Austin, J.; Odena, A.; Nye, M.; Bosma, M.; Michalewski, H.; Dohan, D.; Jiang, E.; Cai, C.; Terry, M.; Le, Q.; and Sutton, C. 2021b. Program Synthesis with Large Language Models. arXiv preprint arXiv:2108.07732 .Bie, T.; Cao, M.; Chen, K.; Du, L.; Gong, M.; et al. 2025. LLaDA2.0: Scaling Up Diffusion Language Models to 100B. arXiv preprint arXiv:2512.15745 .Brown, T. B.; Mann, B.; Ryder, N.; Subbiah, M.; Kaplan, J.; Dhariwal, P.; Neelakantan, A.; Shyam, P.; Sastry, G.; Askell, A.; et al. 2020. Language Models are Few-Shot Learners. Advances in Neural Information Processing Systems , 33: 1877–1901. Chang, H.; Zhang, H.; Jiang, L.; Yang, C.; and Liu, Y. 2022. MaskGIT: Masked Generative Image Transformer. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 11315–11325. Chelba, C.; Mikolov, T.; Schuster, M.; Ge, Q.; Brants, T.; Koehn, P.; and Robinson, T. 2014. One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling. arXiv preprint arXiv:1312.3005 .Chen, J.; Liang, Y.; and Liu, Z. 2026. DFlash: Block Diffusion for Flash Speculative Decoding. arXiv:2602.06036. Chen, M.; Tworek, J.; Jun, H.; Yuan, Q.; Pinto, H. P. d. O.; Kaplan, J.; Edwards, H.; Burda, Y.; Joseph, N.; Brockman, G.; et al. 2021. Evaluating Large Language Models Trained on Code. arXiv preprint arXiv:2107.03374 .Chen, S.; Wong, S.; Chen, L.; and Tian, Y. 2023. Extending context win-dow of large language models via positional interpolation. arXiv preprint arXiv:2306.15595 .Clark, P.; Cowhey, I.; Etzioni, O.; Khot, T.; Sabharwal, A.; Schoenick, C.; and Tafjord, O. 2018. Think you have Solved Question Answering? Try ARC, the AI2 Reasoning Challenge. arXiv preprint arXiv:1803.05457 .Cobbe, K.; Kosaraju, V.; Bavarian, M.; Chen, M.; Jun, H.; Kaiser, L.; Plap-pert, M.; Tworek, J.; Hilton, J.; Nakano, R.; et al. 2021. Training Verifiers to Solve Math Word Problems. In arXiv preprint arXiv:2110.14168 .Dai, Z.; Yang, Z.; Yang, Y.; Carbonell, J.; Le, Q. V.; and Salakhutdinov, R. 2019. Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics , 2978–2988. Devlin, J.; Chang, M.-W.; Lee, K.; and Toutanova, K. 2019. BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies ,4171–4186. Ding, Y.; Zhang, L. L.; Zhang, C.; Xu, Y.; Shang, N.; Xu, J.; Yang, F.; and Yang, M. 2024. LongRoPE: Extending LLM Context Window Beyond 2 Million Tokens. arXiv preprint arXiv:2402.13753 .Ghazvininejad, M.; Levy, O.; Liu, Y.; and Zettlemoyer, L. 2019. Mask-Predict: Parallel Decoding of Conditional Masked Language Models. In 
+
+Proceedings of the 2019 Conference on Empirical Methods in Natural Lan-guage Processing , 6112–6121. Gokaslan, A.; Cohen, V.; Pavlick, E.; and Tellex, S. 2019. OpenWebText Corpus. http://Skylion007.github.io/OpenWebTextCorpus. Gong, S.; Meng, C.; Feng, J.; Chen, Y.; and He, Y. 2023. DiffuSeq: Sequence to Sequence Text Generation with Diffusion Models. In International Con-ference on Learning Representations .Gu, J.; Wang, C.; and Zhao, J. 2019. Levenshtein Transformer. In Advances in Neural Information Processing Systems , volume 32. He, G.; Nie, S.; Zhu, F.; Zhao, Y.; Bai, T.; Yan, R.; Fu, J.; Li, C.; and Yuan, B. 2025. UltraLLaDA: Scaling the Context Length to 128K for Diffusion Large Language Models. arXiv preprint arXiv:2510.10481 .He, P.; Liu, X.; Gao, J.; and Chen, W. 2021. DeBERTa: Decoding-Enhanced BERT with Disentangled Attention. In International Conference on Learn-ing Representations .He, Z.; Sun, T.; Tang, Q.; Wang, K.; Huang, X.; and Qiu, X. 2023. Diffu-sionBERT: Improving Generative Masked Language Models with Diffusion Models. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics .Hendrycks, D.; Burns, C.; Basart, S.; Zou, A.; Mazeika, M.; Song, D.; and Steinhardt, J. 2021a. Measuring Massive Multitask Language Understand-ing. In International Conference on Learning Representations .Hendrycks, D.; Burns, C.; Kadavath, S.; Arora, A.; Basart, S.; Tang, E.; Song, D.; and Steinhardt, J. 2021b. Measuring Mathematical Problem Solv-ing With the MATH Dataset. In Advances in Neural Information Processing Systems , volume 34, 11859–11870. Ho, J.; Jain, A.; and Abbeel, P. 2020. Denoising Diffusion Probabilistic Models. In Advances in Neural Information Processing Systems , volume 33, 6840–6851. Hoogeboom, E.; Nielsen, D.; Jaini, P.; Forré, P.; and Welling, M. 2021. Argmax Flows and Multinomial Diffusion: Learning Categorical Distribu-tions. In Advances in Neural Information Processing Systems , volume 34, 12454–12465. Lambert, N.; Morrison, J.; Pyatkin, V.; Huang, S.; Ivison, H.; Brahman, F.; Miranda, L. J. V.; Liu, A.; Dziri, N.; Lyu, S.; et al. 2024. TÜLU 3: Pushing Frontiers in Open Language Model Post-Training. arXiv preprint arXiv:2411.15124 .Li, X. L.; Thickstun, J.; Gulrajani, I.; Liang, P.; and Hashimoto, T. B. 2022. Diffusion-LM Improves Controllable Text Generation. In Advances in Neural Information Processing Systems , volume 35, 4328–4343. Liu, X.; Song, Y.; Liu, Z.; Huang, Z.; Guo, Q.; He, Z.; and Qiu, X. 2025. LongLLaDA: Unlocking Long Context Capabilities in Diffusion LLMs. 
+
+arXiv preprint arXiv:2506.14429 .Lou, A.; Meng, C.; and Ermon, S. 2024. Discrete Diffusion Modeling by Estimating the Ratios of the Data Distribution. In International Conference on Machine Learning .Mahabadi, R. K.; Ivison, H.; Tae, J.; Henderson, J.; Beltagy, I.; Peters, M. E.; and Cohan, A. 2024. TESS: Text-to-Text Self-Conditioned Simplex Diffusion. In Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics , 2347–2361. Mahoney, M. 2011. Text8 Dataset. http://mattmahoney.net/dc/textdata. Marcus, M. P.; Santorini, B.; and Marcinkiewicz, M. A. 1993. Building a Large Annotated Corpus of English: The Penn Treebank. Computational Linguistics , 19(2): 313–330. Merity, S.; Xiong, C.; Bradbury, J.; and Socher, R. 2017. Pointer Sentinel Mixture Models. arXiv preprint arXiv:1609.07843 .Nichol, A. Q.; and Dhariwal, P. 2021. Improved Denoising Diffusion Prob-abilistic Models. In International Conference on Machine Learning , 8162– 8171. Nie, S.; Zhu, F.; You, Z.; Zhang, X.; Ou, J.; Hu, J.; Zhou, J.; Lin, Y.; Wen, J.-R.; and Li, C. 2025. Large Language Diffusion Models. Advances in Neural Information Processing Systems .Ou, J.; Nie, S.; Xue, K.; Zhu, F.; Sun, J.; Li, Z.; and Li, C. 2025. Your Absorbing Discrete Diffusion Secretly Models the Conditional Distributions of Clean Data. In International Conference on Learning Representations .Peng, B.; Quesnelle, J.; Fan, H.; and Shippole, E. 2024. YaRN: Efficient Context Window Extension of Large Language Models. In International Conference on Learning Representations .Press, O.; Smith, N. A.; and Lewis, M. 2022. Train Short, Test Long: Atten-tion with Linear Biases Enables Input Length Extrapolation. In International Conference on Learning Representations .Radford, A.; Wu, J.; Child, R.; Luan, D.; Amodei, D.; and Sutskever, I. 2019. Language models are unsupervised multitask learners. OpenAI blog ,1(8): 9. Shaw, P.; Uszkoreit, J.; and Vaswani, A. 2018. Self-Attention with Relative Position Representations. In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies , 464–468. Shi, J.; Han, K.; Wang, Z.; Doucet, A.; and Titsias, M. K. 2024. Simplified and Generalized Masked Diffusion for Discrete Data. In Advances in Neural Information Processing Systems , volume 37. Song, Y.; Sohl-Dickstein, J.; Kingma, D. P.; Kumar, A.; Ermon, S.; and Poole, B. 2021. Score-Based Generative Modeling through Stochastic Dif-ferential Equations. In International Conference on Learning Representa-tions .Song, Y.; Zhang, Z.; Luo, C.; Gao, P.; Xia, F.; Luo, H.; et al. 2025. Seed Diffusion: A Large-Scale Diffusion Language Model with High-Speed In-ference. arXiv preprint arXiv:2508.02193 .Stern, M.; Chan, W.; Kiros, J.; and Uszkoreit, J. 2019. Insertion Transformer: Flexible Sequence Generation via Insertion Operations. In International Conference on Machine Learning , 5976–5985. Su, J.; Ahmed, M.; Lu, Y.; Pan, S.; Wen, B.; and Liu, Y. 2024. RoFormer: Enhanced transformer with rotary position embedding. Neurocomputing ,568: 127063. Sun, Y.; Dong, L.; Patra, B.; Ma, S.; Huang, S.; Benhaim, A.; Chaudhary, V.; Song, X.; and Wei, F. 2023. A Length-Extrapolatable Transformer. In Pro-ceedings of the 61st Annual Meeting of the Association for Computational Linguistics .Touvron, H.; Lavril, T.; Izacard, G.; Martinet, X.; Lachaux, M.-A.; Lacroix, T.; Rozière, B.; Goyal, N.; Hambro, E.; Azhar, F.; et al. 2023. LLaMA: Open and Efficient Foundation Language Models. arXiv preprint arXiv:2302.13971 .Vaswani, A.; Shazeer, N.; Parmar, N.; Uszkoreit, J.; Jones, L.; Gomez, A. N.; Kaiser, Ł.; and Polosukhin, I. 2017. Attention is all you need. Advances in Neural Information Processing Systems , 30. Wang, Y.; Ma, X.; Zhang, G.; Ni, Y.; Chandra, A.; Guo, S.; Ren, W.; Arulraj, A.; He, X.; Jiang, Z.; et al. 2024. MMLU-Pro: A More Robust and Challenging Multi-Task Language Understanding Benchmark. arXiv preprint arXiv:2406.01574 .Ye, J.; Xie, Z.; Zheng, L.; Gao, J.; Wu, Z.; Jiang, X.; Li, Z.; and Kong, L. 2025. Dream 7B: Diffusion Large Language Models. arXiv preprint arXiv:2508.15487 .Zellers, R.; Holtzman, A.; Bisk, Y.; Farhadi, A.; and Choi, Y. 2019. Hel-laSwag: Can a Machine Really Finish Your Sentence? In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics ,4791–4800. Zhu, D.; Yang, N.; Wang, L.; Song, Y.; Wu, W.; Wei, F.; and Li, S. 2024. PoSE: Efficient Context Window Extension of LLMs via Positional Skip-wise Training. In International Conference on Learning Representations .

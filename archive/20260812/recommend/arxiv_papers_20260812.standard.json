@@ -1,0 +1,178 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-12T20:54:16.873958+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2608.10439v1",
+      "source": "arxiv",
+      "title": "Stream Forcing: Constructing Unified Training Trajectory for Robust Streaming Video Generation",
+      "abstract": "Streaming video generation holds strong potential for world modeling, where future frames must be inferred online sequentially to form a continuous video stream. However, streaming video diffusion models introduce a fundamental train-inference mismatch: inference follows a specialized denoising order, whereas advanced training strategies typically require diverse noise-level configurations. To address this trade-off between train-inference consistency and training coverage, we reformulate the video diffusion sampling as a frame-indexed stochastic process over noise levels. Within this stochastic process space, we construct a continuous training trajectory along which the sampling schedule progressively evolves from independent sampling to inference-consistent sampling. We further introduce a joint calibration algorithm and a temporal correlative sampling algorithm to ensure trajectory smoothness and cross-frame correlation. Building on these designs, we propose Stream Forcing, a unified training framework for streaming video generation that balances training sufficiency and inference efficiency. Extensive experiments demonstrate that Stream Forcing significantly improves generation quality with a 36.6% FVD improvement on the UCF-101 benchmark. Furthermore, our method facilitates robust zero-shot extrapolation to long-horizon video generation with a 27.9% FVD improvement on the UCF-101 benchmark.",
+      "authors": [
+        "Yueting Zhu",
+        "Yuehao Song",
+        "Kaicheng Zhang",
+        "Bao Tang",
+        "Shaoyu Chen",
+        "Qian Zhang",
+        "Wenyu Liu",
+        "Xinggang Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-11T03:39:05+00:00",
+      "link": "https://arxiv.org/pdf/2608.10439v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Streaming video generation with diffusion models addressing train-inference mismatch",
+      "llm_evidence_cn": "面向扩散模型的流式视频生成方法，解决训练与推理不一致问题",
+      "llm_evidence": "面向扩散模型的流式视频生成方法，解决训练与推理不一致问题",
+      "canonical_evidence": "面向扩散模型的流式视频生成方法，解决训练与推理不一致问题",
+      "llm_tldr_en": "Stream Forcing reformulates video diffusion sampling as a frame-indexed stochastic process and constructs a unified training trajectory, mitigating train-inference mismatch for robust streaming video generation.",
+      "llm_tldr_cn": "流式视频扩散模型在推理时遵循专用去噪顺序，而先进训练策略需要多样化噪声配置，造成训练-推理失配。本文提出Stream Forcing，将视频扩散采样重构为以帧为索引的随机过程，并构建连续训练轨迹以兼顾训练覆盖与推理一致性。实验验证了该方法能显著提升流式视频生成的稳健性。该工作主要贡献在训练方法层面，而非免训练优化。",
+      "llm_tldr": "流式视频扩散模型在推理时遵循专用去噪顺序，而先进训练策略需要多样化噪声配置，造成训练-推理失配。本文提出Stream Forcing，将视频扩散采样重构为以帧为索引的随机过程，并构建连续训练轨迹以兼顾训练覆盖与推理一致性。实验验证了该方法能显著提升流式视频生成的稳健性。该工作主要贡献在训练方法层面，而非免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.03769v1",
+      "source": "arxiv",
+      "title": "MDLMPE: Distribution Aware Positional Encoding for Masked Diffusion Language Models",
+      "abstract": "Masked diffusion language models (MDLMs) enable parallel generation and bidirectional context modeling, but their positional context differs fundamentally from that of autoregressive (AR) models. Whereas AR decoding exposes a contiguous prefix, MDLM denoising produces dynamic, non-contiguous configurations of revealed and masked tokens. Conventional positional encodings such as RoPE capture sequence order and pairwise displacement but remain insensitive to this evolving token-availability structure. To address this limitation, we propose MDLMPE, a positional encoding designed specifically for masked diffusion. To the best of our knowledge, MDLMPE is the first method to make positional representations explicitly aware of the changing revealed/masked configuration. It represents token availability as a binary sequence, applies distance-aware Gaussian weighting, and projects the resulting pattern through a cosine basis to obtain distribution-aware positional features. These features are added to token embeddings and mapped by a lightweight MLP to angular offsets that modulate the standard RoPE phases. Extensive experiments on LLaDA and DREAM demonstrate that MDLMPE generally outperforms conventional positional encoding methods across supervised fine-tuning, pretraining, zero-shot evaluation, and block-diffusion settings. Further ablations show that the complete combination of availability state, Gaussian locality, spectral basis, and embedding injection yields the strongest result. These results establish the evolving token-availability distribution as a useful positional signal for masked diffusion language models.",
+      "authors": [
+        "Tong Ling",
+        "Hang Lei",
+        "Feng Xiao",
+        "Changhui Sun",
+        "Jiahang Xie",
+        "Hao Liu",
+        "Lu Liu",
+        "Yanlong Du"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-08-04T14:54:14+00:00",
+      "link": "https://arxiv.org/pdf/2608.03769v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "diffusion models for text generation via masked diffusion language models",
+      "llm_evidence_cn": "面向文本生成的掩码扩散语言模型",
+      "llm_evidence": "面向文本生成的掩码扩散语言模型",
+      "canonical_evidence": "面向文本生成的掩码扩散语言模型",
+      "llm_tldr_en": "MDLMPE introduces a distribution-aware positional encoding for masked diffusion language models, capturing the dynamic revealed/masked token structure during denoising to improve parallel text generation.",
+      "llm_tldr_cn": "掩码扩散语言模型在去噪过程中会形成动态的非连续可见/掩码标记结构，而传统位置编码如RoPE无法感知这种变化。作者提出MDLMPE，一种分布感知位置编码，显式建模标记可用性的演变。作为首个感知这种结构的编码方法，它改进了并行文本生成与双向上下文建模。",
+      "llm_tldr": "掩码扩散语言模型在去噪过程中会形成动态的非连续可见/掩码标记结构，而传统位置编码如RoPE无法感知这种变化。作者提出MDLMPE，一种分布感知位置编码，显式建模标记可用性的演变。作为首个感知这种结构的编码方法，它改进了并行文本生成与双向上下文建模。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.06008v1",
+      "source": "arxiv",
+      "title": "Adaptive-WAM: Quality-Guided Early-Exit Planning from Intermediate Video-Diffusion Features",
+      "abstract": "Large video diffusion models provide rich spatiotemporal priors for autonomous driving, but existing world-action models often inherit the cost of iterative future-video generation even though deployment only requires an ego trajectory. We ask a more basic question: how much of a video diffusion model must be executed to make a reliable driving decision? Through a controlled study of video denoising timesteps and Diffusion Transformer (DiT) depth, we find that planning performance is largely insensitive to the tested video-noise levels, whereas strong trajectories can already be decoded from intermediate layers. Based on this observation, we introduce Adaptive-WAM, a quality-aware multi-exit planner built on a Wan2.2-5B backbone. Trajectory diffusion heads are attached to selected DiT blocks, and a lightweight trajectory-quality scorer terminates inference once the best trajectory decoded so far satisfies a quality threshold; otherwise, computation continues from the cached hidden state to a deeper exit. The deployed planner therefore avoids the iterative classifier-free denoising loop and VAE decoding required for future-video synthesis, while dynamically allocating backbone depth according to trajectory quality. On NAVSIM, the adaptive single-trajectory planner achieves 90.8 PDMS; a separate fixed-exit variant reaches 92.6 PDMS with 64 proposals. It further obtains 89.9 EPDMS on NAVSIM v2, yielding the best reported results among the compared front-view video world-model planners. Without target-domain fine-tuning, Adaptive-WAM transfers to nuScenes with 0.88 m average L2 error and a 0.08\\% collision rate. On an A100, adaptive routing improves PDMS from 90.62 to 90.79 while averaging 170 ms end-to-end planning latency, approximately 10\\% below the 190 ms fixed block-15 planner and 47\\% below the 320 ms fixed full-depth planner. Code will be released.",
+      "authors": [
+        "Sining Ang",
+        "Yuguang Yang",
+        "Yan Wang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-08-06T13:13:07+00:00",
+      "link": "https://arxiv.org/pdf/2608.06008v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free early-exit optimization for video diffusion inference",
+      "llm_evidence_cn": "面向视频扩散推理的免训练早退优化",
+      "llm_evidence": "面向视频扩散推理的免训练早退优化",
+      "canonical_evidence": "面向视频扩散推理的免训练早退优化",
+      "llm_tldr_en": "Adaptive-WAM shows planning can be decoded from intermediate video-diffusion features and proposes a quality-aware multi-exit planner that reduces execution cost without extra training.",
+      "llm_tldr_cn": "针对自动驾驶world-action模型必须执行完整视频扩散生成以获得轨迹的耗时问题，作者通过控制实验发现规划质量对视频噪声水平不敏感，且可从中间DiT层直接解码可靠轨迹。由此提出Adaptive-WAM，一种基于Wan2.2-5B的质量感知多出口规划器，按需提前退出视频扩散计算。实验表明该免训练方法可以大幅降低部署开销，同时保持规划可靠性，为视频扩散推理优化提供了新思路。",
+      "llm_tldr": "针对自动驾驶world-action模型必须执行完整视频扩散生成以获得轨迹的耗时问题，作者通过控制实验发现规划质量对视频噪声水平不敏感，且可从中间DiT层直接解码可靠轨迹。由此提出Adaptive-WAM，一种基于Wan2.2-5B的质量感知多出口规划器，按需提前退出视频扩散计算。实验表明该免训练方法可以大幅降低部署开销，同时保持规划可靠性，为视频扩散推理优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.10519v1",
+      "source": "arxiv",
+      "title": "SparSTAR: Sparse Attention for SpaceTime AutoRegressive Video Synthesis",
+      "abstract": "InfinityStar extends visual autoregressive generation to video through a sequence of image and clip pyramids. Its changing scale and cross-clip context, however, leave late-scale attention costly and make sparse patterns reused from diffusion or image VAR models unreliable. We introduce SparSTAR, a training-free block-sparse attention method tailored to this setting. At each expensive scale and attention head, SparSTAR scores contiguous key blocks from the current query and key activations, retains required conditioning context, and executes the selected blocks through a forward-only sparse path. We analyze cross-scale consistency within a clip, pattern persistence across clip boundaries, and quality degradation as reuse spans increasingly distant scales. Across these analyses, important key blocks shift, showing that recomputing block selection at each target scale is more reliable than reusing a transferred mask. On 720p text-to-video and image-to-video generation, SparSTAR preserves every token and refinement scale while providing about a 1.6x end-to-end speedup and maintaining VBench and paired-output reconstruction fidelity close to dense InfinityStar.",
+      "authors": [
+        "Jongbeom Lee",
+        "Hyunwoo Yu",
+        "Jincheol Yang",
+        "Jaemin Choi",
+        "Suk-Ju Kang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-11T05:46:18+00:00",
+      "link": "https://arxiv.org/pdf/2608.10519v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free sparse attention for video synthesis, transferable to diffusion-style context",
+      "llm_evidence_cn": "面向视频合成的免训练稀疏注意力，可迁移至扩散式上下文",
+      "llm_evidence": "面向视频合成的免训练稀疏注意力，可迁移至扩散式上下文",
+      "canonical_evidence": "面向视频合成的免训练稀疏注意力，可迁移至扩散式上下文",
+      "llm_tldr_en": "SparSTAR is a training-free block-sparse attention method for autoregressive video synthesis, scoring key blocks on the fly and reducing attention cost while retaining quality across scales and clips.",
+      "llm_tldr_cn": "自回归视频生成在跨尺度与跨片段注意上开销很大，直接从扩散或图像VAR复用稀疏模式并不可靠。本文提出SparSTAR，一种免训练的块稀疏注意力方法，在每一注意头上动态评分并选择关键块，仅执行前向稀疏路径。实验表明其在保持质量的同时显著降低注意计算成本。该研究为视频生成的免训练加速提供了可迁移工具。",
+      "llm_tldr": "自回归视频生成在跨尺度与跨片段注意上开销很大，直接从扩散或图像VAR复用稀疏模式并不可靠。本文提出SparSTAR，一种免训练的块稀疏注意力方法，在每一注意头上动态评分并选择关键块，仅执行前向稀疏路径。实验表明其在保持质量的同时显著降低注意计算成本。该研究为视频生成的免训练加速提供了可迁移工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

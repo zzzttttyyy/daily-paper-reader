@@ -6,50 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-11
-- 运行时间：2026-08-11 21:09:06 UTC
+- 最新运行日期：2026-08-12
+- 运行时间：2026-08-12 20:58:28 UTC
 - 运行状态：成功
-- 本次总论文数：10
-- 精读区：4
-- 速读区：6
+- 本次总论文数：4
+- 精读区：1
+- 速读区：3
 
 ### 今日简报（AI）
-今日聚焦扩散模型前沿，精读2篇高分论文，速读4篇相关进展。最值得关注的是利用重心有理插值加速推理与面向推理时分布控制的平均场框架，均获9.0高分。建议普通读者先掌握这两个方向的核心理念，再延伸到少步生成与图像编辑等应用。
-- 详情：[/202608/11/README](/202608/11/README)
+今日精读4篇论文，聚焦视频生成与扩散模型优化，最高分为流式视频生成统一训练轨迹（8/10）。值得关注流视频生成的稳健训练，以及稀疏注意力在时空视频合成中的应用。下一步建议从高分的流式视频生成方法入手，对比其与稀疏注意力方案的效率差异。
+- 详情：[/202608/12/README](/202608/12/README)
 
 ### 精读区论文标签
-1. [BRACE: Taming Sharp Irregularities via Barycentric Rational Forecasting for Fast Diffusion Transformers Inference](/202608/11/2608.07572v1-brace-taming-sharp-irregularities-via-barycentric-rational-forecasting-for-fast-diffusion-transformers-inference)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：面向扩散Transformer快速推理的免训练时间特征缓存与重心有理预测方法
-2. [A Mean-Field Framework for Inference-Time Distributional Control of Diffusion Models](/202608/11/2608.08770v1-a-mean-field-framework-for-inference-time-distributional-control-of-diffusion-models)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练的扩散模型推理时分布控制，通过粒子重加权实现。
-3. [In-Loop Model Adaptation with Coupled Latent-Noise Guidance for High-Fidelity Subject-Driven Text-to-Image Generation](/202608/11/2608.09244v1-in-loop-model-adaptation-with-coupled-latent-noise-guidance-for-high-fidelity-subject-driven-text-to-image-generation)  
+1. [Stream Forcing: Constructing Unified Training Trajectory for Robust Streaming Video Generation](/202608/12/2608.10439v1-stream-forcing-constructing-unified-training-trajectory-for-robust-streaming-video-generation)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：面向主题驱动文生图扩散生成的免训练循环内模型自适应
-4. [Preserve More Details: Mitigating Content Drift in Real-World Image Super-Resolution](/202608/11/2608.09373v1-preserve-more-details-mitigating-content-drift-in-real-world-image-super-resolution)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：使用Stable Diffusion先验进行图像超分，单步扩散模型。
+   evidence：面向扩散模型的流式视频生成方法，解决训练与推理不一致问题
 
 ### 速读区论文标签
-1. [RL-Native Distillation: Exploiting Scored Trajectories for Few-Step Image Generation](/202608/11/2608.09226v1-rl-native-distillation-exploiting-scored-trajectories-for-few-step-image-generation)  
+1. [MDLMPE: Distribution Aware Positional Encoding for Masked Diffusion Language Models](/202608/12/2608.03769v1-mdlmpe-distribution-aware-positional-encoding-for-masked-diffusion-language-models)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：扩散模型文生图，少步蒸馏与强化学习对齐。
-2. [Diffusion Image Editing via Asynchronous Token Decoding](/202608/11/2608.09322v1-diffusion-image-editing-via-asynchronous-token-decoding)  
+   evidence：面向文本生成的掩码扩散语言模型
+2. [SparSTAR: Sparse Attention for SpaceTime AutoRegressive Video Synthesis](/202608/12/2608.10519v1-sparstar-sparse-attention-for-spacetime-autoregressive-video-synthesis)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：提出ATDEdit，一种用于文本引导扩散图像编辑的推理时免训练框架
-3. [Pseudorandom Streams within Diffusion Models Act as Learnable Inputs That Affect Generation Quality](/202608/11/2608.02575v1-pseudorandom-streams-within-diffusion-models-act-as-learnable-inputs-that-affect-generation-quality)  
+   evidence：面向视频合成的免训练稀疏注意力，可迁移至扩散式上下文
+3. [Adaptive-WAM: Quality-Guided Early-Exit Planning from Intermediate Video-Diffusion Features](/202608/12/2608.06008v1-adaptive-wam-quality-guided-early-exit-planning-from-intermediate-video-diffusion-features)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：伪随机噪声输入影响扩散采样质量
-4. [Intrinsic-Hybrid Latent Diffusion Models for Generative Modeling on Unknown Manifolds](/202608/11/2608.04827v1-intrinsic-hybrid-latent-diffusion-models-for-generative-modeling-on-unknown-manifolds)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：基于扩散的流形生成建模
-5. [SC-Diff: Semantically Calibrated Diffusion for Visible-to-Infrared Image Translation](/202608/11/2608.08555v1-sc-diff-semantically-calibrated-diffusion-for-visible-to-infrared-image-translation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：语义校准潜扩散用于可见光到红外图像翻译，属于训练式图像生成
-6. [SDDBMs: Soft Denoising Diffusion Bridge Models](/202608/11/2608.08594v1-sddbms-soft-denoising-diffusion-bridge-models)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：面向图像翻译与复原的扩散桥模型，属于扩散图像生成但需要训练
+   evidence：面向视频扩散推理的免训练早退优化
 
 
 <div class="dpr-home-promo-card">
