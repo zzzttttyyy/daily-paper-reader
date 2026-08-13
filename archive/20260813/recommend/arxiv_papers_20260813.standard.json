@@ -1,0 +1,257 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-13T19:54:46.070287+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2608.12032v1",
+      "source": "arxiv",
+      "title": "LoSA: Near-Lossless Sparse Attention for Training-Free Video Diffusion Acceleration",
+      "abstract": "Video diffusion transformers are costly to sample: every denoising step applies self-attention over a long 3D token sequence, a quadratic cost that dominates as resolution and duration grow. Sparse attention reduces this cost without retraining, but existing methods pursue aggressive sparsity, where further speedup costs disproportionately more attention fidelity. We target the opposite end of this trade-off: fix near-lossless fidelity by construction, and remove as much computation as this constraint permits. Two observations make this regime practical: roughly 40% of block interactions can be removed while retaining 99% of the attention mass, and the high-mass support remains stable across denoising steps. We propose LoSA, a training-free sparse-attention method that fixes a retained-mass threshold of 99% rather than a sparsity ratio: it measures exact block attention masses at one early dense step, keeps, for each head and query block, the smallest key/value block set meeting the threshold, and reuses the frozen block indices for all remaining steps. On Wan2.1-1.3B, LoSA alone gives a $1.36\\times$ speedup with a 0.06-point VBench Overall drop. The benefit is largest under composition: combined with feature caching, LoSA reaches a $3.2\\times$ speedup on HunyuanVideo at a 0.02-point drop, versus 0.32 points for the strongest sparse baseline at comparable speed. Across three video diffusion transformers and speedups up to $3.2\\times$, LoSA consistently achieves the best training-free speed-quality trade-off.",
+      "authors": [
+        "Enhuai Liu",
+        "Yunke Wang",
+        "Yutong Wang",
+        "Changming Sun",
+        "Chang Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-12T13:13:56+00:00",
+      "link": "https://arxiv.org/pdf/2608.12032v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free sparse attention method for near-lossless video diffusion acceleration",
+      "llm_evidence_cn": "面向视频扩散加速的免训练稀疏注意力方法",
+      "llm_evidence": "面向视频扩散加速的免训练稀疏注意力方法",
+      "canonical_evidence": "面向视频扩散加速的免训练稀疏注意力方法",
+      "llm_tldr_en": "Proposes LoSA, a training-free sparse attention method for video diffusion transformers that removes about 40% of block interactions while keeping 99% attention mass, achieving near-lossless acceleration.",
+      "llm_tldr_cn": "针对视频扩散Transformer采样中长3D token序列自注意力呈二次开销的问题，本文提出LoSA。现有稀疏注意力追求激进稀疏，进一步加速会牺牲注意力保真度；LoSA则固定近无损保真度，在保留99%注意力质量的前提下移除约40%的模块交互，且高质支撑集在去噪步骤间保持稳定。该方法是免训练的，无需重新训练即可显著加速视频扩散采样，是视频生成免训练优化的直接贡献。",
+      "llm_tldr": "针对视频扩散Transformer采样中长3D token序列自注意力呈二次开销的问题，本文提出LoSA。现有稀疏注意力追求激进稀疏，进一步加速会牺牲注意力保真度；LoSA则固定近无损保真度，在保留99%注意力质量的前提下移除约40%的模块交互，且高质支撑集在去噪步骤间保持稳定。该方法是免训练的，无需重新训练即可显著加速视频扩散采样，是视频生成免训练优化的直接贡献。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.10479v2",
+      "source": "arxiv",
+      "title": "Bridging Event Streams and DiT: Event-Guided Video Frame Interpolation",
+      "abstract": "Latent diffusion models have recently advanced video frame interpolation by synthesizing intermediate frames between input images. However, handling large temporal gaps and complex motion remains challenging, often resulting in motion blur, structural distortions, and temporal inconsistencies. Event cameras provide high-temporal-resolution motion cues that are well suited for bridging these gaps and improving interpolation quality. To exploit this advantage without training an event-assisted model from scratch, we propose an adapter-based framework that incorporates event-derived cues into a pre-trained image-to-video diffusion model with minimal architectural changes. Specifically, our method leverages Image Warped Events (IWEs) and bidirectional sparse optical flow to provide spatially and temporally aligned guidance during generation. By injecting these event-guided structural and motion cues into the diffusion process, our approach reduces interpolation artifacts and improves both reconstruction fidelity and temporal coherence. Experimental results on real and synthetic benchmarks show that our method consistently outperforms existing state-of-the-art approaches. The project page is at https://joseph-lin-tech.github.io/BridgeEventDiT-VFI/.",
+      "authors": [
+        "Guixu Lin",
+        "Yuyang Yu",
+        "Xiang Ji",
+        "Linyao Chen",
+        "Zhengwei Yin",
+        "Mengshun Hu",
+        "Mingdeng Cao",
+        "Shengfeng He",
+        "Yinqiang Zheng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-11T04:47:44+00:00",
+      "link": "https://arxiv.org/pdf/2608.10479v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "event-guided video frame interpolation with pre-trained image-to-video diffusion model",
+      "llm_evidence_cn": "利用预训练图生视频扩散模型进行事件引导的视频插帧",
+      "llm_evidence": "利用预训练图生视频扩散模型进行事件引导的视频插帧",
+      "canonical_evidence": "利用预训练图生视频扩散模型进行事件引导的视频插帧",
+      "llm_tldr_en": "This paper presents an adapter-based framework that injects event camera cues into a pre-trained image-to-video diffusion model for video frame interpolation, improving motion handling and temporal consistency without retraining from scratch.",
+      "llm_tldr_cn": "视频帧插值在应对大时间间隔和复杂运动时容易出现运动模糊与时间不一致。本文提出基于适配器的框架，将事件相机的高时间分辨率运动线索（如图像扭曲事件）注入预训练的图生视频扩散模型，仅需极小的架构改动即可在无需从零训练的情况下实现高质量插帧。实验表明该方法能显著改善大间隔插值的鲁棒性和时间一致性，为视频生成任务利用事件流信息提供了轻量级方案。",
+      "llm_tldr": "视频帧插值在应对大时间间隔和复杂运动时容易出现运动模糊与时间不一致。本文提出基于适配器的框架，将事件相机的高时间分辨率运动线索（如图像扭曲事件）注入预训练的图生视频扩散模型，仅需极小的架构改动即可在无需从零训练的情况下实现高质量插帧。实验表明该方法能显著改善大间隔插值的鲁棒性和时间一致性，为视频生成任务利用事件流信息提供了轻量级方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11618v1",
+      "source": "arxiv",
+      "title": "Generative Video Compression Based on Hierarchical Referencing",
+      "abstract": "Diffusion-based generative video compression has emerged as a promising paradigm to improve perceptual quality, where latent frames are required to be encoded efficiently while serving as denoising conditions. However, existing methods neither carefully design reference and quality structures during latent coding nor account for the impact of frame-level quality variation on denoising procedure, which limits coding efficiency and aggravates artifact propagation during generative reconstruction. In this paper, we propose GVCHR, Generative Video Compression based on Hierarchical Referencing. The key idea is to organize latent frames hierarchically, where the selected high-quality references benefit both latent coding and generative reconstruction. In latent coding, GVCHR couples a hierarchical reference structure with a hierarchical quality structure, assigning more bits to lower-layer frames that are reused more frequently as references. Built on this design, we introduce Hierarchical Temporal Context Mining to exploits complementary short- and long-term temporal context for effective latent coding. In generative reconstruction, the coding-side hierarchy is incorporated into a Hierarchical Attentive Adapter which is attached to a video diffusion transformer. This adapter uses hierarchical attention to restrict each latent frame to attend only to the same- or lower-layer references, thereby reducing artifact propagation during denoising. Experiments validate GVCHR on multiple benchmarks. Compared with the previous state-of-the-art method, GVCHR achieves 50.5% and 54.0% BD-rate gains in terms of LPIPS and DISTS, respectively, while also delivering clearly improved visual quality.",
+      "authors": [
+        "Daowen Li",
+        "Ding Ding",
+        "Zifu Zhang",
+        "Kai Li",
+        "Ying Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T03:55:20+00:00",
+      "link": "https://arxiv.org/pdf/2608.11618v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "diffusion-based generative video compression uses latent frames as denoising conditions",
+      "llm_evidence_cn": "基于扩散的生成式视频压缩，潜在帧作为去噪条件",
+      "llm_evidence": "基于扩散的生成式视频压缩，潜在帧作为去噪条件",
+      "canonical_evidence": "基于扩散的生成式视频压缩，潜在帧作为去噪条件",
+      "llm_tldr_en": "Presents GVCHR, a diffusion-based generative video compression method with hierarchical referencing that organizes latent frames hierarchically to improve coding efficiency and reduce artifact propagation in generative reconstruction.",
+      "llm_tldr_cn": "该论文面向扩散式生成视频压缩中潜在帧编码效率低、帧级质量变化影响去噪过程并加剧伪影传播的问题，提出基于层级引用的GVCHR方法。其核心思想是分层组织潜在帧，使选中的高质量参考同时服务于潜在编码与生成重建。实验表明该方法能提升压缩效率并改善生成重建质量。这项工作展示了扩散模型在视频压缩这一生成任务上的应用价值。",
+      "llm_tldr": "该论文面向扩散式生成视频压缩中潜在帧编码效率低、帧级质量变化影响去噪过程并加剧伪影传播的问题，提出基于层级引用的GVCHR方法。其核心思想是分层组织潜在帧，使选中的高质量参考同时服务于潜在编码与生成重建。实验表明该方法能提升压缩效率并改善生成重建质量。这项工作展示了扩散模型在视频压缩这一生成任务上的应用价值。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11747v1",
+      "source": "arxiv",
+      "title": "Making Every Step Count: Spatio-Temporal Information Allocation for Imaging Inverse Problems",
+      "abstract": "Flow-based generative models have emerged as powerful image priors for training-free inverse problem solving, capturing coherent semantics and fine-grained structure. Despite these strengths, existing flow-based inverse solvers primarily focus on the design of individual updates, largely overlooking spatio-temporal information allocation under a fixed number of function evaluations (NFEs). Temporally, insufficient early exploration can trap the flow trajectory in an incorrect semantic basin, whereas excessive allocation of NFEs to early stages leaves little budget for late-stage refinement. Spatially, data consistency provides direct constraints only within observed regions, whereas the recovery of missing regions relies mainly on the generative prior. To address these two issues, we introduce two complementary and training-free components, i.e., Spectrum-Adaptive Scheduling (SAS) and Measurement-Prioritized Attention (MPA). For temporal allocation, SAS distributes the available NFEs over flow time according to the degradation spectrum and logSNR geometry, thus better balancing semantic exploration and detail refinement. For spatial propagation, MPA exploits data-prior conflicts to guide information toward weakly constrained regions, thereby enhancing semantic and structural fidelity. Extensive experiments on standard image inverse problems, e.g., super-resolution, motion deblurring, and inpainting, demonstrate that the proposed components can be integrated into existing flow-based inverse solvers in a plug-and-play manner without retraining or additional flow-model evaluations, and can also significantly improve the restoration quality of existing solvers.",
+      "authors": [
+        "Yi Cao",
+        "Xiangyong Cao",
+        "Pei Liu",
+        "Yong-Jin Liu",
+        "Deyu Meng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T07:39:22+00:00",
+      "link": "https://arxiv.org/pdf/2608.11747v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free sampling optimization for flow-based generative models in inverse problems",
+      "llm_evidence_cn": "面向流式生成模型的免训练采样优化，用于成像逆问题",
+      "llm_evidence": "面向流式生成模型的免训练采样优化，用于成像逆问题",
+      "canonical_evidence": "面向流式生成模型的免训练采样优化，用于成像逆问题",
+      "llm_tldr_en": "This paper proposes a spatio-temporal information allocation method for flow-based generative models to solve imaging inverse problems training-free, optimally distributing NFEs across time and space to improve reconstruction quality.",
+      "llm_tldr_cn": "基于流的生成模型作为图像先验可免训练求解逆问题，但现有方法忽略固定计算预算下的时空信息分配，易导致早期探索不足或后期精修预算匮乏。本文提出在时间上分配早期探索与后期精修的步数，在空间上根据数据一致性约束分配计算资源，使每一步函数评估都发挥最大价值。该方法无需训练即可提升图像重建质量，与扩散模型图像生成的免训练采样优化高度相关。",
+      "llm_tldr": "基于流的生成模型作为图像先验可免训练求解逆问题，但现有方法忽略固定计算预算下的时空信息分配，易导致早期探索不足或后期精修预算匮乏。本文提出在时间上分配早期探索与后期精修的步数，在空间上根据数据一致性约束分配计算资源，使每一步函数评估都发挥最大价值。该方法无需训练即可提升图像重建质量，与扩散模型图像生成的免训练采样优化高度相关。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.12290v1",
+      "source": "arxiv",
+      "title": "Beyond Trial-and-Error: Agentic Optimization for Image-to-Video Adherence",
+      "abstract": "Modern black-box Image-to-Video (I2V) models offer powerful capabilities in automated content creation, yet their lack of fine-grained control and reliability presents significant challenges in professional workflows. Their inherent stochasticity causes minor variations in textual prompts or hyperparameters to yield drastically different outputs often necessitating inefficient, brute-force trial-and-error processes. To address these limitations, we introduce the ``Agentic Self-Improvement\" framework, which reframes video synthesis into a closed-loop, goal-directed optimization. Our framework systematically navigates the generation parameter space using a novel two-stage approach. In the first stage, an iterative prompt optimization loop uses a multimodal Large Language Model (mLLM) to refine the input prompt. This refinement implements two automated evaluations: Davidsonian Scene Graph (DSG) queries ensure semantic adherence, and Common Mistake Questions (CMQ) for artifact detection. At the second stage, we use Bayesian optimization to efficiently co-optimize stochastic seeds and CFG scales. This search is guided by a suite of quality metrics, including the novel Video-Text Adherence (VTA) score derived from the DSG and CMQ evaluations. Our framework significantly outperforms unguided search methods: in human preference studies, videos generated via our agentic approach were strongly preferred over baseline outputs, achieving win rates up to 69\\%. This work provides a practical and extensible methodology for enhancing the predictability and control of state-of-the-art video generation models, moving the field beyond speculative curiosities toward reliable, production-ready tools.",
+      "authors": [
+        "Aman Tyagi",
+        "Hemanth Boinpally",
+        "Jonathan Chen",
+        "Douglas Gebert",
+        "Steven Hickson"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "published": "2026-08-12T17:35:16+00:00",
+      "link": "https://arxiv.org/pdf/2608.12290v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "agentic optimization framework improves image-to-video generation without additional training",
+      "llm_evidence_cn": "智能体优化框架在无需额外训练的情况下改进图像到视频生成",
+      "llm_evidence": "智能体优化框架在无需额外训练的情况下改进图像到视频生成",
+      "canonical_evidence": "智能体优化框架在无需额外训练的情况下改进图像到视频生成",
+      "llm_tldr_en": "This paper proposes an agentic self-improvement framework that turns image-to-video synthesis into closed-loop goal-directed optimization, using iterative prompt optimization and parameter-space navigation to improve adherence of black-box I2V models without retraining.",
+      "llm_tldr_cn": "针对黑盒图像到视频(I2V)模型随机性强、难以精细控制、往往需要低效试错的问题，该文提出智能体自改进框架，将视频合成重构为闭环、目标导向的优化过程。框架通过两阶段策略系统搜索生成参数空间，并在第一阶段使用迭代提示优化循环。其思想在不重新训练生成模型的前提下缓解输出不可靠问题，对专业工作流中的自动化内容创建具有实用价值。",
+      "llm_tldr": "针对黑盒图像到视频(I2V)模型随机性强、难以精细控制、往往需要低效试错的问题，该文提出智能体自改进框架，将视频合成重构为闭环、目标导向的优化过程。框架通过两阶段策略系统搜索生成参数空间，并在第一阶段使用迭代提示优化循环。其思想在不重新训练生成模型的前提下缓解输出不可靠问题，对专业工作流中的自动化内容创建具有实用价值。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.07948v1",
+      "source": "arxiv",
+      "title": "SynVAR: Synergizing Spatial and Semantic Alignment in Visual Autoregressive Model",
+      "abstract": "VAR has gained widespread popularity due to its next-scale prediction paradigm. However, it faces substantial performance bottlenecks when handling complex scenes with multiple objects and attributes. Existing diffusion-based enhancement methods fail to adequately address the unique challenge of cross-scale error propagation and accumulation in VAR. To this end, we propose SynVAR, the first training-free enhancement framework specifically tailored for the VAR paradigm, which introduces a spatial-semantic collaborative control strategy to effectively suppress propagation error and improve generation quality. SynVAR comprises three key components: (1) Global guidance to ensure reasonable spatial structure in the early stages, (2) Receptive field constraints to mitigate early-stage semantic confusion, (3) High-frequency compensation to recover fine-grained details. Extensive quantitative and qualitative experiments demonstrate the significant improvements in the ability of SynVAR to enhance the VAR's capability for complex scene modeling.",
+      "authors": [
+        "Zhennan Chen",
+        "Tianxing Shi",
+        "Pengcheng Xu",
+        "Kepan Nan",
+        "Qian Wang",
+        "Zili Yi",
+        "Jian Yang",
+        "Ying Tai"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-08T06:23:48+00:00",
+      "link": "https://arxiv.org/pdf/2608.07948v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free enhancement framework for visual autoregressive image generation",
+      "llm_evidence_cn": "面向视觉自回归图像生成的免训练增强框架",
+      "llm_evidence": "面向视觉自回归图像生成的免训练增强框架",
+      "canonical_evidence": "面向视觉自回归图像生成的免训练增强框架",
+      "llm_tldr_en": "SynVAR is the first training-free enhancement framework for visual autoregressive (VAR) image generation, using spatial-semantic collaborative control to suppress cross-scale error propagation and improve generation quality.",
+      "llm_tldr_cn": "该论文针对视觉自回归模型（VAR）在复杂多物体场景下存在跨尺度误差传播与累积的问题，提出首个专为VAR范式设计的免训练增强框架SynVAR。它融合全局引导、感受野设计等空间与语义协同控制策略，在早期阶段保证合理的空间结构，从而有效抑制误差传播并提升生成质量。实验表明SynVAR在不经过额外训练的情况下改善了VAR的复杂场景生成效果。这项工作为免训练图像生成优化提供了非扩散模型的补充方案。",
+      "llm_tldr": "该论文针对视觉自回归模型（VAR）在复杂多物体场景下存在跨尺度误差传播与累积的问题，提出首个专为VAR范式设计的免训练增强框架SynVAR。它融合全局引导、感受野设计等空间与语义协同控制策略，在早期阶段保证合理的空间结构，从而有效抑制误差传播并提升生成质量。实验表明SynVAR在不经过额外训练的情况下改善了VAR的复杂场景生成效果。这项工作为免训练图像生成优化提供了非扩散模型的补充方案。",
+      "llm_tags": [
+        "query:tfree-diff:composite"
+      ],
+      "matched_query_tag": "query:tfree-diff:composite",
+      "matched_query_text": "Papers central to 请帮我查找扩散模型图像/视频生成的免训练优化相关论文, especially work that connects or combines: diffusion models for generative tasks; image generation using diffusion models; video generation with diffusion models; optimization methods that do not require training for diffusion models; What are training free sampling optimization techniques for diffusion model image generation?; How to improve diffusion model video generation without additional training?; Survey of training free methods for diffusion models in image and video generation..",
+      "matched_requirement_id": "req-composite-tfree-diff",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
