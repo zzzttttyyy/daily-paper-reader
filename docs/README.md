@@ -6,50 +6,47 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-14
-- 运行时间：2026-08-14 19:52:50 UTC
+- 最新运行日期：2026-08-15
+- 运行时间：2026-08-15 20:32:30 UTC
 - 运行状态：成功
-- 本次总论文数：10
+- 本次总论文数：9
 - 精读区：6
-- 速读区：4
+- 速读区：3
 
 ### 今日简报（AI）
-今日精读聚焦扩散模型推理优化，覆盖空间可控视频生成与缓存复用策略；速读涉及图像曝光修正、动态缓存回滚及SDS噪声分析。最值得关注的是两篇9.0分工作：无需梯度优化即可实现空间对齐的视频生成，以及通过缓存重用策略提升扩散效率。建议普通读者优先关注视频生成的实用方法，后续可深入对比不同缓存方案的实际加速效果。
-- 详情：[/202608/14/README](/202608/14/README)
+今日精读6篇、速读3篇，聚焦扩散模型在风格迁移与视频生成的应用；最值得看的是《Through Van Gogh's Eyes》与《GeoFlow》，均获9.0高分，分别突破全局风格迁移和几何对齐驾驶视频生成；普通读者可优先浏览这两篇的结论，快速把握扩散模型当前落地的两个热点方向。
+- 详情：[/202608/15/README](/202608/15/README)
 
 ### 精读区论文标签
-1. [Spatially-Grounded Text-to-Video Generation via Inference-Time Gradient-Free Optimization](/202608/14/2608.13037v1-spatially-grounded-text-to-video-generation-via-inference-time-gradient-free-optimization)  
+1. [Through Van Gogh's Eyes: Global Style Transfer with Diffusion Model](/202608/15/2608.11546v2-through-van-goghs-eyes-global-style-transfer-with-diffusion-model)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：面向空间接地文本到视频生成的免训练免梯度优化
-2. [From Local Mismatch to Global Impact: Optimizing Cache Reuse Policy for Efficient Diffusion](/202608/14/2608.13043v1-from-local-mismatch-to-global-impact-optimizing-cache-reuse-policy-for-efficient-diffusion)  
+   evidence：基于扩散模型的图像生成
+2. [GeoFlow: Efficient Driving Video Generation via Geometry-Aligned Priors](/202608/15/2608.12203v1-geoflow-efficient-driving-video-generation-via-geometry-aligned-priors)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练的缓存重用策略优化，加速扩散采样
-3. [SNM-VFI: Symmetric Nonlinear Motion-Guided Generative Video Frame Interpolation](/202608/14/2608.13460v1-snm-vfi-symmetric-nonlinear-motion-guided-generative-video-frame-interpolation)  
+   evidence：利用几何对齐先验减少扩散视频生成采样步骤，直接相关免训练视频生成优化
+3. [SCOPE: Subspace Clustering with Online Per-Head Top-K Estimation for Sparse Video Attention](/202608/15/2608.12780v1-scope-subspace-clustering-with-online-per-head-top-k-estimation-for-sparse-video-attention)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：使用预训练光流与视频扩散模型的免训练运动引导生成式视频插帧。
-4. [WaveFreqAnchor: Wave-Structural Anchoring and Frequency Correction Diffusion for Training-Free Face Restoration](/202608/14/2608.06717v1-wavefreqanchor-wave-structural-anchoring-and-frequency-correction-diffusion-for-training-free-face-restoration)  
+   evidence：面向视频扩散Transformer的免训练稀疏注意力框架，直接降低生成计算成本
+4. [Archer: Adaptive Reuse of Cached Hidden States for Efficient Rollback in Diffusion Language Models](/202608/15/2608.08086v2-archer-adaptive-reuse-of-cached-hidden-states-for-efficient-rollback-in-diffusion-language-models)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：面向扩散人脸复原的免训练采样优化
-5. [Semantic Steering for Controllable Generation: Tuning-Free Concept Erasure in Multimodal Diffusion Transformers](/202608/14/2608.12829v1-semantic-steering-for-controllable-generation-tuning-free-concept-erasure-in-multimodal-diffusion-transformers)  
+   evidence：扩散模型的免训练推理优化
+5. [eBIRD: Event-based Intensity Image Reconstruction Using Controllable Diffusion Models](/202608/15/2608.08519v1-ebird-event-based-intensity-image-reconstruction-using-controllable-diffusion-models)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：面向多模态扩散Transformer的免调参概念擦除，用于文本到图像生成
-6. [GeoCache: Training-Free Acceleration of Multi-View Texture Diffusion via Geometric Delta Transport](/202608/14/2608.13255v1-geocache-training-free-acceleration-of-multi-view-texture-diffusion-via-geometric-delta-transport)  
+   evidence：使用可控扩散模型（DDPM与ControlNet）进行事件流强度图像重建，属于图像生成任务
+6. [SDDBMs: Soft Denoising Diffusion Bridge Models](/202608/15/2608.08594v2-sddbms-soft-denoising-diffusion-bridge-models)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：面向多视角纹理扩散图像生成的免训练加速方法
+   evidence：基于扩散桥模型的图像生成
 
 ### 速读区论文标签
-1. [High-Quality Exposure Correction with Diffusion-Based Image Generation Priors](/202608/14/2608.08720v1-high-quality-exposure-correction-with-diffusion-based-image-generation-priors)  
+1. [When Latents Forget Pixels: Restoring Fidelity in Diffusion Transformer Super-Resolution](/202608/15/2608.09133v1-when-latents-forget-pixels-restoring-fidelity-in-diffusion-transformer-super-resolution)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：在潜空间扩散Transformer超分中复用像素证据以恢复保真度，属扩散图像生成的推理期优化
+2. [HPSD: Hybrid-Policy Self-Distillation for Text-Image-to-Video Diffusion Models](/202608/15/2608.13205v1-hpsd-hybrid-policy-self-distillation-for-text-image-to-video-diffusion-models)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：利用扩散图像生成先验进行高质量曝光校正
-2. [Archer: Adaptive Reuse of Cached Hidden States for Efficient Rollback in Diffusion Language Models](/202608/14/2608.08086v1-archer-adaptive-reuse-of-cached-hidden-states-for-efficient-rollback-in-diffusion-language-models)  
+   evidence：面向文本-图像到视频扩散模型的自蒸馏方法以提升视频生成
+3. [Generator-Guided Inverse Sampling for Lévy-Driven Generative Models](/202608/15/2608.10384v1-generator-guided-inverse-sampling-for-lvy-driven-generative-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向扩散语言模型的免训练KV缓存优化方法
-3. [PixSDS: Why Latent SDS Makes Noisy Pixels](/202608/14/2608.12997v1-pixsds-why-latent-sds-makes-noisy-pixels)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：用于基于扩散的文本到3D生成的免训练SDS优化分析
-4. [The data geometry of masking diffusion: Certified-optimal schedules via unmasking growth complexity](/202608/14/2608.13520v1-the-data-geometry-of-masking-diffusion-certified-optimal-schedules-via-unmasking-growth-complexity)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：基于数据几何的掩码扩散免训练调度优化
+   evidence：面向Lévy驱动生成模型的免训练逆采样器，对扩散采样有方法迁移价值
 
 
 <div class="dpr-home-promo-card">
