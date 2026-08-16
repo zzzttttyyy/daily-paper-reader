@@ -1,0 +1,258 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-16T19:46:58.454494+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2608.10479v1",
+      "source": "arxiv",
+      "title": "Bridging Event Streams and DiT: Event-Guided Video Frame Interpolation",
+      "abstract": "Latent diffusion models have recently advanced video frame interpolation by synthesizing intermediate frames between input images. However, handling large temporal gaps and complex motion remains challenging, often resulting in motion blur, structural distortions, and temporal inconsistencies. Event cameras provide high-temporal-resolution motion cues that are well suited for bridging these gaps and improving interpolation quality. To exploit this advantage without training an event-assisted model from scratch, we propose an adapter-based framework that incorporates event-derived cues into a pre-trained image-to-video diffusion model with minimal architectural changes. Specifically, our method leverages Image Warped Events (IWEs) and bidirectional sparse optical flow to provide spatially and temporally aligned guidance during generation. By injecting these event-guided structural and motion cues into the diffusion process, our approach reduces interpolation artifacts and improves both reconstruction fidelity and temporal coherence. Experimental results on real and synthetic benchmarks show that our method consistently outperforms existing state-of-the-art approaches. The project page is at https://joseph-lin-tech.github.io/BridgeEventDiT-VFI/.",
+      "authors": [
+        "Guixu Lin",
+        "Yuyang Yu",
+        "Xiang Ji",
+        "Linyao Chen",
+        "Zhengwei Yin",
+        "Mengshun Hu",
+        "Mingdeng Cao",
+        "Shengfeng He",
+        "Yinqiang Zheng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-11T04:47:44+00:00",
+      "link": "https://arxiv.org/pdf/2608.10479v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "event-guided video frame interpolation with pretrained I2V diffusion model",
+      "llm_evidence_cn": "基于预训练图像到视频扩散模型的事件引导视频帧插值",
+      "llm_evidence": "基于预训练图像到视频扩散模型的事件引导视频帧插值",
+      "canonical_evidence": "基于预训练图像到视频扩散模型的事件引导视频帧插值",
+      "llm_tldr_en": "Proposes an adapter-based framework that injects event camera cues into a pretrained image-to-video diffusion model, improving large-gap and complex-motion frame interpolation with minimal changes.",
+      "llm_tldr_cn": "针对扩散视频插值在较大时间间隔和复杂运动下易出现模糊与失真问题，该文利用事件相机的高时间分辨率运动线索。提出适配器框架，将图像扭曲事件和双向稀疏特征接入预训练图像到视频扩散模型，几乎不需要架构改动。实验结果表明该方法能有效改善大间隔与复杂运动场景的插值质量，同时避免从头训练事件辅助模型。",
+      "llm_tldr": "针对扩散视频插值在较大时间间隔和复杂运动下易出现模糊与失真问题，该文利用事件相机的高时间分辨率运动线索。提出适配器框架，将图像扭曲事件和双向稀疏特征接入预训练图像到视频扩散模型，几乎不需要架构改动。实验结果表明该方法能有效改善大间隔与复杂运动场景的插值质量，同时避免从头训练事件辅助模型。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.10162v1",
+      "source": "arxiv",
+      "title": "MAD-HOI: Masked Autoregressive Diffusion for Generating Articulated Hand Object Interactions from Text",
+      "abstract": "Methods for text-based generation of hand-object interaction (HOI) sequences primarily focus on producing smooth, physically plausible trajectories. A truly utilitarian method should additionally support variable-length generation, composite motion sequences, motion completion and infilling, and reliable termination without compromising physical plausibility. Standard diffusion models for HOI generation are typically trained only for text-to-motion generation on atomic motions and require the motion length to be specified a-priori. Autoregressive (AR) methods provide greater sequence-level flexibility, but commonly depend on discrete motion codes, which can lose contact-sensitive motion detail. To address these key limitations, we present a model performing Masked Autoregression with Diffusion for HOI generation (MAD-HOI). Our method starts by encoding hand and object motions in a continuous latent space while keeping them disentangled to maintain stream-wise control. This is followed by a masked autoregressive transformer to predict context features that condition a flow-matching head. MAD-HOI is capable of motion generation for atomic and composite articulated sequences, conditioned motion completion and infilling, as well as EOM (End of Motion) prediction from a single training objective. We provide comprehensive evaluations for these capabilities and benchmark our method on the ARCTIC and GRAB datasets. Our experiments demonstrate that our method generates more diverse and physically plausible interactions compared to other open-sourced baseline methods.",
+      "authors": [
+        "Ananya Bal",
+        "Kartik Sharma",
+        "Ethan Lai",
+        "Samyak Tiwari",
+        "Liza Dahiya",
+        "Chaitanya Chawla",
+        "Laszlo A. Jeni"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-10T19:30:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.10162v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "generates articulated hand-object interaction sequences using a diffusion model, applicable to motion/video-like sequence generation",
+      "llm_evidence_cn": "使用扩散模型生成手物交互序列，适用于动作/视频类序列生成",
+      "llm_evidence": "使用扩散模型生成手物交互序列，适用于动作/视频类序列生成",
+      "canonical_evidence": "使用扩散模型生成手物交互序列，适用于动作/视频类序列生成",
+      "llm_tldr_en": "MAD-HOI combines masked autoregressive and diffusion models to generate variable-length, composable hand-object interaction sequences from text without specifying motion length in advance.",
+      "llm_tldr_cn": "手物交互序列生成通常受限于固定长度和原子动作训练，难以支持变长生成与运动补全。MAD-HOI 将掩码自回归与扩散模型结合，在连续动作空间中实现变长、可组合的序列生成，并保持物理合理性。该方法不需要预先给定运动长度，提升了文本到交互生成的灵活性与实用性。",
+      "llm_tldr": "手物交互序列生成通常受限于固定长度和原子动作训练，难以支持变长生成与运动补全。MAD-HOI 将掩码自回归与扩散模型结合，在连续动作空间中实现变长、可组合的序列生成，并保持物理合理性。该方法不需要预先给定运动长度，提升了文本到交互生成的灵活性与实用性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.12276v1",
+      "source": "arxiv",
+      "title": "XYZFlow:Scaling Multi dimensional Shortcut Flows for Efficient Generative Modeling",
+      "abstract": "High-fidelity image generation faces a trade-off between speed and quality. Diffusion models produce strong visuals but require costly iterative sampling. Existing efficient methods mainly distill pretrained models into few-step samplers, a challenging process that depends heavily on teacher-model quality. In this paper, we introduce XYZFlow, a framework that rethinks efficient generation through multidimensional scaling of flow matching. Unlike single-step mappings, XYZFlow enhances expressivity by making probability paths more identifiable and learnable through structured multidimensional conditioning. We view autoregressive modeling as implicit flow straightening, where richer context reduces trajectory ambiguity. XYZFlow realizes this idea through two orthogonal dimensions: temporal scaling, which uses non-Markovian conditioning on the full denoising history; and spatial scaling, enabled by Next Shortcut Prediction, which sequentially generates patches using preceding patches' denoising trajectories as priors. Experiments show that XYZFlow achieves state-of-the-art performance, with 7.2-8.5X teacher speedups and competitive FID, while Next Shortcut Prediction delivers superior quality-latency trade-offs over model scaling or step reduction.",
+      "authors": [
+        "Jinxiu Liu",
+        "Xuanming Liu",
+        "Kangfu Mei",
+        "Yandong Wen",
+        "Weiyang Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T17:15:42+00:00",
+      "link": "https://arxiv.org/pdf/2608.12276v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Flow matching framework for efficient image generation with multidimensional shortcut flows",
+      "llm_evidence_cn": "多维捷径流的高效图像生成流匹配框架",
+      "llm_evidence": "多维捷径流的高效图像生成流匹配框架",
+      "canonical_evidence": "多维捷径流的高效图像生成流匹配框架",
+      "llm_tldr_en": "XYZFlow scales flow matching multidimensionally to make probability paths more identifiable and learnable, enabling efficient few-step image generation without teacher distillation.",
+      "llm_tldr_cn": "扩散模型生成质量高但采样代价大，常见蒸馏方案依赖教师模型且训练困难。XYZFlow从流匹配角度出发，通过结构化多维条件缩放增强概率路径的可辨识性，把自回归建模视为隐式的流拉直。该方法用多维捷径流替代单步映射，减少了轨迹歧义。实验显示其能在少量步数下高效生成高质量图像，为扩散模型提供了替代性高效框架。",
+      "llm_tldr": "扩散模型生成质量高但采样代价大，常见蒸馏方案依赖教师模型且训练困难。XYZFlow从流匹配角度出发，通过结构化多维条件缩放增强概率路径的可辨识性，把自回归建模视为隐式的流拉直。该方法用多维捷径流替代单步映射，减少了轨迹歧义。实验显示其能在少量步数下高效生成高质量图像，为扩散模型提供了替代性高效框架。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.10744v1",
+      "source": "arxiv",
+      "title": "Beyond Pixels: From Video Priors to 4D Worlds",
+      "abstract": "4D generation synthesizes dynamic 3D scenes from conditions such as text or images. Existing methods either reconstruct generated RGB videos with a separate 4D model or adapt a particular video generator to predict geometry directly. The former suffers from distribution mismatch and error propagation, whereas the latter ties 4D prediction to a specific generator and may require retraining when the generator or conditioning regime changes. We ask whether the final denoised latents of video models that share a variational autoencoder (VAE) can instead provide a reusable interface to explicit 4D prediction. Building on this insight, we introduce direct latent-to-4D generation and instantiate it as Latent-to-4D, which bypasses RGB by aligning a video latent with the token grid of a pretrained 4D decoder and refining it through frame-wise and global spatiotemporal attention. Trained on roughly 1K existing reconstruction clips, a single checkpoint transfers unchanged across multiple video diffusion transformers within the same VAE family. On Text4D-200 and I4D-200, Latent-to-4D surpasses matched same-latent Wan+4RC cascades in projection-based DINO-F1 by 2.88--3.45 and 5.81 points, respectively, while also being preferred by human raters for geometry, temporal stability, and overall quality.",
+      "authors": [
+        "Zihao Liu",
+        "Xiaolong Shen",
+        "Zhenglin Zhou",
+        "Ruijie Quan",
+        "Yi Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-11T10:02:41+00:00",
+      "link": "https://arxiv.org/pdf/2608.10744v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "uses video diffusion latents as a reusable interface for 4D generation, extending video diffusion to dynamic 3D scenes",
+      "llm_evidence_cn": "利用视频扩散潜在特征作为 4D 生成的可复用接口，将视频扩散扩展到动态 3D 场景",
+      "llm_evidence": "利用视频扩散潜在特征作为 4D 生成的可复用接口，将视频扩散扩展到动态 3D 场景",
+      "canonical_evidence": "利用视频扩散潜在特征作为 4D 生成的可复用接口，将视频扩散扩展到动态 3D 场景",
+      "llm_tldr_en": "This paper introduces latent-to-4D generation, aligning video diffusion latents with a 4D token grid to synthesize dynamic 3D scenes without tying to a specific generator.",
+      "llm_tldr_cn": "4D 生成通常依赖 RGB 视频重建或为特定生成器定制几何预测，前者存在分布失配，后者需要重训练。本文提出直接基于视频潜在空间的 latent-to-4D 方法，将共享 VAE 的视频模型去噪潜在码与 4D 词元网格对齐，从而绕过 RGB 重建，构建可复用的 4D 预测接口。该方法减少了对特定生成器的依赖，提升了 4D 生成的通用性。",
+      "llm_tldr": "4D 生成通常依赖 RGB 视频重建或为特定生成器定制几何预测，前者存在分布失配，后者需要重训练。本文提出直接基于视频潜在空间的 latent-to-4D 方法，将共享 VAE 的视频模型去噪潜在码与 4D 词元网格对齐，从而绕过 RGB 重建，构建可复用的 4D 预测接口。该方法减少了对特定生成器的依赖，提升了 4D 生成的通用性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.11745v2",
+      "source": "arxiv",
+      "title": "LiveAnimate: Stable Long-Form Streaming Human Animation in Real-Time",
+      "abstract": "Pose-driven human animation synthesizes a video of a target person from a single reference image and a driving pose stream. Real-time generation is essential for interactive applications such as live streaming, telepresence, and virtual avatars, yet diffusion-based systems require minutes to hours per clip, precluding responsive interaction. We present LiveAnimate, to our knowledge the first animation system to combine real-time streaming with stable long-form generation at billion scale, built on a 14B-parameter video Diffusion Transformer (DiT). A two-stage training pipeline first adapts a pretrained bidirectional DiT into a block-causal autoregressive generator through Reference-Anchored Teacher-Forcing Adaptation, and then reduces the sampling budget to three steps through Block-wise Self-Forcing Distillation. To preserve appearance over extended streams, we introduce Pose-Retrieval Sink Attention (PR-Sink), a bounded KV-cache mechanism combining a Static Sink that permanently anchors the first generated block, a Dynamic Sink that holds a pose-retrieved historical block, and a three-slot Rolling Window. When a pose recurs, PR-Sink restores the relevant appearance context without retaining the entire sequence, so memory and per-block latency remain constant regardless of stream duration. Together with Ulysses sequence parallelism and operator fusion, these designs enable 19.63\\,FPS streaming inference on two NVIDIA H100 GPUs. On a three-minute benchmark, LiveAnimate maintains nearly constant perceptual quality and identity from the first 30 seconds to the final minute, while prior systems degrade substantially or require hours of offline computation for the same rollout. These results establish a new operating point in quality, latency, and duration for interactive full-body animation.",
+      "authors": [
+        "Yuxuan Zhang",
+        "Haozhong Xiong",
+        "Yubo Huang",
+        "Jiayi Song",
+        "Jinpeng Yu",
+        "Haofan Wang",
+        "Jiaming Liu",
+        "Ruihua Huang",
+        "Liwei Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T07:35:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.11745v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "real-time video diffusion transformer for human animation",
+      "llm_evidence_cn": "用于人体动画的实时视频扩散Transformer",
+      "llm_evidence": "用于人体动画的实时视频扩散Transformer",
+      "canonical_evidence": "用于人体动画的实时视频扩散Transformer",
+      "llm_tldr_en": "LiveAnimate adapts a 14B video DiT into a block-causal autoregressive generator and cuts sampling budget, enabling real-time stable long-form human animation.",
+      "llm_tldr_cn": "针对扩散式人体动画生成耗时过长无法实时交互的问题，该文提出LiveAnimate系统。它通过两阶段训练将预训练的双向视频扩散Transformer改造为块因果自回归生成器，并降低采样预算。实验表明该系统首次在十亿参数规模下实现实时流式长时生成，同时保持生成稳定性，为直播等交互应用提供可能。",
+      "llm_tldr": "针对扩散式人体动画生成耗时过长无法实时交互的问题，该文提出LiveAnimate系统。它通过两阶段训练将预训练的双向视频扩散Transformer改造为块因果自回归生成器，并降低采样预算。实验表明该系统首次在十亿参数规模下实现实时流式长时生成，同时保持生成稳定性，为直播等交互应用提供可能。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.11913v1",
+      "source": "arxiv",
+      "title": "HarmoniDPO: Video-guided Audio Generation via Preference-Optimized Diffusion",
+      "abstract": "Video-to-audio (V2A) generation faces significant challenges in achieving precise temporal synchronization and high perceptual quality due to the complex, ambiguous relationship between visual and auditory cues. Existing methods typically compress video inputs into single feature representations, leading to significant loss of temporal dynamics and fine-grained visual information. These approaches also rely on reconstruction-based training objectives that poorly correlate with human perceptual judgments of audio quality and appropriateness. We propose HarmoniDPO, a novel framework that integrates preference-based optimization into diffusion-based V2A generation to address these limitations. (1) Our approach leverages a dual video representation: combining global context with frame-wise features to preserve temporal dynamics and semantic detail. (2) Inspired by reinforcement learning from human feedback (RLHF), HarmoniDPO employs online Direct Preference Optimization (online-DPO) to fine-tune a diffusion-based V2A model from preference judgments, enhancing perceptual quality and alignment. (3) Additionally, we introduce Dual-scale Diffusion Search (DDS), a test time scaling algorithm that adaptively optimizes output fidelity during inference. Experiments demonstrate that HarmoniDPO outperforms state-of-the-art methods in audio-video synchronization and subjective audio quality, offering a robust solution for generating realistic, human-preferred audio from video.",
+      "authors": [
+        "Wenshuo Peng",
+        "Kaipeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T10:45:26+00:00",
+      "link": "https://arxiv.org/pdf/2608.11913v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "diffusion-based generative model for video-to-audio generation, with preference optimization",
+      "llm_evidence_cn": "基于扩散的视频到音频生成模型，并结合偏好优化",
+      "llm_evidence": "基于扩散的视频到音频生成模型，并结合偏好优化",
+      "canonical_evidence": "基于扩散的视频到音频生成模型，并结合偏好优化",
+      "llm_tldr_en": "HarmoniDPO integrates preference-based optimization into diffusion video-to-audio generation with dual video representations, improving temporal synchronization and perceptual quality.",
+      "llm_tldr_cn": "视频到音频生成面临时间同步难和感知质量差的问题。HarmoniDPO 提出基于扩散模型的偏好优化框架，利用双重视频表示保留时间动态与细粒度视觉信息，并采用偏好目标对齐人类感知。该工作显著提升了音视频同步准确性和音频质量，展示了偏好优化在扩散生成中的价值。",
+      "llm_tldr": "视频到音频生成面临时间同步难和感知质量差的问题。HarmoniDPO 提出基于扩散模型的偏好优化框架，利用双重视频表示保留时间动态与细粒度视觉信息，并采用偏好目标对齐人类感知。该工作显著提升了音视频同步准确性和音频质量，展示了偏好优化在扩散生成中的价值。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

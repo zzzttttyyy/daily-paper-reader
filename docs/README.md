@@ -6,47 +6,40 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-15
-- 运行时间：2026-08-15 20:32:30 UTC
+- 最新运行日期：2026-08-16
+- 运行时间：2026-08-16 19:50:57 UTC
 - 运行状态：成功
-- 本次总论文数：9
-- 精读区：6
-- 速读区：3
+- 本次总论文数：6
+- 精读区：1
+- 速读区：5
 
 ### 今日简报（AI）
-今日精读6篇、速读3篇，聚焦扩散模型在风格迁移与视频生成的应用；最值得看的是《Through Van Gogh's Eyes》与《GeoFlow》，均获9.0高分，分别突破全局风格迁移和几何对齐驾驶视频生成；普通读者可优先浏览这两篇的结论，快速把握扩散模型当前落地的两个热点方向。
-- 详情：[/202608/15/README](/202608/15/README)
+今日聚焦视频生成与交互建模：精读事件流+DiT视频插帧，速读手物交互、4D世界及实时人像动画。  
+最值得看：事件流引导的DiT插帧（8.0分）和实时长视频人像动画（7.0分），均属生成方向前沿。  
+建议普通读者先看精读篇，理解事件相机数据如何提升插帧效果，再扩展到实时动画应用。
+- 详情：[/202608/16/README](/202608/16/README)
 
 ### 精读区论文标签
-1. [Through Van Gogh's Eyes: Global Style Transfer with Diffusion Model](/202608/15/2608.11546v2-through-van-goghs-eyes-global-style-transfer-with-diffusion-model)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：基于扩散模型的图像生成
-2. [GeoFlow: Efficient Driving Video Generation via Geometry-Aligned Priors](/202608/15/2608.12203v1-geoflow-efficient-driving-video-generation-via-geometry-aligned-priors)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：利用几何对齐先验减少扩散视频生成采样步骤，直接相关免训练视频生成优化
-3. [SCOPE: Subspace Clustering with Online Per-Head Top-K Estimation for Sparse Video Attention](/202608/15/2608.12780v1-scope-subspace-clustering-with-online-per-head-top-k-estimation-for-sparse-video-attention)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：面向视频扩散Transformer的免训练稀疏注意力框架，直接降低生成计算成本
-4. [Archer: Adaptive Reuse of Cached Hidden States for Efficient Rollback in Diffusion Language Models](/202608/15/2608.08086v2-archer-adaptive-reuse-of-cached-hidden-states-for-efficient-rollback-in-diffusion-language-models)  
+1. [Bridging Event Streams and DiT: Event-Guided Video Frame Interpolation](/202608/16/2608.10479v1-bridging-event-streams-and-dit-event-guided-video-frame-interpolation)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：扩散模型的免训练推理优化
-5. [eBIRD: Event-based Intensity Image Reconstruction Using Controllable Diffusion Models](/202608/15/2608.08519v1-ebird-event-based-intensity-image-reconstruction-using-controllable-diffusion-models)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：使用可控扩散模型（DDPM与ControlNet）进行事件流强度图像重建，属于图像生成任务
-6. [SDDBMs: Soft Denoising Diffusion Bridge Models](/202608/15/2608.08594v2-sddbms-soft-denoising-diffusion-bridge-models)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：基于扩散桥模型的图像生成
+   evidence：基于预训练图像到视频扩散模型的事件引导视频帧插值
 
 ### 速读区论文标签
-1. [When Latents Forget Pixels: Restoring Fidelity in Diffusion Transformer Super-Resolution](/202608/15/2608.09133v1-when-latents-forget-pixels-restoring-fidelity-in-diffusion-transformer-super-resolution)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：在潜空间扩散Transformer超分中复用像素证据以恢复保真度，属扩散图像生成的推理期优化
-2. [HPSD: Hybrid-Policy Self-Distillation for Text-Image-to-Video Diffusion Models](/202608/15/2608.13205v1-hpsd-hybrid-policy-self-distillation-for-text-image-to-video-diffusion-models)  
+1. [MAD-HOI: Masked Autoregressive Diffusion for Generating Articulated Hand Object Interactions from Text](/202608/16/2608.10162v1-mad-hoi-masked-autoregressive-diffusion-for-generating-articulated-hand-object-interactions-from-text)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：面向文本-图像到视频扩散模型的自蒸馏方法以提升视频生成
-3. [Generator-Guided Inverse Sampling for Lévy-Driven Generative Models](/202608/15/2608.10384v1-generator-guided-inverse-sampling-for-lvy-driven-generative-models)  
+   evidence：使用扩散模型生成手物交互序列，适用于动作/视频类序列生成
+2. [Beyond Pixels: From Video Priors to 4D Worlds](/202608/16/2608.10744v1-beyond-pixels-from-video-priors-to-4d-worlds)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：利用视频扩散潜在特征作为 4D 生成的可复用接口，将视频扩散扩展到动态 3D 场景
+3. [LiveAnimate: Stable Long-Form Streaming Human Animation in Real-Time](/202608/16/2608.11745v2-liveanimate-stable-long-form-streaming-human-animation-in-real-time)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：用于人体动画的实时视频扩散Transformer
+4. [HarmoniDPO: Video-guided Audio Generation via Preference-Optimized Diffusion](/202608/16/2608.11913v1-harmonidpo-video-guided-audio-generation-via-preference-optimized-diffusion)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：基于扩散的视频到音频生成模型，并结合偏好优化
+5. [XYZFlow:Scaling Multi dimensional Shortcut Flows for Efficient Generative Modeling](/202608/16/2608.12276v1-xyzflowscaling-multi-dimensional-shortcut-flows-for-efficient-generative-modeling)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向Lévy驱动生成模型的免训练逆采样器，对扩散采样有方法迁移价值
+   evidence：多维捷径流的高效图像生成流匹配框架
 
 
 <div class="dpr-home-promo-card">
