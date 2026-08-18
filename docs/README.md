@@ -6,44 +6,48 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-17
-- 运行时间：2026-08-17 20:42:57 UTC
+- 最新运行日期：2026-08-18
+- 运行时间：2026-08-18 20:00:00 UTC
 - 运行状态：成功
 - 本次总论文数：8
-- 精读区：6
-- 速读区：2
+- 精读区：5
+- 速读区：3
 
 ### 今日简报（AI）
-今日精读6篇、速读2篇，重点聚焦无需训练的文本生成视频与图像控制优化；最值得关注的两篇9分工作分别提出推理时梯度无关优化与潜空间精确控制，兼顾质量与效率；若想上手，建议优先尝试训练无关的生成控制方法，零成本提升生成一致性与可控性。
-- 详情：[/202608/17/README](/202608/17/README)
+今日共读8篇论文，精读5篇、速读3篇，聚焦高效多模态生成与扩散模型优化。
+
+最值得关注的是两篇9.0分精读：同步感知跨模态稀疏注意力用于音视频生成，以及基于整流流的高效文生图模型Nexus。
+
+若想快速跟进，可继续关注无噪声条件的视频生成（Equilibrium Forcing）与像素空间扩散模型训练实证，均具参考价值。
+- 详情：[/202608/18/README](/202608/18/README)
 
 ### 精读区论文标签
-1. [Spatially-Grounded Text-to-Video Generation via Inference-Time Gradient-Free Optimization](/202608/17/2608.13037v2-spatially-grounded-text-to-video-generation-via-inference-time-gradient-free-optimization)  
+1. [Efficient Audio-Visual Generation via Synchrony-Aware Cross-Modal Sparse Attention](/202608/18/2608.15522v1-efficient-audio-visual-generation-via-synchrony-aware-cross-modal-sparse-attention)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：用于文本到视频生成的免训练免梯度优化
-2. [Concept Guidance: Precise, Training-Free Latent Control for Text-to-Image Generation](/202608/17/2608.14172v1-concept-guidance-precise-training-free-latent-control-for-text-to-image-generation)  
+   evidence：音视频扩散生成的免训练同步感知稀疏注意力加速
+2. [Nexus: Structured Synergy for Efficient Text-to-Image Generation using Rectified Flow Model](/202608/18/2608.16104v1-nexus-structured-synergy-for-efficient-text-to-image-generation-using-rectified-flow-model)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：一种文本到图像生成的免训练潜在控制方法，直接契合免训练图像生成优化主题
-3. [Post-training Quantization for Hybrid Iterative Generative Models](/202608/17/2608.13932v1-post-training-quantization-for-hybrid-iterative-generative-models)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：对包含扩散模型的迭代生成模型进行训练后量化以加速
-4. [Beyond Text Conditioning: A Systematic Study of MLLM-DiT Fusion for Video Generation](/202608/17/2608.14043v1-beyond-text-conditioning-a-systematic-study-of-mllm-dit-fusion-for-video-generation)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：面向扩散视频生成的MLLM与DiT融合的系统研究
-5. [Source-Agnostic Image Translation Based on Latent Aware Adaptive Masking](/202608/17/2608.14046v1-source-agnostic-image-translation-based-on-latent-aware-adaptive-masking)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：在扩散模型反向过程中无需训练的掩码自适应优化，用于图像翻译
-6. [RankT2I: A Submodular Framework for Discovering Interpretable and Diverse Semantics in Text-to-Image Models](/202608/17/2608.14226v1-rankt2i-a-submodular-framework-for-discovering-interpretable-and-diverse-semantics-in-text-to-image-models)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：用于扩散文本到图像模型的免训练可编辑语义发现框架
+   evidence：使用整流流模型结合稀疏架构与量化实现高效文生图
+3. [DriveCache: Action-Aware Caching for Driving World Model Inference](/202608/18/2608.16354v1-drivecache-action-aware-caching-for-driving-world-model-inference)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练动作感知缓存加速驾驶视频扩散推理
+4. [MLLM-Guided Semantic Correction for Text-to-Video Generation](/202608/18/2608.16513v1-mllm-guided-semantic-correction-for-text-to-video-generation)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练的MLLM引导视频扩散生成中校正
+5. [Revisiting Classifier-Free Guidance Methods in Latent Diffusion Models](/202608/18/2608.16786v1-revisiting-classifier-free-guidance-methods-in-latent-diffusion-models)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：对免训练推理期扩散增强方法的再评估
 
 ### 速读区论文标签
-1. [InstructionCrafter: Generating Consistent and High-Fidelity Visual Instructions](/202608/17/2608.08460v1-instructioncrafter-generating-consistent-and-high-fidelity-visual-instructions)  
+1. [Equilibrium Forcing: Adaptive Video Generation Without Noise Conditioning](/202608/18/2608.14706v1-equilibrium-forcing-adaptive-video-generation-without-noise-conditioning)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：基于扩散的图像序列/视频生成，需训练
-2. [RGBX-Next: Towards Realistic Generative Rendering from G-Buffers](/202608/17/2608.13929v1-rgbx-next-towards-realistic-generative-rendering-from-g-buffers)  
+   evidence：无需噪声条件、训练采样解耦的视频扩散
+2. [An Empirical Study of Training Pixel-Space Text-to-Image Diffusion Models](/202608/18/2608.16887v1-an-empirical-study-of-training-pixel-space-text-to-image-diffusion-models)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：基于G-buffer条件扩散模型的图像生成
+   evidence：像素空间文本到图像扩散模型训练的实证研究
+3. [Forward-Evolution Error Analysis and Adaptive Design for Matrix-Valued Diffusion Models](/202608/18/2608.15103v1-forward-evolution-error-analysis-and-adaptive-design-for-matrix-valued-diffusion-models)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：面向无需重训练的采样自适应噪声调度设计
 
 
 <div class="dpr-home-promo-card">
