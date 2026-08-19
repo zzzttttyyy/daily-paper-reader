@@ -1,0 +1,551 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-19T20:07:41.532486+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2608.17695v1",
+      "source": "arxiv",
+      "title": "Magnitude-Direction Decoupling for Fast Video Generation with Flow Matching Models",
+      "abstract": "Flow matching models for video generation achieve impressive performance but suffer from high computational overhead due to iterative denoising. In fact, the original model is not necessary for all denoising steps, allowing some steps to use lightweight alternatives for faster sampling. However, directly using caching or lightweight models can deviate from the original denoising trajectory, resulting in suboptimal performance. Through empirical analysis, we find that lightweight models can robustly capture the magnitude components of the original model's output, while caching provides reliable directional guidance. Building on this insight, we propose the Magnitude-Direction Decoupling (MDD) method, which adaptively employs a direction-calibrated lightweight model as a substitute for the original model to accelerate inference and effectively correct deviations in the denoising trajectory. Moreover, MDD further reduces inference costs by reusing magnitude information under classifier-free guidance (CFG). As a result, MDD offers a more reliable and lightweight solution to accelerate sampling. Experiments show that MDD outperforms existing acceleration methods, delivering promising speedups (e.g., up to 2.95x on Wan2.1) while preserving high visual fidelity and content richness.",
+      "authors": [
+        "Haonan Xu",
+        "Feiyang Chen",
+        "Songkui Chen",
+        "Hongpeng Pan",
+        "Zhefeng Wang",
+        "Xinyu Duan",
+        "Baoxing Huai",
+        "Yang Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-18T12:12:21+00:00",
+      "link": "https://arxiv.org/pdf/2608.17695v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free decoupling of magnitude and direction to accelerate flow-matching video generation",
+      "llm_evidence_cn": "面向流匹配视频生成的方向-幅值解耦免训练加速",
+      "llm_evidence": "面向流匹配视频生成的方向-幅值解耦免训练加速",
+      "canonical_evidence": "面向流匹配视频生成的方向-幅值解耦免训练加速",
+      "llm_tldr_en": "Magnitude-Direction Decoupling (MDD) accelerates flow-matching video generation by using lightweight models for magnitude and caching for directional guidance, avoiding extra training and achieving faster sampling with maintained quality.",
+      "llm_tldr_cn": "针对流匹配视频生成中迭代去噪计算开销大的问题，本文提出幅值-方向解耦（MDD）方法。通过经验分析发现轻量模型可稳健捕获原模型输出的幅值分量，而缓存提供可靠的方向引导，因此自适应地结合二者可避免偏离去噪轨迹。实验表明该方法在几乎不损失生成质量的情况下显著提升采样速度。由于整个过程无需额外训练，属于典型的免训练视频生成优化技术。",
+      "llm_tldr": "针对流匹配视频生成中迭代去噪计算开销大的问题，本文提出幅值-方向解耦（MDD）方法。通过经验分析发现轻量模型可稳健捕获原模型输出的幅值分量，而缓存提供可靠的方向引导，因此自适应地结合二者可避免偏离去噪轨迹。实验表明该方法在几乎不损失生成质量的情况下显著提升采样速度。由于整个过程无需额外训练，属于典型的免训练视频生成优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.17995v1",
+      "source": "arxiv",
+      "title": "AViTS: Adaptive Spatiotemporal Token Selection for Efficient Dynamic-Resolution Generation",
+      "abstract": "Diffusion Transformers (DiTs) achieve high-quality generation but are costly due to iterative sampling. Dynamic-resolution sampling reduces early-stage cost by denoising at low resolution; however, uniformly upsampling all latent tokens at resolution transitions incurs redundant computation and may degrade fine-detail consistency. Existing partial upsampling strategies typically rely on local latent structure cues or single-step statistics, making it difficult to jointly capture token-text semantic relevance and token-wise representation dynamics across diffusion steps. We propose AViTS, an adaptive spatiotemporal token selection framework for dynamic-resolution DiTs. AViTS models spatial importance via latent-text attention and temporal importance via token-level feature variation across diffusion timesteps, and fuses them to enable spatiotemporal importance-aware selective upsampling: it prioritizes resolution refinement for critical tokens while deferring less important ones, thereby reducing redundant high-resolution computation and improving the quality-efficiency trade-off. AViTS achieves up to 6.34x on FLUX and nearly 9x FLOPs reduction on Qwen-Image-Edit and FLUX.1-Kontext-dev, orthogonal to distillation, quantization, and feature caching, and reaching 14.76x with distilled models. Code: https://github.com/QHR69/AViTS",
+      "authors": [
+        "Haoran Qin",
+        "Zhengan Yan",
+        "Shikang Zheng",
+        "Xiaobing Tu",
+        "Jiacheng Liu",
+        "Yuqi Lin",
+        "Chang Zou",
+        "JinShan Liu",
+        "Peiliang Cai",
+        "Xiantao Zhang",
+        "Jinkui Ren",
+        "Linfeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-18T16:42:09+00:00",
+      "link": "https://arxiv.org/pdf/2608.17995v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free adaptive token selection for efficient dynamic-resolution diffusion sampling",
+      "llm_evidence_cn": "面向动态分辨率扩散采样的免训练自适应标记选择",
+      "llm_evidence": "面向动态分辨率扩散采样的免训练自适应标记选择",
+      "canonical_evidence": "面向动态分辨率扩散采样的免训练自适应标记选择",
+      "llm_tldr_en": "AViTS adaptively selects latent tokens at resolution transitions in dynamic-resolution DiTs, jointly modeling text relevance and temporal dynamics to cut redundant computation without training.",
+      "llm_tldr_cn": "动态分辨率扩散采样在过渡时统一上采样所有潜在标记会造成冗余计算并影响细节一致性。本文提出AViTS框架，通过联合建模标记-文本语义相关性和跨步表示动态，自适应选择需要上采样的空间与时间标记，从而在不额外训练的情况下降低计算成本。实验表明AViTS能在保持生成质量的同时提升动态分辨率DiT的采样效率。该方法为免训练扩散模型采样优化提供了新的思路。",
+      "llm_tldr": "动态分辨率扩散采样在过渡时统一上采样所有潜在标记会造成冗余计算并影响细节一致性。本文提出AViTS框架，通过联合建模标记-文本语义相关性和跨步表示动态，自适应选择需要上采样的空间与时间标记，从而在不额外训练的情况下降低计算成本。实验表明AViTS能在保持生成质量的同时提升动态分辨率DiT的采样效率。该方法为免训练扩散模型采样优化提供了新的思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.18040v1",
+      "source": "arxiv",
+      "title": "Optimize Your Sampling: Tuned Diffusion Sampling with Bayesian Optimization",
+      "abstract": "Sampling from a diffusion model typically requires many forward passes through a large neural network, making generation computationally expensive. While much work has focused on efficient solvers and samplers, comparatively little attention has been paid to selecting the sampling timesteps themselves. A recent line of work optimizes theoretically derived surrogates for sample quality rather than the quality metric itself. We propose Optimizing Your Sampling (OYS), which instead treats timestep selection as a black-box optimization problem, optimizing the target metric directly with Bayesian optimization. OYS outperforms both the default schedules and those of Align Your Steps on text-to-image generation, and improves over the default schedules on inpainting and other image tasks, in both quantitative and human evaluations. OYS requires no additional training, is applicable even to distilled models, and improves both simple and sophisticated samplers such as Euler and DPM-Solver++. A 5-step OYS schedule retains 89%-94% of the quality of a 50-step schedule while reducing inference cost by 10x.",
+      "authors": [
+        "Travis Zhang",
+        "Christian Belardi",
+        "Justin Lovelace",
+        "Jin Peng Zhou",
+        "Saebyeol Shin",
+        "Carla P. Gomes",
+        "Kilian Q. Weinberger"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "published": "2026-08-18T17:33:00+00:00",
+      "link": "https://arxiv.org/pdf/2608.18040v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free timestep selection optimization for diffusion sampling",
+      "llm_evidence_cn": "扩散采样中免训练的时间步选择优化",
+      "llm_evidence": "扩散采样中免训练的时间步选择优化",
+      "canonical_evidence": "扩散采样中免训练的时间步选择优化",
+      "llm_tldr_en": "OYS treats diffusion timestep selection as black-box optimization and uses Bayesian optimization to directly optimize the target metric, outperforming default schedules and Align Your Steps on text-to-image generation without extra training.",
+      "llm_tldr_cn": "针对扩散模型采样时间步选择缺乏直接优化的问题，本文提出OYS方法，将时间步选择视为黑箱优化问题，直接以目标质量指标为优化目标，并使用贝叶斯优化搜索。与默认调度及Align Your Steps相比，OYS在文本到图像生成上取得更优结果，并改善了默认调度的采样效率。该方法无需训练，即可提升扩散模型的采样质量与效率。",
+      "llm_tldr": "针对扩散模型采样时间步选择缺乏直接优化的问题，本文提出OYS方法，将时间步选择视为黑箱优化问题，直接以目标质量指标为优化目标，并使用贝叶斯优化搜索。与默认调度及Align Your Steps相比，OYS在文本到图像生成上取得更优结果，并改善了默认调度的采样效率。该方法无需训练，即可提升扩散模型的采样质量与效率。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.14740v1",
+      "source": "arxiv",
+      "title": "From Dense Prediction to Visual Editing: Structured Supervision for Unified Image and Video Creation",
+      "abstract": "Unified image and video creation requires a model to follow diverse instructions while preserving identity, geometry, and temporal structure from visual context. However, semantic-only conditioning and creation-only training do not explicitly supervise the local structure needed for precise, temporally consistent editing. We therefore formulate depth and surface-normal prediction as image-form denoising targets, using these dense tasks as structured visual supervision within the same creation interface. Our framework decouples semantic interpretation from spatially aligned visual injection while sharing one multimodal diffusion transformer (MMDiT) backbone across all tasks. Mutual Context Attention (MCA), a paired-video data-construction procedure, and a progressive training curriculum then connect the learned structural cues to temporally localized editing and reference-conditioned creation. A single checkpoint obtains the highest overall score in the reported comparison of unified systems (4.15); adding dense supervision improves OpenVE Overall from 3.98 to 4.06 and Local Add from 3.92 to 4.18. These results support a deliberately bounded conclusion: perception-oriented dense supervision transfers useful structural knowledge to downstream creation, especially editing locality and preservation; we do not claim superiority as a standalone dense predictor.",
+      "authors": [
+        "Zhefan Rao",
+        "Bin Zou",
+        "Haoxuan Che",
+        "Xuanhua He",
+        "Chong Hou Choi",
+        "Yanheng Li",
+        "Rui Liu",
+        "Qifeng Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-13T18:11:45+00:00",
+      "link": "https://arxiv.org/pdf/2608.14740v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "video generation with diffusion transformer; unified image and video creation",
+      "llm_evidence_cn": "基于扩散Transformer的视频生成与统一图像视频创建",
+      "llm_evidence": "基于扩散Transformer的视频生成与统一图像视频创建",
+      "canonical_evidence": "基于扩散Transformer的视频生成与统一图像视频创建",
+      "llm_tldr_en": "To address insufficient local structure supervision in unified image-video creation, this paper uses depth and surface-normal prediction as denoising targets, with a shared multimodal diffusion transformer and mutual context attention for precise, temporally consistent editing.",
+      "llm_tldr_cn": "针对统一图像与视频创建中局部结构监督不足的问题，本文将深度和表面法线预测构造为图像形式的去噪目标，作为结构化视觉监督，并采用共享的多模态扩散Transformer骨干。通过解耦语义理解与空间对齐的视觉注入，并结合互上下文注意力，实现了精确且时间一致的编辑。实验显示该方法在多项图像视频编辑与生成任务上表现优异。该工作为扩散模型在多模态视觉生成中的统一建模提供了新思路。",
+      "llm_tldr": "针对统一图像与视频创建中局部结构监督不足的问题，本文将深度和表面法线预测构造为图像形式的去噪目标，作为结构化视觉监督，并采用共享的多模态扩散Transformer骨干。通过解耦语义理解与空间对齐的视觉注入，并结合互上下文注意力，实现了精确且时间一致的编辑。实验显示该方法在多项图像视频编辑与生成任务上表现优异。该工作为扩散模型在多模态视觉生成中的统一建模提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.15583v1",
+      "source": "arxiv",
+      "title": "PoseAdapter: Dual-Stream 2.5D Controllable Image Generation for Complex Multi-Object Scenes",
+      "abstract": "While Text-to-Image (T2I) diffusion models have achieved remarkable success, precise spatial and orientational control in multi-object scenes remains a persistent challenge. Existing methods either rely on computationally expensive dense 3D maps or suffer from severe attribute leakage and \"cut-and-paste\" artifacts. To address these limitations, we propose PoseAdapter, a lightweight framework for high-fidelity 2.5D controllable image generation. Instead of dense spatial maps, it establishes precise spatial-angular anchors using an efficient condition layout: individual object captions, 2D bounding boxes, and 3D angles. To resolve the generative trade-off between strict instance isolation and global coherence, we introduce a Context-Aware Dual-Stream Representation. By injecting local object tokens and relation-enriched scene tokens into the visual stream of modern MM-DiT architectures via parallel masked and unmasked pathways, PoseAdapter eliminates attribute leakage while preserving natural inter-object relationships and scene-level coherence. To support this paradigm, we construct OrientLayout, a high-quality dataset featuring standardized 2.5D annotations and instance-level decoupled semantics. Extensive experiments demonstrate that PoseAdapter outperforms state-of-the-art baselines in spatial accuracy, orientational precision, and multi-object visual fidelity. Code and dataset will be available at https://github.com/cyf23/PoseAdapter.",
+      "authors": [
+        "Yufeng Chi",
+        "Huimin Ma",
+        "Fan Gao",
+        "Zhice Niu",
+        "Keqin Li",
+        "Jianmin Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-16T07:18:58+00:00",
+      "link": "https://arxiv.org/pdf/2608.15583v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Text-to-image diffusion model for high-fidelity 2.5D controllable image generation in complex multi-object scenes",
+      "llm_evidence_cn": "面向复杂多目标场景的文本到图像扩散模型，实现高保真2.5D可控图像生成",
+      "llm_evidence": "面向复杂多目标场景的文本到图像扩散模型，实现高保真2.5D可控图像生成",
+      "canonical_evidence": "面向复杂多目标场景的文本到图像扩散模型，实现高保真2.5D可控图像生成",
+      "llm_tldr_en": "PoseAdapter is a lightweight dual-stream framework for high-fidelity 2.5D controllable text-to-image generation, using object captions, 2D boxes, and 3D angles to control multi-object scenes without dense 3D maps.",
+      "llm_tldr_cn": "文本到图像扩散模型在多目标场景的精确空间与朝向控制上仍面临挑战，现有方法依赖高代价稠密3D图或产生属性泄漏问题。本文提出PoseAdapter，用单个目标描述、2D边界框和3D角度组成高效条件布局，通过双流结构在严格实例隔离与全局一致性之间取得平衡。实验表明该方法能获得高保真的2.5D可控图像生成效果。该工作为扩散模型图像生成提供了一种轻量级控制范式。",
+      "llm_tldr": "文本到图像扩散模型在多目标场景的精确空间与朝向控制上仍面临挑战，现有方法依赖高代价稠密3D图或产生属性泄漏问题。本文提出PoseAdapter，用单个目标描述、2D边界框和3D角度组成高效条件布局，通过双流结构在严格实例隔离与全局一致性之间取得平衡。实验表明该方法能获得高保真的2.5D可控图像生成效果。该工作为扩散模型图像生成提供了一种轻量级控制范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.15705v1",
+      "source": "arxiv",
+      "title": "PixelControl: Fine-Grained Condition Fidelity in Text-to-Image Diffusion",
+      "abstract": "Controllable text-to-image diffusion models can often follow the global layout of spatial conditions, yet still violate fine-grained structures such as object boundaries, thin contours, and medium/small conditioned regions. This limitation is especially problematic for VAE-based latent diffusion, where spatial compression can weaken high-frequency and low-area condition signals. We propose PixelControl, a pixel-space controllable diffusion framework for fine-grained condition fidelity. Built on a PixelDiT-style backbone, PixelControl avoids the latent bottleneck and introduces two complementary designs. First, Structure-Aware Control Injection derives a condition structure map and uses it to strengthen injected control residuals around spatially sensitive regions. Second, Multi-Scale Pyramid Cycle Loss verifies generated images against condition-derived structures across multiple resolutions, balancing global layout consistency with local boundary and detail accuracy. PixelControl supports depth, segmentation, edge, and their combinations through modality-specific control branches with lightweight gated fusion. Experiments across depth, segmentation, and edge control show that PixelControl improves structural fidelity and visual quality over existing controllable generation methods, with especially strong gains on boundaries and medium/small conditioned regions. The project page can be found at: https://linxin0.github.io/pixelcontrol_homepage/pixelcontrol-site/",
+      "authors": [
+        "Xin Lin",
+        "Haodong Li",
+        "Zhifei Zhang",
+        "Yutong Yang",
+        "Haitian Zheng",
+        "Juanxi Tian",
+        "Zhe Lin",
+        "Truong Nguyen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-16T12:16:58+00:00",
+      "link": "https://arxiv.org/pdf/2608.15705v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Pixel-space controllable text-to-image diffusion framework",
+      "llm_evidence_cn": "像素空间可控文本到图像扩散框架",
+      "llm_evidence": "像素空间可控文本到图像扩散框架",
+      "canonical_evidence": "像素空间可控文本到图像扩散框架",
+      "llm_tldr_en": "PixelControl is a pixel-space controllable diffusion framework built on PixelDiT that uses structure-aware control injection to strengthen condition signals in spatially sensitive regions, achieving fine-grained condition fidelity in text-to-image generation without latent bottleneck.",
+      "llm_tldr_cn": "潜在扩散模型因空间压缩导致细粒度条件信号弱化，难以保持物体边界等结构。PixelControl基于PixelDiT构建像素空间可控框架，避开潜在瓶颈，并通过结构感知控制注入强化敏感区域的残差，从而提升文本到图像生成中细粒度条件保真度。",
+      "llm_tldr": "潜在扩散模型因空间压缩导致细粒度条件信号弱化，难以保持物体边界等结构。PixelControl基于PixelDiT构建像素空间可控框架，避开潜在瓶颈，并通过结构感知控制注入强化敏感区域的残差，从而提升文本到图像生成中细粒度条件保真度。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.11546v1",
+      "source": "arxiv",
+      "title": "Through Van Gogh's Eyes: Global Style Transfer with Diffusion Mod",
+      "abstract": "Artistic image synthesis aims to recreate the expressive visual identity of a target artist, yet existing methods often fail to capture an artist's global style. Conventional style transfer methods transfer the style of one or a few reference artworks to a content image in a One-to-One manner, making them effective for artwork-level stylization but limited in representing the broader stylistic distribution of an artist. Text-to-image diffusion models conditioned on artist names, such as '~ in Van Gogh style', offer greater flexibility, but they often suffer from text-induced bias and reproduce patterns from only a few iconic works. To address these limitations, we introduce Global Style Transfer (GST), an artistic image synthesis paradigm, in a Many-to-One manner, that aggregates multiple artworks from a target artist and transfers their shared global style to a single content image. For GST, we propose Global Style Guidance (GSG), which learns a residual global style offset in the intermediate feature space, or h-space, of a diffusion model under a fixed prompt. By learning artist-level style semantics purely from visual statistics, GSG mitigates text-dependent artistic bias. We further propose Content Alignment Guidance (CAG), a training-free perceptual guidance mechanism that preserves the semantic structure of the content image while allowing artist-specific geometric deformation. Experiments on WikiArt demonstrate that GST achieves superior stylistic fidelity, content preservation, and output diversity compared to existing style transfer and diffusion-based artistic synthesis methods.",
+      "authors": [
+        "Jeongha Lee",
+        "Yujin Kim",
+        "Ghazanfar Ali",
+        "Suhyun Kim",
+        "Jae-In Hwang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T01:29:43+00:00",
+      "link": "https://arxiv.org/pdf/2608.11546v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "image generation using diffusion models for style transfer",
+      "llm_evidence_cn": "利用扩散模型进行图像风格迁移与生成",
+      "llm_evidence": "利用扩散模型进行图像风格迁移与生成",
+      "canonical_evidence": "利用扩散模型进行图像风格迁移与生成",
+      "llm_tldr_en": "GST enables global style transfer with diffusion models by modeling an artist's overall style distribution in a many-to-one manner, overcoming text-induced bias and iconic-work reproduction limits.",
+      "llm_tldr_cn": "针对文本到图像扩散模型按艺术家名生成样式时存在文本偏差、仅复现少数标志性作品的问题，本文提出全局风格迁移范式GST，以多对一方式建模艺术家的整体风格分布。GST利用扩散模型作为图像生成基础，实现不受单幅参考作品局限的全局风格迁移。实验表明该方法能更全面地捕捉艺术家风格并生成多样化目标图像。该工作拓展了扩散模型在风格化图像生成中的应用。",
+      "llm_tldr": "针对文本到图像扩散模型按艺术家名生成样式时存在文本偏差、仅复现少数标志性作品的问题，本文提出全局风格迁移范式GST，以多对一方式建模艺术家的整体风格分布。GST利用扩散模型作为图像生成基础，实现不受单幅参考作品局限的全局风格迁移。实验表明该方法能更全面地捕捉艺术家风格并生成多样化目标图像。该工作拓展了扩散模型在风格化图像生成中的应用。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.12276v2",
+      "source": "arxiv",
+      "title": "XYZFlow:Scaling Multi dimensional Shortcut Flows for Efficient Generative Modeling",
+      "abstract": "High-fidelity image generation faces a trade-off between speed and quality. Diffusion models produce strong visuals but require costly iterative sampling. Existing efficient methods mainly distill pretrained models into few-step samplers, a challenging process that depends heavily on teacher-model quality. In this paper, we introduce XYZFlow, a framework that rethinks efficient generation through multidimensional scaling of flow matching. Unlike single-step mappings, XYZFlow enhances expressivity by making probability paths more identifiable and learnable through structured multidimensional conditioning. We view autoregressive modeling as implicit flow straightening, where richer context reduces trajectory ambiguity. XYZFlow realizes this idea through two orthogonal dimensions: temporal scaling, which uses non-Markovian conditioning on the full denoising history; and spatial scaling, enabled by Next Shortcut Prediction, which sequentially generates patches using preceding patches' denoising trajectories as priors. Experiments show that XYZFlow achieves state-of-the-art performance, with 7.2-8.5X teacher speedups and competitive FID, while Next Shortcut Prediction delivers superior quality-latency trade-offs over model scaling or step reduction.",
+      "authors": [
+        "Jinxiu Liu",
+        "Xuanming Liu",
+        "Kangfu Mei",
+        "Yandong Wen",
+        "Weiyang Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T17:15:42+00:00",
+      "link": "https://arxiv.org/pdf/2608.12276v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "efficient image generation via flow matching, related to diffusion models",
+      "llm_evidence_cn": "基于流匹配的高效图像生成，与扩散模型生成任务相关",
+      "llm_evidence": "基于流匹配的高效图像生成，与扩散模型生成任务相关",
+      "canonical_evidence": "基于流匹配的高效图像生成，与扩散模型生成任务相关",
+      "llm_tldr_en": "XYZFlow rethinks efficient generation via multidimensional scaling of flow matching, making probability paths more learnable and enabling efficient few-step image generation without heavy reliance on teacher models.",
+      "llm_tldr_cn": "针对高保真图像生成中速度与质量的权衡，本文提出XYZFlow，通过多维流匹配的结构化条件设计增强概率路径的可辨识性，将自回归建模视为隐式流拉直，从而支持高效少步生成。与依赖教师模型的蒸馏方法不同，XYZFlow直接学习更易建模的流动，降低对预训练教师质量的依赖。实验表明其在图像生成效率与质量上具有优势。该框架为高效生成建模提供了新思路。",
+      "llm_tldr": "针对高保真图像生成中速度与质量的权衡，本文提出XYZFlow，通过多维流匹配的结构化条件设计增强概率路径的可辨识性，将自回归建模视为隐式流拉直，从而支持高效少步生成。与依赖教师模型的蒸馏方法不同，XYZFlow直接学习更易建模的流动，降低对预训练教师质量的依赖。实验表明其在图像生成效率与质量上具有优势。该框架为高效生成建模提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.15144v1",
+      "source": "arxiv",
+      "title": "Scale-Consistent Posterior Dynamics for Diffusion Inverse Problems",
+      "abstract": "Posterior sampling with a pretrained diffusion prior is governed by a conditional score whose intermediate likelihood component is generally intractable. We begin from an ideal one-parameter posterior SDE family in which a stochasticity parameter controls probability-flow transport and stochastic exploration without changing the posterior marginals. To obtain a tractable model, we express the likelihood in a rescaled clean-image coordinate and use log-SNR to organize the resulting posterior proxies. Projecting the diffusion uncertainty through the forward operator then yields a noise-conditioned covariance path whose targets approach the clean posterior. Because endpoint consistency of these targets does not ensure that a surrogate transport follows them, we interleave the transport with a frozen-target Langevin corrector, producing a continuous surrogate SDE. We discretize this model with an outer Lie--Trotter splitting and a variance-matched split-step IMEX predictor that treats the learned prior explicitly, the linear likelihood implicitly, and the stochastic innovation after the implicit solve. We prove marginal invariance of the ideal family, posterior convergence of the continuous surrogate under mixing and transport-defect conditions, and a first-order weak error bound for the discrete algorithm. Experiments on FFHQ and ImageNet with 100 score evaluations demonstrate competitive reconstruction fidelity for super-resolution and deblurring. A controlled 100-image ablation separates scale consistency from the finite-step effects of stochastic-increment placement, continuation, and corrector allocation. A separate noiseless box-inpainting study shows that large exploration reaches a performance plateau only when the matched innovation is injected after the stiff likelihood solve.",
+      "authors": [
+        "Zhaoqiang Liu",
+        "Tongyao Pang",
+        "Ruibing Wang",
+        "Yang Zheng"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-08-15T09:38:41+00:00",
+      "link": "https://arxiv.org/pdf/2608.15144v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free posterior sampling with pretrained diffusion prior",
+      "llm_evidence_cn": "使用预训练扩散先验的免训练后验采样",
+      "llm_evidence": "使用预训练扩散先验的免训练后验采样",
+      "canonical_evidence": "使用预训练扩散先验的免训练后验采样",
+      "llm_tldr_en": "Scale-Consistent Posterior Dynamics introduces a one-parameter posterior SDE family for diffusion inverse problems, using log-SNR and rescaled clean-image coordinates to construct tractable likelihood proxies that enable accurate posterior sampling with a pretrained diffusion prior.",
+      "llm_tldr_cn": "扩散逆问题的后验采样中，中间似然分量通常难以处理。本文提出一种单参数后验SDE族，并利用重缩放干净坐标与log-SNR构造可处理的似然代理，投影扩散不确定性得到噪声条件协方差路径。该方法无需额外训练即可用预训练扩散先验进行高质量后验采样。",
+      "llm_tldr": "扩散逆问题的后验采样中，中间似然分量通常难以处理。本文提出一种单参数后验SDE族，并利用重缩放干净坐标与log-SNR构造可处理的似然代理，投影扩散不确定性得到噪声条件协方差路径。该方法无需额外训练即可用预训练扩散先验进行高质量后验采样。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.14038v1",
+      "source": "arxiv",
+      "title": "Adversarial Learning of Classifier-Free Guidance Schedules",
+      "abstract": "Modern text-to-image diffusion models rely on classifier-free guidance (CFG) to achieve high image fidelity and text alignment. However, CFG typically applies a static, global scale across all timesteps, samples, and conditions -- a choice that is generally suboptimal and can introduce artifacts, as different states may benefit from different levels of guidance. While time-varying schedules are known to improve quality, designing them by hand is non-trivial and application-dependent. In this paper, we learn the guidance schedule as a function of diffusion time, conditioning and the current noisy sample, in order to better align sampled images with the text prompt. We frame this as a density ratio estimation problem: a discriminator is trained to estimate the time-dependent log-density ratio between the true and guided marginal distributions, while a lightweight generator network predicts the optimal, state-dependent guidance scale. Empirically, our approach outperforms both heuristic CFG schedules and prior methods for learning dynamic guidance on text-to-image generation benchmarks.",
+      "authors": [
+        "Ashwini Pokle",
+        "Alexandre Galashov",
+        "Arnaud Doucet",
+        "Mauricio Delbracio",
+        "Valentin De Bortoli"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-14T07:30:36+00:00",
+      "link": "https://arxiv.org/pdf/2608.14038v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Learns dynamic classifier-free guidance schedules for text-to-image diffusion models to improve image fidelity and text alignment",
+      "llm_evidence_cn": "学习文本到图像扩散模型的动态无分类器引导调度，以提升图像保真度和文本对齐",
+      "llm_evidence": "学习文本到图像扩散模型的动态无分类器引导调度，以提升图像保真度和文本对齐",
+      "canonical_evidence": "学习文本到图像扩散模型的动态无分类器引导调度，以提升图像保真度和文本对齐",
+      "llm_tldr_en": "Proposes learning CFG schedules as a function of time, condition, and noisy sample via density ratio estimation and adversarial training, improving text-to-image generation fidelity and alignment.",
+      "llm_tldr_cn": "无分类器引导在现代文本到图像扩散模型中至关重要，但静态全局尺度对不同时间步、样本和条件来说并非最优，且可能引入伪影。本文将引导调度建模为扩散时间、条件和当前噪声样本的函数，并通过判别器进行密度比估计来学习该调度。该方法能更灵活地调整引导强度，改善采样图像与文本提示的对齐。这为扩散模型引导优化提供了学习式解决方案，但需要额外训练。",
+      "llm_tldr": "无分类器引导在现代文本到图像扩散模型中至关重要，但静态全局尺度对不同时间步、样本和条件来说并非最优，且可能引入伪影。本文将引导调度建模为扩散时间、条件和当前噪声样本的函数，并通过判别器进行密度比估计来学习该调度。该方法能更灵活地调整引导强度，改善采样图像与文本提示的对齐。这为扩散模型引导优化提供了学习式解决方案，但需要额外训练。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.16793v1",
+      "source": "arxiv",
+      "title": "PixRestore: Unified Image Restoration via Pixel Diffusion Transformer",
+      "abstract": "Unified image restoration (UIR) aims to recover high-quality (HQ) content from low-quality (LQ) images with different degradations using a single model. Most recent methods adapt large pretrained text-to-image (T2I) latent diffusion models for their strong capacity and generative priors. However, the variational autoencoder (VAE) in latent T2I models may discard restoration-sensitive details, while the open-ended synthesis prior can introduce content-inconsistent artifacts. We present PixRestore, a VAE-free pixel-space Diffusion Transformer (DiT) for UIR, where the diffusion backbone is trained entirely from scratch, without relying on T2I pretraining. PixRestore performs flow matching directly on patchified pixels, preserving fine-grained details while keeping the token sequence tractable. To adapt to different degradations, PixRestore learns to predict the reliability of layer features using LQ--HQ DINO feature similarity. Features from more reliable layers are fused as dense conditioning, while less reliable layers receive stronger HQ-feature supervision to encourage degradation removal. We train PixRestore on a large-scale corpus of diverse scenes and degradations, and further finetune it into a one-step generator using DINO-based adversarial objectives for efficient inference. Experiments on public benchmarks and real-world test sets show that, with only about 50M parameters and single-step inference, PixRestore achieves the best overall fidelity, perceptual quality, and robustness to degradations among competing UIR models while being far more efficient. Larger PixRestore variants can further boost performance, demonstrating the scalability of our pixel-space design. Code and the curated benchmark can be found at https://github.com/csslc/PixRestore.",
+      "authors": [
+        "Lingchen Sun",
+        "Rongyuan Wu",
+        "Xiangtao Kong",
+        "Jixin Zhao",
+        "Qiaosi Yi",
+        "Yujing Sun",
+        "Shuaizheng Liu",
+        "Zhengqiang Zhang",
+        "Lei Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-17T16:49:55+00:00",
+      "link": "https://arxiv.org/pdf/2608.16793v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Diffusion transformer for unified image restoration, a diffusion-based generative approach to recover high-quality images",
+      "llm_evidence_cn": "用扩散Transformer做统一图像恢复，是一种基于扩散的生成式高质量图像恢复方法",
+      "llm_evidence": "用扩散Transformer做统一图像恢复，是一种基于扩散的生成式高质量图像恢复方法",
+      "canonical_evidence": "用扩散Transformer做统一图像恢复，是一种基于扩散的生成式高质量图像恢复方法",
+      "llm_tldr_en": "PixRestore is a VAE-free pixel-space diffusion transformer for unified image restoration, performing flow matching on patchified pixels to preserve details without relying on pretrained text-to-image models.",
+      "llm_tldr_cn": "统一图像恢复旨在用单一模型处理多种退化，现有方法常改编大规模隐空间扩散模型，但VAE会丢失细节且开放先验易引入伪影。本文提出PixRestore，直接在像素化patch上执行流匹配，不使用VAE和文本到图像预训练，从零训练扩散骨干。该方法保留了细粒度细节并避免内容不一致伪影。该工作展示了扩散模型在图像恢复这类生成任务中的新设计空间。",
+      "llm_tldr": "统一图像恢复旨在用单一模型处理多种退化，现有方法常改编大规模隐空间扩散模型，但VAE会丢失细节且开放先验易引入伪影。本文提出PixRestore，直接在像素化patch上执行流匹配，不使用VAE和文本到图像预训练，从零训练扩散骨干。该方法保留了细粒度细节并避免内容不一致伪影。该工作展示了扩散模型在图像恢复这类生成任务中的新设计空间。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.17666v1",
+      "source": "arxiv",
+      "title": "Picard Proximal Monte Carlo for Parallel Bayesian Imaging with Score-Based Generative Priors",
+      "abstract": "Bayesian imaging inverse problems often require sampling from high-dimensional posterior distributions. While recent score-based and diffusion models provide expressive Bayesian priors, their sampling procedures remain inherently sequential and computationally expensive for large-scale imaging applications. We propose PiX-MC, a time-parallel posterior sampling framework based on proximal Langevin dynamics and Picard iteration. The proximal-likelihood formulation exploits the fact that many imaging likelihoods admit efficient, problem-specific proximal operators, while Picard refinement exposes parallelism across discretization nodes and naturally supports multi-GPU implementation. To further improve practical scalability and sampling performance, we develop multi-block and annealed variants of the proposed framework. We establish convergence guarantees under transparent assumptions, accommodating non-log-concave posteriors, imperfect learned score models, multi-block implementations, and annealing schedules. Experiments on a diverse collection of imaging inverse problems demonstrate that PiX-MC substantially reduces wall-clock time while preserving reconstruction quality. On a $512\\times512\\times80$ sparse-view computed tomography (CT) problem, annealed multi-block PiX-MC achieves up to a $50\\times$ runtime speedup over the standard Langevin sampler using eight GPUs.",
+      "authors": [
+        "Deliang Wei",
+        "Evan Bell",
+        "Wenhan Guo",
+        "Yifan Chen",
+        "Yu Sun"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-18T11:40:31+00:00",
+      "link": "https://arxiv.org/pdf/2608.17666v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Time-parallel posterior sampling with score-based priors, accelerates diffusion inference",
+      "llm_evidence_cn": "基于分数先验的时间并行后验采样，加速扩散推断",
+      "llm_evidence": "基于分数先验的时间并行后验采样，加速扩散推断",
+      "canonical_evidence": "基于分数先验的时间并行后验采样，加速扩散推断",
+      "llm_tldr_en": "Proposes PiX-MC, a time-parallel proximal Langevin and Picard iteration framework for scalable Bayesian imaging with score-based diffusion priors, enabling multi-GPU sampling.",
+      "llm_tldr_cn": "该论文关注基于分数/扩散先验的贝叶斯成像后验采样计算瓶颈。采样过程固有的顺序性使得在大规模成像场景中耗时严重。作者提出PiX-MC框架，将近端Langevin动力学与Picard迭代结合，利用近端算子实现高效似然处理，并在离散化节点间暴露并行性，支持多GPU加速。通过时间并行化，显著提升扩散先验采样的可扩展性，为高维成像应用提供了实用方案。",
+      "llm_tldr": "该论文关注基于分数/扩散先验的贝叶斯成像后验采样计算瓶颈。采样过程固有的顺序性使得在大规模成像场景中耗时严重。作者提出PiX-MC框架，将近端Langevin动力学与Picard迭代结合，利用近端算子实现高效似然处理，并在离散化节点间暴露并行性，支持多GPU加速。通过时间并行化，显著提升扩散先验采样的可扩展性，为高维成像应用提供了实用方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.17973v1",
+      "source": "arxiv",
+      "title": "LinCa: Accelerating Diffusion Models via Learnable Decomposed Feature Caching",
+      "abstract": "Diffusion models have achieved remarkable success in image and video generation, yet the high computational cost of iterative sampling remains a critical bottleneck for practical deployment. Feature caching has emerged as a promising acceleration paradigm by reusing or predicting intermediate features across timesteps. However, existing training-free methods apply uniform prediction strategies that cannot adapt to the heterogeneous feature dynamics, causing significant quality degradation under high acceleration ratios. We propose LinCa, a feature caching framework based on learnable invertible networks. LinCa decomposes cached features into sub-components with distinct continuity properties via a lightweight invertible network and applies differentiated prediction orders matched to each component. The strict invertibility guarantees lossless reconstruction back to the original feature space, forming a unified Decompose-Predict-Reconstruct pipeline. By training separate predictors for different models and timestep segments, LinCa adapts to heterogeneous feature dynamics. Experiments on FLUX, Qwen-Image, and HunyuanVideo demonstrate that LinCa, with less than 0.2% additional parameters, significantly outperforms existing methods and maintains near-lossless quality at 5-7x speedup. Code: https://github.com/QHR69/LinCa",
+      "authors": [
+        "Jinshan Liu",
+        "Haoran Qin",
+        "Xiaobing Tu",
+        "Jiacheng Liu",
+        "Jiahui Hu",
+        "Zhengan Yan",
+        "Yukun Xie",
+        "Kerui Shen",
+        "Jinkui Ren",
+        "Yuqi Lin",
+        "Xiantao Zhang",
+        "Linfeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-18T16:26:21+00:00",
+      "link": "https://arxiv.org/pdf/2608.17973v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion model acceleration via learnable decomposed feature caching",
+      "llm_evidence_cn": "通过学习式分解特征缓存加速扩散模型",
+      "llm_evidence": "通过学习式分解特征缓存加速扩散模型",
+      "canonical_evidence": "通过学习式分解特征缓存加速扩散模型",
+      "llm_tldr_en": "LinCa introduces learnable invertible networks to decompose cached features into components of distinct continuity, enabling adaptive prediction and reducing quality degradation at high acceleration ratios.",
+      "llm_tldr_cn": "针对扩散模型迭代采样计算成本高、现有训练无关的特征缓存方法使用统一预测策略导致高加速比下质量下降的问题，本文提出LinCa，利用轻量级可逆网络将缓存特征分解为连续性不同的子分量，并采用不同的预测策略。实验表明LinCa在保持生成质量的同时显著减少了计算量，为图像和视频生成中的扩散模型加速提供了新的学习式缓存方案。",
+      "llm_tldr": "针对扩散模型迭代采样计算成本高、现有训练无关的特征缓存方法使用统一预测策略导致高加速比下质量下降的问题，本文提出LinCa，利用轻量级可逆网络将缓存特征分解为连续性不同的子分量，并采用不同的预测策略。实验表明LinCa在保持生成质量的同时显著减少了计算量，为图像和视频生成中的扩散模型加速提供了新的学习式缓存方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

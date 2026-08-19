@@ -6,48 +6,63 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-18
-- 运行时间：2026-08-18 20:00:00 UTC
+- 最新运行日期：2026-08-19
+- 运行时间：2026-08-19 20:15:31 UTC
 - 运行状态：成功
-- 本次总论文数：8
-- 精读区：5
-- 速读区：3
+- 本次总论文数：13
+- 精读区：6
+- 速读区：7
 
 ### 今日简报（AI）
-今日共读8篇论文，精读5篇、速读3篇，聚焦高效多模态生成与扩散模型优化。
+今日共读13篇论文，精读6篇、速读7篇，重点关注视频生成与高效生成模型。
 
-最值得关注的是两篇9.0分精读：同步感知跨模态稀疏注意力用于音视频生成，以及基于整流流的高效文生图模型Nexus。
+最值得看的是两篇9.0分精读：视频生成的“幅度-方向解耦”流匹配方法，以及动态分辨率下的自适应时空令牌选择技术。
 
-若想快速跟进，可继续关注无噪声条件的视频生成（Equilibrium Forcing）与像素空间扩散模型训练实证，均具参考价值。
-- 详情：[/202608/18/README](/202608/18/README)
+建议普通读者优先关注这两篇的高效生成思路，后续可结合速读中的风格迁移与扩散逆问题研究拓展视野。
+- 详情：[/202608/19/README](/202608/19/README)
 
 ### 精读区论文标签
-1. [Efficient Audio-Visual Generation via Synchrony-Aware Cross-Modal Sparse Attention](/202608/18/2608.15522v1-efficient-audio-visual-generation-via-synchrony-aware-cross-modal-sparse-attention)  
+1. [Magnitude-Direction Decoupling for Fast Video Generation with Flow Matching Models](/202608/19/2608.17695v1-magnitude-direction-decoupling-for-fast-video-generation-with-flow-matching-models)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：音视频扩散生成的免训练同步感知稀疏注意力加速
-2. [Nexus: Structured Synergy for Efficient Text-to-Image Generation using Rectified Flow Model](/202608/18/2608.16104v1-nexus-structured-synergy-for-efficient-text-to-image-generation-using-rectified-flow-model)  
+   evidence：面向流匹配视频生成的方向-幅值解耦免训练加速
+2. [AViTS: Adaptive Spatiotemporal Token Selection for Efficient Dynamic-Resolution Generation](/202608/19/2608.17995v1-avits-adaptive-spatiotemporal-token-selection-for-efficient-dynamic-resolution-generation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：使用整流流模型结合稀疏架构与量化实现高效文生图
-3. [DriveCache: Action-Aware Caching for Driving World Model Inference](/202608/18/2608.16354v1-drivecache-action-aware-caching-for-driving-world-model-inference)  
+   evidence：面向动态分辨率扩散采样的免训练自适应标记选择
+3. [Optimize Your Sampling: Tuned Diffusion Sampling with Bayesian Optimization](/202608/19/2608.18040v1-optimize-your-sampling-tuned-diffusion-sampling-with-bayesian-optimization)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练动作感知缓存加速驾驶视频扩散推理
-4. [MLLM-Guided Semantic Correction for Text-to-Video Generation](/202608/18/2608.16513v1-mllm-guided-semantic-correction-for-text-to-video-generation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练的MLLM引导视频扩散生成中校正
-5. [Revisiting Classifier-Free Guidance Methods in Latent Diffusion Models](/202608/18/2608.16786v1-revisiting-classifier-free-guidance-methods-in-latent-diffusion-models)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：对免训练推理期扩散增强方法的再评估
+   evidence：扩散采样中免训练的时间步选择优化
+4. [From Dense Prediction to Visual Editing: Structured Supervision for Unified Image and Video Creation](/202608/19/2608.14740v1-from-dense-prediction-to-visual-editing-structured-supervision-for-unified-image-and-video-creation)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：基于扩散Transformer的视频生成与统一图像视频创建
+5. [PoseAdapter: Dual-Stream 2.5D Controllable Image Generation for Complex Multi-Object Scenes](/202608/19/2608.15583v1-poseadapter-dual-stream-25d-controllable-image-generation-for-complex-multi-object-scenes)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：面向复杂多目标场景的文本到图像扩散模型，实现高保真2.5D可控图像生成
+6. [PixelControl: Fine-Grained Condition Fidelity in Text-to-Image Diffusion](/202608/19/2608.15705v1-pixelcontrol-fine-grained-condition-fidelity-in-text-to-image-diffusion)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：像素空间可控文本到图像扩散框架
 
 ### 速读区论文标签
-1. [Equilibrium Forcing: Adaptive Video Generation Without Noise Conditioning](/202608/18/2608.14706v1-equilibrium-forcing-adaptive-video-generation-without-noise-conditioning)  
+1. [Through Van Gogh's Eyes: Global Style Transfer with Diffusion Mod](/202608/19/2608.11546v1-through-van-goghs-eyes-global-style-transfer-with-diffusion-mod)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：无需噪声条件、训练采样解耦的视频扩散
-2. [An Empirical Study of Training Pixel-Space Text-to-Image Diffusion Models](/202608/18/2608.16887v1-an-empirical-study-of-training-pixel-space-text-to-image-diffusion-models)  
+   evidence：利用扩散模型进行图像风格迁移与生成
+2. [Scale-Consistent Posterior Dynamics for Diffusion Inverse Problems](/202608/19/2608.15144v1-scale-consistent-posterior-dynamics-for-diffusion-inverse-problems)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：像素空间文本到图像扩散模型训练的实证研究
-3. [Forward-Evolution Error Analysis and Adaptive Design for Matrix-Valued Diffusion Models](/202608/18/2608.15103v1-forward-evolution-error-analysis-and-adaptive-design-for-matrix-valued-diffusion-models)  
+   evidence：使用预训练扩散先验的免训练后验采样
+3. [XYZFlow:Scaling Multi dimensional Shortcut Flows for Efficient Generative Modeling](/202608/19/2608.12276v2-xyzflowscaling-multi-dimensional-shortcut-flows-for-efficient-generative-modeling)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向无需重训练的采样自适应噪声调度设计
+   evidence：基于流匹配的高效图像生成，与扩散模型生成任务相关
+4. [Adversarial Learning of Classifier-Free Guidance Schedules](/202608/19/2608.14038v1-adversarial-learning-of-classifier-free-guidance-schedules)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：学习文本到图像扩散模型的动态无分类器引导调度，以提升图像保真度和文本对齐
+5. [PixRestore: Unified Image Restoration via Pixel Diffusion Transformer](/202608/19/2608.16793v1-pixrestore-unified-image-restoration-via-pixel-diffusion-transformer)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：用扩散Transformer做统一图像恢复，是一种基于扩散的生成式高质量图像恢复方法
+6. [Picard Proximal Monte Carlo for Parallel Bayesian Imaging with Score-Based Generative Priors](/202608/19/2608.17666v1-picard-proximal-monte-carlo-for-parallel-bayesian-imaging-with-score-based-generative-priors)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：基于分数先验的时间并行后验采样，加速扩散推断
+7. [LinCa: Accelerating Diffusion Models via Learnable Decomposed Feature Caching](/202608/19/2608.17973v1-linca-accelerating-diffusion-models-via-learnable-decomposed-feature-caching)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：通过学习式分解特征缓存加速扩散模型
 
 
 <div class="dpr-home-promo-card">
