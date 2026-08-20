@@ -1,0 +1,54 @@
+{
+  "label": "2026-08-20",
+  "date": "2026-08-20",
+  "generated_at": "2026-08-20T20:16:27",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202608/20/2608.18484v1-partition-the-support-reconstruct-the-residual-training-free-sparse-attention-for-video-generation-and-world-models",
+      "section": "deep",
+      "title_en": "Partition the Support, Reconstruct the Residual: Training-Free Sparse Attention for Video Generation and World Models",
+      "authors": "Pardis Taghavi, Reza Langari, Gaurav Pandey",
+      "date": "2026-08-19",
+      "pdf": "https://arxiv.org/pdf/2608.18484v1",
+      "score": "9.0",
+      "evidence": "面向视频扩散Transformer的免训练稀疏注意力加速方法",
+      "tldr": "训练无关的块稀疏注意力可加速视频Transformer，但行级注意力集中不足以定义可执行稀疏算子，且分区几何影响支持集与残差可预测性。本文提出SparsePR，结合响应耦合分区与探针拟合残差重建，以少量查询行校准仿射修正。在四个视频生成与世界模型上显著降低重建误差，以22-26%执行密度实现1.48-2.61倍加速。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Training-free block-sparse attention can accelerate video transformers, but row-wise attention concentration does not by itself specify an executable sparse operator. Queries sharing a block route may have poorly overlapping supports, while retained attention mass alone does not determine the post-softmax error from skipped interactions. We show that partition geometry affects both pooled support and the predictability of the remaining residual from the sparse output. We introduce SparsePR, which combines Response-Coupled Partitioning with Probe-Fitted Residual Reconstruction. Sampled-query key responses form paired K/V groups, whose centroids induce query-response coordinates for shared routing. A small set of exact query rows then calibrates a call-specific affine correction from the sparse output within the output subspace observed in the probe residuals. Across four heterogeneous video generation and world models, SparsePR consistently reduces attention-reconstruction error. Ablations show that probe fitting accounts for most of this reduction, while response-coupled partitioning lowers hard-drop error and improves reconstruction under a finite probe budget. SparsePR preserves generation quality at 22.0-26.0% realized executed-pair density while achieving 1.48x-2.61x end-to-end speedups. Project page: https://pardistaghavi.github.io/SparsePR-website/",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/20/2608.16585v1-squad-sub-quadratic-attention-distillation-for-efficient-video-generation",
+      "section": "quick",
+      "title_en": "SQuad: Sub-Quadratic Attention Distillation for Efficient Video Generation",
+      "authors": "Animesh Karnewar, Denis Korzhenkov, Amirhossein Habibian, Mohsen Ghafoorian",
+      "date": "2026-08-17",
+      "pdf": "https://arxiv.org/pdf/2608.16585v1",
+      "score": "6.0",
+      "evidence": "通过注意力蒸馏提升视频生成效率，但依赖训练",
+      "tldr": "视频扩散Transformer中自注意力成本随token数平方增长，制约高分辨率长视频。线性或低秩注意力轻量但表现力不足，存在质量差距。SQuad提出次二次注意力蒸馏框架，通过蒸馏得到复杂度为O(n√n)的注意力算子，在保证表达能力的同时降低计算开销。在视频生成任务上，SQuad在质量与效率之间取得良好平衡，为高效视频生成提供新思路。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Video Diffusion Transformers (DiTs) spend most of their compute inside the Self-Attention operation, whose cost grows quadratically, $\\mathcal{O}(n^2)$, with the number of latent tokens $n$. For the task of video generation, the token count is large, so this term dominates runtime and memory, and thereby caps the resolution and duration we can generate. Linear $\\mathcal{O}(n)$ and low-rank $\\mathcal{O}(nk)$ surrogates of Self-Attention trade the full softmax $QK^T$ for cheaper kernels, but rarely recover the original's expressivity, leaving a stubborn quality gap. Motivated by this, we propose SQuad, a Sub-Quadratic Attention Distillation framework that achieves a complexity of $\\mathcal{O}(n\\sqrt{n})$ in the resulting distilled Attention, naturally balancing the efficiency v/s expressivity trade-off. Instead of training our own Video DiT from scratch, which is prohibitively expensive, we fit a pretrained full softmax Self-Attention DiT into our proposed SQuad-Attention one by distilling the former in two stages: Flow-Matching Supervised Fine-Tuning (SFT), followed by improved Distribution Matching Distillation (DMD2) which additionally makes the sampling more efficient. On the Wan~2.2 5B text-to-video model, SQuAD matches the quadratic teacher on VBench ($83.20$ v/s $83.08$) while cutting the per-step per-block attention FLOPs by $\\sim$$67\\times$ and attention latency by $\\sim$$11\\times$, and end-to-end DiT latency by 2$\\times$, all while also generating a video in only $6$ Neural Functional Evaluations (NFEs) instead of the default $100$.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/20/2608.17286v1-abra-scaling-diffusion-image-training",
+      "section": "quick",
+      "title_en": "Abra: Scaling Diffusion Image Training",
+      "authors": "Kyle Chickering, Wei-An Lin, Swayam Bhanded, Dan Saunders, Akshat Tripathi, Jiaming Song, Shyamal Buch, Xinchen Yan",
+      "date": "2026-08-18",
+      "pdf": "https://arxiv.org/pdf/2608.17286v1",
+      "score": "6.0",
+      "evidence": "扩散图像模型训练缩放规律研究，与免训练优化无直接关联。",
+      "tldr": "针对扩散模型缺乏计算最优缩放规律的问题，本文提出受控的流匹配变换器家族Abra，在10^19到10^22 FLOPs范围内进行系统研究。发现扩散模型可预测地缩放，但最优数据量约为每参数200个图像token，是LLM的十倍。过度训练仍保持鲁棒，且预测性扩展到生成质量、最优CFG设置及训练曲线形状。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Compute-optimal scaling laws guide the training of frontier language models yet remain largely unexplored for visual generation. We present a systematic scaling law study for text-to-image diffusion models using Abra, a controlled family of flow-matching transformers trained across three orders of magnitude worth of compute ($10^{19}$ to $10^{22}$ FLOPs), reaching significantly larger compute budgets than previous works. We demonstrate that diffusion models scale just as predictably as language models but require far more data to train optimally: compute optimality occurs at approximately $200$ image tokens per parameter, ten times the Chinchilla compute-optimal prescription for LLMs. We show that unlike language models, diffusion models are robust to overtraining and that practitioners should err on the side of more data rather than a larger model. Finally, we show that this predictability extends beyond training loss to generative quality metrics, optimal CFG settings, representation quality, and even the shape of the training curves, which collapse onto a universal form.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,136 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-20T20:12:30.195224+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2608.18484v1",
+      "source": "arxiv",
+      "title": "Partition the Support, Reconstruct the Residual: Training-Free Sparse Attention for Video Generation and World Models",
+      "abstract": "Training-free block-sparse attention can accelerate video transformers, but row-wise attention concentration does not by itself specify an executable sparse operator. Queries sharing a block route may have poorly overlapping supports, while retained attention mass alone does not determine the post-softmax error from skipped interactions. We show that partition geometry affects both pooled support and the predictability of the remaining residual from the sparse output. We introduce SparsePR, which combines Response-Coupled Partitioning with Probe-Fitted Residual Reconstruction. Sampled-query key responses form paired K/V groups, whose centroids induce query-response coordinates for shared routing. A small set of exact query rows then calibrates a call-specific affine correction from the sparse output within the output subspace observed in the probe residuals. Across four heterogeneous video generation and world models, SparsePR consistently reduces attention-reconstruction error. Ablations show that probe fitting accounts for most of this reduction, while response-coupled partitioning lowers hard-drop error and improves reconstruction under a finite probe budget. SparsePR preserves generation quality at 22.0-26.0% realized executed-pair density while achieving 1.48x-2.61x end-to-end speedups. Project page: https://pardistaghavi.github.io/SparsePR-website/",
+      "authors": [
+        "Pardis Taghavi",
+        "Reza Langari",
+        "Gaurav Pandey"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-08-19T03:16:09+00:00",
+      "link": "https://arxiv.org/pdf/2608.18484v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free sparse attention method for accelerating video diffusion transformers",
+      "llm_evidence_cn": "面向视频扩散Transformer的免训练稀疏注意力加速方法",
+      "llm_evidence": "面向视频扩散Transformer的免训练稀疏注意力加速方法",
+      "canonical_evidence": "面向视频扩散Transformer的免训练稀疏注意力加速方法",
+      "llm_tldr_en": "SparsePR is a training-free sparse attention method that partitions query-key responses and reconstructs residuals, enabling efficient video generation and world models with near-zero quality loss.",
+      "llm_tldr_cn": "视频扩散Transformer的自注意力计算成本随token数量平方增长，限制高分辨率长视频的生成。现有免训练稀疏注意力缺乏可执行的稀疏算子和误差控制。SparsePR提出响应耦合划分与探针拟合残差重建，根据采样query-key响应构造K/V分组，并重建被跳过交互的残差，得到近似原注意力的高效稀疏算子。在视频生成和世界模型任务中，该方法在保持生成质量的同时显著降低计算复杂度，是一种纯免训练的推理优化技术。",
+      "llm_tldr": "视频扩散Transformer的自注意力计算成本随token数量平方增长，限制高分辨率长视频的生成。现有免训练稀疏注意力缺乏可执行的稀疏算子和误差控制。SparsePR提出响应耦合划分与探针拟合残差重建，根据采样query-key响应构造K/V分组，并重建被跳过交互的残差，得到近似原注意力的高效稀疏算子。在视频生成和世界模型任务中，该方法在保持生成质量的同时显著降低计算复杂度，是一种纯免训练的推理优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.16585v1",
+      "source": "arxiv",
+      "title": "SQuad: Sub-Quadratic Attention Distillation for Efficient Video Generation",
+      "abstract": "Video Diffusion Transformers (DiTs) spend most of their compute inside the Self-Attention operation, whose cost grows quadratically, $\\mathcal{O}(n^2)$, with the number of latent tokens $n$. For the task of video generation, the token count is large, so this term dominates runtime and memory, and thereby caps the resolution and duration we can generate. Linear $\\mathcal{O}(n)$ and low-rank $\\mathcal{O}(nk)$ surrogates of Self-Attention trade the full softmax $QK^T$ for cheaper kernels, but rarely recover the original's expressivity, leaving a stubborn quality gap. Motivated by this, we propose SQuad, a Sub-Quadratic Attention Distillation framework that achieves a complexity of $\\mathcal{O}(n\\sqrt{n})$ in the resulting distilled Attention, naturally balancing the efficiency v/s expressivity trade-off. Instead of training our own Video DiT from scratch, which is prohibitively expensive, we fit a pretrained full softmax Self-Attention DiT into our proposed SQuad-Attention one by distilling the former in two stages: Flow-Matching Supervised Fine-Tuning (SFT), followed by improved Distribution Matching Distillation (DMD2) which additionally makes the sampling more efficient. On the Wan~2.2 5B text-to-video model, SQuAD matches the quadratic teacher on VBench ($83.20$ v/s $83.08$) while cutting the per-step per-block attention FLOPs by $\\sim$$67\\times$ and attention latency by $\\sim$$11\\times$, and end-to-end DiT latency by 2$\\times$, all while also generating a video in only $6$ Neural Functional Evaluations (NFEs) instead of the default $100$.",
+      "authors": [
+        "Animesh Karnewar",
+        "Denis Korzhenkov",
+        "Amirhossein Habibian",
+        "Mohsen Ghafoorian"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-17T13:47:44+00:00",
+      "link": "https://arxiv.org/pdf/2608.16585v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Efficient video generation via attention distillation; not training-free",
+      "llm_evidence_cn": "通过注意力蒸馏提升视频生成效率，但依赖训练",
+      "llm_evidence": "通过注意力蒸馏提升视频生成效率，但依赖训练",
+      "canonical_evidence": "通过注意力蒸馏提升视频生成效率，但依赖训练",
+      "llm_tldr_en": "SQuad presents a sub-quadratic attention distillation framework that achieves O(n√n) complexity for video diffusion transformers, maintaining high generation quality while substantially reducing runtime and memory.",
+      "llm_tldr_cn": "视频扩散Transformer中自注意力成本随token数平方增长，制约高分辨率长视频。线性或低秩注意力轻量但表现力不足，存在质量差距。SQuad提出次二次注意力蒸馏框架，通过蒸馏得到复杂度为O(n√n)的注意力算子，在保证表达能力的同时降低计算开销。在视频生成任务上，SQuad在质量与效率之间取得良好平衡，为高效视频生成提供新思路。",
+      "llm_tldr": "视频扩散Transformer中自注意力成本随token数平方增长，制约高分辨率长视频。线性或低秩注意力轻量但表现力不足，存在质量差距。SQuad提出次二次注意力蒸馏框架，通过蒸馏得到复杂度为O(n√n)的注意力算子，在保证表达能力的同时降低计算开销。在视频生成任务上，SQuad在质量与效率之间取得良好平衡，为高效视频生成提供新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.17286v1",
+      "source": "arxiv",
+      "title": "Abra: Scaling Diffusion Image Training",
+      "abstract": "Compute-optimal scaling laws guide the training of frontier language models yet remain largely unexplored for visual generation. We present a systematic scaling law study for text-to-image diffusion models using Abra, a controlled family of flow-matching transformers trained across three orders of magnitude worth of compute ($10^{19}$ to $10^{22}$ FLOPs), reaching significantly larger compute budgets than previous works. We demonstrate that diffusion models scale just as predictably as language models but require far more data to train optimally: compute optimality occurs at approximately $200$ image tokens per parameter, ten times the Chinchilla compute-optimal prescription for LLMs. We show that unlike language models, diffusion models are robust to overtraining and that practitioners should err on the side of more data rather than a larger model. Finally, we show that this predictability extends beyond training loss to generative quality metrics, optimal CFG settings, representation quality, and even the shape of the training curves, which collapse onto a universal form.",
+      "authors": [
+        "Kyle Chickering",
+        "Wei-An Lin",
+        "Swayam Bhanded",
+        "Dan Saunders",
+        "Akshat Tripathi",
+        "Jiaming Song",
+        "Shyamal Buch",
+        "Xinchen Yan"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-18T02:36:25+00:00",
+      "link": "https://arxiv.org/pdf/2608.17286v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Scaling-law study for training diffusion image models; related to image generation but not training-free.",
+      "llm_evidence_cn": "扩散图像模型训练缩放规律研究，与免训练优化无直接关联。",
+      "llm_evidence": "扩散图像模型训练缩放规律研究，与免训练优化无直接关联。",
+      "canonical_evidence": "扩散图像模型训练缩放规律研究，与免训练优化无直接关联。",
+      "llm_tldr_en": "Abra systematically studies compute-optimal scaling for text-to-image diffusion models, finding ~200 image tokens per parameter and robustness to overtraining, but focuses on training.",
+      "llm_tldr_cn": "该文系统研究文本到图像扩散模型的训练缩放规律，使用Abra系列流匹配变换器在10^19到10^22 FLOPs范围内训练。结果表明扩散模型的计算最优数据量约为每参数200图像令牌，是LLM Chinchilla最优的十倍，且对过训练不敏感。这些发现为扩散图像训练资源分配提供了指导，但与免训练采样优化无关。",
+      "llm_tldr": "该文系统研究文本到图像扩散模型的训练缩放规律，使用Abra系列流匹配变换器在10^19到10^22 FLOPs范围内训练。结果表明扩散模型的计算最优数据量约为每参数200图像令牌，是LLM Chinchilla最优的十倍，且对过训练不敏感。这些发现为扩散图像训练资源分配提供了指导，但与免训练采样优化无关。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
