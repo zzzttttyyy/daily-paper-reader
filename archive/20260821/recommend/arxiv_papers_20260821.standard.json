@@ -1,0 +1,188 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-21T20:02:50.728586+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2608.20123v1",
+      "source": "arxiv",
+      "title": "Discrete Diffusion Inference-Time Control with Nested Sequential Monte Carlo",
+      "abstract": "We study inference-time control for text generation in discrete diffusion language models, where the goal is to steer sampling toward sequence-level rewards without retraining. Prior work in this domain has focused on particle-based methods such as best-of-$n$ sampling and bootstrap sequential Monte Carlo, which may suffer from overoptimism and weight degeneracy, respectively. We address these limitations using \\emph{nested} sequential Monte Carlo methods. We formulate nested SMC (NSMC) and fully-adapted nested SMC (FA-NSMC) for Feynman--Kac steering, identifying and correcting errors in prior formulations that lead to biased final estimates. We evaluate these methods on toxicity and fluency steering tasks, showing that NSMC and FA-NSMC consistently outperform best-of-$n$ and bootstrap SMC.",
+      "authors": [
+        "Lohithsai Yadala Chanchu",
+        "Hany Abdulsamad",
+        "Christian A. Naesseth"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-08-20T14:52:17+00:00",
+      "link": "https://arxiv.org/pdf/2608.20123v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "proposes nested SMC for training-free inference-time steering of discrete diffusion language models",
+      "llm_evidence_cn": "提出嵌套SMC用于离散扩散语言模型的免训练推理时引导",
+      "llm_evidence": "提出嵌套SMC用于离散扩散语言模型的免训练推理时引导",
+      "canonical_evidence": "提出嵌套SMC用于离散扩散语言模型的免训练推理时引导",
+      "llm_tldr_en": "Addresses inference-time control in discrete diffusion language models by formulating nested and fully-adapted nested SMC for Feynman-Kac steering, correcting biases in prior formulations and improving toxicity/fluency steering without retraining.",
+      "llm_tldr_cn": "离散扩散语言模型在推理时控制采样以优化序列级奖励，无需重训，但现有粒子方法存在过度乐观和权重退化问题。本文提出嵌套序贯蒙特卡洛（NSMC）及完全自适应变体，用于Feynman-Kac引导，并修正了先前公式中的偏差。在毒性和流畅性引导任务上，NSMC与FA-NSMC表现更稳定、更优，证明该方法可成为免训练的扩散模型采样优化有效工具。",
+      "llm_tldr": "离散扩散语言模型在推理时控制采样以优化序列级奖励，无需重训，但现有粒子方法存在过度乐观和权重退化问题。本文提出嵌套序贯蒙特卡洛（NSMC）及完全自适应变体，用于Feynman-Kac引导，并修正了先前公式中的偏差。在毒性和流畅性引导任务上，NSMC与FA-NSMC表现更稳定、更优，证明该方法可成为免训练的扩散模型采样优化有效工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.19556v1",
+      "source": "arxiv",
+      "title": "Stream4D: 4D-Consistency for Streaming Autoregressive Diffusion Video Models",
+      "abstract": "Streaming autoregressive diffusion models enable real-time, long-horizon video generation, but their training objectives optimize local frame prediction rather than the geometry and dynamics of a coherent world: long rollouts accumulate geometric drift and degrade into static or unnatural motion. Recent bidirectional approaches address this problem using rewards signals built upon 3D Gaussian-Splatting reconstruction. However, a single rigid 3d reconstruction cannot model a dynamic scene, so this critic penalizes genuine object motion as reconstruction error and is maximized by freezing the video. This shortcut is especially detrimental in the AR setting, where each chunk can propagate an already-static configuration. In this work, we propose Stream4D, which replaces the static critic with a feed-forward 4D reconstruction reward that explicitly models scene dynamics, allowing coherent motion to receive high consistency rewards. To further guide motion magnitude and quality, we add a motion prior that rewards natural scene-flow magnitude while penalizing jitter and non-rigid artifacts. Our final recipe combines these two terms with a lightweight perceptual anchor. Across various autoregressive video backbones and various generation horizons, Stream4D improves 4D reconstruction quality, preserves motion more effectively, and achieves higher human-aligned preference. Project page: https://banyuanhao.github.io/Stream4D/",
+      "authors": [
+        "Yuanhao Ban",
+        "Jiaqi Feng",
+        "Hengguang Zhou",
+        "Xiaohuan Pei",
+        "Justin Cui",
+        "Cho-Jui Hsieh"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-20T01:54:26+00:00",
+      "link": "https://arxiv.org/pdf/2608.19556v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "video generation with streaming autoregressive diffusion models and 4D-consistency",
+      "llm_evidence_cn": "流式自回归扩散视频模型及其4D一致性改进",
+      "llm_evidence": "流式自回归扩散视频模型及其4D一致性改进",
+      "canonical_evidence": "流式自回归扩散视频模型及其4D一致性改进",
+      "llm_tldr_en": "Stream4D introduces 4D-consistency into streaming autoregressive diffusion video models to combat geometric drift and static-scene shortcuts in long-horizon generation.",
+      "llm_tldr_cn": "针对流式自回归扩散视频模型长程生成中出现几何漂移和场景冻结的问题，提出Stream4D方法，将4D一致性约束引入生成过程。该方法克服了现有刚性3D重建准则对真实动态运动的错误惩罚，改善了长时间视频生成的连贯性。实验表明Stream4D有效缓解了退化问题，为实时长视频生成提供了更稳定的建模方案。",
+      "llm_tldr": "针对流式自回归扩散视频模型长程生成中出现几何漂移和场景冻结的问题，提出Stream4D方法，将4D一致性约束引入生成过程。该方法克服了现有刚性3D重建准则对真实动态运动的错误惩罚，改善了长时间视频生成的连贯性。实验表明Stream4D有效缓解了退化问题，为实时长视频生成提供了更稳定的建模方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.20334v1",
+      "source": "arxiv",
+      "title": "Swift-Image: Exploring the Performance Frontier of Compact Unified Image Generation Models",
+      "abstract": "We present Swift-Image, a compact unified model for text-to-image generation, single-image editing, and multi-image editing. Our goal is to explore how far a relatively small visual generator can be pushed through systematic training engineering under a constrained computational budget. Swift-Image adopts an efficient 6B single-stream DiT and a progressive training pipeline that evolves from broad semantic coverage to higher resolution, stronger visual quality, and unified generation-editing supervision. For post-training, we employ parallel expert reinforcement learning followed by multi-teacher on-policy distillation to alleviate interference among heterogeneous objectives. We further decouple high-level reasoning from pixel-level rendering with a Prompt Enhancer that translates user requests into generator-aligned visual specifications. For efficient deployment, structural pruning and few-step distillation produce 3B and accelerated variants. Swift-Image achieves leading aggregate performance among evaluated open-source models with only 6B parameters and 243K GPU training hours; the compressed 3B model incurs nearly no loss, while few-step distillation further improves aggregate editing performance with substantially fewer sampling steps. Our study also summarizes practical lessons for architecture, data curriculum, post-training, prompt enhancement, and model compression.",
+      "authors": [
+        "Taihang Hu",
+        "Zhao Wang",
+        "Zuan Gao",
+        "Tao Liu",
+        "Hao Yan",
+        "Zhengze Xu",
+        "Yuhang Yu",
+        "Yongchao Du",
+        "Xingjian Wang",
+        "Jun Zheng",
+        "Qinye Zhou",
+        "Zhengrui Chen",
+        "Chao Lin",
+        "Yefeng Shen",
+        "Zhengtao Wu",
+        "Ge Wu",
+        "Xiaoli Xu",
+        "Denghui Yang",
+        "Huayu Zhang",
+        "Mingzhou Zhang",
+        "Mengting Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-20T17:59:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.20334v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Compact unified model for text-to-image generation using DiT",
+      "llm_evidence_cn": "基于DiT的紧凑统一图像生成模型",
+      "llm_evidence": "基于DiT的紧凑统一图像生成模型",
+      "canonical_evidence": "基于DiT的紧凑统一图像生成模型",
+      "llm_tldr_en": "Presents Swift-Image, a compact 6B DiT model for unified text-to-image generation and editing via systematic training engineering.",
+      "llm_tldr_cn": "本文提出Swift-Image，一个紧凑统一的6B单流DiT模型，用于文本到图像生成、单图和多图编辑。通过渐进式训练流程从广泛语义覆盖进化到更高分辨率与更强视觉质量，并在后训练中采用并行专家强化学习与多教师在线蒸馏，缓解异质目标间的干扰。实验在受限算力下探索小型视觉生成器的性能前沿。该项工作属于训练驱动方法，而非免训练优化。",
+      "llm_tldr": "本文提出Swift-Image，一个紧凑统一的6B单流DiT模型，用于文本到图像生成、单图和多图编辑。通过渐进式训练流程从广泛语义覆盖进化到更高分辨率与更强视觉质量，并在后训练中采用并行专家强化学习与多教师在线蒸馏，缓解异质目标间的干扰。实验在受限算力下探索小型视觉生成器的性能前沿。该项工作属于训练驱动方法，而非免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.19504v1",
+      "source": "arxiv",
+      "title": "A Plug-in Interpretation of Conditioning in Score-Based Diffusion Models",
+      "abstract": "We propose a conditioning mechanism for diffusion models based on multi-speed joint diffusion of the target and the condition. The mechanism learns an unconditional joint score network and enforces conditioning at inference via a plug-in correction term. The plug-in term separates the conditioning contribution from the learned unconditional dynamics, offering a transparent view of how the condition steers generation of the target distribution. Building on this, we derive explicit conditional reverse-time SDEs and approximate probability-flow ODEs, enabling principled and directly comparable conditional samplers. To reduce the induced ODE--SDE discrepancy, we introduce a log-Fokker--Planck residual regularization that improves ODE sampling quality. Experiments on conditional image generation tasks demonstrate competitive performance and support the effectiveness of the plug-in conditioning view. Additional ODE--SDE comparison experiments show that the log-Fokker--Planck residual regularization improves deterministic ODE sampling.",
+      "authors": [
+        "Libo Chen",
+        "Souvik Ghosh",
+        "Teo Deveney",
+        "Chris Budd",
+        "Vinay P. Namboodiri"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-19T23:45:05+00:00",
+      "link": "https://arxiv.org/pdf/2608.19504v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "proposes plug-in inference-time conditioning mechanism for score-based diffusion models",
+      "llm_evidence_cn": "提出针对分数扩散模型的推理时条件化即插即用校正机制",
+      "llm_evidence": "提出针对分数扩散模型的推理时条件化即插即用校正机制",
+      "canonical_evidence": "提出针对分数扩散模型的推理时条件化即插即用校正机制",
+      "llm_tldr_en": "Introduces a plug-in conditioning mechanism for score-based diffusion, separating conditioning contribution from unconditional dynamics, with derived conditional SDEs/ODEs and a regularization for ODE sampling.",
+      "llm_tldr_cn": "分数扩散模型的条件化通常需要重训或黑盒指导，缺乏对条件如何影响生成过程的清晰解释。本文提出基于多速度联合扩散的即插即用条件化机制，只学习无条件联合分数网络，在推理时通过校正项施加条件。作者推导了条件反向SDE与近似概率流ODE，并引入对数Fokker-Planck残差正则化以降低ODE与SDE的采样差异。该方法为条件采样提供了可解释、可直接比较的新途径，并提升了ODE采样质量。",
+      "llm_tldr": "分数扩散模型的条件化通常需要重训或黑盒指导，缺乏对条件如何影响生成过程的清晰解释。本文提出基于多速度联合扩散的即插即用条件化机制，只学习无条件联合分数网络，在推理时通过校正项施加条件。作者推导了条件反向SDE与近似概率流ODE，并引入对数Fokker-Planck残差正则化以降低ODE与SDE的采样差异。该方法为条件采样提供了可解释、可直接比较的新途径，并提升了ODE采样质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

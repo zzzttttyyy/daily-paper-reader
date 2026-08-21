@@ -1,0 +1,69 @@
+{
+  "label": "2026-08-21",
+  "date": "2026-08-21",
+  "generated_at": "2026-08-21T20:07:30",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202608/21/2608.20123v1-discrete-diffusion-inference-time-control-with-nested-sequential-monte-carlo",
+      "section": "deep",
+      "title_en": "Discrete Diffusion Inference-Time Control with Nested Sequential Monte Carlo",
+      "authors": "Lohithsai Yadala Chanchu, Hany Abdulsamad, Christian A. Naesseth",
+      "date": "2026-08-20",
+      "pdf": "https://arxiv.org/pdf/2608.20123v1",
+      "score": "9.0",
+      "evidence": "提出嵌套SMC用于离散扩散语言模型的免训练推理时引导",
+      "tldr": "研究离散扩散语言模型中的推理时控制，通过嵌套序贯蒙特卡洛方法引导生成朝向序列级奖励，无需重新训练。针对现有粒子法（best-of-n采样和bootstrap SMC）的过度乐观与权重退化问题，提出NSMC和FA-NSMC，并纠正先前公式偏差。在毒性和流畅性任务中，NSMC和FA-NSMC稳定优于基线。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We study inference-time control for text generation in discrete diffusion language models, where the goal is to steer sampling toward sequence-level rewards without retraining. Prior work in this domain has focused on particle-based methods such as best-of-$n$ sampling and bootstrap sequential Monte Carlo, which may suffer from overoptimism and weight degeneracy, respectively. We address these limitations using \\emph{nested} sequential Monte Carlo methods. We formulate nested SMC (NSMC) and fully-adapted nested SMC (FA-NSMC) for Feynman--Kac steering, identifying and correcting errors in prior formulations that lead to biased final estimates. We evaluate these methods on toxicity and fluency steering tasks, showing that NSMC and FA-NSMC consistently outperform best-of-$n$ and bootstrap SMC.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/21/2608.19556v1-stream4d-4d-consistency-for-streaming-autoregressive-diffusion-video-models",
+      "section": "deep",
+      "title_en": "Stream4D: 4D-Consistency for Streaming Autoregressive Diffusion Video Models",
+      "authors": "Yuanhao Ban, Jiaqi Feng, Hengguang Zhou, Xiaohuan Pei, Justin Cui, Cho-Jui Hsieh",
+      "date": "2026-08-20",
+      "pdf": "https://arxiv.org/pdf/2608.19556v1",
+      "score": "8.0",
+      "evidence": "流式自回归扩散视频模型及其4D一致性改进",
+      "tldr": "流式自回归扩散模型虽能实时生成长视频，但训练仅优化局部帧预测，导致长程生成中几何漂移和动态僵硬。现有方法用静态3D重建做奖励，会误伤真实运动并倾向于冻结画面。Stream4D引入前馈4D重建奖励显式建模场景动态，并配合运动先验与感知锚点，在多个自回归骨干和生成时域上提升重建质量与运动保真度，获得更符合人类偏好的结果。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Streaming autoregressive diffusion models enable real-time, long-horizon video generation, but their training objectives optimize local frame prediction rather than the geometry and dynamics of a coherent world: long rollouts accumulate geometric drift and degrade into static or unnatural motion. Recent bidirectional approaches address this problem using rewards signals built upon 3D Gaussian-Splatting reconstruction. However, a single rigid 3d reconstruction cannot model a dynamic scene, so this critic penalizes genuine object motion as reconstruction error and is maximized by freezing the video. This shortcut is especially detrimental in the AR setting, where each chunk can propagate an already-static configuration. In this work, we propose Stream4D, which replaces the static critic with a feed-forward 4D reconstruction reward that explicitly models scene dynamics, allowing coherent motion to receive high consistency rewards. To further guide motion magnitude and quality, we add a motion prior that rewards natural scene-flow magnitude while penalizing jitter and non-rigid artifacts. Our final recipe combines these two terms with a lightweight perceptual anchor. Across various autoregressive video backbones and various generation horizons, Stream4D improves 4D reconstruction quality, preserves motion more effectively, and achieves higher human-aligned preference. Project page: https://banyuanhao.github.io/Stream4D/",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/21/2608.20334v1-swift-image-exploring-the-performance-frontier-of-compact-unified-image-generation-models",
+      "section": "deep",
+      "title_en": "Swift-Image: Exploring the Performance Frontier of Compact Unified Image Generation Models",
+      "authors": "Taihang Hu, Zhao Wang, Zuan Gao, Tao Liu, Hao Yan, Zhengze Xu, Yuhang Yu, Yongchao Du, Xingjian Wang, Jun Zheng, Qinye Zhou, Zhengrui Chen, Chao Lin, Yefeng Shen, Zhengtao Wu, Ge Wu, Xiaoli Xu, Denghui Yang, Huayu Zhang, Mingzhou Zhang, Mengting Chen",
+      "date": "2026-08-20",
+      "pdf": "https://arxiv.org/pdf/2608.20334v1",
+      "score": "8.0",
+      "evidence": "基于DiT的紧凑统一图像生成模型",
+      "tldr": "针对统一图像生成模型在有限算力下性能受限的问题，提出紧凑6B单流DiT模型Swift-Image。采用渐进式训练流水线，从语义覆盖到高分辨率与统一生成编辑，结合并行专家强化学习与多教师蒸馏，并引入提示增强器解耦推理与渲染。仅用243K GPU训练小时即达开源领先综合性能；3B压缩版几乎无损失，少步蒸馏提升编辑性能并加快采样。系统总结了架构、数据课程、后训练等实用经验。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We present Swift-Image, a compact unified model for text-to-image generation, single-image editing, and multi-image editing. Our goal is to explore how far a relatively small visual generator can be pushed through systematic training engineering under a constrained computational budget. Swift-Image adopts an efficient 6B single-stream DiT and a progressive training pipeline that evolves from broad semantic coverage to higher resolution, stronger visual quality, and unified generation-editing supervision. For post-training, we employ parallel expert reinforcement learning followed by multi-teacher on-policy distillation to alleviate interference among heterogeneous objectives. We further decouple high-level reasoning from pixel-level rendering with a Prompt Enhancer that translates user requests into generator-aligned visual specifications. For efficient deployment, structural pruning and few-step distillation produce 3B and accelerated variants. Swift-Image achieves leading aggregate performance among evaluated open-source models with only 6B parameters and 243K GPU training hours; the compressed 3B model incurs nearly no loss, while few-step distillation further improves aggregate editing performance with substantially fewer sampling steps. Our study also summarizes practical lessons for architecture, data curriculum, post-training, prompt enhancement, and model compression.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/21/2608.19504v1-a-plug-in-interpretation-of-conditioning-in-score-based-diffusion-models",
+      "section": "quick",
+      "title_en": "A Plug-in Interpretation of Conditioning in Score-Based Diffusion Models",
+      "authors": "Libo Chen, Souvik Ghosh, Teo Deveney, Chris Budd, Vinay P. Namboodiri",
+      "date": "2026-08-19",
+      "pdf": "https://arxiv.org/pdf/2608.19504v1",
+      "score": "6.0",
+      "evidence": "提出针对分数扩散模型的推理时条件化即插即用校正机制",
+      "tldr": "现有基于分数的扩散模型在条件生成时通常需要修改训练过程或依赖分类器梯度，缺乏对条件引导机制的清晰解释。本文提出一种基于多速联合扩散的插件式条件化方法：先学习目标与条件的无条件联合分数网络，在推理时通过一个插件校正项施加条件约束，将条件贡献从无条件动力学中分离出来，从而透明地展示条件如何引导目标分布生成。由此推导出显式的条件反向SDE和近似概率流ODE，并引入对数Fokker-Planck残差正则化减小ODE与SDE间的差异，提升确定性采样质量。在条件图像生成任务上验证了方法的竞争性能，并展示了正则化的有效性。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We propose a conditioning mechanism for diffusion models based on multi-speed joint diffusion of the target and the condition. The mechanism learns an unconditional joint score network and enforces conditioning at inference via a plug-in correction term. The plug-in term separates the conditioning contribution from the learned unconditional dynamics, offering a transparent view of how the condition steers generation of the target distribution. Building on this, we derive explicit conditional reverse-time SDEs and approximate probability-flow ODEs, enabling principled and directly comparable conditional samplers. To reduce the induced ODE--SDE discrepancy, we introduce a log-Fokker--Planck residual regularization that improves ODE sampling quality. Experiments on conditional image generation tasks demonstrate competitive performance and support the effectiveness of the plug-in conditioning view. Additional ODE--SDE comparison experiments show that the log-Fokker--Planck residual regularization improves deterministic ODE sampling.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

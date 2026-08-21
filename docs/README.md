@@ -6,29 +6,34 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-20
-- 运行时间：2026-08-20 20:16:22 UTC
+- 最新运行日期：2026-08-21
+- 运行时间：2026-08-21 20:07:24 UTC
 - 运行状态：成功
-- 本次总论文数：3
-- 精读区：1
-- 速读区：2
+- 本次总论文数：4
+- 精读区：3
+- 速读区：1
 
 ### 今日简报（AI）
-今日共读3篇论文，精读1篇、速读2篇，重点聚焦视频生成中的注意力机制优化。最值得关注的是9分精读《Partition the Support, Reconstruct the Residual》，提出无需训练的稀疏注意力方法，可提升视频生成与世界模型效率。建议优先阅读该精读论文，再结合两篇6分速读了解蒸馏与扩散训练趋势，以把握高效视频生成的最新路径。
-- 详情：[/202608/20/README](/202608/20/README)
+今日聚焦4篇扩散模型研究，精读2篇、速读1篇，重点探讨生成控制与视频一致性。  
+最值得关注《Discrete Diffusion Inference-Time Control with Nested Sequential Monte Carlo》（9.0分），从推理端提升可控生成；《Stream4D》（8.0分）则推进流式自回归扩散视频的4D时空一致。  
+建议普通读者优先关注上述两篇：前者适合理解生成模型的可控调优思路，后者则展示视频生成的前沿进展，可结合原文实验图快速建立直观印象。
+- 详情：[/202608/21/README](/202608/21/README)
 
 ### 精读区论文标签
-1. [Partition the Support, Reconstruct the Residual: Training-Free Sparse Attention for Video Generation and World Models](/202608/20/2608.18484v1-partition-the-support-reconstruct-the-residual-training-free-sparse-attention-for-video-generation-and-world-models)  
+1. [Discrete Diffusion Inference-Time Control with Nested Sequential Monte Carlo](/202608/21/2608.20123v1-discrete-diffusion-inference-time-control-with-nested-sequential-monte-carlo)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：面向视频扩散Transformer的免训练稀疏注意力加速方法
+   evidence：提出嵌套SMC用于离散扩散语言模型的免训练推理时引导
+2. [Stream4D: 4D-Consistency for Streaming Autoregressive Diffusion Video Models](/202608/21/2608.19556v1-stream4d-4d-consistency-for-streaming-autoregressive-diffusion-video-models)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：流式自回归扩散视频模型及其4D一致性改进
+3. [Swift-Image: Exploring the Performance Frontier of Compact Unified Image Generation Models](/202608/21/2608.20334v1-swift-image-exploring-the-performance-frontier-of-compact-unified-image-generation-models)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：基于DiT的紧凑统一图像生成模型
 
 ### 速读区论文标签
-1. [SQuad: Sub-Quadratic Attention Distillation for Efficient Video Generation](/202608/20/2608.16585v1-squad-sub-quadratic-attention-distillation-for-efficient-video-generation)  
+1. [A Plug-in Interpretation of Conditioning in Score-Based Diffusion Models](/202608/21/2608.19504v1-a-plug-in-interpretation-of-conditioning-in-score-based-diffusion-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：通过注意力蒸馏提升视频生成效率，但依赖训练
-2. [Abra: Scaling Diffusion Image Training](/202608/20/2608.17286v1-abra-scaling-diffusion-image-training)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：扩散图像模型训练缩放规律研究，与免训练优化无直接关联。
+   evidence：提出针对分数扩散模型的推理时条件化即插即用校正机制
 
 
 <div class="dpr-home-promo-card">
