@@ -6,34 +6,41 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-21
-- 运行时间：2026-08-21 20:07:24 UTC
+- 最新运行日期：2026-08-22
+- 运行时间：2026-08-22 19:29:21 UTC
 - 运行状态：成功
-- 本次总论文数：4
+- 本次总论文数：7
 - 精读区：3
-- 速读区：1
+- 速读区：4
 
 ### 今日简报（AI）
-今日聚焦4篇扩散模型研究，精读2篇、速读1篇，重点探讨生成控制与视频一致性。  
-最值得关注《Discrete Diffusion Inference-Time Control with Nested Sequential Monte Carlo》（9.0分），从推理端提升可控生成；《Stream4D》（8.0分）则推进流式自回归扩散视频的4D时空一致。  
-建议普通读者优先关注上述两篇：前者适合理解生成模型的可控调优思路，后者则展示视频生成的前沿进展，可结合原文实验图快速建立直观印象。
-- 详情：[/202608/21/README](/202608/21/README)
+今日精读7篇中重点聚焦视频配音与编辑：CineDub实现多说话人端到端配音及连贯音效，Qwen-Video-Edit用指令驱动视频编辑。最值得关注多模态视频生成与编辑方向，其中CineDub（9.0）和Qwen-Video-Edit（8.0）得分最高。建议跟进这两个模型的实际效果，并留意图像生成/风格化方法在视频领域的迁移应用。
+- 详情：[/202608/22/README](/202608/22/README)
 
 ### 精读区论文标签
-1. [Discrete Diffusion Inference-Time Control with Nested Sequential Monte Carlo](/202608/21/2608.20123v1-discrete-diffusion-inference-time-control-with-nested-sequential-monte-carlo)  
+1. [CineDub: Scaling End-to-End Video Dubbing to Multi-Speaker Dialogues with Coherent Sound Effects](/202608/22/2608.15734v1-cinedub-scaling-end-to-end-video-dubbing-to-multi-speaker-dialogues-with-coherent-sound-effects)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：提出嵌套SMC用于离散扩散语言模型的免训练推理时引导
-2. [Stream4D: 4D-Consistency for Streaming Autoregressive Diffusion Video Models](/202608/21/2608.19556v1-stream4d-4d-consistency-for-streaming-autoregressive-diffusion-video-models)  
+   evidence：面向多说话人视频配音的统一扩散模型
+2. [Qwen-Video-Edit: Instruction-Based Video Editing by Repurposing an Image Editing Model](/202608/22/2608.14790v2-qwen-video-edit-instruction-based-video-editing-by-repurposing-an-image-editing-model)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：流式自回归扩散视频模型及其4D一致性改进
-3. [Swift-Image: Exploring the Performance Frontier of Compact Unified Image Generation Models](/202608/21/2608.20334v1-swift-image-exploring-the-performance-frontier-of-compact-unified-image-generation-models)  
+   evidence：复用图像扩散编辑模型进行指令视频编辑
+3. [Block3D: Efficient Text-to-3D Generation via Block-Wise Diffusion](/202608/22/2608.19567v1-block3d-efficient-text-to-3d-generation-via-block-wise-diffusion)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：基于DiT的紧凑统一图像生成模型
+   evidence：面向高效文本到3D生成的分块扩散框架
 
 ### 速读区论文标签
-1. [A Plug-in Interpretation of Conditioning in Score-Based Diffusion Models](/202608/21/2608.19504v1-a-plug-in-interpretation-of-conditioning-in-score-based-diffusion-models)  
+1. [Qwen-Video-Edit: Instruction-Based Video Editing by Repurposing an Image Editing Model](/202608/22/2608.14790v1-qwen-video-edit-instruction-based-video-editing-by-repurposing-an-image-editing-model)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：复用图像编辑模型直接操作视频VAE潜变量，无需视频模型训练。
+2. [Spatially-Grounded Flow Matching: Structured Source Distributions for Image Generation](/202608/22/2608.15452v1-spatially-grounded-flow-matching-structured-source-distributions-for-image-generation)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：流匹配图像生成，基于训练的结构化源分布
+3. [Scale-Separated Conditioning for Style-Encoder-Free Diffusion Stylization](/202608/22/2608.19719v1-scale-separated-conditioning-for-style-encoder-free-diffusion-stylization)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：无风格编码器的参考图扩散风格化图像生成
+4. [CRAFT: Constrained Reward via Attention Fine-Tuning for Subject Personalization without Composed Targets](/202608/22/2608.14403v1-craft-constrained-reward-via-attention-fine-tuning-for-subject-personalization-without-composed-targets)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：提出针对分数扩散模型的推理时条件化即插即用校正机制
+   evidence：基于注意力微调的扩散主体个性化，需训练
 
 
 <div class="dpr-home-promo-card">

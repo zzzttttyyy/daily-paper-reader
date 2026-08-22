@@ -1,0 +1,470 @@
+Qwen-Video-Edit: Instruction-Based Video Editing
+by Repurposing an Image Editing Model
+Yunpeng Bai1, Yossi Gandelsman2, Michaël Gharbi2, Qixing Huang1
+1UT Austin, 2Reve
+Abstract
+Instruction-based video editing is commonly built on video-pretrained generative backbones: a
+video diffusion transformer is adapted, at considerable cost, to condition on a source video and an
+editing instruction. In this report we explore a different route and show that a strong instruction-
+based image editing model can edit videos by operating directly on video-VAE latents. Starting
+from Qwen-Image-Edit, we arrange the latent frames of a Wan 2.1 video VAE as tiles of one large
+virtual image, reuse the editor’s image positional encoding for every tile, and bridge the two latent
+spaces with a pair of lightweight input/output projections warm-started from the editor’s own
+patchify and unpatchify layers, so that at initialization a (static) video is embedded exactly as an
+image the model already understands. The whole system is then fine-tuned on the public Ditto-1M
+editing triplets, and a few denoising steps of Wan 2.2 serve as an optional temporal enhancer. We
+motivate the design with a chain of zero-training observations: the stock image editor already edits
+a video presented as a contact sheet; it is indifferent to whether the sheet’s tokens come from one
+joint encode or from per-frame encodes stitched in latent space; and it even edits genuine video
+latents zero-shot to a clearly recognizable degree, leaving fine-tuning only a fidelity gap to close.
+Our results suggest that, despite the large investment in training video latent spaces, per-frame
+video latents remain close enough to the image domain that mature image editing priors transfer
+with minimal adaptation.
+Project Page: https://yunpeng1998.github.io/Qwen-Video-Edit-Page/
+Code: https://github.com/yunpeng1998/Qwen-Video-Edit
+Model: https://huggingface.co/yunpeng1998/Qwen-Video-Edit
+Correspondence: byp215@gmail.com
+Figure 1 Frames from a single long video edited by Qwen-Video-Edit chunk by chunk, each chunk with a different
+instruction. A pretrained image editing transformer operates directly on video-VAE latents; no video-pretrained editing
+backbone is used.
+1
+arXiv:2608.14790v1  [cs.CV]  14 Aug 2026
+
+
+1
+Introduction
+Instruction-based video editing asks a model to modify a source video according to a free-form textual
+instruction—restyling a scene, replacing a subject, changing weather or materials—while preserving the
+content and motion that the instruction does not touch. The dominant recipe adapts a video-pretrained
+generative backbone to this task: a video diffusion transformer is conditioned on the source video and the
+instruction, and fine-tuned on paired editing data [13, 37, 38, 41]. Because large-scale paired video editing data
+does not occur naturally, much of the recent progress has in fact been progress on synthetic data: Ditto-1M
+builds one million editing triplets with an image-editor-guided in-context video generator and trains Editto
+on them [1], and JoyAI-Video-Edit pushes the paradigm to real-time streaming editing with an autoregressive
+diffusion backbone [35]. All of these systems, however, inherit a video generation model first and teach it to
+edit second.
+Meanwhile, instruction-based image editing has matured much faster. Models such as InstructPix2Pix [5],
+FLUX.1 Kontext [3], Qwen-Image [31], and Gemini 2.5 Flash Image [11] follow nuanced instructions, perform
+precise local edits, and preserve identity—capabilities that video editors are still catching up to. This
+asymmetry raises a natural question: rather than teaching a video generator to edit, can we teach a mature
+image editor to handle video?
+The main obstacle appears to be representation. Modern video generators do not operate on pixels but on the
+latents of a causal 3D VAE (e.g. the Wan 2.1 VAE [28]) that compresses a video spatially and temporally; an
+image editor has never seen such latents, and its own VAE encodes single frames only. Our key empirical
+finding is that this obstacle is much smaller than it looks. We arrive at it in three steps (section 3). First, a
+stock image editor already edits videos presented as an image grid: tiling frames into a contact sheet and
+editing the sheet with Qwen-Image-Edit applies the instruction to every frame with surprising cross-frame
+consistency. Second, the editor is indifferent to how the grid was encoded: encoding each frame separately
+with the image VAE and stitching the per-frame latents together in latent space—with each tile keeping
+the positional coordinates it would have had inside the full sheet—produces the same editing behavior. The
+transformer therefore does not need one joint pixel-space canvas; it needs tokens with image-like statistics and
+consistent positions. Third, per-frame video-VAE latents are close cousins of exactly such tokens: substituting
+Wan 2.1 latents for the stitched image latents—through projections that merely mimic the editor’s own
+patchify layers, with no training at all—already produces clearly recognizable instruction-driven edits. What
+remains between an image editor and a video editor is a fidelity gap in per-tile token statistics, not a domain
+gap.
+Concretely, we bridge Qwen-Image-Edit and the Wan 2.1 latent space with two lightweight projections
+that replace the editor’s patchify and unpatchify layers and are warm-started from their weights, so that at
+initialization video latent frames are embedded exactly the way the editor embeds its own image latents
+(section 4). Positional encoding treats the latent frames of both the noisy target and the source video as
+tiles of one large virtual image—the same treatment the editor’s RoPE applies to a contact sheet—and the
+multimodal text branch receives the source video as a literal contact sheet, keeping the prompt interface
+unchanged. We fine-tune the projections and the transformer (LoRA or full fine-tuning) on Ditto-1M [1] with
+the standard flow matching objective, and optionally apply a few SDEdit-style denoising steps of Wan 2.2 [28]
+as a temporal enhancer, following Ditto’s recipe. Long videos are edited chunk by chunk with per-chunk
+instructions.
+Our contributions are:
+• A chain of zero-training observations showing that an instruction-based image editor extends from
+pixel-space image grids to per-frame latent grids with no quality loss, isolating positional treatment—not
+joint encoding—as the operative ingredient.
+• A minimal recipe that connects an image editing transformer to a video VAE: two warm-started
+projections, grid positional encoding over latent frames, and a contact-sheet prompt, requiring no
+video-pretrained backbone.
+• An open-source instruction-based video editing system trained on public data (Ditto-1M).
+2
+
+
+2
+Related Work
+2.1
+Instruction-Based Image Editing
+Instruction-based image editing has evolved from early proof-of-concept systems into some of the most capable
+tools in visual generation. InstructPix2Pix [5] established the paradigm of fine-tuning a text-to-image diffusion
+model [27] on synthetically generated (source image, instruction, edited image) triplets. Subsequent models
+scaled both the data and the backbone: FLUX.1 Kontext [3], Step1X-Edit [20], Qwen-Image [31], and Gemini
+2.5 Flash Image [11] accept text together with reference images, perform targeted local edits, and maintain
+subject identity across turns within a single architecture. Recent work further refines controllability and
+perceptual quality, e.g. continuous camera-parameter control and preference-aligned post-training [16, 26].
+Architecturally, these editors are diffusion transformers [23] trained with flow matching [17, 18]: the source
+image is VAE-encoded, patchified into tokens, and concatenated with the noisy target tokens, with positional
+encoding distinguishing the two streams. Our work takes such an editor—Qwen-Image-Edit [31]—as a frozen
+starting point and asks how little must change for it to edit videos. Prior work has also used image editors as
+components of video pipelines, most notably to edit keyframes that guide a video generator [1, 33, 37]; in
+contrast, we use the image editor as the video editor itself.
+2.2
+Instruction-Based Video Editing
+Inversion-based and training-free methods. Early video editing avoided paired data via per-video
+optimization or inversion. Tune-A-Video [32] fine-tunes a text-to-image model on the single input video;
+TokenFlow [10], FateZero [24], and Pix2Video [6] propagate inverted features across frames; Video-P2P [19],
+StableVideo [7], CoDeF [22], and AnyV2V [15] refine this recipe with attention control, layered representations,
+or image-to-video propagation. These methods require no editing dataset but are slow per video and fragile
+under complex motion.
+Feed-forward methods and synthetic datasets. End-to-end editors are bounded by data. InstructVid2Vid [25]
+and EffiVED [39] synthesized training pairs with one-shot-tuned editors; VEGGIE [37] and InsViE [33] edit a
+keyframe and propagate it with an image-to-video model; Señorita-2M [41] assembles a large corpus from
+a suite of task-specific expert models; InsV2V [8], InstructVEdit [38], DreamVE [34], and UniVideo [30]
+explore related data and unification strategies, and EditVerse [13] unifies image and video editing through
+in-context learning. Ditto [1] scales this line to one million triplets with a single image-editor-guided in-context
+video generator [12] plus a VLM curation agent, and trains the Editto model on the result. Beyond offline
+editing, JoyAI-Video-Edit [35] targets real-time open-ended editing with an autoregressive diffusion backbone,
+alongside other streaming systems [9, 29, 40]. Common to all of these editors is a video-pretrained generative
+backbone, typically inherited from large text-to-video models [4, 14, 28, 36], whose role is to supply temporal
+priors in the video VAE’s latent space. Our work uses the same public dataset (Ditto-1M) but removes the
+video backbone entirely: the temporal dimension is handled by treating video latent frames as tiles of an
+image grid, and all generative capability comes from an image editing model. We use a few denoising steps of
+Wan 2.2 [28] only as an optional post-hoc enhancer, following Ditto’s own denoising-enhancement recipe.
+3
+Empirical Observations
+Our method was not designed top-down; it emerged from a chain of zero-training experiments with the stock
+Qwen-Image-Edit checkpoint, each removing one assumption about what the editor needs. We describe them
+in the order we ran them. All three use the same interface: N frames sampled from a video, an editing
+instruction, and no weight updates whatsoever.
+3.1
+Editing a Video as an Image Grid
+The first observation is folklore-adjacent but worth stating precisely: an instruction-based image editor can
+edit a video presented as a contact sheet. We tile N=r×c uniformly sampled frames into one large image,
+pass it through the unmodified editing pipeline with the instruction, and split the result back into frames
+(figure 2). The editor applies the instruction to every tile, and—more surprisingly—keeps the tiles consistent
+with each other: subject identity, color palette, and edit strength match across frames, presumably because
+3
+
+
+Figure 2
+Editing a video as an image grid.
+Input contact sheet (left) and the output of the unmodified
+Qwen-Image-Edit (right) for the instruction “Edit the skier into a robot.” All frames are edited coherently.
+Input
+Edited
+Figure 3 Editing a latent grid. Frames are encoded separately, stitched only at the token level (each tile keeping its
+full-canvas position in a 4×4 grid), and decoded separately after editing with the instruction “Turn the bus into a
+graphics card.” Shown are six of the sixteen tiles; behavior matches pixel-grid editing—the joint encode is unnecessary.
+tokens from all tiles attend to each other exactly as tokens within one coherent image would. Two practical
+constraints matter. The total canvas must stay near the editor’s training resolution (about 10242 pixels for
+Qwen-Image-Edit); well beyond it, global attention degrades and tile structure breaks down.
+3.2
+From a Pixel Grid to a Latent Grid
+The contact sheet couples the frames in pixel space: they are jointly encoded by the image VAE as one big
+image. If grid editing depended on that joint encode, it would be useless for video latents, which are produced
+frame by frame. So we removed the coupling: each frame is encoded separately with the image VAE, and
+the per-frame latents are concatenated only at the token level. Crucially, each tile’s tokens keep the RoPE
+coordinates they would have had inside the full canvas—an explicit frame index plus the tile’s spatial offset
+in the virtual grid—which is possible because positions in the editor’s RoPE are per-token and attention is
+permutation-equivariant. Denoising proceeds with the editor’s transformer unchanged, and each edited latent
+tile is decoded separately (figure 3). The result is indistinguishable from pixel-grid editing. This is the pivotal
+observation: the editor does not care whether its tokens came from one joint encode or from N independent
+encodes. What it needs is (i) per-tile token statistics matching its image latents and (ii) consistent grid
+positions. Both requirements are properties we can satisfy for latents that were never produced by its own
+VAE.
+3.3
+From Image Latents to Video Latents
+The latent grid still uses the editor’s own image VAE. The final step replaces it with a genuine video
+representation: the per-frame latents of the Wan 2.1 video VAE, which compress the video 8× spatially
+and 4× temporally. These latents have a different channel basis and, for all but the first latent frame, mix
+information across time—a priori one might expect a hard domain gap. Instead we find that the pretrained
+editor already has traction on them. We feed Wan latent frames through the warm-started projections of
+section 4.2—which at initialization simply mimic the editor’s own patchify/unpatchify layers, i.e. involve no
+4
+
+
+Input
+Edited
+Figure 4 Zero-shot editing of video latents. The pretrained Qwen-Image-Edit, with warm-started (untrained)
+projections and the grid treatment, edits Wan 2.1 video latents directly for the instruction “Transform the dancing girl
+in the image into a robot.” Fidelity degrades, but the edit clearly lands—motivating the lightweight adaptation of
+section 4.
+training whatsoever—apply the same grid treatment, and denoise with the frozen editor. Figure 4 shows
+the outcome: the instruction is followed to a clearly recognizable degree, with degraded fidelity but intact
+semantics and layout. Zero-shot, an image editing model edits video latents it has never seen. This is the
+observation that motivates the rest of the report: the previous two experiments established that grid positions,
+not joint encoding, carry the recipe; this one shows the remaining mismatch is a matter of per-tile token
+statistics that the model can already partially absorb. Closing that gap is therefore a lightweight fine-tuning
+problem—not a generative-pretraining problem—and the next section describes how we set it up.
+4
+Method
+Guided by section 3, our design goal is to change as little as possible: keep the image editing transformer,
+keep its grid positional treatment, keep its prompt interface, and adapt only the token interface to the video
+latent space. Figure 5 gives an overview.
+4.1
+Preliminaries
+Qwen-Image-Edit. Qwen-Image-Edit [31] is a diffusion transformer [23] trained with flow matching [17]. Its
+image VAE produces 16-channel latents at 8× spatial downsampling; the transformer patchifies them with 2×2
+patches, so one token carries a 64-dimensional patch (16×2×2) mapped to the model width by a linear layer
+Win, and the output layer Wout maps back to 64 channels. Positions use a three-axis RoPE (frame, height,
+width); for editing, the noisy target tokens take frame index 0 and the VAE-encoded source-image tokens take
+frame index 1, with spatial coordinates centered on the canvas. The text branch is a vision-language model
+(Qwen2.5-VL [2]) that sees the instruction together with the source image.
+Wan 2.1 video VAE. The Wan 2.1 VAE [28] encodes a video of 4k+1 frames into k+1 latent frames of
+16 channels at 8× spatial reduction: a causal 3D encoder whose first latent frame depends only on the first
+pixel frame, while each subsequent latent frame summarizes four pixel frames. Wan 2.2’s dense text-to-video
+models share this VAE, which we exploit for enhancement (section 4.5).
+4.2
+Video Latents as Multi-Frame Image Latents
+Let z ∈R16×T ×h×w be the video latent (source or noisy target) with T latent frames. We treat each latent
+frame as if it were an image latent and patchify it exactly as the editor would:
+Input projection. A single 3D convolution with kernel and stride (1, 2, 2) maps z to tokens of the model
+width, acting independently per latent frame. It is warm-started from the editor’s own patchify layer by
+reshaping Win ∈Rd×64 into a d×16×2×2 kernel—numerically exact, so at initialization a video latent frame
+is embedded precisely as Qwen-Image-Edit embeds an image latent with the same values.
+5
+
+
+Source
+video
+Wan 2.1
+VAE Enc.
+In-Proj.
+Conv (1, 2, 2)
+init: img_in
+Qwen-Image-Edit DiT
+grid RoPE over latent frames
+LoRA / full fine-tune
+Out-Proj.
+Linear
+init: proj_out
+Wan 2.1
+VAE Dec.
+Wan 2.2 enhance
+4 steps, optional
+Edited
+video
+noisy video
+latent
+denoising loop ×N
+noise canvas
+frame idx 0
+reference canvas
+frame idx 1
+T latent frames = tiles of one virtual image grid
+Qwen2.5-VL
+“turn her into a robot”
++ 3×3 contact sheet of source frames
+trained
+frozen
+pixel space
+Figure 5 Overview. Video latent frames are embedded as tiles of a virtual image grid and edited by the image
+editing transformer; only the two projections (warm-started from the editor’s own patchify/unpatchify layers) and the
+transformer weights (LoRA or full) are trained.
+Output projection. A linear layer maps final tokens back to 64-dimensional 2×2×16 patches per latent
+frame, warm-started from Wout the same way.
+The warm start matters: the projections are the only randomly-placed components in the system, and
+initializing them as exact copies of the patchify/unpatchify pair means training starts from a model whose
+behavior on (near-)static content is already the image editor’s, rather than from noise.
+4.3
+Positional Treatment and Conditioning
+Grid positions. Following section 3.2, the T noisy latent frames are placed as tiles of one virtual canvas
+in row-major order: every tile keeps frame index 0, and its tokens receive the height/width coordinates of
+its position inside the r×c grid, exactly as if the canvas had been encoded as a single image. The T source
+latent frames form a second, congruent canvas at frame index 1. This reproduces, token for token, the
+positional layout of the image-grid experiments, and matches the noise/reference relation (0 vs. 1) the editor
+was pretrained with.
+Prompt. The VL text branch receives the instruction together with a 3×3 contact sheet of uniformly sampled
+source frames, so the semantic conditioning pathway is byte-compatible with image editing: from the prompt
+encoder’s perspective, the model is still editing one image.
+4.4
+Training
+We train with the standard flow matching objective on (source video, instruction, edited video) triplets: the
+source latent is the condition, the edited latent is the target, and the model predicts the velocity of the noisy
+target tokens. Trainable parameters are the two projections plus the transformer, either as LoRA on attention
+and MLP projections or as full fine-tuning; both VAEs and the VL encoder stay frozen. Because the token
+count of a video grid far exceeds a single image, we scale the flow-matching noise schedule’s shift with the
+actual noise-token count (the same dynamic-shift rule the editor uses across image resolutions), during both
+training-time sampling and inference. Sequence lengths are kept manageable by the Wan VAE itself: 45
+frames become 12 latent frames, i.e. a 3×4 grid of image-latent-sized tiles.
+4.5
+Inference and Enhancement
+At inference we denoise the video-latent grid with classifier-free guidance (an empty negative prompt) and
+decode with the Wan 2.1 VAE. Finally, following Ditto’s denoising-enhancement recipe [1], we optionally
+re-noise the decoded video to a small timestep and run a few (four) denoising steps of Wan 2.2’s text-to-video
+model. Because Wan 2.2 shares the Wan 2.1 VAE, this happens in the same latent space and costs only a
+fraction of a full generation; it removes residual high-frequency flicker while preserving the edit.
+6
+
+
+5
+Experiments
+5.1
+Setup
+Data. We train on Ditto-1M [1], the public dataset of one million (source video, instruction, edited video)
+triplets synthesized with an image-editor-guided in-context video generator and curated by a VLM agent.
+Videos are 720p at diverse aspect ratios.
+Training recipe. The base editor is Qwen-Image-Edit; the video VAE is Wan 2.1. We report two regimes:
+LoRA (rank 32 on all attention and MLP projections of the transformer, learning rate 10−4) and full fine-tuning
+of the transformer (learning rate 10−5). The two bridging projections are always fully trained. All runs use
+bf16, AdamW [21], gradient checkpointing, flow matching with sequence-length-dependent dynamic shift, and
+per-GPU batch size 1 on H100 GPUs.
+Inference. Unless noted, we use 40 denoising steps, classifier-free guidance scale 4 with an empty negative
+prompt, and four Wan 2.2 enhancement steps.
+5.2
+Qualitative Results
+Figure 6 shows representative edits across the three main instruction families: local addition, local attribute
+swap, and global stylization. Edits land where the instruction points—the untouched regions, the camera
+motion, and the subject motion of the source video are preserved—and remain stable across frames. Figure 1
+additionally shows a long video edited chunk by chunk with a different instruction per chunk.
+5.3
+Effect of Classifier-Free Guidance
+Our editing stage uses true classifier-free guidance: a second forward pass conditioned on an empty negative
+prompt (and the same reference latents), combined with the positive prediction at scale 4 under a norm-
+preserving rescale. Since the reference latents alone constrain the output so strongly, one might expect
+guidance to be redundant here; figure 7 shows it is not. Without CFG the model tends toward conservative
+edits—the instruction is applied only partially, and edited content stays close to the source. With CFG the
+edit is markedly more pronounced and complete, at the cost of a second forward pass per step. We use CFG
+scale 4 by default.
+5.4
+Discussion and Limitations
+The recipe inherits the image editor’s strengths—instruction following, identity preservation, edit locality—and
+its blind spots. The main failure mode we observe is on high-motion content: temporally compressed Wan
+latent frames entangle appearance with motion, and the image prior fits the low-motion regime of that
+distribution best, so fast or complex motion can produce softer, less faithful edits than static scenes.
+6
+Conclusion
+We presented Qwen-Video-Edit, an instruction-based video editing system built by repurposing an image
+editing model. Two warm-started projections, a grid positional treatment of video latent frames, and a contact-
+sheet prompt are sufficient to let Qwen-Image-Edit operate directly on Wan 2.1 video latents; fine-tuning on
+public data and a few optional Wan 2.2 denoising steps complete the pipeline. No video-pretrained editing
+backbone is involved.
+Beyond the system itself, we believe the observations behind it are the more lasting contribution. A great
+deal of effort goes into training video VAEs and the latent diffusion models on top of them, and it is tempting
+to regard the resulting latent spaces as something qualitatively different from images. Our experiments
+suggest otherwise: per-frame video latents behave, for editing purposes, like modestly re-parameterized image
+latents—close enough to the pixel domain that a mature image prior transfers across with a linear-scale
+bridge, and the residual gap is concentrated exactly where temporal compression entangles appearance with
+motion. Put plainly, the latent space is not that different from pixel space. We hope this encourages more
+7
+
+
+Input
+Edited
+(a) Local addition: “Add a drone.”
+Input
+Edited
+(b) Local swap: “Replace the dark face of the sheep with a light gray one and add a white star-shaped patch on its
+forehead.”
+Input
+Edited
+(c) Global stylization: “Transform the scene into a minimalist monochrome sketch with only lines and shadows, where
+people are silhouettes, and the signs are abstract symbols that float in space.”
+Figure 6 Qualitative results across the three main instruction families.
+work that treats strong image models as first-class citizens for video tasks, and that reserves video-specific
+training capacity for what is genuinely temporal.
+References
+[1] Bai, Q., Wang, Q., Ouyang, H., Yu, Y., Wang, H., Wang, W., Cheng, K. L., Ma, S., Zeng, Y., Liu, Z., et al.
+Scaling instruction-based video editing with a high-quality synthetic dataset. In Proceedings of the IEEE/CVF
+Conference on Computer Vision and Pattern Recognition, pp. 37971–37981, 2026.
+[2] Bai, S., Chen, K., Liu, X., Wang, J., Ge, W., Song, S., Dang, K., Wang, P., Wang, S., Tang, J., et al. Qwen2.5-VL
+technical report. arXiv preprint arXiv:2502.13923, 2025.
+[3] Batifol, S., Blattmann, A., Boesel, F., Consul, S., Diagne, C., Dockhorn, T., English, J., English, Z., Esser, P.,
+8
+
+
+Input
+w/o CFG
+w/ CFG
+Figure 7 Classifier-free guidance ablation for the instruction “Transform the scene into a cyberpunk workshop
+where the documents are holographic, and the men are decoding encrypted data with glowing interfaces.” Without CFG
+(middle) the edit is applied only partially; with CFG at scale 4 (bottom) it is markedly more pronounced.
+Kulal, S., et al. FLUX. 1 Kontext: Flow matching for in-context image generation and editing in latent space.
+arXiv e-prints, 2025.
+[4] Blattmann, A., Dockhorn, T., Kulal, S., Mendelevitch, D., Kilian, M., Lorenz, D., Levi, Y., English, Z., Voleti, V.,
+Letts, A., et al. Stable video diffusion: Scaling latent video diffusion models to large datasets. arXiv preprint
+arXiv:2311.15127, 2023.
+[5] Brooks, T., Holynski, A., and Efros, A. A. InstructPix2Pix: Learning to follow image editing instructions. In
+IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2023.
+[6] Ceylan, D., Huang, C.-H. P., and Mitra, N. J. Pix2Video: Video editing using image diffusion. In IEEE/CVF
+International Conference on Computer Vision (ICCV), 2023.
+[7] Chai, W., Guo, X., Wang, G., and Lu, Y. StableVideo: Text-driven consistency-aware diffusion video editing. In
+IEEE/CVF International Conference on Computer Vision (ICCV), 2023.
+[8] Cheng, J., Xiao, T., and He, T. Consistent video-to-video transfer using synthetic dataset. In International
+Conference on Learning Representations (ICLR), 2024.
+[9] Feng, T., Li, Z., Yang, S., Xi, H., Li, M., Li, X., Zhang, L., Yang, K., Peng, K., Han, S., et al. Streamdiffusionv2:
+A streaming system for dynamic and interactive video generation. arXiv preprint arXiv:2511.07399, 2025.
+[10] Geyer, M., Bar-Tal, O., Bagon, S., and Dekel, T. TokenFlow: Consistent diffusion features for consistent video
+editing. In International Conference on Learning Representations (ICLR), 2024.
+[11] Google. Gemini 2.5 Flash Image. https://aistudio.google.com/models/gemini-2-5-flash-image, 2025.
+[12] Jiang, Z., Han, Z., Mao, C., Zhang, J., Pan, Y., and Liu, Y. VACE: All-in-one video creation and editing. arXiv
+preprint arXiv:2503.07598, 2025.
+[13] Ju, X., Wang, T., Zhou, Y., Zhang, H., Liu, Q., Zhao, N., Zhang, Z., Li, Y., Cai, Y., Liu, S., et al. Editverse:
+Unifying image and video editing and generation with in-context learning. arXiv preprint arXiv:2509.20360, 2025.
+[14] Kong, W., Tian, Q., Zhang, Z., Min, R., Dai, Z., Zhou, J., Xiong, J., Li, X., Wu, B., Zhang, J., et al. HunyuanVideo:
+A systematic framework for large video generative models. arXiv preprint arXiv:2412.03603, 2024.
+[15] Ku, M., Wei, C., Ren, W., Yang, H., and Chen, W. AnyV2V: A tuning-free framework for any video-to-video
+editing tasks. arXiv preprint arXiv:2403.14468, 2024.
+9
+
+
+[16] Li, F., Wang, C., Lei, L., Qiu, Y., Xu, J., Jiang, J., Qin, X., Chen, Z., Song, F., Wang, Z., Pei, R., and Zuo,
+W. HP-Edit: A human-preference post-training framework for image editing. In Proceedings of the IEEE/CVF
+Conference on Computer Vision and Pattern Recognition, pp. 43113–43123, 2026.
+[17] Lipman, Y., Chen, R. T., Ben-Hamu, H., Nickel, M., and Le, M. Flow matching for generative modeling. arXiv
+preprint arXiv:2210.02747, 2022.
+[18] Liu, J., Liu, G., Liang, J., Li, Y., Liu, J., Wang, X., Wan, P., Zhang, D., and Ouyang, W. Flow-grpo: Training
+flow matching models via online rl. arXiv preprint arXiv:2505.05470, 2025.
+[19] Liu, S., Zhang, Y., Li, W., Lin, Z., and Jia, J. Video-P2P: Video editing with cross-attention control. In
+IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2024.
+[20] Liu, S., Han, Y., Xing, P., Yin, F., Wang, R., Cheng, W., Liao, J., Wang, Y., Fu, H., Han, C., et al. Step1x-edit:
+A practical framework for general image editing. arXiv preprint arXiv:2504.17761, 2025.
+[21] Loshchilov, I. and Hutter, F. Decoupled weight decay regularization. arXiv preprint arXiv:1711.05101, 2017.
+[22] Ouyang, H., Wang, Q., Xiao, Y., Bai, Q., Zhang, J., Zheng, K., Zhou, X., Chen, Q., and Shen, Y. CoDeF: Content
+deformation fields for temporally consistent video processing. In IEEE/CVF Conference on Computer Vision and
+Pattern Recognition (CVPR), 2024.
+[23] Peebles, W. and Xie, S. Scalable diffusion models with transformers. In IEEE/CVF International Conference on
+Computer Vision (ICCV), 2023.
+[24] Qi, C., Cun, X., Zhang, Y., Lei, C., Wang, X., Shan, Y., and Chen, Q. FateZero: Fusing attentions for zero-shot
+text-based video editing. In IEEE/CVF International Conference on Computer Vision (ICCV), 2023.
+[25] Qin, B., Li, J., Tang, S., Chua, T.-S., and Zhuang, Y. Instructvid2vid: Controllable video editing with natural
+language instructions. In IEEE International Conference on Multimedia and Expo (ICME), 2024.
+[26] Qin, X., Wang, Z., Li, F., Chen, H., Pei, R., Li, W., and Cao, X. CamEdit: Continuous camera parameter
+control for photorealistic image editing. In Advances in Neural Information Processing Systems, volume 38, pp.
+114152–114171, 2025.
+[27] Rombach, R., Blattmann, A., Lorenz, D., Esser, P., and Ommer, B. High-resolution image synthesis with latent
+diffusion models. In IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2022.
+[28] Wan, T., Wang, A., Ai, B., Wen, B., Mao, C., Xie, C.-W., Chen, D., Yu, F., Zhao, H., Yang, J., Zeng, J., Wang,
+J., Zhang, J., Zhou, J., Wang, J., Chen, J., Zhu, K., Zhao, K., Yan, K., Huang, L., Feng, M., Zhang, N., Li, P.,
+Wu, P., Chu, R., Feng, R., Zhang, S., Sun, S., Fang, T., Wang, T., Gui, T., Weng, T., Shen, T., Lin, W., Wang,
+W., Wang, W., Zhou, W., Wang, W., Shen, W., Yu, W., Shi, X., Huang, X., Xu, X., Kou, Y., Lv, Y., Li, Y., Liu,
+Y., Wang, Y., Zhang, Y., Huang, Y., Li, Y., Wu, Y., Liu, Y., Pan, Y., Zheng, Y., Hong, Y., Shi, Y., Feng, Y.,
+Jiang, Z., Han, Z., Wu, Z.-F., and Liu, Z. Wan: Open and advanced large-scale video generative models. arXiv
+preprint arXiv:2503.20314, 2025.
+[29] Wang, X., Zhao, C., Zhan, F., and Ma, Y. Liveedit: Towards real-time diffusion-based streaming video editing.
+arXiv preprint arXiv:2606.26740, 2026.
+[30] Wei, C., Liu, Q., Ye, Z., Wang, Q., Wang, X., Wan, P., Gai, K., and Chen, W. Univideo: Unified understanding,
+generation, and editing for videos. arXiv preprint arXiv:2510.08377, 2025.
+[31] Wu, C., Li, J., Zhou, J., Lin, J., Gao, K., Yan, K., Yin, S.-m., Bai, S., Xu, X., Chen, Y., et al. Qwen-image
+technical report. arXiv preprint arXiv:2508.02324, 2025.
+[32] Wu, J. Z., Ge, Y., Wang, X., Lei, S. W., Gu, Y., Shi, Y., Hsu, W., Shan, Y., Qie, X., and Shou, M. Z. Tune-A-Video:
+One-shot tuning of image diffusion models for text-to-video generation. In IEEE/CVF International Conference
+on Computer Vision (ICCV), 2023.
+[33] Wu, Y., Chen, L., Li, R., Wang, S., Xie, C., and Zhang, L. InsViE-1M: Effective instruction-based video editing
+with elaborate dataset construction. In IEEE/CVF International Conference on Computer Vision (ICCV), 2025.
+[34] Xia, B., Liu, J., Zhang, Y., Peng, B., Chu, R., Wang, Y., Wu, X., Yu, B., and Jia, J. DreamVE: Unified
+instruction-based image and video editing. arXiv preprint arXiv:2508.06080, 2025.
+10
+
+
+[35] Xiao, Y., Dai, W., Qin, X., Song, L., Zhang, M., Xu, H., Chen, Y., Li, Y., Zhang, G., Zhang, Y., et al. Joyai-
+video-edit: Real-time open-ended video editing with autoregressive diffusion. arXiv preprint arXiv:2608.03974,
+2026.
+[36] Yang, Z., Teng, J., Zheng, W., Ding, M., Huang, S., Xu, J., Yang, Y., Hong, W., Zhang, X., Feng, G., et al.
+Cogvideox: Text-to-video diffusion models with an expert transformer. arXiv preprint arXiv:2408.06072, 2024.
+[37] Yu, S., Liu, D., Ma, Z., Hong, Y., Zhou, Y., Tan, H., Chai, J., and Bansal, M. VEGGIE: Instructional editing
+and reasoning video concepts with grounded generation. arXiv preprint arXiv:2503.14350, 2025.
+[38] Zhang, C., Feng, C., Yan, F., Zhang, Q., Zhang, M., Zhong, Y., Zhang, J., and Ma, L. InstructVEdit: A holistic
+approach for instructional video editing. arXiv preprint arXiv:2503.17641, 2025.
+[39] Zhang, Z., Dai, Z., Qin, L., and Wang, W. EffiVED: Efficient video editing via text-instruction diffusion models.
+arXiv preprint arXiv:2403.11568, 2024.
+[40] Zhao, Y., Pan, Y., He, Q., Yu, J., Chen, J., Ye, T., Liu, H., Xie, E., and Han, S. Sana-streaming: Real-time
+streaming video editing with hybrid diffusion transformer. arXiv preprint arXiv:2605.30409, 2026.
+[41] Zi, B., Ruan, P., Chen, M., Qi, X., Hao, S., Zhao, S., Huang, Y., Liang, B., Xiao, R., and Wong, K.-F. Señorita-
+2M: A high-quality instruction-based dataset for general video editing by video specialists.
+arXiv preprint
+arXiv:2502.06734, 2025.
+11

@@ -1,0 +1,1360 @@
+Spatially-Grounded Flow Matching: Structured
+Source Distributions for Image Generation
+Arman Zarei1,2∗, Mahdi M. Kalayeh2
+1University of Maryland
+2Netflix
+Abstract
+Current flow matching models learn to transport the source i.i.d. Gaussian noise
+into the target distribution of natural images, yet this source distribution carries
+no notion of spatial structure. Images however are fundamentally local since
+nearby pixels are strongly correlated. By sampling the noise independently, we
+hypothesize that models are implicitly encouraged to exploit less noisy neighbors
+as context during training, partially bypassing the need to properly learn the true
+local structure of images. The source distribution, in other words, works against
+the inductive bias of the image domain. To ameliorate this design discrepancy,
+we propose StructFlow which encodes spatial locality directly into the source
+by having the pixels within a small region share a common noise component.
+This structured source produces transport paths that are geometrically aligned
+with image regions — enabling properties that generic flow matching struggles
+to provide: fine-grained local editing that naturally respects boundaries, robust
+structure preservation, and smooth semantic interpolation between images. We
+show that these benefits also extend to large pre-trained models, demonstrating
+that StructFlow can even be incorporated through a lightweight post-training phase.
+Comprehensive experiments on multiple datasets, in unconditional, class and text-
+conditioned regimes, using different diffusion transformer architectures confirm
+that StructFlow not only offers competitive image generation quality, but also
+significantly improves localized controllable re-synthesis. 1
+1
+Introduction
+Recent advances in image generative modeling, particularly diffusion models and flow matching [14,
+31, 27, 13, 18, 8, 20, 45, 46, 39], have led to remarkable improvements in visual quality and
+scalability, establishing state-of-the-art across a wide range of tasks [33, 5, 48, 36, 49, 38, 47, 50].
+In flow matching, generation is formulated as learning a continuous transport from a simple source
+distribution—typically an isotropic Gaussian—to the data distribution via a learned velocity field.
+Despite its success, this standard choice of source distribution is largely inherited from diffusion
+models and remains underexplored. A key limitation of this formulation is a fundamental mismatch
+between the source distribution and that of natural images. While images exhibit strong spatial
+locality—nearby pixels are highly correlated and form coherent regions—the commonly used i.i.d.
+Gaussian prior assumes complete independence across spatial locations. As a result, the model is
+implicitly required to reconstruct this locality through its learned dynamics, rather than benefiting
+from it as an inductive bias. This places an unnecessary burden which we hypothesize would hinder
+the training efficiency as well as controllability of the final model. Several recent works have explored
+alternatives to the standard Gaussian source distribution, including non-Gaussian priors [25, 42],
+mixture-based formulations [7, 15], and learned source distributions [16, 19]. While these approaches
+improve aspects such as convergence and expressivity, they largely remain agnostic to the spatial
+structure inherent in the natural images. In contrast, structured noise has proven highly effective in
+∗Work done during internship at Netflix
+1Project page is available at: https://armanzarei.github.io/StructFlow
+Preprint.
+arXiv:2608.15452v1  [cs.CV]  16 Aug 2026
+
+
+other domains: for instance, recent video diffusion models introduce temporally correlated noise
+to enforce consistency across frames [10, 6], leading to significantly improved coherence. This
+raises a natural question: can similar structured priors be leveraged in the spatial domain for image
+generation?
+In this work, we introduce StructFlow, a flow matching framework with spatially-grounded source
+distributions that explicitly encodes locality. Our key idea is to construct a structured prior in which
+pixels within a small region share a common noise component, inducing a bias that aligns with local
+structure in natural images. This simple modification leads to transport paths that are geometrically
+consistent with image regions, enabling emergent capabilities such as fine-grained local editing,
+improved structure preservation, and controllable coherence during generation. However, a naive
+implementation of such a structured source distribution introduces optimization challenges, mainly
+due to increased correlations in the noise, which severely destabilize the training. To facilitate
+the learning process, we propose (i) a cosine-induced spatial anchoring which reduces stochastic
+variability while providing consistent spatial cues, (ii) a progressive coherence annealing schedule
+that gradually introduces structure during training, and (iii) a mixed-coherence training strategy
+that enables a single model to operate across a spectrum that trades generation quality for localized
+controllable re-synthesis capabilities. We validate StructFlow across multiple problem settings,
+including class and text-conditioned image generation, demonstrating that our approach achieves
+competitive image quality while significantly improving the granularity of control when it comes to
+local edits (i.e. re-synthesis). Notably, our method can also be incorporated into pre-trained models
+through a lightweight post-training, making it applicable to existing foundation generative models.
+In summary, our contributions are: (1) We identify the mismatch between i.i.d. source distributions
+and spatial locality in images as a key limitation of standard flow matching and propose StructFlow,
+a spatially structured source distribution that encodes locality directly into the generative process.
+(2) We introduce a set of training strategies that stabilize optimization under structured noise while
+preserving its benefits. (3) We demonstrate improved controllability, structure preservation, and
+editing capabilities without sacrificing generation quality across multiple setups and benchmarks.
+2
+Background
+Our work builds on flow matching [20, 21], which learns a time-dependent vector field to transport
+samples from a source distribution to the data distribution via an ODE (see Appendix A.1 for details).
+A key design choice in flow matching is the source distribution, which is typically taken to be a
+standard isotropic Gaussian—largely inherited from diffusion models rather than optimized for the
+task. A growing body of work challenges this assumption. For instance, Cold Diffusion [3] shows that
+arbitrary image degradations can define valid generative processes; Non-Gaussian Diffusion [25] and
+Poisson Flow [42] explore alternative priors such as Gamma distributions and hemisphere-uniform
+sampling; and Gaussian Mixture Flow Matching [7] and Structured Diffusion with MoG [15] employ
+mixture-based priors for richer distributional coverage. More directly related to our setting, several
+works investigate the design of source distributions in flow matching [16, 19, 53], demonstrating
+that carefully chosen or learned priors can significantly improve convergence speed and generation
+quality. Whitened Score Diffusion [2] further highlights the benefits of anisotropic Gaussian priors
+by introducing spectral inductive biases tailored to imaging tasks. Additional approaches construct
+non-standard priors via normalizing flows [44] or diffusion bridges [52], or introduce spatially varying
+noise through time-dependent scheduling on pre-trained models [43]. Beyond images, recent work
+has shown that introducing structured correlations into the noise prior, rather than treating pixels
+independently, can improve coherence in video generation. For example, PYoCo [10] proposes a
+mixed noise prior for video diffusion in which frames share a common noise component, enabling
+strong temporal consistency. Similarly, [6] introduces a principled method to warp noise across video
+frames using optical flow, preserving noise statistics while enforcing temporal alignment.
+Our work complements and extends these directions by introducing a spatially structured source
+distribution that explicitly captures the locality inherent in natural images. We argue that this inductive
+bias should be built into the source distribution itself, rather than learned entirely from data through
+an unstructured Gaussian prior. Concretely, we construct priors in which pixels within the same
+spatial neighborhood share correlated noise, thereby promoting spatial coherence throughout the flow
+matching process. As a result, the model naturally learns to preserve structural consistency during
+generation, while enabling emergent capabilities such as localized editing.
+2
+
+
+Individual Superpixels
+Anchor Components
+Inner Region Noise
+StructFlow
+Uncorrelated
+Noise
+in Local Regions
+Correlated
+Noise
+Normal FM
+StructFlow
+0%
+25%
+50%
+75%
+100%
+Generation progress  (noise 
+ image)
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+Mean cosine similarity
+Latent values  xt
+Normal FM 
+ within
+Normal FM 
+ cross
+StructFlow 
+ within
+StructFlow 
+ cross
+0%
+25%
+50%
+75%
+100%
+Generation progress  (noise 
+ image)
+0.0
+0.2
+0.4
+0.6
+0.8
+Predicted velocity  vt = v (xt, t)
+Figure 1: StructFlow Noise Construction and locality analysis. StructFlow introduces locality in
+the source distribution instead of i.i.d gaussian sampling in normal flow matching. Locality emerges
+implicitly in standard flow matching, while StructFlow enforces it directly in the source distribution.
+3
+StructFlow: Structured Source Distributions for Flow Matching
+3.1
+Flow Matching and Locality Bias
+As a starting point, we briefly review the standard flow matching [20] framework, in particular
+rectified flow [21], upon which our method is built. Flow matching constructs a continuous-time
+transport map between a source distribution p0 and the data distribution p1. In practice, for image
+generation, the source distribution is typically chosen as an isotropic Gaussian, p0 = N(0, I), such
+that each pixel (or latent dimension) is sampled independently. Given a data sample x1 and a source
+sample ϵ ∼p0, rectified flow considers the linear interpolation path
+xt = (1 −t) ϵ + t x1,
+t ∈[0, 1],
+(1)
+and learns a neural velocity field vθ(xt, t) to predict the corresponding constant velocity, x1 −ϵ.
+Natural images exhibit a strong locality inductive bias: nearby pixels are highly correlated and form
+coherent spatial regions. In contrast, the standard choice of source distribution, p0 = N(0, I), is
+fully factorized, producing spatially independent noise. As a result, the model must reconstruct this
+locality entirely through the learned velocity field, forcing the model to reconstruct spatial structure
+through the learned velocity field, rather than inheriting it from the source distribution.
+To study this effect, we analyze a DiT-based flow matching model. We sample generated trajec-
+tories and record both the latent state xi
+t and predicted velocity vθ(xi
+t, t) at multiple timesteps
+t ∈{0, 0.25, 0.5, 0.75, 1}. For each generated sample xi
+1, we compute a SLIC [1] superpixel seg-
+mentation Mi and measure feature similarity within and across segments in both xi
+t and vθ(xi
+t, t).
+Let f ∈{xt, vθ(xt, t)} ∈RNp×C denote the pixel features (flattened spatial dimensions) and
+ˆfp = fp/∥fp∥the ℓ2-normalised features. Given a segmentation Mi with segments {Sk}K
+k=1 (Sk
+denotes the set of pixels in k-th segment), we define the average within-segment and cross-segment
+cosine similarities:
+ρin(f, M) = Ek Ep,q∈Sk
+h
+ˆf ⊤
+p ˆfq
+i
+= 1
+K
+K
+X
+k=1
+1
+ |Sk|
+2
+
+X
+p,q∈Sk
+p<q
+ˆf ⊤
+p ˆfq,
+(2)
+ρout(f, M) = Ek Ep∈Sk, q /∈Sk
+h
+ˆf ⊤
+p ˆfq
+i
+= 1
+K
+K
+X
+k=1
+1
+|Sk|| ¯Sk|
+X
+p∈Sk, q∈¯
+Sk
+ˆf ⊤
+p ˆfq.
+(3)
+Findings.
+As shown in Fig. 1, the latent state xt exhibits almost no spatial structure at initialization
+(ρin(xt, M) ≈0 at t=0), and gradually acquires locality over time. In contrast, the velocity field
+3
+
+
+Algorithm 1 StructFlow Hierarchical Noise Sampling
+Input: Mask M ∈ZH×W
+≥0
+with segments {Sk}K
+k=1, latent
+spatial size (C, H, W), secondary noise scale λς ≥0,
+cosine grid g ∈[−1, 1]H×W
+Output: Structured noise ϵ ∈RC×H×W
+1: # 1st Level: Sample one shared noise vector per segment
+2: for k = 1, . . . , K do
+3:
+zk ←
+(
+|Sk|−1 P
+(i,j)∈Sk g(i, j),
+if CISA,
+N(0, IC),
+otherwise.
+4: end for
+5: # 2nd Level: Sample per-pixel noise per shared segment
+6: for each spatial location (i, j) do
+7:
+ϵi,j ∼N(zM(i,j), λ2
+ςIC)
+8: end for
+9: return ϵ/
+p
+1 + λ2ς
+▷Rescale to unit variance
+Algorithm 2 StructFlow Training
+Input: Dataset D, Model vθ, # of Superpixels K
+1: for each training step s do
+2:
+Sample x1 ∼D
+3:
+M = SLIC(x1, K)
+4:
+if Progressive_Coherence_Annealing then
+5:
+Update λς ←schdeulerλς (s, λmin, λmax)
+6:
+end if
+7:
+if Mixed_Coherence & schdeulerλς .finish then
+8:
+Sample λς ∼U[λmin −δ, λmin + δ]
+9:
+end if
+10:
+Sample ϵ using Alg. 1 and t ∼U(0, 1)
+11:
+xt ←(1 −t)ϵ + tx1
+12:
+ˆvθ ←vθ(xt, t)
+13:
+L ←∥ˆvθ −(x1 −ϵ)∥2
+2
+14:
+Update θ with ∇θL
+15: end for
+already encodes strong spatial correlations from the earliest steps: even at t=0, we observe a clear
+gap ρin −ρout, which increases steadily during generation. This indicates that the model learns
+to impose spatial structure through its velocity field, compensating for the lack of structure in the
+source distribution. In other words, part of the model capacity is spent reconstructing locality that
+could instead be built into p0. This observation motivates our central question: can we design a
+source distribution p0 that already respects the locality structure of images, relieving the model of
+this burden and unlocking emergent capabilities?
+3.2
+Structured Hierarchical Noise Sampling
+We introduce StructFlow, which replaces the isotropic Gaussian source with a structured distribution
+that encodes spatial locality. The key idea is to induce correlations among pixels within the same
+region, while preserving sufficient stochasticity to maintain full support.
+Let M ∈ZH×W
+≥0
+denote a superpixel decomposition with K regions, obtained via SLIC oversegmen-
+tation [1] (or a proxy at inference; see Section 4.5). We operate in the VAE latent space of shape
+(C, H, W). We define a hierarchical Gaussian prior in which pixels within the same segment share a
+common latent anchor. Concretely, for each segment k ∈{1, . . . , K}, we sample an anchor vector
+zk ∼N(0, IC), and for each spatial location (i, j) belonging to segment k = M(i, j), we sample
+ϵi,j ∼N
+ zk, λ2
+ς IC
+
+,
+(4)
+followed by a global rescaling ϵ
+←
+ϵ
+√
+1+λ2ς to ensure unit marginal variance. Full sampling
+procedure is provided in Alg. 1 and in Fig 1. This construction induces a simple correlation structure:
+pixels within the same local region have correlation
+Corr(ϵi,j, ϵi′,j′) =
+1
+1 + λ2ς
+for M(i, j) = M(i′, j′),
+(5)
+while pixels from different segments remain uncorrelated. The parameter λς therefore directly
+controls the strength of locality, smoothly interpolating between fully correlated segments (λς →0)
+and standard i.i.d. Gaussian noise (λς →∞) (See Fig 22 in Appendix).
+Aside from the structured source ϵ, we make no modifications to the flow matching training objective
+or inference procedure. The model is trained to predict ˆvθ(xt, t) with the standard MSE loss, and
+DDIM/Euler integration is used at inference — the only change being that the initial noise is drawn
+from our structured distribution rather than N(0, I).
+Encoding locality in the source distribution, as reflected in the analysis in Fig. 1, makes local regions
+more coherent and better separated from the rest of the image throughout generation. This gives rise
+to several downstream properties out of the box, including local region editing (Sec. 4.3.1), structure-
+preserving generation (Sec. 4.3.2), and the early emergence of informative features (Sec. 4.3.3).
+4
+
+
+3.3
+StructFlow Training Strategies
+Naïvely training a DiT on the structured source distribution described above can lead to optimization
+instability: the induced correlations increase gradient variance, making it difficult for the model
+to learn a consistent velocity field from highly correlated noise. We identify three complementary
+strategies that resolve this instability while preserving, and enhancing, the locality capabilities.
+3.3.1
+Cosine-Induced Spatial Anchoring
+In the basic formulation (Alg. 1), each segment anchor zk is sampled independently from a Gaussian
+distribution. Although this creates within-segment coherence, it can also assign very different anchors
+to adjacent segments within the same training sample, introducing abrupt high-variance discontinuities
+in the structured source that makes the target velocity field harder to learn. We find that replacing
+this random sampling with a reduced-stochasticity spatial structure substantially stabilises training.
+Concretely, we define a diagonal cosine grid over the spatial lattice:
+g(i, j) = 2 ·
+1 −cos
+
+π ·
+i+j
+2(H−1)
+
+2
+−1 ∈[−1, 1],
+i ∈[0, H−1], j ∈[0, W−1].
+(6)
+Each segment k is assigned the mean grid value over its pixels, ¯gk = |Sk|−1 P
+(i,j)∈Sk g(i, j), and
+the first-level anchor is replaced by the scalar broadcast zk ←¯gk · 1C (See Fig 21 in Appendix).
+This Cosine-Induced Spatial Anchoring (CISA) provides two benefits: (i) the first-level structure is
+deterministic given the mask, removing one source of stochastic variation from the training signal;
+(ii) the smooth diagonal gradient gives the model a consistent spatial cue which it can leverage
+throughout training. Overall, this yields a more well-conditioned learning problem, leading to
+improved optimization stability as shown in Sec 4.2 and Table 1.
+3.3.2
+Progressive Coherence Annealing
+During our experiments, we realized that the noise scale λς governs a fundamental quality–editability
+trade-off: small λς yields tightly coherent segments that enable precise local editing, but makes the
+source distribution far from Gaussian, destabilizing training. Large λς approaches the i.i.d. baseline,
+easing optimisation at the cost of weaker locality guarantees.
+We resolve this tension with a coherence annealing schedule: λς is initialised to a large value λmax
+and linearly decreased to a target λmin over an interval of training steps [s0, s1]:
+λς(s) = λmax −(λmax −λmin) · min(s, s1) −s0
+s1 −s0
+,
+s ≥s0.
+(7)
+This curriculum first trains the model on a near-Gaussian source (easy), then progressively tightens
+the locality constraint as the model matures.
+Post-training a standard FM model.
+Coherence annealing enables a particularly practical work-
+flow: a standard flow matching model can be fine-tuned into a StructFlow model by applying the
+annealing schedule starting from the pretrained checkpoint. Because the initial λς = λmax →∞is
+close to the training distribution of the base model, fine-tuning is stable; the model gradually adapts
+to the structured source without catastrophic forgetting. We demonstrate this in Sec. 4.4.
+3.3.3
+Mixed-Coherence Training
+Even with annealing, committing to a single final λς at test time forces a binary choice between
+generation quality (high λς) and locality control (low λς). We instead propose mixed-coherence
+training: As the annealing schedule approaches λmin, at each training iteration, λς is sampled
+uniformly from a range [λmin −δ, λmin + δ]. This provides two advantages. First, training across a
+distribution of coherence levels acts as a regulariser, improving generation quality even at the hard
+end (λς = λmin −δ) compared to training at that value alone. Second, a single trained model can
+serve the full spectrum of use cases at inference: low λς for fine-grained local editing and structure
+preservation, high λς for maximum image quality with mild locality bias. Users can thus navigate the
+quality–editability Pareto frontier without retraining. Algorithms 1 and 2 summarize our stabilization
+techniques for training StructFlow.
+5
+
+
+(a) Unconditional
+(b) Class-Conditional
+(c) Text-to-Image
+Figure 2: Qualitative Examples. StructFlow produces high-quality and diverse samples across
+unconditional, class-conditional, and text-to-image generation settings.
+FID
+sFID
+IS
+Precision
+Recall
+18.50
+17.24
+14.04
+10.03
+454.1
+417.3
+0.9380.947
+0.181
+0.196
+Class-Conditional ImageNet 256×256
+FID
+FID-DINO
+Precision
+Recall
+Aesthetic
+ImgReward
+22.68
+25.80
+232.4
+267.3
+0.250
+0.350
+0.200
+0.160
+5.3305.340
+0.500
+0.720
+Unconditional FFHQ 256×256
+Baseline DiT
+StructFlow (Ours)
+Figure 3: Comparison with baseline. Evalu-
+ated across a diverse set of metrics for robust
+assessment, StructFlow performs on par with
+standard flow matching and outperforms it in
+some cases.
+Table 1: Ablation of training techniques
+Class-Conditional ImageNet 256×256
+Training Setting (1M steps) FID↓sFID↓
+IS↑
+Precision↑Recall↑
+Baseline
+18.12 14.51 120.26
+0.67
+0.23
++ Cosine Anchoring
+11.52 11.27 241.95
+0.80
+0.19
++ Progressive Annealing 10.97 10.43 330.00
+0.85
+0.18
++ Mixed Coherence
+10.48 10.24 346.51
+0.86
+0.19
+Baseline
++ Cosine Anchoring
++ Prog. Annealing
++ Mixed Coherence
+4
+Experiments
+In this section, we conduct comprehensive quantitative and qualitative evaluations of StructFlow,
+demonstrating strong performance across a wide range of metrics while revealing compelling emerg-
+ing capabilities that arise naturally from our approach.
+4.1
+Implementation details
+We use DiT-XL [30] as the base architecture in all experiments, building a flow matching imple-
+mentation similar to SiT [23]. Unless otherwise stated, all models are trained from scratch. We
+use a global batch size of 128 for class-conditional ImageNet and 64 for unconditional FFHQ. For
+class-conditional training, we apply class dropout with probability 0.1 to enable classifier-free guid-
+ance (CFG) at inference, where we use a fixed guidance scale of 4.0 across all evaluations. We train
+on FFHQ for 130k iterations and on ImageNet for approximately 3M iterations unless mentioned
+otherwise. Additional implementation details are provided in Appendix B.1.
+4.2
+Qualitative and Quantitative evaluation
+We first evaluate how StructFlow compares to standard flow matching (FM) when training DiT
+models. To ensure a fair comparison, we train models under identical settings (e.g., training iterations,
+batch size; see Appendix B.1 for full details) on both unconditional and class-conditional datasets.
+Figure 3 presents the quantitative comparison across a diverse set of metrics, including FID [12], In-
+ception Score (IS) [34], DINO-based [28] FID, sFID [26], Precision/Recall [17], Aesthetic score [35],
+and ImageReward [41]. These metrics collectively capture both fidelity and diversity, enabling a
+comprehensive evaluation. As shown, StructFlow performs on par with standard FM, and even
+6
+
+
+Original
+Selected Parts
+Resample #1
+Resample #2
+Figure 4: Fine-Grained Editing. StructFlow al-
+lows fine-grained and local edits in the genera-
+tions by resampling the noise in the selected local
+regions while keeping it fixed elsewhere.
+Superpixels
+Seed #1
+Seed #2
+Seed #3
+Figure 5: Structure Preserving Generation.
+StructFlow allows generation of diverse samples
+using the same grounding superpixel masks while
+preserving the overall structure.
+surpasses it on several metrics. Specifically, on class-conditional ImageNet, StructFlow matches
+or outperforms standard FM on FID, sFID, Precision, and Recall, while falling slightly behind on
+Inception Score. For unconditional FFHQ, StructFlow similarly performs on par with standard FM
+on FID and Aesthetic score, while outperforming it on several metrics, including Precision and
+ImageReward. This demonstrates that StructFlow preserves the strong generative quality of FM
+while enabling additional structured capabilities. Figure 2 further illustrates qualitative samples from
+StructFlow-trained models across unconditional, class-conditional, and text-conditioned (see Sec. 4.4)
+settings. The generated images exhibit high visual quality and diversity, confirming that StructFlow
+does not compromise sample realism while unlocking emerging capabilities. Refer to Appendix B.2
+for more details.
+We conduct an ablation study to analyze the contribution of each training strategy proposed in
+Sec. 3.3. Starting from the naive hierarchical noise sampling (Sec 3.2), we incrementally introduce
+each component while keeping all other training settings fixed. All models are trained for 1M
+iterations to ensure a consistent comparison. As shown in Table 1 with the qualitative samples, each
+added component improves training stability and overall sample quality, with the full model achieving
+the best performance. These results highlight the importance of our design choices and demonstrate
+that the proposed techniques lead to more reliable training and better generative performance.
+4.3
+Applications
+In this section, we highlight the emerging capabilities and interesting behaviors that StructFlow
+enables out of the box. These experiments are not intended to position StructFlow as a specialized
+method for image editing, layout control, or representation learning. Instead, they illustrate properties
+that arise naturally from introducing spatial structure into the source distribution.
+4.3.1
+Fine-Grained Image Editing and Part Resampling
+A key property of StructFlow is that all pixels within the same segment k share a common noise
+component, making different segments more clearly disentangled from one another. This structured
+decomposition enables targeted manipulation at the segment level. In particular, we can selectively
+resample the secondary noise for a subset of segments S = {k1, . . . , ks}, which can be specified
+either by the user or automatically (e.g., via a segmentation model). By resampling only these
+segments while keeping the rest fixed, StructFlow generates diverse variations within the selected
+regions while preserving the remaining content. Unlike SDEdit-style masked editing [24], which
+preserves unmasked regions by explicitly replacing them at each denoising step, StructFlow achieves
+localized resampling naturally through its structured source distribution without requiring explicit
+masking operations during denoising.
+7
+
+
+Timber Wolf
+American Eagle
+Panda
+Panda
+Palace
+Panda
+Figure 6: Class Interpolation with Structure Preserving
+Generations. StructFlow’s structure preserving capabilities
+allows interesting class interpolation during the early denoising
+steps of the generation.
+𝜖𝐴
+𝜖𝐵
+Figure 7: Smooth Latent Interpo-
+lation. Interpolating the initial gen-
+eration noise (eA,B) in StructFlow
+yields smooth image transitions.
+Figure 4 illustrates this behavior. The first column shows the initial generations, the second column
+highlights the selected regions, and the third and fourth columns present different resampled outputs
+for those regions. This enables precise, fine-grained local edits while preserving the integrity of other
+regions. For real images, this process can be applied by first inverting the image into the latent space
+using standard inversion techniques (e.g., DDIM [37] or RF inversion [32]), and then performing
+segment-wise resampling in the same manner. Additional details are provided in Appendix C.1.
+4.3.2
+Structure Preserving Generation
+StructFlow also enables explicit control over the spatial structure of generated images through its
+reliance on segmentation masks. In particular, the model naturally adheres to the provided segment
+boundaries, resulting in generations that respect the underlying structure. This property allows users
+to design or modify segmentation masks to guide the global layout of the image. As a result, multiple
+samples generated from the same mask share a consistent structural composition, while still exhibiting
+diversity in appearance and fine details. Figure 5 demonstrates this behavior. While all generated
+samples follow the same overall structure, they vary in texture, color, and local details, highlighting
+StructFlow ’s ability to preserve structure without sacrificing diversity.
+Figure 6 shows qualitative examples of StructFlow trained on ImageNet, where the class label
+is swapped at different early timesteps during generation. The left column presents the original
+samples using the source class, while the subsequent columns show results when switching to the
+target class at progressively earlier stages. Beyond the smooth semantic transition, StructFlow
+preserves the underlying spatial structure across classes, enabling consistent and meaningful class-
+level interpolations. Additional examples are provided in Appendix C.2.
+4.3.3
+Early Emergence of Informative Features
+We analyze the intermediate representations of DiT models during the denoising process by recording
+features at selected layers and timesteps across multiple generations. We then apply PCA to these
+features and visualize the top three components as RGB images. Interestingly, StructFlow-trained
+models exhibit highly informative and spatially structured features even at very early timesteps. In
+particular, coarse object boundaries and layout emerge much earlier compared to models trained with
+standard flow matching. Figure 8 illustrates this behavior. Refer to Appendix C.3 for more details.
+4.3.4
+Latent Interpolation
+We study the structure of the StructFlow source distribution by sampling two noise instances and
+linearly interpolating between them, followed by generation from the interpolated latents. As shown
+in Figure 7, this results in smooth and coherent transitions in the generated images. This behavior
+indicates that the latent space induced by StructFlow is well-structured and semantically meaningful,
+enabling consistent interpolation between samples.
+8
+
+
+Generate Sample
+Early Features #1
+Normal FM
+Early Features #2
+StructFlow
+Figure 8: Informative Early Features. StructFlow’s inter-
+nal features in early denoising inference steps show emergent
+informative features that can be used for downstream appli-
+cation such as segmentations.
+Retrieved
+Generated
+Voronoi-based
+Mask
+1st Generation
+2nd Generation
+Figure 9: Mask Generation.
+We
+show that StructFlow DiT models pro-
+duce high-quality results across dif-
+ferent mask generation methods.
+4.4
+Text-to-Image StructFlow
+As discussed in Sec. 3.3.2, Progressive Coherence Annealing enables post-training of models origi-
+nally trained with the standard flow matching objective. Leveraging this property, we post-train the
+SANA text-to-image model [40] within the StructFlow framework. Qualitative results in Figure 2 (c)
+demonstrate high-fidelity image generation, while Figures 5 and 4 highlight key capabilities such as
+accurate structure preservation and fine-grained editing. Refer to Appendix D for more details.
+4.5
+Mask Generation
+StructFlow relies on segmentation masks during training, readily obtained using superpixel methods
+such as SLIC [1]. At inference time, however, such masks are not directly available. Here, we outline
+several simple strategies to address this, with additional details provided in Appendix E.
+First, we consider a retrieval-based approach, where masks are sampled from a pool of precomputed
+masks. Given that StructFlow can generate diverse outputs from a fixed mask, this already enables
+diverse image generation. Second, one can train a lightweight generative model (e.g., a small GAN
+or diffusion/flow model) to produce masks. These generated masks can then be used to construct
+the input noise. While effective, this approach introduces an additional model. To avoid this, we
+also propose training-free alternatives. In particular, superpixel-like structures can be approximated
+by sampling seed points with a minimum-distance constraint (e.g., Poisson sampling), followed by
+assigning each pixel to its nearest seed to form a Voronoi tessellation. We further explore simple
+variants of such constructions and provide a comprehensive ablation study of training-free mask
+generation strategies in Appendix E. Figure 9 visualizes these approaches, showing that all methods
+produce reasonable masks and lead to plausible generations, despite the model being trained only
+with SLIC masks. Refer to Appendix E for more details.
+5
+Conclusion
+We introduced StructFlow, a spatially grounded flow matching framework that replaces the standard
+i.i.d. Gaussian with a structured source distribution aligned with image locality. By correlating noise
+within local regions, StructFlow builds spatial coherence directly into the generative process, reducing
+the burden on the learned velocity field and enabling new forms of controllability. Since naively
+training with such structured sources can be unstable, we proposed practical training strategies that
+stabilize optimization and preserve generation quality. Across unconditional, class-conditional, and
+text-to-image settings, StructFlow demonstrate strong generation quality while enabling fine-grained
+local editing, structure-preserving generation, smooth interpolation, and more informative early
+representations. These results suggest that source distribution design is a powerful and underexplored
+axis for improving both the controllability and interpretability of generative models.
+9
+
+
+References
+[1] R. Achanta, A. Shaji, K. Smith, A. Lucchi, P. Fua, and S. Süsstrunk. Slic superpixels compared
+to state-of-the-art superpixel methods. IEEE transactions on pattern analysis and machine
+intelligence, 34(11):2274–2282, 2012.
+[2] J. Alido, T. Li, Y. Sun, and L. Tian. Whitened score diffusion: A structured prior for imaging
+inverse problems. arXiv preprint arXiv:2505.10311, 2025.
+[3] A. Bansal, E. Borgnia, H.-M. Chu, J. Li, H. Kazemi, F. Huang, M. Goldblum, J. Geiping, and
+T. Goldstein. Cold diffusion: Inverting arbitrary image transforms without noise. Advances in
+Neural Information Processing Systems, 36:41259–41282, 2023.
+[4] R. Bridson. Fast poisson disk sampling in arbitrary dimensions. In ACM SIGGRAPH 2007
+Sketches, SIGGRAPH ’07, page 22–es, New York, NY, USA, 2007. Association for Computing
+Machinery. ISBN 9781450347266. doi: 10.1145/1278780.1278807. URL https://doi.org/
+10.1145/1278780.1278807.
+[5] T. Brooks, A. Holynski, and A. A. Efros. Instructpix2pix: Learning to follow image editing
+instructions. In 2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition
+(CVPR), pages 18392–18402. IEEE, 2023.
+[6] P. Chang, J. Tang, M. Gross, and V. C. Azevedo. How i warped your noise: a temporally-
+correlated noise prior for diffusion models. In The Twelfth International Conference on Learning
+Representations, 2024. URL https://openreview.net/forum?id=pzElnMrgSD.
+[7] H. Chen, K. Zhang, H. Tan, Z. Xu, F. Luan, L. Guibas, G. Wetzstein, and S. Bi. Gaussian
+mixture flow matching models. arXiv preprint arXiv:2504.05304, 2025.
+[8] P. Esser, S. Kulal, A. Blattmann, R. Entezari, J. Müller, H. Saini, Y. Levi, D. Lorenz, A. Sauer,
+F. Boesel, et al. Scaling rectified flow transformers for high-resolution image synthesis. In
+Forty-first international conference on machine learning, 2024.
+[9] R. Fang, A. Yu, C. Duan, L. Huang, S. Bai, Y. Cai, K. Wang, S. Liu, X. Liu, and H. Li. Flux-
+reason-6m & prism-bench: A million-scale text-to-image reasoning dataset and comprehensive
+benchmark. arXiv preprint arXiv:2509.09680, 2025.
+[10] S. Ge, S. Nah, G. Liu, T. Poon, A. Tao, B. Catanzaro, D. Jacobs, J.-B. Huang, M.-Y. Liu,
+and Y. Balaji. Preserve your own correlation: A noise prior for video diffusion models. In
+Proceedings of the IEEE/CVF International Conference on Computer Vision, pages 22930–
+22941, 2023.
+[11] S. Gugger, L. Debut, T. Wolf, P. Schmid, Z. Mueller, S. Mangrulkar, M. Sun, and B. Bossan.
+Accelerate: Training and inference at scale made simple, efficient and adaptable. https:
+//github.com/huggingface/accelerate, 2022.
+[12] M. Heusel, H. Ramsauer, T. Unterthiner, B. Nessler, and S. Hochreiter. Gans trained by a two
+time-scale update rule converge to a local nash equilibrium. Advances in neural information
+processing systems, 30, 2017.
+[13] J. Ho and T. Salimans. Classifier-free diffusion guidance. arXiv preprint arXiv:2207.12598,
+2022.
+[14] J. Ho, A. Jain, and P. Abbeel. Denoising diffusion probabilistic models. Advances in neural
+information processing systems, 33:6840–6851, 2020.
+[15] N. Jia, T. Zhu, H. Liu, and Z. Zheng. Structured diffusion models with mixture of gaussians as
+prior distribution. arXiv preprint arXiv:2410.19149, 2024.
+[16] J. Kim, J. Park, S. Jeon, and S. Kim. Better source, better flow: Learning condition-dependent
+source distribution for flow matching. arXiv preprint arXiv:2602.05951, 2026.
+[17] T. Kynkäänniemi, T. Karras, S. Laine, J. Lehtinen, and T. Aila. Improved precision and recall
+metric for assessing generative models. Advances in neural information processing systems, 32,
+2019.
+10
+
+
+[18] B. F. Labs. Flux. https://github.com/black-forest-labs/flux, 2024.
+[19] J. Lee, K. Kim, and J. Lee. Is there a better source distribution than gaussian? exploring source
+distributions for image flow matching. arXiv preprint arXiv:2512.18184, 2025.
+[20] Y. Lipman, R. T. Chen, H. Ben-Hamu, M. Nickel, and M. Le. Flow matching for generative
+modeling. arXiv preprint arXiv:2210.02747, 2022.
+[21] X. Liu, C. Gong, and Q. Liu. Flow straight and fast: Learning to generate and transfer data with
+rectified flow. arXiv preprint arXiv:2209.03003, 2022.
+[22] T. Lüddecke and A. Ecker. Image segmentation using text and image prompts. In Proceedings
+of the IEEE/CVF conference on computer vision and pattern recognition, pages 7086–7096,
+2022.
+[23] N. Ma, M. Goldstein, M. S. Albergo, N. M. Boffi, E. Vanden-Eijnden, and S. Xie. Sit: Exploring
+flow and diffusion-based generative models with scalable interpolant transformers. In European
+Conference on Computer Vision, pages 23–40. Springer, 2024.
+[24] C. Meng, Y. He, Y. Song, J. Song, J. Wu, J.-Y. Zhu, and S. Ermon. Sdedit: Guided image
+synthesis and editing with stochastic differential equations. arXiv preprint arXiv:2108.01073,
+2021.
+[25] E. Nachmani, R. S. Roman, and L. Wolf. Non gaussian denoising diffusion models. arXiv
+preprint arXiv:2106.07582, 2021.
+[26] C. Nash, J. Menick, S. Dieleman, and P. W. Battaglia. Generating images with sparse represen-
+tations. arXiv preprint arXiv:2103.03841, 2021.
+[27] A. Q. Nichol and P. Dhariwal. Improved denoising diffusion probabilistic models. In Interna-
+tional conference on machine learning, pages 8162–8171. PMLR, 2021.
+[28] M. Oquab, T. Darcet, T. Moutakanni, H. Vo, M. Szafraniec, V. Khalidov, P. Fernandez, D. Haziza,
+F. Massa, A. El-Nouby, et al. Dinov2: Learning robust visual features without supervision.
+arXiv preprint arXiv:2304.07193, 2023.
+[29] N. Otsu. A threshold selection method from gray-level histograms. IEEE Transactions on
+Systems, Man, and Cybernetics, 9(1):62–66, 1979. doi: 10.1109/TSMC.1979.4310076.
+[30] W. Peebles and S. Xie. Scalable diffusion models with transformers. In Proceedings of the
+IEEE/CVF international conference on computer vision, pages 4195–4205, 2023.
+[31] R. Rombach, A. Blattmann, D. Lorenz, P. Esser, and B. Ommer. High-resolution image synthesis
+with latent diffusion models. In Proceedings of the IEEE/CVF conference on computer vision
+and pattern recognition, pages 10684–10695, 2022.
+[32] L. Rout, Y. Chen, N. Ruiz, C. Caramanis, S. Shakkottai, and W. Chu. Semantic image inversion
+and editing using rectified stochastic differential equations. In The Thirteenth International
+Conference on Learning Representations, 2025. URL https://openreview.net/forum?
+id=Hu0FSOSEyS.
+[33] N. Ruiz, Y. Li, V. Jampani, Y. Pritch, M. Rubinstein, and K. Aberman. Dreambooth: Fine tuning
+text-to-image diffusion models for subject-driven generation. In 2023 IEEE/CVF Conference
+on Computer Vision and Pattern Recognition (CVPR), pages 22500–22510. IEEE, 2023.
+[34] T. Salimans, I. Goodfellow, W. Zaremba, V. Cheung, A. Radford, and X. Chen. Improved
+techniques for training gans. Advances in neural information processing systems, 29, 2016.
+[35] C. Schuhmann and R. Beaumont. Laion-aesthetics. LAION. AI, 2022.
+[36] K. Sohn, L. Jiang, J. Barber, K. Lee, N. Ruiz, D. Krishnan, H. Chang, Y. Li, I. Essa, M. Rubin-
+stein, et al. Styledrop: Text-to-image synthesis of any style. Advances in Neural Information
+Processing Systems, 36:66860–66889, 2023.
+11
+
+
+[37] J. Song, C. Meng, and S. Ermon.
+Denoising diffusion implicit models.
+arXiv preprint
+arXiv:2010.02502, 2020.
+[38] H. Wang, M. Spinelli, Q. Wang, X. Bai, Z. Qin, and A. Chen. Instantstyle: Free lunch towards
+style-preserving in text-to-image generation. arXiv preprint arXiv:2404.02733, 2024.
+[39] C. Wu, J. Li, J. Zhou, J. Lin, K. Gao, K. Yan, S.-m. Yin, S. Bai, X. Xu, Y. Chen, et al.
+Qwen-image technical report. arXiv preprint arXiv:2508.02324, 2025.
+[40] E. Xie, J. Chen, J. Chen, H. Cai, H. Tang, Y. Lin, Z. Zhang, M. Li, L. Zhu, Y. Lu, and S. Han.
+Sana: Efficient high-resolution image synthesis with linear diffusion transformer, 2024. URL
+https://arxiv.org/abs/2410.10629.
+[41] J. Xu, X. Liu, Y. Wu, Y. Tong, Q. Li, M. Ding, J. Tang, and Y. Dong. Imagereward: Learning
+and evaluating human preferences for text-to-image generation. Advances in Neural Information
+Processing Systems, 36:15903–15935, 2023.
+[42] Y. Xu, Z. Liu, M. Tegmark, and T. Jaakkola. Poisson flow generative models. Advances in
+Neural Information Processing Systems, 35:16782–16795, 2022.
+[43] X. Yu, X. Gu, H. Liu, and J. Sun.
+Constructing non-isotropic gaussian diffusion model
+using isotropic gaussian diffusion model for image editing. In Thirty-seventh Conference on
+Neural Information Processing Systems, 2023. URL https://openreview.net/forum?id=
+2Ibp83esmb.
+[44] M. Zand, A. Etemad, and M. Greenspan. Diffusion models with deterministic normalizing flow
+priors. arXiv preprint arXiv:2309.01274, 2023.
+[45] A. Zarei, K. Rezaei, S. Basu, M. Saberi, M. Moayeri, P. Kattakinda, and S. Feizi. Improving com-
+positional attribute binding in text-to-image generative models via enhanced text embeddings.
+arXiv preprint arXiv:2406.07844, 2024.
+[46] A. Zarei, K. Rezaei, S. Basu, M. Saberi, M. Moayeri, P. Kattakinda, and S. Feizi. Understand-
+ing and mitigating compositional issues in text-to-image generative models. arXiv preprint
+arXiv:2406.07844, 2(5):8, 2024.
+[47] A. Zarei, J. Pan, M. Gwilliam, S. Feizi, and Z. Yang. Agentcomp: From agentic reasoning to
+compositional mastery in text-to-image models. arXiv preprint arXiv:2512.09081, 2025.
+[48] A. Zarei, S. Basu, M. Pournemat, S. Nag, R. A. Rossi, and S. Feizi. Slideredit: Continuous
+image editing with fine-grained instruction control. In Proceedings of the IEEE/CVF Conference
+on Computer Vision and Pattern Recognition, pages 14430–14439, 2026.
+[49] A. Zarei, S. Basu, K. Rezaei, Z. Lin, S. Nag, and S. Feizi. Localizing knowledge in diffusion
+transformers. Advances in Neural Information Processing Systems, 38:14584–14612, 2026.
+[50] L. Zhang, A. Rao, and M. Agrawala. Adding conditional control to text-to-image diffusion
+models. In 2023 IEEE/CVF International Conference on Computer Vision (ICCV), pages
+3813–3824. IEEE, 2023.
+[51] R. Zhang, P. Isola, A. A. Efros, E. Shechtman, and O. Wang. The unreasonable effectiveness of
+deep features as a perceptual metric. In Proceedings of the IEEE conference on computer vision
+and pattern recognition, pages 586–595, 2018.
+[52] L. Zhou, A. Lou, S. Khanna, and S. Ermon. Denoising diffusion bridge models. arXiv preprint
+arXiv:2309.16948, 2023.
+[53] P. Zwick, N. Friederich, M. Beichter, L. Hilbert, R. Mikut, and O. Bringmann. Lediflow:
+Learned distribution-guided flow matching to accelerate image generation. arXiv preprint
+arXiv:2505.20723, 2025.
+12
+
+
+Figure 10: Text-to-Image Qualitative Examples
+Figure 11: Class-Conditional ImageNet Qualitative Examples
+A
+Related Works
+A.1
+Diffusion and Flow Models
+Diffusion models are a class of generative models grounded in stochastic differential equations
+(SDEs). Their core principle is to gradually corrupt data through a stochastic forward process that
+adds noise over time, ultimately transforming the data distribution into a simple Gaussian distribution.
+This forward process is formally defined as
+dx = f(x, t)dt + g(t)dWt,
+where f(x, t) denotes the drift term, g(t) is the diffusion coefficient, and dWt represents the Wiener
+process, corresponding to infinitesimal Gaussian noise injected at time. The generative process
+corresponds to reversing this diffusion, aiming to recover the data distribution from noise. The
+reverse-time dynamics are given by
+dx = [f(x, t) −g2(t)∇x log pt(x)]dt + g(t)dWt,
+where ∇x log pt(x), known as the score function, captures the gradient of the log-density of the data
+distribution at time t. In practice, diffusion models learn this score function by training a neural
+network sθ(x, t) via score matching:
+Et∼U(0,T ),x∼pt(x)[λ(t)||∇x log pt(x) −sθ(x, t)||2],
+where λ(t) is a time-dependent weighting function.
+13
+
+
+Closely related to diffusion models are flow matching methods, which provide a framework for
+training Continuous Normalizing Flows (CNFs). Unlike diffusion models, which rely on stochastic
+SDE trajectories, flow matching constructs deterministic mappings between distributions via ordinary
+differential equations (ODEs). Specifically, the data transformation is governed by a learned vector
+field:
+dx
+dt = vθ(x, t),
+where vθ(x, t) parameterizes the velocity field. The model is trained by minimizing the discrepancy
+between the learned vector field and a target vector field vt(x):
+Et∼U(0,T ),x∼pt(x)[|vθ(x, t) −vt(x)|2],
+where pt(x) denotes the intermediate distributions along the transport path.
+In contrast to diffusion models, flow matching leverages deterministic ODE trajectories rather than
+stochastic SDE dynamics, which can lead to improved computational efficiency and more stable
+training. As a result, flow matching can be viewed as a principled and efficient alternative to
+diffusion-based generative modeling.
+B
+Experiments
+B.1
+Implementation details
+All models use DiT-XL/2 [30] as the backbone, operating on 32×32 latent representations obtained
+by encoding 256×256 images with a pretrained VAE (Stable Diffusion sd-vae-ft-ema [31], down-
+sample factor 8). Training is performed on 8×A100 GPUs using HuggingFace Accelerate [11], with
+bfloat16 mixed precision and no gradient checkpointing. We optimize with AdamW (lr = 10−4,
+weight decay = 0, ε = 10−8) and a constant learning rate schedule. Gradient norms are clipped to 1.0
+(ImageNet) and 2.0 (FFHQ). An exponential moving average (EMA) of model weights is maintained
+throughout training with decay = 0.9999; all evaluations use the EMA weights. Timesteps are
+sampled uniformly, and training follows the flow matching objective. Inference uses 100 Euler steps.
+For StructFlow, segmentation masks are produced by SLIC superpixel oversegmentation [1] precom-
+puted at full image resolution (512×512) with 100 segments and compactness 30 for FFHQ, and 50
+segments and compactness 50 for ImageNet. The structured noise is sampled at full resolution and
+downsampled to latent resolution (32×32) with standard deviation rescaling to preserve unit variance.
+The secondary noise strength λ (which controls intra-segment coherence) is annealed during training
+via a piecewise linear schedule rather than held fixed, gradually tightening the segment constraint
+as training progresses. For FFHQ, λ is annealed from 4.0 to 0.1 between steps 60k–100k and the
+model is trained for 130k steps total, using the 130k EMA checkpoint for evaluation. For ImageNet,
+StructFlow training is conducted in sequential stages initialized from a pretrained flow matching
+checkpoint, with λ annealed from 25.0 down to 4.0 and subsequently to 0.5 across approximately
+3M total iterations — matching the budget of the baseline. The baseline DiT (FM-based) model
+is trained under an identical setup — same architecture, optimizer, batch size, training steps, and
+inference configuration — differing only in the noise sampling procedure, which uses standard
+isotropic Gaussian noise.
+For the text-to-image experiments, we fine-tune SANA-1600M [40] (1024px) on the FLUX-Reason-
+6M dataset [9] using full fine-tuning (no LoRA). Training uses AdamW with lr = 2×10−5, β =
+(0.9, 0.999), weight decay = 10−4, and ε = 10−8, with a constant learning rate schedule and no
+warmup. We use a global batch size of 32 (4 × 8 GPUs), bfloat16 mixed precision, no gradient
+checkpointing, and train for 100k steps. Caption dropout of 0.1 is applied to support classifier-free
+guidance at inference. Segmentation masks are produced on-the-fly via SLIC with 50 segments
+and compactness 40 at full resolution (1024×1024), then downsampled to latent resolution with std
+rescaling. As with ImageNet, the secondary noise strength λ is annealed from 22.0 to 0.5 between
+steps 5k–65k to progressively tighten the segment constraint during training.
+B.2
+Qualitative and Quantitative evaluation
+In this section, we provide additional qualitative examples from a DiT trained with StructFlow
+and a SANA model post-trained using our method. Figures 10 and 11 illustrate results from these
+14
+
+
+giant panda
+mask
+original
+selected
+resample 1
+resample 2
+resample 3
+original
+selected
+resample 1
+resample 2
+resample 3
+original
+selected
+resample 1
+resample 2
+resample 3
+original
+selected
+resample 1
+resample 2
+resample 3
+original
+selected
+resample 1
+resample 2
+resample 3
+balloon
+church
+cheeseburger
+strawberry
+burrito
+volcano
+0.5
+0.1
+0.5
+0.2
+0.5
+0.3
+0.5
+0.4
+0.5
+0.5
+Figure 12: ImageNet Fine-Grained Local Resampling Qualitative Comparison. Comparison
+across models trained with different λς. Models trained with smaller λς preserve unintended regions
+while producing diverse variations within the selected parts.
+0.5
+0.1
+0.5
+0.2
+0.5
+0.3
+0.5
+0.4
+0.5
+0.5
+0.00
+0.05
+0.10
+0.15
+outside_lpips
+0.115
+0.111
+0.158
+0.137
+0.165
+Preservation
+outside LPIPS
+(lower = less bleed)
+0.5
+0.1
+0.5
+0.2
+0.5
+0.3
+0.5
+0.4
+0.5
+0.5
+0.00
+0.05
+0.10
+0.15
+outside_rmse
+0.089
+0.106
+0.145
+0.130
+0.140
+Preservation
+outside RMSE
+(lower = less bleed)
+0.5
+0.1
+0.5
+0.2
+0.5
+0.3
+0.5
+0.4
+0.5
+0.5
+0.00
+0.05
+0.10
+0.15
+0.20
+0.25
+pairwise_inside_lpips
+0.145
+0.184
+0.207
+0.231
+0.251
+Diversity
+inside LPIPS
+(higher = more variation)
+0.5
+0.1
+0.5
+0.2
+0.5
+0.3
+0.5
+0.4
+0.5
+0.5
+0.0
+0.1
+0.2
+0.3
+pairwise_inside_rmse
+0.213
+0.240
+0.290
+0.288
+0.297
+Diversity
+inside RMSE
+(higher = more variation)
+Figure 13: ImageNet Fine-Grained Local Resampling Quantitative Comparison. Quantitative
+results corroborate the qualitative findings: models trained with smaller λς better preserve unaffected
+regions while maintaining diversity within the selected parts.
+two models. As shown, both produce high-quality samples while exhibiting a range of emerging
+capabilities.
+C
+Applications
+C.1
+Fine-Grained Image Editing and Part Resampling
+In this section, we thoroughly evaluate the ability of fine-grained local resampling in StructFlow.
+This is the ability to locally re-synthesize a specific semantic region of an image while leaving the
+rest unchanged. Concretely, given a generated image and its associated oversegmentation mask, we
+identify a semantically meaningful subset of segments, regenerate only those segments under fresh
+noise, and measure both how well the unselected region is preserved and how diverse the regenerated
+variants are.
+Procedure.
+For each evaluation sample, a base image is first synthesized together with a SLIC
+oversegmentation mask [1] computed at the original image resolution. A region of interest is then
+identified automatically: we run CLIPSeg [22] on the base image using a text query, obtain a per-pixel
+relevance heatmap, average the heatmap values within each segment, and threshold the per-segment
+scores via Otsu’s method [29] (with a minimum score floor of 0.3) to obtain the set of selected
+segment IDs. For ImageNet models the query is the ground-truth class name of the conditioning label
+(e.g., “golden retriever”), so the selected region reflects the primary object of interest. For FFHQ
+faces the query is fixed to “hair”. Given the selected region mask, we produce K = 5 resample
+variants: each variant uses the same primary noise as the base image for the unselected pixels, but
+draws fresh secondary noise only inside the selected region, so that all stochasticity outside it is
+held fixed. This directly mirrors the structured noise decomposition of our StructFlow training and
+provides a clean isolation of the regenerated zone.
+Metrics.
+We measure two complementary properties across the K resamples: We propose two
+complementary metrics to evaluate this behavior: Preservation (lower is better) measures how much
+the unselected region changes between the base image and each resample. We report the mean
+15
+
+
+mask
+original
+selected
+resample 1
+resample 2
+resample 3
+original
+selected
+resample 1
+resample 2
+resample 3
+4.0
+0.5
+4.0
+0.1
+Figure 14: FFHQ Fine-Grained Local Resampling Qualitative Comparison. Comparison across
+models trained with different λς. Models trained with smaller λς preserve unintended regions while
+producing diverse variations within the selected parts.
+0.0
+0.1
+0.2
+0.3
+0.4
+Outside LPIPS
+Preservation 
+ Outside LPIPS
+(lower = less bleed)
+4.0
+0.5
+4.0
+0.1
+0.00
+0.05
+0.10
+0.15
+0.20
+0.25
+Outside RMSE
+Preservation 
+ Outside RMSE
+(lower = less bleed)
+0.1
+0.2
+0.3
+0.4
+Inside LPIPS (pairwise)
+Diversity 
+ Inside LPIPS (pairwise)
+(higher = more variation)
+0.1
+0.2
+0.3
+0.4
+0.5
+Inside RMSE (pairwise)
+Diversity 
+ Inside RMSE (pairwise)
+(higher = more variation)
+Figure 15: FFHQ Fine-Grained Local Resampling Quantitative Comparison. Quantitative results
+corroborate the qualitative findings: models trained with smaller λς better preserve unaffected regions
+while maintaining diversity within the selected parts.
+pixel-level RMSE (Outside RMSE) and perceptual LPIPS distance (Outside LPIPS) [51], computed
+over unselected pixels only. Diversity (higher is better) measures how much the selected region
+varies across resamples. We compute all
+ K
+2
+
+pairwise comparisons within the selected region and
+report the mean pairwise RMSE (Inside RMSE) and LPIPS (Inside LPIPS). A well-behaved model
+should achieve both low preservation error (minimal disturbance to surrounding regions) and high
+diversity (meaningful variation within the edited region).
+ImageNet Results.
+We evaluate five model variants, each fine-tuned from a shared checkpoint
+that was originally trained with λς = 0.5, continuing with a cosine schedule that decays λς to a
+final value of {0.1, 0.2, 0.3, 0.4, 0.5} respectively (no mixed-coherence is used in these experiments).
+Evaluation is performed on 16 class-conditional validation samples with classifier-free guidance scale
+4.0; the CLIPSeg query matches the class label of each sample. As shown in Figures 12 and 13,
+models trained to smaller final λς exhibit substantially better preservation of the unselected region,
+with only a modest reduction in inside diversity. This confirms the theoretical expectation: tighter
+coupling between pixels of the same segment (smaller secondary noise) produces cleaner segment
+boundaries and more faithful outside preservation during resampling, while still leaving enough
+degrees of freedom
+FFHQ. Results
+We compare two unconditional face generation models that differ in their secondary
+noise schedule: one trained with λς annealed from 4.0 to 0.5, and one with a more aggressive schedule
+from 4.0 to 0.1. Evaluation uses 16 real images with SLIC masks, and the query “hair” is used for
+automatic region selection. Results in Figures 14 and 15 show the same trend as ImageNet: the model
+with the smaller final λς (4.0→0.1) substantially outperforms on preservation, indicating that the hair
+region can be re-synthesized with minimal leakage into the face and background, while the diversity
+of the generated hair variants remains adequate for practical use.
+16
+
+
+Figure 16: Structure Preserving Generation. Struct-
+Flow allows generation of diverse samples using the
+same grounding superpixel masks while preserving the
+overall structure.
+Figure 17: StructFlow’s structure preserv-
+ing capabilities allows interesting class in-
+terpolation during the early denoising steps
+of the generation.
+Generated Image
+Block 0
+Block 3
+Block 13
+Block 18
+Block 21
+Block 25
+Normal FM
+StructFlow
+Figure 18: Informative Early Features. StructFlow exhibits spatially coherent features from the
+earliest denoising steps, while Normal FM remains largely unstructured.
+C.2
+Structure Preserving Generation
+In this section, we provide additional qualitative examples showing that StructFlow naturally adheres
+to the provided segment boundaries, producing generations that preserve the underlying spatial
+structure. This structural consistency also enables class interpolation, where changing the class
+condition during early denoising alters the semantic content while largely maintaining the same
+layout. Figures 16 and 17 show additional results.
+C.3
+Early Emergence of Informative Features
+We compare the intermediate representations of two DiT-XL/2 models trained on ImageNet 256×256
+and sampled with 100 Euler flow-matching steps using classifier-free guidance (scale = 4.0): (i) a
+standard flow-matching baseline, referred to as Normal FM, and (ii) our StructFlow model, whose
+source noise is constructed using SLIC oversegmentation masks with 50 segments. For each model,
+we generate N = 60 images from 12 visually related animal classes, with 5 samples per class. These
+classes are chosen because they share common semantic parts, such as eyes, ears, muzzles, and fur
+patterns, making cross-sample feature alignment easier to inspect in the PCA maps. We extract
+features from all transformer blocks at five denoising fractions: 10%, 30%, 50%, 70%, and 90%
+of the sampling trajectory. For each (block, timestep) pair, we pool the spatial tokens from all 60
+17
+
+
+SLIC
+(oracle)
+Library
+sampling
+Regular
+grid
+Perturbed
+Voronoi
+Poisson
+disk+Voronoi
+Smooth
+deformation
+Figure 19: Comparison of training-free mask generation strategies
+generated images and fit a 3-component PCA. We then project each token onto the three principal
+components, reshape the projected features back to the spatial grid, and upsample them to the image
+resolution. The three PCA components are visualized as RGB channels and normalized using the
+global minimum and maximum across all samples for that (block, timestep) pair. Therefore, within
+each pair, the same color corresponds to the same feature direction across all samples, making
+cross-image consistency directly visible. Since PCA is fit independently for each (block, timestep)
+pair, colors should not be compared across different rows or columns of the figure.
+Figure 18 shows PCA maps from an early denoising stage, at 10% of the trajectory, i.e., after only
+10 of the 100 sampling steps. We visualize six representative transformer blocks. The first two
+rows correspond to Normal FM generations, while the bottom two rows correspond to StructFlow
+generations. The first column shows the final generated image for reference. Although the latent
+state is still highly noisy at this stage, the PCA maps of StructFlow already show clear spatial
+organization across multiple blocks, including coarse object boundaries, foreground–background
+separation, and rough object layout. In contrast, the Normal FM maps at the same timestep remain
+largely unstructured, with colors varying irregularly across patches rather than forming coherent
+regions. For Normal FM, comparable spatial organization appears only later in the denoising process,
+around 50%–90% of the trajectory. This suggests that the structured source used by StructFlow
+encourages the model to organize its internal features around spatially meaningful regions from the
+earliest sampling steps.
+D
+Text-to-Image StructFlow
+Details of the StructFlow text-to-image training setup are provided in Sec. B.1. Additional qualitative
+examples are shown in Fig. 10.
+E
+Mask Generation Strategies
+As discussed in Section 4.5, we explore several strategies for generating segmentation masks at
+inference time. Here, we provide a more detailed discussion of these approaches.
+Lightweight generative model.
+A straightforward option is to train a small generative model
+to produce plausible superpixel layouts on demand. We implement this as a compact U-Net flow-
+18
+
+
+75 Segments
+50 Segments
+25 Segments
+Figure 20: Effect of segment count. Varying the number of SLIC segments produces similar
+qualitative results, with 50 segments providing a balanced default.
+matching model (14.1M parameters) conditioned on the ImageNet class label, trained on 1.28M
+precomputed SLIC masks in approximately 3 hours on two A100 GPUs. The model closely matches
+real SLIC statistics in segment count, mean segment size, and spatial autocorrelation. Crucially, mask
+generation costs only 7–35 ms per sample (batch sizes 32–128, 20 inference steps)—roughly two
+orders of magnitude faster than the main DiT image generation pipeline—making it a negligible
+overhead in practice.
+Training-free approaches.
+We explore five training-free alternatives requiring no additional model.
+The simplest is library sampling: at inference time, a mask is drawn uniformly at random from the
+pool of precomputed SLIC masks. Since SLIC superpixels with high compactness are governed
+primarily by spatial regularity rather than image content, a mask from an unrelated image still
+provides a plausible spatial layout. This approach is zero-cost and produces in-distribution masks by
+construction.
+The remaining strategies construct masks procedurally. A regular grid partitions the image into
+uniform rectangular cells. Perturbed Voronoi tessellation places seeds on a regular grid and applies
+isotropic Gaussian noise before computing the nearest-neighbour Voronoi diagram; the perturbation
+magnitude controls the degree of organic irregularity. Poisson-disk Voronoi removes the grid prior
+entirely: seeds are placed using Bridson’s algorithm [4], which enforces a minimum inter-seed
+distance and produces blue-noise point distributions with no underlying grid memory, yielding more
+organic, irregular cells while still guaranteeing uniform spatial coverage. Finally, smooth deformation
+starts from a regular n × n grid and applies a spatially smooth random displacement field—obtained
+by blurring independent Gaussian noise with a large kernel—to warp the grid boundaries.
+Figure 19 compares example masks and generated images for all six strategies. As the figure illus-
+trates, the regular grid and smooth deformation approaches produce masks that are noticeably out
+of distribution relative to the SLIC superpixels the model was trained on: their large, rectangular or
+broadly warped regions differ substantially in shape, size distribution, and boundary character from
+organic SLIC segments, and this mismatch leads to visibly degraded generation quality. By contrast,
+the Voronoi-based approaches—both perturbed Voronoi and Poisson-disk Voronoi—produce masks
+whose local statistics are much closer to SLIC, and the resulting generations are correspondingly
+higher quality and more coherent. Library sampling inherits the exact SLIC distribution by construc-
+tion and therefore performs comparably to the oracle. These results confirm that matching the mask
+distribution seen during training is the key factor for high-quality generation, and that Voronoi-based
+procedural masks provide a practical and effective training-free alternative to precomputed SLIC
+masks.
+F
+Ablations
+We conduct a small ablation to study the effect of the number of local regions used for structured noise
+construction, controlled by the number of SLIC segments. Specifically, we train three DiT models
+with 25, 50, and 75 segments, respectively, while keeping all other training settings fixed. Each
+model is trained for 1.8M iterations. Figure 20 shows qualitative samples from the final checkpoints.
+19
+
+
+Cosine Anchoring
+Initial Segments
+Assigned Anchors
+Inner Region Noise
+Final Noise
+Figure 21: Cosine-Induced Spatial Anchoring and Noise Construction. Segment anchors are
+deterministically sampled from a fixed cosine grid, after which inner-region noise is added to construct
+the final structured source sample.
+𝜆𝜍= 0.1
+Noise
+Generated
+𝜆𝜍= 0.4
+𝜆𝜍= 0.8
+𝜆𝜍= 2
+𝜆𝜍= 8
+Figure 22: Effect of λς. Noise constructed with varying λς and evaluated using a standard FM-based
+DiT. As λς →∞, the noise approaches i.i.d. Gaussian, matching the training distribution of the
+base model and yielding correct generation. This enables post-training via Progressive Coherence
+Annealing, by initializing with large λς and gradually reducing it to introduce structure.
+Overall, we observe no major qualitative difference across these settings: all three models produce
+reasonable samples and preserve the main benefits of structured noise. However, the number of
+segments still provides a useful practical trade-off. Using too many segments can make the source
+structure overly fine-grained, which may restrict the model and reduce its ability to generate details
+that extend across segment boundaries. Conversely, using too few segments weakens the spatial
+control provided by the structured source. Based on this trade-off, we use 50 segments as a balanced
+default in our experiments.
+We also explored replacing superpixels with semantic segmentation masks. In particular, for FFHQ,
+we used face-part segmentations, such as eyes, hair, lips, and other facial regions, as the local
+regions for structured noise construction. This setting was trainable and produced reasonable samples.
+However, we found it less suitable for our goal for two main reasons. First, semantic regions do
+not always correspond to local coherence: a large region such as hair can cover spatially distant or
+visually diverse areas, where the pixels are not necessarily strongly correlated. Second, semantic
+masks provide much coarser control than superpixels, since each region often corresponds to an entire
+object part rather than a fine-grained local area. construction.
+G
+Limitations
+While StructFlow introduces a new paradigm for source distribution design that improves localized
+controllability and structure preservation, it also has several limitations. First, our method relies on
+segmentation masks or mask proxies to construct the structured source distribution. Although we
+explore retrieval-based and training-free alternatives at inference time, generation quality can depend
+on how closely these masks match the distribution used during training. Second, the structured source
+introduces additional hyperparameters, such as the number of segments and the secondary noise
+scale λς, which control the strength of locality and may require tuning across datasets, resolutions, or
+model architectures.
+20
