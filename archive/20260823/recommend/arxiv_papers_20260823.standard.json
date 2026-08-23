@@ -1,0 +1,60 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-23T19:56:59.130068+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.20335v1",
+      "source": "arxiv",
+      "title": "4DAnyone: Create Anyone in 4D from a Casual Monocular Video",
+      "abstract": "We present 4DAnyone, a framework for reconstructing 4D humans from an uncalibrated monocular video by generating reconstruction-grade multiview-consistent videos and lifting them into 4D Gaussian Splatting (4DGS). Existing camera-controlled video diffusion models synthesize plausible novel-view videos but fail to maintain consistency when scaled to the tens of target views required for 4DGS reconstruction. We identify this failure as a bounded-attention-context problem: when target views exceed the capacity of a single DiT forward pass, they must be split into groups, exposing two coupled bottlenecks. On the reference-context side, conditioning on all previously generated views grows as $O(N)$, weakening cross-view appearance guidance. On the target-context side, disjoint groups cannot directly exchange information, causing global structural drift. 4DAnyone addresses both bottlenecks with two complementary designs: Reference Context Packing (RCP) compresses growing reference views into a fixed-length mixed-resolution context with $O(1)$ reference-context complexity, while Target Context Routing (TCR) rotates target-view groupings during denoising to share context across groups at high-noise steps and stabilize details at low-noise steps. We further build the MVGameHuman dataset using our in-house game engine and combine it with light-stage and in-the-wild video datasets for training. Experiments on DNA-Rendering and DyMVHumans show that 4DAnyone outperforms prior methods in both novel-view video quality and downstream 4DGS reconstruction, with robust in-the-wild generalization. See our project page for video results and source code: https://4danyone.github.io.",
+      "authors": [
+        "Yudong Jin",
+        "Tao Xie",
+        "Qihang Zhang",
+        "Zehong Shen",
+        "Zhen Xu",
+        "Yujun Shen",
+        "Hujun Bao",
+        "Xiaowei Zhou",
+        "Yinghao Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-20T17:59:53+00:00",
+      "link": "https://arxiv.org/pdf/2608.20335v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Improves multi-view video generation consistency for 4D reconstruction without additional training",
+      "llm_evidence_cn": "在不额外训练的情况下提升多视角视频生成一致性用于4D重建",
+      "llm_evidence": "在不额外训练的情况下提升多视角视频生成一致性用于4D重建",
+      "canonical_evidence": "在不额外训练的情况下提升多视角视频生成一致性用于4D重建",
+      "llm_tldr_en": "Identifies bounded attention context as the cause of inconsistency in multi-view video diffusion and proposes a framework to maintain cross-view consistency for 4D from monocular video.",
+      "llm_tldr_cn": "针对现有相机可控视频扩散模型在生成大量目标视角时一致性下降的问题，4DAnyone将其归因于有界注意力上下文，并设计相应框架。通过缓解参考上下文与目标上下文的双重瓶颈，它由单目视频生成重建级多视角一致视频，再提升为4D高斯泼溅。实验表明该方法在人物4D重建上显著改善了视角一致性与重建质量。",
+      "llm_tldr": "针对现有相机可控视频扩散模型在生成大量目标视角时一致性下降的问题，4DAnyone将其归因于有界注意力上下文，并设计相应框架。通过缓解参考上下文与目标上下文的双重瓶颈，它由单目视频生成重建级多视角一致视频，再提升为4D高斯泼溅。实验表明该方法在人物4D重建上显著改善了视角一致性与重建质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

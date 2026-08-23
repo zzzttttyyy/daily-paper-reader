@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-08-23 <!--dpr-date:20260823-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/23/2608.20335v1-4danyone-create-anyone-in-4d-from-a-casual-monocular-video" data-sidebar-item="{&quot;title&quot;: &quot;4DAnyone: Create Anyone in 4D from a Casual Monocular Video&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.20335v1-4danyone-create-anyone-in-4d-from-a-casual-monocular-video&quot;, &quot;score&quot;: &quot;7.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;在不额外训练的情况下提升多视角视频生成一致性用于4D重建&quot;}">4DAnyone: Create Anyone in 4D from a Casual Monocular Video</a>
   * 2026-08-22 <!--dpr-date:20260822-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202608/22/2608.15734v1-cinedub-scaling-end-to-end-video-dubbing-to-multi-speaker-dialogues-with-coherent-sound-effects" data-sidebar-item="{&quot;title&quot;: &quot;CineDub: Scaling End-to-End Video Dubbing to Multi-Speaker Dialogues with Coherent Sound Effects&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.15734v1-cinedub-scaling-end-to-end-video-dubbing-to-multi-speaker-dialogues-with-coherent-sound-effects&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;面向多说话人视频配音的统一扩散模型&quot;}">CineDub: Scaling End-to-End Video Dubbing to Multi-Speaker Dialogues with Coherent Sound Effects</a>
