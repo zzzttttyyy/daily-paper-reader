@@ -6,40 +6,36 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-24
-- 运行时间：2026-08-24 20:23:58 UTC
+- 最新运行日期：2026-08-25
+- 运行时间：2026-08-25 20:35:38 UTC
 - 运行状态：成功
-- 本次总论文数：6
+- 本次总论文数：4
 - 精读区：2
-- 速读区：4
+- 速读区：2
 
 ### 今日简报（AI）
-今日精读聚焦身份保持视频生成与高效扩散Transformer，另涉城市规划图像与视角转换等4篇速读。  
-最值得关注：基于智能体增强与语义修复的文本生成视频方法（9.0分），以及掩码外锚定缓存的扩散模型加速技术（8.0分）。  
-建议下一步可优先体验上述视频生成与缓存优化方案，关注其落地效率与身份一致性效果。
-- 详情：[/202608/24/README](/202608/24/README)
+今日阅读4篇论文，精读2篇聚焦扩散模型高效推理与多主体视频生成，速读覆盖文本到图像安全解码及扩散语言模型收敛感知。
+
+最值得看：ChebBooster用切比雪夫外推实现无需训练的DiT推理加速（10分），以及多主体图生视频对直接/并行/顺序三种策略的对比（9分）。
+
+建议优先复现ChebBooster的加速思路，并关注多主体视频生成中顺序策略的实际效果。
+- 详情：[/202608/25/README](/202608/25/README)
 
 ### 精读区论文标签
-1. [Identity-Preserving Text-to-Video Generation via Agentic Enhancement and Semantic Repair](/202608/24/2608.20749v1-identity-preserving-text-to-video-generation-via-agentic-enhancement-and-semantic-repair)  
+1. [ChebBooster: A Training-Free Approach for Efficient Diffusion Transformer Inference via Chebyshev-Inspired Extrapolation](/202608/25/2608.23429v1-chebbooster-a-training-free-approach-for-efficient-diffusion-transformer-inference-via-chebyshev-inspired-extrapolation)  
+   标签：评分：10.0/10、query:tfree-diff
+   evidence：面向扩散Transformer图像生成的免训练推理加速
+2. [Direct, Parallel, or Sequential? A Comparative Study of Training-Free Multi-Subject Image-to-Video Generation](/202608/25/2608.22819v1-direct-parallel-or-sequential-a-comparative-study-of-training-free-multi-subject-image-to-video-generation)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：通过智能体提示增强与语义修复提升黑盒视频生成，无需额外训练
-2. [Anchoring Instruction Outside Mask: Exact Reference Caching for Efficient In-Context Diffusion Transformers](/202608/24/2608.21229v1-anchoring-instruction-outside-mask-exact-reference-caching-for-efficient-in-context-diffusion-transformers)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：面向扩散变换器推理的无训练参考缓存优化
+   evidence：免训练多主体图像到视频生成的比较研究
 
 ### 速读区论文标签
-1. [Image Generation Techniques for Urban Planning](/202608/24/2608.18908v1-image-generation-techniques-for-urban-planning)  
+1. [GuardPaint:SpeculativeSafetyDecodingforText-to-ImageGeneration](/202608/25/2608.21869v1-guardpaintspeculativesafetydecodingfortext-to-imagegeneration)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：使用流匹配（扩散式生成模型）进行图像生成
-2. [Grounded-Exo2Ego: Structured Semantic Grounding for Robust Exocentric-to-Egocentric Video Generation](/202608/24/2608.20534v1-grounded-exo2ego-structured-semantic-grounding-for-robust-exocentric-to-egocentric-video-generation)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：面向外中心到自我中心视频生成的视频扩散模型
-3. [Mise-en-Scène: Implicit Layout Emergence in Diffusion Transformers for Human-AI Design Co-Creation](/202608/24/2608.19000v1-mise-en-scne-implicit-layout-emergence-in-diffusion-transformers-for-human-ai-design-co-creation)  
+   evidence：在文生图扩散轨迹中进行免训练安全解码
+2. [CAI-DLLM: Convergence Aware Inference for Diffusion Language Models](/202608/25/2608.22646v1-cai-dllm-convergence-aware-inference-for-diffusion-language-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：扩散变换器用于图像设计生成
-4. [Exploring the Performance Frontier of Compact Unified Image Generation Models](/202608/24/2608.20334v2-exploring-the-performance-frontier-of-compact-unified-image-generation-models)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：使用DiT扩散架构的紧凑统一图像生成模型
+   evidence：利用置信度减少扩散语言模型去噪步数的免训练推理方法
 
 
 <div class="dpr-home-promo-card">

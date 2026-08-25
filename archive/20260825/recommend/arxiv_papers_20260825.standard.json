@@ -1,0 +1,173 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-25T20:32:12.078765+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2608.23429v1",
+      "source": "arxiv",
+      "title": "ChebBooster: A Training-Free Approach for Efficient Diffusion Transformer Inference via Chebyshev-Inspired Extrapolation",
+      "abstract": "Diffusion Transformers (DiTs) have shown strong performance in high-fidelity image generation, but their sampling process remains computationally intensive due to full model execution at every timestep. While cache-based acceleration has been explored to mitigate inference cost, naive reuse schemes suffer from low accuracy over long intervals, and Taylor-series-based extrapolation methods often face instability caused by Runge oscillations. In this paper, we propose ChebBooster, a training-free extrapolation framework based on Chebyshev polynomial theory that achieves stable and efficient acceleration for DiTs. Specifically, we adopt the Barycentric formulation to evaluate Chebyshev approximants with high numerical stability and minimal overhead, and further decouple the extrapolation into an offline weight precomputation phase and a lightweight online application stage. Extensive experiments across three representative DiT-based models, including DiT-XL/2, PixArt-$Σ$, and FLUX.1-dev, demonstrate that ChebBooster achieves consistent improvements in visual quality and inference efficiency, reaching up to $3.68\\times$ latency speedup and $5.12\\times$ FLOPs reduction, outperforming existing training-free baselines under diverse generation tasks and resolutions.",
+      "authors": [
+        "Chengjie Lu",
+        "Tianchi Deng",
+        "Zhengqi He",
+        "Chengwen Luo",
+        "Xueliang Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-08-24T16:06:11+00:00",
+      "link": "https://arxiv.org/pdf/2608.23429v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "training-free extrapolation for diffusion transformer image generation",
+      "llm_evidence_cn": "面向扩散Transformer图像生成的免训练推理加速",
+      "llm_evidence": "面向扩散Transformer图像生成的免训练推理加速",
+      "canonical_evidence": "面向扩散Transformer图像生成的免训练推理加速",
+      "llm_tldr_en": "ChebBooster accelerates diffusion transformer image generation via a training-free Chebyshev extrapolation framework using barycentric evaluation, avoiding Runge oscillations and improving cache reuse stability.",
+      "llm_tldr_cn": "扩散Transformer在图像生成中需要逐步执行完整模型，采样成本高昂，而缓存复用长期区间精度差、泰勒外推易出现龙格振荡。本文基于切比雪夫多项式理论提出ChebBooster，采用重心形式稳定评估切比雪夫近似，实现无需训练的扩散Transformer推理加速。实验表明该方法能够稳定高效地降低推理开销，同时保持高保真图像生成质量。该工作直接对应训练免优化扩散模型图像生成的需求，属于核心相关方法。",
+      "llm_tldr": "扩散Transformer在图像生成中需要逐步执行完整模型，采样成本高昂，而缓存复用长期区间精度差、泰勒外推易出现龙格振荡。本文基于切比雪夫多项式理论提出ChebBooster，采用重心形式稳定评估切比雪夫近似，实现无需训练的扩散Transformer推理加速。实验表明该方法能够稳定高效地降低推理开销，同时保持高保真图像生成质量。该工作直接对应训练免优化扩散模型图像生成的需求，属于核心相关方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.22819v1",
+      "source": "arxiv",
+      "title": "Direct, Parallel, or Sequential? A Comparative Study of Training-Free Multi-Subject Image-to-Video Generation",
+      "abstract": "Text-conditioned image-to-video (I2V) generation has advanced rapidly, yet generating videos with multiple subjects remains challenging. A model must simultaneously preserve the appearance of each subject, assign distinct motions, and maintain coherent spatial and temporal interactions. This paper presents a systematic study of three representative paradigms for training-free multi-subject I2V generation: direct, parallel, and sequential generation. Direct generation applies a pretrained I2V model to the complete reference image and prompt, requiring all subjects and motions to be synthesized jointly. Parallel and sequential generation instead decompose the reference image and prompt into subject-specific visual and textual conditions. Parallel generation synthesizes each subject independently and subsequently composes the resulting videos, reducing the complexity of each generation step at the cost of weaker inter-subject context. Sequential generation first synthesizes a background video and then progressively introduces individual subjects. This preserves accumulated scene context but introduces sensitivity to subject ordering and error propagation. We empirically evaluate the three paradigms across diverse multi-subject scenes, comparing appearance preservation, motion fidelity, temporal consistency, and inter-subject coherence, while also characterizing their distinct failure modes. Our findings reveal the strengths and limitations of each paradigm and offer practical insights for designing controllable multi-subject video generation systems.",
+      "authors": [
+        "Yanliang Qi",
+        "Kexi Chen",
+        "Muchao Ye",
+        "Haomiao Ni"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-24T05:30:48+00:00",
+      "link": "https://arxiv.org/pdf/2608.22819v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free multi-subject image-to-video generation comparison",
+      "llm_evidence_cn": "免训练多主体图像到视频生成的比较研究",
+      "llm_evidence": "免训练多主体图像到视频生成的比较研究",
+      "canonical_evidence": "免训练多主体图像到视频生成的比较研究",
+      "llm_tldr_en": "Systematically compares direct, parallel, and sequential training-free paradigms for multi-subject image-to-video generation, analyzing appearance preservation and motion assignment.",
+      "llm_tldr_cn": "文本条件图像到视频(I2V)生成已取得进展，但多主体视频生成仍具挑战，需同时保持主体外观、分配不同动作并维持时空一致性。本文对直接、并行和顺序三种代表性免训练范式进行系统比较：直接生成使用完整参考图像和提示联合合成，并行与顺序则将参考图像和提示按主体分解。该研究为免训练多主体I2V生成提供了实践指导。其完全符合免训练视频生成优化需求。",
+      "llm_tldr": "文本条件图像到视频(I2V)生成已取得进展，但多主体视频生成仍具挑战，需同时保持主体外观、分配不同动作并维持时空一致性。本文对直接、并行和顺序三种代表性免训练范式进行系统比较：直接生成使用完整参考图像和提示联合合成，并行与顺序则将参考图像和提示按主体分解。该研究为免训练多主体I2V生成提供了实践指导。其完全符合免训练视频生成优化需求。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.21869v1",
+      "source": "arxiv",
+      "title": "GuardPaint:SpeculativeSafetyDecodingforText-to-ImageGeneration",
+      "abstract": "Text-to-image (T2I) diffusion models offer powerful visual generation, but their controllability creates a critical safety challenge: adversarial prompts can steer the denoising trajectory toward policy-violating content such as explicit nudity or graphic violence. Existing safeguards mostly act before generation through prompt filtering or after generation through image classification, leaving the diffusion process itself unguarded and often yielding only refusal rather than safe visual repair.   We introduce GuardPaint, a speculative decoding framework for safe T2I generation that intervenes inside the diffusion trajectory without modifying the base model. A lightweight auditor monitors intermediate images, localizes unsafe regions, and triggers surgical inpainting repair only where needed. Candidate repairs are generated by a policy-aligned inpainter and selected through a guarded tournament that accepts edits only when they improve policy compliance while preserving prompt fidelity and perceptual quality.   Across five jailbreak families SneakPrompt, MMA, PGJ, DACA, and RABell and UNet/flow-matching models including SD~1.5, SDXL, SD~3.5, and FLUX.1-dev. GuardPaint reduces attack success and harmful generations with minimal degradation to image quality, prompt fidelity, and benign behavior.   Content warning: This paper contains examples involving nudity and violence that some readers may find disturbing, distressing, or offensive.",
+      "authors": [
+        "Shreyash Dhoot",
+        "Paras Dhiman",
+        "Arsh Abbas Naqvi",
+        "Aranbi Dutta",
+        "Aman Chadha",
+        "Vinija Jain",
+        "Amitava Das"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-22T09:28:30+00:00",
+      "link": "https://arxiv.org/pdf/2608.21869v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free speculative decoding inside T2I diffusion trajectory for safe image generation",
+      "llm_evidence_cn": "在文生图扩散轨迹中进行免训练安全解码",
+      "llm_evidence": "在文生图扩散轨迹中进行免训练安全解码",
+      "canonical_evidence": "在文生图扩散轨迹中进行免训练安全解码",
+      "llm_tldr_en": "GuardPaint is a training-free speculative decoding framework that audits intermediate T2I images and surgically inpaints unsafe regions during the diffusion trajectory, enabling safe image generation without modifying the base model.",
+      "llm_tldr_cn": "文生图扩散模型容易被对抗提示词诱导生成违规内容，现有防护多在生成前过滤或生成后分类。GuardPaint提出一种免训练的投机式解码框架，在扩散轨迹内部用轻量审计器监控中间图像并定位违规区域，随后进行外科手术式修补。该方法无需修改基础模型即可实现安全生成。它将免训练推理时干预扩展到文生图安全领域，与免训练采样优化目标有较强的方法论相关性。",
+      "llm_tldr": "文生图扩散模型容易被对抗提示词诱导生成违规内容，现有防护多在生成前过滤或生成后分类。GuardPaint提出一种免训练的投机式解码框架，在扩散轨迹内部用轻量审计器监控中间图像并定位违规区域，随后进行外科手术式修补。该方法无需修改基础模型即可实现安全生成。它将免训练推理时干预扩展到文生图安全领域，与免训练采样优化目标有较强的方法论相关性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.22646v1",
+      "source": "arxiv",
+      "title": "CAI-DLLM: Convergence Aware Inference for Diffusion Language Models",
+      "abstract": "Diffusion language models can generate many tokens in parallel, but they still require repeated denoising steps during inference. This makes generation costly, especially when the model continues to recompute tokens that are already stable. To address these limitations, we propose CAI-DLLM, a training-free inference method that uses first-step confidence to guide denoising and reduce inference time. Specifically, CAI-DLLM commits easy tokens earlier, allocates more denoising steps to harder tokens, and adjusts decoding schedules across output blocks. As it relies only on first-step confidence signals, it does not require retraining, extra predictors, or weight updates. We evaluate CAI-DLLM on LLaDA-8B-Instruct and Dream-7B-Instruct across math, code, reasoning, commonsense, and long-context tasks. CAI-DLLM achieves up to 18.2x wall clock inference speedup on LLaDA GSM8K while improving accuracy from 76.27% to 77.41%, and up to 13.1x speedup on Dream HumanEval while achieving higher pass@1 than no-cache inference, 48.17% compared with 46.95%. On harder reasoning tasks, speedups reach 44.8x, with a largest accuracy drop of 4.4 points, while energy consumption is reduced by up to 95.3%.",
+      "authors": [
+        "Farhana Amin",
+        "Sabiha Afroz",
+        "Dimitrios S. Nikolopoulos"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-23T23:03:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.22646v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free inference method using confidence to reduce denoising steps for diffusion language models",
+      "llm_evidence_cn": "利用置信度减少扩散语言模型去噪步数的免训练推理方法",
+      "llm_evidence": "利用置信度减少扩散语言模型去噪步数的免训练推理方法",
+      "canonical_evidence": "利用置信度减少扩散语言模型去噪步数的免训练推理方法",
+      "llm_tldr_en": "Introduces CAI-DLLM, a training-free inference method that uses first-step confidence to commit stable tokens early and allocate more denoising steps to hard tokens, reducing diffusion LM generation cost.",
+      "llm_tldr_cn": "扩散语言模型生成中需要多次去噪且重复计算已稳定token，造成推理开销大。本文提出CAI-DLLM，一种完全免训练的推理方法，仅利用第一步置信度信号，将简单token提前提交、困难token分配更多去噪步数，并动态调整解码调度。在LLaDA-8B-Instruct和Dream-7B-Instruct上验证了其能降低推理时间且无需重训练或额外预测器。该方法为扩散模型的免训练采样优化提供了可迁移思路，尽管面向语言模型而非图像/视频。",
+      "llm_tldr": "扩散语言模型生成中需要多次去噪且重复计算已稳定token，造成推理开销大。本文提出CAI-DLLM，一种完全免训练的推理方法，仅利用第一步置信度信号，将简单token提前提交、困难token分配更多去噪步数，并动态调整解码调度。在LLaDA-8B-Instruct和Dream-7B-Instruct上验证了其能降低推理时间且无需重训练或额外预测器。该方法为扩散模型的免训练采样优化提供了可迁移思路，尽管面向语言模型而非图像/视频。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
