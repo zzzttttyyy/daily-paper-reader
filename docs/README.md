@@ -6,36 +6,46 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-25
-- 运行时间：2026-08-25 20:35:38 UTC
+- 最新运行日期：2026-08-26
+- 运行时间：2026-08-26 21:22:18 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：2
-- 速读区：2
+- 本次总论文数：8
+- 精读区：4
+- 速读区：4
 
 ### 今日简报（AI）
-今日阅读4篇论文，精读2篇聚焦扩散模型高效推理与多主体视频生成，速读覆盖文本到图像安全解码及扩散语言模型收敛感知。
-
-最值得看：ChebBooster用切比雪夫外推实现无需训练的DiT推理加速（10分），以及多主体图生视频对直接/并行/顺序三种策略的对比（9分）。
-
-建议优先复现ChebBooster的加速思路，并关注多主体视频生成中顺序策略的实际效果。
-- 详情：[/202608/25/README](/202608/25/README)
+今日处理8篇论文，其中精读4篇、速读4篇，重点聚焦扩散模型前沿改进。
+最值得关注的是《Pixel-Space Diffusion via Observation Operators》与《Improved denoising diffusion probabilistic models》，精读评分均达8.0/10。
+建议普通读者优先浏览这两篇，关注观测算子采样及非对角协方差建模对生成质量的提升。
+- 详情：[/202608/26/README](/202608/26/README)
 
 ### 精读区论文标签
-1. [ChebBooster: A Training-Free Approach for Efficient Diffusion Transformer Inference via Chebyshev-Inspired Extrapolation](/202608/25/2608.23429v1-chebbooster-a-training-free-approach-for-efficient-diffusion-transformer-inference-via-chebyshev-inspired-extrapolation)  
-   标签：评分：10.0/10、query:tfree-diff
-   evidence：面向扩散Transformer图像生成的免训练推理加速
-2. [Direct, Parallel, or Sequential? A Comparative Study of Training-Free Multi-Subject Image-to-Video Generation](/202608/25/2608.22819v1-direct-parallel-or-sequential-a-comparative-study-of-training-free-multi-subject-image-to-video-generation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练多主体图像到视频生成的比较研究
+1. [Pixel-Space Diffusion via Observation Operators](/202608/26/2608.21885v1-pixel-space-diffusion-via-observation-operators)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：直接面向像素空间扩散模型的图像生成优化问题
+2. [Improved denoising diffusion probabilistic models with efficient non-diagonal covariance modeling](/202608/26/2608.21972v1-improved-denoising-diffusion-probabilistic-models-with-efficient-non-diagonal-covariance-modeling)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：通过非对角协方差建模实现免训练采样加速
+3. [AnaDiffusion: Anatomically CompositionalLatent Diffusion for Controllable 3D Brain MRI Generation](/202608/26/2608.23014v1-anadiffusion-anatomically-compositionallatent-diffusion-for-controllable-3d-brain-mri-generation)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：扩散模型用于图像生成，面向可控三维脑MRI合成
+4. [Provably adaptive sampling with uniform and remasking discrete diffusion models](/202608/26/2608.23554v1-provably-adaptive-sampling-with-uniform-and-remasking-discrete-diffusion-models)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：针对离散扩散模型提出免训练采样器，在均匀/重掩码前向下可证明高效
 
 ### 速读区论文标签
-1. [GuardPaint:SpeculativeSafetyDecodingforText-to-ImageGeneration](/202608/25/2608.21869v1-guardpaintspeculativesafetydecodingfortext-to-imagegeneration)  
+1. [Pixel-Space Diffusion via Observation Operators](/202608/26/2608.21885v2-pixel-space-diffusion-via-observation-operators)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：在文生图扩散轨迹中进行免训练安全解码
-2. [CAI-DLLM: Convergence Aware Inference for Diffusion Language Models](/202608/25/2608.22646v1-cai-dllm-convergence-aware-inference-for-diffusion-language-models)  
+   evidence：扩散模型图像生成，针对像素空间扩散的新训练目标
+2. [Sobolev Regularized Score Difference Estimation in Diffusion Models](/202608/26/2608.18237v1-sobolev-regularized-score-difference-estimation-in-diffusion-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：利用置信度减少扩散语言模型去噪步数的免训练推理方法
+   evidence：面向迁移学习与后训练的通用扩散模型方法
+3. [Sobolev Regularized Score Difference Estimation in Diffusion Models](/202608/26/2608.18237v2-sobolev-regularized-score-difference-estimation-in-diffusion-models)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：面向迁移学习与后训练的通用扩散模型方法
+4. [Continuous Adversarial MeanFlow Transfer](/202608/26/2608.19540v2-continuous-adversarial-meanflow-transfer)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：面向预训练扩散/流模型的快速少步生成，无需重新训练源模型的采样加速
 
 
 <div class="dpr-home-promo-card">
