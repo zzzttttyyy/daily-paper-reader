@@ -1,0 +1,1435 @@
+Title: Scaling Muon for Diffusion Transformers
+
+URL Source: https://arxiv.org/pdf/2608.20818v1
+
+Published Time: Mon, 24 Aug 2026 00:31:22 GMT
+
+Number of Pages: 29
+
+Markdown Content:
+# SCALING MUON FOR DIFFUSION TRANSFORMERS 
+
+Chenghao Li 1,2∗
+
+, Xiao Han 2, Xinxin Huang 2, Wei Liu 2, Boyang Li 2, Bing Xiao 2,Heran Zhang 2, Juanma Perez Rua 2, Ke Xu 2, Kangning Liu 2, Linjun Kuang 2, Na Li 2,Tan Wang 2, Tian Xie 2, Wei Peng 2, Yang Pei 2, Yifan Xu 2, Yuanhao Zhai 2,Yuwei Lin 2, Zhe Wang 2, Zihao He 2, Daniel Li 2, Junbiao Tang 2, Ziyang Jiang 2, Dake Chen 21University of Southern California 2Meta 
+
+ABSTRACT 
+
+The matrix-aware optimizer Muon improves large model training by balancing updates across singular directions, yet its scaling behavior and end-to-end effi-ciency on large Diffusion Transformers (DiTs) remain unclear. We first establish Muon’s scaling behavior on DiTs from 1.3B to 15B parameters, showing that its optimization and generative quality advantages over AdamW persist across model scales. However, at scale, the 5-step Newton–Schulz iteration (NS5) performed at every optimization step, together with full-momentum materialization, introduces substantial computation and communication overhead that can offset Muon’s step-efficiency advantage. We introduce Periodic Row-wise Muon , which performs a full NS5 spectral update once every K steps and applies a low compute and com-munication cost row-wise constrained update based on the current momentum at the remaining steps. We further co-design a distributed implementation that op-erates directly on sharded momentum during non-refresh steps and accelerates spectral refreshes through bucketed all-gather and communication–computation overlap. Across all scales, Muon improves the best observed generative quality over AdamW by 12.9–19.1%. Compared with vanilla Muon, Periodic Row-wise Muon remains within 0.5% in best generative quality on the 1.3B–4B models and improves it by 4.5% at 9B. It reduces optimizer time by 46.9–54.3%, end-to-end step time by 15.7–24.3%, and logical communication volume by 66.7%, while reaching its respective best generative quality with 33.7–64.8% less active training time. These results show that Periodic Row-wise Muon preserves Muon’s gener-ative quality advantage while translating it into end-to-end training efficiency for large DiTs. 
+
+1 INTRODUCTION 
+
+The continued scaling of Diffusion Transformers (DiTs) (Peebles & Xie, 2023; Esser et al., 2024; Chen et al., 2024) has improved model capacity and generative quality, while making training ef-ficiency a central concern. Prior work has characterized predictable improvements with increased training compute (Yin et al., 2025; Liang et al., 2026), but has typically treated the optimizer as fixed. At billion-parameter scale, however, optimizer efficiency can no longer be judged solely by the number of steps required to reach a lower loss. Fewer optimization steps must translate into lower GPU-hours and shorter wall-clock time under distributed training. Evaluating optimizer scal-ability therefore requires considering both its optimization advantage and its realized compute and communication cost under distributed training. Muon (Jordan et al., 2024) presents a promising alternative for improving large-scale training ef-ficiency. Unlike AdamW (Loshchilov & Hutter, 2017), which applies coordinate-wise adaptive updates, Muon treats two-dimensional weight tensors as matrices and applies a finite-step Newton– Schulz (NS) transformation to their momentum, producing update directions with global spectral structure. Recent work has shown that, when properly calibrated, Muon can match AdamW with substantially fewer training FLOPs in large language model pretraining and post-training (Liu et al., 2025). Evidence from smaller diffusion models likewise suggests improved optimization despite a higher per-step compute and communication cost, while showing that loss, generative quality, and runtime may rank optimizers differently (Schaipp, 2025). It therefore remains unclear whether Muon’s optimization advantage persists as DiTs scale to ten-billion parameters and whether its dis-tributed overhead can be reduced sufficiently to improve end-to-end training efficiency. 
+
+> ∗
+
+Work done during an internship at Meta. 
+
+1arXiv:2608.20818v1 [cs.LG] 21 Aug 2026 Answering these questions requires considering optimization and compute and communication costs jointly. Under the sharded execution path studied in this work, Muon’s NS5 transformation in-troduces additional matrix multiplications, full-momentum communication, synchronization, and temporary materialization (Liu et al., 2025). These costs motivate reducing the frequency and the exposed overhead of full spectral transformations, while preserving Muon’s optimization advantage. We first establish that Muon’s optimization advantage persists at scale by training DiTs from 1.3B to 15B parameters on the GPIC dataset (Chandrasegaran et al., 2026). Across all four scales, Muon achieves lower validation loss and improves the best observed FD-DINO over AdamW by 12.9– 19.1%. However, its additional computation and communication make vanilla Muon substantially more expensive per step. These results demonstrate Muon’s algorithmic scalability on large DiTs while exposing a systems bottleneck to realizing its optimization advantage efficiently. To address this bottleneck, we revisit whether global spectral geometry must be imposed at every optimization step and introduce Periodic Row-wise Muon , which performs a full NS5 update once every K steps, and applies a row-wise constrained normalization operator (RowNorm) (Lau & Su, 2026) at the remaining steps. The method alternates between two complementary matrix geome-tries. Periodic spectral (refresh) steps provide global coupling across rows and singular directions, whereas low compute and communication cost row-wise constrained (non-refresh) steps provide lo-cal scale control and maintain stable optimization behavior between consecutive spectral refreshes. We co-design the distributed execution with the periodic update. On non-refresh steps, RowNorm operates directly on sharded momentum and for matrix shapes whose normalization rows span ranks, only their norm statistics are all-reduced instead of the full matrix. On refresh steps, we pipeline bucketed momentum all-gathers for upcoming matrices with NS computation on already available buckets to reduce exposed communication latency. This design removes full-momentum material-ization on non-refresh steps and reduces the exposed overhead of the remaining spectral refreshes. Across the 1.3B–4B models, Periodic Row-wise Muon’s best observed FD-DINO remains within 0.5% of vanilla Muon, while outperforming it by approximately 4.5% at 9B and 2.7% at 15B. Relative to vanilla Muon, it reduces optimizer time by 46.9–54.3%, end-to-end step time by 15.7– 24.3%, and logical optimizer-communication volume by 66.7% across all scales. Our main contributions are as follows: (1) we characterize Muon on 1.3B–15B DiTs, showing that its advantages over AdamW in validation loss and generative quality persist across scale while iden-tifying NS5 computation and full-momentum communication as its main systems bottlenecks; (2) 
+
+we introduce Periodic Row-wise Muon, which replaces most NS5 transformations with low compute and communication cost RowNorm updates from the current momentum; and (3) we develop a dis-tributed implementation that operates on sharded momentum during non-refresh steps and pipelines bucketed all-gather with NS5 computation during refresh steps, substantially reducing systems over-head while retaining generative quality comparable to vanilla Muon. 
+
+2 MUON FOR DITS
+
+2.1 SCALING MUON FOR DITS TRAINING 
+
+Given a clean data sample x, a diffusion timestep a, and noise ϵ, let xa denote the noisy input constructed according to the prescribed noise schedule. We train a DiT to predict the corresponding velocity target v⋆ by minimizing 
+
+L(θ) = Ex,a,ϵ 
+
+h
+
+∥vθ (xa, a ) − v⋆(xa, a )∥22
+
+i
+
+. (1) We omit additional conditioning variables, such as text embeddings, for notational simplicity. The AdamW baseline applies AdamW to all trainable parameters. Muon instead applies matrix-aware updates to two-dimensional hidden weight matrices, while biases, normalization parameters, and other non-matrix parameters continue to be updated by AdamW. Consider a weight matrix at training step t denotes Wt ∈ Rm×n with gradient Gt = ∇Wt L(θt).Muon applies a finite spectral transformation consisting of JNS = 5 Newton–Schulz iterations Φ5
+
+to its momentum Mt, and decoupled weight decay update: 
+
+Pt = Φ 5(Mt), Wt+1 = (1 − ηtλ)Wt − ηt s(Wt)Pt, (2) where ηt is learning rate, λ is weight decay coefficient, and s(Wt) is shape-dependent update scale. 2The finite map Φ5 is inspired by the matrix polar factor and reshapes the singular values of the momentum to produce a globally coupled spectral direction Pt. Importantly, NS5 is not equivalent to computing an exact SVD polar decomposition, nor does it generally yield an exactly orthogonal matrix after 5 iterations. Our algorithmic definitions, theoretical analysis, and experiments therefore use the implemented finite map Φ5, rather than assuming convergence to the exact polar factor. We characterize Muon’s scalability for large scale DiTs training along two dimensions: algorithmic and systems scalability. Algorithmic scalability answers whether Muon maintains stable optimiza-tion behavior as model size increases and whether its advantages over AdamW in validation loss and generative quality persist across model scales. Systems scalability answers whether these algorith-mic gains translate into realized efficiency under large-scale distributed training. 2.2 COMPUTATION COMPLEXITY 
+
+The most direct computational difference between Muon and AdamW arises from updating two-dimensional matrices. Consider W ∈ Rm×n, r = min( m, n ), c = max( m, n ). Because AdamW maintains and applies element-wise statistics, its arithmetic complexity for this matrix is 
+
+CAdamW (m, n ) = Θ( mn ) = Θ( rc ). In contrast, a finite step Newton–Schulz transformation re-peatedly performs matrix multiplications. Even choosing the smaller Gram-matrix orientation yields 
+
+CNS (m, n ) = Θ  JNS r2c. Thus, NS5 incurs an additional factor of Θ( JNS r) in arithmetic per ma-trix. Ignoring implementation constants and hardware throughput, their arithmetic cost ratio for one matrix is Θ( JNS r).2.3 DISTRIBUTED COST UNDER LARGE SCALE DISTRIBUTED TRAINING 
+
+Local arithmetic alone does not characterize Muon’s cost at scale, which also depends on how its full-matrix spectral transformation is mapped onto sharded optimizer states. In our execution path, each two-dimensional parameter and its momentum are sharded along dimension zero, so each rank stores a subset of rows and the corresponding momentum shard. AdamW is coordinate-separable because each rank can update its local parameters using only its local first- and second-moment shards, without materializing the full matrix. Muon is not shard-separable under this execution path because Newton–Schulz iterations couple rows and singular directions through Gram matrices and matrix multiplications. In general, a rank cannot recover its portion of the spectral update from its local momentum shard alone. Our vanilla implementation therefore all-gathers the momentum shards to every rank, executes NS5 on the full matrix at every rank, retains the output slice cor-responding to the local parameter shard, and then discards the remaining output and releases the temporary full-matrix buffers (Liu et al., 2025). Muon’s systems cost consequently includes the GEMMs and associated matrix operations of repli-cated NS5 execution, together with full-momentum communication and temporary full-matrix ma-terialization. Suppose the sharding group contains p ranks and each momentum element occupies b
+
+bytes. Ignoring padding and protocol overhead, all-gathering an m × n momentum matrix requires each rank to logically receive approximately 
+
+VAG (m, n ) ≈ bmn p − 1
+
+p bytes . (3) This quantity excludes parameter communication already required by forward and backward prop-agation. Logical communication volume alone, however, does not determine communication time, which also depends on the collective count, bucket sizes, launch latency, the fraction of inter-node traffic, network topology and contention, and the extent of communication–computation overlap. In particular, many small buckets may incur substantial launch latency without changing the total communication volume. Together, repeated spectral computation and full-momentum communication make Muon substan-tially more expensive per step and may offset its optimization advantage. This motivates reducing the frequency of full spectral transformations while retaining effective updates. 
+
+3 PERIODIC ROW -WISE MUON 
+
+We introduce Periodic Row-wise Muon , which performs an NS5 spectral update periodically and applies RowNorm to the current momentum at the remaining steps. Rather than treating RowNorm 3as a numerical approximation to NS5, our method alternates between two matrix updates induced by distinct constraint geometries. We then exploit the locality of RowNorm to reduce momentum collective communication and full-matrix materialization. 3.1 COMPLEMENTARY SPECTRAL AND ROW -WISE GEOMETRIES 
+
+For a two-dimensional momentum Mt ∈ Rm×n, let fMt = O(Mt) denote Mt if m ≤ n and M ⊤
+
+> t
+
+otherwise, so that fMt ∈ Rr×c, where r = min( m, n ) ≤ c = max( m, n ). The resulting direction is mapped back through O−1.For a full-row-rank matrix X ∈ Rr×c, the ideal polar factor P(X) is 
+
+P(X) = ( XX ⊤)−1/2X ∈ arg max  
+
+> ∥U∥2≤1
+
+⟨X, U ⟩ , ⟨A, B ⟩ = tr( A⊤B). (4) The spectral-norm constraint globally couples the rows and singular directions of X. Practical Muon uses a finite NS5 map motivated by this spectral geometry rather than computing the exact polar factor. RowNorm, previously studied in symmetry-compatible optimizer design (Lau & Su, 2026), instead normalizes each row independently, 
+
+Rϵ(X)i: = Xi:
+
+max( ∥Xi:∥2, ϵ ) , i = 1 , . . . , r. (5) For nonzero rows, RowNorm maximizes ⟨X, U ⟩ subject to ∥U ∥2,∞ := max i∥Ui:∥2 ≤ 1. Thus, the ideal polar direction imposes a globally coupled spectral constraint, whereas RowNorm preserves each momentum row’s direction while controlling its magnitude independently. The complete vari-ational characterizations and their relation are provided in Appendices A.2 and A.3. Periodic spectral correction is further motivated by the local stability of the ideal polar direction. For full-row-rank matrices A and B,
+
+∥P (A) − P (B)∥F ≤ 2 ∥A − B∥F
+
+σmin (A) + σmin (B) . (6) Hence, moderate momentum changes imply moderate changes in the ideal polar direction as long as the matrices remain away from rank degeneracy. This motivates periodically reimposing global spectral structure and using a lower compute and communication cost structured direction between refreshes. The proof and limitations of this exact-polar argument are discussed in Appendix A.4. 3.2 PERIODIC ROW -WISE MUON 
+
+Building on the preceding analysis, we propose Periodic Row-wise Muon . Given a period K ≥ 1
+
+and a RowNorm multiplier γ > 0, define the refresh indicator ρt = I[t mod K = 0] . At every step, we use the current momentum Mt to compute the parameter update 
+
+eDt =
+
+(NS5( fMt), ρt = 1 ,γ Rϵ( fMt), ρt = 0 , Wt+1 = (1 − ηtλ)Wt − ηts(Wt)O−1( eDt). (7) The period K controls the frequency of spectral updates, whereas γ calibrates the effective step size of the RowNorm branch relative to the spectral branch. This calibration is necessary because the two normalization maps correspond to different feasible sets. For a full-row-rank matrix with nonzero rows, the exact polar factor and the unregularized RowNorm direction both have Frobenius norm √r. However, equal Frobenius norms do not imply equal stable update amplitudes. NS5 couples all rows under spectral-norm geometry, whereas RowNorm updates rows independently under ℓ2,∞ geometry. Their alignment with the gradient and the local curvature encountered along their directions can therefore differ. Directly reusing the Muon learning rate is equivalent to setting 
+
+γ = 1 , which implicitly assumes that the two branches have the same stable step-size range without theoretical justification. We write the effective learning rate of an off-refresh step as ηRN  
+
+> t
+
+= γη t. Here, ηt retains the global learning rate schedule of vanilla muon, while γ only specifies the relative scale between the two update geometries. Both normalization maps remove the global scale of the input momentum, 4and s(Wt) already accounts for shape-dependent scaling. The remaining calibration is therefore a dimensionless, branch-specific quantity. We use a fixed γ to preserve a constant ratio between the RowNorm and Muon learning rate schedules, rather than introducing a separate time varying schedule for RowNorm. Complete pseudocode is provided in Appendix C. Under standard conditional-alignment and bounded-second-moment assumptions, Appendix A.5 establishes a finite-horizon descent bound for the periodic update. Appendix A.6 further gives the blockwise dependence on γ, including its interaction with the remaining optimizer direction. 3.3 DISTRIBUTED EXECUTION 
+
+The two branches of Periodic Row-wise Muon have different communication requirements. A re-fresh step must still materialize the complete momentum matrix to execute NS5. To reduce the ex-posed latency of this global path, we introduce a bucketed all-gather pipeline with communication– computation overlap. Specifically, we partition the Muon matrices into communication buckets. Once the momentum of the current bucket has been all-gathered, we immediately reconstruct its full matrices and execute NS5 while asynchronously all-gathering the next bucket. Communication for the next bucket is thereby overlapped with NS5 computation on the current bucket, and only a bounded number of momentum matrices need to be materialized at any time. On non-refresh steps, RowNorm operates directly on the momentum shards. If m ≤ n, the orien-tation is unchanged and every RowNorm row is local, requiring no optimizer-specific collective. If 
+
+m > n , then O(M ) = M ⊤, so each oriented row spans ranks. If rank p owns the original rows indexed by Sp, it computes 
+
+q(p) 
+
+> j
+
+= X
+
+> i∈S p
+
+M 2 
+
+> ij
+
+, νj = max 
+
+X
+
+> p
+
+q(p)
+
+> j
+
+!1/2
+
+, ϵ 
+
+ . (8) The denominators therefore require a sum all-reduce of only n scalars, rather than an all-gather of all mn momentum entries. Appendix B.2 proves equivalence to dense RowNorm. In the implementation, we first compute the local statistics for all tall matrices, pack them, and launch bucketed asynchronous all-reduces. While these collectives are in flight, we compute the lo-cal statistics and RowNorm updates for the remaining matrices. Once the all-reduces complete, we use the global statistics to finish the tall-matrix updates. This ordering hides the statistics communi-cation for tall matrices behind local computation on the remaining matrices. Complete pseudocode is provide in Appendix C For an oriented matrix in Rr×c, r ≤ c, the dominant computation of NS5 is CNS5 = Θ(5 r2c),whereas RowNorm requires only CRN = Θ( rc ). Let VAG and VRN denote the total per-rank logical optimizer payloads on refresh and non-refresh steps. The average matrix-processing computation over one period C(K) and period-averaged payload V (K) satisfy 
+
+C(K) = 1
+
+K CNS5 + K − 1
+
+K CRN , V (K)
+
+VAG 
+
+= 1
+
+K + K − 1
+
+KVRN 
+
+VAG 
+
+. (9) For complete-row matrices VRN = 0 , while for a tall matrix VRN /V AG = O(1 /m ) under the logical payload model. For example, the total optimizer-specific payload for K = 3 approaches 
+
+1/3 of vanilla Muon when the norm-statistics payload is small. Detailed arithmetic, correctness, communication, and overlap models are given in Appendix B. 
+
+4 EXPERIMENTS 
+
+We systematically compare AdamW, vanilla Muon, and Periodic Row-wise Muon across DiT mod-els ranging from approximately 1.3B to 15B parameters. Beyond the main comparison, we include all experimental results in Appendix E. 4.1 EXPERIMENTAL SETUP 
+
+Dataset and models. We train text-to-image Diffusion Transformers from scratch on GPIC-Full (Chandrasegaran et al., 2026). GPIC contains 100M training image–text pairs collected from Flickr and Wikimedia, captioned with Qwen3-VL-4B-Instruct (Bai et al., 2025). We train four 50.0 15.0k 30.0k 45.0k 60.0k              
+
+> Optimizer steps
+> 0.32 0.34 0.36 0.38 0.40 0.42 0.44
+> Validation loss (lower is better)
+> 1.3B
+> 0.0 15.0k 30.0k 45.0k 60.0k
+> Optimizer steps
+> 4B
+> 0.0 15.0k 30.0k 45.0k 60.0k
+> Optimizer steps
+> 9B
+> 0.0 15.0k 30.0k 45.0k 60.0k
+> Optimizer steps
+> 15B
+> AdamW Muon
+
+(a) Validation loss versus training progress. 15.0k 30.0k 45.0k 60.0k    
+
+> Optimizer steps
+> 40 60 80 100 120 140
+> FD-DINO (lower is better)
+> Muon: FD-DINO vs steps
+> Model size
+> 1.3B 4B 9B 15B
+> 1.3B 4B 9B 15B
+> Model size (parameters)
+> 32.5 35.0 37.5 40.0 42.5 45.0 47.5 50.0
+> Best FD-DINO (lower is better)
+> Best FD-DINO vs model size
+> AdamW Muon
+
+(b) FD-DINO throughout training and the best observed FD-DINO across model scales. 0.0 25.0k 50.0k 75.0k 100.0k                        
+
+> Cumulative active time (1.3B-AdamW step equivalents)
+> 0.34 0.36 0.38 0.40 0.42 0.44
+> Validation loss (lower is better)
+> 1.3B
+> 10.0k 20.0k 30.0k 0.336 0.344
+> 0.0 40.0k 80.0k 120.0k
+> Cumulative active time (1.3B-AdamW step equivalents)
+> 0.32 0.34 0.36 0.38 0.40 0.42
+> 4B
+> 10.0k 20.0k 30.0k 40.0k 0.328 0.336 0.344
+> 0.0 60.0k 120.0k 180.0k 240.0k
+> Cumulative active time (1.3B-AdamW step equivalents)
+> 0.32 0.34 0.36 0.38 0.40 0.42
+> 9B
+> 20.0k 40.0k 60.0k 80.0k 0.320 0.328 0.336
+> 0.0 100.0k 200.0k 300.0k 400.0k
+> Cumulative active time (1.3B-AdamW step equivalents)
+> 0.32 0.34 0.36 0.38 0.40 0.42
+> 15B
+> 30.0k 60.0k 90.0k 120.0k 0.328 0.336 0.344
+> AdamW Muon
+
+(c) Validation loss versus wall-clock time. 
+
+Figure 1: Scaling behavior of Muon for DiTs training. Muon consistently improves step efficiency and generation quality, while its higher per-step overhead can offset this advantage in wall-clock time. MMDiT (Peebles & Xie, 2023) configurations at 512 × 512 resolution, containing approximately 1.3B, 4B, 9B, and 15B parameters. All models share the same overall architecture and conditioning modules, and differ only in hidden dimension, depth, and number of attention heads. 
+
+Optimization and training. Unless otherwise specified, Periodic Row-wise Muon uses K = 3 and 
+
+γ = 0 .15 throughout and their selection and analysis are provided in Appendix E.1. At each model scale, all three optimizers are trained for 60,000 steps with the same global batch size of 4,096, and therefore process the same number of training examples. All experiments use 32 nodes with 256 NVIDIA H100 GPUs in total and FSDP2 in Pytorch. We normalize all time quantities by the mean step time of the 1.3B AdamW run, which is defined as one unit. 
+
+Evaluation. We select a fixed set of 50,000 prompts from the GPIC test set and generate one 512 ×
+
+512 image per prompt. All methods use the same sampling configuration with a fixed classifier-free guidance scale of 5.0. We report FD-DINOv2 (Stein et al., 2023), FID (Heusel et al., 2017), Maximum Mean Discrepancy (MMD), Precision, Recall, Density, Coverage (Kynk¨ a¨ anniemi et al., 2019; Sajjadi et al., 2018; Naeem et al., 2020), HPSv2.1 (Wu et al., 2023), and GenEval2 (Kamath et al., 2025). Completed experimental settings are provided in Appendix D. 4.2 SCALING MUON FOR DIFFUSION TRANSFORMERS 
+
+We first examine whether Muon retains its optimization advantage as Diffusion Transformers scale from 1.3B to 15B parameters. Figure 1(a) compares the validation loss trajectories of AdamW and Muon over 60k optimization steps. Across all four model scales, Muon consistently achieves lower validation loss than AdamW throughout the main training regime. The achievable validation loss 61.3B 4B 9B 15B 0510 15 20       
+
+> Improvement over AdamW (%) ↑
+> 14.6% 19.0% 17.7% 16.7% 15.4% 17.8% 11.1% 15.5%
+> (a) Final FD-DINO @ 60k
+> 1.3B 4B 9B 15B 0510 15 20
+> Improvement over AdamW (%) ↑
+> 19.1% 16.9% 17.2% 12.9% 18.7% 16.6% 20.9% 15.2%
+> (b) Best observed FD-DINO ≤ 60k
+> Muon Periodic Row-wise Muon
+
+Figure 2: Generative quality across model scales. We report FD-DINO improvement over AdamW at both the final checkpoint and the best checkpoint observed during training. 25 50 75 100       
+
+> Active time (k × 1.3B-AdamW step)
+> 40 50 60 70 80 100 120 150 180
+> FD-DINO
+> 74.92k 49.65k
+> 1.3B Model
+> 50 100
+> Active time (k × 1.3B-AdamW step)
+> 40 50 60 70 80 100 120 150 180
+> 58.79k 37.55k  4B Model
+> 100 200
+> Active time (k × 1.3B-AdamW step)
+> 25 30 40 50 60 70 80 100 120 150
+> 249.18k 87.50k
+> 9B Model
+> 100 200 300 400
+> Active time (k × 1.3B-AdamW step)
+> 25 30 40 50 60 70 80 100 120 150
+> 293.73k 125.04k
+> 15B Model
+> Muon Periodic Row-wise Muon
+
+Figure 3: Generative quality frontier under optional checkpoint selection. also decreases as model size increases, showing that Muon’s optimization advantage remains stable when scaling to substantially larger DiTs. This advantage also extends to generation quality. Figure 1(b) shows that, across the 1.3B–15B models, Muon improves the best observed FD-DINO over AdamW by 12.9–19.1%, with the relative ordering across model scales remaining largely consistent throughout training. Together with the validation loss results, this demonstrates that Muon’s optimization advantage persists across scale in both optimization progress and generation quality. Complete checkpoint evaluations are provided in Appendix E.4. The step-wise advantage of Muon, however, does not directly translate into wall-clock time effi-ciency. Figure 1(c) replots the validation loss trajectories against normalized active training time. Although Muon ultimately reaches a lower validation loss, its larger per-step compute and commu-nication cost shifts its trajectory to the right in wall-clock space. Within the highlighted training regime, AdamW reaches the same intermediate loss levels earlier than Muon across all 4 model scales. Thus, the optimization advantage observed per training step is partially or fully offset by Muon’s optimizer overhead under a fixed wall-clock time budget. This empirical gap motivates reducing Muon’s per-step overhead while preserving its generation quality advantage. 4.3 PERIODIC ROW -WISE MUON GENERATION QUALITY AND TRAINING EFFICIENCY 
+
+We next evaluate whether Periodic Row-wise Muon preserves vanilla Muon’s generation quality while reducing training compute and communication cost. Figure 2 shows that it improves final-checkpoint FD-DINO over AdamW by 11.1–17.8% across scales and slightly outperforms vanilla Muon at 1.3B. Its best-observed FD-DINO remains within 0.5% of vanilla Muon at 1.3B and 4B, while improving it by approximately 4.5% at 9B and 2.7% at 15B. Table 1 shows a similarly com-petitive broader generation-quality profile: at 9B, Periodic Row-wise Muon increases GenEval2 AM from 51.77 to 57.33 and GM from 11.35 to 15.97, while at 15B its primary fidelity metrics remain close to vanilla Muon and Coverage and Density improve. Given their comparable best generation quality, Figure 3 compares the best achieved FD-DINO against normalized active training time. Periodic Row-wise Muon reaches its respective best result with 33.7%, 36.1%, 64.8%, and 57.4% less active time at 1.3B, 4B, 9B, and 15B, respectively, with the largest gains at scale. A complementary comparison with AdamW in active-time efficiency and final generation quality is provided in Appendix E.3. 7Table 1: Final 60k-step comparison. Bold denotes the best result among optimizers at the same model size.                                                                                                                                      
+
+> Model Optimizer Discrepancy Fidelity & Diversity Alignment Compositionality FD-DINO ↓FID ↓MMD-DINO ↓Precision ↑Recall ↑Coverage ↑Density ↑HPSv2 ↑GenEval2 AM ↑GenEval2 GM ↑
+> 1.3B AdamW 53 .93 6.71 0.0312 0.9405 0.8874 0.9401 0.9665 20 .53 38 .66 7.10
+> Muon 46 .08 6.54 0.0268 0.9487 0.9071 0.9492 0.9918 20 .84 44 .72 9.38
+> Periodic Row-wise Muon 45 .65 6.29 0.0270 0.9517 0.9065 0.9485 0.9756 20 .36 45 .89 9.75
+> 4B AdamW 51 .39 7.35 0.0271 0.9371 0.8995 0.9388 0.9898 21 .40 45 .70 9.13
+> Muon 41 .62 6.08 0.0261 0.9385 0.9136 0.9431 0.9639 20 .66 46 .58 9.06
+> Periodic Row-wise Muon 42 .25 6.35 0.0218 0.9413 0.9057 0.9516 0.9837 21 .34 49 .38 10 .58
+> 9B AdamW 41 .26 6.19 0.0216 0.9455 0.9045 0.9495 0.9873 21 .39 45 .93 9.66
+> Muon 33 .97 5.61 0.0199 0.9516 0.9269 0.9531 0.9601 22 .60 51 .77 11 .35
+> Periodic Row-wise Muon 36 .70 6.13 0.0192 0.9494 0.9134 0.9511 0.9793 22 .44 57 .33 15 .97
+> 15B AdamW 40 .23 6.24 0.0217 0.9448 0.9095 0.9473 0.9638 21 .99 47 .34 9.18
+> Muon 33 .51 5.57 0.0191 0.9445 0.9304 0.9501 0.9367 22 .37 57 .93 14 .55
+> Periodic Row-wise Muon 33 .99 5.63 0.0197 0.9482 0.9248 0.9554 0.9673 21 .35 52 .26 11 .97
+
+Table 2: System-efficiency comparison on 32 H100 nodes.                                                                           
+
+> Model Method Computation Communication Step time ↓Opt. time ↓Opt. share ↓AG/step ↓AR/step ↓Comm. volume ↓
+> GiB/rank/step
+> 1.3B Muon 1.873 0.835 44.6% 10.0 0.0 2.38 Periodic Row-wise Muon 1.419 (−24 .3%) 0.443 (−46 .9%) 31.3% 3.3 0.7 0.79 (−66 .7%)
+> 4B Muon 2.352 1.009 42.9% 32.0 0.0 7.58 Periodic Row-wise Muon 1.878 (−20 .2%) 0.536 (−46 .9%) 28.6% 10.7 0.7 2.53 (−66 .7%)
+> 9B Muon 4.153 1.689 40.7% 80.0 0.0 17.30 Periodic Row-wise Muon 3.500 (−15 .7%) 0.868 (−48 .6%) 24.8% 26.7 0.7 5.77 (−66 .7%)
+> 15B Muon 6.527 2.884 44.2% 119.0 0.0 28.62 Periodic Row-wise Muon 5.002 (−23 .4%) 1.317 (−54 .3%) 26.3% 39.7 0.7 9.54 (−66 .7%)
+
+4.4 SYSTEM EFFICIENCY 
+
+We next analyze the systems-level source of the wall-clock time improvement in Table 2. Across the 4 model scales, Periodic Row-wise Muon reduces end-to-end step time by 15.7–24.3% relative to vanilla Muon, while reducing optimizer time by 46.9–54.3%. On the largest 15B model, optimizer time decreases by 54.3%, resulting in a 23.4% reduction in total step time. The communication measurements exhibit the expected reduction from periodic spectral refreshes. With K = 3 , the average number of optimizer specific bucketed all-gathers is reduced by around 66.6%. The corresponding logical communication volume decreases by 66.7% at every scale. The sharded RowNorm path introduces only approximately 0.7 small all-reduces per step. Figure 4 shows the execution breakdown for the 15B model. Periodic Row-wise Muon replaces two of every three NS5 phases and their full-momentum all-gathers with short RowNorm updates, while overlapping refresh communication with NS5 computation and norm-statistics communication with local computation. This reduces both optimizer computation and exposed communication. 4.5 ABLATION STUDIES 
+
+Algorithmic ablation. Table 3 (a) isolates the roles of periodic spectral refresh, RowNorm ge-ometry, and branch-specific scale calibration. We compare vanilla Muon, RowNorm at every step, Periodic Row-wise Muon with γ = 1 , a scalar-controlled baseline that applies γ to both NS5 and RowNorm, and the complete Periodic Row-wise Muon with K = 3 and γ = 0 .15 on 1.3B scale. Overall, the complete method provides the best generation quality. 
+
+System ablation. Table 3(b) incrementally adds the system optimizations to a 15B naive periodic baseline, which uses the same update rule but materializes full momentum every step without buck-eting or overlap. Sharded RowNorm reduces communication volume by 66 .7% , while bucketed all-gather and communication–computation overlap further reduce exposed refresh latency. Together, these optimizations reduce optimizer and end-to-end step time by 35 .6% and 12 .0% , respectively. 
+
+5 RELATED WORK 
+
+Unlike AdamW’s element-wise adaptive updates (Loshchilov & Hutter, 2017), matrix-aware opti-mizers exploit the matrix structure of model parameters. Shampoo and SOAP construct structured preconditioners (Gupta et al., 2018; Vyas et al., 2025), whereas Muon applies a finite Newton– 80.0 2.5 5.0 7.5 10.0 12.5 15.0 17.5 20.0     
+
+> Normalized time (mean 1.3B AdamW step = 1)
+> CPU phase GPU compute Communication Comp.-Comm. Overlap CPU phase GPU compute Communication Comp.-Comm. Overlap
+> Muon (NS5)
+> 193 194 195
+> 19.59
+> Periodic Row-wise Muon  193 194 195
+> 14.99
+> Non-optimizer phase Muon NS5 Periodic refresh Periodic RowNorm GPU compute Communication Comp.-Comm. Overlap
+
+Figure 4: Simplified profiler traces for the 15B model. Table 3: Ablation studies. (a) Algorithm-level ablation of Periodic Row-wise Muon on the 1.3B model. (b) System-level ablation of the distributed implementation on the 15B model.                                                                        
+
+> (a) Variant NS5 Schedule Off-refresh Update γBest FD-DINO ↓
+> Vanilla Muon Every step ––41.733 RowNorm every step None RowNorm 0.15 51.322 Periodic Row-wise Muon ( γ= 1 )K= 3 RowNorm 1.0 44.294 Scalar-controlled ( γfor both NS5 and RowNorm) K= 3 Scalar-controlled 0.15 44.713 Periodic Row-wise Muon ( γ= 0 .15 )K= 3 RowNorm 0.15 41.913
+> (b) Variant Sharded Bucketed Comm.–Comp. Step Time ↓Opt. Time ↓Comm. Volume ↓
+> RowNorm All-gather Overlap Naive Periodic (K= 3 , γ = 0 .15) ×××5.685 2.046 28.62 + Sharded RowNorm ✓××5.196 1.498 9.54
+> + Bucketed All-gather ✓✓×5.028 1.349 9.54
+> Full System ✓✓✓5.002 1.317 9.54
+
+Schulz transformation to momentum matrices, producing updates with global spectral structure (Jordan et al., 2024). Muon has subsequently been shown to scale to large language models and improve the compute–quality trade-off over AdamW (Liu et al., 2025; Shah et al., 2025). In par-allel, prior work has established predictable DiT scaling across model size, data, compute, and training hyperparameters (Esser et al., 2024; Liang et al., 2026; Yin et al., 2025), while recent stud-ies evaluate matrix-aware optimization in diffusion training and adapt momentum orthogonalization to diffusion-specific parameter structures (Schaipp, 2025; Chen et al., 2026a). Together, these direc-tions motivate evaluating optimizer scalability through optimization progress, algorithmic compute, generative quality, and realized distributed efficiency. Recent work reduces Muon’s spectral transformation cost, which is particularly important for large DiTs. One direction accelerates orthogonalization through GPU-friendly polynomial iterations, Gram-matrix formulations, or optimized Newton–Schulz polynomials (Amsel et al., 2026; Zhang et al., 2026a; Grishina et al., 2025); another reduces its frequency, scope, or input size through block-periodic updates, temporal reuse, alternating spectral and sign-based updates, tiled transformations, or row/column subsampling (Khaled et al., 2026; Dev et al., 2026; Bolatov et al., 2026; Tang et al., 2026; Ahn et al., 2025). Other variants post-process every step NS orthogonalization with row-or neuron-wise normalization and optional neuron-wise second-moment statistics (Li et al., 2025; Zhang et al., 2026b). Distributed orthonormalized optimizers and specialized Muon runtimes fur-ther reduce communication, redundant computation, and exposed optimizer latency under model sharding (Ahn & Xu, 2025; Chen et al., 2026b). Our approach is complementary to faster spectral kernels, it reduces spectral refresh frequency and directly applies RowNorm to the current momen-tum as a low compute and communication cost dense substitute between refreshes. RowNorm also admits recently studied symmetry properties (Lau & Su, 2026), and its locality allows us to avoid full-momentum materialization on non-refresh steps in large-scale distributed training. 
+
+6 CONCLUSION AND LIMITATIONS 
+
+We show that Muon’s optimization and generative quality advantages over AdamW persist as DiTs scale from 1.3B to 15B parameters, but its every step NS5 computation and full momentum commu-nication introduce substantial distributed overhead. Periodic Row-wise Muon addresses this bottle-9neck by combining periodic spectral refreshes with low compute and communication cost RowNorm updates and a sharded distributed implementation. Across all scales, it preserves generation qual-ity broadly comparable to vanilla Muon while reducing optimizer time by 46.9–54.3%. However, our evaluation is limited to one DiT family, dataset, resolution, and 32-node H100 configuration, and does not cover other training regimes. We also use fixed global K and γ, leaving layer-wise and adaptive schedules unexplored. Finally, refresh steps still retain full momentum communication and materialization, while the realized speedup may vary with hardware topology and parallelism strategy. We will leave these limitations as future works. 
+
+REFERENCES 
+
+Kwangjun Ahn and Byron Xu. Dion: A communication-efficient optimizer for large models. arXiv e-prints , pp. arXiv–2504, 2025. Kwangjun Ahn, Noah Amsel, and John Langford. Dion2: A simple method to shrink matrix in muon. arXiv preprint arXiv:2512.16928 , 2025. Noah Amsel, David Persson, Christopher Musco, and Robert M Gower. The polar express: Optimal matrix sign methods and their application to the muon algorithm. In International Conference on Learning Representations , volume 2026, pp. 138323–138360, 2026. Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang Gao, Chunjiang Ge, et al. Qwen3-vl technical report. arXiv preprint arXiv:2511.21631 , 2025. Arman Bolatov, Artem Riabinin, Nikita Kornilov, Andrey Veprikov, Samuel Horv´ ath, Martin Tak´ aˇ c, and Aleksandr Beznosikov. LionMuon: Alternating spectral and sign descent for efficient train-ing. arXiv preprint arXiv:2605.19811 , 2026. Keshigeyan Chandrasegaran, Kyle Sargent, Suchir Agarwal, Michael Jang, Michael Poli, Juan Car-los Niebles, Justin Johnson, Jiajun Wu, and Li Fei-Fei. GPIC: A giant permissive image corpus for visual generation. arXiv preprint arXiv:2605.30341 , 2026. Chuyan Chen, Peng Sun, and Kun Yuan. CMuon: Accelerating and stabilizing diffusion transformer training via chunked momentum orthogonalization. arXiv preprint arXiv:2608.02502 , 2026a. Junsong Chen, Jincheng Yu, Chongjian Ge, Lewei Yao, Enze Xie, Zhongdao Wang, James Kwok, Ping Luo, Huchuan Lu, and Zhenguo Li. Pixart-α: Fast training of diffusion transformer for photorealistic text-to-image synthesis. In International conference on learning representations ,volume 2024, pp. 57611–57640, 2024. Vincent Chen, Starrick Liu, Regis Cheng, Dance Yang, Shalfun Li, Ryan Yu, Lucy Liang, Hang Su, Roy Gan, Hao Wang, et al. DMuon: Efficient distributed muon training with near-adam overhead. 
+
+arXiv preprint arXiv:2606.27153 , 2026b. Bishnu Dev, Sushil Bohara, Martin Tak´ aˇ c, and Samuel Horv´ ath. CacheMuon: Using temporal preconditioning to approximate polar factor. arXiv preprint arXiv:2606.16371 , 2026. Patrick Esser, Sumith Kulal, Andreas Blattmann, Rahim Entezari, Jonas M¨ uller, Harry Saini, Yam Levi, Dominik Lorenz, Axel Sauer, Frederic Boesel, et al. Scaling rectified flow transformers for high-resolution image synthesis. In Forty-first international conference on machine learning ,2024. Ekaterina Grishina, Matvey Smirnov, and Maxim Rakhuba. Accelerating newton-schulz iteration for orthogonalization via chebyshev-type polynomials. arXiv preprint arXiv:2506.10935 , 2025. Vineet Gupta, Tomer Koren, and Yoram Singer. Shampoo: Preconditioned stochastic tensor opti-mization. In International Conference on Machine Learning , pp. 1842–1850. PMLR, 2018. Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter. GANs trained by a two time-scale update rule converge to a local nash equilibrium. Advances in neural information processing systems , 30, 2017. 10 Keller Jordan, Yuchen Jin, Vlado Boza, Jiacheng You, Franz Cesista, Laker Newhouse, and Jeremy Bernstein. Muon: An optimizer for hidden layers in neural networks, 2024. URL https://kellerjordan. github. io/posts/muon , 6(3):4, 2024. Amita Kamath, Kai-Wei Chang, Ranjay Krishna, Luke Zettlemoyer, Yushi Hu, and Marjan Ghazvininejad. Geneval 2: Addressing benchmark drift in text-to-image evaluation. arXiv preprint arXiv:2512.16853 , 2025. Ahmed Khaled, Kaan Ozkara, Tao Yu, Mingyi Hong, and Youngsuk Park. MuonBP: Faster muon via block-periodic orthogonalization. In International Conference on Learning Representations ,volume 2026, pp. 17389–17416, 2026. Tuomas Kynk¨ a¨ anniemi, Tero Karras, Samuli Laine, Jaakko Lehtinen, and Timo Aila. Improved precision and recall metric for assessing generative models. Advances in neural information processing systems , 32, 2019. Black Forest Labs, Stephen Batifol, Andreas Blattmann, Frederic Boesel, Saksham Consul, Cyril Diagne, Tim Dockhorn, Jack English, Zion English, Patrick Esser, et al. Flux. 1 kontext: Flow matching for in-context image generation and editing in latent space. arXiv preprint arXiv:2506.15742 , 2025. Tim Tsz-Kit Lau and Weijie Su. Symmetry-compatible principle for optimizer design: Embeddings, lm heads, swiglu mlps, and moe routers. arXiv preprint arXiv:2605.18106 , 2026. Zichong Li, Liming Liu, Chen Liang, Weizhu Chen, and Tuo Zhao. NorMuon: Making muon more efficient and scalable. arXiv preprint arXiv:2510.05491 , 2025. Zhengyang Liang, Hao He, Ceyuan Yang, and Bo Dai. Scaling laws for diffusion transformers. In 
+
+International Conference on Learning Representations , volume 2026, pp. 84488–84521, 2026. Jingyuan Liu, Jianlin Su, Xingcheng Yao, Zhejun Jiang, Guokun Lai, Yulun Du, Yidao Qin, Weixin Xu, Enzhe Lu, Junjie Yan, et al. Muon is scalable for llm training. arXiv preprint arXiv:2502.16982 , 2025. Ilya Loshchilov and Frank Hutter. Decoupled weight decay regularization. arXiv preprint arXiv:1711.05101 , 2017. Muhammad Ferjad Naeem, Seong Joon Oh, Youngjung Uh, Yunjey Choi, and Jaejun Yoo. Reliable fidelity and diversity metrics for generative models. In International conference on machine learning , pp. 7176–7185. PMLR, 2020. William Peebles and Saining Xie. Scalable diffusion models with transformers. In 2023 IEEE/CVF International Conference on Computer Vision (ICCV) , pp. 4172–4182. IEEE, 2023. Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et al. Learning transferable visual models from natural language supervision. In International conference on machine learning , pp. 8748–8763. PmLR, 2021. Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J Liu. Exploring the limits of transfer learning with a unified text-to-text transformer. Journal of machine learning research , 21(140):1–67, 2020. Mehdi SM Sajjadi, Olivier Bachem, Mario Lucic, Olivier Bousquet, and Sylvain Gelly. Assessing generative models via precision and recall. Advances in neural information processing systems ,31, 2018. Fabian Schaipp. Optimization benchmark for diffusion models on dynamical systems. arXiv preprint arXiv:2510.19376 , 2025. Ishaan Shah, Anthony M Polloreno, Karl Stratos, Philip Monk, Adarsh Chaluvaraju, Andrew Hojel, Andrew Ma, Anil Thomas, Ashish Tanwer, Darsh J Shah, et al. Practical efficiency of muon for pretraining. arXiv preprint arXiv:2505.02222 , 2025. 11 George Stein, Jesse Cresswell, Rasa Hosseinzadeh, Yi Sui, Brendan Ross, Valentin Villecroze, Zhaoyan Liu, Anthony L Caterini, Eric Taylor, and Gabriel Loaiza-Ganem. Exposing flaws of generative model evaluation metrics and their unfair treatment of diffusion models. Advances in Neural Information Processing Systems , 36:3732–3784, 2023. Ziyuan Tang, Tianshi Xu, Yousef Saad, and Yuanzhe Xi. Hierarchical Muon: Tiled newton-schulz updates for efficient muon optimization. arXiv preprint arXiv:2606.27216 , 2026. Nikhil Vyas, Depen Morwani, Rosie Zhao, Itai Shapira, David Brandfonbrener, Lucas Janson, and Sham Kakade. SOAP: Improving and stabilizing shampoo using adam for language modeling. In 
+
+International Conference on Learning Representations , volume 2025, pp. 93423–93444, 2025. Xiaoshi Wu, Yiming Hao, Keqiang Sun, Yixiong Chen, Feng Zhu, Rui Zhao, and Hongsheng Li. Human preference score v2: A solid benchmark for evaluating human preferences of text-to-image synthesis. arXiv preprint arXiv:2306.09341 , 2023. Yuanyang Yin, Yaqi Zhao, Mingwu Zheng, Ke Lin, Jiarong Ou, Rui Chen, Victor Shea-Jay Huang, Jiahao Wang, Xin Tao, Pengfei Wan, et al. Towards precise scaling laws for video diffusion trans-formers. In 2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) ,pp. 18155–18165. IEEE, 2025. Jack Zhang, Noah Amsel, Berlin Chen, and Tri Dao. Gram newton-schulz, 2026a. URL https: //dao-ailab.github.io/blog/2026/gram-newton-schulz/ .Ruijie Zhang, Yequan Zhao, Ziyue Liu, Zhengyang Wang, Yupeng Su, Liyan Tan, and Zheng Zhang. MUON+: Towards more effective muon via one additional normalization step for llm pre-training. 
+
+arXiv preprint arXiv:2602.21545 , 2026b. 12 APPENDIX 
+
+A MATHEMATICAL ANALYSIS 
+
+This appendix gives the complete statements and proofs supporting the geometric interpretation and the optimization-feasibility discussion in the main text. The results deliberately distinguish the exact polar factor from the finite Newton–Schulz map used in the implementation. They also distinguish a conditional descent guarantee from an unconditional convergence theorem for the proposed opti-mizer. A.1 NOTATION AND UPDATE CONVENTION 
+
+For matrices of the same shape, let 
+
+⟨A, B ⟩ := tr( A⊤B), ∥A∥2F := ⟨A, A ⟩, (10) and let ∥A∥2 denote the spectral norm. For X ∈ Rr×c, define the row-wise maximum norm 
+
+∥X∥2,∞ := max  
+
+> 1≤i≤r
+
+∥Xi:∥2. (11) The practical RowNorm map is 
+
+Rε(X)i: := Xi:
+
+max {∥ Xi:∥2, ε } , ε > 0. (12) When every row is nonzero, R(X) denotes the unregularized map obtained by setting the denomi-nator to ∥Xi:∥2.For the optimization result, θt denotes the vector containing all trainable parameters, and we write the implemented update as 
+
+θt+1 = θt − ηtHt. (13) Here Ht is the complete effective direction. It includes the selected NS5 or RowNorm matrix blocks, Muon’s shape factors, the RowNorm multiplier, all AdamW-updated blocks, any parameter-group learning rate ratios relative to ηt, and decoupled weight decay. This convention is important because the RowNorm multiplier scales only the RowNorm blocks, not the complete optimizer direction. A.2 ROW NORM AS A ROW -WISE VARIATIONAL DIRECTION 
+
+Lemma 1 (Row-wise variational characterization) . Let X ∈ Rr×c, and suppose that every row of 
+
+X is nonzero. Define 
+
+∥U ∥2,∞ := max  
+
+> 1≤i≤r
+
+∥Ui, :∥2.
+
+Then 
+
+R(X) = arg max  
+
+> U∈Rr×c
+
+{⟨ X, U ⟩ : ∥U ∥2,∞ ≤ 1} , (14) 
+
+where the maximizer is unique. Proof. The constraint ∥U ∥2,∞ ≤ 1 is equivalent to ∥Ui:∥2 ≤ 1 for every row. Hence, by Cauchy– Schwarz, 
+
+⟨X, U ⟩ =
+
+> r
+
+X
+
+> i=1
+
+⟨Xi:, U i:⟩ ≤ 
+
+> r
+
+X
+
+> i=1
+
+∥Xi:∥2∥Ui:∥2 ≤
+
+> r
+
+X
+
+> i=1
+
+∥Xi:∥2. (15) Equality is attained by Ui: = Xi:/∥Xi:∥2 for every i, which is exactly U = R(X). Because every 
+
+Xi: is nonzero, equality in the two inequalities requires this choice row by row, proving uniqueness. Lemma 1 characterizes RowNorm in its own geometry. In particular, it neither treats RowNorm as an approximation to NS5 nor asserts that the two updates follow the same optimization trajectory. 13 A.3 POLAR AND ROW -WISE VARIATIONAL GEOMETRIES 
+
+We use the orientation convention from Section 3.1: a matrix is transposed when necessary so that 
+
+X ∈ Rr×c with r ≤ c. If X has full row rank, its row-polar factor is 
+
+P(X) := ( XX ⊤)−1/2X, P(X)P(X)⊤ = Ir . (16) 
+
+Proposition 1 (Spectral variational characterization) . Let X ∈ Rr×c, where r ≤ c, and suppose that rank( X) = r. Then 
+
+P(X) = arg max  
+
+> U∈Rr×c
+
+⟨X, U ⟩ subject to ∥U ∥2 ≤ 1. (17) 
+
+The maximizer is unique, and the optimal value is the nuclear norm ∥X∥∗.Proof. Let X = AΣB⊤ be a thin singular value decomposition, where A ∈ Rr×r is orthogonal, 
+
+B ∈ Rc×r has orthonormal columns, and Σ = diag( σ1, . . . , σ r ) with σi > 0. Extend B to a square orthogonal matrix V = [ B B ⊥] ∈ Rc×c. For any feasible U , set Z = A⊤U V . Orthogonal invariance gives ∥Z∥2 ≤ 1, and 
+
+⟨X, U ⟩ = tr(Σ A⊤U B ) = 
+
+> r
+
+X
+
+> i=1
+
+σiZii ≤
+
+> r
+
+X
+
+> i=1
+
+σi = ∥X∥∗. (18) The upper bound is attained by U = AB ⊤ = P(X). Because every σi is positive, equality requires 
+
+Zii = 1 for every i ≤ r. A contraction whose first r diagonal entries are all one must have Z =[Ir 0] ; otherwise at least one row would have Euclidean norm greater than one. Thus U = AB ⊤ is the unique maximizer. The two feasible sets obey 
+
+{U : ∥U ∥2 ≤ 1} ⊆ { U : ∥U ∥2,∞ ≤ 1} ⊆ { U : ∥U ∥2 ≤ √r}. (19) Indeed, every row norm is at most the spectral norm, while ∥U ∥2 ≤ ∥ U ∥F ≤ √r∥U ∥2,∞. Thus the polar direction solves a globally coupled spectral-norm problem, whereas RowNorm solves a product of independent row-wise problems. Finite NS5 is the implemented spectral map motivated by the former geometry; the proposition does not identify finite NS5 with the exact polar factor. A.4 CONDITIONAL STABILITY OF THE IDEAL POLAR DIRECTION 
+
+Proposition 2 (Perturbation of the row-polar factor) . Let A, B ∈ Rr×c, where r ≤ c, and suppose that both matrices have full row rank. Then 
+
+∥P (A) − P (B)∥F ≤ 2∥A − B∥F
+
+σmin (A) + σmin (B) . (20) 
+
+Consequently, on any region satisfying σmin (X) ≥ σ0 > 0, the polar map is 1/σ 0-Lipschitz in Frobenius norm. Proof. Write the row-polar decompositions as 
+
+A = HAPA, B = HB PB , (21) where HA = ( AA ⊤)1/2, HB = ( BB ⊤)1/2, PA = P(A), and PB = P(B). Both PAP ⊤ 
+
+> A
+
+= Ir and 
+
+PB P ⊤ 
+
+> B
+
+= Ir . Let C = PAP ⊤ 
+
+> B
+
+, sym( C) := ( C + C⊤)/2. Since ∥C∥2 ≤ 1, Ir − sym( C) is positive semidefinite. Direct expansion gives 
+
+⟨A − B, P A − PB ⟩ = tr  HA(Ir − C⊤) + tr( HB (Ir − C)) 
+
+≥  σmin (A) + σmin (B)  r − tr( C). (22) The skew-symmetric parts vanish inside the traces because HA and HB are symmetric. Moreover, 
+
+r − tr( C) = 12 ∥PA − PB ∥2F. (23) Combining this identity with Cauchy–Schwarz yields 
+
+∥A − B∥F∥PA − PB ∥F ≥ σmin (A) + σmin (B)2 ∥PA − PB ∥2F. (24) If PA = PB , the result is immediate; otherwise division by ∥PA − PB ∥F proves equation 20. 14 Proposition 2 provides a conditional motivation for periodic spectral correction: moderate momen-tum drift implies moderate drift of the ideal polar direction only when the relevant matrices remain away from rank degeneracy. The proposition concerns the exact polar factor and does not establish the same perturbation bound for the finite NS5 map used in the implementation. We therefore use it as geometric motivation rather than as a guarantee that finite NS5 remains unchanged between refreshes. A.5 CONDITIONAL FINITE -HORIZON DESCENT 
+
+Let Ft denote the information available before the stochastic direction at step t is realized. The following result applies directly to the complete effective direction in equation 13; it does not require the iterates to track those of vanilla Muon. 
+
+Theorem 1 (Finite-horizon bound under conditional alignment ) . Suppose that f : Rd → R is 
+
+L-smooth and bounded below by finf . Assume that, for each t, there are deterministic constants 
+
+at > 0, bt ≥ 0, and vt ≥ 0 such that 
+
+E[⟨∇ f (θt), H t⟩ | F t] ≥ at∥∇ f (θt)∥22, (25) 
+
+E∥Ht∥22 | F t
+
+ ≤ bt∥∇ f (θt)∥22 + vt. (26) 
+
+If 
+
+dt := at − Lη tbt
+
+2 > 0 for t = 0 , . . . , T − 1, (27) 
+
+then T −1X
+
+> t=0
+
+ηtdt E∥∇ f (θt)∥22 ≤ f (θ0) − finf + L
+
+2 
+
+> T−1
+
+X
+
+> t=0
+
+η2 
+
+> t
+
+vt. (28) 
+
+This statement holds for any deterministic switching schedule, including a periodic schedule with one NS5 step followed by K − 1 RowNorm steps. Proof. By L-smoothness and equation 13, 
+
+f (θt+1 ) ≤ f (θt) − ηt⟨∇ f (θt), H t⟩ + Lη 2
+
+> t
+
+2 ∥Ht∥22. (29) Taking conditional expectation and applying equation 25 and equation 26 gives 
+
+E[f (θt+1 ) | F t] ≤ f (θt) − ηtdt∥∇ f (θt)∥22 + Lη 2
+
+> t
+
+2 vt. (30) Taking total expectation, summing over t = 0 , . . . , T − 1, and using f (θT ) ≥ finf proves equa-tion 28. For example, if ηt = η, at ≥ a > 0, 0 ≤ bt ≤ b for some b > 0, vt ≤ v, and 0 < η < 2a/ (Lb ),then 
+
+1
+
+T 
+
+> T−1
+
+X
+
+> t=0
+
+E∥∇ f (θt)∥22 ≤ f (θ0) − finf 
+
+T η (a − Lηb/ 2) + Lηv 
+
+2 ( a − Lηb/ 2) . (31) This is a finite-horizon stationary-point bound with a noise-dependent residual, not a claim of asymptotic convergence for the finite cosine schedule used in our experiments. The theorem is explicitly conditional. RowNorm is positively aligned with its own input momentum whenever the momentum has a nonzero row: 
+
+⟨M, R(M )⟩ =
+
+> r
+
+X
+
+> i=1
+
+∥Mi:∥2 > 0. (32) However, this identity alone does not imply positive alignment with the true objective gradient, because in general ⟨∇ f (θt), R(Mt)⟩ and ⟨Mt, R(Mt)⟩ are different quantities. We therefore use Theorem 1 only as a sufficient-condition result and do not claim that its alignment assumption is verified throughout training. 15 A.6 THE BLOCKWISE ROLE OF THE ROW NORM MULTIPLIER 
+
+Conditioned on a fixed optimization history Ft and the current iterate θt, decompose the complete effective direction on an off-refresh step as 
+
+Ht(γ) = H(0)  
+
+> t
+
++ γH (RN)  
+
+> t
+
+, (33) where H(RN)  
+
+> t
+
+contains the unscaled RowNorm directions in the blocks to which the method is ap-plied, and H(0)  
+
+> t
+
+contains all remaining contributions. Define the conditional scalar quantities 
+
+A0,t := E[⟨∇ f (θt), H (0)  
+
+> t
+
+⟩ | F t], (34) 
+
+ARN ,t := E[⟨∇ f (θt), H (RN)  
+
+> t
+
+⟩ | F t], (35) 
+
+B0,t := E[∥H(0)  
+
+> t
+
+∥22 | F t], (36) 
+
+BRN ,t := E[∥H(RN)  
+
+> t
+
+∥22 | F t], (37) 
+
+B×,t := E[⟨H(0)  
+
+> t
+
+, H (RN)  
+
+> t
+
+⟩ | F t]. (38) Then the two quantities entering the smoothness bound are exactly 
+
+E[⟨∇ f (θt), H t(γ)⟩ | F t] = A0,t + γA RN ,t , (39) 
+
+E[∥Ht(γ)∥22 | F t] = B0,t + 2 γB ×,t + γ2BRN ,t . (40) Consequently, the conditional one-step upper bound is 
+
+E[f (θt+1 ) | F t] ≤ f (θt) − ηt
+
+ A0,t + γA RN ,t 
+
+
+
++ Lη 2
+
+> t
+
+2
+
+ B0,t + 2 γB ×,t + γ2BRN ,t 
+
+. (41) Thus γ is admissible whenever the measured or assumed bounds make the net descent term in equa-tion 41 positive. Equation 39 and 40 also show why scaling the RowNorm blocks does not multiply the alignment and second-moment constants of the complete direction by γ and γ2, respectively. The theory motivates branch-specific amplitude calibration but does not determine the numerical value used in the experiments. That value is selected by the development-set ablation in Appendix E.1. 
+
+B COMPLEXITY AND DISTRIBUTED EXECUTION 
+
+This appendix refines the asymptotic discussion in the main text with an implementation matched arithmetic model, a correctness proof for sharded RowNorm, and explicit per-rank communication formulas. B.1 PER -MATRIX ARITHMETIC 
+
+Consider an oriented matrix X ∈ Rr×c with r ≤ c. We count one multiplication followed by one addition as two floating-point operations. The implemented quintic Newton–Schulz step can be written as 
+
+Gj = Xj X⊤ 
+
+> j
+
+, (42) 
+
+Bj = bj Gj + cj G2 
+
+> j
+
+, (43) 
+
+Xj+1 = aj Xj + Bj Xj , j = 0 , . . . , J NS − 1. (44) The three GEMMs in one iteration cost, to leading order, 
+
+2r2c, 2r3, 2r2c (45) FLOPs, respectively. Therefore 
+
+CNS J (r, c ) = JNS 
+
+ 4r2c + 2 r3 + O JNS (r2 + rc ) . (46) For NS5, 
+
+CNS5 (r, c ) = 20 r2c + 10 r3 + O(r2 + rc ). (47) 16 The lower-order term includes scalar matrix combinations and the input normalization. Equation 47 is a FLOP model for the recurrence in equation 44; measured kernel time can differ because GEMM efficiency depends on shape, dtype, and hardware. RowNorm performs one sum-of-squares reduction per row, one clamped inverse norm per row, and one rescaling per element. Its arithmetic cost is 
+
+CRN (r, c ) = Θ( rc ). (48) We do not assign a hardware-independent exact FLOP count to square root, reciprocal, or fused reduction operations. The relevant separation is therefore 
+
+CNS5 (r, c ) = Θ( r2c), CRN (r, c ) = Θ( rc ). (49) Let I be the set of matrices governed by the periodic rule. The period-averaged matrix-processing computational cost is 
+
+Cmat (K) = 1
+
+K
+
+X
+
+> i∈I
+
+CNS5 (ri, c i) + K − 1
+
+K
+
+X
+
+> i∈I
+
+CRN (ri, c i). (50) If Cfixed denotes momentum maintenance, non-Muon parameter updates, and all other optimizer work performed every step, then 
+
+Copt (K) = Cfixed + Cmat (K). (51) The periodic schedule removes exactly the fraction 1 − 1/K of spectral refresh events, but it does not remove the same fraction of total optimizer FLOPs or wall-clock time because the terms in equation 51 remain. B.2 CORRECTNESS OF SHARDED ROW NORM 
+
+Suppose that the original matrix M ∈ Rm×n is sharded along its first dimension across p ranks. Rank q owns the row-index set Sq , and the sets S1, . . . , S p form a disjoint partition of {1, . . . , m }.If m ≤ n, the orientation map leaves M unchanged. Each oriented row is therefore stored com-pletely on one rank, and applying equation 12 to each local row is exactly the corresponding slice of dense RowNorm. If m > n , the orientation map gives X = M ⊤ ∈ Rn×m. An oriented row is now split across ranks. For each original column j ∈ { 1, . . . , n }, rank q computes 
+
+s(q) 
+
+> j
+
+:= X
+
+> i∈Sq
+
+M 2 
+
+> ij
+
+. (52) After a sum all-reduce, every rank forms 
+
+νj := max 
+
+vuut
+
+> p
+
+X
+
+> q=1
+
+s(q) 
+
+> j
+
+, ε 
+
+ . (53) Each rank then rescales its local entries as 
+
+cM (q) 
+
+> ij
+
+:= Mij 
+
+νj
+
+, i ∈ Sq , j = 1 , . . . , n. (54) 
+
+Proposition 3 (Exact-arithmetic equivalence) . Under the partition above, concatenating the local outputs cM (1) , . . . , cM (p) gives exactly 
+
+O−1 Rϵ(O(M )) .
+
+Proof. The complete-row case follows immediately because each local denominator is computed from all entries of its row. In the split-row case, 
+
+> p
+
+X
+
+> q=1
+
+s(q) 
+
+> j
+
+=
+
+> p
+
+X
+
+> q=1
+
+X
+
+> i∈Sq
+
+M 2 
+
+> ij
+
+=
+
+> m
+
+X
+
+> i=1
+
+M 2 
+
+> ij
+
+= ∥Xj:∥22. (55) Hence νj = max {∥ Xj:∥2, ε }. Every local entry of the oriented row is divided by the same dense denominator, so concatenating the local pieces yields Xj:/ν j for every j, which is exactly Rε(X).Mapping back through O−1 completes the proof. The proposition is exact over real arithmetic. In floating-point arithmetic, the all-reduce may change the summation order and therefore introduce only the usual reduction-order roundoff differences. 17 B.3 PER -RANK COMMUNICATION VOLUME 
+
+We report logical algorithmic payload and exclude headers, padding, collective launch latency, and parameter communication already required by forward and backward propagation. Let bM be the number of bytes per communicated momentum element and bS the number of bytes per communi-cated norm statistic. Under a bandwidth-optimal ring model, define 
+
+αAG (p) := p − 1
+
+p , αAR (p) := 2 p − 1
+
+p . (56) The factor of two in αAR (p) accounts for the reduce-scatter and all-gather phases of a ring all-reduce. For a refresh of M ∈ Rm×n, the per-rank all-gather volume is 
+
+Vrefresh (M ) = αAG (p)bM mn. (57) Every rank executes NS5 on the gathered matrix and retains its local output slice, so this execution path requires no subsequent scatter of the update. On an off-refresh step, complete-row RowNorm requires no optimizer-specific collective. A tall matrix m > n requires an all-reduce of n statistics, giving 
+
+VRN (M ) = 
+
+αAR (p)bS n, m > n, 
+
+0, m ≤ n. (58) For one tall matrix, the ratio is therefore 
+
+VRN (M )
+
+Vrefresh (M ) = 2bS
+
+bM m . (59) For a collection I of periodically updated matrices, define 
+
+Sfull := X
+
+> i∈I
+
+mini, Stall := X
+
+> i∈I :mi>n i
+
+ni. (60) The period-averaged per-rank payload is 
+
+V rank (K) = 1
+
+K αAG (p)bM Sfull + K − 1
+
+K αAR (p)bS Stall . (61) Relative to vanilla Muon’s every-step refresh payload, 
+
+V rank (K)
+
+αAG (p)bM Sfull 
+
+= 1
+
+K + K − 1
+
+K
+
+2bS Stall 
+
+bM Sfull 
+
+. (62) When the reduced statistics are small relative to the full matrices, the second term is negligible and the ratio approaches 1/K . This is a statement about logical payload, not a claim that collective time or total step time decreases by the same factor. B.4 IDEALIZED OVERLAP MODEL 
+
+Bucketed execution changes exposed latency rather than the logical byte count in equation 57. Con-sider B ordered refresh buckets. Let aℓ be the all-gather time for bucket ℓ, and let cℓ be its recon-struction, NS5, and slicing time. In an ideal two-stage pipeline that overlaps the computation of bucket ℓ with the all-gather of bucket ℓ + 1 , the makespan is 
+
+Tpipe = a1 +
+
+> B−1
+
+X
+
+> ℓ=1
+
+max {cℓ, a ℓ+1 } + cB . (63) The corresponding exposed communication time beyond bucket computation is 
+
+Tcomm ,exposed = a1 +
+
+> B−1
+
+X
+
+> ℓ=1
+
+max {0, a ℓ+1 − cℓ}. (64) These equations describe an ideal dependency graph. Actual traces may include stream synchro-nization, launch overhead, contention, and imperfect kernel concurrency; end-to-end claims are therefore based on measured profiler windows spanning complete periods. 18 Algorithm 1 Periodic Row-wise Muon 
+
+Input: two-dimensional Muon parameters WM, remaining parameters WA, period K, and RowNorm mul-tiplier γ. 
+
+> 1
+
+for t = 0 , . . . , T − 1 do  
+
+> 2
+
+Compute stochastic gradients and update every momentum Mt as in Section 2.  
+
+> 3
+
+Set ρt ← I[t mod K = 0] . 
+
+> 4
+
+for each Wt ∈ W M do  
+
+> 5
+
+fMt ← O (Mt). 
+
+> 6
+
+if ρt = 1 then eDt ← NS5( fMt). 
+
+> 7
+
+else eDt ← γRϵ( fMt). 
+
+> 8
+
+Dt ← s(Wt)O−1( eDt). 
+
+> 9
+
+Wt+1 ← (1 − ηtλ)Wt − ηtDt. 
+
+> 10
+
+end for  
+
+> 11
+
+Update WA with the same AdamW rule as the baseline.  
+
+> 12
+
+end for 
+
+Algorithm 2 Distributed Periodic Muon 
+
+Input: momentum shards {M (p) 
+
+> t
+
+} on rank p, refresh flag ρt, and communication buckets {B ℓ}. 
+
+> 1
+
+if ρt = 1 then // NS5 refresh path  
+
+> 2
+
+Asynchronously all-gather the first momentum bucket.  
+
+> 3
+
+for each bucket Bℓ do  
+
+> 4
+
+Wait for the current bucket and launch the next asynchronous all-gather.  
+
+> 5
+
+Reconstruct full momenta, execute NS5, and slice the results back to local shards.  
+
+> 6
+
+Release the full-matrix buffers of the current bucket.  
+
+> 7
+
+end for  
+
+> 8
+
+else // sharded RowNorm path  
+
+> 9
+
+Compute local column-squared statistics for all tall matrices.  
+
+> 10
+
+Pack the statistics and launch bucketed asynchronous sum all-reduces.  
+
+> 11
+
+While communication is in flight, compute and finish local RowNorm updates for the remaining matrices.  
+
+> 12
+
+Wait for all-reduce completion; take the square root and then apply clamp min (ϵ). 
+
+> 13
+
+Use the global column norms to finish RowNorm updates for tall matrices.  
+
+> 14
+
+end if  
+
+> 15
+
+Apply γ to the off-refresh RowNorm outputs only, and fuse shape scaling with the local parameter-shard updates. 
+
+B.5 WALL -CLOCK BREAK -EVEN CONDITION 
+
+Let Nbase (q) and Nper (q) be the numbers of optimization steps required by vanilla Muon and Peri-odic Muon, respectively, to reach a prespecified quality threshold q. Let their measured mean step times be τbase and τper , using the same number of GPUs. Periodic Muon improves time to quality exactly when 
+
+Nper (q)τper < N base (q)τbase , (65) or equivalently, 
+
+Nper (q)
+
+Nbase (q) < τbase 
+
+τper 
+
+. (66) Thus a lower per-step optimizer systems cost is insufficient by itself: the realized speedup must exceed any increase in the number of steps required to reach the same quality. If the GPU counts differ, the analogous GPU-hour comparison multiplies each side by its respective accelerator count. 
+
+C ALGORITHMS 
+
+In this section, we provide the Periodic Row-wise Muon algorithm 1 and the system-level algorithm 2. 19 Table 4: Model configurations. Muon-routed parameters denotes the fraction of trainable parameters updated by Muon in the Muon-based runs.                               
+
+> Model Total params. Trainable params. Hidden dim. Blocks Heads Muon-routed 1.3B 1,255,586,099 1,255,585,795 1,216 19 19 98.69% 4B 3,950,236,099 3,950,235,715 1,920 24 30 99.20% 9B 9,374,837,315 9,374,836,803 2,560 32 40 99.48% 15B 14,848,237,251 14,848,236,611 2,880 40 45 99.60%
+
+D DETAILED EXPERIMENTAL SETUP 
+
+D.1 GPIC D ATASET 
+
+GPIC (Giant Permissive Image Corpus) (Chandrasegaran et al., 2026) is an open image–text dataset designed for large-scale visual-generation research and contains approximately 28 trillion pixels. Its full split comprises 100M training examples, 200K validation examples, and 1M test examples. We train on GPIC-Full, use the validation set to monitor training, and perform generation evaluation on the held-out test set. GPIC applies vision-language-model-based quality and safety filtering and removes duplicate and near-duplicate images using SSCD visual features. After filtering and deduplication, approximately 101.3M images remain and are divided into 100M training, 200K validation, and 1M test examples. Qwen3-VL-4B-Instruct (Bai et al., 2025) generates captions at multiple levels of detail rather than relying on potentially noisy or missing web metadata. The training, validation, and test splits retain similar source and caption distributions. D.2 MODEL CONFIGURATIONS 
+
+We use a latent space, dual stream MMDiT architecture (Esser et al., 2024). A frozen FLUX.1-schnell (Labs et al., 2025) VAE encodes images into the latent space, while frozen CLIP-L, CLIP-G (Radford et al., 2021), and T5-XXL (Raffel et al., 2020) encoders provide text conditioning. The MMDiT backbone includes joint image–text attention, RoPE positional encoding, QK normaliza-tion, SwiGLU MLPs, and adaptive normalization. All four models use the same components and connectivity, and differ only in hidden dimension, depth, and number of attention heads. In the Muon and Periodic Row-wise Muon runs, the corresponding Muon update rule is applied to two-dimensional weight matrices within the Transformer blocks. Biases, normalization parameters, scalar parameters, and parameters outside the Transformer blocks are updated by AdamW. D.3 OPTIMIZER AND TRAINING HYPERPARAMETERS 
+
+All methods use decoupled weight decay. The AdamW baseline applies AdamW to all parameters. Muon and Periodic Row-wise Muon apply matrix-valued updates to two-dimensional hidden-layer weights and maintain a separate AdamW parameter group for all remaining parameters. All Muon experiments use five Newton–Schulz iterations with fixed coefficients (a, b, c ) =(3 .4445 , −4.7750 , 2.0315) .At a given model scale, the three optimizers use the same model, training length, global batch size, and learning-rate schedule, and therefore process the same number of training examples. Because their optimizer computation and communication costs differ, they are not constrained to use the same wall-clock time or total compute. D.4 GENERATION EVALUATION 
+
+We evaluate a checkpoint every 5,000 training steps, covering the complete trajectory from 5,000 to 60,000 steps. We select a fixed set of 50,000 prompts from the GPIC test set and generate 50,000 images at 512 × 512 resolution. All models and optimizers use the same sampling configuration with a fixed classifier-free guidance scale of 5.0. We evaluate generated images using the following metrics: • FD-DINO v2 (Stein et al., 2023) computes the Fr´ echet distance between generated and real-image distributions in DINOv2 feature space. 20 Table 5: Optimizer hyperparameters. “Aux. AdamW” denotes the auxiliary AdamW parameter group used in the Muon-based runs. All methods use weight decay 0.01 and AdamW-updated parameter groups use ϵ = 10 −8.                                     
+
+> Main learning rate Method 1.3B 4B 9B 15B AdamW 3.0×10 −42.0×10 −41.4×10 −41.2×10 −4
+> Muon 5.0×10 −33.0×10 −32.4×10 −32.0×10 −3
+> Periodic Row-wise Muon 5.0×10 −33.0×10 −32.4×10 −32.0×10 −3
+> Method Main momentum or betas Aux. AdamW Orthogonalization / schedule AdamW (0 .9,0.95) ––Muon 0.95 LR = 1 .0×10 −4;
+> β= (0 .9,0.95)
+> NS5 at every step Periodic Row-wise Muon 0.95 LR = 1 .0×10 −4;
+> β= (0 .9,0.95)
+> NS5 refresh every K= 3 steps; RowNorm otherwise ( γ= 0 .15 )
+
+Table 6: Training settings shared by all methods.          
+
+> Setting Value Image resolution 512 ×512
+> Training length 60,000 steps Local / global batch size 16 / 4,096 Learning-rate schedule 2k warmup, then cosine decay Hardware 32 nodes, 256 NVIDIA H100 GPUs Distributed training Pytorch FSDP2 with activation checkpointing
+
+• FID (Heusel et al., 2017) computes the Fr´ echet distance between generated and real-image distributions in Inception feature space. • Maximum Mean Discrepancy (MMD) provides a non-parametric measure of the discrep-ancy between generated and real feature distributions. • Precision and Density measure how closely generated samples align with the real-data manifold and primarily characterize sample fidelity. • Recall and Coverage measure how well the generated distribution covers the real data distribution and characterize generation diversity. • HPSv2.1 (Wu et al., 2023) measures text–image alignment and consistency with human preferences. • GenEval2 (Kamath et al., 2025) evaluates the correctness of generated objects, attributes, relations, and compositional semantics. Unless otherwise specified, all main comparisons and ablations use the same generation and evalu-ation protocol. 
+
+E ADDITIONAL EXPERIMENTAL RESULTS 
+
+This section provides additional experimental results supporting the main comparisons. We first describe the selection of the refresh period K and the RowNorm scaling factor γ for Periodic Row-wise Muon. We then provide the complete training loss trajectories, checkpoint-level generation evaluations, and additional profiler traces. E.1 SELECTION OF K AND γ
+
+Periodic Row-wise Muon introduces two primary hyperparameters: the refresh period K, which controls the frequency of full NS5 spectral updates, and the RowNorm scaling factor γ, which controls the relative update magnitude of the RowNorm branch on non-refresh steps. To avoid 21 0.10 0.15 0.25 0.35                                 
+
+> RowNorm scale γ
+> 165 170 175 180 185 190 195
+> Mean FD-DINO (20k, 25k, 30k)  ↓
+> selected gamma = 0.15 at K= 3
+> (a) Scale selection
+> K= 2
+> K= 3
+> K= 4
+> 1/4 1/3 1/2
+> NS5 refresh rate ( 1/ K; lower is cheaper)
+> 165 170 175 180 185
+> Best mean FD-DINO over  γ ↓
+> K= 4, γ*= 0.15
+> K= 3, γ*= 0.15 K= 2, γ*= 0.10 −33% NS5
+> +2.8% FD
+> −25% NS5
+> +8.2% FD
+> (b) Refresh-period selection
+> Robust K×γselection (1.3B, late-stage mean)
+
+Figure 5: Selection of K and γ. (a) Late-stage FD-DINO, averaged over the 20k, 25k, and 30k checkpoints, across different K and γ. (b) The best mean FD-DINO over γ at each refresh period. Increasing K from 2 to 3 reduces the number of NS5 refreshes by 33% with only a 2.8% increase in FD-DINO, whereas increasing K from 3 to 4 saves a further 25% but increases FD-DINO by 8.2% .We therefore select K = 3 and γ = 0 .15 .tuning these hyperparameters separately at each model scale, we select K and γ once in a smaller development setting and directly transfer the same configuration to all 1.3B–15B models in the main experiments without additional scale-specific tuning. Specifically, we perform the hyperparameter selection experiments using the 1.3B model for 30k training steps on 2 H100 nodes, corresponding to 16 H100 GPUs in total, with a local batch size of 16. We otherwise retain the same model, optimizer hyperparameters, learning rate schedule, data pipeline, and training recipe used in the main experiments. We evaluate K ∈ { 2, 3, 4} and 
+
+γ ∈ { 0.10 , 0.15 , 0.25 , 0.35 }. To reduce sensitivity to noise at any single checkpoint, we use the mean FD-DINO over the 20k, 25k, and 30k checkpoints as the selection criterion. Figure 5 summarizes the results. For K = 3 cases, γ = 0 .15 achieves the lowest late-stage mean FD-DINO among the tested scales. We therefore use γ = 0 .15 when comparing different refresh periods. Increasing K from 2 to 3 reduces the number of NS5 refreshes by 33% while increasing the best mean FD-DINO by only 2.8%. In contrast, increasing K from 3 to 4 provides a further 25% reduction in NS5 refreshes but increases mean FD-DINO by 8.2%. We therefore select K = 3 
+
+and γ = 0 .15 as the default configuration, which provides a favorable trade-off between generation quality and spectral-update systems cost. Importantly, this selection procedure does not retune K or γ on the larger models. The same con-figuration is transferred directly to all model scales in the main experiments, so the observed scaling behavior does not result from scale-specific hyperparameter tuning. E.2 TRAINING -L OSS TRAJECTORIES ACROSS MODEL SCALES 
+
+Figure 6 shows the complete training-loss trajectories of AdamW, Muon, and Periodic Row-wise Muon over 60k optimization steps for the 1.3B, 4B, 9B, and 15B models. These results comple-ment the validation loss comparisons in the main text by providing a higher resolution view of the optimization dynamics throughout training. All three optimizers exhibit stable decreasing training loss across all model scales, with no evidence of training divergence. Muon generally achieves lower training loss throughout the main training regime, while Periodic Row-wise Muon closely tracks the Muon trajectory. This indicates that replacing two out of every three NS5 updates with the substantially cheaper RowNorm update does not destabilize optimization. As model size increases from 1.3B to 15B, the overall training loss level also decreases, consistent with the validation loss scaling behavior observed in the main experiments. Because minibatch training loss exhibits substantial stochastic variation, we do not use individual training loss values as proxies for generation quality. Generation performance is instead evaluated using FD-DINO, FID, and the additional generation metrics reported in the main text and in Ap-pendix E.4. The purpose of Figure 6 is therefore to verify that Periodic Row-wise Muon remains 22 Figure 6: Training loss curves across model scales over 60,000 optimizer steps. 20 40 60 80          
+
+> Active time (k × 1.3B-AdamW step)
+> 40 50 60 70 80 100 120 150 180 200 250 300
+> FD-DINO
+> 1.3B Model
+> 25 50 75 100
+> Active time (k × 1.3B-AdamW step)
+> 40 50 60 70 80 100 120 150 180 200 250
+> 4B Model
+> 50 100 150 200
+> Active time (k × 1.3B-AdamW step)
+> 25 30 40 50 60 70 80 100 120 150 180 200
+> 9B Model
+> 100 200 300
+> Active time (k × 1.3B-AdamW step)
+> 25 30 40 50 60 70 80 100 120 150 180 200
+> 15B Model
+> AdamW Periodic Row-wise Muon
+
+Figure 7: Generation quality for AdamW and Periodic Row-wise Muon. stable over the complete 60k-step optimization trajectory rather than only at the sparse generation evaluation checkpoints. E.3 ACTIVE TIME EFFICIENCY OVER ADAM WFigure 7 directly compares Periodic Row-wise Muon with AdamW under active training time. Across all model sizes, Periodic Row-wise Muon achieves lower FD-DINO throughout most of the overlapping time range, indicating better generation quality for a comparable training time bud-get. It also consistently attains lower FD-DINO at the end of training. Thus, the advantage over AdamW holds in both training time efficiency and the final generation quality reached by the model. E.4 COMPLETE CHECKPOINT EVALUATION RESULTS 
+
+The main text reports the most important final checkpoint metrics and the best observed FD-DINO to keep the presentation compact. Here we provide the complete checkpoint-level generation evalu-ations for all 4 model scales in Tables 7–10. For each model, we evaluate checkpoints every 5k steps from 5k to 60k using the same evaluation protocol for AdamW, Muon, and Periodic Row-wise Muon. At every checkpoint, we report FD-DINO, FID, MMD-DINO, Precision, Recall, Coverage, Density, HPSv2, and both the arithmetic and geometric means of GenEval2. These tables therefore complement the fidelity metrics emphasized in the main text with the complete evolution of diversity, alignment, and compositionality throughout training. The full trajectories show that both Muon and Periodic Row-wise Muon achieve substantial im-provements over AdamW at multiple stages of training, while the relative ordering of the two Muon 23 variants exhibits some checkpoint-level variation. In particular, the checkpoint that optimizes one generation metric does not necessarily optimize the others. We therefore report the complete met-ric profile at the final checkpoint in the main text and treat the best-observed FD-DINO separately, rather than constructing an artificial “best” model by selecting different checkpoints for different metrics. These trajectories also provide additional context for the generation quality frontiers in the main text. Different optimizers enter their best quality regimes at different points in training, and Periodic Row-wise Muon typically reaches a generation quality regime comparable to vanilla Muon with substantially less normalized active training time. E.5 ADDITIONAL PROFILER TRACES ACROSS MODEL SCALES 
+
+The main text uses the 15B model to illustrate the systems behavior of Periodic Row-wise Muon. Figure 8 provides the corresponding profiler traces for the 1.3B, 4B, and 9B models, allowing us to verify whether the same execution pattern persists across model scales. All profiler traces use the same global time normalization as the systems measurements in the main text, meaning that the mean step time of the 1.3B AdamW run is defined as one time unit. The traces separately visualize the non-optimizer phase, optimizer-specific CPU phases, GPU computation, and communication activity for vanilla Muon and Periodic Row-wise Muon. A consistent execution pattern is observed at all three scales. Vanilla Muon performs a full NS5 update at every optimization step, resulting in a long spectral computation phase together with the corresponding optimizer communication. Periodic Row-wise Muon instead retains only one refresh step per K = 3 period, while the two intervening steps use the much shorter RowNorm path. On refresh steps, bucketed all-gather overlaps communication for upcoming matrices with NS5 compu-tation on matrices that are already available. On RowNorm steps, the much smaller communication of norm statistics is similarly overlapped with local computation. Over the three consecutive steps shown in Figure 8, the normalized time decreases from 5.59 for vanilla Muon to 4.20 for Periodic Row-wise Muon on the 1.3B model, from 7.26 to 5.68 on the 4B model, and from 12.47 to 10.26 on the 9B model. The 15B trace presented in the main text exhibits the same qualitative behavior. The consistency of these profiler traces across model scales indicates that the systems gains do not arise from a single model shape, but from the combined effects of periodic spectral refresh, sharded RowNorm, and communication–computation overlap. 24 Table 7: All checkpoint evaluation metrics for the 1.3B model. 
+
+Optimizer Step Fidelity Diversity Alignment Compositionality FD-DINO ↓ FID ↓ MMD-DINO ↓ Precision ↑ Recall ↑ Coverage ↑ Density ↑ HPSv2 ↑ GenEval2 AM ↑ GenEval2 GM ↑
+
+AdamW 5k 266 .40 9.94 0.258 0.861 0.361 0.657 0.900 15 .79 17 .19 1.35 
+
+10k 125 .51 7.57 0.094 0.908 0.681 0.842 0.947 15 .93 22 .24 2.77 
+
+15k 82 .93 6.62 0.051 0.915 0.789 0.880 0.976 18 .09 28 .53 4.00 
+
+20k 86 .84 7.94 0.055 0.925 0.812 0.890 1.107 17 .71 29 .83 4.19 
+
+25k 66 .30 6.58 0.037 0.929 0.849 0.921 0.999 17 .55 30 .96 4.75 
+
+30k 60 .34 6.89 0.034 0.941 0.859 0.929 1.065 19 .56 36 .92 6.71 
+
+35k 53 .43 6.33 0.029 0.938 0.874 0.934 1.019 19 .92 39 .37 8.61 
+
+40k 52 .60 6.30 0.030 0.947 0.879 0.947 1.018 19 .82 37 .60 7.16 
+
+45k 53 .92 6.53 0.030 0.943 0.881 0.940 0.998 19 .72 37 .97 7.57 
+
+50k 51 .56 6.68 0.028 0.947 0.887 0.940 1.019 20 .61 38 .16 8.01 
+
+55k 53 .97 6.61 0.031 0.941 0.886 0.941 1.018 20 .46 37 .64 6.01 
+
+60k 53 .93 6.71 0.031 0.941 0.887 0.940 0.966 20 .53 38 .66 7.10 
+
+Muon 5k 152 .03 7.68 0.126 0.882 0.633 0.778 0.882 16 .64 20 .28 2.23 
+
+10k 73 .35 6.26 0.040 0.921 0.814 0.889 0.939 18 .79 30 .57 4.82 
+
+15k 51 .56 5.73 0.024 0.943 0.866 0.920 0.982 19 .69 38 .33 7.45 
+
+20k 48 .06 6.16 0.021 0.948 0.870 0.930 0.993 19 .79 43 .63 9.64 
+
+25k 46 .12 6.50 0.022 0.947 0.884 0.932 0.980 20 .43 40 .00 7.65 
+
+30k 52 .86 6.84 0.029 0.942 0.885 0.938 0.975 20 .66 45 .20 8.05 
+
+35k 46 .65 6.26 0.022 0.944 0.896 0.943 0.991 21 .14 46 .57 10 .77 
+
+40k 41 .73 6.01 0.021 0.949 0.901 0.947 0.984 20 .91 46 .73 11 .36 
+
+45k 48 .26 6.56 0.027 0.943 0.897 0.945 0.991 20 .29 36 .27 5.45 
+
+50k 50 .41 6.74 0.030 0.945 0.892 0.954 0.994 20 .41 45 .32 8.98 
+
+55k 47 .92 6.65 0.028 0.945 0.900 0.950 0.985 20 .81 44 .91 9.22 
+
+60k 46 .08 6.54 0.027 0.949 0.907 0.949 0.992 20 .84 44 .72 9.38 
+
+Periodic Row-wise Muon 5k 172 .46 8.23 0.145 0.885 0.569 0.766 0.921 16 .45 19 .46 1.67 
+
+10k 82 .29 6.74 0.049 0.923 0.808 0.880 0.918 17 .57 28 .50 4.80 
+
+15k 58 .96 6.06 0.028 0.928 0.858 0.916 0.969 18 .45 36 .49 6.03 
+
+20k 67 .22 6.97 0.039 0.939 0.856 0.916 1.000 18 .46 34 .74 5.83 
+
+25k 47 .37 6.18 0.021 0.938 0.876 0.938 0.997 19 .36 36 .95 7.24 
+
+30k 44 .77 6.11 0.021 0.940 0.891 0.932 0.936 21 .10 42 .73 8.92 
+
+35k 41 .91 5.53 0.019 0.944 0.902 0.944 0.981 20 .73 47 .71 10 .53 
+
+40k 47 .29 6.63 0.028 0.946 0.887 0.938 0.971 21 .40 45 .68 11 .36 
+
+45k 49 .77 6.37 0.030 0.947 0.894 0.944 0.981 20 .18 45 .97 10 .21 
+
+50k 45 .01 6.13 0.026 0.951 0.893 0.949 0.996 20 .31 47 .40 11 .25 
+
+55k 45 .75 6.40 0.027 0.949 0.896 0.951 1.005 20 .69 47 .93 11 .71 
+
+60k 45 .65 6.29 0.027 0.952 0.906 0.949 0.976 20 .36 45 .89 9.75 
+
+25 Table 8: All checkpoint evaluation metrics for the 4B model. 
+
+Optimizer Step Fidelity Diversity Alignment Compositionality FD-DINO ↓ FID ↓ MMD-DINO ↓ Precision ↑ Recall ↑ Coverage ↑ Density ↑ HPSv2 ↑ GenEval2 AM ↑ GenEval2 GM ↑
+
+AdamW 5k 223 .73 9.17 0.199 0.870 0.453 0.700 0.901 15 .90 18 .62 1.78 
+
+10k 101 .76 8.42 0.066 0.908 0.746 0.857 0.950 18 .17 22 .01 2.26 
+
+15k 72 .16 7.67 0.036 0.922 0.834 0.885 0.958 18 .31 34 .18 6.51 
+
+20k 51 .87 6.87 0.023 0.941 0.866 0.926 0.998 20 .73 37 .09 5.76 
+
+25k 50 .94 6.39 0.023 0.938 0.879 0.930 1.007 19 .36 32 .85 5.71 
+
+30k 48 .71 6.48 0.022 0.940 0.888 0.936 1.026 20 .24 38 .09 7.74 
+
+35k 47 .28 6.80 0.024 0.946 0.888 0.944 1.014 21 .60 40 .01 7.50 
+
+40k 56 .97 7.90 0.029 0.933 0.899 0.937 0.972 20 .63 41 .74 8.89 
+
+45k 61 .61 8.72 0.033 0.944 0.897 0.935 1.020 21 .31 45 .90 10 .68 
+
+50k 58 .04 8.28 0.030 0.939 0.899 0.941 0.994 20 .72 44 .26 9.72 
+
+55k 57 .35 8.01 0.030 0.937 0.902 0.946 0.982 20 .80 44 .03 9.70 
+
+60k 51 .39 7.35 0.027 0.937 0.899 0.939 0.990 21 .40 45 .70 9.13 
+
+Muon 5k 149 .32 7.82 0.119 0.888 0.631 0.804 0.894 16 .73 19 .54 2.31 
+
+10k 65 .88 6.64 0.036 0.929 0.833 0.904 0.951 18 .27 27 .73 4.12 
+
+15k 56 .08 6.50 0.030 0.939 0.869 0.929 0.974 20 .39 40 .99 7.98 
+
+20k 40 .15 6.25 0.015 0.941 0.903 0.935 0.952 20 .81 41 .14 8.46 
+
+25k 39 .27 5.32 0.018 0.945 0.902 0.943 0.967 21 .00 46 .20 10 .41 
+
+30k 40 .50 5.94 0.018 0.941 0.904 0.938 0.959 20 .81 46 .53 9.52 
+
+35k 41 .96 5.66 0.020 0.946 0.905 0.947 0.983 19 .91 43 .45 7.41 
+
+40k 55 .82 6.99 0.033 0.935 0.910 0.936 0.948 18 .94 39 .77 6.36 
+
+45k 44 .39 5.86 0.025 0.940 0.913 0.946 0.963 20 .79 46 .75 8.18 
+
+50k 46 .24 6.13 0.027 0.946 0.914 0.946 0.967 21 .13 46 .42 8.83 
+
+55k 42 .09 6.14 0.022 0.946 0.912 0.941 0.966 21 .13 50 .40 10 .19 
+
+60k 41 .62 6.08 0.024 0.939 0.914 0.943 0.964 20 .66 46 .58 9.06 
+
+Periodic Row-wise Muon 5k 159 .06 9.04 0.125 0.892 0.594 0.799 0.969 15 .61 18 .68 2.05 
+
+10k 72 .59 7.20 0.040 0.929 0.820 0.888 0.976 18 .98 28 .42 3.85 
+
+15k 52 .19 6.35 0.022 0.929 0.876 0.917 0.946 18 .25 35 .52 6.20 
+
+20k 39 .42 5.61 0.015 0.949 0.899 0.948 0.984 21 .05 42 .98 8.16 
+
+25k 44 .58 6.27 0.021 0.935 0.901 0.931 0.937 20 .87 38 .63 7.19 
+
+30k 39 .80 6.15 0.018 0.951 0.909 0.943 0.957 20 .23 39 .53 6.64 
+
+35k 41 .91 6.32 0.020 0.941 0.910 0.941 0.965 20 .83 40 .87 6.95 
+
+40k 43 .93 6.64 0.020 0.938 0.909 0.942 0.978 20 .47 43 .90 8.09 
+
+45k 62 .89 8.68 0.032 0.933 0.898 0.942 1.092 19 .52 43 .23 8.13 
+
+50k 52 .36 7.30 0.030 0.936 0.916 0.942 0.939 20 .54 49 .32 10 .86 
+
+55k 43 .70 6.42 0.023 0.941 0.911 0.950 0.986 21 .00 49 .41 11 .44 
+
+60k 42 .25 6.35 0.022 0.941 0.906 0.952 0.984 21 .34 49 .38 10 .58 
+
+26 Table 9: All checkpoint evaluation metrics for the 9B model. 
+
+Optimizer Step Fidelity Diversity Alignment Compositionality FD-DINO ↓ FID ↓ MMD-DINO ↓ Precision ↑ Recall ↑ Coverage ↑ Density ↑ HPSv2 ↑ GenEval2 AM ↑ GenEval2 GM ↑
+
+AdamW 5k 184 .83 8.37 0.150 0.883 0.531 0.757 0.943 16 .08 19 .18 1.75 
+
+10k 78 .05 6.05 0.043 0.924 0.794 0.890 0.991 19 .32 27 .01 3.41 
+
+15k 59 .30 7.46 0.028 0.940 0.857 0.916 0.966 20 .65 35 .76 6.14 
+
+20k 43 .20 6.27 0.016 0.944 0.881 0.933 0.967 20 .58 41 .28 8.23 
+
+25k 47 .67 6.43 0.019 0.944 0.879 0.940 1.020 20 .21 40 .96 8.46 
+
+30k 44 .42 6.46 0.021 0.945 0.895 0.946 1.012 20 .38 40 .93 8.09 
+
+35k 44 .72 6.58 0.022 0.942 0.902 0.942 0.979 21 .70 47 .67 10 .16 
+
+40k 42 .21 6.44 0.021 0.944 0.905 0.949 0.975 20 .82 44 .33 9.95 
+
+45k 48 .43 7.12 0.025 0.935 0.902 0.941 0.970 21 .18 44 .51 9.40 
+
+50k 45 .54 6.77 0.025 0.942 0.905 0.942 0.958 20 .54 42 .45 8.89 
+
+55k 41 .01 6.18 0.021 0.946 0.911 0.942 0.957 21 .18 45 .62 10 .33 
+
+60k 41 .26 6.19 0.022 0.946 0.904 0.950 0.987 21 .39 45 .93 9.66 
+
+Muon 5k 117 .21 6.48 0.085 0.905 0.706 0.836 0.937 16 .82 22 .76 2.21 
+
+10k 47 .64 5.51 0.019 0.942 0.870 0.924 0.981 20 .39 37 .70 8.33 
+
+15k 40 .00 5.77 0.017 0.937 0.897 0.938 0.958 21 .97 46 .52 11 .82 
+
+20k 38 .57 6.46 0.018 0.947 0.903 0.942 0.952 21 .93 53 .00 14 .17 
+
+25k 38 .97 5.95 0.018 0.943 0.911 0.943 0.974 20 .49 49 .81 12 .02 
+
+30k 39 .07 6.13 0.021 0.945 0.911 0.945 0.952 21 .38 50 .16 10 .04 
+
+35k 39 .30 5.99 0.020 0.950 0.910 0.941 0.966 22 .27 54 .65 14 .14 
+
+40k 35 .92 5.79 0.019 0.944 0.915 0.944 0.951 22 .03 47 .49 10 .30 
+
+45k 36 .29 5.78 0.020 0.950 0.918 0.949 0.967 21 .98 52 .21 11 .92 
+
+50k 34 .53 5.71 0.020 0.948 0.922 0.947 0.947 22 .87 53 .98 12 .86 
+
+55k 34 .41 5.64 0.020 0.950 0.920 0.949 0.964 22 .36 51 .55 11 .34 
+
+60k 33 .97 5.61 0.020 0.952 0.927 0.953 0.960 22 .60 51 .77 11 .35 
+
+Periodic Row-wise Muon 5k 143 .77 8.71 0.108 0.903 0.630 0.824 0.960 15 .83 19 .38 2.29 
+
+10k 60 .29 6.70 0.028 0.923 0.850 0.914 0.946 18 .54 29 .53 4.36 
+
+15k 48 .17 6.25 0.021 0.937 0.884 0.931 0.945 20 .46 40 .09 8.10 
+
+20k 38 .14 5.72 0.014 0.947 0.896 0.935 0.946 22 .12 45 .39 9.82 
+
+25k 32 .44 5.63 0.011 0.943 0.907 0.947 0.954 21 .83 51 .25 11 .75 
+
+30k 38 .81 6.17 0.017 0.950 0.904 0.945 0.970 20 .95 49 .46 10 .28 
+
+35k 34 .57 5.63 0.016 0.952 0.918 0.948 0.979 22 .08 50 .73 10 .89 
+
+40k 37 .47 5.89 0.019 0.950 0.911 0.951 0.964 22 .34 54 .97 13 .50 
+
+45k 36 .86 6.09 0.020 0.946 0.916 0.946 0.965 22 .82 57 .35 15 .35 
+
+50k 35 .37 5.85 0.019 0.952 0.912 0.952 0.972 22 .57 56 .16 13 .44 
+
+55k 38 .19 6.39 0.020 0.943 0.921 0.954 0.967 22 .47 55 .52 12 .18 
+
+60k 36 .70 6.13 0.019 0.949 0.913 0.951 0.979 22 .44 57 .33 15 .97 
+
+27 Table 10: All checkpoint evaluation metrics for the 15B model. 
+
+Optimizer Step Fidelity Diversity Alignment Compositionality FD-DINO ↓ FID ↓ MMD-DINO ↓ Precision ↑ Recall ↑ Coverage ↑ Density ↑ HPSv2 ↑ GenEval2 AM ↑ GenEval2 GM ↑
+
+AdamW 5k 175 .31 8.92 0.136 0.879 0.561 0.753 0.903 16 .03 16 .81 1.50 
+
+10k 74 .84 7.70 0.035 0.927 0.805 0.895 0.970 19 .01 25 .75 3.08 
+
+15k 53 .21 6.42 0.023 0.939 0.856 0.920 0.970 20 .82 32 .86 5.35 
+
+20k 56 .21 7.03 0.028 0.935 0.870 0.925 0.987 18 .66 35 .58 5.70 
+
+25k 40 .75 5.86 0.017 0.943 0.894 0.942 0.985 21 .99 40 .27 7.44 
+
+30k 39 .59 6.15 0.017 0.947 0.890 0.942 0.999 21 .98 42 .03 7.87 
+
+35k 38 .46 5.86 0.017 0.947 0.894 0.949 1.007 21 .30 45 .31 9.43 
+
+40k 41 .33 6.37 0.022 0.932 0.910 0.940 0.937 22 .13 47 .10 11 .11 
+
+45k 38 .17 6.00 0.018 0.949 0.906 0.952 1.006 21 .72 46 .77 8.96 
+
+50k 40 .48 6.25 0.021 0.950 0.914 0.950 0.981 22 .18 47 .49 8.77 
+
+55k 40 .13 6.28 0.021 0.951 0.905 0.954 0.975 22 .21 47 .21 9.55 
+
+60k 40 .23 6.24 0.022 0.945 0.909 0.947 0.964 21 .99 47 .34 9.18 
+
+Muon 5k 119 .42 7.83 0.088 0.903 0.694 0.846 0.923 17 .16 21 .96 2.26 
+
+10k 54 .49 6.35 0.025 0.936 0.865 0.928 0.965 20 .23 33 .89 5.72 
+
+15k 37 .89 5.82 0.015 0.942 0.898 0.941 0.951 22 .10 43 .35 8.73 
+
+20k 37 .24 5.41 0.016 0.944 0.909 0.940 0.947 21 .96 46 .38 9.81 
+
+25k 33 .48 5.15 0.014 0.947 0.914 0.945 0.952 22 .92 54 .30 14 .21 
+
+30k 37 .13 5.84 0.018 0.942 0.915 0.947 0.937 20 .93 52 .72 11 .44 
+
+35k 35 .92 5.92 0.018 0.943 0.917 0.950 0.961 20 .87 52 .67 10 .67 
+
+40k 33 .55 5.37 0.018 0.952 0.924 0.954 0.952 22 .88 54 .66 12 .15 
+
+45k 33 .25 5.19 0.018 0.945 0.921 0.950 0.948 22 .53 57 .50 13 .76 
+
+50k 34 .54 5.74 0.020 0.941 0.925 0.953 0.934 22 .67 58 .18 14 .11 
+
+55k 33 .47 5.62 0.019 0.946 0.921 0.949 0.949 22 .43 58 .53 13 .84 
+
+60k 33 .51 5.57 0.019 0.945 0.930 0.950 0.937 22 .37 57 .93 14 .55 
+
+Periodic Row-wise Muon 5k 137 .51 7.68 0.101 0.899 0.641 0.817 0.917 17 .49 19 .15 2.61 
+
+10k 56 .18 6.37 0.022 0.936 0.851 0.918 0.971 19 .37 26 .87 3.44 
+
+15k 45 .14 6.64 0.019 0.939 0.885 0.938 0.956 21 .86 34 .76 5.73 
+
+20k 40 .13 6.34 0.017 0.941 0.901 0.939 0.963 21 .81 39 .12 6.93 
+
+25k 32 .35 5.61 0.012 0.949 0.912 0.947 0.966 22 .90 49 .68 11 .74 
+
+30k 35 .12 5.58 0.016 0.949 0.907 0.953 0.994 20 .59 47 .55 10 .70 
+
+35k 36 .91 6.19 0.017 0.944 0.914 0.943 0.959 19 .94 48 .71 9.45 
+
+40k 38 .72 6.02 0.021 0.943 0.916 0.945 0.942 20 .43 45 .89 9.19 
+
+45k 34 .37 5.60 0.018 0.941 0.919 0.951 0.954 21 .08 53 .10 12 .08 
+
+50k 52 .25 7.86 0.039 0.944 0.916 0.941 0.923 19 .64 44 .64 8.98 
+
+55k 40 .25 6.38 0.026 0.942 0.915 0.949 0.945 20 .80 47 .80 10 .12 
+
+60k 33 .99 5.63 0.020 0.948 0.925 0.955 0.967 21 .35 52 .26 11 .97 
+
+28 0 1 2 3 4 5
+
+Normalized time (mean 1.3B AdamW step = 1) 
+
+CPU phase GPU compute Communication Comp.-Comm. Overlap CPU phase GPU compute Communication Comp.-Comm. Overlap 
+
+> Muon (NS5)
+
+193 194 195 
+
+5.59 
+
+> Periodic Row-wise Muon
+
+193 194 195 
+
+4.20 
+
+Non-optimizer phase Muon NS5 Periodic refresh Periodic RowNorm GPU compute Communication Comp.-Comm. Overlap (a) 1.3B model. 0 1 2 3 4 5 6 7
+
+Normalized time (mean 1.3B AdamW step = 1) 
+
+CPU phase GPU compute Communication Comp.-Comm. Overlap CPU phase GPU compute Communication Comp.-Comm. Overlap 
+
+> Muon (NS5)
+
+193 194 195 
+
+7.26 
+
+> Periodic Row-wise Muon
+
+193 194 195 
+
+5.68 
+
+Non-optimizer phase Muon NS5 Periodic refresh Periodic RowNorm GPU compute Communication Comp.-Comm. Overlap 
+
+(b) 4B model. 0 2 4 6 8 10 12 
+
+Normalized time (mean 1.3B AdamW step = 1) 
+
+CPU phase GPU compute Communication Comp.-Comm. Overlap CPU phase GPU compute Communication Comp.-Comm. Overlap 
+
+> Muon (NS5)
+
+193 194 195 
+
+12.47 
+
+> Periodic Row-wise Muon
+
+193 194 195 
+
+10.26 
+
+Non-optimizer phase Muon NS5 Periodic refresh Periodic RowNorm GPU compute Communication Comp.-Comm. Overlap 
+
+(c) 9B model. 
+
+Figure 8: Simplified profiler traces for the 1.3B, 4B, and 9B models. The corresponding 15B result is shown in Figure 4. 29

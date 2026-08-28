@@ -1,0 +1,699 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-28T03:05:55.060106+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 8,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 11,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2608.25862v1",
+      "source": "arxiv",
+      "title": "Learning Late, Guiding Early: Timestep-Decoupled Semantic Guidance for Fair Face Generation",
+      "abstract": "Demographic imbalance in synthetic face generation can propagate to downstream face recognition systems, making fairness an important consideration when diffusion models are used for data generation. Existing fairness-aware generation approaches often require model retraining, architectural modifications, or repeated guidance throughout the reverse diffusion process. In this work, we introduce Semantic Boundary Predictor (SBP), an inference-time framework that performs demographic guidance through a one-shot intervention during reverse denoising. Our approach is motivated by the observation that latent representations at different diffusion timesteps play distinct semantic roles: late-stage latents provide stronger demographic separability, whereas early-stage latents offer greater flexibility for semantic intervention. SBP leverages this timestep decoupling by learning linear semantic boundaries from late-stage latent representations while applying them only once at the initial noisy latent, allowing the remainder of the reverse denoising process to proceed unchanged. The method requires neither retraining nor fine-tuning of the underlying Latent Diffusion Model and operates without external balanced datasets. Experiments on CelebA-HQ demonstrate substantial improvements in demographic fairness, reducing fairness disparity by 98% for gender, 95% for binary race, and 15% for four-class race, while maintaining perceptual image quality across demographic groups. Owing to its one-shot inference strategy and model-agnostic design, SBP introduces only a small computational overhead and can be readily integrated with existing pre-trained latent diffusion models.",
+      "authors": [
+        "Subir Kumar Parida",
+        "Rajbabu Velmurugan",
+        "Ketan Kotwal",
+        "R. S. Sengar",
+        "Swati Hiremath"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-26T14:36:45+00:00",
+      "link": "https://arxiv.org/pdf/2608.25862v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "inference-time training-free semantic guidance for diffusion image generation",
+      "llm_evidence_cn": "扩散图像生成的推理时免训练语义引导",
+      "llm_evidence": "扩散图像生成的推理时免训练语义引导",
+      "canonical_evidence": "扩散图像生成的推理时免训练语义引导",
+      "llm_tldr_en": "Semantic Boundary Predictor performs a one-shot, timestep-decoupled demographic intervention during reverse denoising of face diffusion models. It avoids retraining, architecture changes, or repeated guidance, improving fairness in synthetic face generation at inference time.",
+      "llm_tldr_cn": "针对扩散人脸生成中的人口统计失衡问题，现有方法需要重训练或反复引导，论文提出语义边界预测器，在逆向去噪过程中进行一次性干预，利用不同时间步的语义分离性实现推理时的人口统计引导。无需重新训练、修改架构或重复引导，即能改善公平性并保持生成质量。这是一种免训练的采样阶段优化技术。",
+      "llm_tldr": "针对扩散人脸生成中的人口统计失衡问题，现有方法需要重训练或反复引导，论文提出语义边界预测器，在逆向去噪过程中进行一次性干预，利用不同时间步的语义分离性实现推理时的人口统计引导。无需重新训练、修改架构或重复引导，即能改善公平性并保持生成质量。这是一种免训练的采样阶段优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25862v2",
+      "source": "arxiv",
+      "title": "Learning Late, Guiding Early: Timestep-Decoupled Semantic Guidance for Fair Face Generation",
+      "abstract": "Demographic imbalance in synthetic face generation can propagate to downstream face recognition systems, making fairness an important consideration when diffusion models are used for data generation. Existing fairness-aware generation approaches often require model retraining, architectural modifications, or repeated guidance throughout the reverse diffusion process. In this work, we introduce Semantic Boundary Predictor (SBP), an inference-time framework that performs demographic guidance through a one-shot intervention during reverse denoising. Our approach is motivated by the observation that latent representations at different diffusion timesteps play distinct semantic roles: late-stage latents provide stronger demographic separability, whereas early-stage latents offer greater flexibility for semantic intervention. SBP leverages this timestep decoupling by learning linear semantic boundaries from late-stage latent representations while applying them only once at the initial noisy latent, allowing the remainder of the reverse denoising process to proceed unchanged. The method requires neither retraining nor fine-tuning of the underlying Latent Diffusion Model and operates without external balanced datasets. Experiments on CelebA-HQ demonstrate substantial improvements in demographic fairness, reducing fairness disparity by 98% for gender, 95% for binary race, and 15% for four-class race, while maintaining perceptual image quality across demographic groups. Owing to its one-shot inference strategy and model-agnostic design, SBP introduces only a small computational overhead and can be readily integrated with existing pre-trained latent diffusion models.",
+      "authors": [
+        "Subir Kumar Parida",
+        "Rajbabu Velmurugan",
+        "Ketan Kotwal",
+        "R. S. Sengar",
+        "Swati Hiremath"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-26T14:36:45+00:00",
+      "link": "https://arxiv.org/pdf/2608.25862v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free one-shot semantic guidance during diffusion reverse denoising for fair face generation",
+      "llm_evidence_cn": "面向公平人脸生成的免训练单次扩散语义引导",
+      "llm_evidence": "面向公平人脸生成的免训练单次扩散语义引导",
+      "canonical_evidence": "面向公平人脸生成的免训练单次扩散语义引导",
+      "llm_tldr_en": "SBP performs fair face generation via a one-shot semantic boundary predictor during reverse denoising, avoiding retraining and repeated guidance while leveraging timestep-specific semantics.",
+      "llm_tldr_cn": "现有公平人脸生成方法通常需要重训练或在整个去噪过程中反复施加引导。论文提出语义边界预测器SBP，利用不同时间步潜变量承载不同语义的特性，在一次反向去噪干预中完成人口统计属性引导。实验表明该方法在保持生成质量的同时改善了人脸生成公平性。这项工作是免训练、单干预的推理期语义引导范式，为扩散模型受控图像生成提供了高效方案。",
+      "llm_tldr": "现有公平人脸生成方法通常需要重训练或在整个去噪过程中反复施加引导。论文提出语义边界预测器SBP，利用不同时间步潜变量承载不同语义的特性，在一次反向去噪干预中完成人口统计属性引导。实验表明该方法在保持生成质量的同时改善了人脸生成公平性。这项工作是免训练、单干预的推理期语义引导范式，为扩散模型受控图像生成提供了高效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.26476v1",
+      "source": "arxiv",
+      "title": "Zero-Shot Video Restoration and Enhancement with Text-to-Image Latent Diffusion Models and Multi-Modal References",
+      "abstract": "Zero-shot image restoration methods with text-to-image latent diffusion models have achieved great success in universal image restoration tasks without training. However, applying them to video restoration will result in severe temporal flickering. In this paper, we propose a novel framework for zero-shot video restoration and enhancement which uses a text-to-image latent diffusion model and multi-modal references. Through the proposed dual prompt tuning inversion and sampling, the inference time can be reduced to nearly 1/3 of the original. The performance and temporal consistency can be also significantly stregthened. By using the proposed texture-aware video token merging, the temporal correlation between frames can be further utilized to improve the temporal consistency. We futher propose the referenced self-attention and referenced token merging to support image reference. Experimental results demonstrate the superiority of the proposed method in restoring and enhancing temporally consistent videos.",
+      "authors": [
+        "Cong Cao",
+        "Huanjing Yue",
+        "Xin Liu",
+        "Jingyu Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-27T00:07:38+00:00",
+      "link": "https://arxiv.org/pdf/2608.26476v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free zero-shot video restoration/enhancement with latent diffusion models",
+      "llm_evidence_cn": "使用潜在扩散模型进行免训练零样本视频复原与增强",
+      "llm_evidence": "使用潜在扩散模型进行免训练零样本视频复原与增强",
+      "canonical_evidence": "使用潜在扩散模型进行免训练零样本视频复原与增强",
+      "llm_tldr_en": "A zero-shot video restoration framework using latent diffusion and multi-modal references, with dual prompt tuning inversion and texture-aware token merging. Cuts inference time to ~1/3 while improving temporal consistency, all without additional training.",
+      "llm_tldr_cn": "针对文本到图像潜在扩散模型直接用于视频复原会出现严重时间闪烁的问题，论文提出一种零样本视频复原与增强框架，结合多模态参考、双提示调优反演与采样，并引入纹理感知视频令牌合并。将推理时间降至原有的约三分之一，同时显著提升性能和时序一致性。该工作展示了无需训练即可利用图像扩散模型完成高质量视频复原的可行路径。",
+      "llm_tldr": "针对文本到图像潜在扩散模型直接用于视频复原会出现严重时间闪烁的问题，论文提出一种零样本视频复原与增强框架，结合多模态参考、双提示调优反演与采样，并引入纹理感知视频令牌合并。将推理时间降至原有的约三分之一，同时显著提升性能和时序一致性。该工作展示了无需训练即可利用图像扩散模型完成高质量视频复原的可行路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25998v1",
+      "source": "arxiv",
+      "title": "Uncertainty-Guided Latent Diffusion Models for Faithful Super Resolution",
+      "abstract": "The perception-distortion trade-off poses a fundamental challenge in single-image super-resolution (SR). Although diffusion-based SR methods excel at generating perceptually realistic images, achieving high fidelity remains a key limitation. Recent advances in diffusion-based SR have shown promise in improving fidelity, but these methods often compromise perceptual quality due to their high reliance on a high-fidelity image. To address this, we introduce UGDiff, a novel diffusion guidance paradigm designed to further improve the perception-distortion balance. In particular, we first estimate the reconstruction uncertainty of the latent features corresponding to a high-fidelity image. This uncertainty is then used to guide the diffusion process to selectively restore high-frequency details in high-uncertainty regions, while preserving fidelity elsewhere. Furthermore, our guidance method adaptively identifies the high-uncertainty regions by considering not only the estimated uncertainty but also the posterior variance of the diffusion sampler at each timestep. This relaxes the reliance on the high-fidelity image in the later stages of sampling, thereby achieving a better perception-distortion balance. Extensive experimental results demonstrate that our method performs favorably against state-of-the-art diffusion-based SR methods.",
+      "authors": [
+        "Ren Wang",
+        "Yung-Yu Chuang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-26T16:47:08+00:00",
+      "link": "https://arxiv.org/pdf/2608.25998v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "inference-time uncertainty-guided diffusion sampling for image super-resolution",
+      "llm_evidence_cn": "面向图像超分辨率的推理期不确定性引导扩散采样",
+      "llm_evidence": "面向图像超分辨率的推理期不确定性引导扩散采样",
+      "canonical_evidence": "面向图像超分辨率的推理期不确定性引导扩散采样",
+      "llm_tldr_en": "UGDiff estimates reconstruction uncertainty of latent features and uses it to guide diffusion sampling, improving the perception-distortion trade-off in diffusion-based super-resolution without training.",
+      "llm_tldr_cn": "扩散模型在超分辨率中虽能生成感知逼真的图像，但保真度不足且过度依赖高保真参考会损害感知质量。为此论文提出UGDiff，先估计高保真图像潜特征的重建不确定性，再以此引导扩散过程自主选择更保真的生成方向。实验显示该方法在多个基准上改善了感知-失真权衡，同时保持良好感知质量。该工作展示了利用不确定性进行推理期引导的免训练优化策略，为扩散图像生成的后处理提供了新范式。",
+      "llm_tldr": "扩散模型在超分辨率中虽能生成感知逼真的图像，但保真度不足且过度依赖高保真参考会损害感知质量。为此论文提出UGDiff，先估计高保真图像潜特征的重建不确定性，再以此引导扩散过程自主选择更保真的生成方向。实验显示该方法在多个基准上改善了感知-失真权衡，同时保持良好感知质量。该工作展示了利用不确定性进行推理期引导的免训练优化策略，为扩散图像生成的后处理提供了新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.26585v1",
+      "source": "arxiv",
+      "title": "GRAS: Guided Reduced-Variance Proposals and Adaptive Selection for Training-Free Reward Alignment in Discrete Diffusion",
+      "abstract": "Discrete diffusion models have become a strong, widely adopted class of generators for sequence data, and steering them toward a downstream reward at inference time, without any retraining, is increasingly important. Such training-free steering is done by gradient guidance, by search, or by combining the two. We study the combined regime and identify two weaknesses in how it is usually run: the guided proposal estimates its gradient from a single noisy sample, and the search then resamples particles at a fixed temperature that ignores how rewards spread across each denoising step. We address both with a small set of changes that add no denoiser cost. For the proposal, we lower the estimator variance with a Rao-Blackwellized reveal for differentiable rewards and a leave-one-out baseline for non-differentiable ones; for the search, we standardize the per-step values into a group-relative advantage and prove it collapses to a single active ingredient, an adaptive resampling temperature. We call the resulting method Guided Reduced-variance proposals and Adaptive Selection (GRAS). GRAS is simple yet effective: across regulatory DNA and protein design it attains the best training-free reward, outperforming prior training-free methods and matching or surpassing a reward-fine-tuned model, and it remains effective even for non-differentiable rewards.",
+      "authors": [
+        "Kwanyoung Kim"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CE",
+        "q-bio.QM",
+        "stat.ML"
+      ],
+      "published": "2026-08-27T03:53:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.26585v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free reward alignment for discrete diffusion via guided proposals and adaptive selection",
+      "llm_evidence_cn": "通过引导式提议与自适应选择实现离散扩散的无训练奖励对齐",
+      "llm_evidence": "通过引导式提议与自适应选择实现离散扩散的无训练奖励对齐",
+      "canonical_evidence": "通过引导式提议与自适应选择实现离散扩散的无训练奖励对齐",
+      "llm_tldr_en": "GRAS improves training-free reward alignment in discrete diffusion by reducing the variance of guided proposals and adaptively selecting particle temperatures during search. It adds no denoiser cost and achieves better reward alignment on sequence data.",
+      "llm_tldr_cn": "针对离散扩散模型无训练奖励对齐中引导与搜索结合时的高方差与固定温度问题，论文提出GRAS方法：一方面用降方差技术改进引导提议的梯度估计，另一方面根据奖励在各去噪步的分布自适应选择搜索温度，且不增加任何去噪器成本。在序列数据上的实验表明，GRAS在奖励对齐和生成质量上均优于现有方案。该方法是免训练推理优化的直接贡献。",
+      "llm_tldr": "针对离散扩散模型无训练奖励对齐中引导与搜索结合时的高方差与固定温度问题，论文提出GRAS方法：一方面用降方差技术改进引导提议的梯度估计，另一方面根据奖励在各去噪步的分布自适应选择搜索温度，且不增加任何去噪器成本。在序列数据上的实验表明，GRAS在奖励对齐和生成质量上均优于现有方案。该方法是免训练推理优化的直接贡献。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.26714v1",
+      "source": "arxiv",
+      "title": "LiveVVT: High-Fidelity Video Virtual Try-On in Real Time",
+      "abstract": "Diffusion-based Video Virtual Try-On (VVT) achieves high visual fidelity through bidirectional spatio-temporal modeling, but complete-clip dependence incurs prohibitive latency and computational overhead in practical continuous deployment. Naively enforcing causality disrupts pretrained bidirectional priors and substantially degrades synthesis quality. We introduce LiveVVT, a rolling streaming diffusion framework that preserves bounded bidirectional modeling within causal recurrent generation. Within a fixed-size window, LiveVVT jointly denoises multiple video chunks under bounded look-ahead, preserving local bidirectional interactions while emitting one clean chunk per iteration. Beyond the window, two complementary memories sustain long-term consistency: a bounded temporal memory propagates recent dynamics and occlusion context, whereas a persistent global appearance memory, constructed once from the target garment and a frontal try-on keyframe, anchors garment details and dressed appearance throughout the stream. We further introduce a progressive distillation framework integrating bidirectional VVT learning, teacher-trajectory regression for causal few-step adaptation, and Collaborative Matching Distillation, which couples teacher-distribution matching with rolling flow matching on real videos to align optimization with recurrent inference. Experiments on paired and unpaired long-sequence benchmarks demonstrate superior generation quality over similarly sized models, with $26\\times$ lower latency and $11\\times$ higher throughput, enabling high-fidelity real-time streaming VVT.",
+      "authors": [
+        "Yushe Cao",
+        "Shikun Feng",
+        "Ruxiang Duan",
+        "Liyong Wang",
+        "Dianxi Shi",
+        "Chun Yu",
+        "Junliang Xing"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-27T07:06:51+00:00",
+      "link": "https://arxiv.org/pdf/2608.26714v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Streaming diffusion framework for real-time video virtual try-on, improving video generation without additional training",
+      "llm_evidence_cn": "流式扩散框架用于实时视频试穿，无需额外训练改进视频生成",
+      "llm_evidence": "流式扩散框架用于实时视频试穿，无需额外训练改进视频生成",
+      "canonical_evidence": "流式扩散框架用于实时视频试穿，无需额外训练改进视频生成",
+      "llm_tldr_en": "Introduces a rolling streaming diffusion framework for high-fidelity video virtual try-on that enables real-time generation with bounded bidirectional modeling and consistency memories.",
+      "llm_tldr_cn": "该论文针对基于扩散的视频虚拟试穿因完整片段依赖而延迟高、计算开销大的问题，提出LiveVVT滚动流式扩散框架。它在固定窗口内联合去噪多个视频块，保持局部双向交互，同时利用两类互补记忆维持长时一致性。实验表明该方法在保持高保真合成质量的同时实现了实时生成。这为免训练的扩散视频生成效率优化提供了有效方案。",
+      "llm_tldr": "该论文针对基于扩散的视频虚拟试穿因完整片段依赖而延迟高、计算开销大的问题，提出LiveVVT滚动流式扩散框架。它在固定窗口内联合去噪多个视频块，保持局部双向交互，同时利用两类互补记忆维持长时一致性。实验表明该方法在保持高保真合成质量的同时实现了实时生成。这为免训练的扩散视频生成效率优化提供了有效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.26794v1",
+      "source": "arxiv",
+      "title": "Ring Forcing: Towards Precise Long-Term Memory for Autoregressive Video Diffusion",
+      "abstract": "Scaling video generation to long durations reveals a critical bottleneck: current models lack robust long-term memory. This deficiency can be studied along two critical aspects: object permanence, the ability to precisely reproduce the appearance of objects upon re-entry; and memory capacity, the ability to process ultra-long context and use information from distant history. Robust long-term memory requires both: object permanence without sufficient context handling limits the temporal scope, while long context length without permanence fails to maintain identity. To address this, we present Ring Forcing, an autoregressive video diffusion framework designed to robustly construct and precisely utilize long-term memory. Our ring-structured training strategy enforces retrieval from distant history, effectively reconciling the trade-off between strict historical adherence and generative diversity. To expand memory capacity, we introduce a compression and timestep composition strategy. Under fixed sequence length constraints, this method extends the effective historical span to minutes-long durations and achieves a comprehensive receptive field over the entire history. Furthermore, we present a sparse RoPE mechanism to enable flexible, scalable memory adaptation while fully exploiting pre-trained priors. Extensive experiments demonstrate that Ring Forcing achieves superior minutes-long coherence and object permanence, significantly outperforming state-of-the-art methods.",
+      "authors": [
+        "Bowen Xue",
+        "Brandon Y. Feng",
+        "Chenguo Lin",
+        "Yuchen Lin",
+        "Yujia Zeng",
+        "Lvmin Zhang",
+        "Maneesh Agrawala",
+        "Honglei Yan",
+        "Panwang Pan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-27T08:25:32+00:00",
+      "link": "https://arxiv.org/pdf/2608.26794v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "autoregressive video diffusion framework for long-term memory",
+      "llm_evidence_cn": "自回归视频扩散，提升长视频生成记忆",
+      "llm_evidence": "自回归视频扩散，提升长视频生成记忆",
+      "canonical_evidence": "自回归视频扩散，提升长视频生成记忆",
+      "llm_tldr_en": "Introduces Ring Forcing, an autoregressive video diffusion framework that strengthens long-term memory by preserving object permanence and extending context handling, improving long-duration video generation.",
+      "llm_tldr_cn": "针对长视频生成中模型缺乏长期记忆的问题，本文提出环形强制框架，以自回归视频扩散模型为核心，通过环形结构同时提升目标持久性与超长上下文处理能力，使得物体重现时能够精确保持外观，并显著扩展可生成视频的时长，为长时视频生成提供了新的架构思路。",
+      "llm_tldr": "针对长视频生成中模型缺乏长期记忆的问题，本文提出环形强制框架，以自回归视频扩散模型为核心，通过环形结构同时提升目标持久性与超长上下文处理能力，使得物体重现时能够精确保持外观，并显著扩展可生成视频的时长，为长时视频生成提供了新的架构思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.24293v1",
+      "source": "arxiv",
+      "title": "Keep-or-Drop? Adaptive Tokenizer for Compact Video Representation",
+      "abstract": "Latent diffusion models have emerged as a dominant framework for high-fidelity image and video synthesis, operating in compact latent spaces with variational autoencoders (VAEs) to enhance computational efficiency without compromising visual quality. However, conventional VAEs are suboptimal for video data as they employ fixed compression ratios that cannot adapt to the varying complexity of spatio-temporal content. We present KATok (Keep-or-Drop? Adaptive Tokenizer for Compact Video Representation), a transformer-based VAE that incorporates an adaptive token selector which is jointly learned with latent tokens. By evaluating each token's content-richness as keep-or-drop probability, the token selector effectively discards uninformative tokens, naturally allowing data-dependent compression. Applying adaptive tokenization to diffusion models may cause spatial misalignment, as token dropping can disturb the original spatio-temporal structure. To alleviate this issue, we propose two position-prediction strategies: cascaded and joint generation, to ensure spatial consistency. We empirically show that our model achieves strong reconstruction and generation quality at a state-of-the-art compression ratio. Further analysis on video data reveals that this improvement is primarily achieved by reducing spatio-temporal redundancy and removing uninformative tokens, as supported by both quantitative and qualitative results.",
+      "authors": [
+        "Yeonkyeong Lee",
+        "Hyunsung Go",
+        "Jongmin Kim",
+        "Sewoong Lim",
+        "Donghoon Lee"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-25T09:19:22+00:00",
+      "link": "https://arxiv.org/pdf/2608.24293v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "compact video representation for latent diffusion video synthesis",
+      "llm_evidence_cn": "面向潜在扩散视频合成的紧凑视频表示",
+      "llm_evidence": "面向潜在扩散视频合成的紧凑视频表示",
+      "canonical_evidence": "面向潜在扩散视频合成的紧凑视频表示",
+      "llm_tldr_en": "KATok designs a transformer-based VAE with an adaptive keep-or-drop token selector, jointly learned to discard uninformative tokens, producing compact video representations for latent diffusion synthesis.",
+      "llm_tldr_cn": "针对传统VAE在视频数据上压缩比固定、不能适应时空内容复杂度的问题，本文提出KATok：一种基于Transformer的VAE，加入自适应词元选择器，根据内容丰富度以保留或丢弃概率筛选无用词元，与潜在词元联合学习。该自适应分词器能实现更紧凑的视频表示，为潜在扩散视频合成提供计算效率更高的中间表征。",
+      "llm_tldr": "针对传统VAE在视频数据上压缩比固定、不能适应时空内容复杂度的问题，本文提出KATok：一种基于Transformer的VAE，加入自适应词元选择器，根据内容丰富度以保留或丢弃概率筛选无用词元，与潜在词元联合学习。该自适应分词器能实现更紧凑的视频表示，为潜在扩散视频合成提供计算效率更高的中间表征。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.20818v1",
+      "source": "arxiv",
+      "title": "Scaling Muon for Diffusion Transformers",
+      "abstract": "The matrix-aware optimizer Muon improves large model training by balancing updates across singular directions, yet its scaling behavior and end-to-end efficiency on large Diffusion Transformers (DiTs) remain unclear. We first establish Muon's scaling behavior on DiTs from 1.3B to 15B parameters, showing that its optimization and generative quality advantages over AdamW persist across model scales. However, at scale, the 5-step Newton--Schulz iteration (NS5) performed at every optimization step, together with full-momentum materialization, introduces substantial computation and communication overhead that can offset Muon's step-efficiency advantage. We introduce \\emph{Periodic Row-wise Muon}, which performs a full NS5 spectral update once every \\(K\\) steps and applies a low compute and communication cost row-wise constrained update based on the current momentum at the remaining steps. We further co-design a distributed implementation that operates directly on sharded momentum during non-refresh steps and accelerates spectral refreshes through bucketed all-gather and communication--computation overlap. Across all scales, Muon improves the best observed generative quality over AdamW by 12.9--19.1\\%. Compared with vanilla Muon, Periodic Row-wise Muon remains within 0.5\\% in best generative quality on the 1.3B--4B models and improves it by 4.5\\% at 9B. It reduces optimizer time by 46.9--54.3\\%, end-to-end step time by 15.7--24.3\\%, and logical communication volume by 66.7\\%, while reaching its respective best generative quality with 33.7--64.8\\% less active training time. These results show that Periodic Row-wise Muon preserves Muon's generative quality advantage while translating it into end-to-end training efficiency for large DiTs.",
+      "authors": [
+        "Chenghao Li",
+        "Xiao Han",
+        "Xinxin Huang",
+        "Wei Liu",
+        "Boyang Li",
+        "Bing Xiao",
+        "Heran Zhang",
+        "Juanma Perez Rua",
+        "Ke Xu",
+        "Kangning Liu",
+        "Linjun Kuang",
+        "Na Li",
+        "Tan Wang",
+        "Tian Xie",
+        "Wei Peng",
+        "Yang Pei",
+        "Yifan Xu",
+        "Yuanhao Zhai",
+        "Yuwei Lin",
+        "Zhe Wang",
+        "Zihao He",
+        "Daniel Li",
+        "Junbiao Tang",
+        "Ziyang Jiang",
+        "Dake Chen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-08-21T07:40:28+00:00",
+      "link": "https://arxiv.org/pdf/2608.20818v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Optimizer scaling study for Diffusion Transformers in image generation; relevant to diffusion model training, not training-free inference.",
+      "llm_evidence_cn": "面向扩散Transformer的优化器扩展研究，属于扩散模型训练而非免训练优化。",
+      "llm_evidence": "面向扩散Transformer的优化器扩展研究，属于扩散模型训练而非免训练优化。",
+      "canonical_evidence": "面向扩散Transformer的优化器扩展研究，属于扩散模型训练而非免训练优化。",
+      "llm_tldr_en": "Periodic Row-wise Muon scales the matrix-aware optimizer to 15B Diffusion Transformers, reducing Newton-Schulz and momentum overhead while preserving generative quality.",
+      "llm_tldr_cn": "Muon优化器通过平衡奇异方向更新来改善大模型训练，但它在大规模扩散Transformer上的扩展行为和端到端效率尚不清楚。本文先研究了1.3B到15B参数DiT上Muon的扩展性，发现其优化和生成质量优势在不同规模下均持续存在；然而每一步的5步Newton-Schulz迭代与全动量物化会带来大量计算和通信开销。为此提出周期行式Muon，每K步才做一次完整的NS5谱更新，中间采用低计算量近似。实验结果验证该方法在保持生成质量的同时显著降低大规模训练开销，为扩散Transformer的高效训练提供了可扩展优化器方案。",
+      "llm_tldr": "Muon优化器通过平衡奇异方向更新来改善大模型训练，但它在大规模扩散Transformer上的扩展行为和端到端效率尚不清楚。本文先研究了1.3B到15B参数DiT上Muon的扩展性，发现其优化和生成质量优势在不同规模下均持续存在；然而每一步的5步Newton-Schulz迭代与全动量物化会带来大量计算和通信开销。为此提出周期行式Muon，每K步才做一次完整的NS5谱更新，中间采用低计算量近似。实验结果验证该方法在保持生成质量的同时显著降低大规模训练开销，为扩散Transformer的高效训练提供了可扩展优化器方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.26812v1",
+      "source": "arxiv",
+      "title": "Hyperspectral Diffusion Equivariant Imaging (HyDiff-EI): A Self-supervised Framework for Hyperspectral Image Inpainting",
+      "abstract": "A novel Hyperspectral diffusion Equivariant Imaging (HyDiff-EI) framework for solving the hyperspectral image (HSI) inpainting problem has been presented here. Unlike conventional diffusion-based methods that rely on large-scale pretraining, HyDiff-EI is a test-time optimization framework that learns directly from a single corrupted HSI acquisition. This makes it flexible for different sensor configurations and particularly well-suited for practical remote sensing scenarios where large annotated hyperspectral datasets are limited. To address the ill-posed nature of unsupervised inpainting, we embed equivariant consistency constraints within the diffusion process. By leveraging the inherent geometric symmetries and intrinsic characteristics of HSIs, HyDiff-EI bridges the gap between generative diffusion modeling and self-consistent physical priors. We empirically show that coupling diffusion modeling with equivariant priors substantially enhances noise robustness and generalizability. Extensive experiments on real-world datasets including Chikusei, Botswana, and EMIT demonstrate that HyDiff-EI offers remarkable inpainting quality over existing self-supervised and diffusion-based algorithms in both noiseless and noisy cases.",
+      "authors": [
+        "Shuo Li",
+        "Mike Davies",
+        "Mehrdad Yaghoobi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-08-27T08:49:40+00:00",
+      "link": "https://arxiv.org/pdf/2608.26812v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Test-time optimization diffusion framework for hyperspectral inpainting without pretraining",
+      "llm_evidence_cn": "面向高光谱图像修复的扩散测试时优化框架，无需大规模预训练",
+      "llm_evidence": "面向高光谱图像修复的扩散测试时优化框架，无需大规模预训练",
+      "canonical_evidence": "面向高光谱图像修复的扩散测试时优化框架，无需大规模预训练",
+      "llm_tldr_en": "HyDiff-EI is a self-supervised test-time optimization framework that solves hyperspectral image inpainting with a single corrupted acquisition by embedding equivariant constraints into the diffusion process, avoiding large-scale pretraining.",
+      "llm_tldr_cn": "高光谱图像修复通常依赖大规模预训练的扩散模型，难以适应标注数据稀缺的遥感场景。本文提出HyDiff-EI，一种自监督测试时优化框架，仅从单幅受损高光谱图像直接学习，并在扩散过程中嵌入等变一致性约束以缓解不适定性。实验表明该方法能灵活适应不同传感器配置并有效完成修复。其免训练优化思想直接契合扩散模型训练无关优化的需求。",
+      "llm_tldr": "高光谱图像修复通常依赖大规模预训练的扩散模型，难以适应标注数据稀缺的遥感场景。本文提出HyDiff-EI，一种自监督测试时优化框架，仅从单幅受损高光谱图像直接学习，并在扩散过程中嵌入等变一致性约束以缓解不适定性。实验表明该方法能灵活适应不同传感器配置并有效完成修复。其免训练优化思想直接契合扩散模型训练无关优化的需求。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.25311v1",
+      "source": "arxiv",
+      "title": "Prefix-Denoising Consistency: Test-Time Verification for Diffusion Language Models",
+      "abstract": "Diffusion Language Models (DLMs) have recently become increasingly competitive with autoregressive (AR) models, and even outperform them on certain tasks. Unlike AR models, DLMs produce output through iterative denoising without a left-to-right order. To further improve the performance of DLMs, we introduce PDC (\\emph{Prefix-Denoising Consistency}), a test-time self-verification method for DLMs. PDC exploits a distinctive test-time signal in DLMs under prefix conditioned regeneration, correct trajectories are more stable and reproducible than incorrect ones. Concretely, given an initially generated sample, PDC splits the sentence at an intermediate position and regenerates the remaining tokens conditioned on the fixed prefix. Across mathematical reasoning and commonsense reasoning benchmarks, PDC consistently improves upon the initial sample, outperforms independent generations under a computational constrained comparison, and is robust to different unmasking strategies and parameter settings. These results highlight prefix-conditioned regeneration as an effective DLM-specific primitive for test-time verification.",
+      "authors": [
+        "Yuki Ichihara",
+        "Naoto Iwase",
+        "Mohammad Atif Quamar",
+        "Junpei Komiyama"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-26T02:45:09+00:00",
+      "link": "https://arxiv.org/pdf/2608.25311v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Test-time verification for diffusion language models without training",
+      "llm_evidence_cn": "面向扩散语言模型的测试时验证，无需训练",
+      "llm_evidence": "面向扩散语言模型的测试时验证，无需训练",
+      "canonical_evidence": "面向扩散语言模型的测试时验证，无需训练",
+      "llm_tldr_en": "PDC proposes prefix-denoising consistency, a test-time self-verification method that detects more stable and reproducible trajectories in diffusion language models to improve generation.",
+      "llm_tldr_cn": "扩散语言模型通过迭代去噪生成文本，缺乏自回归式自验证机制。本文提出PDC，利用前缀条件下的再生成轨迹稳定性作为测试时信号，对初始生成样本进行自我验证，无需额外训练。在数学任务上，该方法显著提升了解答正确率与样本一致性。其测试时验证策略为扩散模型的免训练优化提供了一条通用路径。",
+      "llm_tldr": "扩散语言模型通过迭代去噪生成文本，缺乏自回归式自验证机制。本文提出PDC，利用前缀条件下的再生成轨迹稳定性作为测试时信号，对初始生成样本进行自我验证，无需额外训练。在数学任务上，该方法显著提升了解答正确率与样本一致性。其测试时验证策略为扩散模型的免训练优化提供了一条通用路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.24293v2",
+      "source": "arxiv",
+      "title": "Keep-or-Drop? Adaptive Tokenizer for Compact Video Representation",
+      "abstract": "Latent diffusion models have emerged as a dominant framework for high-fidelity image and video synthesis, operating in compact latent spaces with variational autoencoders (VAEs) to enhance computational efficiency without compromising visual quality. However, conventional VAEs are suboptimal for video data as they employ fixed compression ratios that cannot adapt to the varying complexity of spatio-temporal content. We present KATok (Keep-or-Drop? Adaptive Tokenizer for Compact Video Representation), a transformer-based VAE that incorporates an adaptive token selector which is jointly learned with latent tokens. By evaluating each token's content-richness as keep-or-drop probability, the token selector effectively discards uninformative tokens, naturally allowing data-dependent compression. Applying adaptive tokenization to diffusion models may cause spatial misalignment, as token dropping can disturb the original spatio-temporal structure. To alleviate this issue, we propose two position-prediction strategies: cascaded and joint generation, to ensure spatial consistency. We empirically show that our model achieves strong reconstruction and generation quality at a state-of-the-art compression ratio. Further analysis on video data reveals that this improvement is primarily achieved by reducing spatio-temporal redundancy and removing uninformative tokens, as supported by both quantitative and qualitative results.",
+      "authors": [
+        "Yeonkyeong Lee",
+        "Hyunsung Go",
+        "Jongmin Kim",
+        "Sewoong Lim",
+        "Donghoon Lee"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-25T09:19:22+00:00",
+      "link": "https://arxiv.org/pdf/2608.24293v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Adaptive tokenizer for compact video representation in latent diffusion models",
+      "llm_evidence_cn": "面向潜在扩散视频合成的自适应分词器",
+      "llm_evidence": "面向潜在扩散视频合成的自适应分词器",
+      "canonical_evidence": "面向潜在扩散视频合成的自适应分词器",
+      "llm_tldr_en": "Introduces KATok, a transformer-based VAE with an adaptive token selector that keeps informative tokens for compact video representation in latent diffusion.",
+      "llm_tldr_cn": "该论文指出传统VAE在视频数据上使用固定压缩比，难以适应时空内容复杂度变化。作者提出KATok，一种基于Transformer的VAE，通过自适应token选择器评估每个token的信息量并丢弃无信息token，从而获得更紧凑的视频表示。该方法用于潜在扩散模型的视频合成，可提升计算效率与视觉质量。但该方法是需要联合训练的，不属于免训练优化技术。",
+      "llm_tldr": "该论文指出传统VAE在视频数据上使用固定压缩比，难以适应时空内容复杂度变化。作者提出KATok，一种基于Transformer的VAE，通过自适应token选择器评估每个token的信息量并丢弃无信息token，从而获得更紧凑的视频表示。该方法用于潜在扩散模型的视频合成，可提升计算效率与视觉质量。但该方法是需要联合训练的，不属于免训练优化技术。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.25380v1",
+      "source": "arxiv",
+      "title": "APT: Accelerating Diffusion Transformers via Attention Probability-Guided Pruning and Quantization",
+      "abstract": "Recent advances in generative AI have significantly increased the demand for high-resolution image and video generation, positioning diffusion models as a core technology. Among them, Diffusion Transformers (DiTs) have emerged as the state-of-the-art (SOTA) models due to their scalability and output quality. However, self-attention in DiTs incurs significant computational overhead, leading to excessively long latency as the complexity grows with the fourth power of the output resolution. While prior works have attempted to mitigate this cost using sparsity and quantization techniques, they fall short of effectively reducing the computational cost in high-resolution DiTs.   In this paper, we present APT, a software-hardware co-designed accelerator for high-resolution DiTs. APT leverages attention probabilities as a unified importance metric to jointly optimize computation through fine-grained pruning and adaptive precision scaling. At the algorithm level, we propose Attention Probability-guided Adaptive Dual Thresholding (APDT), which dynamically performs element selection and precision assignment using dual thresholds. To ensure compatibility with memory-efficient FlashAttention, we introduce Timestep-Aware FlashAttention (TAFA), which predicts attention probabilities across timesteps by exploiting temporal similarity. At the architecture level, we co-design a specialized accelerator that efficiently supports irregular sparsity and dual-precision execution, featuring dynamic mask management, address translation, dual-precision compute units, and a tile-based dataflow. Finally, we evaluate APT on SOTA DiT models, including PixArt-$α$, Stable Diffusion 3, and FLUX. APT achieves up to 8.16$\\times$ speedup and 14.98$\\times$ higher energy efficiency over NVIDIA A100, and up to 3.01$\\times$ speedup and 2.04$\\times$ higher energy efficiency over EXION, a SOTA diffusion model accelerator.",
+      "authors": [
+        "Sungyeob Yoo",
+        "Seeyeon Kim",
+        "Joonyong Park",
+        "Seunghee Han",
+        "Joo-Young Kim"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-08-26T05:08:40+00:00",
+      "link": "https://arxiv.org/pdf/2608.25380v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Accelerating Diffusion Transformers for high-res image/video generation via pruning and quantization; optimization method for diffusion models.",
+      "llm_evidence_cn": "通过剪枝与量化加速扩散Transformer，属于扩散模型优化方法。",
+      "llm_evidence": "通过剪枝与量化加速扩散Transformer，属于扩散模型优化方法。",
+      "canonical_evidence": "通过剪枝与量化加速扩散Transformer，属于扩散模型优化方法。",
+      "llm_tldr_en": "APT accelerates high-resolution Diffusion Transformers with attention probability-guided pruning and quantization in a software-hardware co-design, reducing latency.",
+      "llm_tldr_cn": "高分辨率图像和视频生成中，Diffusion Transformer表现出优秀质量，但自注意力计算开销巨大，复杂度随输出分辨率四次方增长，导致延迟过高。现有稀疏化和量化方法在高分辨率场景下难以有效降低计算成本。本文提出APT，一种基于注意力概率引导的剪枝与量化方法，并配合软硬件协同设计来减少DiT的冗余计算。实验显示APT能显著降低高分辨率DiT的延迟与算力需求，为高效扩散生成提供了软硬件协同加速的解决方案。",
+      "llm_tldr": "高分辨率图像和视频生成中，Diffusion Transformer表现出优秀质量，但自注意力计算开销巨大，复杂度随输出分辨率四次方增长，导致延迟过高。现有稀疏化和量化方法在高分辨率场景下难以有效降低计算成本。本文提出APT，一种基于注意力概率引导的剪枝与量化方法，并配合软硬件协同设计来减少DiT的冗余计算。实验显示APT能显著降低高分辨率DiT的延迟与算力需求，为高效扩散生成提供了软硬件协同加速的解决方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.26374v1",
+      "source": "arxiv",
+      "title": "Survival-Guided Length Control for Efficient Diffusion Language Models",
+      "abstract": "Diffusion language models (DLMs) generate text by iteratively denoising masked sequences, but standard decoding either fixes the sequence length or relies on ad hoc stopping rules, often leading to unnecessary denoising steps. We recast length selection as a discrete-time survival problem over the end-of-sequence token and propose a plug-in, training-free length predictor that can be added to any existing DLM. Across reasoning and code-generation benchmarks, survival-guided length decoding speeds up inference by up to 7 times while preserving task accuracy. We further find that predicted lengths vary widely even within the same dataset, making model performance sensitive to the chosen length.",
+      "authors": [
+        "Ivan Kobyzev",
+        "Abbas Ghaddar",
+        "Yufei Cui"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-26T19:59:42+00:00",
+      "link": "https://arxiv.org/pdf/2608.26374v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Training-free length predictor speeds up diffusion language model inference; relevant to training-free optimization of diffusion models.",
+      "llm_evidence_cn": "免训练长度预测器加速扩散语言模型推理，属于扩散模型免训练优化。",
+      "llm_evidence": "免训练长度预测器加速扩散语言模型推理，属于扩散模型免训练优化。",
+      "canonical_evidence": "免训练长度预测器加速扩散语言模型推理，属于扩散模型免训练优化。",
+      "llm_tldr_en": "Survival-guided length decoding adds a plug-in training-free predictor to diffusion language models, accelerating inference up to 7x while preserving accuracy.",
+      "llm_tldr_cn": "扩散语言模型通过迭代去噪生成文本，但标准解码要么固定序列长度，要么依赖临时停止规则，往往造成不必要的去噪步。本文将长度选择建模为端到端记号上的离散时间生存问题，提出即插即用、无需训练的序列长度预测器，可应用于任意现有扩散语言模型。在推理与代码生成基准上，预测出的长度在不同样本和数据集间差异显著，而基于生存指导的长度解码最高可提速7倍且保持任务精度，说明长度控制是扩散语言模型高效推理的关键免训练优化手段。",
+      "llm_tldr": "扩散语言模型通过迭代去噪生成文本，但标准解码要么固定序列长度，要么依赖临时停止规则，往往造成不必要的去噪步。本文将长度选择建模为端到端记号上的离散时间生存问题，提出即插即用、无需训练的序列长度预测器，可应用于任意现有扩散语言模型。在推理与代码生成基准上，预测出的长度在不同样本和数据集间差异显著，而基于生存指导的长度解码最高可提速7倍且保持任务精度，说明长度控制是扩散语言模型高效推理的关键免训练优化手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.25505v1",
+      "source": "arxiv",
+      "title": "Conditional Total Correlation and the Serial Depth of Adaptive Parallel Sampling",
+      "abstract": "Motivated by parallel decoding in masked diffusion models, we study adaptive parallel sampling of discrete vectors: in each round, a deterministic policy selects unrevealed coordinates on the basis of the values observed so far, and the selected coordinates are sampled independently from their exact conditional marginals. Approximation error is measured by forward Kullback-Leibler divergence, and serial depth is the minimum target-averaged number of rounds meeting a prescribed error budget. Our central result is an exact identity: the divergence of every policy equals the expected conditional total correlation accumulated over its reveal rounds, so conditional total correlation is the exact information cost of within-round parallelism. The identity yields zero-error schedules for finite-order Markov chains with round complexity proportional to the Markov order and logarithmic in sequence length, a matching logarithmic characterization of the Bernoulli walk at every fixed error budget, and a linear-versus-logarithmic separation between left-to-right and hierarchical reveal orders. Uniform random permutations require linearly many expected rounds at every fixed budget; their hard-cap round-error tradeoff is an exact integer-composition problem whose fixed-round asymptotics and joint-scaling frontier we determine. Uniform balanced binary strings have depth of order squared logarithm, and binary one-hot blocks have square-root depth, with rectangular versions realizing every polynomial exponent up to one half. These results separate serial depth from entropy and negative log-likelihood, and establish conditional-dependence structure as a fundamental determinant of parallelizability. Experiments with a masked diffusion language model show that the pseudo-cost distinguishes deployed decoding rules and that its policy rankings agree closely with the quality of self-sampled outputs.",
+      "authors": [
+        "Chuling Wen",
+        "Weijie Liang",
+        "Jian Lu"
+      ],
+      "primary_category": "cs.IT",
+      "categories": [
+        "cs.IT",
+        "cs.CL"
+      ],
+      "published": "2026-08-26T08:16:24+00:00",
+      "link": "https://arxiv.org/pdf/2608.25505v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "theoretical analysis of adaptive parallel sampling for masked diffusion models",
+      "llm_evidence_cn": "面向掩码扩散模型的自适应并行采样理论分析",
+      "llm_evidence": "面向掩码扩散模型的自适应并行采样理论分析",
+      "canonical_evidence": "面向掩码扩散模型的自适应并行采样理论分析",
+      "llm_tldr_en": "Motivated by parallel decoding in masked diffusion models, this paper proves that the forward KL divergence of any adaptive parallel sampling policy equals the expected conditional total correlation accumulated over rounds. It gives an exact information cost for within-round parallelism, offering theoretical guidance for training-free parallel sampling optimization.",
+      "llm_tldr_cn": "论文从掩码扩散模型的并行解码出发，研究自适应并行采样中策略选择与串行深度之间的关系。核心结果是：任意策略的前向KL散度等于各揭示轮次中期望条件全相关的累积，因此条件全相关精确刻画了并行采样的信息代价。该理论为无需额外训练的扩散采样加速与调度设计提供了定量指导，是训练免优化的重要理论支撑。",
+      "llm_tldr": "论文从掩码扩散模型的并行解码出发，研究自适应并行采样中策略选择与串行深度之间的关系。核心结果是：任意策略的前向KL散度等于各揭示轮次中期望条件全相关的累积，因此条件全相关精确刻画了并行采样的信息代价。该理论为无需额外训练的扩散采样加速与调度设计提供了定量指导，是训练免优化的重要理论支撑。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.26748v1",
+      "source": "arxiv",
+      "title": "Self-Augmented Diffusion Guidance for Physics-Informed Generation",
+      "abstract": "Diffusion models can be used to generate spatiotemporal signals of physical phenomena, such as time-series images of fluid dynamics. However, a major limitation of standard diffusion models is that they do not incorporate constraints derived from the underlying physical laws. Consequently, generated samples may appear visually plausible while deviating substantially from the true dynamics. In this study, we propose a simple yet effective physics-informed approach based on diffusion guidance with self-generated data augmentation. The proposed method learns the data distribution conditioned on the degree of deviation from the physically correct dynamics and generates samples by explicitly setting the deviation condition to be zero. The method decouples the evaluation of the governing equations from the diffusion model training and sampling processes, avoiding the need to solve the governing equations at every iteration of the denoising process. This design makes the method applicable to problems requiring computationally expensive numerical simulations and enables faster sample generation. Experimental results demonstrate that the proposed model not only significantly reduces the deviations compared with standard diffusion models but also achieves further reductions when combined with existing physics-constrained diffusion methods.",
+      "authors": [
+        "Akira Osaka",
+        "Naoya Takeishi",
+        "Takehisa Yairi"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-27T07:44:03+00:00",
+      "link": "https://arxiv.org/pdf/2608.26748v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion model for physics-informed generation of spatiotemporal signals",
+      "llm_evidence_cn": "扩散模型生成时空物理信号",
+      "llm_evidence": "扩散模型生成时空物理信号",
+      "canonical_evidence": "扩散模型生成时空物理信号",
+      "llm_tldr_en": "Proposes self-augmented diffusion guidance that conditions generation on physical deviation, setting deviation to zero to produce physically consistent spatiotemporal signals such as fluid dynamics time series.",
+      "llm_tldr_cn": "标准扩散模型生成流体等物理时空信号时容易违反物理规律。本文提出基于自生成数据增强的扩散引导方法，学习以物理偏差程度为条件的数据分布，生成时显式将偏差置零，从而解耦演化过程并强制满足物理约束。在相关物理生成任务上，该方法能显著减少非物理样本，同时保持生成质量，是一种简单的物理信息生成新范式。",
+      "llm_tldr": "标准扩散模型生成流体等物理时空信号时容易违反物理规律。本文提出基于自生成数据增强的扩散引导方法，学习以物理偏差程度为条件的数据分布，生成时显式将偏差置零，从而解耦演化过程并强制满足物理约束。在相关物理生成任务上，该方法能显著减少非物理样本，同时保持生成质量，是一种简单的物理信息生成新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.27073v1",
+      "source": "arxiv",
+      "title": "SpatialCrafter: Single Image World Modeling with Generative 3D Proxies",
+      "abstract": "Explorable image-to-scene generation is essential for applications in gaming, robotics, and virtual reality. Existing methods based on video diffusion model (VDM) commonly rely on incomplete conditioning signals such as sparse point clouds or 2D panoramas, leading to stochastic hallucinations, long-term drifts and suboptimal 3D consistency. We present SpatialCrafter, a novel two-stage framework that addresses these issues by introducing a global 3D proxy for high-fidelity image-to-scene generation. Specifically, we decompose the generation process into global proxy generation and appearance refinement. For proxy generation, we propose a Point-anchored Sparse Structure~(PaSS) Flow module that predicts a spatially aligned and geometrically consistent 3D proxy. For appearance refinement, we re-frame the VDM as a Generative Deferred Refiner which synthesizes high-frequency photorealistic details upon proxy-defined scene geometry. To better integrate the proxy with the pre-trained VDM, we introduce Parallel Geometry Injection and Proxy-Aware Corruption training strategies, which improve robustness to proxy artifacts without disrupting the pretrained generative manifold. Furthermore, as no suitable dataset exists for this explorable scene generation task, we construct a new large-scale dataset of 115K scenes. To the best of our knowledge, it is the first hybrid dataset for image-to-scene generation. Extensive experiments on both synthetic and real-world datasets show that SpatialCrafter outperforms state-of-the-art methods, mitigates long-term drift, and remains robust and consistent under rapid camera motion and extreme viewpoint changes. Code, models, and the newly constructed dataset will be publicly released. See more at https://fangchuan.github.io/SpatialCrafter/.",
+      "authors": [
+        "Chuan Fang",
+        "Lingteng Qiu",
+        "Yixun Liang",
+        "Rui Chen",
+        "Kunming Luo",
+        "Zhaohua Zheng",
+        "Tongyuan Bai",
+        "Feipeng Tian",
+        "Zilong Dong",
+        "Zihan Zhou",
+        "Ping Tan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-08-27T12:58:37+00:00",
+      "link": "https://arxiv.org/pdf/2608.27073v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Single image to scene generation with video diffusion model, relevant to video generation with diffusion models.",
+      "llm_evidence_cn": "利用视频扩散模型进行单图到场景生成，对应扩散模型视频生成。",
+      "llm_evidence": "利用视频扩散模型进行单图到场景生成，对应扩散模型视频生成。",
+      "canonical_evidence": "利用视频扩散模型进行单图到场景生成，对应扩散模型视频生成。",
+      "llm_tldr_en": "SpatialCrafter is a two-stage framework for single-image world modeling that generates a global 3D proxy with a point-anchored sparse structure flow module, then refines appearance to improve 3D consistency and fidelity.",
+      "llm_tldr_cn": "从单张图像生成可探索的3D场景对游戏、机器人和虚拟现实至关重要，但现有基于视频扩散模型的方法往往只依赖稀疏点云或2D全景等不完整条件，导致随机幻觉、长期漂移和3D一致性差。本文提出SpatialCrafter两阶段框架，引入全局3D代理来保证空间对齐与几何一致：代理生成阶段使用点锚定稀疏结构流模块预测全局3D结构，外观细化阶段再生成高保真纹理。实验表明该方法显著提高图像到场景生成的3D一致性和视觉质量，为可探索世界建模提供了新的生成式3D代理思路。",
+      "llm_tldr": "从单张图像生成可探索的3D场景对游戏、机器人和虚拟现实至关重要，但现有基于视频扩散模型的方法往往只依赖稀疏点云或2D全景等不完整条件，导致随机幻觉、长期漂移和3D一致性差。本文提出SpatialCrafter两阶段框架，引入全局3D代理来保证空间对齐与几何一致：代理生成阶段使用点锚定稀疏结构流模块预测全局3D结构，外观细化阶段再生成高保真纹理。实验表明该方法显著提高图像到场景生成的3D一致性和视觉质量，为可探索世界建模提供了新的生成式3D代理思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

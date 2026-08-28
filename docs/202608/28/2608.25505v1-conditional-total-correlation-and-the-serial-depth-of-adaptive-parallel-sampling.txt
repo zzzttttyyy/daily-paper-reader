@@ -1,0 +1,2667 @@
+Title: Conditional Total Correlation and the Serial Depth of Adaptive Parallel Sampling
+
+URL Source: https://arxiv.org/pdf/2608.25505v1
+
+Published Time: Thu, 27 Aug 2026 00:40:18 GMT
+
+Number of Pages: 22
+
+Markdown Content:
+> 1
+
+# Conditional Total Correlation and the Serial Depth of Adaptive Parallel Sampling 
+
+Chuling Wen, Weijie Liang, and Jian Lu 
+
+Abstract —Motivated by parallel decoding in masked diffusion models, we study the adaptive parallel sampling of discrete vectors. In each round, a deterministic policy selects unrevealed coordinates on the basis of the values observed so far, and the selected coordinates are sampled independently from their exact conditional marginals. Approximation error is measured by forward Kullback–Leibler divergence, which represents excess expected logarithmic loss and admits a chain-rule decomposition aligned with the reveal process. We define serial depth as the minimum target-averaged number of rounds required to satisfy a prescribed error budget. Our central result establishes that the divergence of every policy equals the expected conditional total correlation accumulated over its reveal rounds. Conditional total correlation therefore gives the exact information cost of within-round parallelism. The identity yields zero-error schedules for finite-order Markov chains whose round complexity is proportional to the Markov order and logarithmic in sequence length. It also gives a matching logarithmic characterization of the Bernoulli walk at every fixed error budget and a linear-versus-logarithmic separation between left-to-right and hierarchical reveal orders. Uniform random permutations require a linear number of ex-pected rounds at every fixed error budget. Their hard-cap round– error tradeoff is characterized by an exact integer-composition problem, together with its fixed-round asymptotics and joint-scaling frontier. Uniform balanced binary strings have depth proportional to the squared logarithm of sequence length at every fixed positive error budget. Independent binary one-hot blocks have square-root depth at every fixed error budget, and rectangular versions realize every polynomial depth exponent up to one half. These results exhibit logarithmic, polylogarithmic, polynomial, and linear depth regimes, separate serial depth from entropy and negative log-likelihood, and establish conditional-dependence structure as a fundamental determinant of par-allelizability. Experiments with a masked diffusion language model show that the resulting pseudo-cost distinguishes deployed decoding rules and that policy-level pseudo-cost rankings agree closely with the quality rankings of self-sampled outputs on the tested prompts. 
+
+Index Terms —Adaptive parallel sampling, conditional total correlation, Kullback–Leibler divergence, masked diffusion lan-
+
+This work was supported in part by the National Natural Science Foundation of China under Grant 12571569 and Grant U21A20455, in part by the Natural Science Foundation of Guangdong Province of China under Grant 2024A1515011913, and in part by the Shenzhen Key Laboratory of Advanced Machine Learning and Applications under Grant SYSPG20241211173920042. 
+
+(Corresponding author: Jian Lu.) 
+
+Chuling Wen and Weijie Liang are with the Shenzhen Key Labora-tory of Advanced Machine Learning and Applications, School of Mathe-matical Sciences, Shenzhen University, Shenzhen 518060, China (e-mail: 2400191020@mails.szu.edu.cn; liangweijie2022@email.szu.edu.cn). Jian Lu is with the Shenzhen Key Laboratory of Advanced Machine Learning and Applications, School of Mathematical Sciences, Shenzhen University, Shenzhen 518060, China, and also with the National Center for Applied Mathematics Shenzhen (NCAMS), Shenzhen 518055, China (e-mail: jianlu@szu.edu.cn). 
+
+guage models, parallel decoding, round complexity, serial depth. 
+
+I. I NTRODUCTION 
+
+Autoregressive language models generate a sequence ac-cording to a fixed left-to-right factorization. Standard ancestral decoding produces each token after its predecessors and there-fore samples consistently from the modeled joint distribution, but the generation process is inherently sequential [1], [2]. Conditional masked language models and masked diffusion language models instead predict masked coordinates from bidirectional context and permit tokens to be generated in flexible orders or in parallel batches [3], [4], [5], [19], [6]. This flexibility has motivated practical efforts to reduce the number of serial model calls [23], [24]. Parallel decoding nevertheless introduces a distributional error when the tokens generated in the same round are sampled independently from their conditional marginals while remaining dependent under the target joint distribution. Recent work has studied this accuracy–parallelism tradeoff for several classes of decoding procedures. Schedule-level analyses characterize or optimize reveal schedules whose po-sitions are fixed, randomized, or selected independently of the values realized during generation [7], [8], [9], [10]. Analyses of specific decoder classes relate their iteration complexity to entropy, negative log-likelihood, or confidence-based infor-mation budgets [11], [16]. Other studies examine generation order, parallelization bias, and the loss of token dependence under factorized decoding [12], [13], [31]. Black-box parallel-sampling theory provides oracle-complexity bounds for algo-rithms that are not specialized to a fixed known distribution [14], [15], [32]. These results do not determine the minimum number of rounds required by a fixed target distribution when the reveal positions may depend on the values observed during sampling. Value adaptivity changes both the order of generation and the conditional dependence encountered in later rounds. The resulting reveal sets are random and coupled to the generated sample. A converse must therefore control every branch of the adaptive policy tree. Entropy and negative log-likelihood alone cannot provide such a characterization, since distributions with large entropy may still have independent coordinates and admit exact one-round sampling. We study this question in an exact conditional-marginal oracle model that isolates the error caused by within-round independent sampling. Serial depth is defined as the minimum target-averaged number of revealing rounds required to achieve arXiv:2608.25505v1 [cs.IT] 26 Aug 2026 2
+
+a prescribed forward-KL accuracy. The central observation is that conditional total correlation measures the dependence discarded within each round. The KL chain rule shows that the total approximation error equals the expected conditional total correlation accumulated along the adaptive reveal pro-cess. This identity transforms adaptive round complexity into an information-accounting problem. Recursive conditional-independence structure leads to efficient revealing schedules, while persistent conditional dependence yields lower bounds. The theoretical contributions are summarized below. 1) We establish the exact KL–total-correlation identity for every deterministic value-adaptive reveal policy. The re-sult applies to random and history-dependent reveal sets and provides a common method for analyzing upper and lower bounds on serial depth. 2) We prove logarithmic serial depth for the Bernoulli walk at every fixed error budget. Hierarchical bisection achieves exact sampling in logarithmically many rounds, while contiguous left-to-right schedules require linearly many rounds to maintain fixed accuracy. The adaptive converse applies to every deterministic value-adaptive policy. We also construct zero-error schedules whose round complexity is proportional to the Markov order and logarithmic in sequence length for all finite-order Markov chains. 3) We prove that uniform random permutations require a linear number of expected rounds at every fixed error budget. Under a hard round cap, the optimal approx-imation error is characterized exactly by an integer-composition problem. This characterization yields fixed-round asymptotics, an exact finite-blocklength pairs-first phase, and the complete joint-scaling frontier for the hard-cap complexity. 4) We establish polynomial serial depth over a binary alphabet. Uniform balanced binary strings have depth proportional to the squared logarithm of sequence length at every fixed positive error budget, while independent one-hot blocks have matching square-root depth against arbitrary deterministic value-adaptive policies. Rectangu-lar block constructions realize every polynomial exponent up to one half. Together with the Bernoulli walk and random permutations, these examples exhibit logarithmic, polylogarithmic, polynomial, and linear depth regimes. We also show that almost every full-support distribution has maximal zero-error depth and that serial depth is not determined by entropy or negative log-likelihood. We additionally evaluate generic schedules and deployed decoding rules on 542 text sequences drawn from WikiText and model-generated text in four domains. A paired self-sampling study on 231 held-out prompts connects teacher-forced pseudo-costs to output quality under an external au-toregressive evaluator. It also evaluates a model-independent spaced-profile schedule obtained by combining increasing batch sizes with spatially dispersed reveals. These experiments are diagnostic rather than a universal benchmark because they use a single 0.5B model and a single sampling temperature. II. R ELATED WORK 
+
+Existing theory on parallel decoding can be organized into analyses of sampling schedules, particular decoder classes, and black-box sampling models. For a broad survey of diffusion language models, see [26]. Analyses of sampling schedules quantify the error of masked diffusion models when reveal positions are fixed or randomized independently of the values generated during sam-pling. Chen, Cong, and Li [7] characterize schedules with fixed cardinalities through information curves. Lavenant and Zanella [8] derive error bounds and optimal schedules for factorized masked diffusion. Zhao and Cai [9] design randomized sched-ules that adapt to distributional dependence. Wainwright [10] develops certified schedule design through unmasking growth complexity. These procedures may use prior knowledge or estimated properties of the target. Their reveal positions do not depend on the values realized along the current sampling trajectory. On the continuous side, convergence theory for diffusion sampling has recently entered the journals [33], [34], with information-theoretic treatments developed within the information-theory community as well [35]. Analyses of particular decoder classes study round complex-ity under prescribed selection rules. Bounds based on negative log-likelihood and information budgets have been established for procedures based on confidence [11]. Related guarantees based on entropy are given in [16]. The tradeoff between quality and parallelism for specific diffusion decoder families is studied in [30]. Bounds based on total correlation for fixed ordered partitions and analyses of generation order appear in [12], [13], [31]. These results constrain the decoder rule or the ordered partition used during sampling. Parallel sampling has also been studied in black-box oracle models. Counting and conditional marginal oracles yield sub-linear upper and lower bounds for algorithms that do not know the target distribution [14], [15]. Diffusion-style procedures are optimal parallel samplers in a related oracle model [32]. These results permit adaptive oracle queries but require an algorithm that operates without prior knowledge of the target. Their lower bounds establish a hard distribution for each algorithm and do not identify a fixed known distribution with large serial depth. Remark 10 explains this distinction for the standard hard instances. The information cost of synthesizing joint dependence is a classical information-theoretic theme: common informa-tion quantifies the shared randomness needed to generate a dependent pair [40], channel resolvability the randomness needed to approximate an output law [41], and distributed channel synthesis the communication needed for approximate simulation of a joint distribution [42]. Serial depth asks the complementary question for the same simulation task: when dependence must be resolved through revealed values rather than shared randomness, how many factorized rounds are unavoidable. Round-limited adaptivity is likewise a classical theme in group testing [43], [44], where a small constant number of adaptive rounds often suffices; our converses show that for sampling, by contrast, the required number of rounds is an unbounded, distribution-intrinsic quantity. 3
+
+These lines of work leave unresolved the distribution-specific problem addressed in this paper. We fix the target distribution and allow the reveal policy to use both complete knowledge of that distribution and all values observed during sampling. The selected reveal sets are random and coupled to the generated sample, which prevents fixed-schedule bounds from directly yielding converses for adaptive policies. The cost identity provides exact information accounting for every deterministic value-adaptive policy and resolves this coupling at the level of the policy tree. The resulting analysis gives a tight logarithmic characterization for the Bernoulli walk, a linear lower bound and an exact tradeoff under a hard round cap for uniform random permutations, a tight squared logarithmic characterization for balanced binary strings, a tight square-root characterization for binary one-hot blocks, and maximal zero-error depth for generic full-support distributions. It therefore fills the gap between schedule analyses with value-independent positions and oracle bounds for algorithms that do not know the target. Lower bounds for value-adaptive selection in this sense were identified as an open direction in [16]. The one-hot construction realizes all polynomial depth exponents up to one half over a binary alphabet; whether higher exponents, including linear depth, are possible remains open. III. P RELIMINARIES 
+
+A. Notation 
+
+For a positive integer n, write [n] = {1, . . . , n }. The finite alphabet is denoted by V . Uppercase letters denote random variables and lowercase letters denote their realizations. For 
+
+A ⊆ [n], the subvectors on A are denoted by XA and xA, the cardinality of A by |A|, and the marginal of a distribution p
+
+on V n by pA. The notation p(xB | xA) is used only when A∩
+
+B = ∅ and pA(xA) > 0. We write xi:j for (xi, . . . , x j ), X≤i
+
+for X[i], and X≥i for X{i,...,n }. The support of p is supp( p),and 1E is the indicator of an event E.Probability and expectation under p are written Pr p and 
+
+Ep; the subscript is omitted when the law is clear. All logarithms are base two, so entropy, mutual information, KL divergence, and total correlation are measured in bits. The natural logarithm is written ln . We use H for entropy, I for mutual information, DKL (p ∥ q) for forward KL divergence, 
+
+TC for total correlation, and tc for its realized information density. The binary entropy function is 
+
+h2(u) := −u log 2 u − (1 − u) log 2(1 − u), 0 ≤ u ≤ 1,
+
+with the convention 0 log 2 0 = 0 . Conditional information quantities evaluated at a realized context are written with a vertical bar, as in H(XA | xC ) and TC( XA | xC ). Conditional independence is denoted by ⊥.The positive part of a real number is a+ = max {a, 0},and (M )B = M (M − 1) · · · (M − B + 1) denotes a falling factorial. The notation Bin( j, θ ) denotes a binomial random variable. Standard asymptotic notation is used as the sequence length tends to infinity. Constants denoted by c, C , or their sub-scripted variants are positive and independent of the sequence length unless a dependence is stated explicitly. In the reveal model, π denotes a policy, Ct the coordinates revealed before round t, St the coordinates selected in that round, R the number of rounds, and qπ the output distribution. The symbols Dε and Dε denote the target averaged and hard cap versions of serial depth. The distributions pwalk ,
+
+pperm , and pbal denote the Bernoulli walk, uniform ran-dom permutations, and uniform balanced binary strings. The symbol maxrun( x) denotes the longest constant run in a walk realization. The distribution phot  
+
+> m
+
+is the product of m
+
+independent binary one-hot blocks of length m, and phot  
+
+> b,L
+
+is the rectangular version with b independent blocks of length L.In batch calculations, M denotes the number of unrevealed coordinates and B the batch size. In the permutation section, 
+
+g(M, B ) is the cost of one batch, En,R is the minimum cost under a hard cap of R rounds, and En is its lower convex envelope. The symbols ρR, ε∗(r), and r∗(ε) describe the fixed round recursion and the two directions of the joint scaling frontier. In the balanced string section, k denotes the number of remaining ones and Ln(ε) denotes the truncated logarithmic term in the lower bound. Auxiliary quantities used inside a single result or proof are defined at their first occurrence. 
+
+B. Information quantities 
+
+Let X = ( X1, . . . , X n) take values in V n with distribution 
+
+p, which need not have full support. For a discrete random variable U with law pU , its entropy is 
+
+H(U ) = − X
+
+> u
+
+pU (u) log pU (u).
+
+For distributions p and q on the same finite space, their forward Kullback–Leibler divergence is 
+
+DKL (p ∥ q) = X
+
+> x:p(x)>0
+
+p(x) log p(x)
+
+q(x) ,
+
+with the value +∞ when q(x) = 0 for some x with p(x) > 0.Forward KL divergence equals the excess expected logarithmic loss incurred when predicting sequentially under q in place of 
+
+p [39]. Conditional entropy and mutual information have their standard meanings [45]. For a nonempty A ⊆ [n] and a context xC of positive probability with A ∩ C = ∅, the conditional total correlation is 
+
+TC( XA | xC ) = X
+
+> i∈A
+
+H(Xi | xC ) − H(XA | xC ).
+
+This quantity is also called multi-information [37]; it belongs to the classical family of multivariate dependence measures [38]. It is governed by the following standard properties. 
+
+Lemma 1 (Basic properties of conditional total correlation) .
+
+For every positive-probability context xC , conditional total correlation is nonnegative and equals zero exactly when the coordinates are mutually independent under the conditional law. If A ⊆ S ⊆ [n] \ C, then 
+
+TC( XS | xC ) ≥ TC( XA | xC ).
+
+Consequently, for distinct i, j ∈ S, TC( XS | xC ) ≥
+
+I(Xi; Xj | xC ).4
+
+Lemma 2 (Product conditioning and additivity) . Let 
+
+A1, . . . , Ar partition [n], and suppose 
+
+p(x) = 
+
+> r
+
+Y
+
+> a=1
+
+p(a)(xAa ),
+
+where p(a) is a distribution on V Aa . For every positive-probability context xC , the conditional law of the unrevealed coordinates factorizes across the blocks: 
+
+p(x[n]\C | xC ) = 
+
+> r
+
+Y
+
+> a=1
+
+p(a)(xAa\C | xAa∩C ).
+
+Consequently, for every nonempty S ⊆ [n] \ C,
+
+TC( XS | xC ) = X 
+
+> 1≤a≤rS∩A a̸=∅
+
+TC( XS∩A a | xC ).
+
+Proof. The product form gives 
+
+pC (xC ) = 
+
+> r
+
+Y
+
+> a=1
+
+p(a) 
+
+> Aa∩C
+
+(xAa∩C ).
+
+Dividing the joint mass by this marginal proves the condi-tional factorization. Hence the vectors XS∩A a with nonempty intersections are conditionally independent given xC . Put 
+
+Sa := S ∩ A a and I := {a : Sa̸ = ∅} . Entropy additivity therefore gives 
+
+TC( XS | xC ) = X
+
+> a∈I
+
+X
+
+> i∈Sa
+
+H(Xi | xC )
+
+− X
+
+> a∈I
+
+H(XSa | xC )= X
+
+> a∈I
+
+TC( XSa | xC ),
+
+which is the claimed identity. 
+
+C. Adaptive reveal model 
+
+Definition 1 (Adaptive reveal policy) . A reveal state is a pair 
+
+(C, x C ) with C ⊆ [n] and xC ∈ V C . A deterministic value-adaptive policy π maps every state with C̸ = [ n] to a nonempty set S = π(C, x C ) ⊆ [n] \ C.
+
+Given a policy, sampling starts from C1 = ∅. In round t, let 
+
+St = π(Ct, x Ct ); for each i ∈ St independently , draw xi ∼
+
+p( · | xCt ), where p(xi | xCt ) denotes the conditional marginal of coordinate i under p; set Ct+1 = Ct ∪St. The process stops when Ct+1 = [ n]; write R(x) for the number of rounds on realization x and qπ for the law of the output. The conditional marginals are supplied by an exact oracle. This idealization isolates the effect of factorized within-round sampling from model-estimation error. Without the factorization constraint, auxiliary randomness can encode arbitrary joint dependence in one call [17], and the round complexity considered here degenerates; modeling within-round dependence beyond the product law is likewise an active empirical direction [28], [29]. When p is not of full support, independent per-coordinate sampling can exit the support: a round may produce values with pCt+1 (xCt+1 ) = 0 (a null history ), after which the conditionals p( · | xCt+1 ) are undefined. We fix once and for all an arbitrary extension — on null histories the oracle returns some fixed conditional law, say uniform on V — so that the process is always well defined and qπ is a probability measure on V n. The results are independent of this choice: if 
+
+p(x) > 0 then every prefix marginal pCt(x)(xCt(x)) is positive, so the unique trajectory of x never meets a null history, the factorization (1) for qπ (x) is unaffected by the extension, and 
+
+DKL (p ∥ qπ ) = P  
+
+> x:p(x)>0
+
+p(x) log  p(x)/q π (x) depends on 
+
+qπ only through such x. (The convention is not a technicality to be assumed away: the copy chain of Example 2, the permutation distribution of Theorem 6 and the affine-subspace distributions of Remark 10 are all natural non-full-support instances.) 
+
+Definition 2 (Serial depth) . For ε ≥ 0, let 
+
+Πε(p) := {π : π is deterministic and value-adaptive ,DKL (p ∥ qπ ) ≤ ε}.
+
+The p-weighted policy-tree depth and its worst-case (operational ) variant are, respectively, 
+
+Dε(p) := min  
+
+> π∈Πε(p)
+
+Ep[R], Dε(p) := min  
+
+> π∈Πε(p)
+
+max   
+
+> x∈Vn
+
+R(x).
+
+Both minima are attained: there are finitely many reveal states, hence finitely many deterministic policies, and Πε(p)
+
+is nonempty because one-coordinate-per-round revealing sam-ples exactly from p. The inequality Dε(p) ≤ Dε(p) follows from the definitions. Since Eqπ [R] ≤ max x R(x), the hard cap also bounds the sampler’s operational mean round count. 
+
+Remark 1 (Which round count?) . R is a random variable and three counts are natural: Ep[R] (Definition 2 — the p-weighted depth of the policy tree), the sampler’s operational mean Eqπ [R] (its own history follows qπ , not p), and the worst case max x R(x). The first two can differ once π is value-adaptive and qπ̸ = p; Dε itself is a target-weighted policy-tree depth, not a runtime, and statements about the runtime of adaptive samplers should be phrased via Dε or Eqπ [R].For the results of this paper the distinction does not affect the stated upper bounds: every such bound is witnessed by a fixed schedule, whose round count is deterministic, so it bounds Dε and hence all three counts. The lower bound of Theorem 3(ii) is stated for fixed round budgets. Proposition 4 forces R(x) = n on every trajectory and thus lower-bounds all three. The bound of Theorem 6 is stated directly for Ep[R],hence for Dε and a fortiori for Dε. The distinction matters when comparing with algorithmic black-box round complexity; see Remark 10. 
+
+Sequential revealing samples exactly from p. Consequently, 
+
+Dε(p) ≤ Dε(p) ≤ n, and both quantities are nonincreasing in 
+
+ε.
+
+Definition 3 (Finite order Markov distribution) . A distribution 
+
+p is called order-m Markov if it factorizes as 
+
+p(x) = 
+
+> n−m
+
+Y
+
+> i=1
+
+ϕi(xi:i+m)
+
+for nonnegative potentials ϕi on windows of m+1 consecutive coordinates. 5
+
+IV. M AIN RESULTS 
+
+This section states the principal theoretical results and records their consequences. Complete proofs, including all intermediate derivations, are given in Appendices A–H. 
+
+A. Exact information cost 
+
+For S disjoint from C, define the realized total-correlation increment 
+
+tc( xS | xC ) := log p(xS | xC )
+
+Q 
+
+> i∈S
+
+p(xi | xC ) .
+
+Its conditional expectation under p(· | xC ) is TC( XS | xC ).
+
+Theorem 1 (Adaptive chain rule and cost identity) . Let π
+
+be any deterministic value-adaptive policy. For every x with 
+
+p(x) > 0, the trajectory (Ct(x), S t(x)) t≤R(x) is well defined, every conditioning event below has positive probability along it, and 
+
+p(x) = 
+
+> R(x)
+
+Y
+
+> t=1
+
+p xSt(x) | xCt(x)
+
+,qπ (x) = 
+
+> R(x)
+
+Y
+
+> t=1
+
+Y
+
+> i∈St(x)
+
+p xi | xCt(x)
+
+.
+
+(1) 
+
+Consequently 
+
+DKL (p ∥ qπ ) = Ex∼p
+
+
+
+> R(x)
+
+X
+
+> t=1
+
+tc  xSt(x) | xCt(x)
+
+
+
+= Ex∼p
+
+
+
+> R(x)
+
+X
+
+> t=1
+
+TC  XSt | xCt
+
+ ≥ 0,
+
+(2) 
+
+with every summand nonnegative in expectation over its round, and equality DKL (p ∥ qπ ) = 0 iff, p-almost surely, every revealed set is conditionally independent given its realized history. 
+
+Remark 2 (Randomized policies) . If π uses internal ran-domness ω independent of x, then qπ = Eω qπω and, by convexity of DKL (p ∥ · ), DKL (p ∥ qπ ) ≤ Eω DKL (p ∥ qπω ):randomization can only reduce the error below the average trajectory cost. All lower bounds in this paper are stated for deterministic policies; extending dependency-structural lower bounds to arbitrary randomized policies remains open. 
+
+Theorem 1 shows that Dε is equivalently the minimum expected number of rounds of an adaptive total-correlation-budgeted cover of [n], whose expected accumulated condi-tional total correlation is at most ε.
+
+B. Serial depth is not likelihood 
+
+Fix h ∈ (0 , 1] and let both examples below have per-token entropy h (total nh ), so that they have identical likelihood profiles. 
+
+Example 1 (Independent coordinates: depth 1) . If p = N 
+
+> i
+
+pi
+
+then a single round revealing [n] has TC = 0 : D0(p) = 1 .
+
+Example 2 (Copy chain: depth 2) . Let x1 ∼ Unif( V0) with 
+
+log 2 |V0| = nh (encoded in the first coordinate block) and 
+
+xi+1 = fi(xi) for fixed bijections fi. Total correlation of any 
+
+set containing two coordinates is maximal, yet D0(p) = 2 :reveal x1, then everything else in one round (all conditionals are point masses, TC = 0 ). Depth is not total dependence; it is the structure of resolvable dependence. 
+
+Example 3 (NLL-insensitivity) . Example 1 has − log p(x) = 
+
+nh and depth 1. Round lower bounds that scale with 
+
+− log p(x) divided by a per-round information budget [11] therefore cannot hold for unconstrained factorized-reveal poli-cies; they are facts about the confidence-thresholded decoder class (which indeed cannot reveal high-entropy independent coordinates in parallel), not about the distribution. Our depth is the complementary, distribution-intrinsic quantity. 
+
+The walk of Section IV-D will supply a third data point at the same entropy profile (per-token conditional entropy one bit, the case h = 1 ): an O(log n)-round exact schedule — tight against all deterministic value-adaptive policies at every fixed error budget (Theorems 4, 5) — and provably depth Θ( n) for left-to-right schedules .
+
+C. Bounded-order Markov distributions 
+
+Theorem 2 (Hierarchical schedule; no serial Markov chains) .
+
+Let 1 ≤ m < n and let p be order-m Markov on V n. Then 
+
+D0(p) ≤ m ⌈log 2(n/m )⌉ + 1 .
+
+Moreover the witnessing policy is a fixed schedule (no value adaptivity): recursive bisection by m-blocks. 
+
+Remark 3. Theorem 2 is the discrete analogue of the L´ evy midpoint-displacement construction of Brownian motion. It rules out super-logarithmic depth for fixed-order chain mod-els; larger depth (at a given error tolerance), if it exists, must come from structures without recursive small separators. More generally the same argument gives D0(p) = O w ·
+
+(recursion depth)  whenever the dependency (Markov ran-dom field) graph of p admits a recursive family of separators of size ≤ w — e.g. O(w log n) for graphs of treewidth w via bal-anced separator trees. We develop the graph-structural theory, and the matching question of lower bounds via separator-free (expander) structures, in Section IV-H. D. Bernoulli walks and reveal-order separation 
+
+Let pwalk be the law of the standard Bernoulli walk: x0 := 0 
+
+(a constant, not counted), increments zi := xi − xi−1 ∈ { 0, 1}
+
+i.i.d. fair coins, i = 1 , . . . , n . This is order-1 Markov with per-coordinate conditional entropy 1 bit. 
+
+Theorem 3 (Order gap) . On pwalk :(i) (Hierarchical order.) The bisection schedule of Theo-rem 2 ( m=1 ) attains DKL (p ∥ q) = 0 in ⌈log 2(n+1) ⌉
+
+rounds. (ii) (Left-to-right orders.) Every deterministic schedule whose round-t set is the next Bt unrevealed coordinates 6
+
+in left-to-right order (“contiguous scan”), with R rounds, satisfies 
+
+DKL (pwalk ∥ q) = 
+
+> R
+
+X
+
+> t=1
+> Bt
+
+X
+
+> j=1
+
+H(Bin( j, 12 )) − n
+
+≥ n
+
+2 log 2
+
+nR − c0n, 
+
+where c0 := 1+ 12 log 2(e/π ) < 1.3. In particular, achiev-ing DKL (pwalk ∥ qπ ) ≤ δn requires R ≥ n 2−2( δ+c0) =Ω( n) rounds for constant δ, whereas the hierarchical order achieves δ = 0 with O(log n) rounds. 
+
+Remark 4 (Practical reading) . Semi-autoregressive block de-coding — the standard deployment mode of current diffusion language models [25] — is a contiguous scan. On chain-structured data it is exponentially suboptimal in the reveal order alone : at equal round budget R = ⌈log 2(n+1) ⌉ the scan pays Ω n log n 
+
+> log n
+
+ bits while the hierarchical order pays zero. The experiments of Section V-B measure this gap on real text with learned conditionals. 
+
+The scan bound of Theorem 3(ii) constrains one schedule class. The following converse shows that on pwalk no deter-ministic value-adaptive policy beats the hierarchical schedule at zero error, up to an additive O(log log n) — a converse on a distribution where adaptivity genuinely has room to act (histories reveal which conditionals are cheap). 
+
+Theorem 4 (Zero-error walk converse) . Let maxrun( x) be the length of the longest constant run of increments of x. For every deterministic value-adaptive policy π with DKL (pwalk ∥ qπ ) = 0,
+
+Ep[R] ≥ log 2 n − Ep[log 2(1 + maxrun( X))] − 1
+
+≥ log 2 n − log 2 log 2 n − O(1) , n ≥ 2.
+
+With Theorem 3(i): D0(pwalk ) = Θ(log n), and the hierar-chical schedule is optimal at zero error up to an additive 
+
+O(log log n).
+
+Remark 5. The proof has to fight adaptivity at exactly one point: a policy can watch for realized histories that make segments degenerate and clear them for free. The maxrun term is the exact price of that freedom, and it is what separates the walk from the permutation distribution of Section IV-E, where no history is cheaper than any other. The fractional policy-tree depths induced by trajectory-dependent free clearing are examined numerically in Section V. 
+
+At a positive budget the free-clearing accounting no longer suffices: near-degenerate segments are cheap rather than free, and a policy can buy extra splits. Appendix C shows that cheap reveals make little depth progress and derives an amortized cost–progress inequality from a uniform information bound for bulk reveals. 
+
+Theorem 5 (Fixed-error walk converse) . There are absolute constants c2, c 3 such that for every ε ≥ 0 and every determin-istic value-adaptive policy π with DKL (pwalk ∥ qπ ) ≤ ε,
+
+Ep[R] ≥ 13 log 2 n − 13 log 2 log 2 n − c2 − c3 ε (n ≥ 2) .
+
+In particular Dε(pwalk ) = Θ(log n) for every fixed ε: the hierarchical schedule is optimal up to constant factors at every constant error budget. E. Uniform random permutations 
+
+Let pperm denote the uniform distribution on the n! per-mutations of [n]: the sequence (X1, . . . , X n) is a uniformly random bijection, i.e. sampling without replacement from the alphabet V = [ n]. This is a natural, fully exchangeable form of global dependence: every coordinate excludes every other. If M coordinates remain and a round reveals B of them, define 
+
+g(M, B ) := log 2
+
+M B
+
+(M )B
+
+.
+
+Exchangeability makes this quantity the realized and condi-tional expected cost of the round, independently of the selected positions and their observed values. 
+
+Theorem 6 (Value-adaptive Ω( n) lower bound at every fixed error) . For every ε ≥ 0 and every deterministic value-adaptive policy π with DKL (pperm ∥ qπ ) ≤ ε,
+
+Epperm [R] ≥ n
+
+1 + 2 ε ln 2 .
+
+Consequently Dε(pperm ) ≥ n/ (1 + 2 ε ln 2) , which is Ω( n) for every fixed ε.
+
+Remark 6 (Cost invariance on pperm ). The realized cost of a trajectory is a function of its batch-size sequence alone. Neither position selection nor value adaptivity changes it. Minimizing KL at a given round budget on pperm is therefore a one-dimensional problem over integer compositions of n. This invariance both yields a converse for arbitrary deterministic policies and makes the hard-cap tradeoff exactly computable through the characterization below. It also implies that pperm 
+
+cannot separate adaptive from non-adaptive strategies; candi-dates for that separation need history-dependent round costs. 
+
+Remark 7 (Alphabet size) . The alphabet of pperm has size n
+
+(the value range of the walk of Section IV-D likewise grows with n). Within the model of Section III-C — a finite alphabet, with no uniformity requirement in n — Theorem 6 establishes the existence of robustly deep distributions; Section IV-F pushes this to a two-letter alphabet at depth Θ(log 2 n), and Section IV-G gives binary depth Θ( √n). Whether a binary family can have linear robust depth remains open. Since 
+
+Dε ≥ Dε, the bound applies to the operational depth as well. 
+
+Because on pperm the cost of a trajectory is a function of its batch-size composition alone (Remark 6), the hard-cap round–error tradeoff is exactly computable. For a composition 
+
+(B1, . . . , B R) of n into R positive parts, write Mt = P 
+
+> s≥t
+
+Bs
+
+and define 
+
+En,R := min 
+
+> B1+··· +BR=nBt≥1
+> R
+
+X
+
+> t=1
+
+g(Mt, B t), 1 ≤ R ≤ n. 
+
+Theorem 7 (Exact hard-cap characterization) . For every 1 ≤
+
+R ≤ n,
+
+inf   
+
+> πdeterministic value-adaptive
+> max xR(x)≤R
+
+DKL (pperm ∥ qπ ) = En,R ,7
+
+attained by a fixed (non-adaptive) schedule. Consequently 
+
+Dε(pperm ) = min {R : En,R ≤ ε}: under a hard round cap, position selection and value adaptivity buy nothing. 
+
+Proposition 1 (Structure and computation) . (i) For a fixed multiset of batch sizes, arranging them in nonincreasing order minimizes the cost; some optimizer of En,R has B1 ≥ · · · ≥ 
+
+BR. (ii) With Fn,R := En,R + log 2 n!,
+
+Fn, 1 = n log 2 n, Fn,R = min 
+
+> R−1≤m≤n−1
+
+(n−m) log 2 n + Fm,R −1 ,
+
+so the table {E n,R }R≤R0 is computable in O(R0n2) time. 
+
+Theorem 8 (Optimal fixed-round error rate) . Define ρ1 = 0 
+
+and ρR = eρR−1−1. For every fixed R, as n → ∞ ,
+
+En,R = n(1 − ρR)ln 2 − 12 log 2(2 πn ) + OR(1) ,
+
+and the normalized optimal profiles converge to the unique continuous optimizer, whose remaining-mass fractions are 
+
+m∗ 
+
+> t
+
+= QRj=R−t+2 ρj . Moreover 1 − ρR ∼ 2/R as R → ∞ ,whereas equal batches attain only the rate log 2 e − log 2 R + 
+
+> 1
+> R
+
+log 2(R!) = log 2(2 πR )2R + O(R−2) — asymptotically worse by a factor ∼ (ln R)/4.
+
+In the complementary joint regime, where R = Θ( n) and the error is Θ(1) , the tradeoff can be solved exactly in its first phase. Write s = n − R for the number of saved rounds and 
+
+λ(m) := log 2 mm−1 .
+
+Theorem 9 (Exact first-phase optimality: pairs first) . If 3s ≤
+
+n, then the pair-first composition — s batches of size two followed by n − 2s singletons — is optimal: 
+
+En,n −s = P (n, s ) := 
+
+> s−1
+
+X
+
+> j=0
+
+λ(n − 2j).
+
+Consequently, for every 0 ≤ ε < 12 log 2 3,
+
+lim 
+
+> n→∞
+
+Dε(pperm )
+
+n = 1 + 2 −2ε
+
+2 .
+
+For the target-averaged depth Dε the composition may depend on observed values (early symbols act as a random seed mixing later profiles). The appropriate lower envelope is therefore convex: 
+
+Proposition 2 (Convex-envelope sandwich) . Let En be the greatest convex nonincreasing function on [1 , n ] lying below the points (R, En,R ). Then every deterministic value-adaptive policy satisfies DKL (pperm ∥ qπ ) ≥ E n(Ep[R]) , and hence 
+
+inf {r : En(r) ≤ ε} ≤ Dε(pperm )
+
+≤ Dε(pperm )= min {R : En,R ≤ ε}.
+
+In the joint regime ε = Θ(1) , R = Θ( n), the linear bound of Theorem 6 can be sharpened: 
+
+Proposition 3 (Logarithmic per-trajectory bound) . For every deterministic value-adaptive policy on pperm and every x ∈
+
+supp( pperm ), the realized trajectory cost satisfies 
+
+X
+
+> t
+
+g(Mt, B t) ≥ log 2
+
+nR(x) .
+
+Consequently DKL (pperm ∥ qπ ) ≤ ε implies 
+
+Ep[R] ≥ n 2−ε,
+
+which is sharper than Theorem 6 for all ε ≲ 1.81 (precisely: whenever 2ε ≤ 1 + 2 ε ln 2 ). 
+
+A simple schedule complements this from above: s batches of size two followed by singletons has R = n − s rounds and exact error P 
+
+> j<s
+
+log 2 n−2jn−2j−1 → 12 log 2 11−2α for s/n → α.Hence 
+
+2−ε ≤ lim inf 
+
+> n
+
+Dε(pperm )
+
+n
+
+≤ lim sup 
+
+> n
+
+Dε(pperm )
+
+n ≤ 1 + 2 −2ε
+
+2 ,
+
+(3) and by the AM–GM inequality the two sides agree exactly at 
+
+ε = 0 .The joint-scaling limit admits a variational characterization. For Λ > 0, define 
+
+hΛ(m) := min 
+
+> B≥1
+
+h (B − 1) log 2 e
+
+2m + Λ
+
+B
+
+i
+
+, 0 < m ≤ 1,ε∗(r) := sup 
+
+> Λ>0
+
+hZ 10
+
+hΛ(m) dm − Λr
+
+i
+
+.
+
+The inner minimum is attained at B = K exactly for 
+
+aK (K − 1) ≤ m ≤ aK (K + 1) with a = 12Λ ln 2 , which makes ε∗ an explicit piecewise-analytic function with integer phase transitions; on r ≥ 23 it reduces to ε∗(r) = 12 log 2 12r−1 ,matching Theorem 9. 
+
+Theorem 10 (Joint-scaling frontier) . For every fixed r ∈ (0 , 1] ,
+
+lim n→∞ En, ⌈rn ⌉ = ε∗(r). Consequently, for every fixed ε ≥ 0,
+
+lim 
+
+> n→∞
+
+Dε(pperm )
+
+n = r∗(ε) := inf {r : ε∗(r) ≤ ε}.
+
+Theorem 10 characterizes the worst-case joint-scaling fron-tier. It remains open whether the target-averaged Dε meets the same frontier in (3). Such an equality would follow from convexity of R 7 → E n,R . Convexity holds in the first phase because Theorem 9 gives increasing increments λ(n − 2s),but a proof over the complete finite-blocklength range is not currently available. 
+
+F. Balanced binary strings 
+
+Both deep families so far — the walk and the permutations — have value ranges growing with n. This section gives a natural fixed-alphabet family with an exact polylogarithmic rate: for n even, let pbal be uniform on the balanced binary strings {x ∈ {0, 1}n : P 
+
+> i
+
+xi = n/ 2}; equivalently, the increment sequence of the walk of Section IV-D conditioned to end at n/ 2.8
+
+Theorem 11 (Balanced strings are polylogarithmically deep) .
+
+There are absolute constants c, C such that for every even 
+
+n and every 0 < ε ≤ log 2 n, define Ln(ε) := (log 2 n −
+
+C(log 2 log 2 n + ε + 1)) +. Then 
+
+c min 
+
+n
+
+log 32 n, Ln(ε)2
+
+ε
+
+o
+
+≤ Dε(pbal )
+
+≤ Dε(pbal )
+
+≤ C
+
+ log 22 nε + log 2 n
+
+
+
+.
+
+In particular Dε(pbal ) = Θ(log 2 n) for every fixed ε > 0,with constants that may depend on ε. Thus a binary alphabet supports a depth order strictly between that of the walk (Θ(log n)) and the permutations ( Θ( n)). 
+
+The truncation in the lower bound is necessary because 
+
+Dε ≤ n for all ε; consequently, a lower bound proportional to 
+
+(log n)2/ε cannot hold uniformly as ε ↓ 0.The lower bound uses an exchangeable urn coupling whose complete potential trajectory is independent of the policy. The upper bound is witnessed by a fixed fractional-batch schedule. Appendix E develops the coupling, proves the required one-round cost bounds, and gives the complete lower- and upper-bound derivations. 
+
+Remark 8. Theorem 11 gives an exact polylogarithmic rate under a single global exchangeable constraint. This role is distinct from the product one-hot construction of Section IV-G, which gives a larger binary rate by a direct-sum mechanism. As with pperm , adaptivity does not improve the asymptotic or-der on pbal : position selection is irrelevant by exchangeability, and a fixed schedule matches the adaptive lower bound up to constants. The cost state (Mt, k t) is nevertheless random and value-dependent; its complete potential trajectory is policy-independent, so there is nothing for adaptivity to exploit at the level of rates. G. Binary one-hot blocks 
+
+We next show that a fixed binary alphabet supports poly-nomial robust depth. For an integer m ≥ 2, partition n = m2
+
+coordinates into m blocks of length m. Let J1, . . . , J m be independent and uniform on [m], and set 
+
+Xa,j := 1{Ja = j}, a, j ∈ [m].
+
+Thus every block is uniform on its m one-hot vectors and the blocks are independent. Denote the resulting distribution on {0, 1}m2
+
+by phot  
+
+> m
+
+.
+
+Theorem 12 (Binary square-root depth) . There is an absolute constant c > 0 such that, for every m ≥ 16 and every ε ≥ 0,
+
+cm 
+
+1 + ε ≤ Dε(phot  
+
+> m
+
+) ≤ Dε(phot  
+
+> m
+
+) ≤ m. 
+
+Consequently, for every fixed ε ≥ 0, Dε(phot  
+
+> m
+
+) = Θ ε(√n)
+
+along n = m2. The lower bound holds for every deterministic value-adaptive policy. 
+
+The main difficulty is that a policy may allocate its searches across blocks according to all previously observed values. A deferred-decision lemma shows that, despite this coupling, an unresolved block receives at most one free candidate per global round in expectation. Any further acceleration requires a nontrivial within-block batch, whose quadratic information cost adds across the independent blocks. Appendix F gives the complete argument and the matching zero-error schedule. The block structure is a reveal-only analogue of group testing with a single defective per block [43]; unlike noisy group testing, where a small constant number of adaptive rounds suffices [44], here every policy must pay Ω( √n) rounds at any fixed budget. The construction extends to rectangular arrays. 
+
+Corollary 1 (Binary polynomial depth spectrum) . Let phot  
+
+> b,L
+
+be the product of b independent one-hot blocks of length L, on 
+
+n = bL binary coordinates. For the same absolute constant c,every L ≥ 16 , b ≥ 1 and ε ≥ 0 satisfy 
+
+c min 
+
+
+
+L, b
+
+1 + ε
+
+
+
+≤ Dε(phot 
+
+> b,L
+
+) ≤ Dε(phot 
+
+> b,L
+
+) ≤ L. 
+
+Hence every exponent α ∈ (0 , 12 ] occurs as Dε = Θ ε(nα)
+
+along suitable binary families. 
+
+Remark 9 (Coordinate representation) . The latent locations 
+
+Ja are not revealed coordinates; every coordinate in the sampling problem has alphabet {0, 1}. The construction is a one-hot representation of independent categorical locations and therefore also shows that serial depth is sensitive to the coordinate representation on which parallel reveals operate. The balanced family of Section IV-F provides a complementary binary example based on one global constraint rather than a product encoding. H. Depth spectrum and further directions 
+
+Remark 10 (Black-box worst case versus distributional depth) .
+
+Anari, Gao and Rubinstein [14] prove that any parallel sampler with counting/marginal-oracle access that must work for every target distribution requires eΩ( n1/3) rounds on some instance; their protocol class contains factorized-reveal poli-cies, so the bound applies verbatim to distribution-oblivious 
+
+samplers in our model. It does not produce a distribution of large serial depth: the quantifier order there is “for every al-gorithm there exists a hard p”, whereas Dε(p) fixes p first and minimizes over policies that may depend on p arbitrarily. The gap is real, not merely formal. The hard instances of [14] are uniform distributions over affine subspaces {x ∈ Fn 
+
+> 2
+
+: Ax =
+
+b}, and every such distribution has D0(p) ≤ 2: after Gaussian elimination, one round reveals all free coordinates (jointly independent uniform bits, so the round’s total correlation is zero), and a second round reveals the pivot coordinates, each a deterministic function of the revealed values (point-mass conditionals, again zero cost). Likewise the eO(√n) upper bound via autospeculation [15] lives in a stronger protocol class (speculative rejection is allowed) and says nothing about 
+
+Dε; within the commit-only reveal model, no general o(n)
+
+upper bound is possible — at zero error by Proposition 4 below, and at any fixed ε > 0 by Theorem 6. 9
+
+At zero error, by contrast, maximal depth is not merely possible but generic: 
+
+Proposition 4 (Generic distributions are maximally deep at zero error) . Let |V | ≥ 2. For Lebesgue-almost-every p in the interior of the simplex ∆( V n) (in particular, p of full support), every deterministic value-adaptive policy with DKL (p ∥ qπ ) = 0 reveals exactly one coordinate per round on every trajectory. Consequently D0(p) = D0(p) = n.
+
+Together with Sections IV-B–IV-G, Table I summarizes the proven picture. Zero-error depth is a fragile quantity: maximal for almost every distribution, yet collapsing whenever the dependence is exactly resolvable (Markov structure, affine constraints), and Proposition 4 exploits conditional total correlations that may be arbitrarily small, so by itself it says nothing about Dε at fixed ε > 0. Theorems 6, 5, 11 and 12 supply the robust counterparts: random permutations stay Ω( n)-deep, the walk is Θ(log n)-deep, balanced binary strings are Θ(log 2 n)-deep, and binary one-hot blocks are Θ( √n)-deep at every fixed KL budget. Corollary 1 fills the binary polynomial spectrum through exponent one half. The results suggest that robust depth is governed by re-cursive conditional- independence structure. Graphical models with small recursive separators are natural candidates for shallow depth, whereas persistent long-range dependence may support larger depth. Establishing a precise structural charac-terization remains an open direction. 
+
+Open Problem 1 (Linear depth over a binary alphabet) . For a fixed tolerance ε > 0, does there exist a family of distributions 
+
+pn on {0, 1}n such that Dε(pn) = Ω( n)? More generally, which exponents α ∈ ( 12 , 1] can occur as Dε(pn) = Θ ε(nα)?
+
+All distribution-specific lower bounds above apply to deter-ministic value-adaptive policies, as requested in [16] and be-yond the scope of schedule-level analyses [7], [10]. It remains open whether value adaptivity can improve the asymptotic rate over non-adaptive schedules on some family, and whether the deterministic converses extend to randomized policies. V. N UMERICAL RESULTS 
+
+A. Finite-blocklength checks of the theoretical results 
+
+Exhaustive search over all zero-error deterministic value-adaptive policies for Bernoulli walks with n ≤ 7 gives D0 =1, 2, 2, 2.75 , 2.875 , 3, 3. The noninteger values arise because a policy can exploit trajectory-dependent degenerate segments and clear them without additional information cost. For the permutation problem, the dynamic program in Proposition 1 gives the optimal four-round profiles (3 , 2, 2, 1) 
+
+for n = 8 , (6 , 5, 3, 2) for n = 16 , and (12 , 9, 7, 4) for n = 32 .These profiles place larger batches first and approach the limiting proportions in Theorem 8. At n = 240 (Figure 1), the optimal composition uses only batches of sizes one and two throughout the proven region n − R ≤ n/ 3. Over 
+
+r = R/n ∈ [0 .55 , 0.75] , the finite-blocklength hard-cap values differ from the limiting frontier in Theorem 10 by at most 
+
+0.6% .0.5 0.6 0.7 0.8 0.9 1.0 round budget fraction r = R/n                          
+
+> 0.0 0.5 1.0 1.5 2.0 2.5 3.0 KL error  ε (bits)
+> r= 2/3 exact n,R(DP, n= 240) pair-fi rst schedule (upper bd.) lower bd. ε= log 2(1/ r)lower bd. (1/ r−1)/(2ln 2)
+> Fig. 1. The hard-cap round–error tradeoff for uniform random permutations at n= 240 . The dots are the exact values En,R from the dynamic program in Proposition 1. The solid curve is the pair-first schedule, which equals En,R
+> for n−R≤n/ 3by Theorem 9. The dashed and dotted curves are the two lower bounds for target-averaged depth from Proposition 3 and Theorem 6. The vertical line marks the proven endpoint R/n = 2 /3of the pair-first phase.
+
+B. Conditional-total-correlation measurements on natural text 
+
+We measure realized reveal costs on natural text using the chain-rule form of Theorem 1. For a round revealing 
+
+S = {s1, . . . , s k} given context C, the realized increment equals P 
+
+> j
+
+[log ˆ p(xsj | xC∪{ s<j })−log ˆ p(xsj | xC )] , with con-ditionals ˆp supplied by a bidirectional masked diffusion model (Qwen2.5-0.5B [21] converted to an MDLM on WikiText-103 [36], following the shift-preserving conversion of Dream [20]; all costs are with respect to the model’s conditionals, see the caveat below). Texts: 512 WikiText articles and 31 model-generated texts in four domains (code, math word problems, prose, structured data), truncated to ≤ 512 tokens; one generated text falls below the 320-token minimum length and is excluded, leaving 542 texts in total. Of the 512 WikiText sequences, 256 are held-out validation examples and 256 come from the training split. A split-half audit gives nearly identical paired gaps and win rates; absolute costs on the training half are about three percent higher. Schedules: left-to-right contiguous blocks ( B ∈ { 4, 16 , 64 }), uniformly random position blocks ( B ∈ { 16 , 64 }, averaged over three seeds), hierarchical bisection, and greedy minimum-entropy adaptive selection ( k ∈ { 16 , 64 }). All measurements are conditioned on a first-token anchor: position 0 is treated as revealed throughout (under the model’s shift convention it has no context to be predicted from), and costs are normalized by the remaining L − 1 tokens. Table II reports per-domain means with standard errors over texts. Three findings. (i) Left-to-right is the worst order at every budget , by 2.7–29 × over random order at equal round counts, across all domains — the natural-text counterpart of Theorem 3. (ii) Scattered orders are nearly free : uniformly random sets of 16 positions cost only ≈ 0.15 –0.20 bits/token; consistent with rapidly decaying conditional dependence at distance, and with the strong guarantees known for random-order schedules [7], [9]. (iii) Greedy minimum-entropy selection — the confidence-ordering heuristic underlying standard MDLM decoders [6], [27] — costs 1.4–13 ×
+
+more than random order at equal parallelism : coordinates with low conditional entropy cluster next to revealed context, so greedy sets are spatially clumped and pay within-round 10 
+
+TABLE I DEPTH GUARANTEES ESTABLISHED IN THIS PAPER .distribution depth source independent D0 = 1 Example 1 copy chain D0 = 2 Example 2 order-m Markov D0 ≤ m(⌈log 2(n/m )⌉ + 1) Theorem 2 Bernoulli walk Dε = Θ(log n) for every fixed ε ≥ 0 Theorems 3(i), 4, 5 affine subspaces D0 ≤ 2 Remark 10 balanced binary ( |V |=2 ) Dε = Θ(log 2 n) for fixed ε > 0 Theorem 11 one-hot blocks ( |V |=2 ) Dε = Θ ε(√n) for fixed ε ≥ 0 Theorem 12 uniform permutations Dε ≥ n · max {2−ε, 11+2 ε ln 2 }; Dε/n → r∗(ε) Theorems 6, 7, 10 generic full-support D0 = n Proposition 4 TABLE II REALIZED GENERATION COST IN BITS PER TOKEN (MEAN ± STANDARD ERROR OVER TEXTS ). I N EACH DOMAIN , BOLDFACE MARKS THE LOWEST COST ; 
+
+> THE ADDITIONAL BOLDFACE BISECTION ENTRY ON
+
+WIKI TEXT IS THE LOWEST COST AMONG SCHEDULES USING AT MOST TEN ROUNDS .left-to-right random bisect greedy min-ent domain B=4 B=16 B=64 16 64 16 64 
+
+code 0.81 ±0.10 1.45 ±0.16 2.48 ±0.19 0.18 ±0.02 0.90 ±0.07 0.93 ±0.11 0.67 ±0.07 1.24 ±0.07 
+
+math 1.58 ±0.04 3.01 ±0.12 3.89 ±0.16 0.15 ±0.01 0.77 ±0.05 1.04 ±0.04 1.21 ±0.12 1.64 ±0.09 
+
+prose 2.23 ±0.08 3.84 ±0.17 4.54 ±0.18 0.20 ±0.02 0.94 ±0.02 1.12 ±0.18 1.63 ±0.16 1.91 ±0.17 
+
+struct 0.89 ±0.20 1.63 ±0.29 2.60 ±0.29 0.17 ±0.02 0.76 ±0.04 1.11 ±0.23 0.66 ±0.10 1.23 ±0.13 
+
+wiki 2.30 ±0.01 4.34 ±0.01 5.34 ±0.02 0.15 ±0.00 0.62 ±0.00 0.47 ±0.01 1.95 ±0.02 2.30 ±0.03 
+
+Round counts (text lengths are truncated to multiples of 64 in [320 , 512] , so counts vary with length): B=4 : 80–128; B=16 , random-16, greedy-16: 20–32; B=64 , random-64, greedy-64: 5–8; bisect: 9–10. 
+
+dependence. Bisection is the best schedule on WikiText among those using at most ten rounds ( 0.47 bits/token in 9–10 rounds, versus 0.62 for random order at B=64 in 5–8 rounds), but its advantage is not uniform across domains: its final rounds reveal dense alternating sets, which natural (non-Markov) text penalizes. 
+
+C. Batch-size profiles: a theory-guided experiment 
+
+Theorem 8 shows that at a fixed round budget the batch-size profile matters: on pperm , equal batches are suboptimal, and the optimal profile is decreasing (large batches first). Does the profile effect transfer to natural text? We fix the round budget R ∈ { 4, 8, 16 } and reveal uniformly random positions, cutting one shared random permutation (per seed) into consecutive batches — so the three profiles are compared 
+
+pairwise on identical position sequences : equal batches; the ρ-decreasing profile of Theorem 8; and its reversal (increasing, small batches first). The decreasing-versus-equal half of the result (Figure 2) is unambiguous — and it is the reverse of the permu-tation ordering. Pooled over all 542 texts, the per-token costs are 1.86 /1.33 /1.17 (R=4 ), 0.89 /0.62 /0.53 (R=8 ), and 
+
+0.46 /0.30 /0.27 (R=16 ) bits for decreasing/equal/increasing respectively. In paired per-text comparisons the decreasing profile loses to equal batches on every one of the 542 texts at every R (+0 .54 , +0 .27 , +0 .16 bits/token on average), and this holds separately for each of the three position seeds. The increasing profile beats equal batches on 77 –90% 
+
+of texts ( −0.152 ±0.006 at R=4 , −0.089 ±0.003 at R=8 ,
+
+−0.031 ±0.002 at R=16 ; strongest on code and structured data, neutral on the small prose sample). The increasing-versus-equal gap is robust across position seeds at R=4 and 
+
+R=8 (per-seed win rates 0.71 –0.93 ), but at R=16 it ap-proaches the resolution of the measurement: the per-seed win R=4 R=8 R=16 0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 realized cost (bits/token) 
+
+> equal batches
+> ρ-decreasing (Thm.\ opt.\ profile) increasing (control)
+
+Fig. 2. Batch-size profiles at equal round budget on natural text (542 texts, 3 seeds, paired positions). The cost ordering increasing < equal < decreasing is the reverse of the provably optimal order on random permutations (The-orem 8); its equal-versus-decreasing half holds for every text, seed and R,while increasing < equal holds at R=4 , 8 and weakens to the measurement resolution at R=16 (see text). 
+
+rates are 0.52 /0.76 /0.76 , and the gap is then comparable to the enumeration-order spread quantified in the qualification below. A consistent explanation is the sign of the cost gradient along the reveal process. On pperm , later reveals are more correlated — the unused alphabet shrinks, g(M, B ) grows as M falls — so large batches belong early, provably. On natural text the data are consistent with the opposite gradient: accumulated context appears to screen off the remaining coordinates (as the near-free random-16 costs of finding (ii) already indicate), making later reveals cheaper, so large batches belong late. We present this as an empirical regularity of the measured pseudo-costs, not a theorem about natural text. The hierarchical bisection schedule of Theorem 2 is itself an increasing-profile sched-ule ( 1, 2, 4, 8, . . . reveals per round), which this experiment independently motivates for natural data as well. 11 
+
+TABLE III DEPLOYED DECODING RULES VERSUS REFERENCE SCHEDULES (POOLED OVER 542 TEXTS ; MEAN ± STANDARD ERROR ). R EFERENCE ROWS REPEAT SECTION V-B SCHEDULES AT MATCHED ROUND COUNTS .rule rounds bits/token threshold τ =0 .99 493 .1 0.0005 ±0.0002 
+
+block-32 threshold τ =0 .99 493 .7 0.0004 ±0.0001 
+
+threshold τ =0 .9 478 .2 0.0070 ±0.0007 
+
+block-32 threshold τ =0 .9 479 .6 0.0059 ±0.0006 
+
+confidence top-16 31 .6 1.650 ±0.019 
+
+greedy min-entropy 16 31 .6 1.897 ±0.023 
+
+random 16 31 .6 0.151 ±0.001 
+
+confidence top-64 7.9 2.071 ±0.021 
+
+greedy min-entropy 64 7.9 2.256 ±0.029 
+
+random 64 7.9 0.632 ±0.004 
+
+increasing profile R=16 16 .0 0.266 ±0.002 
+
+increasing profile R=8 8.0 0.531 ±0.003 
+
+bisection 9.9 0.499 ±0.008 10 1 10 2        
+
+> mean rounds (log scale) 0.0 0.5 1.0 1.5 2.0 realized cost (bits/token)
+> thr τ= 0.99 thr τ= 0.9 (±blk) conf top-16 conf top-64 min-ent 16 random 16 random 64 incr. profile R= 16 incr. profile R= 8 bisection
+> deployed decoding rules reference schedules (Sec. V-B)
+
+Fig. 3. Deployed decoding rules and reference schedules in the round–cost plane (pooled means over 542 texts, logarithmic round axis). The deployed rules occupy two extremes — near-serial threshold rules and expensive con-fidence rules — while the reference schedules provide measured intermediate tradeoff points. 
+
+D. Deployed decoding rules under the cost identity 
+
+The schedules above are generic. We now measure, under the identical protocol (same 542 texts, model, anchor con-vention, and teacher-forced pseudo-costs), the selection rules actually deployed by masked diffusion decoders: confidence top-k, which reveals the k unrevealed positions of highest model confidence max v ˆp(v | · ) [3], [6]; global thresholding ,which reveals every position with confidence at least τ , falling back to the single most confident position when none passes [24]; and block thresholding , the semi-autoregressive variant that thresholds within left-to-right blocks of 32 [24], [25]. Selection uses only the model’s conditionals given previously revealed values — never the ground truth — so each rule has the deterministic value-adaptive reveal form of Definition 1, although the learned conditionals need not define a coherent joint distribution. We evaluate the trajectorywise chain cost suggested by Theorem 1, settle it on the ground-truth tokens, and enumerate positions within each round in descending confidence order (the rule’s natural commit order). Table III and Figure 3 report the results. Three observations. 
+
+(i) Threshold decoding buys its near-zero excess cost with near-total serialization : at τ = 0 .9, on average only ≈ 1.07 
+
+positions clear the threshold per round, and at τ = 0 .99 de-coding is essentially sequential; the block-constrained variant is indistinguishable (paired difference +0 .001 bits/token, win rate 0.44 ). This is not an artifact of measuring on natural rather than model-generated text: on the model-generated domains the pass rate is 1.00 –1.02 per round. The binding mechanism is that few positions are confident under a mostly-masked context, whatever the text source. (Wall-clock speedups re-ported for threshold decoders [24] rest on caching and on the confidence dynamics of self-generation; the information-side parallelism isolated here is a complementary quantity, and Section V-E measures the self-generation dynamics directly.) 
+
+(ii) At a fixed round budget, confidence selection is an inverted heuristic : paired with uniformly random selection at equal round counts, confidence top-16 is more expensive on every one of the 542 texts ( 1.650 versus 0.151 bits/token pooled, a factor of ≈ 11 ; between 3.8× and 11 .3× in every domain), and top-64 likewise ( 542 /542 , ≈ 3.3×). The mecha-nism matches finding (iii) of Section V-B: confident positions cluster next to revealed context, exactly where within-round dependence is strongest — indeed confidence top-k and greedy minimum-entropy selection behave as one family (per-text win rate 0.68 at k=16 ). (iii) Theory-guided schedules improve on confidence rules at matched round counts : at ≈ 8 rounds the increasing profile costs 0.53 bits/token against 2.07 for confidence top-64 ( 3.9×), and at ≈ 32 rounds random scatter costs 0.15 against 1.65 for top-16. The resulting chain-cost measurement thus provides a decoder-independent diagnostic: in the measured round–cost plane, the confidence rules lie well above the best reference schedules at comparable round counts, and the gap is concentrated precisely where current heuristics place their reveals. The reported values require one qualification. They are model-based costs evaluated by teacher forcing : the chain-rule increments are computed on the observed WikiText articles (respectively, on previously generated texts for the four synthetic domains), not on samples drawn from the model itself. The identity of Theorem 1 is exact for the distribution defined by coherent conditionals, while a learned MDLM’s conditionals need not be coherent; in that case the realized increments depend on the within-round enumeration order s1, . . . , s k, which we fix as ascending position order for all fixed schedules, ascending-entropy order for greedy selection, and descending confidence for the deployed rules of Section V-D. 1 The reported numbers are therefore order-dependent pseudo-costs rather than total correlations of a single joint distribution, and they come from a weak (0.5B) model. Directionally, the domain ordering (code/structured cheapest, prose/encyclopedic dearest) agrees with independent 
+
+> 1
+
+Measured directly: on 50 WikiText articles we held the position sequences fixed and replaced the within-round enumeration order by five random permutations. The median spread (maximum minus minimum over the six orders) is 0.035 , 0.073 and 0.092 bits/token for random-16, bisection and confidence-top-16 respectively — 2.3% , 4.8% and 6.1% of the 1.51 
+
+bits/token confidence-versus-random gap on the same texts. Differences above 
+
+0.1 bits/token are therefore robust to the convention; differences below 0.05 
+
+bits/token are reported only as paired observations under a fixed convention. Randomizing the order lowers the measured cost slightly and consistently (0.004 –0.032 bits/token), so the reported values are mild overestimates relative to an order-averaged pseudo-cost. 12 
+
+measurements of greedy acceptance lengths in autoregressive continuation. A second qualification concerns numerical precision. On a 16-text audit, fixed-schedule pseudo-costs are numerically stable: recomputing them in single precision moves them by at most 0.006 bits/token (median ≈ 0.002 ), an order of magnitude below every effect reported above. The adaptive rules of Section V-D are different in kind: rounding perturbs which positions get selected — under half and single precision the confidence-top-16 reveal trajectories share only 4% of their positions — so their absolute costs vary by ±0.5 bits/token on average across precision and batching configurations. In this audit, the confidence-versus-random gap is +1 .5 to +1 .6
+
+bits/token under half precision (depending on batching) and 
+
++2 .04 under full precision. Thus its direction and order of magnitude survive the audit, although the absolute adaptive-policy pseudo-costs remain implementation-dependent; the conclusions below use only these robust separations. 
+
+E. From pseudo-cost to generation quality: a self-sampling test 
+
+The costs above are teacher-forced. To test whether they are informative about deployed behavior, we generated text by 
+
+self-sampling : from a 64-token prefix the model fills the re-maining 448 positions, revealing in each round the set chosen by the policy and sampling those tokens independently from its conditional marginals (temperature 1). Prompts are 200 held-out WikiText prefixes — drawn from the 256 validation sequences excluded from MDLM training — plus 31 prompts from the four synthetic domains; nine policies run on all 231 prompts with three seeds, paired on prompt and seed. Alongside the rules and schedules above we include a spaced-profile schedule assembled from the two principles the cost measurements single out: the increasing batch profile of Sec-tion V-C, with each round’s positions drawn at random subject to a minimum distance (decaying 8 → 1 over the rounds) from all previously revealed and same-round positions. The schedule is model-independent and can be precomputed; it re-quires neither confidence-based selection nor total-correlation estimation. Quality is scored by an external autoregressive judge (Qwen3-VL-8B-Instruct [22]) as the perplexity of the generated span only; the judge uses its own tokenizer, so perplexities are comparable only across policies within this protocol. Table IV reports the results. The teacher-forced cost ranking agrees closely with the judge-perplexity ranking at the policy level, with Spearman correlation +0 .88 across the nine poli-cies (dropping the extreme threshold point, +0 .83 ; dropping also bisection, +0 .96 ; both rank reversals are theory-side schedules whose quality rank is better than their cost rank). At a matched budget of 28 rounds, random-16 attains judge perplexity 237 against 1530 for confidence top-16 and wins on 99% of the 693 paired generations; at 7 rounds the same holds ( 585 against 1893 ). The spaced-profile schedule attains perplexity 202 in 16 rounds — better than confidence top-16 achieves in 28 rounds (paired win rate 0.99 ) and better than the increasing profile alone at equal rounds (win 0.75 ); on the                                              
+
+> TABLE IV SELF -SAMPLING GENERATION QUALITY (231 PROMPTS ×3SEEDS ,
+> PAIRED ;ARITHMETIC MEAN OF PER -SEQUENCE JUDGE PERPLEXITY ON THE GENERATED SPAN ,WITH STANDARD ERRORS CLUSTERED BY PROMPT ;REP -4 IS THE 4-GRAM REPETITION RATE ). policy rounds judge PPL rep-4 threshold τ=0 .9431 .9120 .6±4.90.068
+> bisection 9.0192 .2±5.90.019
+> spaced profile R=16 16 .0201 .7±6.90.023
+> random 16 28 .0236 .9±7.50.016
+> increasing profile R=16 16 .0276 .2±8.50.018
+> increasing profile R=8 8.0391 .6±11 .30.012
+> random 64 7.0585 .3±15 .20.006
+> confidence top-16 28 .01529 .6±40 .80.003
+> confidence top-64 7.01892 .6±47 .00.001
+
+teacher-forced axis it matches random-16 at half the round count ( 0.153 versus 0.151 bits/token, within the enumeration-order resolution). Its gain over the increasing profile alone concentrates on code, prose and WikiText (win 0.75 –0.92 )and is absent on the small math and structured-data samples (0.57 –0.58 ). Finally, the threshold rule is even less parallel under self-sampling than under teacher forcing: at τ = 0 .9 the median number of positions clearing the threshold per round is zero (91 .7% of rounds), so the decoder degenerates to one token per round (432 rounds); its best-in-table perplexity ( 121 )is bought at full serialization, comes with the highest 4-gram repetition rate of all nine policies, and an autoregressive judge may itself favor near-sequential generation. These results are one model (0.5B) at one temperature; they close the loop from the identity’s pseudo-costs to deployed sampling quality on this testbed, not more. APPENDIX APROOF OF THE ADAPTIVE COST IDENTITY 
+
+Proof of Lemma 1. For a fixed context xC , total correlation is the divergence between the conditional joint law and the product of its conditional marginals, 
+
+TC( XA | xC ) = DKL pA(· | xC ) Y
+
+> i∈A
+
+pi(· | xC )
+
+!
+
+.
+
+Nonnegativity and the equality condition follow from the corresponding properties of KL divergence. For a disjoint partition S = A ∪ B, the entropy chain rule gives 
+
+TC( XS | xC ) = TC( XA | xC ) + TC( XB | xC )+ I(XA; XB | xC ).
+
+All added terms are nonnegative, which proves subset mono-tonicity. Taking A = {i, j } gives the pairwise mutual-information bound. 
+
+Proof of Theorem 1. Trajectory. C1 = ∅ is value-free, so S1
+
+is well defined; inductively St depends only on xCt , hence is determined by x, and the St partition [n].
+
+Chain rule. Write pA for the marginal of p on A ⊆ [n]. For each t, p(xSt | xCt ) = pCt+1 (xCt+1 )/p Ct (xCt ) (both sides are functions of xCt+1 only, and Ct+1 is determined by xCt ). The product over t telescopes from p∅ ≡ 1 to p[n](x) = p(x),giving the first formula in (1). 13 
+
+Output law. By construction of the process, conditionally on reaching state (Ct, x Ct ) the round-t output has probability Q 
+
+> i∈St
+
+p(xi | xCt ); multiplying along the (unique) trajectory consistent with x yields the second formula in (1). Note 
+
+qπ may charge points outside supp( p); forward KL is still well defined because qπ (x) > 0 whenever p(x) > 0 (each factor p(xi | xCt ) ≥ p(xSt | xCt ) > 0), and by the null-history paragraph the value of qπ (x) on supp( p) — hence 
+
+DKL (p ∥ qπ ) — is independent of the oracle extension. 
+
+Identity. Dividing the two formulas in (1), taking logarithms, and averaging under p gives the first equality in (2). The second equality in (2) is the tower property: conditioned on the realized history (Ct, x Ct ), the remaining coordinates are distributed as p(· | xCt ), so E[tc( xSt |xCt ) | XCt = xCt ] = TC( XSt | xCt ) ≥ 0. Because the summands are nonnegative, equality holds precisely when every visited round has zero conditional total correlation p-almost surely. APPENDIX BPROOFS FOR BOUNDED -O RDER MARKOV DISTRIBUTIONS 
+
+Lemma 3 (Block separation) . Let p be order-m Markov and let B = {s+1 , . . . , s +m} be m consecutive coordinates. Then, for every xB with pB (xB ) > 0, conditionally on 
+
+XB = xB the coordinate blocks X≤s and X≥s+m+1 are independent. Proof of Lemma 3. A window {i, . . . , i + m} has m+1 con-secutive elements, so it cannot contain both a coordinate 
+
+≤ s and a coordinate ≥ s+m+1 (that would require length 
+
+≥ m + 2 ). Hence every potential depends only on (x≤s, x B )
+
+or only on (xB , x ≥s+m+1 ), and the conditional distribution given XB = xB factorizes accordingly. 
+
+Proof of Theorem 2. Call m consecutive coordinates an m-block . The schedule maintains a collection of disjoint active segments (intervals of not-yet-revealed coordinates), initially 
+
+{[n]}, with the invariant (I) any two distinct active segments are separated by an m-block all of whose coordinates are already revealed, or by an end of the sequence. A stage consists of m rounds. At the start of a stage, assign each active segment a target : its central m-block if its length exceeds m, and the whole segment otherwise. In each round of the stage reveal, in parallel across segments, one still-unrevealed coordinate of every segment’s target (a segment whose target is exhausted skips the round). 
+
+Every round has zero cost. Fix a round with reveal set 
+
+S; by construction S contains at most one coordinate per active segment. By invariant (I) the context C contains a fully revealed m-block between any two active segments, so by Lemma 3, applied at each separator in turn (induction on the number of segments), the restrictions of X to distinct active segments are mutually independent conditionally on those blocks. The remaining conditioning coordinates of C
+
+lie outside all active segments or inside individual segments (coordinates of the current stage’s targets revealed in earlier rounds); conditioning on them refines each factor separately and preserves the product structure. Hence the coordinates of S, lying in distinct segments, are mutually conditionally independent given xC , so TC( XS | xC ) = 0 for every realized history, and DKL (p ∥ q) = 0 by Theorem 1. 
+
+Round count. At the end of a stage every target is fully revealed: a segment of length ℓ ≤ m disappears, while a segment of length ℓ > m splits into two active segments of length at most ⌈(ℓ − m)/2⌉ ≤ ℓ/ 2, each flanked by the newly revealed central m-block on one side and by its previous boundary on the other — restoring invariant (I). Thus the maximal active-segment length at least halves per stage while it exceeds m; after ⌈log 2(n/m )⌉ stages it is at most m, and one further stage empties every remaining segment. This gives at most ⌈log 2(n/m )⌉ + 1 stages of m rounds each. The schedule depends only on segment lengths, never on values. APPENDIX CPROOFS FOR THE BERNOULLI WALK 
+
+Lemma 4 (Binomial entropy) . For all j ≥ 1, the entropy satisfies H Bin( j, 12 ) ≥ 12 log 2(πj ).Proof of Lemma 4. Shannon entropy dominates collision (R´ enyi-2) entropy, H ≥ H2 = − log 2
+
+P 
+
+> k
+
+Pr[Bin( j) = k]2,and by Vandermonde’s identity P
+
+> k
+
+ jk
+
+2 =  2jj
+
+ the colli-sion probability equals  2jj
+
+4−j . It remains to check  2jj
+
+ ≤
+
+4j /√πj for all j ≥ 1: the ratio aj :=  2jj
+
+√πj 4−j satisfies 
+
+a1 = √π/ 2 < 1 and (aj+1 /a j )2 = (2 j+1) 2 
+
+> (2 j+2) 2
+
+· j+1  
+
+> j
+
+= (2 j+1) 2 
+
+> 4j(j+1)
+
+=1 + 14j(j+1) > 1, so aj increases to its Stirling limit 1; hence 
+
+aj < 1 for all j.
+
+Proof of Theorem 3. (i) Zero cost is Theorem 2 with m = 1 .For the exact round count: with m = 1 each stage is a single round revealing the midpoint of every active segment, so the number of rounds needed for a maximal segment length ℓ
+
+obeys L(ℓ) = 1 + L(⌈(ℓ − 1) /2⌉) with L(0) = 0 , which solves to L(ℓ) = ⌈log 2(ℓ + 1) ⌉ (induction on ℓ, splitting on parity), giving ⌈log 2(n + 1) ⌉ rounds. (Check n = 8 : {8} → {4} → { 2, 6} → { 1, 3, 5, 7}, four rounds = ⌈log 2 9⌉.) (ii) Under a contiguous scan, at the start of a round the revealed set is a prefix {1, . . . , a }; the round reveals S =
+
+{a+1 , . . . , a +B}. Given x≤a (Markov: given xa): the joint law of XS is that of B fresh increments, with conditional joint entropy exactly B bits, while the conditional marginal of Xa+j
+
+is xa + Bin( j, 12 ) with entropy H(Bin( j, 12 )) , independent of the realized xa. Hence, by Theorem 1, the round cost is the value-free quantity P 
+
+> j≤B
+
+H(Bin( j)) − B, and the total is as displayed. By Lemma 4 and log 2 B! ≥ B log 2(B/e ),
+
+> B
+
+X
+
+> j=1
+
+H(Bin( j)) − B ≥ 12 log 2
+
+ πB B! − B
+
+≥ B 
+
+> 2
+
+log 2 B − c0B =: f (B).f is convex on [1 , ∞), so P 
+
+> t
+
+f (Bt) ≥ R f   nR
+
+ = n 
+
+> 2
+
+log 2 nR −
+
+c0n by Jensen applied to the equal-size profile. The conse-quence follows by rearranging n 
+
+> 2
+
+log 2 nR − c0n ≤ δn .
+
+Lemma 5 (Bridge structure) . Let (C, x C ) be a context with 
+
+pwalk ,C (xC ) > 0. Partition [n] \ C into maximal intervals, 14 
+
+called segments. Each segment is flanked by revealed coor-dinates, with x0 = 0 a permanent left anchor, except that the rightmost segment may be open. Conditionally on xC , the following properties hold. (i) Distinct segments are independent. A segment flanked by revealed positions a < b carries increments 
+
+Za+1 , . . . , Z b that are uniform over arrangements with sum k = xb − xa. An open segment carries fresh i.i.d. fair increments. (ii) If 0 < k < b −a, then no coordinate of the segment is de-termined and any two coordinates are strictly dependent. The same conclusion holds in an open segment. (iii) If k ∈ { 0, b − a}, then every coordinate of the segment is determined, and the segment is contained in a maximal constant run of increments of every consistent x.Proof of Lemma 5. (i) is the Markov property plus counting: conditioning the i.i.d. increments on the values at revealed positions makes the increment blocks between consecutive anchors independent, each uniform over arrangements with the prescribed block sum. (ii) Write m = b − a, σ2 = 
+
+> km
+
+(1 − km ) > 0. Exchangeability gives Var( Zr ) = σ2
+
+and Cov( Zr , Z s) = −σ2/(m − 1) for r̸ = s, hence for 
+
+a < i ≤ j < b ,
+
+Cov( Xi, X j | xC ) = σ2 (i − a)( b − j)
+
+m − 1 > 0,
+
+so Xi, X j are dependent and their conditional mutual in-formation is strictly positive. The support of Xi − xa is 
+
+{max(0 , k − (b − i)) , . . . , min( i − a, k )}, of size at least 2
+
+in all cases with 0 < k < m , so no coordinate is determined. In an open segment, Cov( Xi, X j | xC ) = min( i, j ) − a′ > 0
+
+(times 1/4) for the last anchor a′, and supports are again non-singletons. (iii) k = 0 or k = m forces every increment, hence every coordinate; any consistent x has constant increments on 
+
+(a, b ], which therefore lie inside one maximal run of x.By total-correlation monotonicity, Lemma 5(ii) implies that a zero-cost reveal set contains at most one coordinate from each nondegenerate segment, including the open segment, together with any number of determined coordinates from degenerate segments. 
+
+Lemma 6 (Full-clearing reduction) . Let π be a deter-ministic value-adaptive policy with DKL (pwalk ∥ qπ ) = 0.Then there is a deterministic value-adaptive policy π′ with 
+
+DKL (pwalk ∥ qπ′ ) = 0 such that R′(x) ≤ R(x) for every 
+
+x with p(x) > 0. Every round of π′ reveals at most one coordinate in each nondegenerate segment and all coordinates of every currently degenerate segment. Proof of Lemma 6. Construction. π′ maintains, alongside the real state (Cre , x Cre ), a virtual context Cvi ⊆ Cre 
+
+recording how far π has been simulated. Repeatedly compute Sπ = π(Cvi , x Cvi ) (its values are visible, as Cvi ⊆ Cre ): while Sπ ⊆ Cre , advance the virtual context, Cvi ← Cvi ∪ Sπ , spending no round; otherwise spend one real round revealing (Sπ \ Cre ) ∪{all coordinates of all currently degenerate real segments }
+
+and then advance the virtual context. Since π terminates, so does the loop, and each real round advances the simulation by at least one π-round, so R′(x) ≤ R(x).
+
+π′ is a legal state policy. The construction uses the auxiliary variable Cvi , but this is reconstructible from the real state alone. Given (Cre , x Cre ), initialize Cvi = ∅ and repeatedly replace 
+
+Cvi ← Cvi ∪ π Cvi , x Cvi 
+
+
+
+as long as the next reveal set π(Cvi , x Cvi ) is contained in 
+
+Cre ; stop at the first reveal set not contained in Cre , or when 
+
+Cvi = [ n]. Every value consulted lies in Cre , so the iteration is well defined and its result is unique; and it coincides with the virtual context maintained by the construction, which performs exactly these zero-round absorptions between real rounds. Thus π′ is a deterministic function of the real reveal state (on unreachable states, extend arbitrarily). 
+
+Zero cost. Fix a real round with reveal set S′ at a real state of positive probability. Real segments refine virtual segments (because Cvi ⊆ Cre ), and a subsegment of a degenerate virtual segment is degenerate; hence every nondegenerate real segment lies inside a nondegenerate virtual segment. By the zero cost of π and the observation preceding this lemma, Sπ
+
+contains at most one coordinate of each nondegenerate virtual segment; a fortiori Sπ \Cre contains at most one coordinate of each nondegenerate real segment. The added coordinates lie in degenerate real segments and are point masses given xCre .Distinct real segments are conditionally independent given the real context (Lemma 5(i)), so S′ splits into mutually indepen-dent singletons and point masses: TC( XS′ | xCre ) = 0 . By Theorem 1, DKL (p ∥ qπ′ ) = 0 .
+
+Proof of Theorem 4. By Lemma 6 it suffices to bound R′
+
+for the full-clearing policy π′. Fix x with p(x) > 0 and let 
+
+st be the number of nondegenerate segments at the start of round t: s1 = 1 , and st+1 ≤ 2st, since each nondegenerate segment receives at most one reveal (splitting it into at most two segments) while degenerate segments are cleared and disappear. Hence st ≤ 2t−1, the number of single reveals is at most P 
+
+> t≤R′
+
+st ≤ 2R′
+
+− 1, and — as each single reveal creates at most two new segments — the total number of segments ever created is at most 1 + 2(2 R′
+
+− 1) ≤ 2R′+1 .Every coordinate is revealed either as a single reveal or in the clearing of a degenerate segment, and by Lemma 5(iii) each degenerate segment has size at most maxrun( x). Therefore 
+
+n ≤ (2 R′
+
+− 1) + 2 R′+1 maxrun( x)
+
+≤ 2R′+1  1 + maxrun( x),
+
+i.e. R(x) ≥ R′(x) ≥ log 2 n − log 2(1 + maxrun( x)) − 1.Take expectations; finally Pr[maxrun ≥ r] ≤ n21−r yields 
+
+E[maxrun] ≤ log 2 n + O(1) and, by Jensen, E log 2(1 + maxrun) ≤ log 2(1 + E[maxrun]) = log 2 log 2 n + O(1) .
+
+Lemma 7 (Uniform bulk-pair information) . There are abso-lute constants ℓ0 and c1 > 0 with the following property. Let T be a segment of length ℓ ≥ ℓ0 under a realized context 
+
+xC . Suppose that T is a nondegenerate bridge with parameter 
+
+0 < k < ℓ or an open segment. If u < v are coordinates in the middle half of T , then 
+
+I(Xu; Xv | xC ) ≥ c1.15 
+
+Proof of Lemma 7. Positions are measured inside T . By Lemma 5, conditionally on the full context the pair has the bridge (respectively free-walk) law; by the increment-flip symmetry k ↔ ℓ − k assume k ≤ ℓ/ 2. From the covariance formulas in the proof of Lemma 5, 
+
+ρ2 := Cov( Xu, X v )2
+
+Var( Xu) Var( Xv ) = u(ℓ − v)
+
+v(ℓ − u) ≥ 19 ,
+
+Cov( Xu, X v ) ≥ k
+
+32 ,
+
+Var( Xu) ∧ Var( Xv ) ≥ 3k
+
+32 ,
+
+for bulk positions and any separation; for the open segment 
+
+ρ2 = u/v ≥ 13 and Var( Xu) = u/ 4 ≥ ℓ/ 16 . Fix a threshold 
+
+K0 (chosen below). 
+
+Small parameter ( k ≤ K0; bridges only). Given the anchors, 
+
+Xu and Xv each take at most k + 1 values, so at most k
+
+thresholds a have Pr[ Xu ≥ a] ∈ (0 , 1) . Writing a nonnegative integer variable as X = P 
+
+> a≥1
+
+1[X ≥ a] gives the covariance identity Cov( Xu, X v ) = P 
+
+> a,b
+
+Cov( 1[Xu ≥ a], 1[Xv ≥ b]) , a sum of at most k2 terms; some term is at least k/ 32  
+
+> k2
+
+= 132 k . For that pair of binary variables (U, V ), Pinsker’s inequality [45] gives I(U ; V ) ≥ 2ln 2 TV 2 = 8ln 2 Cov( U, V )2 ≥ 1128 k2 ln 2 ,and I(Xu; Xv ) ≥ I(U ; V ) by data processing. Hence the claim holds with constant 1128 K20 ln 2 .
+
+Large parameter ( k > K 0, and the open segment). The marginal laws of Xu and Xv are hypergeometric (binomial for the open segment). The uniform measure on k-subsets of 
+
+[ℓ] is strongly Rayleigh [18], i.e. its multivariate generating polynomial is real stable; substituting zi = z on a subset A
+
+of the coordinates and zi = 1 elsewhere preserves stability, so the count of selected elements in A — which is exactly 
+
+Xu — has a real-rooted univariate generating polynomial and is therefore distributed as a sum of independent Bernoulli variables. Let U1, U 2 be independent uniform dithers on [0 , 1) .For integer variables, H(X) = h(X + U1) and H(Xu, X v ) = 
+
+h(Xu + U1, X v + U2) exactly, so the Gaussian maximum-entropy bound [45] gives 
+
+H(Xu, X v ) ≤ 12 log 2
+
+ (2 πe )2 det(Σ + 112 I),
+
+with Σ the covariance matrix of (Xu, X v ), while Lemma 13 in the appendix bounds each marginal from below: H(Xu) ≥ 
+
+> 12
+
+log 2(2 πe ˜σ2
+
+> u
+
+) − δ(σu) with ˜σ2 = σ2 + 112 and δ(σ) → 0 as 
+
+σ → ∞ , uniformly over Bernoulli-sum laws. Adding up, 
+
+I(Xu; Xv ) ≥ 12 log 2
+
+11 − ˜ρ 2 − δ(σu) − δ(σv ),
+
+˜ρ 2 := Cov( Xu, X v )2
+
+˜σ2 
+
+> u
+
+˜σ2
+
+> v
+
+≥ ρ2
+
+
+
+1 − 16σ20
+
+
+
+whenever σ2 
+
+> u
+
+∧ σ2 
+
+> v
+
+≥ σ20 . Since ρ2 ≥ 19 , choose an absolute 
+
+σ0 with δ(σ0) ≤ 1100 and σ20 ≥ 2; then the right side is at least 12 log 2 98 − 140 − 2100 > 0.03 . The regime applies once  
+
+> 3k
+> 32
+
+≥ σ20 , i.e. for k > K 0 := ⌈ 32 3 σ20 ⌉ (and always for the open segment when ℓ ≥ 16 σ20 ). Taking c1 = min { 1128 K20 ln 2 , 0.03 }
+
+and ℓ0 = 16 σ20 completes the proof. (Numerically the true constant is much better: exhaustive computation over all bridge parameters gives min I = 0 .085 , attained at balanced k and quarter positions.) 
+
+Proof of Theorem 5. Chain. Set T1 := [1 , n ] (the open seg-ment). Given Tt with ℓt := |Tt|, a round is active if it reveals some coordinate of Tt; on an active round let A ⊆ Tt be those reveals and let Tt+1 be the largest maximal unrevealed subinterval of Tt \ A. Since every coordinate is eventually revealed, active rounds occur until the chain stops, which we declare as soon as ℓt < ℓ0 or Tt is degenerate. A segment’s anchors are the revealed coordinates flanking it at its creation (or x0, or the open right end), so by Lemma 5(i) its conditional law given any later context is its own bridge law; in particular a nondegenerate chain segment stays non-degenerate, and if the chain stops at a degenerate segment then ℓend ≤ maxrun( x) by Lemma 5(iii). Hence the terminal length satisfies ℓend +1 ≤ L := max {ℓ0, maxrun( x)+1 }, and the drops δt := log 2 ℓt+1  
+
+> ℓt+1 +1
+
+telescope to P 
+
+> t
+
+δt ≥ log 2 n+1 
+
+> L
+
+over active rounds, whose number is at most R(x).
+
+Progress needs middle cuts. On an active round let m be the number of reveals in the middle half M of Tt (an interval of length at least ℓ/ 2 − 2). If m ≤ ℓ/ 2 − 2, some stretch of M
+
+of length at least (ℓ/ 2 − 2 − m)/(m + 1) contains no reveal and lies inside one child, so ℓt+1 + 1 ≥ (ℓ/ 2 − 1) /(m + 1) 
+
+and 
+
+δt ≤ log 2
+
+(ℓ + 1)( m + 1) 
+
+ℓ/ 2 − 1 ≤ 2 + log 2(m + 1) (ℓ ≥ 5) .
+
+Middle cuts cost. Order the middle reveals u1 < · · · < u m.By subset monotonicity of total correlation and the chain rule TC( X{u1,...,u m} | xC ) = P 
+
+> i≥2
+
+I(Xui ; Xu<i | xC ) ≥P 
+
+> i≥2
+
+I(Xui ; Xui−1 | xC ), each summand being a bulk pair of the nondegenerate segment Tt, Lemma 7 gives 
+
+Yt := TC( XSt | xCt ) ≥ c1 (m − 1) +.
+
+Hence m + 1 ≤ 2 + Yt/c 1 and δt ≤ 2 + log 2(2 + Yt/c 1) ≤
+
+3+ Yt  
+
+> 2c1ln 2
+
+, using log 2(2+ y) ≤ 1+ y 
+
+> 2 ln 2
+
+. In the remaining case 
+
+m > ℓ/ 2−2 we use δt ≤ log 2(ℓ+1) and Yt ≥ c1(ℓ/ 2−3) , so 
+
+δt ≤ Yt  
+
+> 2c1ln 2
+
+once ℓ ≥ ℓ0 for ℓ0 a suitable absolute constant, and the same amortized bound holds. 
+
+Assembly. Summing over active rounds and using P 
+
+> t
+
+Yt ≤ P 
+
+> all rounds
+
+TC( XSt | xCt ), whose p-expectation is 
+
+DKL (p ∥ qπ ) ≤ ε by Theorem 1, 
+
+log 2
+
+n + 1 
+
+L ≤ 3R(x) + 12c1 ln 2 
+
+X
+
+> t
+
+Yt,
+
+and taking expectations, log 2(n + 1) − E[log 2 L] ≤ 3 E[R] +   
+
+> ε
+> 2c1ln 2
+
+. Finally E[log 2 L] ≤ log 2 ℓ0 + E[log 2(maxrun + 1)] ≤
+
+log 2 log 2 n + O(1) as in Theorem 4. The upper direction of 
+
+Θ(log n) is Theorem 3(i). APPENDIX DPROOFS FOR UNIFORM RANDOM PERMUTATIONS 
+
+Proof of Theorem 6. Step 1: each round’s cost depends only on its size. Condition on a realized history (C, x C ) with |C| =
+
+c and pC (xC ) > 0, and write M = n − c. The conditional law of the unrevealed coordinates is uniform over the bijections from the remaining positions onto the M unused symbols. 16 
+
+Hence for any reveal set S with |S| = B and any consistent values xS (injective, unused), 
+
+p(xS | xC ) = 1(M )B
+
+,p(xi | xC ) = 1
+
+M , i ∈ S, 
+
+(M )B := M (M − 1) · · · (M − B + 1) ,
+
+so the realized increment is the same for every consistent value: 
+
+tc( xS | xC ) = log 2
+
+M B
+
+(M )B
+
+=
+
+> B−1
+
+X
+
+> k=0
+
+− log 2
+
+
+
+1 − kM
+
+
+
+=: g(M, B ).
+
+Neither the choice of positions nor the observed values enter — only (M, B ).
+
+Step 2: quadratic growth. From − log 2(1 − u) ≥ u/ ln 2 on 
+
+[0 , 1) and M ≤ n,
+
+g(M, B ) ≥ 1ln 2 
+
+> B−1
+
+X
+
+> k=0
+
+kM = B(B − 1) 2M ln 2 ≥ B(B − 1) 2n ln 2 .
+
+Step 3: per-trajectory bound. Fix x with batch sizes 
+
+B1, . . . , B R(x), P 
+
+> t
+
+Bt = n. By Step 2 and Cauchy–Schwarz (P 
+
+> t
+
+B2 
+
+> t
+
+≥ n2/R (x)), 
+
+X
+
+> t
+
+tc  xSt | xCt
+
+ ≥
+
+P 
+
+> t
+
+B2 
+
+> t
+
+− n
+
+2n ln 2 ≥ n/R (x) − 12 ln 2 .
+
+Step 4: expectation. By Theorem 1 and Jensen’s inequality for the convex map r 7 → 1/r ,
+
+DKL (pperm ∥ qπ ) = Ep
+
+"X
+
+> t
+
+tc( xSt | xCt )
+
+#
+
+≥ nEp[1 /R ] − 12 ln 2 ≥ n/ Ep[R] − 12 ln 2 .
+
+Rearranging  n/ Ep[R] − 1/(2 ln 2) ≤ ε gives the claim. 
+
+Lemma 8 (Splitting a batch only helps) . For 1 ≤ A < B ≤
+
+M , g(M, B ) − g(M, A ) − g(M −A, B −A)= ( B−A) log 2
+
+MM − A > 0.
+
+In particular, En,R is strictly decreasing in R until En,n = 0 .Proof of Lemma 8. (M )B = ( M )A (M −A)B−A; substitute into the definition of g and cancel. 
+
+Proof of Theorem 7. Any trajectory of an admissible policy uses some r ≤ R rounds, and its cost is the cost of its compo-sition, which is at least En,r ≥ E n,R by Lemma 8. Averaging over p gives the lower bound; a minimizing composition, used as a fixed schedule, attains it. 
+
+Proof of Proposition 1. The falling factorials telescope, Q
+
+> t
+
+(Mt)Bt = n!, so P 
+
+> t
+
+g(Mt, B t) = P 
+
+> t
+
+Bt log 2 Mt−log 2 n!;this identity gives part (ii). For (i), swapping adjacent batches a, b (tail of K coordinates, M = a+b+K,
+
+x = a/M , y = b/M ) changes the cost by 
+
+M [ y ln(1 − x) − x ln(1 − y) ] / ln 2 = M xy [h(x) − h(y)] / ln 2 
+
+with h(u) = ln(1 − u)/u strictly decreasing; so placing the larger batch first never increases the cost. 
+
+Proof of Theorem 8. By the telescoped form and Stirling, uni-formly over compositions, P 
+
+> t
+
+g = n[ 1ln 2 + P 
+
+> t
+
+bt log 2 mt] − 
+
+> 12
+
+log 2(2 πn )+ O(n−1) with bt = Bt/n , mt = Mt/n . The con-tinuous problem CR = min {P 
+
+> t
+
+bt ln mt} obeys the recursion 
+
+C1 = 0 , CR = min 0<y< 1 y(ln y + CR−1) (condition on the mass y remaining after the first batch and rescale); the inner minimum is attained uniquely at y = e−1−CR−1 with value 
+
+−y, giving CR = −ρR and the product profile. Rounding the (strictly positive) continuous optimizer to integers perturbs the bracket by OR(1 /n ). For the tail, uR := 1 − ρR satisfies 
+
+uR = 1 − e−uR−1 , so 1/u R − 1/u R−1 → 12 and Stolz– Ces` aro gives uR ∼ 2/R ; the equal-batch rate is Corollary-level algebra from the telescoped form and Stirling on R!.
+
+Proof of Theorem 9. Write E(n, s ) := En,n −s. Since the pair-first composition is feasible, E(n, s ) ≤ P (n, s ); we prove 
+
+E(n, s ) ≥ P (n, s ) by induction on n over the region 3s ≤ n.For s = 0 , both quantities vanish. Let s ≥ 1. By Proposi-tion 1(i) an optimal composition can be taken nonincreasing, so its first batch B satisfies B ≥ 2 (a nonincreasing compo-sition starting with a singleton is all singletons, i.e. s = 0 ). Conditioning on the first batch, 
+
+E(n, s ) = min 
+
+> 2≤B≤s+1
+
+g(n, B ) + E(n − B, s − B + 1) ,
+
+and each subproblem satisfies 3( s − B + 1) = 3 s − 3B + 3 ≤
+
+n − 3B + 3 ≤ (n − B) − (2 B − 3) ≤ n − B for B ≥ 2,so the induction hypothesis gives E(n − B, s − B + 1) = 
+
+P (n − B, s − B + 1) . Define ∆( B) := g(n, B ) + P (n −
+
+B, s − B + 1) − P (n, s ). The pair-first recursion P (n, s ) = 
+
+λ(n) + P (n − 2, s − 1) gives ∆(2) = 0 , so it suffices to show 
+
+∆( B+1) ≥ ∆( B) for 2 ≤ B ≤ s. A direct computation, using 
+
+λ(m − 1) − λ(m) = log 2
+
+ 1 + 1
+
+> m(m−2)
+
+, yields the increment identity 
+
+∆( B+1) − ∆( B) = log 2
+
+nn − B − λ(q)+
+
+> s−B−1
+
+X
+
+> j=0
+
+log 2
+
+
+
+1 + 1
+
+mj (mj − 2) 
+
+
+
+,mj := n − B − 2j, q := n + B − 2s. 
+
+Note q ≥ n/ 3 + B (from 3s ≤ n) and q ≤ n − B (from 
+
+s ≥ B). 
+
+Case B ≥ 3. Drop the (nonnegative) sum. Then ln nn−B ≥ 
+
+> Bn
+
+and ln(1 + 1 
+
+> q−1
+
+) ≤ 1 
+
+> q−1
+
+, so it suffices that B(q − 1) ≥ n;indeed B(q − 1) ≥ 3( n 
+
+> 3
+
++ 2) = n + 6 > n .
+
+Case B = 2 . Here the sum is essential. Since consecutive 
+
+mj differ by 2 and 1 
+
+> m(m−2)
+
+= 12 ( 1 
+
+> m−2
+
+− 1 
+
+> m
+
+), it telescopes exactly: 
+
+> s−3
+
+X
+
+> j=0
+
+1
+
+mj (mj − 2) = 12
+
+ 1
+
+q − 1
+
+n − 2
+
+
+
+=: T ≥ 0.17 
+
+Using − ln(1 −x) ≥ x+ x2 
+
+> 2
+
+, ln(1+ u) ≥ u− u2 
+
+> 2
+
+(so the sum is at least T (1 − umax ) with umax = 1 
+
+> q(q−2)
+
+), and ln(1 + 1 
+
+> q−1
+
+) ≤ 
+
+> 1
+> q−1
+
+, it suffices that 
+
+2
+
+n + 2
+
+n2 + 12
+
+ 1
+
+q − 1
+
+n − 2
+
+ 
+
+1 − 1
+
+q(q − 2) 
+
+
+
+≥ 1
+
+q − 1 .
+
+Set q0 := n 
+
+> 3
+
++2 , so q ≥ q0, and freeze u0 := 1 
+
+> q0(q0−2)
+
+≥ umax .With u0 frozen, the function q 7 → 1−u0 
+
+> 2q
+
+− 1 
+
+> q−1
+
+is increasing (its derivative is 1(q−1) 2 − 1−u0 
+
+> 2q2
+
+> 0), so the worst case is 
+
+q = q0. At q = q0, writing 12( n−2) = 12n + 1 
+
+> n(n−2)
+
+and using the exact cancellation 
+
+32n − 3
+
+n + 3 + 32( n + 6) = 27 
+
+n(n + 3)( n + 6) ,
+
+together with u0 = 9 
+
+> n(n+6)
+
+, 12
+
+  1 
+
+> q0
+
+− 1
+
+> n−2
+
+ ≤ 32( n+6) , and 2 
+
+> n2
+
+− 
+
+> 1
+> n(n−2)
+
+= n−4 
+
+> n2(n−2)
+
+, the margin is bounded below by 
+
+n − 4
+
+n2(n − 2) + 27 
+
+n(n + 3)( n + 6) − 27 2n(n + 6) 2
+
+= n − 4
+
+n2(n − 2) + 27( n + 9) 2n(n + 3)( n + 6) 2 ,
+
+which is positive for all n ≥ 6, since both terms are nonnegative and the second is strictly positive. This proves 
+
+∆ is nondecreasing, hence ∆( B) ≥ 0 for all B, closing the induction. 
+
+Limit. For ε < 12 log 2 3 fixed, P (n, s ) with s = αn con-verges to 12 log 2 11−2α , which crosses ε at αε = 1−2−2ε 
+
+> 2
+
+< 13 ;monotonicity of En,R in R (Lemma 8) turns this into the stated limit for Dε = min {R : En,R ≤ ε}.
+
+Proof of Proposition 2. Conditioned on R(X) = r the path cost is at least En,r ≥ En(r); convexity and Jensen give 
+
+DKL (pperm ∥ qπ ) ≥ Ep[En(R)] ≥ E n(Ep[R]) .
+
+Proof of Proposition 3. Keeping only the k = B − 1 term in g(M, B ) = PB−1 
+
+> k=0
+
+− log 2(1 − k/M ) gives g(M, B ) ≥
+
+log 2 MM −B+1 , and Mt−Bt+1 = Mt+1 +1 , so with MR+1 = 0 ,
+
+X
+
+> t
+
+g(Mt, B t) ≥ log 2
+
+> R
+
+Y
+
+> t=1
+
+Mt
+
+Mt+1 + 1 = log 2
+
+h
+
+n
+
+> R
+
+Y
+
+> t=2
+
+Mt
+
+Mt + 1 
+
+i
+
+≥ log 2
+
+h
+
+n
+
+> R−1
+
+Y
+
+> j=1
+
+jj + 1 
+
+i
+
+= log 2
+
+nR ,
+
+where the last inequality uses that M2 > · · · > M R ≥ 1
+
+are distinct positive integers, so Mt ≥ R − t + 1 , and 
+
+m 7 → m/ (m + 1) is increasing. Taking expectations and using convexity of r 7 → − log 2 r (Jensen), ε ≥ Ep[log 2(n/R )] ≥
+
+log 2 n − log 2 Ep[R].
+
+Proof of Theorem 10. Lower bound. Fix Λ > 0 and set λ =Λ/n . For any composition with R parts, using − log 2(1 − 
+
+> kM
+
+) ≥ kM log 2 e,
+
+X
+
+> t
+
+g(Mt, B t) + λR ≥ X
+
+> t
+
+Bt
+
+h (Bt − 1) log 2 e
+
+2Mt
+
++ λBt
+
+i
+
+≥ X
+
+> t
+
+Bt Hλ(Mt),
+
+where Hλ(M ) := min B≥1
+
+ (B−1) log 2 e 
+
+> 2M
+
++ λB
+
+ is nonincreasing in M with Hλ ≤ λ. It remains to replace each batch evaluation Bt Hλ(Mt) by the slot-wise sum of Hλ(c) over the 
+
+Bt remaining-counts c ∈ (Mt+1 , M t] that the batch covers. Split three ways. Batches with Bt > √n: every covered slot already receives (Bt−1) log 2 e 
+
+> 2Mt
+
+≥ log 2 e 
+
+> 4√n
+
+, which for large 
+
+n exceeds sup c Hλ(c) ≤ Λ/n . Slots with c ≤ n3/4: their total target mass is at most n3/4 · Λ/n → 0. Remaining batches ( Bt ≤ √n, slots above n3/4): every covered slot has c ≥ Mt − Bt ≥ Mt(1 − n−1/4), and since Hλ(c) ≤ 
+
+> Mt
+> c
+
+Hλ(Mt), the slot-wise sum exceeds BtHλ(Mt) by a factor at most 1 + 2 n−1/4. Combining and using the exact scaling 
+
+nH Λ/n (mn ) = hΛ(m), a Riemann sum gives 
+
+En,R + Λ
+
+n R ≥ (1 − o(1)) 
+
+Z 10
+
+hΛ(m) dm − o(1) ,
+
+and taking R = ⌈rn ⌉ and optimizing over Λ,
+
+lim inf n En, ⌈rn ⌉ ≥ ε∗(r).
+
+Upper bound. Let BΛ(m) denote the minimizer in hΛ (a.e. unique: BΛ = K on the open phase intervals, ties only at the finitely many boundaries), and set 
+
+r(Λ) := 
+
+Z 10
+
+dm BΛ(m) ,e(Λ) := 
+
+Z 10
+
+(BΛ(m) − 1) log 2 e
+
+2m dm, 
+
+Z 10
+
+hΛ(m) dm = e(Λ) + Λ r(Λ) .
+
+The map Λ 7 → R hΛ is concave (a pointwise infimum of affine functions of Λ) with derivative r(Λ) by the envelope theorem; 
+
+r(Λ) is continuous — the phase boundaries aK (K ± 1) , a = 
+
+> 12Λ ln 2
+
+, move continuously and the integrand is bounded — nonincreasing, with r(Λ) → 1 as Λ → 0 and r(Λ) → 0
+
+as Λ → ∞ . Hence for every r ∈ (0 , 1) there is Λr with 
+
+r(Λ r ) = r; by concavity the supremum defining ε∗ is attained there, and 
+
+ε∗(r) = e(Λ r ) : 
+
+the dual value is the cost integral of the frontier profile. Now run this profile as an explicit fixed schedule at size n (with a = 12Λ r ln 2 ): while the remaining count lies in (naK (K−1) , naK (K+1)] use batches of size K, for 
+
+K = Kmax , . . . , 2 with Kmax := BΛr (1) an r-dependent constant, then singletons. Region K < Kmax has length 
+
+2aKn + O(1) and contributes 2an + O(1) rounds; summing (and checking the top region) the round count is Rn =
+
+n R 10 dm/B Λr (m)+ O(Kmax ) = rn +O(1) . Each batch’s cost exceeds its linearization B(B−1) log 2 e 
+
+> 2M
+
+by at most CB 3/M 2;18 
+
+summed over the non-singleton region (where M ≥ 2an ) the excess is O(K2max /n ) → 0, and the linearized total converges to e(Λ r ) by a Riemann sum. Finally, to respect the exact budget: for δ > 0 run the profile for r−δ, whose round count is at most (r − δ)n + O(1) ≤ ⌈ rn ⌉ for large n; by monotonicity (Lemma 8), lim sup n En, ⌈rn ⌉ ≤ ε∗(r − δ), and δ ↓ 0 using continuity of ε∗ on (0 , 1) : convexity and monotonicity hold because ε∗ is a supremum of affine nonincreasing functions of 
+
+r, and ε∗ is finite because taking B = ⌈√Λm⌉ gives hΛ(m) ≤
+
+min {Λ, 2pΛ/m }, whence R 10 hΛ(m) dm ≤ 4 + 4 √Λ and the supremum over Λ is finite. At the endpoint r = 1 , sequential revealing gives ε∗(1) = 0 . For Dε, first suppose ε > 0. For any δ > 0, En, ⌈(r∗(ε)+ δ)n⌉ → ε∗(r∗(ε) + δ) < ε (where 
+
+ε∗ is strictly decreasing while positive: were it constant on an interval where it is positive, convexity and monotonicity would force it to remain constant up to r = 1 , contradicting 
+
+ε∗(1) = 0 ), so Dε ≤ (r∗(ε) + δ)n eventually; conversely 
+
+En, ⌈(r∗(ε)−δ)n⌉ → ε∗(r∗(ε) − δ) > ε , so Dε > (r∗(ε) − δ)n
+
+eventually. When ε = 0 , D0(pperm ) = n directly, so the same conclusion holds with r∗(0) = 1 .APPENDIX EPROOFS FOR BALANCED BINARY STRINGS 
+
+Conditioning pbal on any revealed values leaves the unre-vealed coordinates uniform over completions with the correct remaining count of ones. If M coordinates remain and k of them are ones, the conditional law therefore depends only on 
+
+(M, k ), and position selection is irrelevant. Selection bias can be removed by a coupling. Whichever position a policy selects, the revealed value is one with prob-ability k/M given the history. For every deterministic value-adaptive policy, the sequence of revealed values consequently has the law of a uniform arrangement of an urn with n/ 2 ones and n/ 2 zeros. Realize the sampling process on one such urn sequence, and let k(M ) be the number of ones among its final M draws. For every fixed M , the variable k(M ) has the Hypergeometric( n, n/ 2, M ) law. The complete trajectory 
+
+{k(M )}nM =0 is policy-independent, and the states visited by any policy form a subsequence (Mt, k (Mt)) . We do not condition k(M ) on the policy-dependent event {Mt = M }.All typicality statements below are made for the complete potential trajectory and hence hold simultaneously for the states visited by every policy. 
+
+Lemma 9 (Round cost on an exchangeable state) . Condition on a history with M unrevealed coordinates, k of them ones, and let a round reveal any B coordinates. With θ = kM (1 − kM ),the conditional total correlation satisfies 
+
+TC ≥ 2θ log 2 e
+
+> B−1
+
+X
+
+> j=1
+
+j
+
+(M − 1)( M − j) ,
+
+TC ≤ C0
+
+B2
+
+M 2 if B ≤ M 
+
+> 8
+
+and kM ∈ [ 38 , 58 ].
+
+Proof of Lemma 9. Order the revealed coordinates arbitrar-ily and let aj be the number of ones among the first j.By exchangeability the (j+1) -st revealed value is Bernoulli with parameter q(aj ) = k−aj  
+
+> M−j
+
+given the first j, and 
+
+aj ∼ Hypergeometric( M, k, j ) with Eq(aj ) = kM and 
+
+Var q(aj ) = j(M −j)(M −1)( M −j)2 θ = θ j    
+
+> (M−1)( M−j)
+
+. The chain rule and data processing give TC = P 
+
+> j≥1
+
+I(X(j+1) ; X(≤j)) ≥P 
+
+> j≥1
+
+I(X(j+1) ; aj ), and for a Bernoulli mixture, I(X; a) = 
+
+E d q(a) ∥ Eq(a) ≥ 2 log 2 e Var q(a) by the scalar Pinsker inequality d(p∥q) ≥ 2( p − q)2 log 2 e; this is (i). For (ii): deterministically |q(aj ) − kM | = |kj −aj M |   
+
+> M(M−j)
+
+≤ jM −j ≤ 14 for 
+
+j < B ≤ M/ 8, so q(aj ) ∈ [ 18 , 78 ], where d(q∥¯q) ≤ C1(q− ¯q)2;summing the variances gives TC ≤ C1
+
+P   
+
+> j<B θj
+> (M−1)( M−j)
+
+≤
+
+C0B2/M 2.
+
+Proof of Theorem 11. Lower bound. Set M0 = ⌈C2 log 2 n⌉
+
+and call the level M typical if k(M ) 
+
+> M
+
+∈ [ 38 , 58 ]. By the hypergeometric tail bound [46] and a union over the levels 
+
+M ≥ M0 of the policy-independent potential trajectory, 
+
+Pr[ some level M ≥ M0 atypical ] ≤ n−2 for C2 absolute; on the complementary good event, every round of every policy with Mt ≥ M0 starts at a typical state (Mt, k (Mt)) . On a typical round write ϕt = (Bt∧(Mt/2)) −1 
+
+> Mt
+
+and ψt = log 2
+
+> Mt/2
+> Mt−Bt
+
+if Bt > M t/2 (else 0). By Lemma 9(i), keeping the terms 
+
+j < B ∧ (M/ 2) (where M − j ≤ M ) and the terms j ≥ M/ 2
+
+(where jM −1 ≥ 12 ), 
+
+Yt := TC t ≥ c3 ϕ2 
+
+> t
+
++ c3 ψt,
+
+with c3 absolute (using θ ≥ 15 64 on typical rounds). The count crossing of a round obeys log 2 Mt 
+
+> Mt+1
+
+≤ 2ϕt + 2 
+
+> Mt
+
++ ψt +
+
+1[Bt > M t/2] , and 1[Bt > M t/2] ≤ 2ϕt + 2 
+
+> Mt
+
+as well (there 
+
+ϕt ≥ 12 − 1 
+
+> Mt
+
+), so summing over the rounds with Mt ≥ M0
+
+and telescoping, on the good event, 
+
+log 2
+
+nM0
+
+≤ X
+
+> t
+
+
+
+4ϕt + ψt + 4
+
+Mt
+
+
+
+≤ 4
+
+s
+
+R X
+
+> t
+
+ϕ2 
+
+> t
+
++ X
+
+> t
+
+ψt
+
++ 4 ln 
+
+
+
+1 + RM0
+
+
+
++ 4
+
+M0
+
+,
+
+by Cauchy–Schwarz and P 
+
+> t
+
+1/M t ≤ 1 
+
+> M0
+
++ ln(1 + R/M 0)
+
+(Mt distinct, ≥ M0). Now P
+
+> t
+
+(ϕ2 
+
+> t
+
++ ψt) ≤ W/c 3 with W := P 
+
+> t
+
+Yt, EW ≤ ε, and taking expectations (using E√RW ≤√ER EW and concavity of ln ), 
+
+(1 − n−2) log 2
+
+nM0
+
+≤ 4
+
+r ER ε c3
+
++ εc3
+
++ 4 ln  1 + ER + 4
+
+M0
+
+.
+
+If ER ≥ log 32 n, the first branch of the minimum in the statement holds and we are done; otherwise 4 ln(1 + ER) ≤
+
+C log 2 log 2 n, and solving the resulting quadratic inequality for √ER ε gives the second branch. 
+
+Upper bound. If ε ≤ 2/n , sequential revealing has zero cost and its n rounds satisfy the claimed bound after increasing the absolute constant. Suppose henceforth that ε > 2/n . Use the fixed schedule Bt = ⌈γM t⌉, where γ = ε/ (C4 log 2 n) ≤
+
+1/16 , until Mt ≤ M0, and then reveal singletons. The first phase uses at most C log 2(n)/γ rounds, and the singleton tail uses M0 rounds. Thus R ≤ C(log 22 n/ε + log 2 n). If 19 
+
+Bt = 1 , the round cost is zero; if Bt ≥ 2, then γM t > 1
+
+and Bt/M t ≤ γ + 1 /M t ≤ 2γ ≤ 1/8. On the good event, Lemma 9(ii) therefore bounds each non-singleton round by 4C0γ2. The accumulated cost on this event is at most 
+
+ε/ 2 when C4 is sufficiently large. On the complementary event, which has probability at most n−2, the total correlation accumulated by any fixed schedule is at most n bits because a batch of size B costs at most B bits. Its expected contribution is therefore at most n−1 < ε/ 2. Hence DKL (pbal ∥ qπ ) ≤ ε,and the fixed schedule also witnesses the asserted bound on 
+
+Dε.APPENDIX FPROOFS FOR BINARY ONE -H OT BLOCKS 
+
+Consider an unresolved one-hot block at a history with M ≥
+
+2 possible locations for its one. If the current round selects 
+
+1 ≤ k ≤ M candidate coordinates, the selected vector is zero with probability 1 − k/M and equals each of its k unit vectors with probability 1/M . Its conditional total correlation is 
+
+G(M, k ) := kh 2(1 /M ) − h2(k/M ) − kM log 2 k, 
+
+with G(M, 0) := 0 .
+
+Lemma 10 (One-round one-hot cost) . For every M ≥ 2 and 
+
+0 ≤ k ≤ M ,
+
+G(M, k ) ≥ c0
+
+ (k − 1) +
+
+M
+
+2
+
+, c0 := 12e ln 2 .
+
+Proof. The cases k = 0 , 1 are immediate, so assume k ≥ 2.Let P be the true law of the selected coordinates and Q
+
+the product of their Bernoulli (1 /M ) marginals. Under P ,the event A that at least two selected coordinates equal one has probability zero. Under Q, retaining only outcomes with exactly two ones gives 
+
+Q(A) ≥
+
+k
+
+2
+
+ 1
+
+M 2
+
+
+
+1 − 1
+
+M
+
+k−2
+
+≥ k(k − 1) 2eM 2 ,
+
+where the last step uses k ≤ M and (1 − 1/M )M −2 ≥ e−1.Data processing under the indicator of A yields 
+
+G(M, k ) = DKL (P ∥ Q) ≥ − log 2(1 − Q(A)) 
+
+≥ (log 2 e)Q(A),
+
+which proves the claim because k(k − 1) ≥ (k − 1) 2+.Fix a block a and a global round t. Let Za,t indicate that the block is unresolved immediately before round t. On Za,t = 1 ,let Ma,t ≥ 2 be its number of possible one-locations and let 
+
+ka,t be the number selected from them in that round. After termination, pad the trajectory with empty rounds. On Za,t =0, set Ma,t = 1 and ka,t = 0 , and define 
+
+ua,t := (ka,t − 1) +
+
+Ma,t 
+
+.
+
+Lemma 11 (One free candidate per round) . For every deter-ministic value-adaptive policy, every block a and every round 
+
+t,
+
+Ep
+
+ Za,t 
+
+Ma,t 
+
+
+
+≤ 1
+
+m .
+
+Proof. Condition only on the latent locations J−a := (Ja′ )a′̸ =a = j−a of the other blocks. Run the deterministic policy up to round t in a zero-answer simulation for block 
+
+a: answer zero whenever that block is queried, and answer queries to every other block using the fixed value j−a. Stop if block a has at most one candidate left. If it remains unresolved before round t, let Ut(j−a) be its remaining candidate set; otherwise put Ut(j−a) = ∅.For every j ∈ Ut(j−a), the true trajectory with Ja = j
+
+agrees with the simulation through the beginning of round t:none of the previously queried positions in block a equals 
+
+j, and the claim follows inductively from determinism of the policy. Hence Za,t = 1 and Ma,t = |Ut(j−a)|. If j / ∈ Ut(j−a),the one has already been queried or the final candidate has been inferred, so Za,t = 0 . Independence and uniformity of 
+
+Ja therefore give 
+
+Ep
+
+ Za,t 
+
+Ma,t 
+
+J−a = j−a
+
+
+
+= X
+
+> j∈Ut(j−a)
+
+1
+
+m
+
+1
+
+|Ut(j−a)| ≤ 1
+
+m ,
+
+where the sum is zero if Ut(j−a) is empty. Averaging over 
+
+J−a completes the proof. 
+
+Proof of Theorem 12. Let Ta be the round in which block 
+
+a becomes resolved, either because its one is revealed or because only one candidate remains. At an unresolved state with M candidates and a batch of k candidates, the conditional resolution probability is at most 
+
+(k − 1) +
+
+M + 2
+
+M . (4) Indeed, for k ≤ M − 2 resolution requires the one to lie in the batch and has probability k/M ; for k = M − 1 or k = M
+
+resolution is certain, and the displayed expression is at least one. Set d := Ep[R] and H := ⌈2d⌉. Markov’s inequality gives 
+
+Pr {R ≤ H} ≥ 1/2. Since every block is resolved when the policy terminates, Pr {Ta ≤ H} ≥ 1/2. Summing the mutually exclusive resolution events and using Lemma 11, 
+
+12 ≤ X
+
+> t≤H
+
+Ep[Za,t ua,t ] + 2 X
+
+> t≤H
+
+Ep
+
+ Za,t 
+
+Ma,t 
+
+
+
+≤ X
+
+> t≤H
+
+Ep[Za,t ua,t ] + 2Hm . (5) Suppose first that H ≤ m/ 8. Then P 
+
+> t≤H
+
+Ep[Za,t ua,t ] ≥ 1/4,and Cauchy–Schwarz on the product of trajectory measure and counting measure on rounds gives 
+
+116 ≤ H X
+
+> t≤H
+
+Ep[Za,t u2
+
+> a,t
+
+].
+
+Let Ba be the coordinates of block a and define its expected information contribution by 
+
+Ka := Ep
+
+X
+
+> t≥1
+
+TC( XSt∩B a | xCt )
+
+ .20 
+
+In an unresolved block the summand equals G(Ma,t , k a,t );in a resolved block all selected coordinates are deterministic. Lemma 10 and H ≤ 3d therefore imply 
+
+Ka ≥ c0
+
+X
+
+> t≤H
+
+Ep[Za,t u2
+
+> a,t
+
+] ≥ c0
+
+16 H ≥ c0
+
+48 d . (6) At every realized positive-probability history, the queried sets may depend on values from several blocks, but their selection history is a deterministic function of revealed values and supplies no additional conditioning information. Lemma 2 therefore gives 
+
+TC( XSt | xCt ) = 
+
+> m
+
+X
+
+> a=1
+
+TC( XSt∩B a | xCt ).
+
+The adaptive cost identity and (6) yield, when H ≤ m/ 8,
+
+DKL 
+
+ phot  
+
+> m
+
+qπ
+
+ =
+
+> m
+
+X
+
+> a=1
+
+Ka ≥ c0m
+
+48 d . (7) If an admissible policy has divergence at most ε > 0, this branch gives d ≥ c0m/ (48 ε). In the complementary branch 
+
+H > m/ 8,
+
+d > m
+
+16 − 12 ≥ m
+
+32 , m ≥ 16 .
+
+Taking c = c0/48 < 1/32 proves d ≥ cm/ (1 + ε) in both branches. When ε = 0 , the branch H ≤ m/ 8 is impossible by (7), so the complementary bound applies. For the upper bound, in every unresolved block reveal one new candidate per round. After finding the one, or after elim-inating all but its final possible location, clear the remaining deterministic coordinates in the next round. Each unresolved block contributes at most one nondeterministic coordinate to a round, resolved blocks contribute only deterministic coordinates, and the blocks remain conditionally independent. Every round therefore has zero conditional total correlation, and all blocks finish within m rounds. Thus D0(phot  
+
+> m
+
+) ≤ m,which also bounds Dε.
+
+Proof of Corollary 1. For a block of length L, the zero-answer argument of Lemma 11 gives Ep[Za,t /M a,t ] ≤ 1/L .With d = Ep[R] and H = ⌈2d⌉, if H ≤ L/ 8, the proof above gives Ka ≥ c0/(48 d) for every one of the b blocks. Hence 
+
+DKL 
+
+ phot  
+
+> b,L
+
+qπ
+
+ ≥ c0b
+
+48 d .
+
+If H > L/ 8, then d > L/ 16 − 1/2 ≥ L/ 32 . Combining the two branches with c = c0/48 , including the zero-error case as above, gives Dε ≥ c min {L, b/ (1 + ε)}. The same zero-cost search schedule terminates within L rounds. Finally, for fixed 
+
+ε choose L ≍ nα and b ≍ n1−α along integer subsequences; when 0 < α ≤ 1/2, the lower and upper bounds are both of order nα.APPENDIX GPROOF OF GENERIC MAXIMAL ZERO -E RROR DEPTH 
+
+Proof of Proposition 4. For a triple (C, x C , {i, j }) with C ⊂
+
+[n], xC ∈ V C and i̸ = j / ∈ C, the conditional-independence relation Xi ⊥ Xj | XC = xC is the finite system of polynomial equations, indexed by (a, b ) ∈ V 2,
+
+p{i,j }∪ C (a, b, x C ) pC (xC ) = p{i}∪ C (a, x C )
+
+· p{j}∪ C (b, x C ),
+
+in the atoms of p (every marginal is a sum of atoms). Each system fails somewhere in the interior of the simplex: perturbing the uniform distribution by pδ (x) ∝ 1 + δ 1[xi =
+
+a0] 1[xj = b0] (any fixed a0, b 0 ∈ V , δ ∈ (0 , 1) ) leaves Xi
+
+and Xj dependent conditionally on every xC : conditioning on xC and marginalizing the coordinates outside C ∪ { i, j }
+
+multiplies every atom by the same count, so the conditional pair law is exactly g(a, b ) ∝ 1 + δ 1[a = a0]1[b = b0],and for any a̸ = a0, b̸ = b0 (here |V | ≥ 2) the cross-ratio    
+
+> g(a0,b 0)g(a,b )
+> g(a0,b )g(a,b 0)
+
+= 1 + δ̸ = 1 , whereas every product law has cross-ratio 1. A polynomial that does not vanish identically on the affine hull of the simplex vanishes on a subset of the simplex that is null for its (|V |n−1) -dimensional Lebesgue measure; hence each relation cuts out a null set, and there are finitely many triples, so outside a null set N no nontrivial pairwise conditional independence holds at any history. Fix a full-support p / ∈ N and a policy π with DKL (p ∥ qπ ) = 0. The equality condition of Theorem 1 gives TC( XSt |
+
+xCt ) = 0 p-almost surely along the trajectory; since every atom of p is positive, this holds at every state visited by the trajectory of any x ∈ V n. If some reveal set had |St| ≥ 2,zero total correlation would make its coordinates mutually — in particular pairwise — conditionally independent given xCt ,contradicting p / ∈ N . Hence |St| ≡ 1, so R(x) = n for every 
+
+x, and Ep[R] = max x R(x) = n.APPENDIX HENTROPY OF BERNOULLI SUMS 
+
+This appendix proves the marginal-entropy estimate used in Lemma 7. Throughout, X = Pmj=1 ξj with ξj ∼ Bern( pj )
+
+independent, μ = EX, σ2 = Var X = P 
+
+> j
+
+pj (1 − pj ), and 
+
+g(x) = 1√2πσ e−(x−μ)2/(2 σ2).
+
+Lemma 12 (Local CLT for Bernoulli sums) . There is an absolute constant CL such that for σ2 ≥ 2, sup k∈Z | Pr[ X =
+
+k] − g(k)| ≤ CL/σ 2.
+
+Local limit theorems of this type are classical (see, e.g., [47]); we include a short self-contained proof with explicit constants. 
+
+Proof. Write φ(t) = EeitX = Q 
+
+> j
+
+(1 − pj + pj eit ) and ψ(t) = 
+
+eiμt −σ2t2/2. Two facts about the factors gj (t) = log(1 − pj +
+
+pj eit ): first, |1 − pj + pj eit |2 = 1 − 2pj (1 − pj )(1 − cos t),so |φ(t)| ≤ e−σ2(1 −cos t) ≤ e−2σ2t2/π 2
+
+on [−π, π ]; second, 
+
+g′′  
+
+> j
+
+(t) = −pj (1 −pj )eit /D 2 and g′′′  
+
+> j
+
+(t) = −ip j (1 −pj )eit (D−
+
+2pj eit )/D 3 with D = 1 − pj + pj eit , and |D|2 ≥ 1 − pj (1 −
+
+pj )t2 ≥ 34 for |t| ≤ 1, so |g′′′  
+
+> j
+
+(t)| ≤ 5 pj (1 −pj ) there. Taylor’s theorem then gives | log φ(t) − (iμt − σ2t2/2) | ≤ σ2|t|3 for 
+
+|t| ≤ 1. Now Pr[ X = k] = 12π
+
+R π 
+
+> −π
+
+φ(t)e−ikt dt and g(k) = 
+
+> 12π
+
+R 
+
+> R
+
+ψ(t)e−ikt dt , so | Pr[ X = k] − g(k)| ≤ 12π
+
+R  
+
+> |t|≤ t0
+
+|φ −
+
+ψ|+R
+
+> t0<|t|≤ 1
+
+(|φ|+|ψ|)+ R 
+
+> 1<|t|≤ π
+
+(|φ|+|ψ|)+ R 
+
+> |t|>π
+
+|ψ| with 
+
+t0 = σ−2/3. On the first range |φ − ψ| ≤ | ψ| σ2|t|3eσ2|t|3
+
+≤21 
+
+e σ 2|t|3e−σ2t2/2, whose integral is at most 4e/σ 2; the second range is bounded by 2 R ∞ 
+
+> t0
+
+e−11 σ2t2/24 dt ≤ Ce − 11 24 σ2/3
+
+(using 
+
+1 − cos t ≥ 11 24 t2 on |t| ≤ 1); the third by 2πe −σ2(1 −cos 1) ; the last by Ce −σ2π2/2. All but the first are O(σ−2).
+
+Lemma 13 (Near-maximal entropy) . There is an absolute nonincreasing function δ(σ) → 0 (σ → ∞ ), depending on nothing but σ, such that every Bernoulli-sum law with variance 
+
+σ2 ≥ 2 satisfies 
+
+H(X) ≥ 12 log 2
+
+ 2πe (σ2 + 112 ) − δ(σ).
+
+One may take δ(σ) = C(1 + ln σ) σ−1/3.Proof. Let Z = ( X − μ)/σ and let B = {k : |k − μ| ≤ z0σ}
+
+with z20 = 43 ln σ (so z0 ≤ σ). On B, g(k) ≥ σ−2/3 
+
+> √2πσ
+
+, so by Lemma 12 the ratio bound pk ≤ g(k)(1 + ¯ r) holds with ¯r =√2π C L σ−1/3. Since every term −pk log 2 pk is nonnegative, discarding the complement of B gives 
+
+H(X) ≥ X
+
+> k∈B
+
+pk(− log 2 g(k)) − ¯r log 2 e
+
+= Pr[ B] log 2(√2πσ ) + log 2 e
+
+2 E[Z21B ]
+
+− ¯r log 2 e. 
+
+Bernstein’s inequality for sums of independent centered bounded variables [46] gives Pr[ |Z| > s ] ≤ 2e−3s2/8 for 
+
+s ≤ σ and Pr[ |Z| > s] ≤ 2e−3sσ/ 8 beyond, whence 
+
+Pr[ Bc] ≤ 2σ−1/2 and E[Z21Bc ] ≤ C(1 + ln σ)σ−1/2. Using 
+
+E[Z2] = 1 and collecting the three deficits (each at most 
+
+C(1+ln σ)σ−1/3) yields H(X) ≥ 12 log 2(2 πσ 2)+ 12 log 2 e−δ;finally 12 log 2(1 + 112 σ2 ) ≤ log 2 e 
+
+> 24 σ2
+
+is absorbed into δ. (Nu-merically the deficit is far smaller: δ ≈ 0.06 /σ 2 across hypergeometric marginals.) REFERENCES 
+
+[1] Y. Bengio, R. Ducharme, P. Vincent, and C. Jauvin, “A neural probabilistic language model,” J. Mach. Learn. Res. , vol. 3, pp. 1137–1155, 2003. [2] A. Vaswani et al. , “Attention is all you need,” in Adv. Neural Inf. Process. Syst. , vol. 30, 2017. [3] M. Ghazvininejad, O. Levy, Y. Liu, and L. Zettlemoyer, “Mask-Predict: Parallel decoding of conditional masked language mod-els,” in Proc. Conf. Empirical Methods Natural Language Pro-cess. Int. Joint Conf. Natural Language Process. , pp. 6112– 6121, 2019. [4] J. Austin et al. , “Structured denoising diffusion models in discrete state-spaces,” in Adv. Neural Inf. Process. Syst. , 2021, arXiv:2107.03006. [5] A. Lou, C. Meng, and S. Ermon, “Discrete diffusion modeling by estimating the ratios of the data distribution,” in Proc. Int. Conf. Mach. Learn. , 2024, arXiv:2310.16834. [6] S. Nie et al. , “Large language diffusion models,” in Adv. Neural Inf. Process. Syst. , 2025, arXiv:2502.09992. [7] S. Chen, K. Cong, and J. Li, “Optimal inference schedules for masked diffusion models,” in Proc. Conf. Learn. Theory , 2026, pp. 1279–1311, arXiv:2511.04647. [8] H. Lavenant and G. Zanella, “Error bounds and optimal sched-ules for masked diffusions with factorized approximations,” 2025, arXiv:2510.25544. [9] Y. Zhao and C. Cai, “Adaptation to intrinsic dependence in diffusion language models,” 2026, arXiv:2602.20126. [10] M. J. Wainwright, “The data geometry of masking diffusion: Certified-optimal schedules via unmasking growth complexity,” 2026, arXiv:2608.13520. [11] H. Fu et al. , “From bits to rounds: Parallel decoding with explo-ration for diffusion language models,” 2025, arXiv:2511.21103. [12] W. Kang et al. , “ParallelBench: Understanding the tradeoffs of parallel decoding in diffusion LLMs,” in Proc. Int. Conf. Learn. Represent. , 2026, arXiv:2510.04767. [13] S. Zhang et al. , “Generation order and parallel decoding in masked diffusion models: An information-theoretic perspective,” 2026, arXiv:2602.00286. [14] N. Anari, R. Gao, and A. Rubinstein, “Parallel sampling via counting,” in Proc. ACM Symp. Theory Comput. , 2024, arXiv:2408.09442. [15] N. Anari et al. , “Parallel sampling via autospeculation,” in Proc. ACM Symp. Theory Comput. , 2026, arXiv:2511.07869. [16] C. Cai and G. Li, “Confidence-based decoding is provably effi-cient for diffusion language models,” 2026, arXiv:2603.22248. [17] F. Draxler et al. , “Parallel token prediction for lan-guage models,” in Proc. Int. Conf. Learn. Represent. , 2026, arXiv:2512.21323. [18] J. Borcea, P. Br¨ and´ en, and T. M. Liggett, “Negative dependence and the geometry of polynomials,” J. Amer. Math. Soc. , vol. 22, pp. 521–567, 2009. [19] J. Ou, S. Nie, K. Xue, F. Zhu, J. Sun, Z. Li, and C. Li, “Your absorbing discrete diffusion secretly models the conditional distributions of clean data,” in Proc. Int. Conf. Learn. Represent. ,2025, arXiv:2406.03736. [20] J. Ye, Z. Xie, L. Zheng, J. Gao, Z. Wu, X. Jiang, Z. Li, and L. Kong, “Dream 7B: Diffusion large language models,” 2025, arXiv:2508.15487. [21] Qwen Team, “Qwen2.5 technical report,” 2024, arXiv:2412.15115. [22] S. Bai et al. , “Qwen3-VL technical report,” 2025, arXiv:2511.21631. [23] Inception Labs, “Mercury: Ultra-fast language models based on diffusion,” 2025, arXiv:2506.17298. [24] C. Wu et al. , “Fast-dLLM: Training-free acceleration of dif-fusion LLM by enabling KV cache and parallel decoding,” in 
+
+Proc. Int. Conf. Learn. Represent. , 2026, arXiv:2505.22618. [25] M. Arriola et al. , “Block diffusion: Interpolating between au-toregressive and diffusion language models,” in Proc. Int. Conf. Learn. Represent. , 2025, arXiv:2503.09573. [26] T. Li, M. Chen, B. Guo, and Z. Shen, “A survey on diffusion language models,” 2025, arXiv:2508.10875. [27] H. Ben-Hamu, I. Gat, D. Severo, N. Nolte, and B. Karrer, “Ac-celerated sampling from masked diffusion models via entropy bounded unmasking,” in Adv. Neural Inf. Process. Syst. , 2025, arXiv:2505.24857. [28] A. Liu, O. Broadrick, M. Niepert, and G. Van den Broeck, “Dis-crete copula diffusion,” in Proc. Int. Conf. Learn. Represent. ,2025, arXiv:2410.01949. [29] I. Li, Z. Shao, B. Wang, R. Yu, G. Van den Broeck, and A. Liu, “Breaking the factorization barrier in diffusion language models,” 2026, arXiv:2603.00045. [30] G. Feng, Y. Geng, J. Guan et al. , “Theoretical benefit and limitation of diffusion language model,” in Adv. Neural Inf. Process. Syst. , 2025, arXiv:2502.09622. [31] Y. Zhong et al. , “Parallelism and generation order in masked diffusion language models: Limits today, potential tomor-row,” in Findings Assoc. Comput. Linguistics: ACL , 2026, arXiv:2601.15593. [32] H. Jiang, N. Haghtalab, and L. Chen, “Diffusion language models are provably optimal parallel samplers,” in Proc. Int. Conf. Learn. Represent. , 2026, arXiv:2512.25014. [33] G. Li and Y. Yan, “ O(d/T ) convergence theory for diffusion probabilistic models under minimal assumptions,” J. Mach. Learn. Res. , vol. 26, no. 292, pp. 1–55, 2025. 22 
+
+[34] D. Z. Huang, J. Huang, and Z. Lin, “Convergence analysis of probability flow ODE for score-based generative models,” IEEE Trans. Inf. Theory , vol. 71, pp. 4581–4601, 2025. [35] G. Reeves and H. D. Pfister, “Information-theoretic proofs for diffusion sampling,” 2025, arXiv:2502.02305. [36] S. Merity, C. Xiong, J. Bradbury, and R. Socher, “Pointer sentinel mixture models,” in Proc. Int. Conf. Learn. Represent. ,2017, arXiv:1609.07843. [37] S. Watanabe, “Information theoretical analysis of multivariate correlation,” IBM J. Res. Develop. , vol. 4, no. 1, pp. 66–82, 1960. [38] T. S. Han, “Nonnegative entropy measures of multivariate symmetric correlations,” Inf. Control , vol. 36, pp. 133–156, 1978. [39] N. Merhav and M. Feder, “Universal prediction,” IEEE Trans. Inf. Theory , vol. 44, pp. 2124–2147, 1998. [40] A. D. Wyner, “The common information of two dependent random variables,” IEEE Trans. Inf. Theory , vol. 21, pp. 163– 179, 1975. [41] T. S. Han and S. Verd´ u, “Approximation theory of output statistics,” IEEE Trans. Inf. Theory , vol. 39, pp. 752–772, 1993. [42] P. Cuff, “Distributed channel synthesis,” IEEE Trans. Inf. The-ory , vol. 59, pp. 7071–7096, 2013. [43] M. Aldridge, O. Johnson, and J. Scarlett, “Group testing: An information-theoretic perspective,” Found. Trends Commun. Inf. Theory , vol. 15, no. 3–4, pp. 196–392, 2019. [44] J. Scarlett, “Noisy adaptive group testing: Bounds and algo-rithms,” IEEE Trans. Inf. Theory , vol. 65, pp. 3646–3661, 2019. [45] T. M. Cover and J. A. Thomas, Elements of Information Theory ,2nd ed. Hoboken, NJ: Wiley, 2006. [46] W. Hoeffding, “Probability inequalities for sums of bounded random variables,” J. Amer. Statist. Assoc. , vol. 58, no. 301, pp. 13–30, 1963. [47] V. V. Petrov, Sums of Independent Random Variables . Berlin, Germany: Springer, 1975.
