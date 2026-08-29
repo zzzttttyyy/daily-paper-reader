@@ -1,0 +1,223 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-29T03:26:07.228578+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.23664v1",
+      "source": "arxiv",
+      "title": "Scaling Reinforcement Learning for Diffusion Models via Velocity Matching",
+      "abstract": "Reward fine-tuning is becoming an important tool for adapting diffusion models to human preferences and task-specific objectives, but existing methods largely inherit policy-gradient machinery from large language models. Unlike autoregressive models, diffusion models do not provide tractable likelihoods for generated samples. As a result, current approaches either construct trajectory likelihoods from stochastic denoising transitions or approximate endpoint likelihoods with evidence lower bound, introducing additional computation and algorithmic complexity. We demonstrate that this likelihood-based machinery is not necessary for effective diffusion reward fine-tuning. We propose reward-based velocity matching (RVM), a simple trajectory-free update that acts directly on the velocity field. RVM reinforces directions associated with high-reward generations, suppresses those with low reward, and involves an optional anchor term controlling drift from a reference velocity. Notably, it provides a general framework that recovers recent fine-tuning methods, including RAM and DiffusionNFT, as special cases. Across various large-scale diffusion models reward fine-tuning tasks, RVM is competitive with or outperforms trajectory-based policy-gradient methods under substantially reduced training cost. We further find that, once the velocity update is simplified, the particular loss variant matters less than reward and anchor design. For video generation, standard preference rewards can favor visually clean but nearly static outputs; introducing a new dynamic-tracking reward that substantially improve motions while improving overall VBench performance. These results suggest that scalable reward fine-tuning for diffusion models is better posed in the native velocity representation than as likelihood-based policy optimization.",
+      "authors": [
+        "Jaemoo Choi",
+        "Wei Guo",
+        "Yuchen Zhu",
+        "Arash Vahdat",
+        "Molei Tao",
+        "Julius Berner",
+        "Yongxin Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-08-24T17:13:43+00:00",
+      "link": "https://arxiv.org/pdf/2608.23664v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "diffusion reward fine-tuning via velocity matching; relevant to diffusion generative models",
+      "llm_evidence_cn": "通过速度匹配进行扩散模型奖励微调；相关于扩散生成模型",
+      "llm_evidence": "通过速度匹配进行扩散模型奖励微调；相关于扩散生成模型",
+      "canonical_evidence": "通过速度匹配进行扩散模型奖励微调；相关于扩散生成模型",
+      "llm_tldr_en": "Proposes reward-based velocity matching (RVM), a simple trajectory-free update for diffusion reward fine-tuning, avoiding likelihood estimates and improving efficiency.",
+      "llm_tldr_cn": "针对扩散模型奖励微调中现有方法依赖策略梯度或似然估计、计算复杂的问题，提出基于奖励的速度匹配（RVM），通过匹配速度而不构造轨迹似然，实现简单高效的更新。该方法避免了额外似然计算和算法复杂度，在多种奖励优化任务上与现有方法相当或更好，为扩散模型适配人类偏好和下游目标提供了更简洁的训练范式。",
+      "llm_tldr": "针对扩散模型奖励微调中现有方法依赖策略梯度或似然估计、计算复杂的问题，提出基于奖励的速度匹配（RVM），通过匹配速度而不构造轨迹似然，实现简单高效的更新。该方法避免了额外似然计算和算法复杂度，在多种奖励优化任务上与现有方法相当或更好，为扩散模型适配人类偏好和下游目标提供了更简洁的训练范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.20515v1",
+      "source": "arxiv",
+      "title": "DiffVC-ONE: Diffusion-based Generative Video Compression with One-Step Video Diffusion Transformer",
+      "abstract": "Generative video compression can recover rich visual details at low bitrates, but simultaneously achieving high temporal consistency and low inference cost remains challenging. To address this issue, we propose DiffVC-ONE, a diffusion-based generative video compression framework built on a one-step Video Diffusion Transformer. First, we introduce a Unified Unidirectional Latent Compressor that uses a shared model to efficiently and uniformly compress compact latent slices. We then develop a Video DiT-based One-Step Diffusion Enhancer that uses the reconstructed latent slices as content anchors and performs single-step spatio-temporal perceptual enhancement over an entire group of pictures. Finally, a Hybrid Condition Generator extracts structural, strength, and semantic conditions from the reconstructed content and quantization information. These conditions preserve faithful regions, control the degree of generative enhancement, and supplement content-aware perceptual details during one-step diffusion enhancement. Extensive experiments on multiple standard benchmarks demonstrate that DiffVC-ONE achieves state-of-the-art perceptual quality and temporal consistency with low inference cost.",
+      "authors": [
+        "Wenzhuo Ma",
+        "Zhenzhong Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-20T19:20:05+00:00",
+      "link": "https://arxiv.org/pdf/2608.20515v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Generative video compression with one-step video diffusion transformer",
+      "llm_evidence_cn": "单步视频扩散Transformer的生成式视频压缩",
+      "llm_evidence": "单步视频扩散Transformer的生成式视频压缩",
+      "canonical_evidence": "单步视频扩散Transformer的生成式视频压缩",
+      "llm_tldr_en": "DiffVC-ONE presents diffusion-based generative video compression with a one-step Video Diffusion Transformer and unified latent compressor, achieving high temporal consistency at low inference cost.",
+      "llm_tldr_cn": "生成式视频压缩能在低码率下恢复丰富细节，但难以同时保证时间一致性与低推理成本。本文提出DiffVC-ONE，使用统一单向潜压缩器和视频扩散Transformer单步增强器对整组画面做时空感知增强。混合条件生成机制进一步提升重建质量。实验表明其在高压缩比下保持时间一致性并降低推理开销。该工作属于扩散视频生成的应用方向，并非免训练采样优化。",
+      "llm_tldr": "生成式视频压缩能在低码率下恢复丰富细节，但难以同时保证时间一致性与低推理成本。本文提出DiffVC-ONE，使用统一单向潜压缩器和视频扩散Transformer单步增强器对整组画面做时空感知增强。混合条件生成机制进一步提升重建质量。实验表明其在高压缩比下保持时间一致性并降低推理开销。该工作属于扩散视频生成的应用方向，并非免训练采样优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.26902v1",
+      "source": "arxiv",
+      "title": "Tether the Subject, Release the Scene: Query-Aware Memory Routing for Long-Horizon Autoregressive Video Generation",
+      "abstract": "Streaming autoregressive video models generate long videos chunk by chunk, using historical memory to maintain consistency. Existing methods typically expose subject and scene queries to history through similar policies. This stabilizes the subject, but can also lock backgrounds, viewpoints, and scene structure to previously generated states even when local motion continues. We call this failure memory-anchored scene under-progression; consistency and motion metrics alone can miss it. We introduce TetherMem, a training-free, query-aware spatiotemporal memory router for frozen video generators. TetherMem separates subject and scene queries and modulates historical access with region- and age-conditioned priors: subject queries retain identity-bearing history, while scene queries reduce reliance on subject history and stale backgrounds. Across 2,400 blinded pairwise judgments from 10 annotators, TetherMem achieves the highest estimated expected preference among eight streaming long-video baselines for overall quality (0.780) and scene progression (0.769). On complete 30-second videos, it sustains changes in background, viewpoint, and scene state while preserving subject recognizability and temporal continuity.",
+      "authors": [
+        "Chen Li",
+        "Peng Zhang",
+        "Hanyu Zhou",
+        "Jialong Zuo",
+        "Fei Wang",
+        "Daiguo Zhou",
+        "Nong Sang",
+        "Changxin Gao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-27T10:05:17+00:00",
+      "link": "https://arxiv.org/pdf/2608.26902v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free video generation improvement; memory router for frozen video generators",
+      "llm_evidence_cn": "面向视频生成的免训练优化；为冻结视频生成器设计记忆路由",
+      "llm_evidence": "面向视频生成的免训练优化；为冻结视频生成器设计记忆路由",
+      "canonical_evidence": "面向视频生成的免训练优化；为冻结视频生成器设计记忆路由",
+      "llm_tldr_en": "Proposes TetherMem, a training-free query-aware memory router for frozen autoregressive video generators, decoupling subject and scene history to avoid scene under-progression in long videos.",
+      "llm_tldr_cn": "长程自回归视频生成在逐块生成时容易因过度依赖历史记忆而锁死背景和视角，作者称之为记忆锚定的场景进展不足。为此提出TetherMem，一种免训练的查询感知时空记忆路由方法，将主体与场景查询分离，并基于区域和年龄先验调节历史访问。实验表明该方法在保持主体一致性的同时改善场景运动表现，且无需对冻结生成器进行额外训练，为视频生成中的免训练优化提供了新的方向。",
+      "llm_tldr": "长程自回归视频生成在逐块生成时容易因过度依赖历史记忆而锁死背景和视角，作者称之为记忆锚定的场景进展不足。为此提出TetherMem，一种免训练的查询感知时空记忆路由方法，将主体与场景查询分离，并基于区域和年龄先验调节历史访问。实验表明该方法在保持主体一致性的同时改善场景运动表现，且无需对冻结生成器进行额外训练，为视频生成中的免训练优化提供了新的方向。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.20561v1",
+      "source": "arxiv",
+      "title": "Consistency Models for Fast MRI Reconstruction Using Regularization by Denoising",
+      "abstract": "Diffusion models (DMs) have emerged as powerful generative priors for MRI reconstruction with promising results. Yet DM-based methods require extensive iterative refinement, limiting their practical deployment. Consistency models (CMs) provide a compelling alternative, aiming to map out the diffusion trajectory in a single pass, enabling faster generation. In this work, we propose CM-RED, a novel MRI reconstruction method that integrates a pretrained CM into the regularization by denoising (RED) scheme. Our method builds on accelerated proximal gradient RED (RED-APG), and further incorporates controlled noise injection during the update steps to enhance generative diversity and accelerate convergence. Extensive experiments on the fastMRI knee and brain datasets demonstrate that CM-RED achieves high-quality reconstructions across multiple anatomies, contrast weights, acceleration factors, and undersampling patterns, using only 4 network function evaluations (NFEs). The proposed method consistently outperforms existing DM- and CM-based approaches in both quantitative metrics and visual fidelity, and exhibits strong robustness to hyperparameter variations, highlighting CM-RED as an efficient and effective generative framework for accelerated MRI reconstruction. The source code and pretrained models are publicly available at https://github.com/MerveGulle/CM-RED.",
+      "authors": [
+        "Merve Gülle",
+        "Junno Yun",
+        "Yaşar Utku Alçalar",
+        "Mehmet Akçakaya"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV",
+        "cs.AI",
+        "cs.CV",
+        "cs.LG",
+        "physics.med-ph"
+      ],
+      "published": "2026-08-20T20:49:25+00:00",
+      "link": "https://arxiv.org/pdf/2608.20561v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Integrates pretrained consistency models into RED optimization for fast MRI reconstruction, requiring no additional training of the prior",
+      "llm_evidence_cn": "将预训练一致性模型集成到RED优化中，实现快速MRI重建，无需训练生成先验",
+      "llm_evidence": "将预训练一致性模型集成到RED优化中，实现快速MRI重建，无需训练生成先验",
+      "canonical_evidence": "将预训练一致性模型集成到RED优化中，实现快速MRI重建，无需训练生成先验",
+      "llm_tldr_en": "Proposes CM-RED, combining pretrained consistency models with regularization by denoising and controlled noise injection for fast MRI reconstruction, avoiding iterative refinement and additional training.",
+      "llm_tldr_cn": "扩散模型作为MRI重建先验效果良好但需大量迭代导致部署困难。本文提出CM-RED，将预训练一致性模型集成到RED-APG框架中，并在更新步骤中加入受控噪声以增强多样性和收敛速度。该方法无需额外训练一致性模型，在fastMRI膝关节数据上实现了快速重建，是面向扩散模型的重建优化方法，但其任务为医学成像而非图像/视频生成。",
+      "llm_tldr": "扩散模型作为MRI重建先验效果良好但需大量迭代导致部署困难。本文提出CM-RED，将预训练一致性模型集成到RED-APG框架中，并在更新步骤中加入受控噪声以增强多样性和收敛速度。该方法无需额外训练一致性模型，在fastMRI膝关节数据上实现了快速重建，是面向扩散模型的重建优化方法，但其任务为医学成像而非图像/视频生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.22272v1",
+      "source": "arxiv",
+      "title": "GAN-Diff : Coupling Pretrained WGAN-GP Features with Conditional Diffusion U-Nets",
+      "abstract": "Generative adversarial networks (GANs) can provide efficient image generation, while diffusion models offer high-quality image restoration but require iterative sampling. This paper presents a hybrid GAN-guided diffusion framework that uses a pretrained Wasserstein GAN with gradient penalty (WGAN-GP) as a feature prior for conditional diffusion-based image restoration. Intermediate features from the frozen WGAN-GP generator are incorporated into a diffusion U-Net through cross-attention and remain fixed during the DDIM sampling process. The framework is evaluated on two restoration tasks, Gaussian denoising and 2Xsuper-resolution, using CelebA face images. During development, several sources of instability were identified and addressed, including adversarial learning-rate imbalance, inappropriate diffusion initialization, excessive corruption, and insufficient parameter averaging. The resulting framework consistently improves the quality of both degraded and low-resolution images. In particular, it improves denoising performance by 4.40 dB in PSNR and super-resolution performance by 3.70 dB over their respective input baselines. These results demonstrate the potential of a frozen GAN feature prior to guide diffusion models toward stable and effective image restoration.",
+      "authors": [
+        "Saif Ahmed",
+        "Ashadulla Hil Galib",
+        "S. M. Riaz Rahman Antu",
+        "Ahmed Faizul Haque Dhrubo",
+        "Souvik Pramanik",
+        "Mohammad Abdul Qayum",
+        "Mohsin Sajjad",
+        "Mohammad Ashrafuzzaman Khan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-08-23T08:03:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.22272v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free feature guidance during DDIM sampling for image restoration with frozen GAN prior",
+      "llm_evidence_cn": "在DDIM采样中使用冻结GAN特征作为免训练引导，用于图像恢复",
+      "llm_evidence": "在DDIM采样中使用冻结GAN特征作为免训练引导，用于图像恢复",
+      "canonical_evidence": "在DDIM采样中使用冻结GAN特征作为免训练引导，用于图像恢复",
+      "llm_tldr_en": "Introduces a GAN-guided diffusion framework that injects frozen WGAN-GP intermediate features into a conditional diffusion U-Net via cross-attention during DDIM sampling, improving image restoration without updating the sampler.",
+      "llm_tldr_cn": "针对扩散图像恢复需要迭代采样且耗时的问题，提出利用预训练WGAN-GP的中间特征作为先验，在DDIM采样过程中通过交叉注意力注入扩散U-Net，且保持这些特征固定。在去噪和2倍超分任务上的实验表明，该方法在使用CelebA时有效改善恢复质量，并识别了训练中的不稳定来源，是一种不额外训练采样器的混合引导方式。",
+      "llm_tldr": "针对扩散图像恢复需要迭代采样且耗时的问题，提出利用预训练WGAN-GP的中间特征作为先验，在DDIM采样过程中通过交叉注意力注入扩散U-Net，且保持这些特征固定。在去噪和2倍超分任务上的实验表明，该方法在使用CelebA时有效改善恢复质量，并识别了训练中的不稳定来源，是一种不额外训练采样器的混合引导方式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
