@@ -1,0 +1,264 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-30T22:39:47.277288+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2608.21812v1",
+      "source": "arxiv",
+      "title": "Video Diffusion for Satellite-based High-Dynamical-Fidelity Precipitation (HiDFiP) Field Generation",
+      "abstract": "High spatiotemporal fidelity precipitation products that accurately capture storm spatial organization, propagation, and lifecycle evolution, are essential for advancing hydrometeorological research and operations at regional and global scales. Satellite products offer the only near-global precipitation observations, but they still fall short of reproducing the spatiotemporal structure of ground-based references, due largely to dynamic distortions from the inhomogeneity, intermittency, and indirectness of satellite retrievals. Here we propose a video-diffusion framework for satellite-based High-Dynamical-Fidelity Precipitation (HiDFiP) field generation beyond the space-time coverage of ground-radar, using radar-rich CONUS as a testbed. The framework performs explicit spatiotemporal modeling with IMERG as the primary source and leverages four-dimensional storm-environment information from about 40 ERA5/ERA5-Land atmospheric/land fields to compensate for the temporal information deficit inherent to satellite retrievals. We introduce an extensive metric suite to assess HiDFiP dynamical fidelity in temporal-reconstruction and spatial-transfer settings against MRMS ground-radar precipitation over CONUS. Relative to IMERG and image-wise diffusion baselines, HiDFiP accurately reproduces the storm space-time spectral characteristics; storm timing, location, and directional propagation; precipitation-event episodicity and temporal structure; precipitation-system morphology and spatial organization; and storm-track kinematics and lifecycle evolution. Transferability experiments indicate that HiDFiP generalizes reasonably well to an unseen region. This work advances a video-diffusion paradigm for satellite-based high-spatiotemporal-fidelity precipitation generation and provides an algorithmic and diagnostic foundation for long-term global radar-grade precipitation records.",
+      "authors": [
+        "Runze Li",
+        "Yan Xia",
+        "Yongquan Qu",
+        "Dongwei Fu",
+        "Clement Guilloteau",
+        "Judy Hoffman",
+        "Stephan Mandt",
+        "Pierre Gentine",
+        "Efi Foufoula-Georgiou"
+      ],
+      "primary_category": "physics.ao-ph",
+      "categories": [
+        "physics.ao-ph"
+      ],
+      "published": "2026-08-22T07:18:02+00:00",
+      "link": "https://arxiv.org/pdf/2608.21812v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "video diffusion framework for precipitation field generation",
+      "llm_evidence_cn": "用于降水场生成的视频扩散框架",
+      "llm_evidence": "用于降水场生成的视频扩散框架",
+      "canonical_evidence": "用于降水场生成的视频扩散框架",
+      "llm_tldr_en": "HiDFiP is a video diffusion framework that generates high-fidelity precipitation fields from satellite data, capturing storm organization and lifecycle evolution with video diffusion models.",
+      "llm_tldr_cn": "卫星降水产品在时空结构与动态上难以匹配地面雷达参考。该文提出 HiDFiP，一个基于视频扩散的框架，用于生成高动态保真降水场，并扩展到地面雷达覆盖范围之外。视频扩散模型能够刻画风暴的空间组织、传播与生命周期演化。该工作直接属于视频生成与扩散模型的结合，但未涉及免训练优化。",
+      "llm_tldr": "卫星降水产品在时空结构与动态上难以匹配地面雷达参考。该文提出 HiDFiP，一个基于视频扩散的框架，用于生成高动态保真降水场，并扩展到地面雷达覆盖范围之外。视频扩散模型能够刻画风暴的空间组织、传播与生命周期演化。该工作直接属于视频生成与扩散模型的结合，但未涉及免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.22272v1",
+      "source": "arxiv",
+      "title": "GAN-Diff : Coupling Pretrained WGAN-GP Features with Conditional Diffusion U-Nets",
+      "abstract": "Generative adversarial networks (GANs) can provide efficient image generation, while diffusion models offer high-quality image restoration but require iterative sampling. This paper presents a hybrid GAN-guided diffusion framework that uses a pretrained Wasserstein GAN with gradient penalty (WGAN-GP) as a feature prior for conditional diffusion-based image restoration. Intermediate features from the frozen WGAN-GP generator are incorporated into a diffusion U-Net through cross-attention and remain fixed during the DDIM sampling process. The framework is evaluated on two restoration tasks, Gaussian denoising and 2Xsuper-resolution, using CelebA face images. During development, several sources of instability were identified and addressed, including adversarial learning-rate imbalance, inappropriate diffusion initialization, excessive corruption, and insufficient parameter averaging. The resulting framework consistently improves the quality of both degraded and low-resolution images. In particular, it improves denoising performance by 4.40 dB in PSNR and super-resolution performance by 3.70 dB over their respective input baselines. These results demonstrate the potential of a frozen GAN feature prior to guide diffusion models toward stable and effective image restoration.",
+      "authors": [
+        "Saif Ahmed",
+        "Ashadulla Hil Galib",
+        "S. M. Riaz Rahman Antu",
+        "Ahmed Faizul Haque Dhrubo",
+        "Souvik Pramanik",
+        "Mohammad Abdul Qayum",
+        "Mohsin Sajjad",
+        "Mohammad Ashrafuzzaman Khan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-08-23T08:03:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.22272v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Conditional diffusion with pretrained GAN features for image restoration",
+      "llm_evidence_cn": "预训练GAN特征融合条件扩散用于图像恢复",
+      "llm_evidence": "预训练GAN特征融合条件扩散用于图像恢复",
+      "canonical_evidence": "预训练GAN特征融合条件扩散用于图像恢复",
+      "llm_tldr_en": "Couples a frozen pretrained WGAN-GP generator as feature prior with a conditional diffusion U-Net for image denoising and 2x super-resolution, keeping GAN features fixed during DDIM sampling.",
+      "llm_tldr_cn": "针对扩散模型迭代采样成本高、恢复质量受限的问题，提出将预训练WGAN-GP的中间特征通过交叉注意力注入条件扩散U-Net，并在DDIM采样过程中保持该特征固定。在CelebA人脸图像上评估了高斯去噪和2倍超分辨率任务，并处理了训练中的不稳定因素。该方法展示了GAN先验与扩散模型结合用于图像恢复的可行性。",
+      "llm_tldr": "针对扩散模型迭代采样成本高、恢复质量受限的问题，提出将预训练WGAN-GP的中间特征通过交叉注意力注入条件扩散U-Net，并在DDIM采样过程中保持该特征固定。在CelebA人脸图像上评估了高斯去噪和2倍超分辨率任务，并处理了训练中的不稳定因素。该方法展示了GAN先验与扩散模型结合用于图像恢复的可行性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.23938v1",
+      "source": "arxiv",
+      "title": "Generalization, memorization, and overfitting for diffusion models trained in the lazy high-dimensional regime",
+      "abstract": "Modern score-based generative models have achieved remarkable empirical success in high-dimensional tasks such as image, audio, and video synthesis. These models reduce distribution learning to a sequence of regression problems that, if solved exactly on finite data, would ultimately reproduce the training samples. Their ability to generalize must therefore arise from the implicit or explicit regularization during training. In this work, we develop a generative counterpart to the theory of benign overfitting and algorithmic regularization for overparameterized neural networks in the supervised lazy-training regime. We study denoising score matching in a vector-valued reproducing kernel Hilbert space with an inner-product kernel. In the proportional high-dimensional regime $n\\asymp d$, we derive exact risk trajectories under gradient flow training. These trajectories exhibit three phases governed by qualitatively distinct estimators: a spectral estimator that generalizes, a pure-noise score with localized peaks that interpolate the training objective, and an empirical Bayes estimator that memorizes the data. We then analyze how these estimators combine along the reverse-time SDE and characterize the distribution of the resulting samples. The analysis reveals familiar mechanisms from supervised learning, including kernel linearization and self-induced regularization from the nonlinear part of the kernel, but also reveals a distinct phenomenology specific to generative modeling.",
+      "authors": [
+        "Hugo Latourelle-Vigeant",
+        "Sinho Chewi",
+        "Aram-Alexandre Pooladian",
+        "John Sous",
+        "Theodor Misiakiewicz"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG",
+        "math.ST"
+      ],
+      "published": "2026-08-25T00:54:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.23938v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Theoretical analysis of generalization and overfitting in score-based diffusion models for image, audio, and video synthesis",
+      "llm_evidence_cn": "针对图像、音频、视频合成的基于分数的扩散模型的泛化与过拟合理论",
+      "llm_evidence": "针对图像、音频、视频合成的基于分数的扩散模型的泛化与过拟合理论",
+      "canonical_evidence": "针对图像、音频、视频合成的基于分数的扩散模型的泛化与过拟合理论",
+      "llm_tldr_en": "This paper develops a theory of benign overfitting and algorithmic regularization for denoising score matching in the lazy high-dimensional regime, explaining how diffusion models generalize despite finite training data.",
+      "llm_tldr_cn": "论文针对扩散模型在有限训练数据下仍能生成高质量样本的现象，系统研究了其泛化与记忆之间的平衡机制。作者在高维懒训练体制下，为去噪分数匹配建立了与良性过拟合和算法正则化相对应的生成式理论框架。研究指出，隐式或显式正则化是扩散模型避免直接复现训练样本、获得泛化能力的关键来源。该工作为理解扩散模型的过拟合行为与设计更稳定的训练方法提供了理论支撑。",
+      "llm_tldr": "论文针对扩散模型在有限训练数据下仍能生成高质量样本的现象，系统研究了其泛化与记忆之间的平衡机制。作者在高维懒训练体制下，为去噪分数匹配建立了与良性过拟合和算法正则化相对应的生成式理论框架。研究指出，隐式或显式正则化是扩散模型避免直接复现训练样本、获得泛化能力的关键来源。该工作为理解扩散模型的过拟合行为与设计更稳定的训练方法提供了理论支撑。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.26574v1",
+      "source": "arxiv",
+      "title": "Dependency-Aware Revocable Decoding for Efficient Diffusion Large Language Model Inference",
+      "abstract": "Diffusion large language models (dLLMs) offer a promising alternative to autoregressive generation by decoding multiple tokens in parallel through iterative denoising. However, increasing decoding parallelism often degrades generation quality, as early errors can contaminate later contexts. Revocable decoding mitigates this issue by re-evaluating decoded tokens and remasking unreliable ones, but existing methods overlook that unreliable tokens may also corrupt the verification context itself. We identify this failure mode and propose Dependency-Aware Revocable Decoding (DARD), a training-free framework that separates tokens into masked, candidate, and unmasked states. DARD verifies candidate tokens using a selective context that excludes less reliable tokens and adaptively regulates their influence on subsequent decoding. Experiments across 12 textual and multimodal benchmarks on 3 open-source dLLMs show that DARD consistently improves the speed-quality Pareto frontier over recent revocable decoding methods, achieving a 2.71$\\times$ speedup and a 4.35-point CIDEr score gain over Saber on Flickr30K.",
+      "authors": [
+        "Wooje Park",
+        "Insu Lee",
+        "Minyoung Noh",
+        "Jaeyun Jang",
+        "Sungmin Lee",
+        "Kyuhong Shim",
+        "Byonghyo Shim"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-27T03:34:47+00:00",
+      "link": "https://arxiv.org/pdf/2608.26574v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free revocable decoding framework for diffusion LLM inference to improve decoding parallelism and quality",
+      "llm_evidence_cn": "面向扩散大语言模型推理的免训练可撤销解码框架，提升并行解码质量",
+      "llm_evidence": "面向扩散大语言模型推理的免训练可撤销解码框架，提升并行解码质量",
+      "canonical_evidence": "面向扩散大语言模型推理的免训练可撤销解码框架，提升并行解码质量",
+      "llm_tldr_en": "Proposes Dependency-Aware Revocable Decoding (DARD), a training-free framework that separates tokens into masked, candidate, and unmasked states and verifies candidates with selective context to improve diffusion LLM decoding.",
+      "llm_tldr_cn": "针对扩散大语言模型并行解码中早期错误污染后续上下文的问题，论文提出依赖感知可撤销解码（DARD）。该免训练框架将词元分为掩码、候选和未掩码三种状态，使用选择性上下文验证候选词元，避免不可靠词元破坏验证上下文。实验表明DARD能在不训练的情况下提升并行解码质量，为扩散语言模型的推理优化提供高效方案。",
+      "llm_tldr": "针对扩散大语言模型并行解码中早期错误污染后续上下文的问题，论文提出依赖感知可撤销解码（DARD）。该免训练框架将词元分为掩码、候选和未掩码三种状态，使用选择性上下文验证候选词元，避免不可靠词元破坏验证上下文。实验表明DARD能在不训练的情况下提升并行解码质量，为扩散语言模型的推理优化提供高效方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.24068v1",
+      "source": "arxiv",
+      "title": "Representation Learning in Diffusion and Flow-based Model: An Application Aspect",
+      "abstract": "Diffusion models and flow-based models have recently become the dominant paradigms in generative modeling, largely due to their ability to learn rich, multi-level visual representations through large-scale training. This creates a bidirectional relationship between generative models and representation learning: improving representation learning enhances generation quality, while the learned representations can be leveraged for broader understanding tasks. This survey systematically explores this interplay with a focus on applications. We propose a three-tier progressive framework that organizes existing works from three perspectives: using representation learning to improve generative capabilities, exploiting generative models to extract representations for perception tasks, and ultimately moving toward general-purpose unified applications. We systematically categorize representative methods across a wide range of downstream tasks, including image classification, dense visual prediction, instance-level perception, and annotation-scarce scenarios. By providing a unified taxonomy and identifying key challenges, this survey aims to clarify the underlying logic of current research and suggest promising directions for future exploration. We hope this work can serve as a valuable reference for researchers interested in harnessing the representation power of generative models for applications beyond generation.",
+      "authors": [
+        "Yanchen Xu",
+        "Sida Huang",
+        "Zhenyu Gu",
+        "Ruishu Zhu",
+        "Yilan Gao",
+        "Hongyuan Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-25T04:55:15+00:00",
+      "link": "https://arxiv.org/pdf/2608.24068v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Survey of diffusion and flow-based models for generative tasks via representation learning",
+      "llm_evidence_cn": "面向生成任务的扩散/流模型表示学习综述",
+      "llm_evidence": "面向生成任务的扩散/流模型表示学习综述",
+      "canonical_evidence": "面向生成任务的扩散/流模型表示学习综述",
+      "llm_tldr_en": "A survey investigating how representation learning and diffusion/flow-based generative models mutually enhance each other, organizing works by application and proposing a three-tier progressive framework.",
+      "llm_tldr_cn": "该综述聚焦扩散模型和流模型与表示学习之间的双向关系：提升表示学习可增强生成质量，而生成模型学到的表示也可用于理解任务。作者提出一个三层递进框架，从利用表示学习改进生成能力、利用生成模型提取表示等应用角度组织现有工作。这对理解和改进扩散模型生成任务具有参考价值。",
+      "llm_tldr": "该综述聚焦扩散模型和流模型与表示学习之间的双向关系：提升表示学习可增强生成质量，而生成模型学到的表示也可用于理解任务。作者提出一个三层递进框架，从利用表示学习改进生成能力、利用生成模型提取表示等应用角度组织现有工作。这对理解和改进扩散模型生成任务具有参考价值。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.25454v1",
+      "source": "arxiv",
+      "title": "Physics-Guided Generative Surrogates for Parametric Rarefied Flows with Neural-Field Auto-Decoders: A Pipeline-Level Study of Flow Matching and Diffusion",
+      "abstract": "We present a conditional latent generative framework for parametric rarefied flows that separates neural-field representation, latent transport, and frozen physics adaptation. Neural-field auto-decoders compress discrete-velocity cavity solutions and direct simulation Monte Carlo cylinder solutions into shared coordinate decoders. Train-only principal-component charts support conditional flow matching (FM) and diffusion without a deterministic condition-to-latent backbone, and structured low-rank adapters correct selected decoder outputs while the upstream pipeline remains frozen. On two steady benchmarks, the frozen pipelines interpolate out-of-sample conditions with cavity kinetic relative $L_1$ errors at the $10^{-5}$ level and cylinder per-field area-weighted RMSEs of 0.038 (density), 0.041 (temperature), and below 0.01 (velocities). For the cavity, physics adaptation reduces the matched-grid Bhatnagar--Gross--Krook diagnostic by 28.65% while preserving field accuracy; for the cylinder, the analytic wall map enforces no-penetration exactly and, jointly with the learned FM adapter, reduces the inlet violation to 0.277 and the global mass-balance ratio to 0.963 of the frozen values with negligible field-error change. A five-seed controlled comparison with deterministic condition-to-chart multilayer perceptrons shows that, although the generative pipelines do not surpass the compact MLP in point accuracy on these single-valued steady problems, the results validate sampling-based conditional transport on the shared representation as an effective steady surrogate, with a natural route to multivalued or stochastic solution families.",
+      "authors": [
+        "Yiming Qi",
+        "Guan Zhang",
+        "Xu Wang",
+        "Yonghao Zhang",
+        "Tianbai Xiao"
+      ],
+      "primary_category": "physics.flu-dyn",
+      "categories": [
+        "physics.flu-dyn"
+      ],
+      "published": "2026-08-26T07:18:12+00:00",
+      "link": "https://arxiv.org/pdf/2608.25454v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Conditional latent generative framework using flow matching and diffusion for parametric rarefied flows",
+      "llm_evidence_cn": "面向参数化稀薄流动的条件潜在生成框架，融合流匹配与扩散模型",
+      "llm_evidence": "面向参数化稀薄流动的条件潜在生成框架，融合流匹配与扩散模型",
+      "canonical_evidence": "面向参数化稀薄流动的条件潜在生成框架，融合流匹配与扩散模型",
+      "llm_tldr_en": "This paper presents a conditional latent generative framework with neural-field auto-decoders for parametric rarefied flows, separating representation, latent transport, and frozen physics adaptation. It supports conditional flow matching and diffusion without a deterministic condition-to-latent backbone, using low-rank adapters while the upstream pipeline stays frozen and interpolating out-of-sample conditions on benchmarks.",
+      "llm_tldr_cn": "针对参数化稀薄流动的代理建模，论文提出将神经场表示、潜在输运与冻结物理自适应解耦的条件潜在生成框架。神经场自动解码器压缩仿真解，训练用的主成分图表支持条件流匹配和扩散，无需确定性条件到潜在骨架，并使用低秩适配器修正解码器输出。在两个稳态基准上，冻结流程能够对分布外工况进行插值，验证了扩散生成代理的可行性。",
+      "llm_tldr": "针对参数化稀薄流动的代理建模，论文提出将神经场表示、潜在输运与冻结物理自适应解耦的条件潜在生成框架。神经场自动解码器压缩仿真解，训练用的主成分图表支持条件流匹配和扩散，无需确定性条件到潜在骨架，并使用低秩适配器修正解码器输出。在两个稳态基准上，冻结流程能够对分布外工况进行插值，验证了扩散生成代理的可行性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
