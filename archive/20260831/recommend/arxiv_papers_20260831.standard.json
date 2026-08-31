@@ -1,0 +1,225 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-31T23:47:52.196162+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2608.26714v2",
+      "source": "arxiv",
+      "title": "LiveVVT: High-Fidelity Video Virtual Try-On in Real Time",
+      "abstract": "Diffusion-based Video Virtual Try-On (VVT) achieves high visual fidelity through bidirectional spatio-temporal modeling, but complete-clip dependence incurs prohibitive latency and computational overhead in practical continuous deployment. Naively enforcing causality disrupts pretrained bidirectional priors and substantially degrades synthesis quality. We introduce LiveVVT, a rolling streaming diffusion framework that preserves bounded bidirectional modeling within causal recurrent generation. Within a fixed-size window, LiveVVT jointly denoises multiple video chunks under bounded look-ahead, preserving local bidirectional interactions while emitting one clean chunk per iteration. Beyond the window, two complementary memories sustain long-term consistency: a bounded temporal memory propagates recent dynamics and occlusion context, whereas a persistent global appearance memory, constructed once from the target garment and a frontal try-on keyframe, anchors garment details and dressed appearance throughout the stream. We further introduce a progressive distillation framework integrating bidirectional VVT learning, teacher-trajectory regression for causal few-step adaptation, and Collaborative Matching Distillation, which couples teacher-distribution matching with rolling flow matching on real videos to align optimization with recurrent inference. Experiments on paired and unpaired long-sequence benchmarks demonstrate superior generation quality over similarly sized models, with $26\\times$ lower latency and $11\\times$ higher throughput, enabling high-fidelity real-time streaming VVT.",
+      "authors": [
+        "Yushe Cao",
+        "Shikun Feng",
+        "Ruxiang Duan",
+        "Liyong Wang",
+        "Dianxi Shi",
+        "Chun Yu",
+        "Junliang Xing"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-27T07:06:51+00:00",
+      "link": "https://arxiv.org/pdf/2608.26714v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Diffusion-based video virtual try-on generation with a streaming framework",
+      "llm_evidence_cn": "基于扩散模型的视频虚拟试穿生成",
+      "llm_evidence": "基于扩散模型的视频虚拟试穿生成",
+      "canonical_evidence": "基于扩散模型的视频虚拟试穿生成",
+      "llm_tldr_en": "LiveVVT is a rolling streaming diffusion framework for video virtual try-on that preserves bounded bidirectional modeling within causal recurrent generation, achieving real-time high-fidelity synthesis with long-term consistency.",
+      "llm_tldr_cn": "扩散式视频虚拟试穿依赖完整视频片段建模，造成高延迟和计算开销。LiveVVT提出滚动流式扩散框架，在固定窗口内联合去噪多个视频块，保留局部双向交互，同时通过两种互补记忆维持长期一致性。该方法在保持高保真度的同时实现实时生成，降低了实际部署成本。相关工作为扩散模型在长视频生成中的高效应用提供了新的流式架构思路。",
+      "llm_tldr": "扩散式视频虚拟试穿依赖完整视频片段建模，造成高延迟和计算开销。LiveVVT提出滚动流式扩散框架，在固定窗口内联合去噪多个视频块，保留局部双向交互，同时通过两种互补记忆维持长期一致性。该方法在保持高保真度的同时实现实时生成，降低了实际部署成本。相关工作为扩散模型在长视频生成中的高效应用提供了新的流式架构思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.27922v1",
+      "source": "arxiv",
+      "title": "DensityKV: Density-Guided KV Cache Compression for Long Video Generation",
+      "abstract": "Autoregressive video diffusion models enable streaming generation through sliding-window attention, but each generated block is conditioned on previously generated content, causing appearance and motion errors to propagate recursively over time. Historical key-value (KV) memory preserves earlier subject and scene states and helps maintain long-horizon consistency. However, retaining every generated state creates a historical archive that grows continuously with the rollout, while recurrent states repeatedly add redundant coverage. To address this problem, we propose DensityKV, a training-free historical KV bank management strategy. DensityKV maintains a separate token-level KV bank for each attention head and measures local redundancy among the post-RoPE keys that directly parameterize attention routing using Soft-Riesz density. By constraining neighborhood-density growth after states enter the bank, DensityKV limits repeated historical accumulation while preserving coherent states from each completed generation block. Experiments across three autoregressive video generation backbones and multiple generation lengths show that, at the same upper bound on historical KV capacity, DensityKV improves long-horizon consistency and generation stability while keeping persistent historical storage bounded independently of rollout length.",
+      "authors": [
+        "Wenqu Zhao",
+        "Xuemin Chi",
+        "Xin Zhang",
+        "Guoqing Ma",
+        "Baorun Li",
+        "Jianjie Fang",
+        "Peizhi Tang",
+        "Chen Gao",
+        "Wei Wu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-28T04:57:57+00:00",
+      "link": "https://arxiv.org/pdf/2608.27922v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free KV cache compression for autoregressive video diffusion models",
+      "llm_evidence_cn": "针对自回归视频扩散模型的免训练KV缓存压缩",
+      "llm_evidence": "针对自回归视频扩散模型的免训练KV缓存压缩",
+      "canonical_evidence": "针对自回归视频扩散模型的免训练KV缓存压缩",
+      "llm_tldr_en": "DensityKV is a training-free historical KV bank management strategy that compresses per-head token-level KV caches by measuring local redundancy, reducing growth and error propagation in long video generation.",
+      "llm_tldr_cn": "自回归视频扩散模型在长视频生成中依赖历史KV记忆保持一致性，但不断增长的KV档案导致冗余和误差累积。DensityKV 提出免训练的历史KV库管理策略，为每个注意力头维护令牌级KV库并度量局部冗余，从而高效压缩缓存。该方法可在不额外训练的情况下控制记忆增长，缓解错误传播，提升长视频生成的稳定性和可扩展性。",
+      "llm_tldr": "自回归视频扩散模型在长视频生成中依赖历史KV记忆保持一致性，但不断增长的KV档案导致冗余和误差累积。DensityKV 提出免训练的历史KV库管理策略，为每个注意力头维护令牌级KV库并度量局部冗余，从而高效压缩缓存。该方法可在不额外训练的情况下控制记忆增长，缓解错误传播，提升长视频生成的稳定性和可扩展性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.27885v1",
+      "source": "arxiv",
+      "title": "There and Back Again: Bidirectional Diffusion Bridges for Multimodality Translation",
+      "abstract": "Multimodality translation (e.g., text-to-image) is a core generative AI task. However, existing approaches (1) follow generative paths that do not directly represent the source modality, limiting the flexibility of some sampling algorithms; and (2) are unidirectional, preventing inversion (e.g., image-to-text). We propose BIT: Bidirectional Image-Text Diffusion Bridges. In contrast to previous approaches, BIT starts directly from text and interpolates into images, providing (1) a source-aware generative path that enables diverse and flexible sampling algorithms; and (2) an endpoint-conditioned process that can be traversed from image to text, providing a unified, bidirectional generative framework. BIT is derived through stochastic calculus, yielding SDE forms amenable to simulation and tractable loss functions that scale to high dimensions. Our experiments show that BIT is competitive with denoising-diffusion and deterministic-flow baselines, and outperforms them on several vision--language and natural-science evaluations.",
+      "authors": [
+        "Gabe Guo",
+        "Elon Litman",
+        "Thanawat Sornwanee",
+        "Jose Blanchet",
+        "Stefano Ermon"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-28T03:43:53+00:00",
+      "link": "https://arxiv.org/pdf/2608.27885v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Proposes bidirectional diffusion bridges for text-to-image and image-to-text translation.",
+      "llm_evidence_cn": "提出双向扩散桥实现文本到图像及图像到文本的生成。",
+      "llm_evidence": "提出双向扩散桥实现文本到图像及图像到文本的生成。",
+      "canonical_evidence": "提出双向扩散桥实现文本到图像及图像到文本的生成。",
+      "llm_tldr_en": "Proposes BIT, Bidirectional Image-Text Diffusion Bridges, which start from text and interpolate into images, enabling source-aware generation and bidirectional traversal (image-to-text) within a unified diffusion framework, improving sampling flexibility for multimodal translation.",
+      "llm_tldr_cn": "该作者提出双向图像-文本扩散桥BIT，直接从文本出发插值到图像，提供源感知的生成路径，并支持从图像到文本的可逆生成。相比传统单向方法，该框架无需为源模态单独建模，允许更灵活的采样算法，并在多模态翻译中取得竞争力。属于扩散模型生成任务的重要扩展。",
+      "llm_tldr": "该作者提出双向图像-文本扩散桥BIT，直接从文本出发插值到图像，提供源感知的生成路径，并支持从图像到文本的可逆生成。相比传统单向方法，该框架无需为源模态单独建模，允许更灵活的采样算法，并在多模态翻译中取得竞争力。属于扩散模型生成任务的重要扩展。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.27073v2",
+      "source": "arxiv",
+      "title": "SpatialCrafter: Single Image World Modeling with Generative 3D Proxies",
+      "abstract": "Explorable image-to-scene generation is essential for applications in gaming, robotics, and virtual reality. Existing methods based on video diffusion model (VDM) commonly rely on incomplete conditioning signals such as sparse point clouds or 2D panoramas, leading to stochastic hallucinations, long-term drifts and suboptimal 3D consistency. We present SpatialCrafter, a novel two-stage framework that addresses these issues by introducing a global 3D proxy for high-fidelity image-to-scene generation. Specifically, we decompose the generation process into global proxy generation and appearance refinement. For proxy generation, we propose a Point-anchored Sparse Structure~(PaSS) Flow module that predicts a spatially aligned and geometrically consistent 3D proxy. For appearance refinement, we re-frame the VDM as a Generative Deferred Refiner which synthesizes high-frequency photorealistic details upon proxy-defined scene geometry. To better integrate the proxy with the pre-trained VDM, we introduce Parallel Geometry Injection and Proxy-Aware Corruption training strategies, which improve robustness to proxy artifacts without disrupting the pretrained generative manifold. Furthermore, as no suitable dataset exists for this explorable scene generation task, we construct a new large-scale dataset of 115K scenes. To the best of our knowledge, it is the first hybrid dataset for image-to-scene generation. Extensive experiments on both synthetic and real-world datasets show that SpatialCrafter outperforms state-of-the-art methods, mitigates long-term drift, and remains robust and consistent under rapid camera motion and extreme viewpoint changes. Our project page: \\href{https://fangchuan.github.io/SpatialCrafter/}{fangchuan.github.io/SpatialCrafter/}",
+      "authors": [
+        "Chuan Fang",
+        "Lingteng Qiu",
+        "Yixun Liang",
+        "Rui Chen",
+        "Kunming Luo",
+        "Zhaohua Zheng",
+        "Tongyuan Bai",
+        "Feipeng Tian",
+        "Zilong Dong",
+        "Zihan Zhou",
+        "Ping Tan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-08-27T12:58:37+00:00",
+      "link": "https://arxiv.org/pdf/2608.27073v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "uses video diffusion model for image-to-scene generation",
+      "llm_evidence_cn": "使用视频扩散模型进行图像到场景生成",
+      "llm_evidence": "使用视频扩散模型进行图像到场景生成",
+      "canonical_evidence": "使用视频扩散模型进行图像到场景生成",
+      "llm_tldr_en": "SpatialCrafter proposes a two-stage framework with a global 3D proxy and Point-anchored Sparse Structure Flow to improve image-to-scene generation using a video diffusion model, reducing hallucinations and drift.",
+      "llm_tldr_cn": "针对基于视频扩散模型的单图世界建模中因条件信号不完整导致的随机幻觉、长期漂移和3D一致性差的问题，SpatialCrafter提出两阶段框架，先使用点锚定稀疏结构Flow模块预测全局3D代理，再进行外观细化，从而生成高保真、可探索的场景。该方法在保持几何一致性的同时提升生成质量，表明引入全局3D代理能有效提升视频扩散模型的场景生成能力。",
+      "llm_tldr": "针对基于视频扩散模型的单图世界建模中因条件信号不完整导致的随机幻觉、长期漂移和3D一致性差的问题，SpatialCrafter提出两阶段框架，先使用点锚定稀疏结构Flow模块预测全局3D代理，再进行外观细化，从而生成高保真、可探索的场景。该方法在保持几何一致性的同时提升生成质量，表明引入全局3D代理能有效提升视频扩散模型的场景生成能力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.28460v1",
+      "source": "arxiv",
+      "title": "LayerRecall: A State-Conditioned Memory Router for Long-Horizon Consistency in Video Generation",
+      "abstract": "Autoregressive video diffusion enables scalable long-video generation by producing chunks from a bounded recent context. While recency-based caching preserves local continuity, it evicts historical cues needed when subjects, objects, scenes, or attributes reappear. Existing memory mechanisms expose models to nonlocal history, but access alone does not ensure effective use. Our analysis reveals that video DiT layers exhibit distinct preferences for current, recent, and distant context, suggesting that long-range memory requires deciding both what to retrieve and where to use it. We introduce LayerRecall, a current-conditioned, layer-selective memory router that retrieves relevant historical K/V states and injects them only into backbone-specific memory-sensitive layers while preserving local attention elsewhere. To reduce reliance on scarce high-quality long-horizon videos and explicit memory-allocation labels, we further propose Cross-Horizon Prediction Matching (CHPM), which uses a privileged long-context reference to supervise the bounded-memory router in prediction space. Across 100 multi-shot evaluation prompts, LayerRecall achieves the best overall results on MemoBench and MovieBench while matching its backbone on VBench-Long, demonstrating stronger long-range recovery without sacrificing local continuity. Qualitative analyses further reveal memory-guided self-correction, whereby initially mismatched local attributes return to their historical appearance without resetting ongoing motion or scene structure. Additional analyses show cross-backbone portability and negligible inference overhead.",
+      "authors": [
+        "Yixuan Ding",
+        "Jiahao Kong",
+        "Wei Huang",
+        "Ruijie Quan",
+        "Yi Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-28T15:49:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.28460v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Targets long-horizon consistency in autoregressive video diffusion with a state-conditioned memory router.",
+      "llm_evidence_cn": "针对自回归视频扩散中的长期一致性问题，提出基于状态条件的记忆路由器。",
+      "llm_evidence": "针对自回归视频扩散中的长期一致性问题，提出基于状态条件的记忆路由器。",
+      "canonical_evidence": "针对自回归视频扩散中的长期一致性问题，提出基于状态条件的记忆路由器。",
+      "llm_tldr_en": "Introduces LayerRecall, a state-conditioned layer-selective memory router that retrieves relevant historical K/V states and injects them into video DiT layers to improve long-horizon consistency in autoregressive video diffusion. It targets long-video generation quality.",
+      "llm_tldr_cn": "该论文研究视频扩散模型在长视频生成中的长期一致性问题。现有缓存机制只保留近期上下文，导致久远主题或场景重现时不一致。作者提出LayerRecall，一种当前状态条件的层选择记忆路由器，按层注入相关历史KV状态，使视频DiT层能有效利用非局部历史。实验表明其显著提升长视频生成的时序一致性。",
+      "llm_tldr": "该论文研究视频扩散模型在长视频生成中的长期一致性问题。现有缓存机制只保留近期上下文，导致久远主题或场景重现时不一致。作者提出LayerRecall，一种当前状态条件的层选择记忆路由器，按层注入相关历史KV状态，使视频DiT层能有效利用非局部历史。实验表明其显著提升长视频生成的时序一致性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
