@@ -1,0 +1,413 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-01T21:16:52.179227+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 8,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2608.28670v1",
+      "source": "arxiv",
+      "title": "Memory-Efficient Training-Free Acceleration of Diffusion Transformers with BaryCache",
+      "abstract": "Diffusion Transformers achieve high-fidelity image and video generation, but their iterative sampling remains expensive, for each denoising step requires large matrix operations. Existing cache-based acceleration reduces redundant computation yet increases the VRAM footprint by storing intermediate states, which can directly constrain inference batch size. In this work, we propose a training-free acceleration method that performs stepwise forecasting for DiT sampling using a Barycentric Extrapolator. By leveraging barycentric extrapolation, our predictor is numerically stable and alleviates oscillatory artifacts analogous to the Runge phenomenon during forward forecasting. Across extensive experiments on both image and video generation, our approach provides a favorable trade-off between memory usage and perceptual quality, while delivering up to 3.30x end-to-end sampling speedup compared with baseline DiT inference.",
+      "authors": [
+        "Chengjie Lu",
+        "Tianchi Deng",
+        "Zhengqi He",
+        "Zhijian Gao",
+        "Huisi Wu",
+        "Xueliang Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-24T16:11:56+00:00",
+      "link": "https://arxiv.org/pdf/2608.28670v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Training-free memory-efficient acceleration for diffusion transformer image and video sampling via barycentric extrapolation",
+      "llm_evidence_cn": "通过重心外推对扩散Transformer的图像和视频采样进行免训练且内存高效的加速",
+      "llm_evidence": "通过重心外推对扩散Transformer的图像和视频采样进行免训练且内存高效的加速",
+      "canonical_evidence": "通过重心外推对扩散Transformer的图像和视频采样进行免训练且内存高效的加速",
+      "llm_tldr_en": "BaryCache proposes a training-free, memory-efficient acceleration method for diffusion transformers using a barycentric extrapolator for stepwise forecasting, reducing VRAM footprint and alleviating Runge oscillations.",
+      "llm_tldr_cn": "扩散Transformer在高保真图像和视频生成中表现优异，但迭代采样计算昂贵，现有缓存加速增加显存占用。本文提出BaryCache免训练加速方法，利用重心外推器对DiT采样逐步预测，在数值上稳定并缓解Runge振荡伪影。在图像和视频生成上的实验表明，该方法在降低显存占用的同时保持生成质量，是高效的免训练推理优化方案。",
+      "llm_tldr": "扩散Transformer在高保真图像和视频生成中表现优异，但迭代采样计算昂贵，现有缓存加速增加显存占用。本文提出BaryCache免训练加速方法，利用重心外推器对DiT采样逐步预测，在数值上稳定并缓解Runge振荡伪影。在图像和视频生成上的实验表明，该方法在降低显存占用的同时保持生成质量，是高效的免训练推理优化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.29322v1",
+      "source": "arxiv",
+      "title": "Test-Time Scaling for Video Diffusion Models via Diagnosis-Guided Candidate Recycling",
+      "abstract": "Recent video diffusion models have achieved remarkable generation quality, but high-fidelity results still largely depend on closed-source systems or costly large-scale infrastructure. Test-time scaling (TTS) offers a training-free way to improve lightweight generators by spending additional inference compute, yet existing methods mostly remain within a noise-search paradigm: they sample, select, or perturb denoising trajectories and discard low-scoring candidates after expensive generation. This generate-and-discard process wastes not only computation but also the partial motion, layout, or appearance structure already encoded in recoverable samples. We present \\textbf{GEARS} (\\textbf{G}uided \\textbf{E}diting for \\textbf{A}daptive \\textbf{R}ecycling \\textbf{S}earch), a training-free framework that introduces {diagnosis-guided candidate recycling} into video TTS by turning such candidates into editable priors through a generation-evaluation-editing loop. GEARS consists of two collaborative components. The \\textbf{Stage-Aware Scheduler} determines what to repair, when to repair it, and which candidates should be preserved, recycled, or discarded. The \\textbf{Candidate Recycler} diagnoses recoverable failures from keyframes and multi-dimensional reward feedback, derives candidate-specific repair prompts, and repairs the corresponding candidates through manifold-aware latent SDEdit. The repaired candidates are recycled into the search pool, creating refinement paths beyond standard noise perturbation while preserving useful structure. Under matched NFE budgets, GEARS consistently outperforms existing video TTS methods on VBench, bringing a 1.3B model to a total score comparable to a 14B counterpart, and ablations verify the necessity of adaptive scheduling, diagnosis-conditioned editing, and manifold-aware re-denoising. Code is available on GitHub.",
+      "authors": [
+        "Hangzhou He",
+        "Lunhao Duan",
+        "Shanshan Zhao",
+        "Kaiwen Li",
+        "Qing-Guo Chen",
+        "Weihua Luo",
+        "Yanye Lu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-29T15:08:31+00:00",
+      "link": "https://arxiv.org/pdf/2608.29322v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Training-free test-time scaling for video diffusion models",
+      "llm_evidence_cn": "视频扩散模型的免训练测试时扩展",
+      "llm_evidence": "视频扩散模型的免训练测试时扩展",
+      "canonical_evidence": "视频扩散模型的免训练测试时扩展",
+      "llm_tldr_en": "GEARS improves video diffusion test-time scaling by diagnosing and recycling low-scoring candidates instead of discarding them, boosting lightweight generators without training.",
+      "llm_tldr_cn": "高保真视频生成通常依赖闭源或大规模基础设施，而现有测试时扩展方法在噪声搜索中浪费大量计算并丢弃可恢复的样本。GEARS提出诊断引导的候选回收机制，通过编辑和自适应优化重用已生成的运动、布局和外观结构，实现无需额外训练的生成质量提升。该方法在轻量级生成器上展现出更好的计算效率与生成质量，为视频扩散模型的训练-free扩展提供了有效途径。",
+      "llm_tldr": "高保真视频生成通常依赖闭源或大规模基础设施，而现有测试时扩展方法在噪声搜索中浪费大量计算并丢弃可恢复的样本。GEARS提出诊断引导的候选回收机制，通过编辑和自适应优化重用已生成的运动、布局和外观结构，实现无需额外训练的生成质量提升。该方法在轻量级生成器上展现出更好的计算效率与生成质量，为视频扩散模型的训练-free扩展提供了有效途径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.30194v1",
+      "source": "arxiv",
+      "title": "NoisEasier: Test-Time Noise Optimization for Text-to-Video Generation",
+      "abstract": "Diffusion models have recently advanced text-to-video (T2V) generation, yet they still struggle with fine-grained compositional alignment, such as attribute binding, spatial relations, and object interactions. While reward-based fine-tuning improves alignment, it is susceptible to reward hacking and adapts poorly to new prompt distributions. In this work, we propose NoisEasier, a test-time scaling framework that improves T2V generation through differentiable reward-guided noise optimization without modifying the underlying model. By combining efficient short-step generators with a multi-objective reward formulation, NoisEasier enables stable and practical test-time optimization under realistic inference budgets. Our key insight is that jointly optimizing the entire stochastic trajectory accelerates reward convergence and improves compositional alignment over optimizing only the initial latent, with negligible additional computational and time cost. Experiments on VBench and T2V-CompBench demonstrate consistent improvements across multiple backbones, achieving over 10% average gains on challenging dimensions such as attribute binding, object interaction, and numeracy. Overall, NoisEasier serves as both a flexible alternative and a complementary enhancement to reward-based fine-tuning, establishing test-time scaling as an effective paradigm for controllable text-to-video generation.",
+      "authors": [
+        "Yujiang Pu",
+        "Yu Kong"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-31T03:17:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.30194v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Test-time noise optimization for text-to-video diffusion without training",
+      "llm_evidence_cn": "无需训练的文本到视频扩散测试时噪声优化",
+      "llm_evidence": "无需训练的文本到视频扩散测试时噪声优化",
+      "canonical_evidence": "无需训练的文本到视频扩散测试时噪声优化",
+      "llm_tldr_en": "NoisEasier improves text-to-video generation via test-time differentiable reward-guided noise optimization without model modification, enabling stable practical optimization under realistic budgets.",
+      "llm_tldr_cn": "文本到视频生成模型虽然在扩散模型推动下取得进展，但细粒度组合对齐仍然困难，且奖励微调易过拟合。NoisEasier提出一种测试时缩放框架，利用可微奖励引导的噪声优化在推理阶段改进生成结果，无需修改模型权重。通过将高效短步生成器与多目标奖励公式结合，在现实推理预算下实现稳定、实用的测试时优化，为免训练提升视频生成对齐提供了新思路。",
+      "llm_tldr": "文本到视频生成模型虽然在扩散模型推动下取得进展，但细粒度组合对齐仍然困难，且奖励微调易过拟合。NoisEasier提出一种测试时缩放框架，利用可微奖励引导的噪声优化在推理阶段改进生成结果，无需修改模型权重。通过将高效短步生成器与多目标奖励公式结合，在现实推理预算下实现稳定、实用的测试时优化，为免训练提升视频生成对齐提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.29160v1",
+      "source": "arxiv",
+      "title": "Training-Free Hidden-State Refinement for Flow-Matching Image Generators",
+      "abstract": "We aim to improve frozen flow-matching image generators by adding inference computation inside the denoiser, without changing model weights or the outer sampler. Existing generators usually spend extra test-time computation by increasing the number of sampling steps, which repeatedly evaluates the entire denoiser and couples quality gains to sampler cost. A key challenge is how to use extra computation inside a frozen transformer denoiser: the method must decide which tokens, layers, and sampling times receive repeated updates while preserving the original generation pipeline. We introduce a training-free looping framework that repeatedly applies selected transformer layers inside each denoising call. Dense and Sparse Token Loop vary the token scope; Sampling-Progress Gating and the loop layer range specify when and where looping is active; loop count and strength control the repeated updates; and Loop Guidance combines ordinary and looped vector-field predictions. Across two Scale-RAE model scales, loop variants improve primary and auxiliary quality metrics with competitive quality--efficiency trade-offs. Loop Guidance further improves both primary metrics across all three tested models; on Scale-RAE DiT2.4B, it raises GenEval from 0.4471 to 0.5691 and DPG-Bench from 0.7656 to 0.8053. Code will be released.",
+      "authors": [
+        "Yuanyi Yan",
+        "Xinzhe Rao",
+        "Canyu Shen",
+        "Yang Chen",
+        "Yunlu Chen",
+        "Meng Tang",
+        "Teng Long",
+        "Vincent Tao Hu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-29T09:17:02+00:00",
+      "link": "https://arxiv.org/pdf/2608.29160v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free hidden-state refinement for frozen flow-matching image generators without changing weights",
+      "llm_evidence_cn": "在冻结的流匹配图像生成器上进行免训练隐状态细化，不修改权重",
+      "llm_evidence": "在冻结的流匹配图像生成器上进行免训练隐状态细化，不修改权重",
+      "canonical_evidence": "在冻结的流匹配图像生成器上进行免训练隐状态细化，不修改权重",
+      "llm_tldr_en": "Improves frozen flow-matching image generators by adding training-free looping computation inside the denoiser, avoiding extra sampling steps.",
+      "llm_tldr_cn": "现有生成器通常通过增加采样步数来使用额外测试时计算，但这会反复评估整个去噪器，使质量提升与采样成本耦合。本文提出一种免训练循环框架，在每次去噪调用内部重复应用选定的Transformer层，并通过Dense和Sparse Token Loop控制token范围，在不改变模型权重或外层采样器的前提下提升生成质量。实验表明该方法能有效利用冻结Transformer内部的计算，优于单纯增加采样步数的做法，为扩散和流匹配图像生成器的免训练优化提供了通用方案。",
+      "llm_tldr": "现有生成器通常通过增加采样步数来使用额外测试时计算，但这会反复评估整个去噪器，使质量提升与采样成本耦合。本文提出一种免训练循环框架，在每次去噪调用内部重复应用选定的Transformer层，并通过Dense和Sparse Token Loop控制token范围，在不改变模型权重或外层采样器的前提下提升生成质量。实验表明该方法能有效利用冻结Transformer内部的计算，优于单纯增加采样步数的做法，为扩散和流匹配图像生成器的免训练优化提供了通用方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.29264v1",
+      "source": "arxiv",
+      "title": "EpaCache: Error-Propagation-Aware Caching for Accelerating Diffusion-Based Visual Generation",
+      "abstract": "Diffusion-based visual generative models deliver strong image and video synthesis quality but incur high inference costs because sequential samplers repeatedly evaluate large networks. Caching-based methods reduce inference latency by reusing intermediate computations across adjacent timesteps. However, existing cache controllers rely primarily on local temporal variation and overlook the trajectory-level consequences of cache reuse. We introduce Error-Propagation-Aware Cache (EpaCache), a training-free caching policy that adaptively allocates the reuse budget on timesteps with lower downstream impact. Experiments on image and video synthesis models demonstrate that EpaCache consistently improves the latency--fidelity trade-off over existing caching methods. On FLUX.1-dev, EpaCache outperforms the prior state-of-the-art caching method in both latency and fidelity, reducing inference time from $11.7$ s to $11.3$ s while improving PSNR from $21.4$ to $22.8$. On HunyuanVideo, EpaCache achieves a $2.63\\times$ speedup over uncached inference and improves SSIM from $0.891$ to $0.905$ over the prior state-of-the-art method at matched latency.",
+      "authors": [
+        "Yuhan Liu",
+        "Zongwei Hong",
+        "Jinglun Li",
+        "Linze Li",
+        "Shen Zhang",
+        "Yao Tang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-29T13:38:11+00:00",
+      "link": "https://arxiv.org/pdf/2608.29264v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free caching policy to accelerate diffusion-based image and video generation",
+      "llm_evidence_cn": "用于加速扩散模型图像和视频生成的免训练缓存策略",
+      "llm_evidence": "用于加速扩散模型图像和视频生成的免训练缓存策略",
+      "canonical_evidence": "用于加速扩散模型图像和视频生成的免训练缓存策略",
+      "llm_tldr_en": "EpaCache is a training-free error-propagation-aware caching policy that allocates cache reuse budgets based on downstream impact, improving latency-fidelity trade-offs for diffusion image and video synthesis.",
+      "llm_tldr_cn": "扩散模型在图像和视频合成上效果显著，但推理成本高。EpaCache 提出一种免训练的、考虑误差传播的缓存策略，根据时间步的下游影响自适应分配缓存复用预算，从而降低重复计算。在图像和视频生成模型上的实验表明，EpaCache 能够持续改善延迟-保真度权衡。它为扩散模型推理加速提供了一种无需额外训练的通用优化方案。",
+      "llm_tldr": "扩散模型在图像和视频合成上效果显著，但推理成本高。EpaCache 提出一种免训练的、考虑误差传播的缓存策略，根据时间步的下游影响自适应分配缓存复用预算，从而降低重复计算。在图像和视频生成模型上的实验表明，EpaCache 能够持续改善延迟-保真度权衡。它为扩散模型推理加速提供了一种无需额外训练的通用优化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.26214v1",
+      "source": "arxiv",
+      "title": "Surgical Video Generation From Diffusion to World Models: A Survey",
+      "abstract": "Surgical video data provides the primary training resource for models of intraoperative perception, surgical workflow understanding, and robotic decision-making. However, clinical data acquisition remains constrained by privacy, cost, and class imbalance. Surgical video generation has emerged as a transformative approach to addressing data scarcity and as a foundation for surgical simulation, training, and robotic policy learning. The field has developed rapidly without a clear conceptual framework. This survey organizes the 2024-2026 literature into three categories: unconditional generation, conditional generation, and world modeling generation, revealing a fundamental shift in how the task is defined from synthesizing visually plausible frames to modeling the causal dynamics of surgical scenes. We examine the persistent gap between pixel-level fidelity and clinical plausibility, and identify generalization, physical realism, controllability, and interpretability as bottlenecks. We further summarize experimental results of representative methods on public datasets to provide a quantitative reference for the field. This survey provides a structured overview of the current state and open challenges, offering a reference for researchers working at the intersection of intelligent perception, multi-modal fusion, generative AI, and surgical data science.",
+      "authors": [
+        "Fuxiang Huang",
+        "Chenxu Zhang",
+        "Liang Han",
+        "Lei Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-26T08:27:20+00:00",
+      "link": "https://arxiv.org/pdf/2608.26214v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Survey of video generation with diffusion models in surgical domain",
+      "llm_evidence_cn": "外科手术视频生成综述，涉及扩散模型与视频生成",
+      "llm_evidence": "外科手术视频生成综述，涉及扩散模型与视频生成",
+      "canonical_evidence": "外科手术视频生成综述，涉及扩散模型与视频生成",
+      "llm_tldr_en": "A survey of surgical video generation literature, categorizing methods into unconditional, conditional, and world-model generation, and highlighting a shift toward modeling dynamics.",
+      "llm_tldr_cn": "外科手术视频数据是手术感知、工作流理解和机器人决策模型的主要训练资源，但受隐私、成本和类别不平衡限制。该综述首次系统组织2024-2026年文献，将手术视频生成分为无条件和有条件生成以及世界模型生成三类，揭示了任务定义从合成视觉上合理的帧向建模场景动态的根本转变，为手术视频生成提供了清晰的概念框架，并表明世界模型是新兴方向。",
+      "llm_tldr": "外科手术视频数据是手术感知、工作流理解和机器人决策模型的主要训练资源，但受隐私、成本和类别不平衡限制。该综述首次系统组织2024-2026年文献，将手术视频生成分为无条件和有条件生成以及世界模型生成三类，揭示了任务定义从合成视觉上合理的帧向建模场景动态的根本转变，为手术视频生成提供了清晰的概念框架，并表明世界模型是新兴方向。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.29281v1",
+      "source": "arxiv",
+      "title": "Elastic Token Compression for Pixel-Space Diffusion Transformers",
+      "abstract": "Natural images concentrate their detail in a small fraction of the frame, yet diffusion models spend a full token on every patch, in every layer and at every timestep. The waste is largest in pixel-space models, with no autoencoder to absorb low-level redundancy first. Probing a pretrained pixel text-to-image transformer, we find its middle-block tokens redundant wherever the image is flat. The redundancy occupies connected, content-shaped regions, and exploiting it requires tokens with the same geometry. Cutting a Hilbert ordering of the patches provides them. Consecutive positions are always image neighbours, so any contiguous run is a connected region whose size and shape follow the content, and grouping in two dimensions becomes a cut in one. Existing reductions each lose part of this. Similarity merging scatters its groups, latent bottlenecks discard position, and skipping deletes what it should summarize. We cut where the model's features change most and pool each run into one region token. Our Region Token Interface (\\method{}) adapts a diffusion model to these tokens, with the region count drawn at random during fine-tuning so one checkpoint serves every budget. \\method{} leads prior reduction methods at matched budgets, matches dense quality at $2.0\\times$ the speed, and stays close at $2.6\\times$. The code and models are open-sourced at https://eduardzamfir.github.io/rti",
+      "authors": [
+        "Eduard Zamfir",
+        "Christian Reisswig",
+        "Zongwei Wu",
+        "Yongqin Xian",
+        "Radu Timofte"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-29T14:06:27+00:00",
+      "link": "https://arxiv.org/pdf/2608.29281v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free token compression for pretrained pixel-space diffusion image generators",
+      "llm_evidence_cn": "针对预训练像素空间扩散图像生成器的免训练Token压缩",
+      "llm_evidence": "针对预训练像素空间扩散图像生成器的免训练Token压缩",
+      "canonical_evidence": "针对预训练像素空间扩散图像生成器的免训练Token压缩",
+      "llm_tldr_en": "Identifies redundant tokens in flat regions of pixel-space diffusion transformers and proposes Hilbert-ordered elastic token compression to cut compute without retraining.",
+      "llm_tldr_cn": "像素空间扩散模型对每个patch在每一层和每一步都分配完整token，但自然图像的细节只集中在少量区域，浪费严重。本文通过探测预训练像素文本到图像Transformer，发现中间块中平坦区域的token高度冗余，且冗余区域呈连通的内容形状。作者利用Hilbert序把相邻patch切分到同一连续区域，从而支持与内容形状一致的弹性Token压缩。该方法可在无需重新训练的情况下降低生成推理的计算开销，为免训练采样优化提供了新思路。",
+      "llm_tldr": "像素空间扩散模型对每个patch在每一层和每一步都分配完整token，但自然图像的细节只集中在少量区域，浪费严重。本文通过探测预训练像素文本到图像Transformer，发现中间块中平坦区域的token高度冗余，且冗余区域呈连通的内容形状。作者利用Hilbert序把相邻patch切分到同一连续区域，从而支持与内容形状一致的弹性Token压缩。该方法可在无需重新训练的情况下降低生成推理的计算开销，为免训练采样优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.29997v1",
+      "source": "arxiv",
+      "title": "Discrete Diffusion Bridges for Spatiotemporally Aligned Image Translation and Generation",
+      "abstract": "We propose Discrete Diffusion Bridges (DDB), a novel framework designed to resolve the fundamental spatiotemporal misalignment of standard discrete diffusion in image translation and generation. By corrupting data into a pure mask state via a random schedule, the conventional forward process induces a twofold misalignment: spatially, this pure-mask destination entirely discards the rich structural priors of the source image; temporally, the random masking order inherently contradicts the ``easy-first, hard-last'' decoding mechanism used during inference. To address this, DDB constructs a direct and efficient trajectory between domains. Spatially, we introduce a hybrid absorption mechanism that redefines the absorbing state to a stochastic mixture of mask and source tokens, effectively injecting source prior as spatial anchors into the latent space. Temporally, we design an information-guided noise schedule that quantifies semantic variation to prioritize the corruption of high-information regions at earlier timesteps. This ensures the model learns to resolve difficult semantic changes using robust context from invariant regions. Extensive experiments validate the versatility and robustness of our framework across diverse generative paradigms. DDB effectively balances edit alignment with structural fidelity across both text-guided semantic manipulation and pure structural image translation, while inherently complementing text-to-image generation and guaranteeing robust high-quality decoding under extremely low sampling steps. Code and models are available at \\href{https://github.com/HKU-HealthAI/DDB}{https://github.com/HKU-HealthAI/DDB}.",
+      "authors": [
+        "Xing Xie",
+        "Jiawei Liu",
+        "Shijun Zhou",
+        "Huijie Fan",
+        "Zhi Han",
+        "Yandong Tang",
+        "Liangqiong Qu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-30T19:44:38+00:00",
+      "link": "https://arxiv.org/pdf/2608.29997v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "discrete diffusion framework for image translation and generation with spatiotemporal alignment",
+      "llm_evidence_cn": "面向图像翻译与生成、时空对齐的离散扩散框架",
+      "llm_evidence": "面向图像翻译与生成、时空对齐的离散扩散框架",
+      "canonical_evidence": "面向图像翻译与生成、时空对齐的离散扩散框架",
+      "llm_tldr_en": "Proposes Discrete Diffusion Bridges to fix spatiotemporal misalignment in discrete diffusion for image translation and generation via hybrid absorption.",
+      "llm_tldr_cn": "标准离散扩散在前向过程中将数据腐蚀到纯掩膜状态，并在空间上丢弃源图像结构先验，在时间上随机掩码顺序也与由易到难的解码机制矛盾。为此本文提出离散扩散桥DDB，直接构建域间高效轨迹，并引入混合吸收机制重新定义吸收态，从而保持空间结构信息。该方法在图像翻译与生成任务上缓解了标准的时空错位问题，为离散扩散模型用于图像生成提供了新框架。",
+      "llm_tldr": "标准离散扩散在前向过程中将数据腐蚀到纯掩膜状态，并在空间上丢弃源图像结构先验，在时间上随机掩码顺序也与由易到难的解码机制矛盾。为此本文提出离散扩散桥DDB，直接构建域间高效轨迹，并引入混合吸收机制重新定义吸收态，从而保持空间结构信息。该方法在图像翻译与生成任务上缓解了标准的时空错位问题，为离散扩散模型用于图像生成提供了新框架。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.28404v1",
+      "source": "arxiv",
+      "title": "How Far Can 5,500 Hours of Driving Take You? A Scaling Law Analysis of Video Diffusion Models",
+      "abstract": "Video generation for autonomous driving cannot follow the web-scale route: driving data is expensive to collect, bound by privacy requirements, and cannot be scraped at will, so models must make the most of a fixed corpus. We present a systematic scaling-law study of video diffusion models trained from scratch on driving data: a family of models from 1M to 9B parameters, trained at different exposures on up to 5,500 hours of driving. Validation loss follows consistent power laws in both model size and training exposure, answering the questions that shape a training budget: whether compute is better spent on longer training or on a larger model, and whether more data is needed. Loss improves much faster with training exposure than with model size, making longer training the most effective way to improve a fixed model under limited compute. However, larger models continue to achieve lower asymptotic loss, so compute-optimal scaling still favors increasing model size when sufficient compute and data are available. Guided by these laws, we train a 9B-parameter model, to our knowledge the largest video diffusion model trained from scratch on driving data: it sets a new open-source state of the art for driving video generation, as measured on nuScenes. Our code and pretrained models are available at https://github.com/valeoai/VATIX. NATIX is separately releasing the underlying driving data in stages.",
+      "authors": [
+        "Victor Besnier",
+        "Anh-Quan Cao",
+        "Elias Ramzi",
+        "Spyros Gidaris",
+        "Tuan-Hung Vu",
+        "Andrei Bursuc",
+        "Eloi Zablocki",
+        "Matthieu Cord"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-28T14:56:01+00:00",
+      "link": "https://arxiv.org/pdf/2608.28404v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "systematic scaling-law study of video diffusion models trained for driving video generation",
+      "llm_evidence_cn": "面向驾驶视频生成的视频扩散模型系统缩放定律研究",
+      "llm_evidence": "面向驾驶视频生成的视频扩散模型系统缩放定律研究",
+      "canonical_evidence": "面向驾驶视频生成的视频扩散模型系统缩放定律研究",
+      "llm_tldr_en": "Scaling-law study of video diffusion models on driving data from 1M to 9B parameters, showing consistent power laws that guide training budgets.",
+      "llm_tldr_cn": "驾驶视频数据采集成本高且受隐私限制，无法像网络数据一样无限爬取，因此必须充分利用固定语料。本文对从零训练的视频扩散模型进行系统的缩放定律研究，涵盖1M到9B参数并在最多5500小时驾驶数据上以不同暴露量训练。结果表明验证损失在模型规模和训练暴露量上遵循一致的幂律，且损失随训练暴露量的改善快于模型规模。该研究回答了计算应更多用于延长训练还是增大模型等预算问题，为视频扩散模型在受限数据下的训练提供了量化依据。",
+      "llm_tldr": "驾驶视频数据采集成本高且受隐私限制，无法像网络数据一样无限爬取，因此必须充分利用固定语料。本文对从零训练的视频扩散模型进行系统的缩放定律研究，涵盖1M到9B参数并在最多5500小时驾驶数据上以不同暴露量训练。结果表明验证损失在模型规模和训练暴露量上遵循一致的幂律，且损失随训练暴露量的改善快于模型规模。该研究回答了计算应更多用于延长训练还是增大模型等预算问题，为视频扩散模型在受限数据下的训练提供了量化依据。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.29507v1",
+      "source": "arxiv",
+      "title": "Denoising as Projection: Constrained Optimization with Gradient-Guided Diffusion",
+      "abstract": "Diffusion models are increasingly used not only for sampling from learned data distributions, but also for generating samples that optimize task-specific objectives. A common approach is to guide the reverse diffusion process using gradients of an external objective. However, when the data distribution is supported on a structured feasible set, such as a manifold or a constraint set, gradient guidance can move samples away from the learned data geometry. In this paper, we study a simple projected-gradient-guided diffusion update based on the observation that the Stein denoising operator can act as an approximate projection onto the data geometry. The proposed update incorporates the objective gradient inside the denoising step, yielding an inference-time method that uses only a pretrained denoiser and gradient evaluations. We analyze this update as an inexact projected-gradient method for constrained optimization over learned feasible geometries. Our theory covers three settings: linear manifolds, compact convex feasible sets, and compact Riemannian submanifolds. In all these settings, we prove descent and finite-time convergence guarantees. Numerical experiments support the theoretical interpretation and illustrate how the proposed update balances objective descent with preservation of the learned geometry.",
+      "authors": [
+        "Runyu Zhang",
+        "Jiawei Zhang",
+        "Gioele Zardini",
+        "Saurabh Amin",
+        "Asuman Ozdaglar"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "math.OC"
+      ],
+      "published": "2026-08-30T01:48:22+00:00",
+      "link": "https://arxiv.org/pdf/2608.29507v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Training-free projected gradient guidance for diffusion sampling with constraint satisfaction",
+      "llm_evidence_cn": "用于扩散采样带约束优化的免训练投影梯度引导",
+      "llm_evidence": "用于扩散采样带约束优化的免训练投影梯度引导",
+      "canonical_evidence": "用于扩散采样带约束优化的免训练投影梯度引导",
+      "llm_tldr_en": "This paper proposes a training-free projected-gradient-guided diffusion update treating the denoising operator as an approximate projection, improving constrained generation tasks.",
+      "llm_tldr_cn": "扩散模型生成样本时常需优化任务特定目标，但直接梯度引导可能偏离数据流形。该文提出投影梯度引导的扩散更新，将 Stein 去噪算子视为对数据几何的近似投影，并把目标梯度融入去噪步骤。该方法是免训练的，能保持数据分布的同时满足约束。它为扩散模型在约束优化和条件生成中提供了实用的推理期优化手段。",
+      "llm_tldr": "扩散模型生成样本时常需优化任务特定目标，但直接梯度引导可能偏离数据流形。该文提出投影梯度引导的扩散更新，将 Stein 去噪算子视为对数据几何的近似投影，并把目标梯度融入去噪步骤。该方法是免训练的，能保持数据分布的同时满足约束。它为扩散模型在约束优化和条件生成中提供了实用的推理期优化手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    }
+  ]
+}
