@@ -1,0 +1,133 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-02T23:02:38.658273+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2609.00862v1",
+      "source": "arxiv",
+      "title": "Training-Free Inpainting Across Domains with a Frozen Text-to-Image Diffusion Model",
+      "abstract": "We show that a frozen generic text-to-image diffusion model can perform conditional inpainting across three evaluated natural-image domains with one fixed controller configuration, without inpainting-specific weight training, dataset-specific weight adaptation, or learned inpainting-specific conditioning channels. Step-PI augments known-region projection with boundary-interior latent feedback, persistent PI state, and a predefined four-field release schedule that modulates controller signals along the reverse trajectory. Developed only on Main35-disjoint CelebA-HQ pilots, the controller transfers unchanged to AFHQ and Places2. Across two field-identical comparisons on the same 3,500 cases, adding persistent state and replacing uniform release with the predefined schedule each improve all 15 dataset-metric cells; 95% bootstrap intervals exclude zero for all five metrics in both comparisons. In descriptive native-route comparisons, Step-PI leads LanPaint and PILOT (the closest evaluated training-free baselines using vanilla SD1.5) on all five equal-dataset macro metrics. Inpainting-trained systems retain the absolute metric leads but rely on substantial inpainting-specific offline optimization. Our method provides a complementary approach for repurposing a frozen generic text-to-image model for cross-domain inpainting through test-time latent control.",
+      "authors": [
+        "Zhenhuan Wang",
+        "Fengyi Yuan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-01T07:57:53+00:00",
+      "link": "https://arxiv.org/pdf/2609.00862v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "frozen text-to-image diffusion model performs cross-domain inpainting without any training via a fixed controller",
+      "llm_evidence_cn": "冻结文生图扩散模型无需训练即可完成跨域图像修复，属免训练采样控制技术",
+      "llm_evidence": "冻结文生图扩散模型无需训练即可完成跨域图像修复，属免训练采样控制技术",
+      "canonical_evidence": "冻结文生图扩散模型无需训练即可完成跨域图像修复，属免训练采样控制技术",
+      "llm_tldr_en": "Introduces a training-free inpainting controller that lets a frozen text-to-image diffusion model work across natural-image domains without any inpainting-specific or dataset-specific training, using projection with latent feedback and scheduled controller release.",
+      "llm_tldr_cn": "常规修复往往需要针对特定数据集训练或微调扩散模型，本研究证明冻结的通用文生图扩散模型配合单一固定控制器就能完成跨域条件修复，完全无需权重训练。Step-PI将已知区域投影与边界内部潜在反馈、持久PI状态和分阶段释放策略结合，在部分数据上开发后可直接迁移到多个自然图像域。对照实验显示该免训练控制器能稳定完成不同域修复，为扩散修复模型的零训练泛化提供了有力证据。",
+      "llm_tldr": "常规修复往往需要针对特定数据集训练或微调扩散模型，本研究证明冻结的通用文生图扩散模型配合单一固定控制器就能完成跨域条件修复，完全无需权重训练。Step-PI将已知区域投影与边界内部潜在反馈、持久PI状态和分阶段释放策略结合，在部分数据上开发后可直接迁移到多个自然图像域。对照实验显示该免训练控制器能稳定完成不同域修复，为扩散修复模型的零训练泛化提供了有力证据。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.01433v1",
+      "source": "arxiv",
+      "title": "Gaussian Core LoRA: Distribution-Aware Dynamic Adaptation for Broad Concept Erasure",
+      "abstract": "Concept erasure aims to suppress unsafe, privacy-sensitive, or undesirable generations in text-to-image diffusion models while preserving benign semantics, visual quality, and deployment efficiency. Existing adapter-based methods, such as Low-Rank Adaptation (LoRA), typically freeze the diffusion backbone and learn lightweight parameter updates to steer generation away from target semantics. However, these methods usually assign a static semantic erasure direction to each target concept. This assumption is overly coarse for broad and complex target concepts, since a concept often contains multiple latent semantic prototypes involving different objects, scenes, or relations, and requires different local erasure directions. A single LoRA update averages these heterogeneous erasure demands, leading to under-erasure on difficult prototypes and over-editing of nearby benign semantics. To address this limitation, we propose Gaussian Core LoRA, a distribution-aware low-rank adaptation framework. It fits a Gaussian mixture model in the prompt feature space to estimate latent semantic prototypes within the target concept. During inference, each input prompt is projected into this feature space to compute its Gaussian posterior responsibilities, which condition the core generator to produce a prompt-specific, norm-bounded residual reconfiguration of the shared LoRA rank space. This enables prototype-adaptive erasure with a single lightweight adapter. Compared with the strongest baseline on each metric, Gaussian Core LoRA reduces average Attack Success Rate (ASR) by 7.95%, lowers COCO Fr'echet Inception Distance (FID) by 14.72%, and improves CLIP Score by 4.98%. Further experiments show robustness to adversarial prompts, scalability to multi-identity and multi-style erasure, and compatibility with SDXL and FLUX.",
+      "authors": [
+        "Qinghui Gong",
+        "Xunlei Chen",
+        "Yu-Xuan Zhang",
+        "Hua Meng",
+        "Zhengchun Zhou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-01T15:42:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.01433v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "text-to-image diffusion concept erasure via distribution-aware LoRA, relevant to diffusion image generation domain",
+      "llm_evidence_cn": "基于分布感知LoRA的文本到图像扩散概念擦除，属于扩散图像生成方向",
+      "llm_evidence": "基于分布感知LoRA的文本到图像扩散概念擦除，属于扩散图像生成方向",
+      "canonical_evidence": "基于分布感知LoRA的文本到图像扩散概念擦除，属于扩散图像生成方向",
+      "llm_tldr_en": "Identifies that static LoRA erasure directions are too coarse for broad text-to-image diffusion concepts. Proposes Gaussian Core LoRA, a distribution-aware dynamic adapter that applies different local erasure directions across latent semantic prototypes, improving concept removal while preserving benign semantics and efficiency.",
+      "llm_tldr_cn": "现有基于LoRA的扩散模型概念擦除为每个目标概念分配一个静态擦除方向，难以处理包含多对象、多场景的原型概念的复杂结构。本文提出Gaussian Core LoRA，以分布感知方式为不同局部语义原型动态调整低秩更新的擦除方向。实验表明，相比静态LoRA，该方法在抑制不安全或隐私概念时能更好保持良性语义、视觉质量和部署效率，为扩散模型概念编辑提供了更细粒度的训练式适配工具。",
+      "llm_tldr": "现有基于LoRA的扩散模型概念擦除为每个目标概念分配一个静态擦除方向，难以处理包含多对象、多场景的原型概念的复杂结构。本文提出Gaussian Core LoRA，以分布感知方式为不同局部语义原型动态调整低秩更新的擦除方向。实验表明，相比静态LoRA，该方法在抑制不安全或隐私概念时能更好保持良性语义、视觉质量和部署效率，为扩散模型概念编辑提供了更细粒度的训练式适配工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.00955v1",
+      "source": "arxiv",
+      "title": "ASSERT: Adaptive Stochastic Sampling for Robust Diffusion Models on Analog Compute-in-Memory Hardware",
+      "abstract": "Diffusion models achieve strong image generation quality but incur high iterative denoising costs. Analog compute-in-memory (CIM) can accelerate matrix-vector multiplications, yet spatial memory variations perturb weights and accumulate during sampling. Unlike conventional neural networks, diffusion models' temporal sensitivity to hardware noise remains underexplored. We investigate diffusion inference using a noise model calibrated and validated against measurements collected from multiple physical CIM chips. Our results show that the early, high-noise denoising stage is substantially more vulnerable than the final refinement stage. A first-order trajectory analysis attributes this behavior to the repeated propagation of correlated prediction errors induced by a fixed hardware mapping. Based on this observation, we propose ASSERT, a training-free sampler that uses higher stochasticity early and smoothly transitions to deterministic denoising. The injected stochasticity changes subsequent activation trajectories and thereby reduces their alignment with persistent spatial errors. Across the evaluated settings, ASSERT achieves up to 2.58$\\times$ lower FID than deterministic DDIM on high-resolution datasets and 7.68$\\times$ lower FID in the CIFAR-10 step-count study, without changing model parameters or the number of network evaluations.",
+      "authors": [
+        "Yuannuo Feng",
+        "Yizhe Chen",
+        "Wenshuai Yao",
+        "Yuxin Xie",
+        "Ngai Wong",
+        "Wenyong Zhou",
+        "Wang Kang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-01T09:13:10+00:00",
+      "link": "https://arxiv.org/pdf/2609.00955v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "adaptive stochastic sampling strategy for robust diffusion image generation on noisy hardware",
+      "llm_evidence_cn": "通过自适应随机采样改善噪声硬件上的扩散图像生成，属免训练采样侧方法",
+      "llm_evidence": "通过自适应随机采样改善噪声硬件上的扩散图像生成，属免训练采样侧方法",
+      "canonical_evidence": "通过自适应随机采样改善噪声硬件上的扩散图像生成，属免训练采样侧方法",
+      "llm_tldr_en": "Analyzes diffusion inference on analog compute-in-memory hardware, identifies early denoising stages as most vulnerable to weight noise, and proposes adaptive stochastic sampling to improve robustness of image generation.",
+      "llm_tldr_cn": "扩散模型在模拟存算一体芯片上推理时，硬件空间噪声会在多步去噪中累积，降低图像生成质量。论文结合多颗物理芯片测量校准的噪声模型和一阶轨迹分析，指出早期高噪声去噪阶段比末期精修阶段更容易受干扰。据此提出自适应随机采样策略，在不重新训练的情况下增强硬件噪声下的生成鲁棒性，为推理期采样优化提供硬件感知的思路。",
+      "llm_tldr": "扩散模型在模拟存算一体芯片上推理时，硬件空间噪声会在多步去噪中累积，降低图像生成质量。论文结合多颗物理芯片测量校准的噪声模型和一阶轨迹分析，指出早期高噪声去噪阶段比末期精修阶段更容易受干扰。据此提出自适应随机采样策略，在不重新训练的情况下增强硬件噪声下的生成鲁棒性，为推理期采样优化提供硬件感知的思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

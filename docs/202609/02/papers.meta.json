@@ -1,0 +1,54 @@
+{
+  "label": "2026-09-02",
+  "date": "2026-09-02",
+  "generated_at": "2026-09-02T23:06:09",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202609/02/2609.00862v1-training-free-inpainting-across-domains-with-a-frozen-text-to-image-diffusion-model",
+      "section": "deep",
+      "title_en": "Training-Free Inpainting Across Domains with a Frozen Text-to-Image Diffusion Model",
+      "authors": "Zhenhuan Wang, Fengyi Yuan",
+      "date": "2026-09-01",
+      "pdf": "https://arxiv.org/pdf/2609.00862v1",
+      "score": "9.0",
+      "evidence": "冻结文生图扩散模型无需训练即可完成跨域图像修复，属免训练采样控制技术",
+      "tldr": "针对传统修复方法需针对数据集训练或适应的问题，提出Step-PI，利用冻结的文本到图像扩散模型，通过测试时潜在控制实现跨域修复，无需任何权重训练或特定条件通道。该方法在CelebA-HQ上开发，直接迁移至AFHQ和Places2，在15项数据集-指标比较中均获提升，并优于现有免训练基线，为通用扩散模型的跨域修复提供了互补方案。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We show that a frozen generic text-to-image diffusion model can perform conditional inpainting across three evaluated natural-image domains with one fixed controller configuration, without inpainting-specific weight training, dataset-specific weight adaptation, or learned inpainting-specific conditioning channels. Step-PI augments known-region projection with boundary-interior latent feedback, persistent PI state, and a predefined four-field release schedule that modulates controller signals along the reverse trajectory. Developed only on Main35-disjoint CelebA-HQ pilots, the controller transfers unchanged to AFHQ and Places2. Across two field-identical comparisons on the same 3,500 cases, adding persistent state and replacing uniform release with the predefined schedule each improve all 15 dataset-metric cells; 95% bootstrap intervals exclude zero for all five metrics in both comparisons. In descriptive native-route comparisons, Step-PI leads LanPaint and PILOT (the closest evaluated training-free baselines using vanilla SD1.5) on all five equal-dataset macro metrics. Inpainting-trained systems retain the absolute metric leads but rely on substantial inpainting-specific offline optimization. Our method provides a complementary approach for repurposing a frozen generic text-to-image model for cross-domain inpainting through test-time latent control.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/02/2609.01433v1-gaussian-core-lora-distribution-aware-dynamic-adaptation-for-broad-concept-erasure",
+      "section": "quick",
+      "title_en": "Gaussian Core LoRA: Distribution-Aware Dynamic Adaptation for Broad Concept Erasure",
+      "authors": "Qinghui Gong, Xunlei Chen, Yu-Xuan Zhang, Hua Meng, Zhengchun Zhou",
+      "date": "2026-09-01",
+      "pdf": "https://arxiv.org/pdf/2609.01433v1",
+      "score": "7.0",
+      "evidence": "基于分布感知LoRA的文本到图像扩散概念擦除，属于扩散图像生成方向",
+      "tldr": "概念擦除需在抑制目标语义的同时保持良性生成，现有LoRA方法为每个概念分配静态擦除方向，难以应对复杂概念的多原型结构。本工作提出高斯核心LoRA，在提示特征空间拟合高斯混合模型，依据后验责任动态重组共享LoRA秩空间，实现原型自适应的轻量擦除。在强基线上ASR降低7.95%，FID降低14.72%，CLIP提升4.98%，并支持SDXL与FLUX。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Concept erasure aims to suppress unsafe, privacy-sensitive, or undesirable generations in text-to-image diffusion models while preserving benign semantics, visual quality, and deployment efficiency. Existing adapter-based methods, such as Low-Rank Adaptation (LoRA), typically freeze the diffusion backbone and learn lightweight parameter updates to steer generation away from target semantics. However, these methods usually assign a static semantic erasure direction to each target concept. This assumption is overly coarse for broad and complex target concepts, since a concept often contains multiple latent semantic prototypes involving different objects, scenes, or relations, and requires different local erasure directions. A single LoRA update averages these heterogeneous erasure demands, leading to under-erasure on difficult prototypes and over-editing of nearby benign semantics. To address this limitation, we propose Gaussian Core LoRA, a distribution-aware low-rank adaptation framework. It fits a Gaussian mixture model in the prompt feature space to estimate latent semantic prototypes within the target concept. During inference, each input prompt is projected into this feature space to compute its Gaussian posterior responsibilities, which condition the core generator to produce a prompt-specific, norm-bounded residual reconfiguration of the shared LoRA rank space. This enables prototype-adaptive erasure with a single lightweight adapter. Compared with the strongest baseline on each metric, Gaussian Core LoRA reduces average Attack Success Rate (ASR) by 7.95%, lowers COCO Fr'echet Inception Distance (FID) by 14.72%, and improves CLIP Score by 4.98%. Further experiments show robustness to adversarial prompts, scalability to multi-identity and multi-style erasure, and compatibility with SDXL and FLUX.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/02/2609.00955v1-assert-adaptive-stochastic-sampling-for-robust-diffusion-models-on-analog-compute-in-memory-hardware",
+      "section": "quick",
+      "title_en": "ASSERT: Adaptive Stochastic Sampling for Robust Diffusion Models on Analog Compute-in-Memory Hardware",
+      "authors": "Yuannuo Feng, Yizhe Chen, Wenshuai Yao, Yuxin Xie, Ngai Wong, Wenyong Zhou, Wang Kang",
+      "date": "2026-09-01",
+      "pdf": "https://arxiv.org/pdf/2609.00955v1",
+      "score": "6.0",
+      "evidence": "通过自适应随机采样改善噪声硬件上的扩散图像生成，属免训练采样侧方法",
+      "tldr": "扩散模型迭代去噪成本高，模拟存内计算可加速，但其空间噪声在采样中累积。研究发现早期高噪声阶段比后期精修阶段更脆弱，源于固定映射导致的预测误差重复传播。据此提出免训练的ASSERT采样器，早期注入高随机性并平滑过渡到确定性去噪，降低激活轨迹与持久误差的对齐。无需改动参数或网络评估次数，FID最多降低2.58倍，CIFAR-10步数研究中达7.68倍。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion models achieve strong image generation quality but incur high iterative denoising costs. Analog compute-in-memory (CIM) can accelerate matrix-vector multiplications, yet spatial memory variations perturb weights and accumulate during sampling. Unlike conventional neural networks, diffusion models' temporal sensitivity to hardware noise remains underexplored. We investigate diffusion inference using a noise model calibrated and validated against measurements collected from multiple physical CIM chips. Our results show that the early, high-noise denoising stage is substantially more vulnerable than the final refinement stage. A first-order trajectory analysis attributes this behavior to the repeated propagation of correlated prediction errors induced by a fixed hardware mapping. Based on this observation, we propose ASSERT, a training-free sampler that uses higher stochasticity early and smoothly transitions to deterministic denoising. The injected stochasticity changes subsequent activation trajectories and thereby reduces their alignment with persistent spatial errors. Across the evaluated settings, ASSERT achieves up to 2.58$\\times$ lower FID than deterministic DDIM on high-resolution datasets and 7.68$\\times$ lower FID in the CIFAR-10 step-count study, without changing model parameters or the number of network evaluations.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
