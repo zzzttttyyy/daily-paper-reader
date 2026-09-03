@@ -1,0 +1,292 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-03T22:43:05.262285+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2609.01746v1",
+      "source": "arxiv",
+      "title": "CAT-Flow: Curvature-Adaptive sTeps for Flow Matching",
+      "abstract": "Flow Matching has emerged as a leading framework for generative modeling, powering state-of-the-art systems such as FLUX and Stable Diffusion 3.5. However, the iterative nature of its ODE-based sampling process creates a fundamental efficiency bottleneck: the quality of generated samples is highly sensitive to the choice of step-sizes, and current models typically require 20 to 30 steps for good quality. In this work, we propose two lightweight, training-free algorithms, CAT-OV and CAT-OT that adapt step-sizes at inference time based on a novel connection between Flow Matching sampling and gradient flow. Our algorithms are computed efficiently by not requiring additional neural function evaluations. Specifically, CAT-OT estimates curvature over time via a finite-difference approximation of the time-derivative of the vector field, while CAT-OV approximates curvature over the state space via a gradient of the vector field. Under suitable conditions, both methods have truncation error bounds of constant order. Empirically, CAT-OV and CAT-OT outperform existing step-size heuristics in image quality metrics across four text- to-image Flow Matching models, reducing the number of generation steps required to reach comparable quality by up to 40%.",
+      "authors": [
+        "Qinchan Li",
+        "Pedro Cisneros-Velarde",
+        "Keru Fu",
+        "Samuel Antunes Miranda",
+        "Sharan Vaswani",
+        "Hao Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-01T18:14:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.01746v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free curvature-adaptive sampling step-size optimization for flow-based generative models",
+      "llm_evidence_cn": "面向流匹配生成模型的免训练曲率自适应采样步长优化",
+      "llm_evidence": "面向流匹配生成模型的免训练曲率自适应采样步长优化",
+      "canonical_evidence": "面向流匹配生成模型的免训练曲率自适应采样步长优化",
+      "llm_tldr_en": "CAT-Flow introduces CAT-OV and CAT-OT, lightweight training-free algorithms that adapt flow matching ODE sampling step sizes based on curvature, improving step efficiency and sample quality without extra neural function evaluations.",
+      "llm_tldr_cn": "针对流匹配生成模型ODE采样对步长高度敏感、通常需要20至30步才能生成高质量样本的问题，论文提出CAT-OV和CAT-OT两种轻量免训练算法。这些算法在推理时根据流匹配与梯度流的联系自适应调整步长，不增加额外神经网络函数评估次数。实验结果证明该方法能用更少的采样步数保持或提升生成质量。这为扩散类模型特别是图像生成模型提供了实用的免训练采样优化手段。",
+      "llm_tldr": "针对流匹配生成模型ODE采样对步长高度敏感、通常需要20至30步才能生成高质量样本的问题，论文提出CAT-OV和CAT-OT两种轻量免训练算法。这些算法在推理时根据流匹配与梯度流的联系自适应调整步长，不增加额外神经网络函数评估次数。实验结果证明该方法能用更少的采样步数保持或提升生成质量。这为扩散类模型特别是图像生成模型提供了实用的免训练采样优化手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.01997v1",
+      "source": "arxiv",
+      "title": "Linear Fusion MultiDiffusion for Fast Training-Free Spherical Panorama Generation",
+      "abstract": "We propose LF-MultiDiffusion, a training-free panorama generation method that extends MultiDiffusion to support linear projections between target and reference image spaces. Our key idea is to reformulate latent aggregation as a regularized least-squares problem and solve it efficiently with a Krylov-based iterative solver inside the denoising loop. This formulation enables denser and more natural mappings than prior training-free methods, yielding more stable generation with far fewer perspective views. As a result, LF-MultiDiffusion reduces the number of image generator evaluations during denoising and significantly improves inference efficiency. Experiments show that LF-MultiDiffusion achieves better visual quality, text alignment, and panoramic consistency than the strongest training-free baseline, while providing a 15.36$\\times$ speedup. Our project page is available at: https://ahykw.github.io/lfmd.",
+      "authors": [
+        "Akio Hayakawa",
+        "Yusuke Mukuta",
+        "Tatsuya Harada"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-02T02:13:26+00:00",
+      "link": "https://arxiv.org/pdf/2609.01997v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free panorama diffusion generation with faster iterative denoising and fewer generator evaluations",
+      "llm_evidence_cn": "免训练的全景扩散生成优化，以更少的生成器评估完成去噪并提升效率",
+      "llm_evidence": "免训练的全景扩散生成优化，以更少的生成器评估完成去噪并提升效率",
+      "canonical_evidence": "免训练的全景扩散生成优化，以更少的生成器评估完成去噪并提升效率",
+      "llm_tldr_en": "LF-MultiDiffusion reformulates MultiDiffusion latent aggregation as least squares solved by a Krylov method inside denoising, enabling fast training-free spherical panorama generation with fewer image generator evaluations and better quality.",
+      "llm_tldr_cn": "MultiDiffusion等训练免全景生成方法依赖多个透视图，在训练免聚合中映射受限且评估开销大。LF-MultiDiffusion将目标与参考图像空间的聚合重新定义为正则化最小二乘问题，并在去噪循环内用Krylov迭代求解器高效求解，从而支持更稠密自然的映射并显著减少所需透视图数量。定性和定量实验显示其在视觉质量、文本对齐和全景完成度上更优，同时降低推断成本，属于图像生成中典型的免训练采样优化方法。",
+      "llm_tldr": "MultiDiffusion等训练免全景生成方法依赖多个透视图，在训练免聚合中映射受限且评估开销大。LF-MultiDiffusion将目标与参考图像空间的聚合重新定义为正则化最小二乘问题，并在去噪循环内用Krylov迭代求解器高效求解，从而支持更稠密自然的映射并显著减少所需透视图数量。定性和定量实验显示其在视觉质量、文本对齐和全景完成度上更优，同时降低推断成本，属于图像生成中典型的免训练采样优化方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.02160v1",
+      "source": "arxiv",
+      "title": "GeoSPRINT: Geometric Redundancy-Aware Step Pruning for Inference in Diffusion Trajectories",
+      "abstract": "Diffusion models achieve high sample quality but remain expensive at inference time because sampling requires many sequential neural function evaluations (NFEs). Existing acceleration methods either use fixed step-skipping schedules, adapt step sizes based on local numerical error, or require additional training. We introduce GeoSPRINT (Geometric Step Pruning for Inference in Trajectories), a training-free framework for constructing non-uniform sampling schedules from the geometry of denoising trajectories. GeoSPRINT detects geometrically redundant steps using a hyperplanarity test in latent space, implemented efficiently via QR factorization, and converts the resulting redundancy profile into a sampling schedule that allocates more steps to high-curvature regions of the trajectory. In addition, we introduce the trajectory projection score $α_{\\mathrm{traj}}$, a residual-variance metric that quantifies trajectory straightness and serves as a model-free diagnostic for rectified flow quality. Across CIFAR-10 ($32{\\times}32$), LSUN Church ($256{\\times}256$), and Stable Diffusion v1.5 ($512{\\times}512$ latent), GeoSPRINT consistently improves over uniform DDIM (Denoising Diffusion Implicit Models) schedules at matched NFE budgets. On CIFAR-10, GeoSPRINT improves FID (Fréchet Inception Distance) by 0.7-1.1 over DDIM across 49-89 NFEs and surpasses DPM-Solver++ at NFE${\\geq}30$ despite using a first-order DDIM solver. On LSUN Church, it reduces FID from 1.48 to 1.26 at 52 steps, and on Stable Diffusion v1.5 it achieves up to 1.93 FID improvement over DDIM. These results show that trajectory geometry provides a useful global signal for allocating inference steps and that schedule quality can substantially improve diffusion sampling efficiency without retraining.",
+      "authors": [
+        "Arpita Joshi"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-02T06:22:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.02160v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free geometric step pruning for diffusion inference sampling schedules",
+      "llm_evidence_cn": "面向扩散模型推断的免训练几何步长剪枝采样调度",
+      "llm_evidence": "面向扩散模型推断的免训练几何步长剪枝采样调度",
+      "canonical_evidence": "面向扩散模型推断的免训练几何步长剪枝采样调度",
+      "llm_tldr_en": "GeoSPRINT is a training-free framework that prunes geometrically redundant denoising steps in diffusion trajectories and converts them into non-uniform sampling schedules, reducing NFEs without retraining.",
+      "llm_tldr_cn": "扩散模型采样质量虽好但推理需要大量顺序神经函数评估，现有加速方法常依赖固定跳步或额外训练。GeoSPRINT提出免训练几何冗余感知剪枝框架，在潜在空间利用QR分解实现超平面性检验，沿去噪轨迹检测冗余步骤，并据此生成非均匀采样调度。实验显示该方法能在不明显损失质量的情况下减少采样步数与评估次数，为扩散采样推断提供无需额外训练的加速工具。",
+      "llm_tldr": "扩散模型采样质量虽好但推理需要大量顺序神经函数评估，现有加速方法常依赖固定跳步或额外训练。GeoSPRINT提出免训练几何冗余感知剪枝框架，在潜在空间利用QR分解实现超平面性检验，沿去噪轨迹检测冗余步骤，并据此生成非均匀采样调度。实验显示该方法能在不明显损失质量的情况下减少采样步数与评估次数，为扩散采样推断提供无需额外训练的加速工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.29233v1",
+      "source": "arxiv",
+      "title": "Generalization over Memorization: Generalization-Aware Diffusion Adaptation for Single-Image Multi-View Synthesis",
+      "abstract": "We present the winning solution to the ACM Multimedia 2026 Grand Challenge on Single-Image Guided Multi-Angle Image Synthesis. It ranks first among 293 registered teams; 56 teams obtained at least one scored submission on the public Phase-A leaderboard. With only 40 training scenes, the challenge requires 26 target views from one RGB model and one forward pass per view; it prohibits explicit geometry, external rendering, chained generation, candidate selection, and post-processing. We identify a critical model-selection failure: shared training and validation scenes make memorization appear as transferable view control. We therefore introduce GoM. Short for Generalization over Memorization, the framework combines scene-disjoint validation, exposure-matched selection, and targeted diffusion adaptation. Its synthesis model adapts a 4B rectified-flow DiT using rank-32 LoRA, optimizer restarts, late-checkpoint averaging, and VAE decoder tuning. More than 300 offline experiments and 24 online submissions show that validation design and training-trajectory control can matter as much as architecture scale in small-data generative modeling.",
+      "authors": [
+        "Jie Li",
+        "Xingchen Zou",
+        "Yuxuan Liang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-29T12:39:39+00:00",
+      "link": "https://arxiv.org/pdf/2608.29233v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "winning diffusion-based single-image multi-view image synthesis framework",
+      "llm_evidence_cn": "基于扩散模型的单图多视角图像合成方案",
+      "llm_evidence": "基于扩散模型的单图多视角图像合成方案",
+      "canonical_evidence": "基于扩散模型的单图多视角图像合成方案",
+      "llm_tldr_en": "Single-image multi-view synthesis with only 40 training scenes is prone to memorization being mistaken for transferable view control. The proposed GoM framework applies generalization-aware diffusion adaptation with one forward pass per target view and ranked first among 293 teams in the challenge.",
+      "llm_tldr_cn": "针对单图多视角合成挑战中仅40个训练场景且禁止几何、链式生成、候选选择和后处理的问题，作者指出共享训练与验证场景会让记忆看起来像可迁移的视角控制，并提出泛化胜过记忆的GoM框架。该方法以泛化感知方式选择扩散适配模型，使每个目标视角只进行一次前向生成，不依赖额外渲染。最终方案在ACM多媒体2026挑战赛的293支队伍中排名第一。",
+      "llm_tldr": "针对单图多视角合成挑战中仅40个训练场景且禁止几何、链式生成、候选选择和后处理的问题，作者指出共享训练与验证场景会让记忆看起来像可迁移的视角控制，并提出泛化胜过记忆的GoM框架。该方法以泛化感知方式选择扩散适配模型，使每个目标视角只进行一次前向生成，不依赖额外渲染。最终方案在ACM多媒体2026挑战赛的293支队伍中排名第一。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.30922v1",
+      "source": "arxiv",
+      "title": "CARVE: Verified Expansion for Variable-Length Generation in Diffusion Language Models",
+      "abstract": "Masked diffusion language models predict tokens from a partially observed response canvas, enabling bidirectional conditioning and parallel token refinement. Yet standard masked-diffusion decoders use a rigid inference interface: the number of masked positions allocated to the answer is fixed before generation begins. Choosing this length is difficult. A short canvas can truncate reasoning or code, while a long canvas wastes computation and can perturb denoising. We introduce CARVE (Counterfactual-Aware Reveal with Verified Expansion), a training-free variable-length algorithm for masked diffusion LMs. Starting from a shorter canvas, CARVE can grow the response during decoding by inserting additional [MASK] positions. Rather than keeping every insertion, CARVE tests a candidate expanded canvas and asks a counterfactual question: would the model make similar predictions for the unresolved positions in the original canvas if the extra masked space were present? The inserted masks are kept only when they induce low Jensen-Shannon (JS) divergence on aligned unresolved positions. This makes length growth a verified stability decision rather than a pure confidence heuristic. CARVE applies without retraining to both full-canvas and blockwise diffusion decoders. Across code generation and mathematical reasoning benchmarks, CARVE consistently improves average performance over fixed-length baselines across all evaluated model families. Crucially, CARVE achieves these accuracy gains while reducing inference cost, reaching half the FLOPs of fixed-length decoding in some settings.",
+      "authors": [
+        "Wail Bouhedja",
+        "Amr Mohamed",
+        "Guokan Shang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-31T15:00:30+00:00",
+      "link": "https://arxiv.org/pdf/2608.30922v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free variable-length decoding algorithm for masked diffusion language models; training-free inference optimization for diffusion generative models, though not image/video",
+      "llm_evidence_cn": "面向扩散语言模型的免训练长度扩展解码算法，符合免训练优化主题，但领域为文本而非图像/视频",
+      "llm_evidence": "面向扩散语言模型的免训练长度扩展解码算法，符合免训练优化主题，但领域为文本而非图像/视频",
+      "canonical_evidence": "面向扩散语言模型的免训练长度扩展解码算法，符合免训练优化主题，但领域为文本而非图像/视频",
+      "llm_tldr_en": "CARVE is a training-free, verified-expansion decoding algorithm for masked diffusion language models that inserts extra mask positions to grow the canvas online, enabling flexible variable-length generation without fixed canvas limits or retraining.",
+      "llm_tldr_cn": "标准掩码扩散语言模型在解码前必须固定回复占用的掩码数量，若长度设置过短会截断内容，过长又浪费计算并干扰去噪。CARVE提出一种免训练的可变长度生成算法，从较短的画布开始，在解码过程中按需插入并验证新的掩码位置来扩展响应。该算法使扩散语言模型能够生成代码、推理等长度不固定的内容，同时保持生成质量。它体现了解码期免训练扩展的通用价值，但并不涉及图像或视频生成。",
+      "llm_tldr": "标准掩码扩散语言模型在解码前必须固定回复占用的掩码数量，若长度设置过短会截断内容，过长又浪费计算并干扰去噪。CARVE提出一种免训练的可变长度生成算法，从较短的画布开始，在解码过程中按需插入并验证新的掩码位置来扩展响应。该算法使扩散语言模型能够生成代码、推理等长度不固定的内容，同时保持生成质量。它体现了解码期免训练扩展的通用价值，但并不涉及图像或视频生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.00061v1",
+      "source": "arxiv",
+      "title": "ReNFT: Repairing Mode Collapse in Reward Post-Training via Internal Probability-Mass Recalibration",
+      "abstract": "Reward post-training of diffusion generators inevitably concentrates probability mass on a few reward-favored modes, a mode collapse that erases within-prompt diversity. Existing methods for mitigating collapse rely on external signals or interfaces, augmenting the reward with perceptual objectives, adjusting reference regularization, or modifying the text encoder, but none repairs an adapter that has already collapsed while preserving the acquired reward. We observe that online post-training primarily reallocates probability mass over capabilities inherited from pretraining rather than learning new visual content. Collapse is therefore suppression, not deletion, and can be reversed from within the generator. We propose ReNFT, which repairs a high-reward, low-diversity adapter through internal probability-mass recalibration. Unconditional probes first prioritize \"anti-hub\" prompts where the prompt-independent bias is easiest to expose. Two policy-dominated mixed routes then generate matched counterfactual proposals from the same prompt and initial noise, one probing the frozen base direction for suppressed alternatives and the other exposing the post-trained unconditional tendency. Reward ranking with an adaptive flipping guard assigns pull and push roles, and a joint-and-paired NFT update realizes the repair. On PickScore and GenEval, ReNFT retains 98.9% and 99.0% of NFT's reward while improving DreamSim-Div by 58.8% and 55.0%, respectively, offering a complementary alternative to external interventions.",
+      "authors": [
+        "Yuchen Bao",
+        "Chao Wen",
+        "Haowei Wang",
+        "Ruoxin Chen",
+        "Donghao Luo",
+        "Jiahui Zhan",
+        "Wenjian Huang",
+        "Shen Chen",
+        "Yiting Wang",
+        "Taiping Yao",
+        "Chengjie Wang",
+        "Shouhong Ding",
+        "Jianguo Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-08-30T14:13:50+00:00",
+      "link": "https://arxiv.org/pdf/2609.00061v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "internal probability-mass recalibration for diffusion generators to repair reward post-training mode collapse",
+      "llm_evidence_cn": "针对扩散生成器奖励后训练模式坍缩的内部概率质量重校准",
+      "llm_evidence": "针对扩散生成器奖励后训练模式坍缩的内部概率质量重校准",
+      "canonical_evidence": "针对扩散生成器奖励后训练模式坍缩的内部概率质量重校准",
+      "llm_tldr_en": "Reward post-training concentrates diffusion generators on few modes and erases diversity. ReNFT repairs an already collapsed diffusion adapter through internal probability-mass recalibration rather than external signals, preserving acquired reward while restoring within-prompt diversity.",
+      "llm_tldr_cn": "扩散生成器在奖励后训练后容易把概率质量集中到少数奖励偏好的模式上，造成提示内多样性丧失。作者观察到后训练主要是重新分配预训练获得的能力，而不是新增视觉内容，因此模式坍缩可被视为抑制而非删除。据此提出ReNFT，直接在生成器内部进行概率质量重校准，修复已经坍缩的适配器并保留已获得的奖励。该方法避免了对外部信号或重新训练的依赖，为扩散生成模型奖励优化后的多样性恢复提供了新思路。",
+      "llm_tldr": "扩散生成器在奖励后训练后容易把概率质量集中到少数奖励偏好的模式上，造成提示内多样性丧失。作者观察到后训练主要是重新分配预训练获得的能力，而不是新增视觉内容，因此模式坍缩可被视为抑制而非删除。据此提出ReNFT，直接在生成器内部进行概率质量重校准，修复已经坍缩的适配器并保留已获得的奖励。该方法避免了对外部信号或重新训练的依赖，为扩散生成模型奖励优化后的多样性恢复提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.00798v1",
+      "source": "arxiv",
+      "title": "Advanced Pixel Diffusion Model with Guided Sparse Global Refinement",
+      "abstract": "Pixel-space diffusion has recently emerged as a promising direction for high-fidelity image generation by modeling images directly in the original pixel domain. However, pixel-space diffusion is computationally demanding due to the extremely high dimensionality of natural images. For efficiency, existing pixel diffusion models either compromise fine details with large-patch tokenization or confine subsequent refinement within individual patches. Such intra-patch refinement inevitably restricts structural continuity across patch boundaries and long-range token interactions, limiting refinement quality. To address these issues, we propose PixSGR, a novel Pixel diffusion framework with Sparse Global Refinement tailored for modeling the distribution of natural images directly in pixel space. PixSGR starts from a supervised low-channel bottleneck to efficiently capture the low-dimensional manifold of natural images. It then progressively expands the channel dimensionality and spatial resolution to recover increasingly fine-grained structures. At the spatial refinement stage, coarse-scale attention maps preselect globally relevant interactions to pre-sparsify fine-scale attention, enabling non-local refinement beyond isolated patches without the quadratic cost of dense attention. Extensive experiments on ImageNet validate the effectiveness of PixSGR. It achieves an FID of 1.51 at 256$\\times$256 and maintains performance when scaled to 512$\\times$512, attaining an FID of 1.60.",
+      "authors": [
+        "Weiyi You",
+        "Jinhua Zhang",
+        "Xingyu Zhou",
+        "Wei Long",
+        "Junyu Lou",
+        "Shuhang Gu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-01T06:50:37+00:00",
+      "link": "https://arxiv.org/pdf/2609.00798v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "pixel-space diffusion model for high-fidelity image generation with sparse global refinement; diffusion image generation relevance but no training-free claim",
+      "llm_evidence_cn": "面向高保真图像生成的像素空间扩散模型，通过稀疏全局优化改进细节；与扩散图像生成相关，但不涉及免训练优化",
+      "llm_evidence": "面向高保真图像生成的像素空间扩散模型，通过稀疏全局优化改进细节；与扩散图像生成相关，但不涉及免训练优化",
+      "canonical_evidence": "面向高保真图像生成的像素空间扩散模型，通过稀疏全局优化改进细节；与扩散图像生成相关，但不涉及免训练优化",
+      "llm_tldr_en": "PixSGR is a pixel-space diffusion framework with guided sparse global refinement, improving long-range structural continuity and image fidelity; it matches diffusion image generation but is not a training-free optimization method.",
+      "llm_tldr_cn": "像素空间扩散直接在原始像素域建模图像并取得高保真效果，但计算量极高；现有高效方法常牺牲细节或把细化限制在补丁内部，导致跨补丁结构连续性受限。本文提出PixSGR，在像素扩散模型中加入引导式稀疏全局细化，使模型能以受限计算对自然图像分布进行长程建模，改善边界连贯性与精细质量。该工作属于扩散图像生成的模型和训练方法，而非免训练采样优化，作为方法桥接仍有一定参考价值。",
+      "llm_tldr": "像素空间扩散直接在原始像素域建模图像并取得高保真效果，但计算量极高；现有高效方法常牺牲细节或把细化限制在补丁内部，导致跨补丁结构连续性受限。本文提出PixSGR，在像素扩散模型中加入引导式稀疏全局细化，使模型能以受限计算对自然图像分布进行长程建模，改善边界连贯性与精细质量。该工作属于扩散图像生成的模型和训练方法，而非免训练采样优化，作为方法桥接仍有一定参考价值。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
