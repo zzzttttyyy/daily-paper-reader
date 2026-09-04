@@ -6,44 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-03
-- 运行时间：2026-09-03 22:49:42 UTC
+- 最新运行日期：2026-09-04
+- 运行时间：2026-09-04 21:45:58 UTC
 - 运行状态：成功
-- 本次总论文数：7
+- 本次总论文数：4
 - 精读区：3
-- 速读区：4
+- 速读区：1
 
 ### 今日简报（AI）
-- 今日共生成 7 篇推荐（精读 3 篇，速读 4 篇）
-- 精读：《CAT-Flow: Curvature-Adaptive sTeps for Flow Matching》（9.0/10）, 《Linear Fusion MultiDiffusion for Fast Training-Free Spherical Panorama Generation》（9.0/10）
-- 速读：《Generalization over Memorization: Generalization-Aware Diffusion Adaptation for Single-Image Multi-View Synthesis》（7.0/10）, 《ReNFT: Repairing Mode Collapse in Reward Post-Training via Internal Probability-Mass Recalibration》（7.0/10）, 《Advanced Pixel Diffusion Model with Guided Sparse Global Refinement》（7.0/10）
-- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
-- 详情：[/202609/03/README](/202609/03/README)
+今日4篇论文聚焦扩散模型优化，精读两篇高分工作：SelfLift以自恢复分辨率转换加速少步扩散，另一篇稳定推理期相机控制的新视图合成。最值得关注少步扩散提速与视角生成稳定性，速读提示扩散模型隐含注意力机制，建议从SelfLift入手体验扩散效率提升。
+- 详情：[/202609/04/README](/202609/04/README)
 
 ### 精读区论文标签
-1. [CAT-Flow: Curvature-Adaptive sTeps for Flow Matching](/202609/03/2609.01746v1-cat-flow-curvature-adaptive-steps-for-flow-matching)  
+1. [SelfLift: Accelerating Few-Step Diffusion via Self-Recovering Resolution Transition](/202609/04/2609.02036v1-selflift-accelerating-few-step-diffusion-via-self-recovering-resolution-transition)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：面向流匹配生成模型的免训练曲率自适应采样步长优化
-2. [Linear Fusion MultiDiffusion for Fast Training-Free Spherical Panorama Generation](/202609/03/2609.01997v1-linear-fusion-multidiffusion-for-fast-training-free-spherical-panorama-generation)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练的全景扩散生成优化，以更少的生成器评估完成去噪并提升效率
-3. [GeoSPRINT: Geometric Redundancy-Aware Step Pruning for Inference in Diffusion Trajectories](/202609/03/2609.02160v1-geosprint-geometric-redundancy-aware-step-pruning-for-inference-in-diffusion-trajectories)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：面向扩散模型推断的免训练几何步长剪枝采样调度
+   evidence：通过自恢复分辨率转换加速少步扩散推理，面向免训练采样优化
+2. [Stabilizing Camera-Controlled Novel View Synthesis at Inference Time](/202609/04/2609.03639v1-stabilizing-camera-controlled-novel-view-synthesis-at-inference-time)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：利用视频扩散模型进行免训练新视角合成，并在推理时以小自回归步分解相机运动来提升稳定性。
+3. [LLaDA-Image: Building Strong Image Generators with Fully Open Training Recipes](/202609/04/2609.03796v1-llada-image-building-strong-image-generators-with-fully-open-training-recipes)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：开源6B扩散Transformer图像生成器，与扩散图像生成需求直接相关。
 
 ### 速读区论文标签
-1. [Generalization over Memorization: Generalization-Aware Diffusion Adaptation for Single-Image Multi-View Synthesis](/202609/03/2608.29233v1-generalization-over-memorization-generalization-aware-diffusion-adaptation-for-single-image-multi-view-synthesis)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：基于扩散模型的单图多视角图像合成方案
-2. [ReNFT: Repairing Mode Collapse in Reward Post-Training via Internal Probability-Mass Recalibration](/202609/03/2609.00061v1-renft-repairing-mode-collapse-in-reward-post-training-via-internal-probability-mass-recalibration)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：针对扩散生成器奖励后训练模式坍缩的内部概率质量重校准
-3. [Advanced Pixel Diffusion Model with Guided Sparse Global Refinement](/202609/03/2609.00798v1-advanced-pixel-diffusion-model-with-guided-sparse-global-refinement)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：面向高保真图像生成的像素空间扩散模型，通过稀疏全局优化改进细节；与扩散图像生成相关，但不涉及免训练优化
-4. [CARVE: Verified Expansion for Variable-Length Generation in Diffusion Language Models](/202609/03/2608.30922v1-carve-verified-expansion-for-variable-length-generation-in-diffusion-language-models)  
+1. [Denoising Diffusion Generative Models Secretly Calculate Attentions](/202609/04/2609.00885v1-denoising-diffusion-generative-models-secretly-calculate-attentions)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向扩散语言模型的免训练长度扩展解码算法，符合免训练优化主题，但领域为文本而非图像/视频
+   evidence：探讨扩散图像生成固有的注意力机制，属于图像扩散理论，不涉及免训练采样优化。
 
 
 <div class="dpr-home-promo-card">

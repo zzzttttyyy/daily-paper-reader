@@ -1,0 +1,203 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-04T21:41:25.102650+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2609.02036v1",
+      "source": "arxiv",
+      "title": "SelfLift: Accelerating Few-Step Diffusion via Self-Recovering Resolution Transition",
+      "abstract": "Few-step diffusion models substantially compress temporal computation, making the spatial cost of each model evaluation an increasingly dominant source of inference latency. Progressive-resolution inference reduces this cost by performing early denoising at low resolution and reserving high-resolution computation for refinement. However, existing methods typically lift intermediate latents directly and rely on subsequent steps to absorb the induced distribution mismatch. In the few-step regime, the limited recovery budget leaves these errors as visible artifacts, constraining how late the transition can occur and, consequently, how efficiently it can be performed. We introduce SelfLift, a self-recovering progressive-resolution framework that derives both transition-repair signals and trajectory-aligned supervision from the generative model itself. SelfLift-zero proposes a training-free Artifact-Aware Consistency Lift, using disagreement between direct latent lifting and pixel-VAE re-encoding as both a localized artifact-risk signal and a model-native correction direction. It enables reliable late transitions without external super-resolution, extra denoiser evaluations, or sampling-schedule modifications. Building on this robust transition, SelfLift-rich performs On-Policy Self Recovery on student-visited states, transferring dense high-resolution guidance from an internal self-teacher while remaining aligned with the altered progressive-resolution dynamics. Across FLUX.2-Klein and Z-Image-Turbo, SelfLift reduces end-to-end latency by 41.5% and 44.1%, respectively. Combined with timestep distillation, it delivers overall speedups of 29.61x and 19.21x over the corresponding 50-step models while preserving competitive generation quality, establishing a stronger speed-quality frontier for few-step diffusion.",
+      "authors": [
+        "Tingyan Wen",
+        "Chenqian Yan",
+        "Xurui Peng",
+        "Xiazhang Fang",
+        "Shuai Wang",
+        "Xueqian Wang",
+        "Songwei Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-02T03:07:42+00:00",
+      "link": "https://arxiv.org/pdf/2609.02036v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "progressive-resolution few-step diffusion inference acceleration, self-recovering resolution transition for training-free sampling optimization",
+      "llm_evidence_cn": "通过自恢复分辨率转换加速少步扩散推理，面向免训练采样优化",
+      "llm_evidence": "通过自恢复分辨率转换加速少步扩散推理，面向免训练采样优化",
+      "canonical_evidence": "通过自恢复分辨率转换加速少步扩散推理，面向免训练采样优化",
+      "llm_tldr_en": "SelfLift accelerates few-step diffusion inference by progressive-resolution with self-recovering resolution transitions, reducing spatial cost in sampling while avoiding visible artifacts. It directly targets training-free, inference-time acceleration for diffusion image generation.",
+      "llm_tldr_cn": "现有渐进分辨率推理直接提升中间潜变量，在少步扩散中会因为恢复预算不足而留下可见伪影，阻碍效率提升。SelfLift提出自恢复分辨率过渡机制，在低分辨率去噪与高分辨率细化之间平滑切换，使空间计算开销大幅降低，同时缓解分辨率切换引起的分布失配。该方法面向少步扩散推理加速，旨在不额外增加训练负担，为扩散图像生成的高效采样优化提供了实用手段。",
+      "llm_tldr": "现有渐进分辨率推理直接提升中间潜变量，在少步扩散中会因为恢复预算不足而留下可见伪影，阻碍效率提升。SelfLift提出自恢复分辨率过渡机制，在低分辨率去噪与高分辨率细化之间平滑切换，使空间计算开销大幅降低，同时缓解分辨率切换引起的分布失配。该方法面向少步扩散推理加速，旨在不额外增加训练负担，为扩散图像生成的高效采样优化提供了实用手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.03639v1",
+      "source": "arxiv",
+      "title": "Stabilizing Camera-Controlled Novel View Synthesis at Inference Time",
+      "abstract": "Training-free, camera-controlled novel view synthesis from a single image using pre-trained video diffusion models often becomes unstable under large camera motion and long generation horizons. Existing approaches commonly combine several inference-time components, making it unclear which design choices are most important for stability. We show that the main source of stability is simple. Decomposing camera motion into small autoregressive steps limits per-step geometric distortion and reduces error accumulation. A controlled camera-step study shows that performance remains stable for small motions and degrades more strongly as the per-step motion approaches $18$-$20^\\circ$. We further evaluate geometry-constrained spatial attention and low-frequency appearance anchoring as supporting refinements, together with an efficient registration-free warping pipeline. Across RealEstate10K and MegaScene, CamTrol++ improves temporal and geometric consistency, downstream 3D reconstruction quality, and generation efficiency over training-free baselines. The method remains effective for 56-frame generation and under substantial controlled depth corruption. These results show that careful control of camera motion at inference time can substantially improve the stability of camera-controlled novel view synthesis without retraining or modifying the diffusion backbone.",
+      "authors": [
+        "Prajwal Singh",
+        "Arjun Badola",
+        "Seema Kumari",
+        "Hajime Nagahara",
+        "Shanmuganathan Raman"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-03T10:39:44+00:00",
+      "link": "https://arxiv.org/pdf/2609.03639v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Training-free inference-time stabilization of pre-trained video diffusion for camera-controlled novel view synthesis.",
+      "llm_evidence_cn": "利用视频扩散模型进行免训练新视角合成，并在推理时以小自回归步分解相机运动来提升稳定性。",
+      "llm_evidence": "利用视频扩散模型进行免训练新视角合成，并在推理时以小自回归步分解相机运动来提升稳定性。",
+      "canonical_evidence": "利用视频扩散模型进行免训练新视角合成，并在推理时以小自回归步分解相机运动来提升稳定性。",
+      "llm_tldr_en": "Analyzes instability in training-free camera-controlled novel view synthesis with frozen video diffusion and shows that decomposing camera motion into small autoregressive steps reduces per-step distortion and error accumulation, boosting stability.",
+      "llm_tldr_cn": "针对使用预训练视频扩散模型做相机可控新视角合成时在大视角运动和长时生成下不稳定、且不清楚哪些推理时设计最关键的问题，本文通过受控实验揭示主要稳定性来源是简单策略：将相机运动分解为小的自回归步，以减小每步几何畸变和误差累积。方法无需训练或修改模型，并在逼近18至20度每步时性能保持稳定，为免训练视频扩散推理优化提供了简洁有效的方向。",
+      "llm_tldr": "针对使用预训练视频扩散模型做相机可控新视角合成时在大视角运动和长时生成下不稳定、且不清楚哪些推理时设计最关键的问题，本文通过受控实验揭示主要稳定性来源是简单策略：将相机运动分解为小的自回归步，以减小每步几何畸变和误差累积。方法无需训练或修改模型，并在逼近18至20度每步时性能保持稳定，为免训练视频扩散推理优化提供了简洁有效的方向。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.03796v1",
+      "source": "arxiv",
+      "title": "LLaDA-Image: Building Strong Image Generators with Fully Open Training Recipes",
+      "abstract": "We introduce LLaDA-Image, a unified framework that pairs a 6B Diffusion Transformer (DiT) trained from scratch with a frozen vision-language understanding module built on the LLaDA2.0-Mini diffusion language model backbone. Instead of relying heavily on paired image-text data from the beginning, we first build a strong visual generative prior through image-only pre-training and mid-training. The generation pipeline comprises 220M samples, 98 of which are real images. For efficient and scalable optimization, we use parameter-free RMSNorm throughout the DiT together with the Muon optimizer. The resulting unified model produces highly photorealistic images while accurately following fine-grained editing instructions. We further distill LLaDA-Image into LLaDA-Image-Turbo, enabling fast inference in 2-4 sampling steps. On Qwen-Image-Bench, LLaDA-Image achieves overall scores of 53.53 and 53.38 on the English and Chinese tracks, respectively, setting a new state-of-the-art among open-source models on both tracks. To support further research on capable and efficient generative models, we release our model weights, training code, and detailed recipes.",
+      "authors": [
+        "Chuyan Chen",
+        "Haoxing Chen",
+        "Kun Chen",
+        "Zhenglin Cheng",
+        "Long Cui",
+        "Ruishan Fang",
+        "Zhangxuan Gu",
+        "Zhicheng Huang",
+        "Zhenzhong Lan",
+        "Yuanting Lei",
+        "Haoquan Li",
+        "Jianguo Li",
+        "Rongchuan Li",
+        "Sidu Li",
+        "Tao Lin",
+        "Deyuan Liu",
+        "Jiacheng Liu",
+        "Lin Liu",
+        "Yuxuan Lou",
+        "Zhisheng Lu",
+        "Yuxin Ma",
+        "Shuheng Shen",
+        "Peng Sun",
+        "Chaoyang Wang",
+        "Hongjun Wang",
+        "Xiaomei Wang",
+        "Yongxin Wang",
+        "Chengzhang Wu",
+        "Hongru Wu",
+        "Jun Xie"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-03T13:02:40+00:00",
+      "link": "https://arxiv.org/pdf/2609.03796v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Fully open Diffusion Transformer image generator with strong text-to-image results; on-topic for diffusion image generation.",
+      "llm_evidence_cn": "开源6B扩散Transformer图像生成器，与扩散图像生成需求直接相关。",
+      "llm_evidence": "开源6B扩散Transformer图像生成器，与扩散图像生成需求直接相关。",
+      "canonical_evidence": "开源6B扩散Transformer图像生成器，与扩散图像生成需求直接相关。",
+      "llm_tldr_en": "LLaDA-Image pairs a 6B diffusion transformer (DiT) with a frozen LLaDA2.0-Mini vision-language module, using image-only pretraining and mid-training before paired text data. It generates photorealistic images and follows editing instructions but is a training recipe, not training-free optimization.",
+      "llm_tldr_cn": "高质量文生图通常依赖大规模图文对且训练细节不公开。LLaDA-Image将从头训练的6B DiT与冻结的LLaDA2.0-Mini视觉语言模块结合，先用图像-only预训练和中训建立视觉生成先验，以降低对图文配对数据的依赖。模型在开放训练流程后，可生成高度写实图像并遵从细粒度编辑指令，再利用无参数RMSNorm与Muon优化器提高可扩展性。该论文为扩散图像生成提供了完整的开放训练方案，但不属于免训练优化方法。",
+      "llm_tldr": "高质量文生图通常依赖大规模图文对且训练细节不公开。LLaDA-Image将从头训练的6B DiT与冻结的LLaDA2.0-Mini视觉语言模块结合，先用图像-only预训练和中训建立视觉生成先验，以降低对图文配对数据的依赖。模型在开放训练流程后，可生成高度写实图像并遵从细粒度编辑指令，再利用无参数RMSNorm与Muon优化器提高可扩展性。该论文为扩散图像生成提供了完整的开放训练方案，但不属于免训练优化方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.00885v1",
+      "source": "arxiv",
+      "title": "Denoising Diffusion Generative Models Secretly Calculate Attentions",
+      "abstract": "Denoising diffusion models are the dominant architecture for image generation, whereas most natural language generation and modeling are primarily handled by well-known transformer architectures employing attention mechanism. Here, we show that diffusion models also inherently use an attention mechanism very similar to that of transformers. Therefore, attention emerges as a universal machine learning principle, based on a general training objective. We also show similarities in basic functional principle of auto-encoders and attention-based models. These equivalences allows us to interchange these designs based on practical requirements. As an example, we can reformulate the diffusion framework to reduce the lengthy training process and computation-intensive image generation. Using this approach, a simplified algorithm is proposed for image generation which is based on attention mechanism. Results show that the attention-based implementation achieves comparable performance with significantly less effort and computational resources.",
+      "authors": [
+        "Farzan Haddadi",
+        "Leila Monfared",
+        "Ebrahim Rezaii",
+        "Mohammadreza Malek-Mohammadi",
+        "Pejman Zakalvand",
+        "Narges Mokhtari"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CV",
+        "cs.LG",
+        "cs.NE"
+      ],
+      "published": "2026-09-01T08:17:57+00:00",
+      "link": "https://arxiv.org/pdf/2609.00885v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Conceptual paper about denoising diffusion image generation and its inherent attention mechanism; broad image-diffusion relevance, not training-free sampling.",
+      "llm_evidence_cn": "探讨扩散图像生成固有的注意力机制，属于图像扩散理论，不涉及免训练采样优化。",
+      "llm_evidence": "探讨扩散图像生成固有的注意力机制，属于图像扩散理论，不涉及免训练采样优化。",
+      "canonical_evidence": "探讨扩散图像生成固有的注意力机制，属于图像扩散理论，不涉及免训练采样优化。",
+      "llm_tldr_en": "Shows that denoising diffusion image generators inherently compute attention-like operations, revealing a shared principle with transformers and allowing reformulation to reduce training and computational cost.",
+      "llm_tldr_cn": "针对去噪扩散模型虽主导图像生成，但其与注意力机制关系不明确的问题，本文指出扩散模型天然计算与Transformer类似的注意力，并说明自编码器与注意力模型的相似性。据此可依据实际需求互换这些设计，以重构扩散框架减少长时间训练和计算量。该理论为扩散图像生成提供优化视角，但本身不是免训练采样方法。",
+      "llm_tldr": "针对去噪扩散模型虽主导图像生成，但其与注意力机制关系不明确的问题，本文指出扩散模型天然计算与Transformer类似的注意力，并说明自编码器与注意力模型的相似性。据此可依据实际需求互换这些设计，以重构扩散框架减少长时间训练和计算量。该理论为扩散图像生成提供优化视角，但本身不是免训练采样方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
