@@ -6,32 +6,37 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-04
-- 运行时间：2026-09-04 21:45:58 UTC
+- 最新运行日期：2026-09-05
+- 运行时间：2026-09-05 21:36:52 UTC
 - 运行状态：成功
-- 本次总论文数：4
+- 本次总论文数：5
 - 精读区：3
-- 速读区：1
+- 速读区：2
 
 ### 今日简报（AI）
-今日4篇论文聚焦扩散模型优化，精读两篇高分工作：SelfLift以自恢复分辨率转换加速少步扩散，另一篇稳定推理期相机控制的新视图合成。最值得关注少步扩散提速与视角生成稳定性，速读提示扩散模型隐含注意力机制，建议从SelfLift入手体验扩散效率提升。
-- 详情：[/202609/04/README](/202609/04/README)
+今日精读聚焦统一离散扩散与长程视频生成，另有图像复用与音视频调度速读共5篇。  
+最值得关注9.0分《From Truncation to Commitment》的持久上下文机制，以及8.0分《OctWorld》的八叉树3D映射视频建模。  
+建议优先阅读这两篇高分论文，把握扩散模型与视频生成的前沿改进方向。
+- 详情：[/202609/05/README](/202609/05/README)
 
 ### 精读区论文标签
-1. [SelfLift: Accelerating Few-Step Diffusion via Self-Recovering Resolution Transition](/202609/04/2609.02036v1-selflift-accelerating-few-step-diffusion-via-self-recovering-resolution-transition)  
+1. [From Truncation to Commitment: Persistent Context in Uniform Discrete Diffusion](/202609/05/2609.01043v1-from-truncation-to-commitment-persistent-context-in-uniform-discrete-diffusion)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：通过自恢复分辨率转换加速少步扩散推理，面向免训练采样优化
-2. [Stabilizing Camera-Controlled Novel View Synthesis at Inference Time](/202609/04/2609.03639v1-stabilizing-camera-controlled-novel-view-synthesis-at-inference-time)  
+   evidence：面向离散扩散提出免训练committed reveal采样，直接对应无需训练的采样优化需求
+2. [OctWorld: Long-Range World-Consistent Video Generation with Octree-Based 3D Mapping](/202609/05/2609.03919v1-octworld-long-range-world-consistent-video-generation-with-octree-based-3d-mapping)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：利用视频扩散模型进行免训练新视角合成，并在推理时以小自回归步分解相机运动来提升稳定性。
-3. [LLaDA-Image: Building Strong Image Generators with Fully Open Training Recipes](/202609/04/2609.03796v1-llada-image-building-strong-image-generators-with-fully-open-training-recipes)  
+   evidence：提出带八叉树3D持久记忆的扩散视频生成框架，用于沿相机路径的世界一致长程生图
+3. [DSAQuant: Denoising-Stage-Aligned Quantization-Aware Training for Video Generation](/202609/05/2609.04031v1-dsaquant-denoising-stage-aligned-quantization-aware-training-for-video-generation)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：开源6B扩散Transformer图像生成器，与扩散图像生成需求直接相关。
+   evidence：面向视频扩散生成模型的量化感知训练，匹配视频扩散生成任务需求
 
 ### 速读区论文标签
-1. [Denoising Diffusion Generative Models Secretly Calculate Attentions](/202609/04/2609.00885v1-denoising-diffusion-generative-models-secretly-calculate-attentions)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：探讨扩散图像生成固有的注意力机制，属于图像扩散理论，不涉及免训练采样优化。
+1. [RegionCache: Semantic-Aware Region Reuse for Efficient Multi-Turn Image Generation](/202609/05/2608.29809v1-regioncache-semantic-aware-region-reuse-for-efficient-multi-turn-image-generation)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：免额外训练的语义感知缓存复用，用于多轮图像生成减少冗余扩散计算
+2. [TimeSteer: Inference-Time Speech Scheduling in Joint Audio-Visual Diffusion Models](/202609/05/2609.01277v1-timesteer-inference-time-speech-scheduling-in-joint-audio-visual-diffusion-models)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：无需微调的音频视觉扩散模型推理时生成调度，与免训练扩散控制相关
 
 
 <div class="dpr-home-promo-card">

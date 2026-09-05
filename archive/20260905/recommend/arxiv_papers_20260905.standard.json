@@ -1,0 +1,216 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-05T21:31:43.687605+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2609.01043v1",
+      "source": "arxiv",
+      "title": "From Truncation to Commitment: Persistent Context in Uniform Discrete Diffusion",
+      "abstract": "Uniform-state discrete diffusion models update all tokens in parallel while keeping every position revisable. Even when the commonly used top-$p$ rule leaves only one candidate at a position, that choice affects only the current reverse step and can be revised at the next sampling step. We ask what changes when selected hypotheses instead become persistent context for later predictions. We therefore propose committed reveal sampling (CRS), a training-free sampler that stores selected argmax tokens and inserts them into subsequent model inputs. Our analysis gives a rationale for selecting later and for keeping selected tokens visible. Under the exact forward process, the Bayes error of selecting a clean token cannot increase as noise decreases, while in a simple latent-mode model, keeping the selected token visible helps later parallel predictions agree on the same sequence-level choice. Empirically, paired experiments on Duo-distilled then separate this persistent effect from single-step top-$p$ restriction and scalar temperature scaling. Under the same finalization rule, CRS without top-$p$ truncation reaches lower generative perplexity (GenPPL) than fixed $p=0.95$ and $p=0.9$ baselines across budgets of 8--64 function evaluations (NFE). At 64 NFE, the comparison at matched unigram entropy also gives lower GenPPL for CRS, yielding a more favorable GenPPL--entropy tradeoff. Base Duo shows the same direction in a descriptive comparison, while other diversity and continuation metrics can rank these operating points differently. These results identify support restriction and persistent context as distinct controls of that tradeoff.",
+      "authors": [
+        "Satoshi Hayakawa"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "math.PR",
+        "stat.ML"
+      ],
+      "published": "2026-09-01T10:43:24+00:00",
+      "link": "https://arxiv.org/pdf/2609.01043v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Introduces a training-free committed reveal sampler for uniform discrete diffusion, directly matching the requested training-free sampling optimization theme",
+      "llm_evidence_cn": "面向离散扩散提出免训练committed reveal采样，直接对应无需训练的采样优化需求",
+      "llm_evidence": "面向离散扩散提出免训练committed reveal采样，直接对应无需训练的采样优化需求",
+      "canonical_evidence": "面向离散扩散提出免训练committed reveal采样，直接对应无需训练的采样优化需求",
+      "llm_tldr_en": "Committed reveal sampling persists selected argmax tokens as context in uniform discrete diffusion, yielding a training-free sampler with theoretical justification and improved generation quality.",
+      "llm_tldr_cn": "针对均匀态离散扩散模型采样时选择可被反复改写、缺少持久上下文的问题，本文提出免训练采样算法CRS。CRS在每步选中argmax token后将其存储并注入后续模型输入，使选择成为后续预测的持久上下文；理论分析给出了选择时机和保持可见性的依据，并证明在精确前向过程下干净token的贝叶斯误差不会随噪声减少而增大。实验显示该采样策略能提升离散扩散生成质量。该方法属于通用免训练采样优化，但面向离散/语言扩散，而非用户关心的图像/视频生成场景。",
+      "llm_tldr": "针对均匀态离散扩散模型采样时选择可被反复改写、缺少持久上下文的问题，本文提出免训练采样算法CRS。CRS在每步选中argmax token后将其存储并注入后续模型输入，使选择成为后续预测的持久上下文；理论分析给出了选择时机和保持可见性的依据，并证明在精确前向过程下干净token的贝叶斯误差不会随噪声减少而增大。实验显示该采样策略能提升离散扩散生成质量。该方法属于通用免训练采样优化，但面向离散/语言扩散，而非用户关心的图像/视频生成场景。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.03919v1",
+      "source": "arxiv",
+      "title": "OctWorld: Long-Range World-Consistent Video Generation with Octree-Based 3D Mapping",
+      "abstract": "We present OctWorld, a video diffusion framework with persistent 3D memory for generating explorable, world-consistent, and high-fidelity visual scenes. Given a single image, OctWorld performs stable autoregressive world generation along user-specified camera trajectories. We focus on long-range generation, characterized by extended camera paths and wide viewpoint coverage, where preserving spatial consistency is particularly challenging when previously generated regions are revisited. To address this problem, we introduce OctMap, an extensible and spatially adaptive 3D memory that progressively fuses generated visual observations and their corresponding depth maps into a global representation. OctMap employs TSDF fusion within a dynamic sparse octree whose spatial resolution adapts to image evidence. This design preserves geometric and appearance details across diverse scene scales while maintaining low memory overhead. Experiments demonstrate that OctWorld generates long-range, spatially consistent videos and outperforms prior methods on both existing benchmarks and challenging long-range generation settings. OctMap also provides clear advantages over point-based caches and fixed-resolution TSDF volumes. Project page: https://maxtirerror.github.io/octworldpage/",
+      "authors": [
+        "Zelong Lv",
+        "Sicheng Xu",
+        "Jianfeng Xiang",
+        "Ruicheng Wang",
+        "Yue Dong",
+        "Yu Deng",
+        "Guangzhong Sun",
+        "Jiaolong Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-03T14:35:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.03919v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Proposes a video diffusion framework with persistent octree-based 3D memory for world-consistent generation along camera trajectories",
+      "llm_evidence_cn": "提出带八叉树3D持久记忆的扩散视频生成框架，用于沿相机路径的世界一致长程生图",
+      "llm_evidence": "提出带八叉树3D持久记忆的扩散视频生成框架，用于沿相机路径的世界一致长程生图",
+      "canonical_evidence": "提出带八叉树3D持久记忆的扩散视频生成框架，用于沿相机路径的世界一致长程生图",
+      "llm_tldr_en": "OctWorld uses an octree-based persistent 3D memory to fuse depth and RGB observations, enabling autoregressive video diffusion that generates long-range world-consistent scenes; central to diffusion video generation but not training-free optimization.",
+      "llm_tldr_cn": "针对沿长相机轨迹自回归生成时重访旧区域会产生空间漂移、场景难以保持一致的问题，本文提出OctWorld扩散视频框架。它采用可扩展且空间自适应的八叉树3D记忆OctMap，将生成观测和对应深度图经TSDF融合成全局表征，从而支持从单张图像持续生成用户指定路径下的可探索场景。实验展示了长程高保真视觉生成中的显著一致性提升。该工作属于扩散视频生成方向，但并未聚焦免训练推理优化，因此与核心优化主题仍有一段距离。",
+      "llm_tldr": "针对沿长相机轨迹自回归生成时重访旧区域会产生空间漂移、场景难以保持一致的问题，本文提出OctWorld扩散视频框架。它采用可扩展且空间自适应的八叉树3D记忆OctMap，将生成观测和对应深度图经TSDF融合成全局表征，从而支持从单张图像持续生成用户指定路径下的可探索场景。实验展示了长程高保真视觉生成中的显著一致性提升。该工作属于扩散视频生成方向，但并未聚焦免训练推理优化，因此与核心优化主题仍有一段距离。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.04031v1",
+      "source": "arxiv",
+      "title": "DSAQuant: Denoising-Stage-Aligned Quantization-Aware Training for Video Generation",
+      "abstract": "Video diffusion models (VDMs) have achieved impressive progress in text-to-video generation, but their high memory and computational costs hinder practical deployment. Quantization-aware training (QAT) is an effective solution for compressing and accelerating advanced generative models without runtime overhead at inference. However, existing QAT methods suffer from a distinctive challenge in VDMs: while they often preserve prompt semantics, global layout, and coarse motion, the quantized model severely degrades visual details, texture fidelity, and sharpness. In this paper, we trace this degradation to the timestep-agnostic design of conventional quantization pipelines, which overlooks the stage-wise functionality of video denoising. In VDMs, early denoising steps mainly establish global structure and motion, whereas middle and late steps refine local appearance and high-frequency details. Based on this insight, we propose DSAQuant, a Denoising-Stage-Aligned Quantization-aware training framework for VDMs. During training, Denoising-Stage Oriented Supervision preserves teacher distillation in early steps for stable structure planning, while shifting later steps toward target-driven optimization to enhance detail reconstruction. During inference, Denoising-Stage Gated Guidance disables CFG in the final denoising steps to prevent it from amplifying quantization-induced errors into high-frequency artifacts. Extensive experiments on the Wan and CogVideoX families under W4A4 and W3A3 settings show that DSAQuant consistently outperforms the SOTA QAT baseline, improving the VBench average score by up to 6.60 under aggressive W3A3 quantization while preserving strong text-video alignment. These results demonstrate that effective VDM quantization requires not only reducing quantization error, but also aligning quantization training and inference with the stage-wise nature of video diffusion.",
+      "authors": [
+        "Shuaiting Li",
+        "Zelin Gao",
+        "Haibin Shen",
+        "Yujun Shen",
+        "Haotong Qin",
+        "Yinghao Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-03T16:09:25+00:00",
+      "link": "https://arxiv.org/pdf/2609.04031v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Quantization-aware training for text-to-video diffusion models, relevant to video diffusion generation",
+      "llm_evidence_cn": "面向视频扩散生成模型的量化感知训练，匹配视频扩散生成任务需求",
+      "llm_evidence": "面向视频扩散生成模型的量化感知训练，匹配视频扩散生成任务需求",
+      "canonical_evidence": "面向视频扩散生成模型的量化感知训练，匹配视频扩散生成任务需求",
+      "llm_tldr_en": "DSAQuant proposes denoising-stage-aligned quantization-aware training for video diffusion models to preserve visual details and sharpness under low-precision compression, unlike timestep-agnostic quantization.",
+      "llm_tldr_cn": "论文指出现有量化感知训练对视频扩散模型逐时间步统一处理，使得量化后保留语义、布局与粗粒度运动，却严重损失视觉细节和清晰度。作者将该问题归因于忽视了视频去噪中不同阶段的功能差异，提出与去噪阶段对齐的量化感知训练方法DSAQuant。该方法针对性地适配各去噪阶段的量化策略，从而在压缩加速的同时保持视频生成的高频细节与纹理锐度。实验验证了该方案能显著改善量化后视频扩散模型的生成质量，推进视频生成模型的实际部署。",
+      "llm_tldr": "论文指出现有量化感知训练对视频扩散模型逐时间步统一处理，使得量化后保留语义、布局与粗粒度运动，却严重损失视觉细节和清晰度。作者将该问题归因于忽视了视频去噪中不同阶段的功能差异，提出与去噪阶段对齐的量化感知训练方法DSAQuant。该方法针对性地适配各去噪阶段的量化策略，从而在压缩加速的同时保持视频生成的高频细节与纹理锐度。实验验证了该方案能显著改善量化后视频扩散模型的生成质量，推进视频生成模型的实际部署。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.29809v1",
+      "source": "arxiv",
+      "title": "RegionCache: Semantic-Aware Region Reuse for Efficient Multi-Turn Image Generation",
+      "abstract": "Real-world image generation often involves multi-turn editing, where users iteratively modify small regions while most image content remains unchanged. However, existing diffusion transformer (DiT)-based editing pipelines recompute the entire image at every turn, causing substantial redundant computation. Existing DiT acceleration methods further ignore semantic correspondence across prompts, leading to unnecessary recomputation or unsafe reuse that harms editing quality. To address this, we propose RegionCache, a semantic-aware reuse framework for multi-turn image editing that selectively reuses diffusion states from unchanged regions. RegionCache detects reusable regions through semantic overlap between consecutive prompts and cross-attention localization, and adopts an adaptive reuse schedule based on prompt similarity and contextual consistency. Experiments on PixArt-alpha demonstrate that RegionCache achieves 1.43x--2.55x end-to-end speedup while maintaining comparable image quality. Code is available at https://github.com/hebutBryant/RegionCache.",
+      "authors": [
+        "Peizheng Li",
+        "Xin Ai",
+        "Hanyuan Liu",
+        "Qiange Wang",
+        "Yanfeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-30T14:21:46+00:00",
+      "link": "https://arxiv.org/pdf/2608.29809v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Semantic-aware cache reuse reduces redundant diffusion computations for efficient multi-turn image generation without additional training",
+      "llm_evidence_cn": "免额外训练的语义感知缓存复用，用于多轮图像生成减少冗余扩散计算",
+      "llm_evidence": "免额外训练的语义感知缓存复用，用于多轮图像生成减少冗余扩散计算",
+      "canonical_evidence": "免额外训练的语义感知缓存复用，用于多轮图像生成减少冗余扩散计算",
+      "llm_tldr_en": "RegionCache is a semantic-aware diffusion-state reuse framework for multi-turn image editing, detecting reusable regions via prompt semantic overlap and cross-attention, cutting redundant DiT recomputation while preserving editing quality.",
+      "llm_tldr_cn": "多轮图像编辑中用户只修改小部分区域，但基于扩散变换器的管线每轮仍整图重算，造成大量冗余。已有加速方法忽略跨提示语义对应，导致不必要重计算或安全复用受损。RegionCache 提出语义感知区域复用框架，通过相邻提示的语义重叠和交叉注意力图判断可复用区域，只复用未变化区域的扩散状态以加速多轮编辑。该方法无需额外训练就能减少冗余计算，并在提升效率的同时保持编辑质量。",
+      "llm_tldr": "多轮图像编辑中用户只修改小部分区域，但基于扩散变换器的管线每轮仍整图重算，造成大量冗余。已有加速方法忽略跨提示语义对应，导致不必要重计算或安全复用受损。RegionCache 提出语义感知区域复用框架，通过相邻提示的语义重叠和交叉注意力图判断可复用区域，只复用未变化区域的扩散状态以加速多轮编辑。该方法无需额外训练就能减少冗余计算，并在提升效率的同时保持编辑质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.01277v1",
+      "source": "arxiv",
+      "title": "TimeSteer: Inference-Time Speech Scheduling in Joint Audio-Visual Diffusion Models",
+      "abstract": "Although pretrained joint audio-visual diffusion models offer rich control over \\emph{what} to generate, they provide no explicit control over \\emph{when} an utterance should occur. To address this, we study \\emph{inference-time speech scheduling}, a novel task that places coupled speech and visual articulation within user-specified begin--end intervals without finetuning the backbone model. We uncover two intrinsic properties of the denoising process that enable this task. First, a timing-sensitive text-to-audio cross-attention head exposes each utterance's model-implied source span along the latent timeline. Second, the predicted clean latent already organizes coupled speech and visual articulation, allowing their temporal placement to be edited without regenerating the content. Building on these discoveries, we propose \\textbf{TimeSteer}, a training-free framework that localizes each utterance's source span through \\textbf{Source Span Localization} and transfers the associated audio-visual latent content from the source interval to the specified target interval through \\textbf{Region-Aware Latent Remapping}. We further introduce \\textbf{SpeechShift}, the first benchmark for interval-level speech scheduling in joint audio-visual generation. Experiments across two representative backbones show that TimeSteer substantially improves interval controllability over training-free baselines while maintaining competitive overall generation quality.",
+      "authors": [
+        "Chao Zhou",
+        "Yiling Chen",
+        "Qi Chu",
+        "Tao Gong",
+        "Nenghai Yu",
+        "Tianyi We"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "published": "2026-09-01T14:12:57+00:00",
+      "link": "https://arxiv.org/pdf/2609.01277v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Inference-time scheduling in joint audio-visual diffusion models without finetuning; overlaps with training-free diffusion control",
+      "llm_evidence_cn": "无需微调的音频视觉扩散模型推理时生成调度，与免训练扩散控制相关",
+      "llm_evidence": "无需微调的音频视觉扩散模型推理时生成调度，与免训练扩散控制相关",
+      "canonical_evidence": "无需微调的音频视觉扩散模型推理时生成调度，与免训练扩散控制相关",
+      "llm_tldr_en": "Pretrained joint audio-visual diffusion models cannot control speech onset timing. TimeSteer uses timing-sensitive text-to-audio cross-attention and structure in predicted clean latents to schedule utterances into user-specified begin-end intervals without finetuning.",
+      "llm_tldr_cn": "预训练的联合音频-视觉扩散模型能控制生成内容，却无法控制话语发生的时间。为此作者提出推理时语音调度任务，在不对骨干模型微调的情况下把耦合的语音与视觉发音放到用户指定的起止区间。他们发现去噪过程有两个内在属性有助于该任务：文本到音频交叉注意力头能暴露话语在潜在时间线上的位置，预测的干净潜在表示已组织好视觉与语音的时序结构。据此设计TimeSteer，可在给定时间区间内无训练地重新安排生成语音的时间。",
+      "llm_tldr": "预训练的联合音频-视觉扩散模型能控制生成内容，却无法控制话语发生的时间。为此作者提出推理时语音调度任务，在不对骨干模型微调的情况下把耦合的语音与视觉发音放到用户指定的起止区间。他们发现去噪过程有两个内在属性有助于该任务：文本到音频交叉注意力头能暴露话语在潜在时间线上的位置，预测的干净潜在表示已组织好视觉与语音的时序结构。据此设计TimeSteer，可在给定时间区间内无训练地重新安排生成语音的时间。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
