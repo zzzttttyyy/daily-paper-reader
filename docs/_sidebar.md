@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-06 <!--dpr-date:20260906-->
+    * 精读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/06/2608.31053v1-identity-conditioned-latent-consistency-distillation-for-face-synthesis" data-sidebar-item="{&quot;title&quot;: &quot;Identity-Conditioned Latent Consistency Distillation for Face Synthesis&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2608.31053v1-identity-conditioned-latent-consistency-distillation-for-face-synthesis&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;基于扩散模型的人脸图像生成，通过潜在一致性蒸馏显著降低采样成本&quot;}">Identity-Conditioned Latent Consistency Distillation for Face Synthesis</a>
   * 2026-09-05 <!--dpr-date:20260905-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/05/2609.01043v1-from-truncation-to-commitment-persistent-context-in-uniform-discrete-diffusion" data-sidebar-item="{&quot;title&quot;: &quot;From Truncation to Commitment: Persistent Context in Uniform Discrete Diffusion&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.01043v1-from-truncation-to-commitment-persistent-context-in-uniform-discrete-diffusion&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;面向离散扩散提出免训练committed reveal采样，直接对应无需训练的采样优化需求&quot;}">From Truncation to Commitment: Persistent Context in Uniform Discrete Diffusion</a>

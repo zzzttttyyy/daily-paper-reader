@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-06",
+  "date": "2026-09-06",
+  "generated_at": "2026-09-06T22:00:31",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/06/2608.31053v1-identity-conditioned-latent-consistency-distillation-for-face-synthesis",
+      "section": "deep",
+      "title_en": "Identity-Conditioned Latent Consistency Distillation for Face Synthesis",
+      "authors": "Tiago Kienen Chaves, Bernardo Biesseck, David Menotti",
+      "date": "2026-08-31",
+      "pdf": "https://arxiv.org/pdf/2608.31053v1",
+      "score": "9.0",
+      "evidence": "基于扩散模型的人脸图像生成，通过潜在一致性蒸馏显著降低采样成本",
+      "tldr": "扩散模型虽能生成高保真人脸，但迭代采样开销大，导致人脸识别的大规模合成数据集成本很高。提出基于潜空间一致性模型的身份条件人脸合成，从Arc2Face教师蒸馏学生模型，并用ArcFace身份嵌入代替文本条件，只需极少数采样步骤。单图推理0.4819秒，较Arc2Face提速4.36倍；FID在CelebA上接近教师，在WebFace42M上更优。任务特定潜一致性蒸馏实现了低开销、高质量的大规模合成人脸生成，有利于人脸识别模型训练。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion models have achieved strong results in high-fidelity image synthesis, but their iterative sampling process makes large-scale generation computationally expensive. This limitation is especially relevant when generating synthetic face datasets for face recognition, where a large number of subjects with many samples in different poses, expressions, ages, etc., are required. In this work, we show that identity-conditioned face synthesis can be performed at a substantially lower computational cost by a latent Consistency Model with few iterations, without compromising image quality. For training, we distill knowledge from the foundation Diffusion Model Arc2Face (teacher) by adapting its original text-to-image pipeline to an embedding-to-face setting, replacing textual prompts with ArcFace identity embeddings. Our distilled model (student) generates identity-conditioned face images with an average inference time of 0.4819 seconds per image, compared with 2.102 seconds for Arc2Face, resulting in a 4.36$\\times$ speed-up. Quantitative results, based on FID scores, show that the distilled model remains competitive with Arc2Face across all evaluation protocols. On 100k generated images, it achieves near-parity on CelebA (13.921 vs. 12.928) and outperforms the teacher on WebFace42M (9.317 vs. 9.802). Further evaluations on Synth-500 and AgeDB show a moderate performance gap for the former but comparable results for the latter. These results indicate that Arc2Face can be accelerated through task-specific latent consistency distillation while preserving high image quality for large-scale synthetic face generation. Our proposal is publicly available at https://github.com/UFPR-IPASP-PR/FaceRec-IdentityConsistency.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

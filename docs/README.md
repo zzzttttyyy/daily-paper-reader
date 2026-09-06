@@ -6,37 +6,26 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-05
-- 运行时间：2026-09-05 21:36:52 UTC
+- 最新运行日期：2026-09-06
+- 运行时间：2026-09-06 22:00:27 UTC
 - 运行状态：成功
-- 本次总论文数：5
-- 精读区：3
-- 速读区：2
+- 本次总论文数：1
+- 精读区：1
+- 速读区：0
 
 ### 今日简报（AI）
-今日精读聚焦统一离散扩散与长程视频生成，另有图像复用与音视频调度速读共5篇。  
-最值得关注9.0分《From Truncation to Commitment》的持久上下文机制，以及8.0分《OctWorld》的八叉树3D映射视频建模。  
-建议优先阅读这两篇高分论文，把握扩散模型与视频生成的前沿改进方向。
-- 详情：[/202609/05/README](/202609/05/README)
+今日精读1篇高分论文，聚焦人脸合成前沿方向。
+最值得关注的是《Identity-Conditioned Latent Consistency Distillation for Face Synthesis》，评分9.0/10。
+建议深入理解该方法如何用身份条件提升合成效率与一致性。
+- 详情：[/202609/06/README](/202609/06/README)
 
 ### 精读区论文标签
-1. [From Truncation to Commitment: Persistent Context in Uniform Discrete Diffusion](/202609/05/2609.01043v1-from-truncation-to-commitment-persistent-context-in-uniform-discrete-diffusion)  
+1. [Identity-Conditioned Latent Consistency Distillation for Face Synthesis](/202609/06/2608.31053v1-identity-conditioned-latent-consistency-distillation-for-face-synthesis)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：面向离散扩散提出免训练committed reveal采样，直接对应无需训练的采样优化需求
-2. [OctWorld: Long-Range World-Consistent Video Generation with Octree-Based 3D Mapping](/202609/05/2609.03919v1-octworld-long-range-world-consistent-video-generation-with-octree-based-3d-mapping)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：提出带八叉树3D持久记忆的扩散视频生成框架，用于沿相机路径的世界一致长程生图
-3. [DSAQuant: Denoising-Stage-Aligned Quantization-Aware Training for Video Generation](/202609/05/2609.04031v1-dsaquant-denoising-stage-aligned-quantization-aware-training-for-video-generation)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：面向视频扩散生成模型的量化感知训练，匹配视频扩散生成任务需求
+   evidence：基于扩散模型的人脸图像生成，通过潜在一致性蒸馏显著降低采样成本
 
 ### 速读区论文标签
-1. [RegionCache: Semantic-Aware Region Reuse for Efficient Multi-Turn Image Generation](/202609/05/2608.29809v1-regioncache-semantic-aware-region-reuse-for-efficient-multi-turn-image-generation)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：免额外训练的语义感知缓存复用，用于多轮图像生成减少冗余扩散计算
-2. [TimeSteer: Inference-Time Speech Scheduling in Joint Audio-Visual Diffusion Models](/202609/05/2609.01277v1-timesteer-inference-time-speech-scheduling-in-joint-audio-visual-diffusion-models)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：无需微调的音频视觉扩散模型推理时生成调度，与免训练扩散控制相关
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
