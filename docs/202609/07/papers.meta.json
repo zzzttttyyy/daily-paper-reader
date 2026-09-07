@@ -1,0 +1,69 @@
+{
+  "label": "2026-09-07",
+  "date": "2026-09-07",
+  "generated_at": "2026-09-07T22:58:21",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202609/07/2608.29904v1-off-manifold-refinement-guiding-video-generators-with-a-frozen-world-model",
+      "section": "deep",
+      "title_en": "Off-Manifold Refinement: Guiding Video Generators with a Frozen World Model",
+      "authors": "Hai Nguyen-Truong, Tuan-Anh Vu, Dang Huynh",
+      "date": "2026-08-30",
+      "pdf": "https://arxiv.org/pdf/2608.29904v1",
+      "score": "9.0",
+      "evidence": "利用冻结世界模型的推理阶段免训练视频生成器精化方法",
+      "tldr": "视频生成模型常违反物理规律，现有修正手段需高昂推理或训练成本。本文提出离流形修正（OMR），在采样中段用冻结世界模型V-JEPA 2.1的适配器空间惊愕能梯度修正生成速度，引导潜在状态趋向物理合理区域，生成器与世界模型均保持冻结。在VideoPhy-2子集上联合指标从47.0%升至52.0%，效率子集耗时仅为基线的1.71倍。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Modern video generators routinely fail at physical dynamics: objects float, trajectories violate gravity, contacts vanish. Standard denoising and flow-matching objectives fit visual data distributions but do not explicitly penalize such physical violations. Existing remedies can improve physical consistency, but typically add substantial inference or training cost. Candidate-selection methods generate and score multiple videos, while gradient-based world-model guidance repeatedly decodes and re-encodes intermediate estimates. Generator-internal refinement adds perturbation and re-denoising loops, whereas post-training requires curated data and additional optimization. We propose Off-Manifold Refinement (OMR), an inference-time method that instead injects world-model feedback directly into a single sampling trajectory. During scheduled middle ODE steps, we augment the generator velocity with the gradient of an adapter-space V-JEPA 2.1 surprise energy. This external correction can move the latent away from the uncorrected sampling trajectory and toward regions ranked as more physically plausible by the frozen predictor, after which the generator continues rendering from the corrected state. A small trained latent-to-embedding adapter keeps the gradient tractable at inference, and both the video generator and the world model remain frozen. On our fixed 400-prompt VideoPhy-2 detailed subset, OMR lifts the joint Semantic-Adherence-and-Physical-Commonsense metric from 47.0% to 52.0% (+5.0pp absolute, +10.6% relative) over the base Wan2.2-T2V-A14B sampler. On a separate fixed 50-prompt efficiency subset, it requires $1.71 \\times$ the base runtime rather than the multiplicative cost of reward/search alternatives. Project page: https://itruonghai.github.io/omr.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/07/2609.00956v1-prederase-training-free-object-and-effect-removal-with-predictive-latent-guidance",
+      "section": "deep",
+      "title_en": "PredErase: Training-Free Object-and-Effect Removal with Predictive Latent Guidance",
+      "authors": "Waikit Xiu, Qiang Lu, Junbiao Chen, Xiying Li",
+      "date": "2026-09-01",
+      "pdf": "https://arxiv.org/pdf/2609.00956v1",
+      "score": "9.0",
+      "evidence": "冻结扩散模型上的免训练预测性潜在引导，直接用于图像对象与效果移除，强匹配免训练图像生成优化",
+      "tldr": "对象移除不等于填充掩码，因为阴影和接触着色通常落在掩码外，冻结填充模型仅编辑掩码会留下对象的“光度足迹”。PredErase在冻结FLUX.2和I-JEPA上实现无训练推断，通过接触带扩展掩码暴露局部残差，并用I-JEPA的掩码预测能力提供上下文条件的目标表示，稀疏投影梯度将解码补全引导到该目标。在RemovalBench、RORD-Val和DEFACTO-Val上，它提升了原生FLUX.2的移除效果，支持了免训练的对象及效果编辑。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Removing an object is not the same as filling its mask. Cast shadows and contact shading usually lie outside the user-provided instance mask M_obj, so a frozen Fill model that edits only that mask leaves the object's photometric footprint on nearby surfaces. Supervised removers learn this joint erasure from paired clean plates. Training-free editors freeze pretrained weights, yet most still treat M_obj as the entire editable support and steer sampling with CLIP or DINO energies that do not predict the occluded scene. We present PredErase, a training-free inference procedure on frozen FLUX.2 and I-JEPA. The method separates where Fill may rewrite pixels from what structure should occupy the hole. A contact-band expansion M_flux of M_obj exposes local residuals on the supporting plane. I-JEPA, pretrained for masked token prediction, supplies a context-conditioned hole target in representation space; sparse projected gradients align decoded Fill completions with that target inside the instance, while coordinates outside the packed support stay locked. Under instance-only masks on RemovalBench, RORD-Val, and DEFACTO-Val, PredErase improves the native FLUX.2 backbone. Supervised removers remain stronger on several full-image appearance metrics; the supported claim is training-free object-and-effect editing of frozen Fill, not replacement of paired-data erasers.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/07/2609.04649v1-readit-guidance-control-for-image-and-video-generation-using-diffusion-transformer-features",
+      "section": "deep",
+      "title_en": "ReaDiT Guidance: Control for Image and Video Generation using Diffusion Transformer Features",
+      "authors": "Jay Mahajan, Chang Liu, Rauf Makharov, Viraj Shah, Alexander Schwing, Svetlana Lazebnik",
+      "date": "2026-09-04",
+      "pdf": "https://arxiv.org/pdf/2609.04649v1",
+      "score": "9.0",
+      "evidence": "利用DiT内部特征在测试时同时控制图像与视频生成，无需训练或额外适配器，是典型的免训练扩散优化方法",
+      "tldr": "扩散Transformer模型在图像和视频生成中表现优异，但直接利用其内部特征进行可控生成仍具挑战。本文提出ReaDiT Guidance，通过读取单个DiT块的特征表示，在测试时根据深度、姿态或边缘等空间条件引导生成过程，无需额外的大规模适配器。该方法自然延伸到视频生成，支持相机与运动控制。实验表明，在多个任务上以更少参数取得与现有方法相当或更优的结果。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We present DiT Readout (ReaDiT) Guidance, a lightweight framework for controlling generation with Diffusion Transformer (DiT) models via their internal feature representations. ReaDiT Guidance uses features from a single DiT block to steer the generative process according to spatial targets - like depth, pose, or edge maps - provided at test time. Furthermore, since modern text-to-video models are largely built on DiT backbones, ReaDiT Guidance naturally extends to video generation, enabling camera and motion control. Experimental results demonstrate that our approach achieves competitive or improved results compared to existing feature-based and off-the-shelf adapter-based approaches while requiring fewer parameters.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/07/2609.05382v1-reflection-aware-generative-novel-view-synthesis",
+      "section": "quick",
+      "title_en": "Reflection-aware Generative Novel View Synthesis",
+      "authors": "GeonU Kim, Shin Dong-Yeon, Tae-Hyun Oh",
+      "date": "2026-09-04",
+      "pdf": "https://arxiv.org/pdf/2609.05382v1",
+      "score": "7.0",
+      "evidence": "无需训练的反射感知多视角扩散生成，用于镜面场景新视角合成",
+      "tldr": "镜子场景中的生成式新视角合成常忽略反射内容，导致视角不一致。Ref-GeNVS将镜像视为互补视角，通过估计镜面平面并反射相机位姿构建虚拟视角，用镜像门控注意力与反射注入两阶段生成显式建模反射关系，无需微调即可生成反射一致且上下文连贯的新视图，并揭示仅在镜中可见的结构，在合成与真实场景中均优于现有方法。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "We propose Ref-GeNVS, a training-free, reflection-aware method for generative novel view synthesis (NVS) in mirror scenes. Existing multi-view diffusion models often fail to recognize the mirror in the scene and cannot exploit reflected content for scene generation. To fix this issue without additional training, our key idea is to treat a mirror image as two complementary views. From input images, we estimate the mirror plane and reflect camera poses to form virtual views. Based on this virtual view setup, we propose a two-stage generation method consisting of Mirror-gated attention and Reflection injection, which enables reflection-consistent NVS by explicitly leveraging reflection relationships in a multi-view diffusion model. Ref-GeNVS inherits the strong generalizability of the multi-view diffusion backbone, while it does not require finetuning. On synthetic and real scenes including mirrors, Ref-GeNVS outperforms recent generative NVS methods by generating reflection-consistent and contextually coherent novel views, revealing scene structure visible only through mirrors. Project page: https://kim-geonu.github.io/Ref-GeNVS/",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -6,26 +6,34 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-06
-- 运行时间：2026-09-06 22:00:27 UTC
+- 最新运行日期：2026-09-07
+- 运行时间：2026-09-07 22:58:13 UTC
 - 运行状态：成功
-- 本次总论文数：1
-- 精读区：1
-- 速读区：0
+- 本次总论文数：4
+- 精读区：3
+- 速读区：1
 
 ### 今日简报（AI）
-今日精读1篇高分论文，聚焦人脸合成前沿方向。
-最值得关注的是《Identity-Conditioned Latent Consistency Distillation for Face Synthesis》，评分9.0/10。
-建议深入理解该方法如何用身份条件提升合成效率与一致性。
-- 详情：[/202609/06/README](/202609/06/README)
+今日聚焦视频生成与视觉合成，精读两篇9分论文，另速读一篇新视图合成研究。  
+最值得关注的是视频生成中的“冻结世界模型”引导：一篇做离流形细化提升质量，另一篇用预测式潜引导实现无需训练的目标/效果移除。  
+建议熟悉视频编辑的读者优先看 PredErase 的引导机制，或结合 Off-Manifold 思路探索更可控的生成后处理流程。
+- 详情：[/202609/07/README](/202609/07/README)
 
 ### 精读区论文标签
-1. [Identity-Conditioned Latent Consistency Distillation for Face Synthesis](/202609/06/2608.31053v1-identity-conditioned-latent-consistency-distillation-for-face-synthesis)  
+1. [Off-Manifold Refinement: Guiding Video Generators with a Frozen World Model](/202609/07/2608.29904v1-off-manifold-refinement-guiding-video-generators-with-a-frozen-world-model)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：基于扩散模型的人脸图像生成，通过潜在一致性蒸馏显著降低采样成本
+   evidence：利用冻结世界模型的推理阶段免训练视频生成器精化方法
+2. [PredErase: Training-Free Object-and-Effect Removal with Predictive Latent Guidance](/202609/07/2609.00956v1-prederase-training-free-object-and-effect-removal-with-predictive-latent-guidance)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：冻结扩散模型上的免训练预测性潜在引导，直接用于图像对象与效果移除，强匹配免训练图像生成优化
+3. [ReaDiT Guidance: Control for Image and Video Generation using Diffusion Transformer Features](/202609/07/2609.04649v1-readit-guidance-control-for-image-and-video-generation-using-diffusion-transformer-features)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：利用DiT内部特征在测试时同时控制图像与视频生成，无需训练或额外适配器，是典型的免训练扩散优化方法
 
 ### 速读区论文标签
-- 本次无速读推荐。
+1. [Reflection-aware Generative Novel View Synthesis](/202609/07/2609.05382v1-reflection-aware-generative-novel-view-synthesis)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：无需训练的反射感知多视角扩散生成，用于镜面场景新视角合成
 
 
 <div class="dpr-home-promo-card">
