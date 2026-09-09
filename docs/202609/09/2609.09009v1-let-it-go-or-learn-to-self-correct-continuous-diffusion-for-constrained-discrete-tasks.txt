@@ -1,0 +1,2308 @@
+Title: Let It Go or Learn to Self-Correct: Continuous Diffusion for Constrained Discrete Tasks
+
+URL Source: https://arxiv.org/pdf/2609.09009v1
+
+Published Time: Wed, 09 Sep 2026 04:10:47 GMT
+
+Number of Pages: 43
+
+Markdown Content:
+# Let It Go or Learn to Self-Correct: Continuous Diffusion for Constrained Discrete Tasks 
+
+Mariia Drozdova 
+
+University of Geneva 
+
+mariia.drozdova@unige.ch 
+
+Stéphane Liem Nguyen 
+
+University of Geneva 
+
+stephane.nguyen@unige.ch 
+
+François Fleuret 
+
+University of Geneva 
+
+francois.fleuret@unige.ch 
+
+## Abstract 
+
+Denoising Diffusion Probabilistic Models (DDPMs) generate samples by starting from noise and repeatedly denoising while keeping each update close to the current noisy state. This behavior is effective in many continuous domains, but its role is less clear for globally constrained discrete tasks, such as Sudoku, graph con-nectivity, Latin squares, and N-queens. In such settings, early discrete errors can be difficult to undo. As a result, standard diffusion sampling may preserve early mistakes, even when the model’s clean predictions are informative. We compare standard samplers to sampling directly from the model’s clean prediction. Without retraining, this single change improves Sudoku validity from 31% to 95% , with consistent gains across the other discrete tasks. We hypothesize that staying close to the current noisy state is harmful because the reverse trajectory can drift off the forward noising distribution the model was trained on. To reduce this train-test mismatch, we further introduce self-correction training, which exposes the model to its own predictions, improving robustness to errors that arise during inference. This substantially improves the performance of standard samplers. Our results suggest that continuous diffusion models can learn nontrivial global constraints, but discrete reasoning tasks require better alignment between training and inference: either through samplers that reduce commitment to early decisions, or through training that teaches the model to correct its own inference-time errors. 
+
+## 1 Introduction 
+
+Diffusion models have become a dominant paradigm for generative modeling in continuous domains, achieving state-of-the-art performance on high-dimensional perceptual data such as images [17, 25, 44, 47, 41] and videos [1, 18, 55]. Given this success, it is worth asking whether they can also handle globally constrained discrete tasks. Prior work has incorporated constraints into diffusion models through explicit mechanisms: projection [10, 49], guidance [22], or search-based post-processing [48]. Discrete diffusion methods built on D3PM [3] have been applied to combinatorial optimization [48], puzzle solving and satisfiability [56], and controlled text and molecule generation [7]. On combinatorial problems, DIFUSCO [48] evaluated both D3PM-based discrete diffusion and continuous diffusion [9], reporting the latter as less effective. In this work, we investigate why standard continuous diffusion sampling can fail on these tasks and whether changes to sampling and training can mitigate these failures. We study constrained discrete tasks where constraints are implicit in the data rather than provided explicitly to the model: Sudoku [24, 51, 54], graph connectivity [15], Latin squares, and N-queens. 
+
+> Preprint. arXiv:2609.09009v1 [cs.LG] 8 Sep 2026
+
+These benchmarks are closely related to recent iterative-reasoning approaches: HRM/TRM use recursive refinement [51, 24], SRM studies denoising-based spatial reasoning and sampling-order choices [54], and IRED casts graph connectivity as iterative energy diffusion [15]. Our goal is complementary: we use these tasks to diagnose standard continuous diffusion itself, asking when the denoiser learns useful global structure, why inference can fail to produce valid samples, and how it can be improved. In DDPMs [17], each reverse step makes a small update conditioned on the current state, which is well suited to perceptual data but its effect on globally constrained discrete tasks is less clear. In constrained discrete tasks, we observe a failure mode of standard DDPM sampling: generated samples can look locally plausible (e.g. each cell resembles a valid symbol: one-hot encoding or valid MNIST image) but remain globally invalid (e.g. Sudoku constraints are not satisfied). This raises a question: does the denoiser fail to learn the constraints, or does the reverse update fail to use the denoiser’s clean prediction effectively? We first test this by modifying only the reverse update. Both DDPM and the modified sampler use the current state xt as input to the denoiser, producing a clean proposal ˆx0(xt, t ). The difference is what happens after this proposal is formed: DDPM carries a direct xt-dependent residual into the reverse mean, keeping the next state tied to the current analog state. We remove this direct residual, yielding a limiting case of the generalized DDIM/DDPM sampling family [44] that we call Tweedie reprojection. This inference-only change gives large gains on the same checkpoints, improving one-hot Sudoku validity from 31% to 95% . Thus, the denoiser has learned useful constraint structure, but not always robustly enough to guide the DDPM trajectory once that trajectory begins to drift. We interpret this as a form of training-inference mismatch [37, 36, 13, 40, 57, 31]. During training, the model sees forward-noised valid samples. During sampling, however, the reverse process is driven by the model’s own imperfect predictions. Small denoising errors can move the trajectory toward states that are locally plausible but globally invalid; the DDPM residual can then keep subsequent updates close to these states, causing errors to compound. This motivates us to also modify the training process with self-correction loss, where the model is exposed to noised versions of its own intermediate predictions and trained to recover the original valid target. This training modification improves standard samplers: for example, DDPM’s validity on one-hot Sudoku rises from 31% to 
+
+87% .Our study focuses on controlled constrained-discrete benchmarks. Tweedie reprojection should be viewed as a diagnostic for decoded constraint satisfaction, not as a general sampler: in perceptually rich domains, the xt residual may carry important detail and discarding it may harm generation quality. Self-correction only partially addresses the training-inference mismatch; more complete approaches remain future work. In summary, our contributions are: • We identify a failure mode of continuous diffusion on constrained discrete reasoning tasks, where inference can lead to locally plausible but globally inconsistent states. • We study the role of the direct xt-dependent residual in DDPM sampling, and show that removing this residual can substantially improve constraint satisfaction without retraining. • We propose a self-correction training procedure exposing the denoiser to noisy versions of its own predictions. This reduces the training-inference mismatch and improves standard samplers (Euler, Euler-Maruyama, DDPM). 1
+
+## 2 Preliminaries 
+
+We briefly review the diffusion notation used throughout the paper. We use t = 0 for clean data and 
+
+t = T for noise. In the DDPM formulation, t ∈ { 0, 1, . . . , T } is discrete and t − 1 denotes one step toward data. For ODE/SDE samplers, t is continuous in [0 , T ]. We use the same symbols xt, α(t),and β(t) in both cases.  
+
+> 1Code will be available at https://github.com/MariiaDrozdova/continuous_diffusion_for_constrained_ tasks
+
+2Forward process. Let x0 ∈ Rd be a clean sample. We use the standard variance-preserving diffusion path 
+
+xt = α(t)x0 + β(t)ϵ, ϵ ∼ N (0 , I ), β(t) .
+
+= p1 − α(t)2, (1) where xt ∈ Rd is the resulting noisy sample, α(0) = 1 and α(T ) ≈ 0. Thus q(xt | x0) = 
+
+N (α(t)x0, β (t)2I). The equivalent discrete Markov chain realization is given in Appendix A. 
+
+DDPM reverse process. In the discrete formulation, the forward Markov chain gives a tractable Gaussian posterior 
+
+q(xt−1 | xt, x 0) = N
+
+
+
+μt(xt, x 0), ˜βtI
+
+
+
+, (2) with closed-form mean and variance given in Appendix A. Since x0 is unknown at sampling time, DDPM replaces it with the model’s current clean-sample estimate: 
+
+pθ (xt−1 | xt) .
+
+= q(xt−1 | xt, ˆx0(xt, t )) . (3) In other words, each DDPM reverse step conditions on both the current noisy state xt and the model’s current clean guess ˆx0(xt, t ).
+
+Training objective and parameterization. Diffusion models can be written in several equivalent parameterizations, including clean-sample prediction, noise prediction, score prediction, and velocity prediction [17, 46, 33, 34]. At the optimum, these quantities can be converted between one another; the conversion formulas are given in Appendix A. Following [29], the prediction parameterization and the loss target are separate design choices. In this work, we use x-prediction and train directly against the clean sample: 
+
+Lsimple (θ) = Ex0,t,ϵ 
+
+h
+
+∥fθ (xt, t ) − x0∥2i
+
+, ˆx0(xt, t ) .
+
+= fθ (xt, t ). (4) Under that loss, the optimal x-prediction is E[x0 | xt]. By Tweedie’s formula [16], 
+
+E[x0 | xt] = xt + β(t)2∇xt log qt(xt)
+
+α(t) , (5) where qt is the marginal distribution of xt. We therefore interpret ˆx0(xt, t ) as a plug-in Tweedie estimate of the clean sample. 
+
+Continuous-time samplers and noise scale. For continuous-time samplers, the same path can be described by a marginal vector field ut(x), yielding the probability-flow ODE dx = ut(x) d t. 
+
+More generally, for any non-negative diffusion schedule σ(t), the reverse-time SDE 
+
+dx =
+
+
+
+ut(x) − σ(t)2
+
+2 ∇x log qt(x)
+
+
+
+dt + σ(t) d wt (6) shares the same marginals qt [19, Thm. 17]. Thus σ(t) changes the stochasticity of the sampler without changing the target probability path theoretically. The probability-flow ODE is recovered by setting σ(t) = 0 , while the variance-preserving reverse SDE of [47] corresponds to σ(t)2 =
+
+−2 ˙ α(t)/α (t). In practice, learned denoisers and finite-step solvers introduce model and discretization error, so different choices of σ(t) can lead to different empirical performance. We therefore treat σ(t)
+
+as a sampler hyperparameter for Euler-Maruyama-based samplers. 
+
+## 3 Method 
+
+3.1 Inference under constraint violations 
+
+Under the denoising objective (4), the model is only exposed to noisy versions xt of valid samples 
+
+x0. The learned denoiser fθ (xt, t ) is then used as a plug-in estimate of the clean object in reverse updates of the form q(xt−1 | xt, ˆx0). However, at inference time on constrained tasks, imperfect score estimates can drive the sampling trajectory toward intermediate states that are unlikely under the forward noising trajectory of any valid solution. 3This creates a mismatch between the states encountered in training and those visited during inference (exposure bias) [37, 36, 13, 40, 57, 31]. In this regime, the standard DDPM reverse update q(xt−1 |
+
+xt, ˆx0) can preserve information from the current state even when that state contains wrong discrete commitments, leading to global constraint violations. We address this mismatch from two directions: (i) a sampling rule that reduces direct dependence on the current state after forming the clean proposal 
+
+ˆx0 (Sec. 3.2), and (ii) a training objective that exposes the model to its own predictions, improving robustness to the states encountered during sampling (Sec. 3.3). 
+
+3.2 A stochastic anchor-free update 
+
+First, we investigate the simplified reverse update that reduces the influence of the current state xt.We denote ˆx0 ≡ ˆx0(xt, t ), and set Bt = pδ(t) (1 − α(t − 1) 2)/(1 − α(t)2) where δ(t) = α(t)2 
+
+> α(t−1) 2
+
+.The DDPM ancestral update can then be written as (See Appendices I and K.3) 
+
+pDDPM  
+
+> θ
+
+(xt−1 | xt) = N
+
+
+
+α(t − 1)ˆ x0
+
+| {z }
+
+> Tweedie center
+
++ Bt
+
+ xt − α(t)ˆ x0
+
+| {z }
+
+> xt-dependent residual
+
+, (1 − α(t − 1) 2)
+
+| {z }
+
+> marginal variance
+
+1 − δ(t)1 − α(t)2
+
+| {z }
+
+> shrinking factor
+
+I
+
+
+
+. (7) We investigate the limiting case with no direct dependence on xt in the reverse step. We refer to this update as T WEEDIE REPROJECTION :
+
+pTw  
+
+> θ
+
+(xt−1 | xt) = N  α(t − 1)ˆ x0, (1 − α(t − 1) 2)I . (8) This update removes the direct xt-dependent residual from the reverse mean and re-noises the clean prediction using the forward marginal variance. Thus, xt is only used through the denoiser prediction 
+
+ˆx0(xt, t ). Tweedie reprojection is an endpoint of the generalized DDIM sampler from [44] (see Appendix B.1). We use it as an inference-time diagnostic to test whether constraint satisfaction has already been learned by the denoiser, but is not preserved by the standard sampler. 
+
+3.3 Self-correction training 
+
+To improve constraint satisfaction of the final sample, we introduce SELF -CORRECTION , a training procedure that exposes the model to its own imperfect predictions. ²1    
+
+> ²2
+> x0
+> ^x0
+> ^x0
+> 0
+> xt1
+> ~xt2
+> (1) (2) fμ
+> (3) (4) fμ
+> Lsimple
+> Lrec
+> noise data t1t2
+
+Figure 1: Self-correction training: Combining 
+
+Lrec and Lsimple , training exposes the model to potentially encountered states during in-ference, which encourages it to correct con-straint violations instead of only reinforcing locally consistent structure. Illustrated in Figure 1, given a clean sample x0, we first sample a noise level t1 ∼ U [0 , T ] and construct 
+
+xt1 as usual. We then compute an intermediate pre-diction ˆx0 = fθ (xt1 , t 1).This prediction can be imperfect and may violate con-straints, especially when t1 is far from data. We next noise ˆx0 (with gradients disabled) at a second level 
+
+t2 ∼ U [0 , t 1] to obtain ˜xt2 = α(t2)ˆ x0 + β(t2)ϵ2.The model is trained to recover the original x0 from 
+
+˜xt2 using the loss Lrec = E[∥fθ (˜ xt2 , t 2) − x0∥2].This procedure generalizes naturally to multiple pre-diction steps, though longer unrolls were unstable when trained from scratch. A warm-started multi-step variant trained successfully but did not outperform one-step self-correction; see Appendix L. The full training objective combines this recovery loss with the usual denoising objective Lsimple from (4): 
+
+LSC = Lrec + λsimple Lsimple , λsimple ≥ 0. (9) Here, Lsimple acts as an anchor to the original diffusion objective, preserving single-step denoising on forward-noised data while Lrec trains correction from self-induced states. Algorithm 2 summarizes the training procedure. For conditional generation, known values are pinned to their ground-truth after each step. Details on the pinning procedure for training and inference are provided in Appendices C and B.4, respectively. 43.4 Local distributional interpretation of self-correction 
+
+For any fixed continuous x0-prediction ¯x0 ∈ Rd, not necessarily a discrete or valid object, define 
+
+qt(·; ¯ x0) = N  α(t)¯ x0, β (t)2I .
+
+Proposition 3.1 (Local self-correction matching) . Fix a valid target x0 and an arbitrary continuous prediction ¯x0. Let t0 > 0 denote the starting time of the local reverse window, with subsequent reverse times satisfying t < t 0. Suppose that, over a local reverse window, the denoiser returns ¯x0, and the reverse process uses the DDPM posterior kernels induced by this prediction. If Yt0 ∼ qt0 (·; ¯ x0),then Yt ∼ qt(·; ¯ x0) at every later reverse time t in the window. Consequently, for independent 
+
+ϵ, ϵ ′ ∼ N (0 , I ), with 
+
+XSC  
+
+> t
+
+= α(t)¯ x0 + β(t)ϵ′, Xstd  
+
+> t
+
+= α(t)x0 + β(t)ϵ, 
+
+for β(t) > 0, we have 
+
+DKL 
+
+ L(XSC  
+
+> t
+
+) L(Yt) = 0 , DKL 
+
+ L(Xstd  
+
+> t
+
+) L(Yt) = α(t)2
+
+2β(t)2 ∥x0 − ¯x0∥22.
+
+The proposition gives a local interpretation of self-correction. It supposes that, over a short reverse-time window, the denoiser repeatedly predicts the same continuous proposal ¯x0. In this regime, self-correction generates exactly the same local proposal-centered distribution as the idealized reverse process, whereas standard diffusion training remains centered on the original clean sample x0.Consequently, self-correction explicitly trains the denoiser on the proposal-centered states that it may revisit during inference, while still retaining x0 as the training target. This fixed-proposal result is a local idealization; Appendix K.5 extends it to the more realistic case where successive proposals vary but remain within a small neighborhood of a common proposal. 
+
+## 4 Experiments 
+
+We train and evaluate on the following benchmarks for constrained data generation and in-painting/completion with a focus on discrete-space reasoning tasks: Sudoku, Sudoku-Extreme, graph connectivity (GC), Latin squares, and N -queens (see Appendix D for details). For Sudoku, we use completed boards from Sudoku-Extreme and randomly generate conditioning masks, evaluating on 21-clue puzzles and the Medium and Hard clue-count settings of SRM [54]. For Sudoku-Extreme [24, 51], we instead use the original masks guaranteeing a unique solution for each puzzle. Following IRED [15], we train GC on N = 12 and evaluate on N = 12 and N = 18 . We additionally evaluate Latin squares ( N = 7 ) and N -queens ( N = 14 ) under random in-painting and unconditional generation. As we use continuous diffusion models, we lift discrete configurations into a continuous space [9] by encoding each token as a one-hot vector, yielding x0 ∈ Rm×d (see Appendix D.1). For all tasks except MNIST Sudoku [54] and Graph Connectivity (GC) [15], our network fθ is a Transformer [50] with shared hyperparameters, taking as input a continuous sample xt ∈ Rm×d and diffusion time 
+
+t (see Appendix E.1 for architecture details). For Graph Connectivity, we adopt the Neural Logic Machine-based [14] architecture of IRED [15, Table 11] with their hyperparameters. As for MNIST Sudoku, we use the pre-trained SRM model [54] without any additional training. Results are compared across different samplers: DDPM, Euler, Euler-Maruyama (EM), EM decay (EM with decaying σt; (6)), and our Tweedie reprojection sampler. For EM, we tune a constant noise level σ separately for each configuration. We first select a checkpoint step, based on the validity rate on the validation set under deterministic Euler sampling. At this step, we partition the validation set into five folds and select a single σ, by maximizing the pass@1 validity rate averaged over all folds. The fixed (step , σ ) setting is then evaluated once on the untouched test set for each seed, and we report mean ± std across the three seeds. For EM decay, we jointly tune (σ, t decay ) using the same procedure. The sampler uses the selected noise level before tdecay and linearly anneals it to zero toward the data endpoint. See Appendix F for additional details on training and inference hyperparameters. 
+
+Results on discrete constrained tasks. Table 1 compares the continuous samplers within each training regime. The D3PM rows use separately trained discrete-diffusion models and are included 5Table 1: Success rates across samplers and tasks. Self-correction training uses λsimple = 0 .1.Entries report mean ± standard deviation over three independently trained seeds, each evaluated with an independent test seed. Bold values indicate the best result for each configuration separately. Sampler Sudoku Sudoku-Extreme N-Queens Latin GC 21 clues Medium Hard pass@1 pass@10 random gen random gen N = 12 N = 18                                                                                                                                                   
+
+> Baseline (no self-correction loss) DDPM .31 ±.02 .83 ±.01 .38 ±.00 .05 ±.00 .19 ±.01 .53 ±.00 .06 ±.01 .71 ±.03 .87 ±.03 .80 ±.01 .67 ±.01 Euler .20 ±.01 .78 ±.00 .23 ±.00 .04 ±.00 .13 ±.01 .45 ±.02 .04 ±.01 .58 ±.02 .75 ±.03 .74 ±.01 .58 ±.02 EM .21 ±.01 .76 ±.01 .28 ±.00 .04 ±.00 .13 ±.01 .45 ±.02 .04 ±.00 .59 ±.02 .79 ±.07 .73 ±.00 .56 ±.02 EM decay .81 ±.03 .96 ±.01 .80 ±.02 .18 ±.02 .58 ±.03 .69 ±.01 .15 ±.03 .96 ±.02 .99 ±.01 .94 ±.01 .89 ±.03 Tweedie reprojection (ours)
+> .95 ±.01 .99 ±.00 .93 ±.01 .26 ±.01 .64 ±.02 .83 ±.00 .25 ±.01 .99 ±.01 1.00 ±.00 .97 ±.00 .95 ±.00 Self-correction loss (with λsimple = 0 .1)DDPM .87 ±.02 .96 ±.00 .83 ±.02 .22 ±.01 .64 ±.04 .74 ±.04 .26 ±.04 .98 ±.01 .92 ±.04 .88 ±.03 .77 ±.05 Euler .79 ±.02 .94 ±.00 .67 ±.01 .22 ±.02 .61 ±.03 .68 ±.02 .14 ±.04 .94 ±.02 .64 ±.07 .84 ±.03 .68 ±.04 EM .82 ±.02 .93 ±.01 .73 ±.03 .21 ±.02 .61 ±.03 .66 ±.02 .22 ±.04 .97 ±.02 .78 ±.07 .81 ±.08 .68 ±.04 EM decay .98 ±.00 .99 ±.00 .98 ±.00 .53 ±.04 .90 ±.02 .81 ±.03 .47 ±.04 1.00 ±.00 1.00 ±.00 .88 ±.02 .80 ±.04 Tweedie reprojection (ours)
+> .98 ±.01 .99 ±.00 .94 ±.01 .49 ±.01 .84 ±.02 .89 ±.01 .35 ±.06 1.00 ±.00 .98 ±.02 .99 ±.01 .99 ±.01 Discrete diffusion (D3PM) reference Ancestral .57 ±.05 .88 ±.02 .52 ±.04 .03 ±.01 .10 ±.03 .85 ±.01 .28 ±.01 .88 ±.03 .65 ±.05 .46 ±.00 .29 ±.02 Confidence 1.00 ±.00 1.00 ±.00 .99 ±.01 .24 ±.02 .44 ±.05 .97 ±.00 .48 ±.01 1.00 ±.00 .99 ±.00 .99 ±.02 1.00 ±.00
+> Remask .99 ±.00 1.00 ±.00 .98 ±.00 .23 ±.02 .42 ±.03 .97 ±.00 .48 ±.01 1.00 ±.00 .96 ±.01 .99 ±.02 1.00 ±.00
+
+as an external reference. We first consider the baseline models, trained without self-correction. The standard samplers, DDPM and EM, give broadly similar performance across tasks, with DDPM requiring no sampler hyperparameter tuning and EM using the noise level chosen according to the protocol described above. We then compare against two ways of changing the stochastic reverse process: EM decay, which allows larger noise early in sampling and anneals it toward the data endpoint, and Tweedie reprojection, which changes the reverse-step center by removing the xt
+
+residual. Both modifications improve over the standard samplers under baseline, while Tweedie reprojection gives the largest and most consistent gains. For example, on 21-clue Sudoku, success improves from about 31% with DDPM to 95% with Tweedie reprojection. Similar improvements appear across other datasets. This suggests that, for one-hot encoded constrained discrete tasks, a model trained with the standard denoising objective can already make useful clean predictions. The second block of Table 1 shows the effect of self-correction training. Keeping the same sampler comparison, self-correction substantially improves DDPM and EM, narrowing the gap between standard sampling and Tweedie reprojection. For instance, DDPM rises from about 31% to 87% 
+
+on 21-clue Sudoku and from about 19% to 64% on Sudoku-Extreme pass@10. This suggests that self-correction partially fixes the reverse-process failure by training the model on sampler-induced states rather than only on forward-noised valid samples. Finally, combining self-correction with the modified samplers gives the strongest overall results: Tweedie reprojection and EM decay are both highly competitive, with each being best or tied for best on different tasks. Overall, the table supports two conclusions: removing the xt residual is already highly beneficial at inference time for constrained discrete tasks represented as one-hot vectors, and self-correction further improves robustness by training the model to recover from errors encountered during sampling. Table 1 focuses on exact validity, a strict metric under which a sample fails if any constraint is violated. To provide a more graded view of the generated solutions, we report two additional diagnostics in Appendix O. Table 12 measures how close the final continuous state is to its nearest one-hot configuration, while Table 13 reports the fraction of predicted cells involved in constraint violation. Together, these metrics help distinguish failures of discrete commitment from samples that are locally plausible but still violate a small number of global constraints. D3PM’s confidence-based and remasking samplers perform strongly on standard Sudoku, conditioned 
+
+N -queens, and Latin squares. On Sudoku-Extreme, our best self-corrected continuous configurations achieve higher validity than the D3PM samplers evaluated here. For broader context, TRM [24] re-ports 87% with a special MLP variant on Sudoku-Extreme ( 74 .7% with an attention-based backbone), while IRED [15] reports 99 .1% and 93 .8% on graph connectivity at N = 12 and N = 18 . Although 60.0 0.1 0.2 0.3 0.4 0.5 0.6              
+
+> t(0 = data, 1 = noise)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> probability Joint events Eboth ,E±along trajectory
+> Eboth DDPM
+> E+DDPM
+> EDDPM
+> Eboth Tweedie
+> E+Tweedie
+> ETweedie
+
+(a) 0.0 0.1 0.2 0.3 0.4 0.5 0.6   
+
+> t(0 = data, 1 = noise)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Pr[  D(f (xt, t))  V ]
+> Proposal validity along trajectories
+> Tweedie, baseline Tweedie, self-corr DDPM, baseline DDPM, self-corr
+
+(b) 
+
+Figure 2: DDPM-Tweedie gap on Sudoku. (a) Decoded-center comparison at matched sampling times: Eboth means both centers are valid, E+ means only the Tweedie center is valid, and E−
+
+means only the DDPM center is valid. (b) Validity of denoiser proposals D(fθ (xt, t )) along Tweedie and DDPM trajectories. not compute-matched, our self-corrected Tweedie sampler reaches 84% pass@10 on Sudoku-Extreme and nearly perfect accuracy on graph connectivity, while EM decay reaches 90% pass@10 on Sudoku-Extreme. Together, these results suggest that continuous diffusion remains promising for constrained discrete tasks once the training-inference mismatch is addressed. 
+
+MNIST-Sudoku. As an inference-only sanity check beyond one-hot grids, we evaluate Tweedie reprojection on the MNIST-Sudoku Hard split of SRM [54], where symbols are represented as MNIST digit images [28] but success is still exact Sudoku validity. We use the released SRM diffusion-baseline checkpoint and change only the inference sampler, without retraining or self-correction. The original rectified flow baseline achieves 0.8% accuracy, while Tweedie reprojection raises accuracy to 65 .7% (N =1000 , 95% CI ±3 pp), exceeding the best SRM sampling-order strategy at 51 .6% .The SRM experiment isolates the effect of inference alone, since the underlying model is kept fixed. To additionally test whether our conclusions depend on one-hot representations or argmax decoding, we train our own models using alternative continuous representations and decoders (Appendix N). We replace one-hot vectors with analog-bit codes and threshold decoding, fixed random embeddings and nearest-neighbour decoding, and mini MNIST-Sudoku with a learned CNN decoder. Across four representations in the single-seed experiments, baseline DDPM validity of 0.31 , 0.19 , 0.26 , 0.01 
+
+increases to 0.94 , 0.89 , 0.89 , 0.42 with Tweedie reprojection and to 0.87 , 0.79 , 0.76 , 0.39 with self-correction, showing that the findings are not specific to one-hot representations or argmax decoding. In addition to the self-correction ablations in Appendix L, we report rectified-flow and consistency-model experiments in Appendices L.3 and L.4. 
+
+## 5 Analysis 
+
+Locally plausible but globally invalid states. The results above show that the same denoiser can behave very differently under different samplers. The issue is not that the model never learns valid local symbols. The final continuous output can be close to a one-hot representation without its decoded grid being valid (Table 12). Similarly, in MNIST-Sudoku, individual cells can resemble recognizable digits while the full board violates Sudoku constraints. This creates a specific training-inference mismatch. Standard denoising trains on forward-noised valid objects, xt = α(t)x0 + β(t)ϵ, x 0 ∈ V . During inference, the model can instead visit noisy versions of its own imperfect proposals. These states may be locally plausible and globally invalid. Although Gaussian noise has full support, the structured invalid states produced by the sampler might receive little training mass under ordinary forward noising. The denoiser is therefore not directly trained to correct precisely the states that the reverse process may create. 7DDPM can preserve globally invalid decoded states. Equation (7) shows that the DDPM reverse center contains an xt-dependent residual in addition to the denoiser’s clean prediction. This residual is not intrinsically harmful: it keeps the reverse update close to the current analog state, which is appropriate when the current state lies on a reliable trajectory and contains details that should persist. The problem in our setting is that xt can already encode small mistakes that violate discrete constraints, and the denoiser has not necessarily been trained to correct such sampler-induced states. The residual can then keep the update near a locally plausible but globally invalid decoded configuration. Figure 2a compares the Tweedie and DDPM centers computed from the same current state xt and denoiser prediction ˆx0(xt, t ). We perform this comparison separately along trajectories generated by each sampler. We write Eboth for the event that both centers decode to valid configurations at the same reverse time, E+ for the event that only the Tweedie center is valid, and E− for the event that only the DDPM center is valid. Thus the residual is harmless on Eboth , helpful on E−, and harmful on E+. Across trajectories, E+ is much larger than E−. In this regime, the DDPM residual more often turns a valid clean proposal into an invalid centered update than it rescues an invalid proposal. Tweedie reprojection is limited by proposal quality: it can exploit an informative clean proposal, but cannot compensate when the denoiser’s proposals remain poor. Proposal quality is not the only source of failure, however: on Sudoku-Extreme, a valid proposal appeared at least once in 62% of failed Tweedie trajectories, but the final sample was still invalid (see Appendix P). 
+
+Self-correction targets the missing training states. The same mechanism suggests a training-side fix. Instead of exposing the model only to noisy valid objects as standard diffusion does, self-correction also exposes the model to noisy versions of its own intermediate predictions while keeping the original valid object as the target. Thus the model is trained to map model-induced, possibly invalid states back to a valid solution. Figure 2b shows this effect. Along DDPM trajectories, the baseline denoiser proposes valid grids much less often than along Tweedie trajectories. Self-correction substantially improves proposal validity on DDPM-induced states. This explains why self-correction narrows the DDPM-Tweedie gap: it does not remove the DDPM anchor, but it makes the denoiser more reliable on the states encountered during inference, improving the trajectory as well. Additional ablations support this interpretation (see Appendix L). Input perturbation [37] and self-conditioning [9] are weaker than self-correction, suggesting that the important ingredient is not generic robustness to extra noise or an additional memory channel, but exposure to model-induced states. Random symbol corruptions (see Appendix L.2) also help DDPM, but remain weaker than self-correction, indicating that arbitrary invalid grids are less well matched to the inference sampling distribution than the model’s own intermediate predictions. 
+
+The sampler gap is not only a noise-scale effect. On the sampling side, EM decay shows that additional stochasticity can also help: it injects more noise early in sampling and anneals this noise near the data endpoint. This can break some bad intermediate commitments while still allowing the sample to settle near the end. However, Appendix Figure 11 shows that changing the sampling variance alone does not close the DDPM-Tweedie gap. Scaling the DDPM noise changes how broadly the kernel samples, but not where it is centered. Tweedie reprojection instead changes the center by sampling around the clean proposal rather than continuing the same state-dependent update. 
+
+## 6 Related work 
+
+Diffusion models and samplers. Score-based and diffusion models [43, 17, 47, 44, 25, 34, 19, 27] have achieved strong results in high-dimensional generation. Beyond standard DDPM sampling, alternative inference schemes include DDIM [44], standard ODE and SDE integrators (e.g. Euler, Heun, Euler-Maruyama) [47], stochastic predictor-corrector methods [47], and samplers with explicit Langevin-like noise injection steps to maintain correct marginals [25]. Some methods also self-condition their models on noisy and estimated clean samples to improve sample quality [9, 53]. All these methods differ in their trade-off between stability and stochastic exploration, and in how much each update is anchored to the previous noisy sample versus relying on a fresh denoised prediction. 
+
+Inference-time control and constrained generation. A large body of work incorporates constraints or objectives during or after sampling. Methods include hard conditioning by masking or inpainting [23, 22, 35], Tweedie-based posterior sampling and guidance [11, 12], projection onto constraint 8sets [10, 7, 49], inference-time optimization [49, 10, 7, 32], guidance [23, 22], and search-based post-processing [48]. These approaches typically assume access to explicit constraints or a constraint violation signal. In contrast, we consider the setting where constraints must be learned implicitly from data [15], and study failure modes arising purely from inference dynamics. 
+
+Diffusion for structured and combinatorial tasks. Diffusion models have been applied to struc-tured domains such as Sudoku, graphs, and combinatorial optimization [48, 15, 54, 4, 56, 26, 30, 38]. Discrete diffusion methods [3] and structured variants often outperform continuous diffusion [9] in such settings [48], highlighting the challenges of applying continuous diffusion to discrete-structured tasks. Continuous diffusion can be used by embedding discrete data in a continuous space [20, 9, 4], and these representations can be restricted to a bounded support such as the probability simplex [4]. Our work explores standard continuous diffusion for highly structured generation and completion tasks. 
+
+Training-inference mismatch and exposure bias. Prior work has identified training-inference mismatch (exposure bias) as a source of error accumulation in sequential models [6, 42, 21, 5, 8, 15]. In diffusion models, similar effects arise because the model is trained on noisy ground-truth samples but receives its own predictions as inputs at inference time [37, 36, 13, 40, 57, 31], and error has been shown to necessarily accumulate along the sampling trajectory of imperfect diffusion models under mild assumptions [31]. Recent approaches mitigate exposure bias by modifying the training process: perturbing inputs [37], minimizing cumulative errors as regularization [31], or exposing the model to its own errors via truncated [13] or analytically simulated rollouts [40]. Other methods mitigate diffusion exposure bias by modifying training objectives, adding correction modules, or rescaling predictions at inference time [40, 57, 36]. Whereas the diffusion-specific approaches cited above address exposure bias primarily in visual generation, we study its effect on decoded globally constrained discrete tasks. 
+
+Non-diffusion solvers for constrained tasks. OptNet [2] and SATNet [52] present differentiable optimization-based solver layers. More recent work explores recursive refinement models for reasoning tasks [51, 24]. Such models mitigate error compounding by training over rollouts of their refinement. Our work is complementary: we do not aim to compete with these solvers, but to characterize a fundamental limitation of continuous diffusion-based inference in such settings. 
+
+## 7 Limitations 
+
+Our experiments focus on constrained discrete tasks. Most tasks use one-hot encodings with argmax decoding, where validity is symbolic. MNIST-Sudoku, analog-bit and random-embedding experi-ments show that the same mechanism appears beyond exact one-hot vectors, but the evaluation is still symbolic Sudoku validity. We therefore do not claim that Tweedie reprojection is appropriate for perceptually rich domains, where success also requires modeling a diverse continuous distribution over texture, geometry, color, and fine details. Tweedie reprojection changes the nature of the reverse process. It uses xt to form the proposal 
+
+ˆx0 = fθ (xt, t ), but then discards the residual xt − α(t)ˆ x0, so it no longer enforces the same proximity between noisy states as DDPM posterior updates. This can help when the state contains wrong symbolic commitments, but in domains where meaningful variation exists within a decoded mode, or where fine continuous details are not fully captured by ˆx0, repeated reprojection may lose information that a state-preserving sampler would retain. Finally, self-correction only partially addresses the training-inference mismatch. It exposes the model to one-step model-induced states, improving training coverage, but longer sampling trajectories can still visit states not well represented during training. A more complete solution may require new training objectives or noise processes that better cover both forward-noised data and the sampler-induced states, which we leave for future work. 
+
+## 8 Conclusion 
+
+We studied continuous diffusion models for constrained discrete tasks represented in continuous space. Across Sudoku, graph connectivity, Latin squares, and N -queens, the same trained denoiser 9can behave very differently under different reverse processes. This reveals a training-inference mismatch: standard denoising trains on forward-noised valid objects, while inference sampling can create locally plausible but globally invalid states that are not well covered by the training distribution. Tweedie reprojection exposes this mismatch from the inference side by removing the direct xt-dependent residual from the reverse update. Improved validity indicates that the denoiser’s clean proposals contain useful global structure that the standard trajectory may fail to exploit. Self-correction addresses the same problem from the training side by exposing the model to its own intermediate predictions and training recovery to the original valid target. Overall, our results suggest that continuous diffusion models can learn global constraints, but constrained discrete reasoning requires better alignment between the states used for training and the states produced during sampling. 
+
+## References 
+
+[1] Eloi Alonso, Adam Jelley, Vincent Micheli, Anssi Kanervisto, Amos Storkey, Tim Pearce, and François Fleuret. Diffusion for world modeling: Visual details matter in atari. Advances in Neural Information Processing Systems , 37:58757–58791, 2024. [2] Brandon Amos and J Zico Kolter. Optnet: Differentiable optimization as a layer in neural networks. In 
+
+International conference on machine learning , pages 136–145. PMLR, 2017. [3] Jacob Austin, Daniel D Johnson, Jonathan Ho, Daniel Tarlow, and Rianne Van Den Berg. Structured denoising diffusion models in discrete state-spaces. Advances in neural information processing systems ,34:17981–17993, 2021. [4] Pavel Avdeyev, Chenlai Shi, Yuhao Tan, Kseniia Dudnyk, and Jian Zhou. Dirichlet diffusion score model for biological sequence generation. In International Conference on Machine Learning , pages 1276–1301. PMLR, 2023. [5] Gregor Bachmann and Vaishnavh Nagarajan. The pitfalls of next-token prediction. arXiv preprint arXiv:2403.06963 , 2024. [6] Samy Bengio, Oriol Vinyals, Navdeep Jaitly, and Noam Shazeer. Scheduled sampling for sequence prediction with recurrent neural networks. Advances in neural information processing systems , 28, 2015. [7] Michael Cardei, Jacob K Christopher, Thomas Hartvigsen, Bhavya Kailkhura, and Ferdinando Fioretto. Constrained discrete diffusion. arXiv preprint arXiv:2503.09790 , 2025. [8] Boyuan Chen, Diego Martí Monsó, Yilun Du, Max Simchowitz, Russ Tedrake, and Vincent Sitzmann. Diffusion forcing: Next-token prediction meets full-sequence diffusion. Advances in Neural Information Processing Systems , 37:24081–24125, 2024. [9] Ting Chen, Ruixiang Zhang, and Geoffrey Hinton. Analog bits: Generating discrete data using diffusion models with self-conditioning. arXiv preprint arXiv:2208.04202 , 2022. [10] Jacob K Christopher, Stephen Baek, and Ferdinando Fioretto. Constrained synthesis with projected diffusion models. Advances in Neural Information Processing Systems , 37:89307–89333, 2024. [11] Hyungjin Chung, Jeongsol Kim, Sehui Kim, and Jong Chul Ye. Parallel diffusion models of operator and image for blind inverse problems. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 6059–6069, 2023. [12] Hyungjin Chung, Jeongsol Kim, Michael Thompson Mccann, Marc Louis Klasky, and Jong Chul Ye. Diffusion posterior sampling for general noisy inverse problems. In The Eleventh International Conference on Learning Representations , 2023. [13] Yuntian Deng, Noriyuki Kojima, and Alexander M Rush. Markup-to-image diffusion models with scheduled sampling. In The Eleventh International Conference on Learning Representations , 2023. [14] Honghua Dong, Jiayuan Mao, Tian Lin, Chong Wang, Lihong Li, and Denny Zhou. Neural logic machines. In International Conference on Learning Representations , 2019. [15] Yilun Du, Jiayuan Mao, and Joshua B Tenenbaum. Learning iterative reasoning through energy diffusion. 
+
+arXiv preprint arXiv:2406.11179 , 2024. [16] Bradley Efron. Tweedie’s formula and selection bias. Journal of the American Statistical Association ,106(496):1602–1614, 2011. 
+
+10 [17] Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusion probabilistic models. Advances in neural information processing systems , 33:6840–6851, 2020. [18] Jonathan Ho, Tim Salimans, Alexey Gritsenko, William Chan, Mohammad Norouzi, and David J Fleet. Video diffusion models. Advances in neural information processing systems , 35:8633–8646, 2022. [19] Peter Holderrieth and Ezra Erives. An introduction to flow matching and diffusion models. arXiv preprint arXiv:2506.02070 , 2025. [20] Emiel Hoogeboom, Didrik Nielsen, Priyank Jaini, Patrick Forré, and Max Welling. Argmax flows and multinomial diffusion: Learning categorical distributions. Advances in neural information processing systems , 34:12454–12465, 2021. [21] Xun Huang, Zhengqi Li, Guande He, Mingyuan Zhou, and Eli Shechtman. Self forcing: Bridging the train-test gap in autoregressive video diffusion. arXiv preprint arXiv:2506.08009 , 2025. [22] Naoto Inoue, Kotaro Kikuchi, Edgar Simo-Serra, Mayu Otani, and Kota Yamaguchi. Layoutdm: Discrete diffusion model for controllable layout generation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 10167–10176, 2023. [23] Michael Janner, Yilun Du, Joshua B. Tenenbaum, and Sergey Levine. Planning with diffusion for flexible behavior synthesis. In International Conference on Machine Learning , 2022. [24] Alexia Jolicoeur-Martineau. Less is more: Recursive reasoning with tiny networks. URL https://arxiv. org/abs/2510.04871 , 2025. [25] Tero Karras, Miika Aittala, Timo Aila, and Samuli Laine. Elucidating the design space of diffusion-based generative models. Advances in neural information processing systems , 35:26565–26577, 2022. [26] Jaeyeon Kim, Kulin Shah, Vasilis Kontonis, Sham Kakade, and Sitan Chen. Train for the worst, plan for the best: Understanding token ordering in masked diffusions. arXiv preprint arXiv:2502.06768 , 2025. [27] Chieh-Hsin Lai, Yang Song, Dongjun Kim, Yuki Mitsufuji, and Stefano Ermon. The principles of diffusion models. arXiv preprint arXiv:2510.21890 , 2025. [28] Yann LeCun. The mnist database of handwritten digits. http://yann.lecun.com/exdb/mnist/ , 1998. [29] Tianhong Li and Kaiming He. Back to basics: Let denoising generative models denoise, 2025. 
+
+https://arxiv.org/abs/2511.13720 , 7, 2026. [30] Yang Li, Lvda Chen, Haonan Wang, Runzhong Wang, and Junchi Yan. Generation as search operator for test-time scaling of diffusion-based combinatorial optimization. In The Thirty-ninth Annual Conference on Neural Information Processing Systems , 2025. [31] Yangming Li and Mihaela van der Schaar. On error propagation of diffusion models. In B. Kim, Y. Yue, S. Chaudhuri, K. Fragkiadaki, M. Khan, and Y. Sun, editors, International Conference on Learning Representations , volume 2024, pages 32791–32807, 2024. [32] Zeyang Li, Kaveh Alim, and Navid Azizan. Hardflow: Hard-constrained sampling for flow-matching models via trajectory optimization. arXiv preprint arXiv:2511.08425 , 2025. [33] Yaron Lipman, Ricky TQ Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le. Flow matching for generative modeling. arXiv preprint arXiv:2210.02747 , 2022. [34] Yaron Lipman, Marton Havasi, Peter Holderrieth, Neta Shaul, Matt Le, Brian Karrer, Ricky TQ Chen, David Lopez-Paz, Heli Ben-Hamu, and Itai Gat. Flow matching guide and code. arXiv preprint arXiv:2412.06264 ,2024. [35] Tsiry Mayet, Pourya Shamsolmoali, Simon Bernard, Eric Granger, Romain HÉRAULT, and Clement Chatelain. TD-paint: Faster diffusion inpainting through time aware pixel conditioning. In The Thirteenth International Conference on Learning Representations , 2025. [36] Mang Ning, Mingxiao Li, Jianlin Su, Albert Ali Salah, and Itir Onal Ertugrul. Elucidating the exposure bias in diffusion models. In The Twelfth International Conference on Learning Representations , 2024. [37] Mang Ning, Enver Sangineto, Angelo Porrello, Simone Calderara, and Rita Cucchiara. Input perturbation reduces exposure bias in diffusion models. In International Conference on Machine Learning , pages 26245–26265. PMLR, 2023. 
+
+11 [38] Pierre Pereira. Encoding the tsp solution on a circle. https://pierrot-lc.dev/posts/ circular-tsp/ , March 2026. [39] Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. Language models are unsupervised multitask learners, 2019. [40] Zhiyao Ren, Yibing Zhan, Liang Ding, Gaoang Wang, Chaoyue Wang, Zhongyi Fan, and Dacheng Tao. Multi-step denoising scheduled sampling: Towards alleviating exposure bias for diffusion models. In 
+
+Proceedings of the AAAI Conference on Artificial Intelligence , volume 38, pages 4667–4675, 2024. [41] Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Björn Ommer. High-resolution image synthesis with latent diffusion models. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 10684–10695, 2022. [42] Stéphane Ross, Geoffrey Gordon, and Drew Bagnell. A reduction of imitation learning and structured prediction to no-regret online learning. In Proceedings of the fourteenth international conference on artificial intelligence and statistics , pages 627–635. JMLR Workshop and Conference Proceedings, 2011. [43] Jascha Sohl-Dickstein, Eric Weiss, Niru Maheswaranathan, and Surya Ganguli. Deep unsupervised learning using nonequilibrium thermodynamics. In International conference on machine learning , pages 2256–2265. pmlr, 2015. [44] Jiaming Song, Chenlin Meng, and Stefano Ermon. Denoising diffusion implicit models. arXiv preprint arXiv:2010.02502 , 2020. [45] Yang Song and Prafulla Dhariwal. Improved techniques for training consistency models. In International Conference on Learning Representations , volume 2024, pages 15078–15097, 2024. [46] Yang Song and Stefano Ermon. Generative modeling by estimating gradients of the data distribution. 
+
+Advances in neural information processing systems , 32, 2019. [47] Yang Song, Jascha Sohl-Dickstein, Diederik P Kingma, Abhishek Kumar, Stefano Ermon, and Ben Poole. Score-based generative modeling through stochastic differential equations. In International Conference on Learning Representations , 2021. [48] Zhiqing Sun and Yiming Yang. Difusco: Graph-based diffusion solvers for combinatorial optimization. 
+
+Advances in neural information processing systems , 36:3706–3731, 2023. [49] Utkarsh Utkarsh, Pengfei Cai, Alan Edelman, Rafael Gomez-Bombarelli, and Christopher Vincent Rack-auckas. Physics-constrained flow matching: Sampling generative models with hard constraints. arXiv preprint arXiv:2506.04171 , 2025. [50] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. Advances in neural information processing systems ,30, 2017. [51] Guan Wang, Jin Li, Yuhao Sun, Xing Chen, Changling Liu, Yue Wu, Meng Lu, Sen Song, and Yasin Abbasi Yadkori. Hierarchical reasoning model. arXiv preprint arXiv:2506.21734 , 2025. [52] Po-Wei Wang, Priya Donti, Bryan Wilder, and Zico Kolter. Satnet: Bridging deep learning and logical reasoning using a differentiable satisfiability solver. In International Conference on Machine Learning ,pages 6545–6554. PMLR, 2019. [53] Joseph L Watson, David Juergens, Nathaniel R Bennett, Brian L Trippe, Jason Yim, Helen E Eisenach, Woody Ahern, Andrew J Borst, Robert J Ragotte, Lukas F Milles, et al. De novo design of protein structure and function with rfdiffusion. Nature , 620(7976):1089–1100, 2023. [54] Christopher Wewer, Bart Pogodzinski, Bernt Schiele, and Jan Eric Lenssen. Spatial reasoning with denoising models. arXiv preprint arXiv:2502.21075 , 2025. [55] Zhen Xing, Qijun Feng, Haoran Chen, Qi Dai, Han Hu, Hang Xu, Zuxuan Wu, and Yu-Gang Jiang. A survey on video diffusion models. ACM Computing Surveys , 57(2):1–42, 2024. [56] Jiacheng Ye, Jiahui Gao, Shansan Gong, Lin Zheng, Xin Jiang, Zhenguo Li, and Lingpeng Kong. Beyond autoregression: Discrete diffusion for complex reasoning and planning. arXiv preprint arXiv:2410.14157 ,2024. [57] Junyu Zhang, Daochang Liu, Eunbyung Park, Shichao Zhang, and Chang Xu. Anti-exposure bias in diffusion models. In The Thirteenth International Conference on Learning Representations , 2025. 
+
+12 A Diffusion and parameterizations details 
+
+This appendix expands the diffusion notation, parameterization conversions, and continuous-time derivations summarized in Sec. 2. 
+
+A.1 Forward Markov chain 
+
+The forward marginal used in the main text is 
+
+xt = α(t)x0 + β(t)ϵ, ϵ ∼ N (0 , I ), β(t) = p1 − α(t)2.
+
+It induces 
+
+q(xt | x0) = N  α(t)x0, (1 − α(t)2)I . (10) Equivalently, the same marginals can be generated by the discrete Markov chain 
+
+xt = pδ(t) xt−1 + p1 − δ(t) ϵt, ϵt ∼ N (0 , I ), (11) with transition kernel 
+
+q(xt | xt−1) = N
+
+p δ(t)xt−1, (1 − δ(t)) I
+
+
+
+.
+
+The one-step coefficient is chosen so that Eq. (11) reproduces the marginals in Eq. (10): 
+
+δ(t) = α(t)2
+
+α(t − 1) 2 , α(t)2 =
+
+> t
+
+Y
+
+> s=1
+
+δ(s). (12) 
+
+A.2 DDPM posterior 
+
+Since the forward process is Gaussian, the posterior conditional on the clean sample is tractable [17]: 
+
+q(xt−1 | xt, x 0) = N
+
+
+
+μt(xt, x 0), ˜βtI
+
+
+
+, (13) with mean and variance given by: 
+
+μt(xt, x 0) = α(t − 1) x0
+
+1 − δ(t)1 − α(t)2 +
+
+pδ(t)  1 − α(t − 1) 2
+
+1 − α(t)2 xt, (14) 
+
+˜βt =  1 − α(t − 1) 2 1 − δ(t)1 − α(t)2 . (15) Thus DDPM sampling replaces the unknown x0 with the model prediction ˆx0(xt, t ) and samples from 
+
+pθ (xt−1 | xt) .
+
+= q (xt−1 | xt, ˆx0(xt, t )) .
+
+The posterior mean can also be written in an anchored form: 
+
+μt(xt, x 0) = α(t − 1) x0 + Bt (xt − α(t)x0) , Bt
+
+.
+
+=
+
+pδ(t)  1 − α(t − 1) 2
+
+1 − α(t)2 . (16) This decomposition separates the clean-sample component from the residual inherited from the current noisy state. In the main paper, this residual is the source of the anchoring effect that distinguishes DDPM-style updates from pure Tweedie reprojection. 
+
+A.3 Prediction parameterizations 
+
+A diffusion model can be parameterized to predict the clean sample x0, the noise ϵ [17], the marginal score st(xt) = ∇xt log qt(xt) [46], or the marginal velocity ut(xt) in the flow-matching formulation [33, 34]. The prediction parameterization and the loss target are separate choices [29]. At the population optimum, these quantities are equivalent up to deterministic conversions induced by the forward process [27]. Let 
+
+x∗
+
+> 0
+
+(xt, t ) .
+
+= E[x0 | xt].
+
+13 Then the corresponding optimal noise, score, and velocity predictions are 
+
+ϵ∗(xt, t ) = xt − α(t)x∗
+
+> 0
+
+(xt, t )
+
+β(t) , s∗(xt, t ) .
+
+= ∇xt log qt(xt) = − ϵ∗(xt, t )
+
+β(t) ,u∗(xt, t ) = ˙β(t)
+
+β(t) xt + ˙α(t) − α(t) ˙β(t)
+
+β(t)
+
+!
+
+x∗
+
+> 0
+
+(xt, t ).
+
+(17) Tweedie’s formula gives 
+
+x∗
+
+> 0
+
+(xt, t ) = E[x0 | xt] = xt + β(t)2∇xt log qt(xt)
+
+α(t) .
+
+Therefore an x-prediction model can be used in score-, noise-, or velocity-based samplers by applying Eq. (17). In our experiments, we use x-prediction and the x-prediction loss in Eq. (4), following the practical distinction between prediction type and loss target highlighted by [29]. 
+
+A.4 Continuous-time derivation 
+
+For continuous-time samplers, we view the variance-preserving forward process as a probability path 
+
+{qt}t∈[0 ,T ]:
+
+xt = α(t)x0 + β(t)ϵ, qt(x | x0) = N  α(t)x0, β (t)2I , ϵ ∼ N (0 , I ). (18) Here t is continuous, α(0) = 1 , α(T ) ≈ 0, and β(t) = p1 − α(t)2.
+
+Conditional and marginal vector fields. Differentiating Eq. (18) with respect to t, for a fixed pair 
+
+(x0, ϵ ), gives the conditional velocity field 
+
+ut(x | x0) = ˙ α(t)x0 + ˙β(t)ϵ = ˙β(t)
+
+β(t) x + ˙α(t) − α(t) ˙β(t)
+
+β(t)
+
+!
+
+x0, (19) where we used 
+
+ϵ = x − α(t)x0
+
+β(t) .
+
+Since ut(x | x0) is linear in x0, the marginal vector field is obtained by replacing x0 with E[x0 |
+
+xt = x]. Using Tweedie’s formula gives 
+
+ut(x) = ˙α(t)
+
+α(t) x +
+
+
+
+β(t)2 ˙α(t)
+
+α(t) − β(t) ˙β(t)
+
+
+
+∇x log qt(x). (20) 
+
+Probability-flow ODE and SDE family. The deterministic dynamics with marginals qt are given by the probability-flow ODE 
+
+dx = ut(x) d t. (21) More generally, for any non-negative diffusion schedule σ(t), the reverse-time SDE driven by a standard Wiener process wt,
+
+dx =
+
+
+
+ut(x) − σ(t)2
+
+2 ∇x log qt(x)
+
+
+
+dt + σ(t) d wt
+
+has the same marginals qt in the exact-score and exact-solver limit [19, Thm. 17]. The probability-flow ODE is the special case σ(t) = 0 . The variance-preserving reverse SDE of [47] corresponds to 
+
+σ(t)2 = −2 ˙α(t)
+
+α(t) .
+
+Numerical samplers. The continuous-time formulation allows sampling by numerically solving either the probability-flow ODE or the SDE family. We use ODE solvers such as Euler and Heun, and SDE solvers such as Euler–Maruyama [47, 25]. In all cases, we plug the network prediction 
+
+ˆx0(xt, t ) into the required score or velocity expression using the conversions in Eq. (17). DDPM and DDIM can also be derived from this continuous-time perspective [44, 47]. 14 B Samplers 
+
+We explain various sampling update rules below and then describe the overall sampling process for both generation and completion/in-painting with the pinning procedure. 
+
+B.1 DDIM generalized formula: DDIM, DDPM and Tweedie reprojection 
+
+DDIM [44] introduces a family of forward processes with the same marginal distributions (1) as DDPM [17]. Their generalized sampling update takes the form: 
+
+qκ(xt−1 | xt, ˆx0) = N α(t − 1)ˆ x0 +
+
+q
+
+1 − α(t − 1) 2 − κ2 
+
+> t
+
+· xt − α(t)ˆ x0
+
+p1 − α(t)2 , κ 2 
+
+> t
+
+I (22) 
+
+= N α(t − 1)ˆ x0 +
+
+q
+
+1 − α(t − 1) 2 − κ2 
+
+> t
+
+· ˆϵt, κ 2 
+
+> t
+
+I (23) Different choices of κ2 
+
+> t
+
+recover known samplers: κ2 
+
+> t
+
+= ˜βt = (1 − α(t − 1) 2) · 1−δ(t)1−α(t)2 yields DDPM [17], while κ2 
+
+> t
+
+= 0 gives the deterministic DDIM update [44]. Our Tweedie reprojection corresponds to κ2 
+
+> t
+
+= 1 − α(t − 1) 2. This endpoint relation does not imply exact marginal preservation after replacing the true clean sample x0 by the learned prediction 
+
+ˆx0(xt, t ), even if that prediction equals the exact conditional mean. 
+
+Linear-path sampling for SRM. For the linear path xt = (1 − t)x0 + tϵ , with normalized time 
+
+t ∈ [0 , 1] , write vθ (xt, t ) for the corresponding velocity prediction. The clean and noise estimates are 
+
+ˆx0 = xt − tv θ (xt, t ), ˆϵ = xt + (1 − t)vθ (xt, t ).
+
+The deterministic generalized DDIM update to s < t is therefore 
+
+xs = (1 − s)ˆ x0 + sˆϵ = xt + ( s − t)vθ (xt, t ),
+
+which is an Euler step on the linear path. Tweedie reprojection instead uses xs = (1 − s)ˆ x0 + sϵ ′,with fresh ϵ′ ∼ N (0 , I ).
+
+B.2 Time discretizations 
+
+Whereas we use uniform / linear time discretization (equidistant timesteps) throughout our work, others can also be used in practice [25]. We will denote a discretization of N ∈ N+ time points with: 
+
+{tN −1, t N −2, . . . , t 0}, tN −1 = T, t 0 = 0 . (24) where we also use hi
+
+.
+
+= ti − ti−1 as positive step sizes since timesteps are decreasing. To compare the generalized sampling update (22) (including DDIM, DDPM, and Tweedie reprojec-tion) with other samplers, we can replace it as follows: 
+
+xs = α(s)ˆ x0 +
+
+q
+
+1 − α(s)2 − κ2 
+
+> ti
+
+· xti − α(ti)ˆ x0
+
+p1 − α(ti)2 + κti · ϵ(ti) (25) with ϵ(ti) ∼ N (0 , I ) and i = N − 1, . . . , 1.
+
+B.3 Numerical ODE and SDE solvers: Euler, Heun, and Euler-Maruyama 
+
+The Euler and Heun (aka improved Euler) methods are first- and second-order ODE solvers, popular for their low Number of Function Evaluations (NFE) and ease of implementation. They become deterministic samplers once used to solve the PF-ODE (21). Starting from xT ∼N (0 , I ), Euler and Heun iterate from i = N − 1 to i = 1 , using the estimate of the marginal vector field, retrieved from the model’s x-prediction. 
+
+Euler update rule 
+
+xs = xti − hi · ˆuti (xti ), (26) 15 Euler-Maruyama (EM) update rule Recall that for any non-negative diffusion schedule σt, the stochastic dynamics 
+
+dx =
+
+h
+
+ut(x) − σ2 
+
+> t
+> 2
+
+∇x log qt(x)
+
+i
+
+dt + σtdw. (27) share the same marginals qt [19, Thm. 17], reducing to the deterministic case (21) for σt = 0 .Euler-Maruyama (EM) is a numerical SDE solver that can be used as a stochastic sampler. Starting from xT ∼ N (0 , I ), EM iterates from i = N − 1 to i = 1 , using the estimate of the marginal vector field and score, retrieved from the model’s x-prediction. 
+
+xs = xti + hi · ˆf (xti , t i) + g(ti)phi · ϵ(ti), ϵ(ti) ∼ N (0 , I ) (28) where we denote ˆf (x, t ) .
+
+= −ˆut(x) + σ2 
+
+> t
+> 2
+
+ˆst(x) as the drift coefficient and g(t) .
+
+= σt as the diffusion 
+
+coefficient. In our work, we refer to EM as using a fixed g(ti) = σ, and EM decay as using a decreasing diffusion schedule σt.
+
+Euler–Maruyama noise scale. The SDE family (6) motivates treating σ(t) as a sampler hyperpa-rameter. Theoretically, changing σ(t) changes the stochastic dynamics but not the marginal path qt,assuming exact scores and exact integration. In practice, finite-step solvers and learned denoisers introduce discretization and model error, so the choice of σ(t) affects empirical performance. We therefore tune the EM noise scale by five-fold cross-validation. For EM decay, we also tune the time at which σ(t) begins linearly annealing to zero near the data endpoint. 
+
+B.4 Sampling process and pinning procedure 
+
+The algorithm 1 summarizes the overall sampling process for both unconditional and conditional generation (completion or in-painting), with pinning procedures for the latter. Recall that we go from 
+
+xT to x0 when sampling. 
+
+Algorithm 1: (Un-)conditional generation. Inputs are the time discretization, optional condition-ing c, its corresponding mask m, and soft-to-hard conditioning threshold t∗
+
+Procedure sample( {tN −1, t N −2, . . . , t 0}, c, m, t∗):
+
+Sample initial tensor xT ∼ N (0 , I )
+
+Initialize buffer to store trajectory {xti }i
+
+for i = N − 1 to 1 do 
+
+s = ti−1
+
+Compute step size hi = ti − s
+
+Sample xs = update_rule( xti , t i, h i, . . . )
+
+if m̸ = ∅ then 
+
+pin( xs, s, t ∗, c, m )
+
+Append xs to buffer 
+
+Procedure pin( xs, s, t∗, c, m):if s ≥ t∗ then 
+
+soft_pinning( xs, c, m )
+
+else 
+
+hard_pinning( xs, c, m )
+
+Procedure soft_pinning( xs, c, m):
+
+Sample cs ∼ q(xs | c)
+
+xs[m] = cs[m]
+
+Procedure hard_pinning( xs, c, m):
+
+xs[m] = c[m]
+
+16 C SELF -CORRECTION algorithm 
+
+We summarize the SELF -CORRECTION training procedure in Algorithm 2. We denote sg( .) as the stop-gradient operator, and the rest are described in previous sections or are self-explanatory. 
+
+Algorithm 2: SELF -CORRECTION training algorithm for (un-)conditional generation for a full batch. Inputs are the regularization coefficient λsimple , optional conditioning c and its correspond-ing mask m
+
+Procedure training_procedure() :for steps do 
+
+update_diffusion_model() 
+
+Procedure update_diffusion_model( λsimple , c, m):
+
+Sample x0 ∼ q0(x)
+
+Sample t1 ∼ U [0 , T ] and t2 ∼ U [0 , t 1]
+
+Sample xt1 ∼ q(xt1 | x0)
+
+if m̸ = ∅ then 
+
+hard_pinning( xt1 , c, m )
+
+Compute ˆx0 = fθ (xt1 , t 1)
+
+if m̸ = ∅ then 
+
+hard_pinning( ˆx0, c, m )
+
+Sample ˜xt2 ∼ q(xt2 | sg (ˆ x0))
+
+if m̸ = ∅ then 
+
+hard_pinning( ˜xt2 , c, m )
+
+Compute ˆx′ 
+
+> 0
+
+= fθ (˜ xt2 , t 2)
+
+if m̸ = ∅ then 
+
+hard_pinning( ˆx′
+
+> 0
+
+, c, m )
+
+Compute simple loss Lsimple (θ) = MSE(ˆ x0, x 0)
+
+Compute recovery loss Lrec (θ) = MSE(ˆ x′
+
+> 0
+
+, x 0)
+
+Compute final loss LSC (θ) = Lrec (θ) + λsimple Lsimple (θ)
+
+Update model fθ
+
+This procedure generalizes naturally to multiple prediction steps. Longer unrolls were unstable when trained from scratch; the warm-started multi-step experiment in Appendix L trained successfully but did not outperform one-step self-correction. 
+
+Computational overhead of self-correction training. Standard denoising training performs one gradient forward pass and one backward pass per optimizer step. Self-correction training adds (i) one additional gradient-free forward pass, which produces the model prediction that is re-noised to the second time point, and (ii) one gradient forward pass on a sub-batch of ⌊λsimple B⌋ samples for 
+
+Lsimple ; a single backward pass is taken on the combined objective. Counting a backward pass as twice the cost of a forward pass, this predicts a per-step training cost of (4 + 3 λsimple )/3 ≈ 1.43 ×
+
+the baseline for λsimple = 0 .1. Both variants are trained for the same number of optimizer steps (2 × 10 6), and inference cost is unchanged, as self-correction modifies only the training objective and not the sampler. 
+
+## D Additional tasks details 
+
+We train and evaluate on the following benchmarks for constrained data generation and in-painting/completion with a focus on discrete-space reasoning tasks: Sudoku-Extreme [51, 24], MNIST Sudoku [54], graph-connectivity (GC, [15]) and two datasets we introduce: Latin square and N-queens. Throughout, clues denote randomly positioned revealed cells. 
+
+Sudoku. We consider two separate Sudoku training regimes, both based on the Sudoku-Extreme dataset [51, 24], which provides partial 9 × 9 grids together with their completions. For the Sudoku 
+
+setting, we train on completed boards from the training split and generate conditioning masks on the 17 Table 2: Dataset summary. Throughout, clues denote partial observations the model conditions on: randomly positioned revealed cells with count k ∼ U Ja, b K where Ja, b K = {a, . . . , b } (Sudoku, Latin square, N -queens); or the full adjacency matrix (GC, always given at train and inference). †
+
+Out-of-distribution. Sudoku Sudoku-Extreme GC Latin square N -queens Grid size 9 × 9 9 × 9 N × N 7 × 7 14 × 14                                          
+
+> Cells m81 81 N249 14
+> Vocab d992714
+> Train clues J0,80 KJ17 ,35 KAdj. mat.
+> N= 12 J0, N 2−1KJ0, N −1K
+> Eval clues
+> 21
+> J27 ,53 K(Med.)
+> J0,26 K(Hard)
+> J17 ,36 KAdj. mat., N= 12
+> Adj. mat., N= 18 †
+> random: 14
+> generation: 0
+> random: 7
+> generation: 0
+> Validity Sudoku rules Sudoku rules Connectivity matches ground truth One symbol per row/col No two queens attack
+
+fly, with the number of clues sampled uniformly from {0, . . . , 80 }. We evaluate this model with 21 clues, as well as the Medium and Hard clue-count settings of SRM [54], corresponding to clue counts sampled from {27 , . . . , 53 } and {0, . . . , 26 }, respectively. For the Sudoku-Extreme setting, we train a separate model using the dataset-provided partial grids from the Sudoku-Extreme training split and evaluate it on the corresponding test split. For evaluation, we sample 2000 puzzles per seed from the corresponding test split, using three seeds. For the Sudoku clue-count settings, masks are generated on the fly according to the evaluation regime, whereas for Sudoku-Extreme we use the dataset-provided partial grids. Since the Sudoku-Extreme test set is large, we evaluate on a uniformly sampled subset and report binomial confidence intervals; the standard error is at most 1.12 percentage points, corresponding to a 95% confidence interval of approximately ±2.19 percentage points. 
+
+Graph connectivity. Graph connectivity [15] is a dataset for graphs with N nodes, consisting of both N × N binary adjacency and N × N binary connectivity matrices. The latter describes the existence of a path between nodes. Conditioned on adjacency matrices, we train and evaluate models to generate connectivity matrices. We define a connectivity matrix as valid if it matches the true connectivity matrix. We do not use any random number of clues, and following prior work [15], we only train with at most N = 12 nodes, and evaluate on N = 12 and N = 18 . For training and evaluation, we use their train and test dataset generators (seeds are different), which continually provide samples, meaning that there is no fixed dataset size. 
+
+MNIST Sudoku. We use the MNIST-Sudoku dataset of [54], where each 9 × 9 puzzle is rendered as a 252 × 252 grayscale image. Every cell contains a 28 × 28 MNIST [28] digit image sampled from a random instance of the corresponding digit class, requiring the model to jointly perform digit recognition and Sudoku constraint reasoning directly from raw pixels. Following the original split convention, we reserve the last 1,000 puzzles for evaluation. Inputs are scaled to [−1, 1] and treated as continuous-valued images without tokenization; the diffusion model predicts the full 252 × 252 
+
+board. This experiment is separate from the mini MNIST-Sudoku models trained with 8 × 8 digits in Appendix N. 
+
+Latin square. Latin squares of size N × N are arrays with values taken among N different symbols. Arrays are valid if each symbol occurs exactly once per row and once per column. In our case, we use N = 7 and randomized backtracking to create 210000 valid Latin squares, where 80% is for the training set. We train with a number of clues uniformly drawn from {0, . . . , N 2 − 1} and evaluate in random in-painting and unconditional generation. 
+
+N -Queens. An N -Queens board contains N queens, with no two sharing a row, column, or diagonal. We represent each board as a vector in {1, . . . , N }N , whose i-th entry gives the queen’s column in row i. We use N = 14 and construct the dataset by sampling uniformly from the complete set of 365 ,596 valid boards. The training split contains 168 ,000 distinct boards. During training, the 18 number of revealed queens is sampled uniformly from {0, . . . , N − 1}. We evaluate both completion from randomly revealed queens and unconditional generation. 
+
+D.1 Continuous representations from discrete configurations 
+
+From discrete configurations of m cells, we convert each token into their one-hot representation [9], giving m × d tensors where the last dimension is the one-hot dimension. Please refer to Table 2 for their values. 
+
+## E Model architectures and hyperparameters 
+
+E.1 Architecture for Sudoku, N-Queens, and Latin 
+
+For all tasks except MNIST Sudoku [54] and Graph Connectivity (GC) [15] (see Appendix E.2), our network fθ is a Transformer [50], taking as input a continuous sample xt and diffusion time t:• The sample xt is linearly embedded in Rdemb and added to its learnable positional embed-dings. For Sudoku, we use three additive learnable positional embeddings (row, column, and block) instead of one. • The diffusion time t is embedded using Fourier features [sin(2 πω k tT ), cos(2 πω k tT )] dtime /2
+
+> k=1
+
+with log-spaced frequencies ωk, followed by a two-layer MLP with SiLU activations mapping the embedding into Rdemb .• We then add them together and feed them through a sequence of L Transformer blocks, followed by a layer normalization and linear layer. We use pre-norm Transformer blocks [39] with full self-attention [50] and per-position MLP sublayers, each wrapped with residual connections. Within each Transformer block, we apply dropout after each attention and MLP sublayer, as well as attention weight dropout inside the multi-head attention. Except for the number of continuous tokens (i.e., number of cells m) and vocabulary size (i.e., one-hot dimension d) (see Table 2), all hyper-parameters are shared across tasks described in this subsection. Please refer to Table 3 for their values and to Algorithm 2 for the training procedure. Table 3: Architecture details Name Short-hand Value Embedding dimension demb 128 
+
+Time embedding dimension dtime 64 
+
+Time embedding MLP – [dtime , d emb , d emb ]
+
+Depth L 4
+
+Attention heads nheads 8
+
+Dropout probability pdrop 0.01 
+
+MLP hidden dimension dmlp 4 × demb = 512 , GeLU 
+
+E.2 Architectures for Graph Connectivity and MNIST Sudoku 
+
+For Graph Connectivity, we adopt the Neural Logic Machine-based [14] architecture of IRED [15, Table 11] and use the same hyperparameters as them. As for MNIST Sudoku, we use the pre-trained SRM model [54] without any additional training, and therefore have no architecture hyperparameters to report. 
+
+## F Hyper-parameters and hardware 
+
+We show in the following the list of hyper-parameters and hardware used. We use t∗ to denote the soft-to-hard conditioning threshold in conditional generation tasks, and the rest are described in previous sections or are self-explanatory. 19 Table 4: Training and evaluation hyperparameters. All main VP-continuous diffusion tasks share optimizer type, learning rate, and step budget; batch size is the only task-specific training knob, and sampler step budgets differ only for Sudoku-Extreme and SRM. Hyperparameter Value 
+
+Training 
+
+Training loop 
+
+Optimizer steps 2 × 10 6
+
+Batch size (default) 256 
+
+Batch size (GC) 64 
+
+Mixed precision AMP, float16 Hardware NVIDIA RTX 3090 
+
+Optimization 
+
+Optimizer Adam Learning rate 1 × 10 −3
+
+Diffusion 
+
+Model parameterization x-prediction Loss target x-loss Noise schedules VP-cosine 
+
+Self-correction loss 
+
+λsimple (default) 0.1
+
+Evaluation 
+
+Diffusion sampling 
+
+Sampler steps (default) 200 
+
+Sampler steps (Sudoku-Extreme) 1000 
+
+Sampler steps (SRM) 500 
+
+F.1 Discrete-diffusion reference 
+
+We additionally train absorbing-state discrete-diffusion models [3] as external references for Ta-ble 1. For Sudoku, N -Queens, and Latin squares, we use a four-layer Transformer of width 128 ,approximately matching the size of our continuous model. For graph connectivity, we use the same NLM backbone, replacing the reachability input by a categorical 0/1/[MASK] representation. Training randomly masks target tokens and minimizes clean-token cross-entropy at masked positions; conditioning clues (or the graph adjacency matrix) remain fixed. We evaluate three inference procedures: ancestral unmasking, confidence-based unmasking, and remasking, which adds four refinement sweeps that re-predict the lowest-confidence 20% of non-clue tokens. We use 256 sampling steps for Sudoku, N -Queens, and Latin squares, 1,000 for Sudoku-Extreme, and 64 for graph connectivity. Checkpoints are selected on held-out validation data and evaluated on test data. 
+
+F.2 Experiments compute resources 
+
+Training was done on a single RTX 3090 with 24 GiB of VRAM with a single worker. Each training run took approximately 17 hours on a Sudoku task, 44 hours on a GC task, 14 hours on a Latin task, 10 hours on a N-Queens task. Standard paper evaluations complete within approximately 5–15 minutes per checkpoint across all samplers and regimes. Cross-validation experiments for graph connectivity are more computationally intensive, usually requiring around 12–25 minutes for 5-fold evaluation with EM and EM decay samplers. The most expensive setting is Sudoku Extreme pass@10 evaluation, which can take approximately 30–50 minutes per sampler due to the large number of samples and denoising steps. 20 Table 5: Best settings in the averaged EM-decay validation sweeps. Scores are averaged across training seeds and validation folds. These are validation diagnostics, not test results.                     
+
+> Regime Training στstart Validation validity Sudoku-Extreme Baseline 14 0.8 0.177 Sudoku-Extreme Self-correction 20 0.7 0.531 Sudoku 21 clues Baseline 70.7 0.843 Sudoku 21 clues Self-correction 70.7 0.982
+
+F.3 Sensitivity of EM decay to sampler hyperparameters 
+
+We examine the dependence of EM decay on its initial noise scale σ and the reverse-progress value 
+
+τstart at which the noise begins to decay, with τ = 0 at noise and τ = 1 at data. The following values are validation results averaged across training seeds and validation folds. On Sudoku-Extreme, the baseline model achieves 0.177 validity with (σ, τ start ) = (14 , 0.8) , but only 0.010 when σ is increased to 20 at the same decay time. For the self-corrected model, validity is 0.531 at (20 , 0.7) , but falls to 0.138 when decay begins at 0.8 instead. Thus, increasing the noise scale or delaying its decay does not consistently improve validity. EM decay requires careful validation-based selection of these parameters, whereas Tweedie reprojection has neither of these two sampler parameters. 
+
+## G Existing assets and licenses 
+
+We use existing benchmark datasets, checkpoints, and reference implementations only for research evaluation. Table 6 summarizes the license information available to us. When a dataset license is not specified separately, we report the license of the associated code or release. Table 6: Existing assets used in this work.     
+
+> Asset License / terms HRM [51] / Sudoku-Extreme / Maze-Hard Apache-2.0 code release; datasets/checkpoints via HRM IRED [15] / Graph Connectivity MIT code release SRM [54] / MNIST-Sudoku MIT code release; datasets/checkpoints via SRM
+
+## H Maze experiments 
+
+Maze-Hard [24, 51] is a dataset consisting of 30 × 30 mazes. Each completed maze is an array filled with values corresponding to a wall, a corridor, the start, the goal or a shortest-path cell. During training and inference, walls, start, and goal are fixed and the model predicts only the path. We define a grid as valid if the predicted path connects the start and goal cell; length (see Table 7) means that the path is valid and has the shortest possible length. Maze results are shown separately in Table 7: we use the same architecture as our other tasks (see E.1), models are trained with λsimple = 0 .5, batch size 64 , and are evaluated on conditional path completion. The same qualitative pattern holds, with modified samplers outperforming DDPM. 
+
+## I DDPM derivations 
+
+Detailed derivation of the DDPM formulas from the main part. This appendix is fully discrete. To avoid confusion with the continuous-time notation in Sec. A.4, we use n for the discrete grid index. The main text formulas are recovered by setting t = n + 1 , so that xn+1 = xt and xn = xt−1.
+
+I.1 Setup 
+
+We use a time grid 
+
+T = tN −1 > t N −2 > · · · > t 0 = 0 ,
+
+21 Table 7: Single-run Maze results, reporting path validity ( valid ) and shortest-path recovery ( length ). Sampler pass@1 pass@10 valid length valid length 
+
+Baseline (no self-correction loss) DDPM .131 .026 .448 .103 EM decay .315 .108 .658 .359 Tweedie reprojection (ours) .408 .205 .621 .371 
+
+Self-correction loss (with λsimple = 0 .5)DDPM .071 .032 .436 .239 EM decay .842 .558 .991 .900 Tweedie reprojection (ours) .905 .661 .990 .911 
+
+Figure 3: Qualitative samples from our best maze model on the held-out M AZE -H ARD test set. The model is trained with self-correction loss ( λsimple = 0 .5), and sampled with Tweedie Reprojection at T = 200 . Each panel shows a 30 ×30 maze with the shortest path in transparent cyan and the predicted path as black ∗ markers. and write xn
+
+.
+
+= xtn to simplify notation. In this section, our convention is: 
+
+xN −1 is noise , x0 is data .
+
+So decreasing n (decreasing tn) means moving from noise to data. Conversely, moving from n to 
+
+n + 1 means adding noise. We assume a prescribed conditional marginal path: 
+
+q(xn | x0) = N
+
+
+
+α(n) x0, (1 − α(n)2) I
+
+
+
+, α(N − 1) = 0 , α (0) = 1 . (29) 
+
+I.2 Noise-adding Markov step 
+
+We can write the noise-adding Gaussian Markov kernel as 
+
+q(xn+1 | xn) = N
+
+p δ(n + 1) xn, (1 − δ(n + 1)) I
+
+
+
+, n = 0 , . . . , N − 2. (30) equivalently the reparameterization 
+
+xn+1 = pδ(n + 1) xn + p1 − δ(n + 1) ϵn+1 , ϵn+1 ∼ N (0 , I ) i.i.d. (31) 
+
+I.3 Choosing coefficient so the chain matches the marginals 
+
+We take the conditional expectation of (31) given x0:
+
+E[xn+1 | x0] = pδ(n + 1) E[xn | x0].
+
+22 Using the marginal mean from (29), E[xk | x0] = α(k)x0, we obtain 
+
+α(n + 1) x0 = pδ(n + 1) α(n)x0 =⇒ pδ(n + 1) = α(n + 1) 
+
+α(n)
+
+and hence 
+
+δ(n + 1) = α(n + 1) 2
+
+α(n)2 = ¯α(n + 1) ¯α(n) , ¯α(n) .
+
+= α(n)2. (32) 
+
+I.4 Unrolling and variance identity 
+
+Iterating (31) gives 
+
+x1 = pδ(1) x0 + p1 − δ(1) ϵ1
+
+x2 = pδ(2) x1 + p1 − δ(2) ϵ2
+
+= pδ(2) δ(1) x0 + pδ(2)(1 − δ(1)) ϵ1 + p1 − δ(2) ϵ2
+
+x3 = pδ(3) x2 + p1 − δ(3) ϵ3
+
+= pδ(3) δ(2) δ(1) x0 + pδ(3) δ(2)(1 − δ(1)) ϵ1
+
++ pδ(3)(1 − δ(2)) ϵ2 + p1 − δ(3) ϵ3
+
+xn =
+
+
+
+> n
+
+Y
+
+> j=1
+
+pδ(j)
+
+ x0 +
+
+> n
+
+X
+
+> k=1
+
+p1 − δ(k)
+
+> n
+
+Y
+
+> j=k+1
+
+pδ(j)
+
+ ϵk
+
+xn = α(n)
+
+α(0) x0 +
+
+> n
+
+X
+
+> k=1
+
+p1 − δ(k)
+
+> n
+
+Y
+
+> j=k+1
+
+pδ(j)
+
+ ϵk (33) Since α(0) = 1 , the signal term is α(n)x0.Define the accumulated noise term 
+
+ηn
+
+.
+
+=
+
+> n
+
+X
+
+> k=1
+
+p1 − δ(k)
+
+> n
+
+Y
+
+> j=k+1
+
+pδ(j)
+
+ ϵk.
+
+Then E[ηn | x0] = 0 and, because the ϵk are independent, 
+
+V [ηn | x0] = 
+
+> n
+
+X
+
+> k=1
+
+(1 − δ(k)) 
+
+> n
+
+Y
+
+> j=k+1
+
+δ(j)
+
+ I. (34) This sum telescopes. Using δ(k) = ¯ α(k)/¯α(k − 1) from (32), one checks the identity 
+
+(1 − δ(k)) 
+
+> n
+
+Y
+
+> j=k+1
+
+δ(j) = ¯α(n)¯α(k) − ¯α(n)¯α(k − 1) 
+
+so summing from k = 1 to n gives 
+
+> n
+
+X
+
+> k=1
+
+(1 − δ(k)) 
+
+> n
+
+Y
+
+> j=k+1
+
+δ(j) = ¯α(n)¯α(n) − ¯α(n)¯α(0) = 1 − ¯α(n),
+
+because ¯α(0) = α(0) 2 = 1 . Therefore 
+
+V(ηn | x0) = (1 − α(n)2)I, (35) and hence 
+
+xn = α(n)x0 + ηn =⇒ q(xn | x0) = N (α(n)x0, (1 − α(n)2)I),
+
+which matches the prescribed marginals (29). 23 I.5 Posterior 
+
+Now we derive the denoising conditional used for DDPM-style reverse simulation: 
+
+q(xn | xn+1 , x 0).
+
+Because the noise-adding chain is Markov in the direction xn → xn+1 , the joint factorization is 
+
+q(xn+1 , x n | x0) = q(xn+1 | xn, x 0) q(xn | x0) = q(xn | xn+1 , x 0) q(xn+1 | x0).
+
+Thus, as a function of xn,
+
+q(xn | xn+1 , x 0) ∝ q(xn+1 | xn) q(xn | x0). (36) The normalization constant q(xn+1 | x0) does not depend on xn.From (30), 
+
+q(xn+1 | xn) ∝ exp − ∥xn+1 − pδ(n + 1) xn∥2
+
+2(1 − δ(n + 1)) 
+
+!
+
+. (37) From the marginal (29), 
+
+q(xn | x0) ∝ exp 
+
+
+
+− ∥xn − α(n)x0∥2
+
+2(1 − α(n)2)
+
+
+
+. (38) Multiplying (37) and (38) and writing the exponent in quadratic form gives 
+
+q(xn | xn+1 , x 0) ∝ exp 
+
+
+
+− 12
+
+ A∥xn∥2 − 2⟨B, x n⟩
+
+,
+
+with 
+
+A = 11 − α(n)2 + δ(n + 1) 1 − δ(n + 1) ,B = α(n)1 − α(n)2 x0 +
+
+pδ(n + 1) 1 − δ(n + 1) xn+1 .
+
+Hence the posterior variance and mean are 
+
+˜βpost  
+
+> n+1
+
+= A−1, ˜μn|n+1 = ˜βpost  
+
+> n+1
+
+B. q(xn | xn+1 , x 0) = N (˜ μn|n+1 , ˜βpost  
+
+> n+1
+
+I). (39) Then 
+
+˜βpost  
+
+> n+1
+
+=
+
+ δ(n + 1) 1 − δ(n + 1) + 11 − α(n)2
+
+−1
+
+= (1 − δ(n + 1))(1 − α(n)2)1 − δ(n + 1) α(n)2 . (40) Using α(n + 1) 2 = δ(n + 1) α(n)2 (equivalent to (32)), we have 
+
+1 − δ(n + 1) α(n)2 = 1 − α(n + 1) 2.
+
+Therefore, 
+
+˜βpost  
+
+> n+1
+
+= 1 − α(n)2
+
+1 − α(n + 1) 2 (1 − δ(n + 1)) . (41) The posterior mean is 
+
+˜μn|n+1 = (1 − α(n)2)(1 − δ(n + 1)) 1 − α(n + 1) 2
+
+α(n)1 − α(n)2 x0 +
+
+pδ(n + 1) 1 − δ(n + 1) xn+1 
+
+!
+
+= α(n)(1 − δ(n + 1)) 1 − α(n + 1) 2 x0 +
+
+pδ(n + 1)(1 − α(n)2)1 − α(n + 1) 2 xn+1 .
+
+24 Thus 
+
+˜μn|n+1 = α(n)(1 − δ(n + 1)) 1 − α(n + 1) 2 x0 +
+
+pδ(n + 1)(1 − α(n)2)1 − α(n + 1) 2 xn+1 .
+
+Next, substitute the estimator of x0 obtained from the marginal at step n + 1 :
+
+x0 = xn+1 − p1 − α(n + 1) 2 ϵn+1 
+
+α(n + 1) .
+
+Using α(n)/α (n + 1) = 1 /pδ(n + 1) , we obtain 
+
+˜μn|n+1 = 1
+
+pδ(n + 1) xn+1 − 1 − δ(n + 1) 
+
+pδ(n + 1) p1 − α(n + 1) 2 ϵn+1 .
+
+˜μn|n+1 = xn+1 
+
+pδ(n + 1) − 1 − δ(n + 1) 
+
+pδ(n + 1) p1 − α(n + 1) 2 ϵn+1 
+
+For the equidistant time steps N = T + 1 , set t = n + 1 . Then 
+
+xn+1 = xt, xn = xt−1, δ(n + 1) = δ(t), α(n) = α(t − 1) .
+
+This recovers the main-text DDPM posterior 
+
+q(xt−1 | xt, x 0) = N α(t − 1) x0 · 1 − δ(t)1 − α(t)2 +
+
+pδ(t)(1 − α(t − 1) 2)1 − α(t)2 xt, ˜βpost  
+
+> t
+
+I
+
+!
+
+,
+
+where 
+
+˜βpost  
+
+> t
+
+= (1 − α(t − 1) 2) 1 − δ(t)1 − α(t)2 .
+
+## J Toy example: DDPM anchoring vs. Tweedie reprojection 
+
+This toy example is only meant to illustrate the difference between a DDPM-style anchored update and Tweedie reprojection. It is not intended as evidence that the failures in our discrete tasks are caused by the same mechanism. In this example the data support is the union of two intervals (see Figure 4), 
+
+Vtoy = [ A, B ] ∪ [−B, −A], A = 2 , B = 3 , M = ( A + B)/2 = 2 .5.
+
+We run reverse trajectories from Gaussian noise and count a sample as valid if the final point lies in 
+
+Vtoy . We use an “oracle” denoiser that predicts M when y > 0 and −M otherwise. 
+
+Figure 4: Forward marginal log 10 qt(y) for the toy two-uniform data law 12 U [A, B ] +  
+
+> 12
+
+U [−B, −A]. The center is a low-density no-man’s-land. Tweedie reprojection updates the mean directly from the denoiser prediction, 
+
+Xs = αs ˆx0, ˆx0 = fθ (Xt, t ),
+
+so the current state Xt influences the next state only through ˆx0. A DDPM-style update also keeps a residual anchor to the current mean, 
+
+Xs = αs ˆx0 + bt
+
+ Xt − αt ˆx0
+
+.
+
+Thus, even when the denoiser predicts a point near the valid set, DDPM can retain part of the current off-manifold location. To visualize this effect, we use simple corrupted denois-ers whose sign is unreliable (smooth, input-noised, and adversarial sign variants). In this toy, both signs ±M
+
+are valid modes. Therefore, a sampler that reprojects 25 Figure 5: Reverse trajectories under sign-perturbed toy denoisers. Tweedie reprojects through 
+
+ˆx0 = fθ (xt, t ), whereas DDPM retains an explicit anchor to xt. This anchor can keep trajectories in the low-density region when the denoiser direction is unreliable. directly through ˆx0 can remain valid even when the pre-dicted sign is wrong. In contrast, as shown in Figure 5 an anchored DDPM update can stay trapped near the current state when the denoiser direction is decorrelated from, or anti-aligned with, Xt.To summarize, Tweedie reprojection does not carry an explicit residual path from Xt to Xs; DDPM does. Hence, when ˆx0 is already valid or close to valid, Tweedie can exploit that prediction directly, whereas DDPM may still inherit part of the current off-manifold state. 
+
+## K Mechanistic Analysis of DDPM-Tweedie Sampler Gap 
+
+This appendix gives a mechanistic explanation of the DDPM-Tweedie gap. Decoded validity depends on cellwise argmax decisions: Gaussian perturbations preserve a decoded state when the sampler center has sufficient margin relative to the noise scale. We use this margin view to compare the centers of Tweedie reprojection and DDPM ancestral sampling. Tweedie recenters the next state around the denoiser’s prediction, while DDPM also retains a residual component from the current noisy state. We show that this residual turns out to be harmful for discrete constrained problems. 
+
+K.1 Setup and decoded stability 
+
+We use the convention 0 for data and T for noise. Let 
+
+α(t) = cos 
+
+ πt 
+
+2T
+
+
+
+, β(t) = sin 
+
+ πt 
+
+2T
+
+
+
+, α(t)2 + β(t)2 = 1 .
+
+We write 
+
+ˆx0,t = fθ (xt, t ).
+
+For one-hot tasks, let 
+
+D : Rm×d → { 1, . . . , d }m
+
+be the cellwise argmax decoder, where m is the number of active/free cells and d is the number of symbols per cell. For Sudoku with 21 clues, m = 60 ; for a 28-clue subset, m = 53 . Let 
+
+V ⊆ { 1, . . . , d }m
+
+be the set of valid decoded configurations and 
+
+I = {1, . . . , d }m \ V 
+
+be the set of invalid configurations. For x ∈ Rm×d, define 
+
+gap( x) = min 
+
+> i
+
+
+
+xi,D i(x) − max  
+
+> a̸=Di(x)
+
+xi,a 
+
+
+
+.
+
+26 0.0 0.2 0.4 0.6 0.8 1.0                                 
+
+> t(0 = clean, 1 = pure noise)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> fraction of cells matching  x0
+> Cellwise argmax accuracy of D(xt)
+> cell-acc( D(xt), x0)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> t
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> full-sudoku validity
+> Validity: D(xt) vs D(f(xt,t))
+> D(xt)
+> D(f(xt,t))
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> t
+> 0510 15 20 25
+> # violated constraints (out of 27)
+> Constraint violations: D(xt) vs D(f)
+> # viol( D(xt)) # viol( D(f(xt,t)))
+> max = 27
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> t
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> cellwise margin  = top 1 top 2
+> Cellwise argmax margin line: mean, shaded: IQR
+> (xt) (input)
+> (f(xt,t)) (output)
+
+Figure 6: Forward-noise diagnostics for the baseline model. We evaluate N = 64 Sudoku puzzles with nrep = 4 noise draws. Panels show: cellwise argmax accuracy of D(xt), full-grid validity of 
+
+D(xt) and D(fθ (xt, t )) , number of violated Sudoku constraints, and argmax margin γ = top 1 −top 2.Lines are means; shaded bands show IQR across puzzles and noise draws. 
+
+K.2 One-hot representations corrupted with Gaussian noise 
+
+For one-hot encoded tasks, the decoded output 
+
+xt = ct + νtϵ
+
+is stable when the Gaussian center ct has a sufficiently large cellwise argmax margin relative to the Gaussian noise scale νt.Figure 6 shows this effect for forward-noised one-hot Sudoku solutions 
+
+xt = α(t)x0 + β(t)ϵ. 
+
+Cellwise accuracy of the raw decoder D(xt) decreases gradually with t (top left), but full-grid validity collapses much earlier (top right): a single flipped cell is enough to invalidate the decoded Sudoku. The trained denoiser extends the useful noise range. Its decoded output D(fθ (xt, t )) (top right) remains valid for larger t, has fewer constraint violations (bottom left), and maintains a larger argmax margin than the raw noisy input (bottom right). For any Gaussian sampler the following is true: 
+
+Lemma K.1 (Argmax stability) . Let c ∈ Rm×d satisfy 
+
+gap( c) ≥ γ > 0,
+
+and let 
+
+ϵ ∼ N (0 , ν 2Imd ).
+
+Then 
+
+P(D(c + ϵ)̸ = D(c)) ≤ m(d − 1)Φ 
+
+
+
+− γ
+
+√2 ν
+
+
+
+,
+
+where Φ is the standard Gaussian CDF. 
+
+27 Proof. Fix a cell i, let j = Di(c), and consider a competitor a̸ = j. Since 
+
+gap( c) ≥ γ, 
+
+we have 
+
+ci,j − ci,a ≥ γ. 
+
+The competitor overtakes j after adding noise only if 
+
+ci,a + ϵi,a ≥ ci,j + ϵi,j ,
+
+or equivalently 
+
+ϵi,a − ϵi,j ≥ ci,j − ci,a ≥ γ. 
+
+Since 
+
+ϵi,a − ϵi,j ∼ N (0 , 2ν2),
+
+this event has probability at most 
+
+Φ
+
+
+
+− γ
+
+√2 ν
+
+
+
+.
+
+A union bound over all m(d − 1) competitors gives the claim. The lemma formalizes the idea that a continuous point with large cellwise margin decodes stably under small Gaussian perturbations. 
+
+K.3 DDPM equals Tweedie plus state memory Proposition K.2 (DDPM and Tweedie-reprojection relation) . At step t, the DDPM ancestral Gaussian kernel has center 
+
+cDDPM  
+
+> t
+
+= cTw  
+
+> t
+
++ Bt
+
+ xt − α(t)ˆ x0,t 
+
+, cTw  
+
+> t
+
+= α(t − 1)ˆ x0,t ,
+
+where 
+
+Bt =
+
+pδ(t)  1 − α(t − 1) 2
+
+1 − α(t)2 , α(t) = pδ(t)α(t − 1) .
+
+Thus, relative to Tweedie, DDPM adds a state-anchor residual. The associated noise scales are 
+
+νTw  
+
+> t
+
+= β(t − 1) , νDDPM  
+
+> t
+
+= τt, τ 2 
+
+> t
+
+= (1 − δ(t))  1 − α(t − 1) 2
+
+1 − α(t)2 .
+
+Proof. Following Appendix I, the DDPM ancestral mean can be written as 
+
+μDDPM  
+
+> t
+
+= At ˆx0,t + Btxt,
+
+with 
+
+At = α(t − 1) 1 − δ(t)1 − α(t)2 , Bt =
+
+pδ(t)  1 − α(t − 1) 2
+
+1 − α(t)2 .
+
+Using 
+
+α(t) = pδ(t)α(t − 1) ,
+
+we have 
+
+At+Btα(t) = α(t − 1) 1 − δ(t) + δ(t)  1 − α(t − 1) 2
+
+1 − α(t)2 = α(t − 1) 1 − δ(t)α(t − 1) 2
+
+1 − α(t)2 = α(t − 1) .
+
+Therefore 
+
+μDDPM  
+
+> t
+
+= At ˆx0,t + Btxt
+
+= ( At + Btα(t)) ˆ x0,t + Bt (xt − α(t)ˆ x0,t )= α(t − 1)ˆ x0,t + Bt (xt − α(t)ˆ x0,t )= cTw  
+
+> t
+
++ Bt (xt − α(t)ˆ x0,t ) .
+
+The Tweedie kernel uses noise scale β(t − 1) , while the DDPM ancestral kernel uses posterior noise scale 
+
+τ 2 
+
+> t
+
+= (1 − δ(t))  1 − α(t − 1) 2
+
+1 − α(t)2 .
+
+This proves both the center decomposition and the variance difference. 28 Proposition K.2 shows that DDPM differs from Tweedie in two ways. First, it uses a different Gaussian noise scale. Second, its center contains the residual rt = xt − α(t)ˆ x0,t . If xt carries corrupted cellwise preferences, this term is harmful and may even destabilize the trajectory. The next proposition formalizes this failure mode. 
+
+Proposition K.3 (State-memory corruption) . Let 
+
+rt = xt − α(t)ˆ x0,t .
+
+Assume the denoiser prediction decodes to a valid grid v ∈ V :
+
+D(ˆ x0,t ) = v. 
+
+For a cell i and competitor a̸ = vi, define the denoiser margin 
+
+M θi,a = ˆ x0,t,i,v i − ˆx0,t,i,a ,
+
+and the residual anti-margin 
+
+M ri,a = rt,i,a − rt,i,v i .
+
+If for some i, a ,
+
+BtM ri,a − α(t − 1) M θi,a ≥ γbad > 0,
+
+then the DDPM center prefers the wrong symbol a over the valid symbol vi in cell i with margin at least γbad :
+
+cDDPM  
+
+> t,i,a
+
+− cDDPM  
+
+> t,i,v i
+
+≥ γbad .
+
+If every valid completion has cell i equal to vi, then 
+
+D(cDDPM  
+
+> t
+
+) /∈ V .
+
+Moreover, 
+
+P  D(xDDPM  
+
+> t−1
+
+) ∈ V | xt
+
+ ≤ Φ
+
+
+
+− γbad 
+
+√2 τt
+
+
+
+.
+
+Proof. The DDPM center is 
+
+cDDPM  
+
+> t
+
+= α(t − 1)ˆ x0,t + Btrt.
+
+Therefore 
+
+cDDPM  
+
+> t,i,a
+
+− cDDPM  
+
+> t,i,v i
+
+= α(t − 1) (ˆ x0,t,i,a − ˆx0,t,i,v i ) + Bt (rt,i,a − rt,i,v i )= −α(t − 1) M θi,a + BtM ri,a .
+
+By assumption, this is at least γbad .If all valid completions have symbol vi in cell i, then any decoded grid with a different symbol in cell 
+
+i is invalid. For the noisy DDPM step to become valid, vi must overtake a. This requires 
+
+τtϵi,v i − τtϵi,a ≥ γbad .
+
+The left-hand side is Gaussian with variance 2τ 2 
+
+> t
+
+, giving 
+
+P(repair ) ≤ Φ
+
+
+
+− γbad 
+
+√2 τt
+
+
+
+.
+
+The proposition suggests that DDPM kernel can be centered on the wrong decoded symbol whenever the state residual exceeds the denoiser’s correction: 
+
+Bt (rt,i,a − rt,i,v i ) > α (t − 1) (ˆ x0,t,i,v i − ˆx0,t,i,a ) .
+
+In that case, sampling more precisely around the DDPM center does not help: the sampler is concentrated around the wrong decoded state. We next visualize this effect along actual reverse trajectories. Figures 7-8 show what happens during sampling. Along the Tweedie trajectory, the model begins to predict valid Sudoku grids before the end of the reverse process. The important point is that Tweedie does not anchor the next center to the current decoded grid. Instead, it recenters directly 29 0.0 0.2 0.4 0.6 0.8 1.0                 
+
+> t(0 = data, 1 = pure noise)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> full-grid validity
+> Validity along Tweedie trajectory
+> D(zk) = D(cTw
+> k) (denoiser proposal)
+> D(cDDPM
+> k) (proposal + Bkrk)
+> D(Xk) (sampled Tweedie state)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> t(0 = data, 1 = pure noise)
+> 0510 15 20 25
+> # violated constraints (out of 27)
+> Constraint violations along Tweedie trajectory
+> D(zk) = D(cTw
+> k)
+> D(cDDPM
+> k)
+> D(Xk)max = 27
+> Decoded validity along sampling trajectory (baseline, Tweedie sampling, N= 256, random-21 clues)
+
+Figure 7: Decoded validity along a Tweedie sampling trajectory. For each reverse step, we decode the denoiser proposal ˆx0,t , the Tweedie center cTw 
+
+t = α(t − 1)ˆ x0,t , and the counterfactual DDPM center cDDPM 
+
+t = cTw 
+
+t + Btrt. Left: full-grid Sudoku validity. Right: number of violated constraints. The Tweedie center shares the proposal’s argmax, while the DDPM residual anchor delays validity. 0.0 0.2 0.4 0.6 0.8 1.0                 
+
+> t(0 = data, 1 = pure noise)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> full-grid validity
+> Validity along DDPM trajectory
+> D(zk) = D(cTw
+> k) (denoiser proposal)
+> D(cDDPM
+> k) (proposal + Bkrk)
+> D(Xk) (sampled DDPM state)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> t(0 = data, 1 = pure noise)
+> 510 15 20 25
+> # violated constraints (out of 27)
+> Constraint violations along DDPM trajectory
+> D(zk) = D(cTw
+> k)
+> D(cDDPM
+> k)
+> D(Xk)max = 27
+> Decoded validity along sampling trajectory (baseline, DDPM sampling, N= 256, random-21 clues)
+
+Figure 8: Decoded validity along a DDPM sampling trajectory. Same diagnostics as Fig. 7, but the trajectory itself is generated by DDPM ancestral sampling. The number of violated constraints decreases along the trajectory, showing that the sampler moves toward Sudoku structure. However, full-grid validity remains low because a small number of persistent errors is enough to invalidate the decoded grid. This illustrates the state-anchor failure mode: DDPM can approach a near-valid solution while still failing to make the needed cellwise corrections required for exact validity. at cTw 
+
+t = α(t − 1)ˆ x0,t . Since multiplication by the positive scalar α(t − 1) does not change the argmax, the Tweedie center has the same decoded grid as the model prediction. Therefore, if the current sample is near-valid but has a few wrong cells, and the denoiser predicts a valid completion, Tweedie can move directly to that valid completion. DDPM behaves differently. Its center also contains the residual term Btrt, which keeps part of the current state. This can be helpful when the current state is already correct, but it can be harmful when the current state is near-valid with a few persistent mistakes. In that case, the DDPM update averages the denoiser correction with the current wrong cell preferences, so the sampler can reduce the number of constraint violations while still failing to make the final argmax changes needed for full validity. Figure 11 shows that adding more exploration does not fix the baseline DDPM sampler. Both samplers degrade when the noise is too small or too large, but the best DDPM setting still remains far below the best Tweedie setting. To check whether the residual term helps or hurts in practice, we compare the decoded Tweedie and DDPM centers at each reverse step. Let E+ be the event that the Tweedie center is valid but the DDPM center is invalid, and let E− be the opposite event. If the residual anchor were often useful for Sudoku validity, then E− should occur frequently. Instead, Figure 2a shows that E+ dominates. 30 K.4 Sampler-induced states degrade denoiser proposals 
+
+The previous section showed that the DDPM anchor can corrupt a valid denoiser proposal. Figure 8 shows a second effect: along DDPM trajectories, the baseline model often fails to produce valid proposals at all. We now ask why this failure mode persists along full DDPM trajectories. Let qt denote the forward training distribution 
+
+xt = α(t)x0 + β(t)ϵ, x0 ∈ V , ϵ ∼ N (0 , I ).
+
+Lemma K.4 (Forward noising of discrete grids) . Let V ⊂ Rmd be the set of valid one-hot clean grids. Here B(a, r ) = {y ∈ Rmd : ∥y − a∥2 ≤ r} denotes the closed Euclidean ball of radius r
+
+centered at a. For u > 0, define the typical forward region 
+
+Rt(u) = [
+
+> v∈V
+
+B(α(t)v, β (t)u).
+
+If xt ∼ qt, then 
+
+qt(Rt(u)) ≥ 1 − P(∥G∥2 > u ), G ∼ N (0 , I md ).
+
+Moreover, for any one-hot grid z, the ball B(α(t)z, β (t)u) is disjoint from the forward ball around a valid grid v whenever 
+
+∥z − v∥2 > 2u
+
+SNR t
+
+, SNR t = α(t)
+
+β(t) .
+
+For one-hot grids, this corresponds to the Hamming-depth condition 
+
+dHam (z, v ) > 2u2
+
+SNR 2
+
+> t
+
+.
+
+Proof. Since 
+
+xt − α(t)x0 = β(t)ϵ, 
+
+we have 
+
+xt ∈ B(α(t)x0, β (t)u)
+
+whenever 
+
+∥ϵ∥2 ≤ u. 
+
+This gives the first claim. For the second claim, the distance between the two centers is 
+
+∥α(t)z − α(t)v∥2 = α(t)∥z − v∥2.
+
+Each ball has radius β(t)u. The two balls are disjoint if 
+
+α(t)∥z − v∥2 > 2β(t)u, 
+
+which is equivalent to 
+
+∥z − v∥2 > 2u
+
+SNR t
+
+.
+
+For one-hot grids, 
+
+∥z − v∥22 = 2 dHam (z, v ),
+
+giving the final condition. This explains the exposure gap. Under standard training, the model is trained on noisy versions of valid grids, so certain invalid regions receive little training mass. During sampling, however, the model’s own predictions can move trajectories toward noisy versions of invalid or near-valid states. Self-correction training therefore adds supervision on precisely these sampler-induced inputs. 
+
+K.5 Proof and nearby-proposal extension Proof of Proposition 3.1. For a fixed continuous proposal ¯x0, the exact DDPM posterior kernels are the reverse conditionals associated with the Gaussian marginals qt(·; ¯ x0). Hence they map qt(·; ¯ x0)
+
+to qs(·; ¯ x0) for every s < t , which proves the claimed marginal over the local reverse window. The first KL divergence is then zero by construction of XSC  
+
+> t
+
+; the second follows from the standard KL formula for Gaussians with covariance β(t)2I and means α(t)x0 and α(t)¯ x0.31 Extension to nearby proposals. Proposition 3.1 assumes that the proposal of the denoiser remains unchanged which is an idealization. Consider instead reverse times t0 > t 1 > · · · > t K = t > 0,and assume that the proposal at each step remains within radius ρk of ¯x⋆ 
+
+> 0
+
+almost surely under the reverse process: 
+
+∥¯x(k)0 − ¯x⋆
+
+> 0
+
+∥2 ≤ ρk.
+
+Let Ak be the coefficient multiplying the clean proposal in the DDPM posterior mean at step k,and let eβkI be the corresponding posterior covariance (Eqs. (14)–(15)). Conditioned on the same current state, replacing ¯x⋆ 
+
+> 0
+
+by ¯x(k)0 changes only the posterior mean, by Ak(¯ x(k)0 − ¯x⋆
+
+> 0
+
+). The resulting one-step KL divergence is therefore at most 
+
+A2
+
+> k
+
+ρ2
+
+> k
+
+2 eβk
+
+.
+
+We consider a reverse window with positive posterior variances eβk > 0, then the KL chain rule and data processing inequality give: 
+
+DKL (L(Yt) ∥ qt(·; ¯ x⋆
+
+> 0
+
+)) ≤ DKL (L(Yt0 ) ∥ qt0 (·; ¯ x⋆
+
+> 0
+
+)) + 
+
+> K
+
+X
+
+> k=1
+
+A2
+
+> k
+
+ρ2
+
+> k
+
+2 eβk
+
+. (42) Likewise, at a fixed time t, if the proposal ¯x0 used to construct the self-correction input also satisfies 
+
+∥¯x0 − ¯x⋆
+
+> 0
+
+∥2 ≤ ρ, then 
+
+DKL 
+
+ L(XSC  
+
+> t
+
+) qt(·; ¯ x⋆
+
+> 0
+
+) ≤ α(t)2ρ2
+
+2β(t)2 . (43) When the right-hand sides of Eqs. (42) and (43) are small, both the sampler states and the self-correction inputs are close to qt(·; ¯ x⋆
+
+> 0
+
+). This explains why re-noising the model’s proposal can produce training inputs similar to those encountered during this part of sampling, while retaining x0
+
+as the target. 
+
+Empirical comparison with sampler states. We also compare the self-correction inputs directly with states encountered during DDPM sampling. At each noise level, we measure the frequency of the event E+, where the clean proposal gives a valid Tweedie center but the corresponding DDPM center is invalid. We compare forward-noised training inputs Xstd  
+
+> t
+
+, self-correction inputs XSC  
+
+> t
+
+, and actual DDPM states Yt. The respective event frequencies are 
+
+(0 .319 , 0.116 , 0.030) on Sudoku-Extreme, and 
+
+(0 .247 , 0.067 , 0.036) on 21-clue Sudoku. Thus, on this diagnostic, the gap between self-correction inputs and DDPM states is 3.4–6.8× smaller than for standard forward-noised inputs. This does not establish equality of the full distributions, but supports the interpretation that re-noising the model’s own proposal better reflects the states relevant to its sampling errors. 
+
+K.6 Self-correction as train-inference mismatch correction 
+
+The previous section argued that DDPM can enter model-induced states on which the baseline denoiser no longer proposes valid grids reliably. Self-correction addresses this mismatch by changing the supervised input distribution. Instead of training only on forward-noised valid grids, it also trains on noisy versions of the model’s own intermediate predictions, while keeping the original valid grid as the regression target. 
+
+Proposition K.5 (Self-correction target) . Fix the stopped-gradient proposal generator f¯θ. Draw a valid sample X0, form a standard noisy input 
+
+Y std  
+
+> t1
+
+= α(t1)X0 + β(t1)ϵ1,
+
+and define the stopped-gradient self-correction proposal 
+
+¯X0 = sg  f¯θ (Y std  
+
+> t1
+
+, t 1) .
+
+32 The self-correction input at time t is 
+
+Y sc  
+
+> t
+
+= α(t) ¯X0 + β(t)ϵ′,
+
+while the standard denoising input is 
+
+Y std  
+
+> t
+
+= α(t)X0 + β(t)ϵ. 
+
+Both losses use the original valid sample X0 as target: 
+
+L(f ) = E∥f (Y sc  
+
+> t
+
+, t ) − X0∥2 + λstd E∥f (Y std  
+
+> t
+
+, t ) − X0∥2 .
+
+Let psc (y, t ) and pstd (y, t ) be the densities of Y sc  
+
+> t
+
+and Y std  
+
+> t
+
+and their sampled times, respectively, and define 
+
+msc (y, t ) = E[X0 | Y sc  
+
+> t
+
+= y], mstd (y, t ) = E[X0 | Y std  
+
+> t
+
+= y].
+
+Then, at any (y, t ) such that 
+
+psc (y, t ) + λstd pstd (y, t ) > 0,
+
+the minimizer satisfies 
+
+f ⋆(y, t ) = psc (y, t )msc (y, t ) + λstd pstd (y, t )mstd (y, t )
+
+psc (y, t ) + λstd pstd (y, t ) .
+
+In particular, whenever 
+
+psc (y, t ) ≫ λstd pstd (y, t ),
+
+the learned target is dominated by the self-correction regression target 
+
+msc (y, t ) = E[X0 | Y sc  
+
+> t
+
+= y].
+
+Proof. Fix (y, t ) and write a = f (y, t ). The terms of the objective that depend on a are 
+
+psc (y, t )E[∥a − X0∥2 | Y sc  
+
+> t
+
+= y] + λstd pstd (y, t )E[∥a − X0∥2 | Y std  
+
+> t
+
+= y].
+
+Using 
+
+E[∥a − X0∥2 | Y = y] = ∥a − E[X0 | Y = y]∥2 + const( y),
+
+this is, up to constants independent of a,
+
+psc (y, t )∥a − msc (y, t )∥2 + λstd pstd (y, t )∥a − mstd (y, t )∥2.
+
+Setting the gradient with respect to a to zero gives 
+
+psc (y, t )( a − msc (y, t )) + λstd pstd (y, t )( a − mstd (y, t )) = 0 .
+
+Solving for a gives the claimed expression. Standard training learns the Bayes denoiser on forward-noised valid grids. Self-correction adds training mass around model-induced predictions ˜x0, which may be invalid or partially wrong, and trains the model to map noisy versions of those predictions back to the original valid grid. Thus self-correction targets the exposure gap encountered by closed-loop samplers such as DDPM. 
+
+## L Self-Correction Loss Ablations on Sudoku 
+
+We ablate two design dimensions of the self-correction loss LSC on Sudoku: (i) the regularizer loss weight λsimple ; and (ii) alternative formulations of the self-correction training step, including different input constructions, target constructions, and multi-step rollouts. We additionally compare to input perturbations from DDPM-IP [37] and self-conditioning from Analog Bits [9]. We evaluate on Sudoku puzzles with 21 clues using the full checkpoint grid 
+
+{20k , 60k , 100k , 200k , 400k , 800k , 1.2M , 1.6M , 2.0M }. For certain runs we stopped the training earlier if loss was unstable. For the loss-weight sweep, we report both samplers: Tweedie reprojection (Tw) and DDPM. 33 0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00                  
+
+> training step (M)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> valid rate (Random-21, T=200)  Tweedie
+> 0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00
+> training step (M)
+> DDPM Random-21 / pass@1 self-correction loss-weight simple
+> baseline (no rec )
+> simple = 0.0
+> simple = 0.01
+> simple = 0.1
+> simple = 0.2 simple = 0.5
+
+Figure 9: Self-correction loss-weight sensitivity on Sudoku puzzles with 21 clues. We sweep 
+
+λsimple ∈ { 0, 0.01 , 0.1, 0.2, 0.5} and report checkpoint trajectories under the standard T = 200 ,pass@1 evaluation. 
+
+L.1 Simple loss weight 
+
+Figure 9 shows the sweep over λ ∈ { 0, 0.01 , 0.1, 0.2, 0.5}. The baseline corresponds to standard training without the self-correction loss. Tweedie reprojection already performs strongly across settings, with valid rates in a relatively narrow range. The main effect of the self-correction loss is on DDPM. As discussed in Section K.3, DDPM preserves information from the current state xt directly. This is appropriate for continuous denoising, but in discrete constraint problems it can preserve an early incorrect commitment. Self-correction training mitigates this failure mode, improving DDPM from roughly 29% validity to approximately 85% on Sudoku puzzles with 21 clues. Overall, the method is not sensitive to the exact value of λ. In the main experiments we use 
+
+λsimple = 0 .1, which was chosen as the initial default and lies in the stable high-performing region of the sweep. 
+
+L.2 Loss-Formulation Variants 
+
+We next compare alternative ways of constructing the self-correction training step. 
+
+Baseline. No self-correction loss. This is standard single-pass denoising training (as in L.1). 
+
+Self-correction. Our headline recipe described in Algorithm 2. The model first predicts ˆx0, then receives a corrupted version of this previous prediction and is trained to recover the original clean target x0.
+
+Input perturbation. A DDPM-IP-style input regularization baseline from [37]. The input perturba-tion baseline adds extra Gaussian noise to the input: 
+
+˜xt = xt + γϵ ′′ , γ = 0 .1, ϵ′′ ∼ N (0 , I ),
+
+and trains on 
+
+∥fθ (˜ xt, t ) − x0∥2 .
+
+This encourages robustness to local perturbations of xt, but it does not specifically train the model to correct structured errors arising from its own previous predictions. 
+
+DDPM-step input. Instead of constructing the second input by forward-noising ˆx0, we construct it using one DDPM ancestral step from xt1 . Concretely, after computing ˆx0 = fθ (xt1 , t 1), we set 
+
+xt2 = μDDPM (xt1 , ˆx0; t1 → t2) + τt1,t 2 ξ, ξ ∼ N (0 , I ),
+
+where μDDPM is the ancestral DDPM mean and τt1,t 2 is the corresponding posterior noise scale. This makes the self-correction input distribution closer to the test-time DDPM trajec-tory. The loss itself is unchanged from the standard self-correction loss ˆx′′  
+
+> 0
+
+= fθ (xt2 , t 2),
+
+∥ˆx′′  
+
+> 0
+
+− x0∥2 only the input distribution is modified. 34 0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00               
+
+> training step (M)
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> valid rate (Random-21, T=200)  Tweedie
+> 0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00
+> training step (M)
+> DDPM Random-21 / pass@1 loss-formulation variants ( simple = 0.2)
+> baseline (no rec )
+> self-correction ( simple = 0.2)
+> + input perturbation + DDPM-step input + DDPM-mean target + both DDPM-mean + self-conditioning
+
+Figure 10: Loss ablations on Sudoku puzzles with 21 clues. Self-correction and DDPM-step input give the strongest and most stable improvements, while input perturbation and self-conditioning are substantially weaker, especially for DDPM. 
+
+DDPM-mean target. Instead of supervising the second prediction directly with ∥ˆx′ 
+
+> 0
+
+− x0∥2, we supervise the resulting DDPM mean: 
+
+∥μDDPM (xt2 , ˆx′
+
+> 0
+
+; t2 → t3) − α(t3)x0∥2 .
+
+This asks the model to make predictions whose downstream DDPM update lands on the clean manifold. 
+
+DDPM-step input + DDPM-mean target. Combines the previous two modifications: the self-correction input is generated by a DDPM step, and the loss supervises the downstream DDPM mean. 
+
+Random-N denoise. Performs a random number of no-gradient self-correction rollouts before the final gradient pass. With parameter n, the number of rollouts is sampled from {1, . . . , n }.This exposes the model to deeper unrolled trajectories. 
+
+Self-conditioning without self-correction loss. Following [9], the model receives its previous pre-diction as an additional input channel, fθ (cat([ xt, ˆx0]) dim= −1, t ), no self-correction loss. Figure 10 compares alternative ways of constructing the recovery signal on Sudoku puzzles with 21 clues. Input perturbation gives little improvement over the baseline, suggesting that generic Gaussian noise does not reproduce the structured errors created by closed-loop sampling. Self-conditioning is also weaker, especially for DDPM, indicating that simply providing an additional memory channel is not enough. The strongest variants are those that expose the model to its own intermediate predictions, either through the simple self-correction loss or DDPM-aware variants. This supports our main interpretation: the issue is not only robustness to noise or lack of conditioning, but a mismatch between the forward-noised training inputs and the model-induced states visited during sampling. 
+
+Random-symbol corruption. We also test whether self-correction helps only by exposing the model to invalid discrete inputs. As a simpler baseline, we randomly select either 20% or 40% 
+
+of Sudoku cells, replacing each selected cell with a random symbol. We then train the model to recover the original valid grid. This improves DDPM from 34 .5% to 64 .0% with 20% corrupted cells, showing that invalid-state exposure is useful. However, self-correction improves DDPM further to 78 .2% , suggesting that model-induced recovery states are better matched to the reverse-sampling distribution than arbitrary symbol corruptions. Tweedie reprojection is already near saturation in this setting, so these augmentations mainly affect DDPM. 
+
+Training on multi-step DDPM trajectories. We additionally tested whether training on states from an actual trajectory improves over the one-step self-correction loss. Starting from a converged denoiser, we maintained a pool of 16-step DDPM trajectories and advanced each trajectory by two differentiable reverse steps per update using truncated backpropagation through time. On 21-clue Sudoku, the best rollout-trained model reaches 0.78 DDPM validity, compared with 0.31 for standard training and 0.87 for one-step self-correction. Thus, training on trajectory states helped, but did not outperform one-step self-correction. 35 Table 8: Ablation on invalid-state exposure for Sudoku conditional generation. We evaluate 21-given-cell Sudoku with 500 sampling steps on 1000 puzzles and 3 seeds (checkpoint at 0.2M steps). Values are valid rates in percent, mean ± std.                               
+
+> Training variant Tweedie reprojection DDPM Baseline 99 .23 ±0.35 34 .47 ±1.75
+> Random-symbol corruption, 20% cells 99 .60 ±0.10 64 .00 ±2.33
+> Random-symbol corruption, 40% cells 99 .07 ±0.31 56 .60 ±1.23
+> Self-correction 99 .07 ±0.31 78 .20 ±0.98
+
+Table 9: Sudoku validity with rectified flow. Entries report baseline → self-correction for the additional rectified-flow experiment.                               
+
+> Regime Euler EM decay Tweedie 21 clues 0.155 →0.630 0.427 →0.926 0.926 →0.988
+> Medium 0.759 →0.909 0.864 →0.960 0.983 →0.993
+> Hard 0.121 →0.735 0.417 →0.963 0.911 →0.995
+
+L.3 Rectified-flow experiment on one-hot Sudoku 
+
+In addition to evaluating the released SRM checkpoint, we train a rectified-flow model on one-hot Sudoku with random conditioning masks. Table 9 compares sampling with and without self-correction training. The same qualitative pattern appears: Tweedie reprojection improves over Euler without retraining, while self-correction substantially improves Euler. 
+
+L.4 Consistency-model experiment 
+
+We additionally evaluate a consistency model on conditional one-hot Sudoku-Extreme. We train the model from scratch using an adaptation of improved consistency training [45]. It uses the same VP-cosine path and 0.82 M-parameter Transformer architecture as our continuous baseline, with hidden dimension 128 and depth 4. Training uses the dataset’s given-clue masks, a progressively increasing number of noise discretization levels, a stopped-gradient target without exponential moving averaging, and a noise-weighted pseudo-Huber loss. We train for 2 million optimizer steps with a learning rate of 10 −4 and warmup. This consistency model achieves approximately 3% pass@1 validity with 5 sampling steps and 16% with 1,000 steps. For context, at 1,000 steps, our baseline diffusion model achieves 18% with EM decay and 26% with Tweedie reprojection. 
+
+## M Sampling step-count ablation 
+
+As an additional sanity check, we vary the number of reverse sampling steps T for Sudoku puzzles with 21 clues. This tests whether the DDPM gap is simply due to insufficient discretization or too few opportunities to correct errors. As Table 10 shows, increasing T drives Tweedie sampling to near-perfect validity, but baseline DDPM remains around 0.29 –0.31 . Thus the baseline DDPM failure is not fixed by using more reverse steps. 
+
+## N Beyond one-hot encodings 
+
+To verify that our findings are not specific to one-hot representations and argmax decoding, we vary both the representation and the decoder while using models of comparable size. We evaluate uint4 analog codes with threshold decoding (adapted from uint8 Analog Bits [9]), fixed random embeddings with nearest-neighbour decoding, and mini MNIST-Sudoku with a learned CNN decoder (different from the dataset used by SRM [54]). For mini MNIST-Sudoku, we use 8 × 8 MNIST images, whereas SRM uses 28 × 28 images; our model has 0.8M parameters compared with approximately 130 Mfor SRM. Each image is high-dimensional and continuous, and each cell is decoded by a learned classifier, following SRM. Table 11 contains relevant within-representation comparisons. 36 0.0 0.5 1.0 1.5 2.0 
+
+per-step noise multiplier c 
+
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> full-grid validity (pass@1)
+> c= 1
+
+Noise-scale sweep at T = 200 
+
+> Tweedie, baseline Tweedie, self-corr DDPM, baseline DDPM, self-corr
+
+Figure 11: Effect of DDPM sampling variance on Sudoku. Final validity when multiplying the per-step sampling variance. Changing the variance alone does not close the baseline DDPM–Tweedie gap. Table 10: Sampling step-count ablation. Full-grid Sudoku validity for baseline and self-correction models under Tweedie and DDPM sampling as the number of sampling steps T varies. Values are mean ± standard error over runs (different seeds for random masks generation). Tweedie DDPM 
+
+T Baseline Self-correction Baseline Self-correction 25 0.488 ± 0.014 0.355 ± 0.022 0.212 ± 0.036 0.441 ± 0.034 
+
+50 0.737 ± 0.018 0.887 ± 0.027 0.272 ± 0.013 0.745 ± 0.030 
+
+100 0.853 ± 0.011 0.965 ± 0.007 0.249 ± 0.020 0.848 ± 0.014 
+
+200 0.952 ± 0.019 0.978 ± 0.006 0.296 ± 0.033 0.852 ± 0.017 
+
+500 0.987 ± 0.005 0.992 ± 0.007 0.292 ± 0.062 0.861 ± 0.025 
+
+1000 0.999 ± 0.002 0.999 ± 0.002 0.311 ± 0.020 0.854 ± 0.024 
+
+2000 1.000 ± 0.000 1.000 ± 0.000 0.298 ± 0.022 0.852 ± 0.000 
+
+5000 1.000 ± 0.000 1.000 ± 0.000 0.292 ± 0.033 0.863 ± 0.036 
+
+We observe consistent improvements from DDPM to Tweedie for both the standard Sudoku checkpoint and the self-correction-trained model, while DDPM itself also benefits from self-correction training. 
+
+## O Other metrics 
+
+O.1 Soft metrics. 
+
+The main results use exact validity, which is a strict binary metric: a solution with a single violated constraint is counted as invalid. We therefore report two additional diagnostics. 
+
+Distance to one-hot (Table 12) is the per-puzzle RMSE between the final continuous output and its nearest one-hot encoding, computed over predicted cells. Lower values indicate that the final continuous state is closer to an exact discrete representation, but do not imply that the decoded configuration is valid. We report this metric for all settings except Sudoku-Extreme pass@10, which reuses the pass@1 boards. We also report the constraint-violation rate (Table 13): the fraction of predicted cells involved in a violated task constraint, using row/column/box constraints for Sudoku, row/column constraints for Latin squares, and attacking-queen constraints for N -queens. Overall, constraint-violation rate shows largely the same trends as exact validity. 37 Table 11: Comparison across Sudoku representations. Results report baseline → self-corrected validity (one-seed results). Experiment Parameters DDPM EM-decay Tweedie One-hot Sudoku 824,073 0.31 → 0.87 0.84 → 0.98 0.94 → 0.98 
+
+Analog-bit Sudoku 822,788 0.19 → 0.79 0.34 → 0.87 0.89 → 0.98 
+
+Random-embedding Sudoku 824,073 0.26 → 0.76 0.43 → 0.90 0.89 → 0.93 
+
+mini MNIST–Sudoku 838,208 0.01 → 0.39 0.01 → 0.44 0.42 → 0.78 
+
+Table 12: Distance to one-hot representations across samplers and tasks. Per-puzzle RMSE between the sampler output x and its nearest one-hot codeword onehot(arg max x), over predicted (non-clue) cells, ×10 2 (lower means closer to one-hot). Mean ± std over training seeds. Baselines use no self-correction loss; self-correction uses λsimple = 0 .1. EM uses a constant noise scale along the trajectory, so its final prediction contains noise in our implementation. Sampler Sudoku Sudoku-Extreme N-Queens Latin GC 21 clues Medium Hard pass@1 random gen random gen N = 12 N = 18                                                                                                       
+
+> Baseline (no self-correction loss) DDPM 1.5 ±0.2 0.5 ±0.1 1.6 ±0.1 2.3 ±1.0 0.5 ±0.0 0.5 ±0.0 1.2 ±0.1 1.0 ±0.1 1.1 ±0.1 1.1 ±0.1 Euler 2.1 ±0.3 0.6 ±0.1 2.4 ±0.1 3.3 ±0.5 0.5 ±0.0 0.5 ±0.0 1.8 ±0.1 1.6 ±0.0 1.4 ±0.1 1.3 ±0.1 EM 9.7 ±0.0 8.9 ±0.0 10.2 ±0.1 6.3 ±0.1 8.7 ±0.0 8.7 ±0.0 9.9 ±0.1 10.2 ±0.1 9.7 ±0.2 9.5 ±0.1 EM decay 0.4 ±0.0 0.3 ±0.0 0.7 ±0.1 1.6 ±0.5 0.5 ±0.0 0.5 ±0.1 0.4 ±0.0 0.4 ±0.0 0.6 ±0.3 0.6 ±0.3
+> Tweedie reprojection (ours)
+> 0.3 ±0.0 0.3 ±0.0 0.4 ±0.0 1.2 ±0.4 0.4 ±0.1 0.5 ±0.0 0.3 ±0.0 0.3 ±0.0 0.5 ±0.2 0.6 ±0.2 Self-correction loss (with λsimple = 0 .1)DDPM 0.9 ±0.1 0.4 ±0.1 1.6 ±0.3 3.0 ±0.3 1.2 ±0.1 4.3 ±0.1 0.7 ±0.1 1.6 ±0.3 0.5 ±0.4 0.6 ±0.2 Euler 1.8 ±0.1 0.7 ±0.1 3.2 ±0.1 4.1 ±0.5 1.8 ±0.2 6.1 ±0.3 1.4 ±0.2 5.4 ±0.3 0.5 ±0.2 0.6 ±0.2 EM 9.7 ±0.1 9.0 ±0.0 11.4 ±0.3 5.1 ±0.4 9.5 ±0.1 13.8 ±0.4 9.3 ±0.1 13.2 ±1.4 1.1 ±0.1 9.0 ±0.1 EM decay 0.3 ±0.1 0.3 ±0.0 0.4 ±0.1 1.9 ±0.2 0.7 ±0.1 2.0 ±0.4 0.4 ±0.1 0.5 ±0.1 0.5 ±0.3 0.4 ±0.2
+> Tweedie reprojection (ours)
+> 0.3 ±0.1 0.4 ±0.1 0.7 ±0.2 1.1 ±0.2 0.6 ±0.0 2.9 ±0.2 0.4 ±0.1 0.8 ±0.3 0.7 ±0.3 0.7 ±0.3
+
+O.2 Uniqueness and coverage. 
+
+High validity alone does not rule out repeatedly generating the same solutions. We therefore measure 
+
+valid uniqueness : the number of distinct valid decoded boards divided by the number of valid generated boards. We compute this ratio separately for each training seed and then average across seeds. Table 14 reports the results. Duplicates are uncommon in these evaluations. For conditional tasks, however, different samples have different masks and clues, so uniqueness across the batch does not establish diversity for a fixed conditioning input. For N = 14 , the complete solution space contains 365 ,596 boards. The training set contains 168 ,000 
+
+distinct boards, leaving 197 ,596 solutions outside the training set. For each configuration, we generate 
+
+500 ,000 unconditional samples and count the distinct valid boards. We report total coverage as well as coverage within and outside the training set, using the size of each set as the corresponding denominator. Self-correction increases total coverage from 20 .0% to 44 .8% with EM decay and from 24 .6% to 
+
+33 .8% with Tweedie. Coverage is similar within and outside the training set. Thus, the validity gains are accompanied by broader coverage of both training and unseen solutions, rather than repeated generation of a small set of training boards. 
+
+O.3 Multiple completions for the same Sudoku clues. 
+
+We also test whether the model can generate different valid completions for a fixed conditioning input. We select 50 Sudoku puzzles with 32 –38 revealed cells and enumerate all valid completions by backtracking. Each puzzle admits between 2 and 12 solutions, with 297 solutions in total. For each puzzle, we run Tweedie reprojection with 1,000 independent noise realizations under baseline 38 Table 13: Constraint violations across samplers and tasks. Percentage of denoised cells that violate a task constraint (lower is better): row, column, or box constraints for Sudoku; row or column constraints for Latin squares; and attacking-queen constraints for N-Queens. Entries are mean ±
+
+standard deviation across training seeds. Baselines use no self-correction loss; self-correction uses 
+
+λsimple = 0 .1.Sampler Sudoku Sudoku-Extreme N-Queens Latin 21 clues Medium Hard pass@1 random gen random gen                                                                                     
+
+> Baseline (no self-correction loss) DDPM 4.5 ±0.1 1.3 ±0.2 3.7 ±0.1 8.7 ±0.4 13.1 ±0.0 24.6 ±0.7 2.8 ±0.6 1.1 ±0.4 Euler 6.0 ±0.2 1.8 ±0.1 5.3 ±0.0 9.6 ±0.9 17.6 ±0.8 29.1 ±2.8 3.9 ±0.1 2.1 ±0.3 EM 5.8 ±0.0 1.8 ±0.0 4.6 ±0.0 10.0 ±0.3 17.3 ±1.0 27.4 ±2.4 3.4 ±0.3 1.9 ±0.5 EM decay 0.9 ±0.0 0.3 ±0.0 1.0 ±0.1 4.7 ±0.1 7.1 ±0.3 18.9 ±3.0 0.3 ±0.1 0.1 ±0.1 Tweedie reprojection (ours) 0.3 ±0.1 0.1 ±0.0 0.4 ±0.0 4.0 ±0.1 4.7 ±1.0 13.6 ±0.3 0.1 ±0.1 0.0 ±0.0 Self-correction loss (with λsimple = 0 .1)DDPM 0.8 ±0.1 0.3 ±0.0 1.3 ±0.3 6.5 ±0.3 6.5 ±0.1 12.5 ±0.2 0.2 ±0.1 0.9 ±0.4 Euler 1.6 ±0.2 0.5 ±0.0 3.8 ±0.3 8.1 ±0.7 9.6 ±1.0 17.5 ±1.9 0.7 ±0.3 5.2 ±0.6 EM 1.4 ±0.2 0.5 ±0.0 2.5 ±0.5 7.7 ±0.3 8.7 ±1.1 17.1 ±0.1 0.4 ±0.2 3.2 ±1.2 EM decay 0.1 ±0.0 0.0 ±0.0 0.1 ±0.0 3.5 ±0.1 3.1 ±0.2 7.5 ±0.8 0.0 ±0.0 0.0 ±0.0
+> Tweedie reprojection (ours) 0.1 ±0.1 0.0 ±0.0 0.4 ±0.1 2.7 ±0.2 2.5 ±0.2 9.3 ±0.5 0.0 ±0.0 0.3 ±0.3
+
+Table 14: Uniqueness among valid generated boards. Entries are percentages, shown as baseline 
+
+→ self-correction and averaged across training seeds. Standard deviations are omitted. Random denotes random conditioning; generation denotes unconditional sampling. 
+
+Sampler Sudoku 21 clues Sudoku Medium Sudoku Hard Sudoku-Extreme DDPM 100 .0 → 100 .0 100 .0 → 99 .9 100 .0 → 100 .0 100 .0 → 99 .8
+
+Euler 100 .0 → 100 .0 99 .9 → 99 .9 100 .0 → 100 .0 100 .0 → 100 .0
+
+EM 100 .0 → 100 .0 100 .0 → 99 .9 100 .0 → 100 .0 100 .0 → 99 .9
+
+EM decay 100 .0 → 100 .0 99 .8 → 99 .9 100 .0 → 100 .0 99 .7 → 99 .7
+
+Tweedie 100 .0 → 100 .0 99 .9 → 99 .9 100 .0 → 100 .0 99 .9 → 99 .7
+
+Sampler N -Queens random N -Queens generation Latin random Latin generation DDPM 97 .0 → 96 .5 100 .0 → 99 .8 100 .0 → 100 .0 100 .0 → 100 .0
+
+Euler 98 .2 → 97 .0 100 .0 → 100 .0 100 .0 → 100 .0 100 .0 → 100 .0
+
+EM 100 .0 → 100 .0 100 .0 → 100 .0 100 .0 → 100 .0 100 .0 → 100 .0
+
+EM decay 100 .0 → 100 .0 100 .0 → 100 .0 100 .0 → 100 .0 100 .0 → 100 .0
+
+Tweedie 96 .0 → 95 .7 99 .8 → 99 .5 100 .0 → 100 .0 100 .0 → 100 .0
+
+and self-correction training. Both configurations recover 139 of the 297 solutions, or 46 .8% . Thus, training against individual clean targets does not restrict sampling to a single completion for each set of clues. However, neither configuration recovers all possible completions, and self-correction does not improve the aggregate coverage in this experiment. 
+
+## P Trajectories under different samplers 
+
+When do decoded predictions stop changing? We define the commitment time τ ⋆ as the earliest recorded reverse-progress value after which the decoded prediction remains equal to its final decoded output, with τ = 0 at noise and τ = 1 at data. In the pooled results of Table 16, final-valid predictions stabilize earlier than final-invalid ones. Self-correction is associated with later stabilization in both groups: for final-invalid trajectories, the mean commitment time increases from 0.92 to 0.98 under DDPM and from 0.89 to 0.99 under Tweedie. This is consistent with self-correction allowing the model to revise its predictions for longer, although these revisions do not necessarily lead to a valid solution. 39 Table 15: Coverage of the complete N = 14 Queens solution space. Each configuration uses 
+
+500 ,000 unconditional samples. The two count columns report distinct valid generated boards. Coverage percentages use denominators 365 ,596 , 168 ,000 , and 197 ,596 for the full, training, and outside-training sets, respectively.                           
+
+> Sampler Training Total coverage (%) Distinct in training Distinct outside training Training coverage (%) Outside coverage (%) EM decay Baseline 20.0 33,523 39,629 20.0 20.1 EM decay Self-correction 44.8 75,360 88,436 44.9 44.8 Tweedie Baseline 24.6 41,274 48,572 24.6 24.6 Tweedie Self-correction 33.8 57,362 66,063 34.1 33.4
+
+Table 16: Commitment time by final validity. We averaged results across nine tasks with 256 
+
+samples each (separately for final-valid and final-invalid outputs).                            
+
+> Sampler Training τ⋆
+> valid nvalid τ⋆
+> invalid ninvalid
+> DDPM Baseline 0.72 1229 0.92 1075 DDPM Self-correction 0.88 1755 0.98 549 Tweedie Baseline 0.69 1909 0.89 395 Tweedie Self-correction 0.83 2019 0.99 285
+
+When does Tweedie reprojection fail? We distinguish failures according to whether a valid clean proposal appears during sampling. A failure is denoiser-related when the final Tweedie output is invalid and the decoded clean proposal was never valid at any recorded reverse step. In a diagnostic batch of 256 unconditional N -Queens trajectories, all failures are of this type. On Sudoku-Extreme, 
+
+38% of Tweedie failures are denoiser-related. In the remaining 62% , a valid proposal appears at least once, but the trajectory still ends in an invalid sample. Poor proposal quality is therefore one limitation of Tweedie reprojection, but finding a valid proposal during sampling does not by itself guarantee a valid final output. 
+
+Visualizations We show example sampling trajectories for Latin squares (Figure 12), N -queens (Figure 13), graph connectivity (Figure 14), and Sudoku (Figure 15). Within each task, all sampler rows use the same trained checkpoint; different tasks use different models. For MNIST-Sudoku, we also show trajectories from the released SRM checkpoint [54] under Euler sampling (equivalently, deterministic DDIM on the linear path; bottom) and Tweedie reprojection (top), visualizing both 
+
+xt (Figure 16) and the corresponding clean predictions ˆx0 (Figure 17). In both cases, individual cells resemble recognizable MNIST digits, which we refer to as local correctness. However, the DDIM trajectory does not produce a globally valid Sudoku grid; for example, the central 3 × 3 block contains the digit 1 twice. In the same example, Tweedie reprojection ends in a valid solution. 40 Figure 12: Latin squares trajectory 
+
+Figure 13: N-Queens trajectory 41 Figure 14: Graph connectivity trajectory 
+
+Figure 15: Sudoku trajectory 42 Figure 16: Sudoku-MNIST trajectory ( xt)
+
+Figure 17: Sudoku-MNIST trajectory ( ˆx0)43

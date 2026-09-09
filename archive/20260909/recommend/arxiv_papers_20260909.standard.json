@@ -1,0 +1,533 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-09T21:54:27.378355+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 8,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2609.05968v1",
+      "source": "arxiv",
+      "title": "Test-Time Weak-to-Strong Alignment: Transferring Implicit Rewards from Weak to Strong Flow Models",
+      "abstract": "Aligning a text-to-image generation flow model with a reward makes it follow objectives that the training data alone does not provide. Alignment fine-tuning delivers this by reinforcement learning (RL) or preference optimization, but it must be repeated for every checkpoint and returns a model fixed at the reward and strength it was trained with. Test-time alignment instead steers a frozen model during sampling, allowing task-specific and sample-specific guidance. Existing methods obtain this only by drawing the per-step signal from the reward function itself, through its gradient, or through a separately trained value function. We propose changing the supervision source: let a pair of weak models, not a reward function, supply the supervision. A source aligned model, kept together with its base as a source alignment pair, stores its training reward as an implicit, step-wise, KL-anchored signal expressed in the sampler's own coordinates. We explore whether this model-form supervision can cross scale, and show that it does: our method, AlignGraft, aligns a larger, frozen, never-tuned model by adding the pair's velocity difference during sampling. The transport is exact under a shared noising kernel and needs neither the reward nor its gradient at test time. The method has no schedules, only a single scalar that controls the alignment strength and can extrapolate it beyond that of the source alignment pair. Across image and video flow models (Stable Diffusion 3.5, FLUX, and Wan), the transfer lifts the frozen large model on preference, compositional, and text-rendering rewards, can exceed the source aligned model itself, and preserves the large model's fidelity at a small constant sampling overhead. Extensive experiments show that one alignment run on a weak model produces supervision that the whole model family can reuse at test time.",
+      "authors": [
+        "Xin Xie",
+        "Fan Zhang",
+        "Dong Gong"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-05T08:12:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.05968v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Test-time steering of a frozen text-to-image flow model during sampling, without reward gradient or additional training",
+      "llm_evidence_cn": "测试时对冻结的文生图流模型进行采样期引导，无需奖励梯度或额外训练",
+      "llm_evidence": "测试时对冻结的文生图流模型进行采样期引导，无需奖励梯度或额外训练",
+      "canonical_evidence": "测试时对冻结的文生图流模型进行采样期引导，无需奖励梯度或额外训练",
+      "llm_tldr_en": "The paper proposes a test-time alignment method for text-to-image flow models that steers a frozen model during sampling, transferring implicit rewards from a pair of weak models instead of using a reward function, avoiding per-checkpoint fine-tuning.",
+      "llm_tldr_cn": "面向文生图流模型的对齐通常依赖微调或奖励梯度。本文提出测试时弱到强对齐，利用一对弱模型产生的隐式奖励来引导冻结的强模型在采样期间生成，不依赖额外训练。该方法可按任务和样本灵活调整，摆脱对固定奖励函数的依赖。实验显示它能有效传递模型偏好，是免训练采样期优化的一种新范式。",
+      "llm_tldr": "面向文生图流模型的对齐通常依赖微调或奖励梯度。本文提出测试时弱到强对齐，利用一对弱模型产生的隐式奖励来引导冻结的强模型在采样期间生成，不依赖额外训练。该方法可按任务和样本灵活调整，摆脱对固定奖励函数的依赖。实验显示它能有效传递模型偏好，是免训练采样期优化的一种新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.06288v1",
+      "source": "arxiv",
+      "title": "Object-Aware Background-Controlled Editing via Weighted Velocity Guidance",
+      "abstract": "Training-free image editing steers diffusion or flow-matching generative models at inference time by modifying prompt-conditioned denoising velocities. Existing velocity-based editors often apply prompt-induced residuals globally over the latent space and rely on the model to localize semantic changes implicitly. For object-centric edits, these residuals are rarely zero outside the target object, so small non-target components can accumulate during multi-step integration, causing background drift and unstable object boundaries. We propose Object-Aware Velocity Control (OAVC), a training-free framework that introduces object-level control into the velocity-integration process. OAVC decouples where semantic residuals are allowed to act from how they are injected into the dynamics. It constructs a background-anchored reference interface under the source prompt and then performs object-localized safe semantic injection under the target prompt. A constrained injection operator suppresses drift-inducing velocity components, while time-adaptive spatial weighting stabilizes the transition near object boundaries. OAVC requires no training or modification of pretrained model parameters. Experiments on object-centric image and video benchmarks with image and video rectified-flow backbones show improved background preservation, structural fidelity, boundary stability, and temporal consistency while retaining effective localized editability.",
+      "authors": [
+        "Wuji Wang",
+        "Yue Wu",
+        "Chenhao Yi",
+        "Shuhui Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-05T22:53:58+00:00",
+      "link": "https://arxiv.org/pdf/2609.06288v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free object-aware velocity control for diffusion/flow image editing",
+      "llm_evidence_cn": "面向扩散/流匹配图像编辑的免训练物体感知速度控制方法",
+      "llm_evidence": "面向扩散/流匹配图像编辑的免训练物体感知速度控制方法",
+      "canonical_evidence": "面向扩散/流匹配图像编辑的免训练物体感知速度控制方法",
+      "llm_tldr_en": "OAVC is a training-free framework for image editing that decouples where semantic residuals act from how they act during velocity integration, preventing background drift and stabilizing objects.",
+      "llm_tldr_cn": "常见免训练图像编辑通过修改提示条件去噪速度来引导扩散或流匹配模型，但残差全局施加会在目标物体外累积，造成背景漂移和物体边界不稳定。论文提出物体感知速度控制OAVC，在速度积分过程中将语义残差的作用位置与作用方式解耦，并赋予物体级控制。该方法能避免无关区域被修改，使目标物体的编辑更稳定且背景得到保持。该框架推理期生效，不需要任何训练，直接契合扩散模型免训练采样优化需求。",
+      "llm_tldr": "常见免训练图像编辑通过修改提示条件去噪速度来引导扩散或流匹配模型，但残差全局施加会在目标物体外累积，造成背景漂移和物体边界不稳定。论文提出物体感知速度控制OAVC，在速度积分过程中将语义残差的作用位置与作用方式解耦，并赋予物体级控制。该方法能避免无关区域被修改，使目标物体的编辑更稳定且背景得到保持。该框架推理期生效，不需要任何训练，直接契合扩散模型免训练采样优化需求。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.06651v1",
+      "source": "arxiv",
+      "title": "SwiftExplorer: Training-free Diffusion Model Alignment with Swift Diversity Exploration",
+      "abstract": "Diffusion models have general generative abilities but struggle to align with specific objectives. Fine-tuning can improve alignment, yet its training cost is often prohibitive. This led to training-free methods that apply objective-guided terms in sampling to bias the generation distribution toward designated regions, e.g., high-reward areas. However, these methods face two issues: (1) the strong directional bias narrows the pretrained distribution and generation diversity, and (2) indiscriminate constant guidance fails to prune redundant signals, hurting both quality and efficiency. To address the above challenges, we propose SwiftExplorer, a plugin that mitigates distribution collapse caused by excessive diversity loss and reduces compute costs. First, we adopt an Inheritance-Restart exploration mechanism to avoid early convergence, while exploration also increases the likelihood of high-reward trajectories. Additionally, it balances diversity and fidelity, adding diversity without causing a distribution over-shift. Second, our Quality-Efficiency arbitration mechanism improves guidance by removing incorrect signals, and it reduces computation by dynamically stopping generation when completeness and marginal reward gain are optimal. In an extensive number of experiments and different types of evaluation metrics, the proposed SwiftExplorer achieves excellent performance on all metrics, including preference, fidelity, diversity, and richness.",
+      "authors": [
+        "Renye Yan",
+        "Jikang Cheng",
+        "You Wu",
+        "Bojin Huang",
+        "Wei Peng",
+        "Zongwei Wang",
+        "Ling Liang",
+        "Yimao Cai"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-06T15:03:44+00:00",
+      "link": "https://arxiv.org/pdf/2609.06651v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Proposes a training-free plugin applying objective-guided sampling terms to align diffusion models while preserving diversity",
+      "llm_evidence_cn": "提出无需训练的即插即用模块，在扩散模型采样中引入目标引导并保持多样性，直接命中免训练扩散优化",
+      "llm_evidence": "提出无需训练的即插即用模块，在扩散模型采样中引入目标引导并保持多样性，直接命中免训练扩散优化",
+      "canonical_evidence": "提出无需训练的即插即用模块，在扩散模型采样中引入目标引导并保持多样性，直接命中免训练扩散优化",
+      "llm_tldr_en": "SwiftExplorer is a plug-in that improves training-free alignment of diffusion models by replacing constant objective guidance with swift diversity exploration, mitigating distribution collapse and pruning redundant signals during sampling.",
+      "llm_tldr_cn": "扩散模型虽然具有通用生成能力，但利用目标引导做免训练对齐时，强方向性偏置会使生成分布偏离预训练分布并损失多样性，无差别的恒定引导也会带入冗余信息。针对这些问题，本文提出SwiftExplorer即插即用模块，在采样阶段引入快速多样性探索，并自适应削减无效引导信号，以缓解分布坍缩并提升质量与效率。该方法无需微调即可适配现有免训练对齐框架，为扩散模型的目标对齐提供轻量优化方案。",
+      "llm_tldr": "扩散模型虽然具有通用生成能力，但利用目标引导做免训练对齐时，强方向性偏置会使生成分布偏离预训练分布并损失多样性，无差别的恒定引导也会带入冗余信息。针对这些问题，本文提出SwiftExplorer即插即用模块，在采样阶段引入快速多样性探索，并自适应削减无效引导信号，以缓解分布坍缩并提升质量与效率。该方法无需微调即可适配现有免训练对齐框架，为扩散模型的目标对齐提供轻量优化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.08505v1",
+      "source": "arxiv",
+      "title": "Temporal State Transport in Video Generation: Diagnosing and Correcting Spectral Imbalance",
+      "abstract": "Reliable video generation requires more than high-quality frames to form a coherent story: a model must maintain a persistent state, transporting visual attributes such as identity, scene layout, motion, and fine details across time. Existing training-free methods mainly strengthen cross-frame attention or analyze local attention entropy, but these views do not reveal whether temporal interactions stay in a healthy transport regime. In this work, we study video generation through the perspective of Temporal State Transport. We introduce Spectral Tension, a signed diagnostic that compares local attention diffuseness with global spectral diversity, and use it to identify two opposite temporal failures: fragmented transport and over-mixing hotspots. Based on this diagnosis, we propose Spectral Transport Homeostasis, a training-free regulator that softly corrects pathological temporal states while largely preserving balanced ones. Experiments on pretrained video generation models show that the original model often occupies imbalanced temporal regimes, whereas our method selectively applies larger corrections to the worst temporal hotspots and improves temporal consistency and visual quality without finetuning. Code: https://github.com/lytang63/temporal-state-transport",
+      "authors": [
+        "Luyao Tang",
+        "Bingjun Luo",
+        "Dong Yi",
+        "Jialin Guo",
+        "Haoning Xi",
+        "Cheng Chen",
+        "Yizhou Yu",
+        "Chaoqi Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-08T09:52:10+00:00",
+      "link": "https://arxiv.org/pdf/2609.08505v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Introduces Spectral Tension as a training-free diagnostic and correction method for temporal state imbalance in video generation",
+      "llm_evidence_cn": "为视频生成中的时序状态失衡提供无需训练的谱张力诊断与纠正方法，直接回答免训练提升视频生成的问题",
+      "llm_evidence": "为视频生成中的时序状态失衡提供无需训练的谱张力诊断与纠正方法，直接回答免训练提升视频生成的问题",
+      "canonical_evidence": "为视频生成中的时序状态失衡提供无需训练的谱张力诊断与纠正方法，直接回答免训练提升视频生成的问题",
+      "llm_tldr_en": "This paper views video generation as temporal state transport and introduces Spectral Tension, a signed training-free diagnostic that tells apart fragmented and over-mixed temporal attention, then corrects spectral imbalance to keep identity and layout consistent over time.",
+      "llm_tldr_cn": "可靠视频生成必须跨帧稳定维持身份、布局、运动等状态，而现有免训练方法仅增强交叉帧注意力或分析局部注意力熵，无法判断时序交互是否处于健康状态。本文提出时序状态传输视角，并引入有符号诊断指标Spectral Tension，通过比较局部注意力扩散度与全局谱多样性来区分碎片化传输与过度混合两类失效。借助该诊断可在不进行额外训练的条件下校正谱失衡，从而改善视频的时间一致性与细节保持。",
+      "llm_tldr": "可靠视频生成必须跨帧稳定维持身份、布局、运动等状态，而现有免训练方法仅增强交叉帧注意力或分析局部注意力熵，无法判断时序交互是否处于健康状态。本文提出时序状态传输视角，并引入有符号诊断指标Spectral Tension，通过比较局部注意力扩散度与全局谱多样性来区分碎片化传输与过度混合两类失效。借助该诊断可在不进行额外训练的条件下校正谱失衡，从而改善视频的时间一致性与细节保持。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.03688v1",
+      "source": "arxiv",
+      "title": "ToPO: Token-Conditioned Preference Routing for Attention-Based Latent Diffusion Models",
+      "abstract": "Pairwise preference labels rank complete images, yet Diffusion-DPO applies their effect over many spatial and denoising-time coordinates. For attention-based, noise-prediction latent diffusion, ToPO (Token-Oriented Preference Optimization) constructs a per-minibatch, detached, separable spatial-temporal route from branchwise squared-residual contrast in a frozen reference denoiser. Preferred-branch cross-attention uses content tokens to modulate the spatial factor, and an auxiliary pixel-midpoint ordering term is added without local labels or a learned reward model. In matched three-seed retrainings with a shared update schedule, ToPO has higher endpoint estimates than Diffusion-DPO on all five reported SD-1.5 metrics and on HPSv2, ImageReward, and CLIP for SDXL. It also receives larger raw win shares in an aggregate blind SDXL A/B study. These findings are scoped to the reported equal-update U-Net protocols rather than an equal-compute comparison.",
+      "authors": [
+        "Juntao Xu",
+        "Shihong Li",
+        "Hoi Fan Au",
+        "Ning Zhu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-03T11:24:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.03688v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "A preference optimization method to improve latent diffusion image generation with token-level conditioning",
+      "llm_evidence_cn": "用令牌级偏好路径优化潜在扩散模型图像生成，提高人类偏好对齐",
+      "llm_evidence": "用令牌级偏好路径优化潜在扩散模型图像生成，提高人类偏好对齐",
+      "canonical_evidence": "用令牌级偏好路径优化潜在扩散模型图像生成，提高人类偏好对齐",
+      "llm_tldr_en": "ToPO builds a token-conditioned spatial-temporal preference route from branchwise residual contrast in a frozen reference denoiser, improving attention-based latent diffusion image generation under preference labels over Diffusion-DPO.",
+      "llm_tldr_cn": "偏好优化在扩散模型图像生成中越来越重要，但Diffusion-DPO把整图偏好映射到过多时空坐标，粒度粗糙。本文提出ToPO，通过冻结参考去噪器分支残差构造分离的时空偏好路径，并用偏好分支内容令牌调制交叉注意力。该方法无需局部标签或训练奖励模型，在SD-1.5、HPSv2、ImageNet评估中优于Diffusion-DPO。它展示了令牌级条件偏好路由可以让潜在扩散模型更精细地对齐人类偏好。",
+      "llm_tldr": "偏好优化在扩散模型图像生成中越来越重要，但Diffusion-DPO把整图偏好映射到过多时空坐标，粒度粗糙。本文提出ToPO，通过冻结参考去噪器分支残差构造分离的时空偏好路径，并用偏好分支内容令牌调制交叉注意力。该方法无需局部标签或训练奖励模型，在SD-1.5、HPSv2、ImageNet评估中优于Diffusion-DPO。它展示了令牌级条件偏好路由可以让潜在扩散模型更精细地对齐人类偏好。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.06602v1",
+      "source": "arxiv",
+      "title": "Multi-History-Step SDE Inversion for Image Editing with Superior Regional Awareness",
+      "abstract": "In recent years, diffusion stochastic differential equation (SDE) inversion and inversion-free methods have become prevalent for training-free image editing, as they can achieve faithful reconstruction without tuning. However, existing approaches remain inefficient, exhibit limited plasticity, and struggle to accurately preserve unedited regions. To address these issues, we propose MIEdit, a training-free editing framework based on SDE inversion. MIEdit introduces a predictor-corrector multi-history-step scheme to achieve superior editing quality with fewer steps. We further mitigate heterogeneity and conflict between the multi-conditioned noise residuals and gradient terms during sampling, improving stability and editing plasticity under large edits. MIEdit also includes Inversion-Time Automatic Semantic Angle Masking (IASM); it leverages classifier-free guidance to automatically generate semantic angle masks during inversion and applies them throughout the sampling process for regional constraints, without extra user inputs. We additionally construct EditEval++ (30 fine-grained tasks, 1,000+ image-text-mask triplets) for comprehensive evaluation; experiments show that MIEdit outperforms state-of-the-art techniques. Project page: https://whywwwzzzg.github.io/MIEdit/.",
+      "authors": [
+        "Haiyan Wei",
+        "Yunlong Wang",
+        "Huaibo Huang",
+        "Zhenan Sun",
+        "Kunbo Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-06T13:37:46+00:00",
+      "link": "https://arxiv.org/pdf/2609.06602v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free SDE inversion image editing framework with multi-history-step sampling",
+      "llm_evidence_cn": "基于SDE反演的免训练图像编辑框架，引入多历史步采样预测-校正机制",
+      "llm_evidence": "基于SDE反演的免训练图像编辑框架，引入多历史步采样预测-校正机制",
+      "canonical_evidence": "基于SDE反演的免训练图像编辑框架，引入多历史步采样预测-校正机制",
+      "llm_tldr_en": "MIEdit is a training-free diffusion image editing framework using predictor-corrector multi-history-step SDE inversion to improve editing quality with fewer steps and preserve unedited regions.",
+      "llm_tldr_cn": "现有基于扩散SDE反演的免训练图像编辑方法在效率、可塑性和未编辑区域保持上仍有不足。论文提出MIEdit免训练编辑框架，引入预测-校正多历史步方案，以更少的反演步数获得更优编辑质量。同时缓解多条件噪声残差与梯度项之间的异质冲突，提升采样稳定性与编辑塑性。该方法无需微调模型，可直接用于图像编辑，是免训练扩散采样优化的典型工作。",
+      "llm_tldr": "现有基于扩散SDE反演的免训练图像编辑方法在效率、可塑性和未编辑区域保持上仍有不足。论文提出MIEdit免训练编辑框架，引入预测-校正多历史步方案，以更少的反演步数获得更优编辑质量。同时缓解多条件噪声残差与梯度项之间的异质冲突，提升采样稳定性与编辑塑性。该方法无需微调模型，可直接用于图像编辑，是免训练扩散采样优化的典型工作。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.06712v1",
+      "source": "arxiv",
+      "title": "RoLA: Rotary-Positioned Low-Rank Linear Attention for Efficient Diffusion Transformers",
+      "abstract": "Diffusion Transformers (DiTs) achieve strong video generation quality, but their dense spatiotemporal self-attention scales quadratically with sequence length and quickly becomes the dominant inference bottleneck. Sparse low-rank hybrids alleviate this cost by combining a local sparse branch with a global compressed branch. In video DiTs equipped with 3D Rotary Position Embeddings (RoPE), the global branch faces a structural compatibility issue: when RoPE is applied before a nonlinear feature map, the rotation and nonlinearity generally do not commute, making it difficult to keep a query-independent linear summary while preserving relative rotary geometry. Existing work often sidesteps this issue by replacing genuine cross-token global aggregation with coordinate-conditioned surrogates or learnable absolute positional modules. These compromises can be effective, but they approximate relative decay from absolute coordinates and introduce extra positional parameters. We propose \\textbf{RoLA}, a rotary-positioned low-rank linear-attention branch that keeps genuine cross-token aggregation while remaining compatible with a reusable linear summary. The design applies RoPE \\emph{outside} the nonlinear low-rank feature map and reuses a truncated subset of the pre-trained rotary schedule matched to the low-rank bottleneck.   This yields a linear-time low-rank global branch with relative positional behavior by design and no additional positional parameters; the full sparse--low-rank module still includes the fixed-sparsity sparse branch. Experiments on open-source video DiTs show that the resulting method remains competitive in generation quality at 90\\% sparsity while achieving 2.63$\\times$ end-to-end inference speedup on Wan2.1-14B (720p, 81 frames, measured on an NVIDIA H100 GPU).",
+      "authors": [
+        "Zekun Zhang",
+        "Yixiang Cai",
+        "Yuxi Liu",
+        "Tengxu Sun",
+        "Tianle Liu",
+        "Zhoutong Wu",
+        "Haoyu Li",
+        "Baole Ai",
+        "Ang Wang",
+        "Jiamang Wang",
+        "Lin Qu",
+        "Kun Yuan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-06T16:34:46+00:00",
+      "link": "https://arxiv.org/pdf/2609.06712v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "An efficient attention method specifically for video diffusion transformers, improving video generation inference",
+      "llm_evidence_cn": "面向视频扩散Transformer的高效低秩注意力，改进视频生成推理效率",
+      "llm_evidence": "面向视频扩散Transformer的高效低秩注意力，改进视频生成推理效率",
+      "canonical_evidence": "面向视频扩散Transformer的高效低秩注意力，改进视频生成推理效率",
+      "llm_tldr_en": "RoLA designs a rotary-compatible sparse low-rank hybrid attention for video diffusion transformers, combining local sparse and global compressed branches to reduce quadratic spatiotemporal attention cost while retaining 3D rotary geometry.",
+      "llm_tldr_cn": "视频扩散Transformer的密集时空注意力随序列长度二次增长，是推理瓶颈。本文提出RoLA，一种与旋转位置编码兼容的稀疏低秩混合注意力：局部稀疏分支与全局压缩分支结合，并解决旋转编码与非线性特征图不可交换的问题。其在保持全局token关系的同时大幅降低注意力计算量。实验证明该方法能够提升视频扩散模型的生成效率，为长视频生成提供了更实用的骨干设计。",
+      "llm_tldr": "视频扩散Transformer的密集时空注意力随序列长度二次增长，是推理瓶颈。本文提出RoLA，一种与旋转位置编码兼容的稀疏低秩混合注意力：局部稀疏分支与全局压缩分支结合，并解决旋转编码与非线性特征图不可交换的问题。其在保持全局token关系的同时大幅降低注意力计算量。实验证明该方法能够提升视频扩散模型的生成效率，为长视频生成提供了更实用的骨干设计。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.04282v1",
+      "source": "arxiv",
+      "title": "Step Back to Move Forward: Reflection-Aware Preference Optimization for Visual Generation",
+      "abstract": "Diffusion models have become the mainstream paradigm for modern visual generation and have substantially advanced multimedia content synthesis, especially in text-to-image and text-to-video tasks. To further align such generative models with human preferences, reinforcement learning (RL) has recently shown strong potential as a post-training strategy. Nevertheless, existing policy gradient-based methods often explore inefficiently, making them vulnerable to local optima that may degrade semantic faithfulness and visual realism. To address these challenges, we present Reflection-Aware GRPO (RA-GRPO), a new RL-based preference alignment framework for diffusion generative models. The core idea is to improve \"forward\" generation by incorporating \"backward\" reflection during optimization. We first introduce Diffusion Reflection, which rectifies intermediate sampling trajectories by inverting the diffusion process with a weak estimator, guiding latent states toward higher-probability regions of the true data manifold. Furthermore, we introduce Counterfactual Path Synthesis to implicitly distill these rectified trajectories into the policy, enabling the model to internalize the benefits of search-based exploration without incurring inference-time overhead. Extensive experiments on T2I and T2V models demonstrate that RA-GRPO significantly outperforms existing methods, particularly in mitigating reward hacking and improving generalization. The method remains architecture-agnostic and integrates seamlessly with standard pipelines, suggesting a promising direction for stable preference alignment.",
+      "authors": [
+        "Junlong Wu",
+        "Jiuzhou Lin",
+        "Jia Sun",
+        "Boheng Zhang",
+        "Huaiqing Wang",
+        "Dewen Fan",
+        "Houde Liu",
+        "Qianqian Gan",
+        "Fan Yang",
+        "Tingting Gao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-03T04:37:19+00:00",
+      "link": "https://arxiv.org/pdf/2609.04282v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "RL preference optimization for diffusion image generation",
+      "llm_evidence_cn": "面向扩散图像生成的强化学习偏好优化",
+      "llm_evidence": "面向扩散图像生成的强化学习偏好优化",
+      "canonical_evidence": "面向扩散图像生成的强化学习偏好优化",
+      "llm_tldr_en": "Policy-gradient RL for diffusion visual generation often explores inefficiently and lands in local optima; Reflection-Aware GRPO improves alignment of text-to-image and text-to-video diffusion models by integrating reflective backward steps into RL preference optimization.",
+      "llm_tldr_cn": "现有基于策略梯度的强化学习在对扩散生成模型做人类偏好对齐时探索低效，容易陷入局部最优并损害语义保真度与真实感。RA-GRPO 在GRPO框架中加入反思机制，利用反思信息改进前向生成，实现文本到图像和文本到视频扩散模型的高效偏好优化。实验表明该框架能提升生成结果的语义一致性和视觉质量，为扩散视觉生成的后训练对齐提供新方案。",
+      "llm_tldr": "现有基于策略梯度的强化学习在对扩散生成模型做人类偏好对齐时探索低效，容易陷入局部最优并损害语义保真度与真实感。RA-GRPO 在GRPO框架中加入反思机制，利用反思信息改进前向生成，实现文本到图像和文本到视频扩散模型的高效偏好优化。实验表明该框架能提升生成结果的语义一致性和视觉质量，为扩散视觉生成的后训练对齐提供新方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.08253v1",
+      "source": "arxiv",
+      "title": "Revisiting Spectral Representations in Generative Diffusion Models",
+      "abstract": "Diffusion models have shown remarkable performance on diverse generation tasks. Recent work finds that imposing representation alignment on the hidden states of diffusion networks can both facilitate training convergence and enhance sampling quality, yet the mechanism driving this synergy remains insufficiently understood. In this paper, we investigate the connection between self-supervised spectral representation learning and diffusion generative models through a shared perspective on perturbation kernels. On the diffusion side, samples (e.g., images, videos) are produced by reversing a stochastic noise-injection process specified by Gaussian kernels; on the spectral representation side, spectral embeddings emerge from contrasting positive and negative relations induced by random perturbation kernels. Motivated by this, we propose a self-supervised spectral representation alignment method to facilitate diffusion model training. In addition, we clarify how joint spectral learning can benefit diffusion training from a geometric perspective. Furthermore, we find that the optimization of the spectral alignment objective is in an equivalent form of diffusion score distillation in the representation space. Building on these findings, we integrate a spectral regularizer into diffusion training objectives to improve the performance of diffusion models on multiple datasets. Experiments across images and 3D point clouds show consistent gains in generation quality. Code is released at https://github.com/yuehaowang/spectral-reg-diffusion.",
+      "authors": [
+        "Yuehao Wang",
+        "Peihao Wang",
+        "Hanwen Jiang",
+        "Ziyi Yang",
+        "Qixing Huang",
+        "Zhangyang Wang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-08T04:54:02+00:00",
+      "link": "https://arxiv.org/pdf/2609.08253v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Studies hidden-state representation alignment and spectral perturbation views in generative diffusion models that produce images and videos",
+      "llm_evidence_cn": "从谱表示与扰动核视角研究生成扩散模型中的隐状态对齐机制，涉及图像和视频生成",
+      "llm_evidence": "从谱表示与扰动核视角研究生成扩散模型中的隐状态对齐机制，涉及图像和视频生成",
+      "canonical_evidence": "从谱表示与扰动核视角研究生成扩散模型中的隐状态对齐机制，涉及图像和视频生成",
+      "llm_tldr_en": "This paper examines why hidden-state representation alignment helps diffusion generative models by relating spectral embeddings and Gaussian perturbation kernels, aiming to explain faster convergence and higher quality sampling for image and video generation.",
+      "llm_tldr_cn": "先前研究发现，对扩散网络隐状态施加表征对齐既能促进训练收敛也能改善采样质量，但其背后的机制仍未被充分解释。本文从自监督谱表示学习与扩散生成的共同扰动核视角出发，建立谱嵌入与高斯噪声注入过程之间的理论联系。该分析覆盖图像、视频等模态，帮助理解隐状态对齐为何能提升生成质量，也为设计更高效的扩散模型训练与采样策略提供新的理论支撑。",
+      "llm_tldr": "先前研究发现，对扩散网络隐状态施加表征对齐既能促进训练收敛也能改善采样质量，但其背后的机制仍未被充分解释。本文从自监督谱表示学习与扩散生成的共同扰动核视角出发，建立谱嵌入与高斯噪声注入过程之间的理论联系。该分析覆盖图像、视频等模态，帮助理解隐状态对齐为何能提升生成质量，也为设计更高效的扩散模型训练与采样策略提供新的理论支撑。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.08496v1",
+      "source": "arxiv",
+      "title": "SignRefine: Adapting Foundational Video Models for Sign Language Generation",
+      "abstract": "Sign language video generation demands precise hand and facial articulation, yet modern video diffusion models, trained predominantly on spoken-language video, produce artifacts that render signing unintelligible. We propose SignRefine, a sign language video generation model that produces comprehensible signing from 2D keypoint conditioning alone, generalizing across appearances and visual conditions. Our approach builds on a pretrained video diffusion transformer and introduces local adapters with spatial grounding to selectively refine hand and face regions, steering the strong base model's prior toward accurate articulation. To enable this work and support broader sign language research, we present NVSign, a large-scale dataset of video content natively produced in sign language, offering diverse signer appearances, environments, and natural conversational settings. Trained on this data, our model shows up to 30% improvement in hand pose precision metrics over the strongest baseline and is preferred by sign language users for visual quality and comprehensibility in more than 80% of comparisons.",
+      "authors": [
+        "Anton Pelykh",
+        "Edward Fish",
+        "Ozge Mercanoglu Sincan",
+        "Richard Bowden"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-08T09:38:22+00:00",
+      "link": "https://arxiv.org/pdf/2609.08496v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Video diffusion model adapted for sign-language video generation",
+      "llm_evidence_cn": "视频扩散模型用于手语视频生成",
+      "llm_evidence": "视频扩散模型用于手语视频生成",
+      "canonical_evidence": "视频扩散模型用于手语视频生成",
+      "llm_tldr_en": "Video diffusion models produce artifacts that impair signing; SignRefine adds spatial hand/face adapters to a pretrained video diffusion transformer, generating comprehensible sign language from keypoints and introducing NVSign.",
+      "llm_tldr_cn": "手语视频对手部和面部动作精度要求很高，而主要在口语视频上训练的视频扩散模型常生成难以辨认的伪影。SignRefine 在预训练视频扩散 Transformer 中加入带空间定位的局部适配器，针对手部与面部作细化，仅用二维关键点即可生成可读手语并泛化到不同外观条件。配合新构建的大规模 NVSign 数据，该方法验证了用基础视频模型生成精细手语视频的可行路径。",
+      "llm_tldr": "手语视频对手部和面部动作精度要求很高，而主要在口语视频上训练的视频扩散模型常生成难以辨认的伪影。SignRefine 在预训练视频扩散 Transformer 中加入带空间定位的局部适配器，针对手部与面部作细化，仅用二维关键点即可生成可读手语并泛化到不同外观条件。配合新构建的大规模 NVSign 数据，该方法验证了用基础视频模型生成精细手语视频的可行路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.07706v1",
+      "source": "arxiv",
+      "title": "ParetoTransport: Generative Optimization by Mass Transport Toward The Pareto Front",
+      "abstract": "Offline multi-objective optimization requires not only moving the objective vectors of candidate designs toward the Pareto front, but also distributing them effectively along it. Generative methods have recently emerged as a natural approach because they learn a distribution over feasible designs while allowing generation to be steered toward promising designs. Existing methods, however, largely retain classical sample-wise guidance strategies, leaving the distribution-level modeling capability of generative methods underused. We propose ParetoTransport, a training-free guidance method for pre-trained flow-matching models that explicitly specifies and refines a population-level distribution in objective space. ParetoTransport guides a flow-matching sampler to iteratively transport the empirical offline distribution toward the Pareto front, with Wasserstein matching to intermediate proxy distributions. This directly controls distributional displacement and mass allocation along the front. We establish a convergence result and demonstrate state-of-the-art performance on standard offline MOO benchmarks, extending recent evaluations beyond hypervolume to generational distance, inverted generational distance, and Wasserstein distance.",
+      "authors": [
+        "Stephanie Holly",
+        "Sepp Hochreiter",
+        "Werner Zellinger"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-07T16:19:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.07706v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free population-level guidance for pre-trained flow-matching models toward Pareto front",
+      "llm_evidence_cn": "面向预训练流匹配模型的免训练群体级引导，推动样本走向帕累托前沿",
+      "llm_evidence": "面向预训练流匹配模型的免训练群体级引导，推动样本走向帕累托前沿",
+      "canonical_evidence": "面向预训练流匹配模型的免训练群体级引导，推动样本走向帕累托前沿",
+      "llm_tldr_en": "ParetoTransport treats generative offline multi-objective optimization as mass transport toward the Pareto front, proposing training-free guidance for pre-trained flow-matching models to refine the distribution of candidate designs.",
+      "llm_tldr_cn": "离线多目标优化中，生成式方法通常只做逐样本引导，忽略了群体分布建模能力。本文提出ParetoTransport，把生成式优化视为向帕累托前沿的质量传输，用免训练引导方式在目标空间显式指定并细化群体分布。该方法适用于预训练流匹配生成模型，能在迭代采样过程中同时优化前沿收敛性和沿前沿的分布均匀性。该工作展示了免训练引导在不需额外监督信号的条件下也可解决分布级多目标优化。",
+      "llm_tldr": "离线多目标优化中，生成式方法通常只做逐样本引导，忽略了群体分布建模能力。本文提出ParetoTransport，把生成式优化视为向帕累托前沿的质量传输，用免训练引导方式在目标空间显式指定并细化群体分布。该方法适用于预训练流匹配生成模型，能在迭代采样过程中同时优化前沿收敛性和沿前沿的分布均匀性。该工作展示了免训练引导在不需额外监督信号的条件下也可解决分布级多目标优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.08153v1",
+      "source": "arxiv",
+      "title": "Geodesic-informed Generative Diffusion Model For Topology-preserved Image Video Generation",
+      "abstract": "Generative diffusion models have emerged as a class of powerful techniques for various imaging applications, including but not limited to synthesis, reconstruction, and segmentation. Despite their success, current generative models pose two key limitations. First, they primarily rely on image intensity and texture information, with limited attention to underlying object geometry. As a result, they do not guarantee geometric or topological consistency during the generation process, which is a crucial requirement for high-stakes domains such as computational anatomy, biology, and robotics, where preserving object structure is critical. Second, existing models fail to explicitly learn or represent shape changes in the generative process. Such deformation dynamics remain occluded within network parameters; hence leaving the transformation process uninterpretable and physically uninformed. To address these challenges, we introduce IGG (Image Generation informed by Geodesic dynamics), a novel framework that integrates topology-preserving geodesic principles into the diffusion-based generative process. In contrast to conventional methods that operate in image intensity space, IGG learns and synthesizes diverse samples within geodesic deformation spaces, where geometric object changes are learned as smooth and invertible smooth mappings from a given template/source image. Our code is publicly available at https://github.com/nellie689/IGG.",
+      "authors": [
+        "Nian Wu",
+        "Nivetha Jayakumar",
+        "Jiarui Xing",
+        "Miaomiao Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-09-08T02:37:50+00:00",
+      "link": "https://arxiv.org/pdf/2609.08153v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "A diffusion model framework for image and video generation that preserves topological structure",
+      "llm_evidence_cn": "面向图像与视频生成的扩散模型，聚焦生成过程中的拓扑结构保持",
+      "llm_evidence": "面向图像与视频生成的扩散模型，聚焦生成过程中的拓扑结构保持",
+      "canonical_evidence": "面向图像与视频生成的扩散模型，聚焦生成过程中的拓扑结构保持",
+      "llm_tldr_en": "The paper proposes a geodesic-informed diffusion generative model that explicitly models shape changes to preserve topology during image/video generation, addressing geometry consistency beyond intensity and texture.",
+      "llm_tldr_cn": "现有图像/视频扩散生成主要利用强度纹理信息，难以保证解剖、生物、机器人领域的几何拓扑一致。该文提出一种测地线信息引导的生成扩散模型，在学习数据分布的同时显式建模形状动态。方法在图像视频生成中利用测地线索增加拓扑约束，从而减少结构断裂和突变。这种几何感知的扩散方式有望提升需要精确结构控制的生成任务可靠性。",
+      "llm_tldr": "现有图像/视频扩散生成主要利用强度纹理信息，难以保证解剖、生物、机器人领域的几何拓扑一致。该文提出一种测地线信息引导的生成扩散模型，在学习数据分布的同时显式建模形状动态。方法在图像视频生成中利用测地线索增加拓扑约束，从而减少结构断裂和突变。这种几何感知的扩散方式有望提升需要精确结构控制的生成任务可靠性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.09009v1",
+      "source": "arxiv",
+      "title": "Let It Go or Learn to Self-Correct: Continuous Diffusion for Constrained Discrete Tasks",
+      "abstract": "Denoising Diffusion Probabilistic Models (DDPMs) generate samples by starting from noise and repeatedly denoising while keeping each update close to the current noisy state. This behavior is effective in many continuous domains, but its role is less clear for globally constrained discrete tasks, such as Sudoku, graph connectivity, Latin squares, and N-queens. In such settings, early discrete errors can be difficult to undo. As a result, standard diffusion sampling may preserve early mistakes, even when the model's clean predictions are informative. We compare standard samplers to sampling directly from the model's clean prediction. Without retraining, this single change improves Sudoku validity from 31% to 95%, with consistent gains across the other discrete tasks. We hypothesize that staying close to the current noisy state is harmful because the reverse trajectory can drift off the forward noising distribution the model was trained on. To reduce this train-test mismatch, we further introduce self-correction training, which exposes the model to its own predictions, improving robustness to errors that arise during inference. This substantially improves the performance of standard samplers. Our results suggest that continuous diffusion models can learn nontrivial global constraints, but discrete reasoning tasks require better alignment between training and inference: either through samplers that reduce commitment to early decisions, or through training that teaches the model to correct its own inference-time errors.",
+      "authors": [
+        "Mariia Drozdova",
+        "Stéphane Liem Nguyen",
+        "François Fleuret"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-08T16:45:52+00:00",
+      "link": "https://arxiv.org/pdf/2609.09009v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free sampling modification for diffusion models",
+      "llm_evidence_cn": "面向扩散模型的免训练采样优化改动",
+      "llm_evidence": "面向扩散模型的免训练采样优化改动",
+      "canonical_evidence": "面向扩散模型的免训练采样优化改动",
+      "llm_tldr_en": "For globally constrained discrete diffusion problems, standard samplers preserve early mistakes; switching to sampling from the model's clean prediction at each step improves Sudoku validity from 31% to 95% without retraining, revealing a simple training-free inference fix.",
+      "llm_tldr_cn": "在Sudoku、图连通性、拉丁方和N皇后等受全局约束的离散任务中，标准扩散采样会把早期离散错误一直保留到最终结果。本文不修改模型，只比较常规采样器与直接采样模型干净预测的策略，发现仅靠这一免训练改动即可大幅提升任务有效性，Sudoku 从31%提升到95%。该结果为受约束离散生成任务提供了一种简单有效的推理期自校正思路。",
+      "llm_tldr": "在Sudoku、图连通性、拉丁方和N皇后等受全局约束的离散任务中，标准扩散采样会把早期离散错误一直保留到最终结果。本文不修改模型，只比较常规采样器与直接采样模型干净预测的策略，发现仅靠这一免训练改动即可大幅提升任务有效性，Sudoku 从31%提升到95%。该结果为受约束离散生成任务提供了一种简单有效的推理期自校正思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

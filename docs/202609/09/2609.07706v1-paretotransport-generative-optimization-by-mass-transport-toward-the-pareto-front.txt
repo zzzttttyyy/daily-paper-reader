@@ -1,0 +1,1345 @@
+Title: ParetoTransport: Generative Optimization by Mass Transport Toward The Pareto Front
+
+URL Source: https://arxiv.org/pdf/2609.07706v1
+
+Published Time: Wed, 09 Sep 2026 02:34:20 GMT
+
+Number of Pages: 29
+
+Markdown Content:
+# PARETO TRANSPORT : G ENERATIVE OPTIMIZATION BY 
+
+# MASS TRANSPORT TOWARD THE PARETO FRONT 
+
+Stephanie Holly ∗ Sepp Hochreiter Werner Zellinger 
+
+LIT AI Lab and Institute for Machine Learning JKU Linz, Austria 
+
+ABSTRACT 
+
+Offline multi-objective optimization requires not only moving the objective vec-tors of candidate designs toward the Pareto front, but also distributing them effec-tively along it. Generative methods have recently emerged as a natural approach because they learn a distribution over feasible designs while allowing generation to be steered toward promising designs. Existing methods, however, largely retain classical sample-wise guidance strategies, leaving the distribution-level model-ing capability of generative methods underused. We propose ParetoTransport, a training-free guidance method for pre-trained flow-matching models that explic-itly specifies and refines a population-level distribution in objective space. Pare-toTransport guides a flow-matching sampler to iteratively transport the empirical offline distribution toward the Pareto front, with Wasserstein matching to interme-diate proxy distributions. This directly controls distributional displacement and mass allocation along the front. We establish a convergence result and demon-strate state-of-the-art performance on standard offline MOO benchmarks, extend-ing recent evaluations beyond hypervolume to generational distance, inverted gen-erational distance, and Wasserstein distance. 
+
+1 INTRODUCTION 
+
+Offline multi-objective optimization (MOO) seeks a set of Pareto-optimal designs that represent diverse trade-offs among multiple potentially conflicting objectives, while optimization relies only on a fixed dataset of previously evaluated designs, without access to additional objective evaluations. This setting is particularly relevant when evaluating new designs is expensive or impractical, as in molecular and materials design, where efficacy, toxicity, synthesizability, strength, conductivity, or cost must be balanced (Wang et al., 2021; Du et al., 2024; Pogue et al., 2023; Zeni et al., 2025). Recently, diffusion and flow-matching models have emerged as promising approaches to offline MOO because they learn a distribution over feasible designs and enable an approximate inverse re-lation from objective values to feasible designs. Training-free guidance adapts such pre-trained mod-els to task-specific objectives at inference time, separating generative modeling from task-specific optimization and allowing the model to be reused across optimization tasks without retraining. (Ben-Hamu et al., 2024; Li et al., 2026). At the population level, this turns optimization into the problem of controlling the induced objective-space distribution: its displacement toward the Pareto front and its allocation of probability mass along it. Although methods have been proposed to control displacement and mass allocation during genera-tion, most of them control the induced objective-space distribution only indirectly through sample-wise mechanisms. Typical approaches steer individual samples through (a) sample-wise update directions derived from scalarized objectives (Yuan et al., 2025) or preference models (Annadani et al., 2025), (b) diversity based on repulsive interactions (Hotegni & Peitz, 2026), or (c) selected conditioning targets (Shrestha et al., 2026). All of these methods have in common that they do not explicitly specify and refine the geometry and mass allocation of the generated objective-space distribution, although such distribution-level control is a natural capability of generative inverse modeling. 
+
+> ∗
+
+Corresponding author: holly@ml.jku.at 
+
+1arXiv:2609.07706v1 [cs.LG] 7 Sep 2026 Figure 1: ParetoTransport steers the probability path (ptk )Kk=1 of a pre-trained flow model from its learned offline distribution p1 toward a guided distribution, whose induced objective-space distri-bution approximates the uniform distribution μ∗ on the Pareto front. At each step tk, the estimated terminal objective-space distribution f# bp1|tk is transported toward the Pareto front through direc-tional improvement along n, while Wasserstein matching to the current proxy μtk controls its mass allocation. In this work, we introduce ParetoTransport, a training-free guidance method for pre-trained flow matching models that explicitly refines the geometry and mass allocation of the generated objective-space distribution. We start by formulating offline MOO as a mass-transport problem. ParetoTrans-port approaches this problem by iteratively transporting the empirical offline distribution toward the Pareto front, combining directional improvement with Wasserstein matching to control probability-mass allocation. Under general assumptions, we establish a Wasserstein convergence guarantee toward the Pareto front distribution. Across standard offline MOO benchmarks, ParetoTransport achieves state-of-the-art performance among training-free generative inverse methods and competi-tive performance relative to forward methods, and extends recent evaluations beyond hypervolume (HV) to generational distance (GD), inverted generational distance (IGD), and the Wasserstein dis-tance W2.Our contributions are summarized as follows: • We formulate offline MOO as a sampling problem and motivate W2 as a natural quality measure by relating it to the classical MOO metrics GD and IGD (Corollary 1). • We propose ParetoTransport, a training-free guidance method for pre-trained flow matching models that approaches offline MOO by mass transport in objective space, iterating (i) Wasserstein control of probability-mass allocation with (ii) normal-direction improvement. • Under general assumptions, we establish a Wasserstein convergence result toward the Pareto front distribution (Theorem 1). • We demonstrate state-of-the-art performance across 24 datasets, extending recent genera-tive evaluations beyond HV to the classical MOO metrics GD and IGD, as well as to the 
+
+2-Wasserstein distance between the generated objective-space distribution and the Pareto front. 
+
+2 PROBLEM : O FFLINE MULTI -O BJECTIVE OPTIMIZATION 
+
+The goal of multi-objective optimization (MOO) is to identify designs x ∈ X ⊂ Rd that minimize multiple objective functions fi : X → R, i = 1 , . . . , m . Since the objective functions may conflict, there is generally no unique minimizer, and MOO instead aims to identify the set of Pareto-optimal 
+
+designs. A design x ∈ X is said to dominate a design x′ ∈ X if fi(x) ≤ fi(x′) for all i ∈ { 1, . . . , m },with strict inequality for at least one i. A design x ∈ X is Pareto-optimal if no other design x′ ∈ X 
+
+dominates it. The set of all Pareto-optimal designs is called the Pareto set , and its image under 
+
+f := ( f1, . . . , f m) is the Pareto front , denoted by M∗.2Offline MOO considers scientific and engineering problems in which optimization relies only on a fixed dataset 1 (xi, f (xi)) Ni=1 of previously evaluated designs, without access to further evaluations of the objective function f .
+
+3 BACKGROUND : T RAINING -F REE GUIDANCE FOR FLOW MATCHING 
+
+The goal of flow matching (FM) (Lipman et al., 2023; Albergo & Vanden-Eijnden, 2023; Liu et al., 2022) is to learn a time-dependent velocity field u : [0 , 1] × Rd → Rd that transforms a simple 
+
+initial distribution p0 into a complex terminal distribution p1. The flow map ϕ : [0 , 1] × Rd → Rd
+
+is defined by ϕt(a) := xt, where x : [0 , 1] → Rd is the solution of the ordinary differential equation (ODE) 
+
+dx t
+
+dt = ut(xt), x0 = a. (1) This flow map induces a probability path pt := ( ϕt)#p0 that satisfies the continuity equation 
+
+∂tpt + ∇ · (utpt) = 0 . The velocity field ut is learned through a conditional probability path pt|Z ,where Z = ( X0, X 1) ∼ π and π ∈ Γ( p0, p 1). A standard choice is an affine conditional probability path Xt := αtX1 + βtX0 ∼ pt|Z with scheduler (αt, β t) satisfying α0 = β1 = 0 , α 1 = β0 = 1 .This yields the simple conditional velocity field ut|Z (Xt) = ˙αtX1 + ˙βtX0. The resulting condi-tional regression objective has the same gradient as the marginal regression objective (Lipman et al., 2023), and therefore can be used to learn the marginal velocity field ut. At inference time, sampling is performed by drawing an initial sample x0 ∼ p0 and integrating the ODE in Eq. (1) with the learned velocity field. Further details are provided in Appendix A.1. 
+
+Training-Free Guidance incorporates a task-specific loss J : Rd → R into the sampling path of a pre-trained generative model at inference time (Liu et al., 2023; Ben-Hamu et al., 2024; Wang et al., 2025). Given an initial sample x0 ∼ p0, the guided sampling process can be formulated as 
+
+min 
+
+> (ext, c t)t∈[0 ,1]
+
+J(ex1) + λ
+
+Z 10
+
+12 ∥ct∥2 dt 
+
+s.t. ex0 = x0,dext
+
+dt = ut(ext) + ct t ∈ [0 , 1] .
+
+(2) The optimization seeks a guidance velocity field c : [0 , 1] → Rd that steers the induced trajec-tory (ext)t∈[0 ,1] toward a favorable terminal sample ex1. The loss function J evaluates this terminal sample, while the second term penalizes large guidance-induced deviations from the pre-trained sampling dynamics. Recent work (Li et al., 2026; Webber et al., 2026; Pourya et al., 2026) approximates the full-horizon optimization problem in Eq. (2) by a sequence of single-step subproblems. At each intermediate time t, a posterior mean estimator, denoted by bx1|t, estimates the terminal sample at which the terminal loss is evaluated, with its gradient propagated back to the intermediate sample. Li et al. (2026) and Pourya et al. (2026) additionally derive a local mapping from terminal space back to time t, which we denote by bxt|1. This allows each subproblem to be optimized directly in terminal space, avoiding differentiation through the terminal estimator bx1|t and hence through the learned model. Further details are provided in Appendix A.1. 
+
+4 OFFLINE MOO AS SAMPLING PROBLEM 
+
+In this work, we view the MOO goal of identifying Pareto-optimal designs (see Section 2) as a statistical sampling problem. This view implies a refined formulation of the goal of MOO algorithms (Chen et al., 2011), namely, to identify solution sets that simultaneously achieve convergence toward the Pareto front and uniform coverage along it.       
+
+> 1Following standard learning-theoretic assumptions (Mohri et al., 2018; Shalev-Shwartz & Ben-David, 2014), we regard the designs x1, . . . , x Nas independent and identically distributed samples from an unknown data distribution p1on X.
+
+3Viewing a solution set as a statistical sample rather than only as a finite set, the convergence of solution sets becomes concentration of the samples’ distribution near the Pareto front and coverage becomes allocation of probability mass along it. Accordingly, the goal of MOO algorithms becomes to find a design-space distribution p whose induced objective-space distribution f#p approximates the uniform distribution μ∗ on the Pareto front M∗.
+
+4.1 A Q UALITY MEASURE : T HE WASSERSTEIN DISTANCE 
+
+The sampling view of MOO above leads to a natural quality measure for generative MOO meth-ods: the 2-Wasserstein distance 2 W2. Indeed, the 2-Wasserstein distance is related to the two well-established MOO metrics GD and IGD 3 as follows. For a generative MOO method that learned to sample from a distribution p with objective-space distribution μ := f#p, the value W2(μ, μ ∗) upper bounds the continuous versions of GD and IGD, 
+
+GD( μ∥μ∗) := 
+
+Z 
+
+d(x, supp μ∗)2 dμ (x)
+
+1/2
+
+, IGD( μ∥μ∗) := GD( μ∗∥μ),
+
+where d(x, A ) := inf a∈A ∥x − a∥ is the distance from x to the set A.
+
+Corollary 1. For μ, ν ∈ P 2(Rm), GD( μ∥ν) ≤ W2(μ, ν ) and IGD( μ∥ν) ≤ W2(μ, ν ).
+
+The proof of our Corollary 1 is provided in Appendix A.4. 
+
+5 OUR METHOD : O FFLINE MOO BY MASS TRANSPORT 
+
+The formulation of MOO as a sampling problem in Section 4 motivates us to approach offline MOO by mass transport, which leads to our novel algorithm: ParetoTransport .5.1 APPROACH BY MASS TRANSPORT 
+
+Denote by μ0 ∈ P2(Rm) the empirical distribution over the offline front, i.e., μ0 := 
+
+> 1
+> |D(best) |
+
+P 
+
+> x∈D(best)
+
+δf (x), where D(best) denotes the set of all non-dominated designs in the of-fline dataset. Further, denote by μ∗ the uniform distribution on the (unknown) Pareto front M∗.
+
+Following the sampling view of MOO (Section 4), our approach is to iteratively transport μ0 toward 
+
+μ∗ in terms of the 2-Wasserstein distance in objective space. 
+
+To realize this transport, we start from the offline front distribution μ0 and introduce a sequence 
+
+(μk)k≥0 of intermediate proxy distributions by alternating between two steps: 
+
+μk  
+
+> step (i): W2matching
+
+−−−−−−−−−−−→ qk+1 
+
+> step (ii): directional improvement
+
+−−−−−−−−−−−−−−−−−→ μk+1 .
+
+Step (i) is a matching step that aims to find a design distribution 4
+
+qk+1 ∈ argmin 
+
+> q∈Q
+
+W 22 (f#q, μ k) (3) whose induced objective-space distribution f#qk+1 matches the current proxy μk. Step (ii) is a directional improvement step that moves f#qk+1 toward the Pareto front and defines the next inter-mediate distribution μk+1 := ( Tη ◦ f )#qk+1 by the map 
+
+Tη (y) := y + η ΠM∗ (y) − y, (4) 
+
+> 2
+
+The squared 2-Wasserstein distance between probability distributions μ, ν ∈ P2(Rm) is defined as 
+
+W 22 (μ, ν ) := inf γ∈Γ( μ,ν )
+
+R ∥x − y∥2 dγ (x, y ), where Γ( μ, ν ) denotes the set of couplings of μ and ν.
+
+> 3
+
+The squared GD (Van Veldhuizen & Lamont, 2000) between a solution set A and a discrete approximation 
+
+Z of the Pareto front is defined by GD 2(A, Z ) := 1
+
+> |A|
+
+P 
+
+> a∈A
+
+d(a, Z )2 The squared IGD (Coello Coello & Reyes Sierra, 2004) is defined by IGD 2(A, Z ) := GD 2(Z, A ).
+
+> 4
+
+We assume that q is chosen from a set Q of admissible design-space distributions for which Eq. (3) admits a minimizer, e.g., Q ⊆ P 2(X ) is nonempty and weakly closed, with compact X ⊆ Rd and continuous 
+
+f : X → Rm (Villani, 2009). 
+
+40.00 0.25 0.50 0.75 1.00     
+
+> f1
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> f2
+> Step (i): Wasserstein matching
+> Pareto front Guided particles Offline front
+> 0.00 0.25 0.50 0.75 1.00
+> f1
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> f2
+> Step (ii): Directional improvement
+> Offline dataset Individual minima CHIM
+> n
+
+Figure 2: Step (i): Wasserstein matching of probability-mass allocation. Step (ii): Normal-direction improvement with the CHIM normal n as a surrogate for the unknown projection direction toward the Pareto front. where η ∈ (0 , 1] and ΠM ∗ denotes the projection onto M∗. Thus, Tη moves each objective vector by a fraction η of the displacement toward its closest point on the Pareto front. The two-step procedure described above solves the MOO problem in the following sense, where we use ¯μ := (Π M∗ )#μ0 to denote the pushforward of the offline front distribution μ0 under the projection ΠM∗ .
+
+Theorem 1. If Step (i) achieves exact matching, W2(f#qk+1 , μ k) = 0 for all k, and the technical Assumptions (1)–(3) in Appendix A.4 hold, then 
+
+W2(μk, μ ∗) ≤ (1 − η)kW2(μ0, ¯μ) + W2(¯ μ, μ ∗). (5) The proof is provided in Appendix A.4. Theorem 1 provides a quality guarantee for our iterative procedure. Assume that the offline front distribution is sufficiently representative in the sense that its projection ¯μ onto the Pareto front sat-isfies W2(¯ μ, μ ∗) < ϵ for some small ϵ. Then, Theorem 1 guarantees lim sup k→∞ W2(μk, μ ∗) < ϵ .Moreover, the first term in Eq. 5 decreases exponentially with k.5.2 OUR PARETO TRANSPORT ALGORITHM 
+
+We introduce ParetoTransport , a training-free guidance method for pre-trained flow matching mod-els that lifts guidance from individual sampling trajectories to the induced probability path. Ex-isting training-free generative methods for offline MOO are sample-wise: ParetoFlow (Yuan et al., 2025) uses sample-wise scalarization weights to guide sampling from a flow matching model, while PGD (Annadani et al., 2025) uses a preference-based classifier to guide sampling from a diffusion model. ParetoTransport instead formulates guidance over the induced probability path, combin-ing Wasserstein control with directional transport to realize the mass-transport iteration (Section 5) during sampling. In particular, we lift the guided sampling problem in Eq. (2) from an individual trajectory (ext)t∈[0 ,1] 
+
+to the probability path (ept)t∈[0 ,1] :
+
+min  ept(·), c t(·)
+
+
+
+> t∈[0 ,1]
+
+J(ep1) + λ
+
+Z 10
+
+Z 12 ∥ct(x)∥2 dept(x) dt 
+
+s.t. ep0 = p0,∂t ept + ∇ ·  (ut + ct)ept
+
+ = 0 , t ∈ [0 , 1] .
+
+(6) The optimization seeks a guidance velocity field ct : Rd → Rd that steers the induced probability path (ept)t∈[0 ,1] toward a favorable terminal distribution ep1. The functional J : P2(Rd) → R eval-uates this terminal distribution, while the second term penalizes large guidance-induced deviations from the pre-trained sampling dynamics. 5Algorithm 1 ParetoTransport 
+
+1: Initialize guided particles exit1 := xi
+
+> 0
+
+, i = 1 , . . . , N 
+
+2: Initialize proxy μt1 := μ0
+
+3: for k = 1 to K − 1 do 
+
+4: Take one Euler step: xitk+1 := exitk + ∆ tkuθtk (exitk ), i = 1 , . . . , N 
+
+5: if tk+1 ≤ tguided then 
+
+6: exitk+1 := xitk+1 , i = 1 , . . . , N 
+
+7: else 
+
+8: Estimate terminal particles: bxi 
+
+> 1
+
+:= bxθ 
+
+> 1|tk+1
+
+(xitk+1 ), i = 1 , . . . , N 
+
+9: Solve the optimization problem in terminal space: 
+
+ xi
+
+> opt
+
+Ni=1 ∈ arg min 
+
+> (xi
+> 1)Ni=1
+
+Jk
+
+  1
+
+N
+
+> N
+
+X
+
+> i=1
+
+δxi
+
+> 1
+
+ + λN
+
+> N
+
+X
+
+> i=1
+
+α2
+
+> tk+1
+
+2∆ tk
+
+∥xi 
+
+> 1
+
+− bxi
+
+> 1
+
+∥2,
+
+10: Update proxy: μtk+1 := R μtk ,  f (xi
+
+> opt
+
+)Ni=1 
+
+
+
+11: Recover guided intermediate particles: exitk+1 := bxtk+1 |1(xi
+
+> opt
+
+), i = 1 , . . . , N 
+
+12: end if 
+
+13: end for 
+
+14: return Guided terminal particles (exi
+
+> 1
+
+)Ni=1 
+
+In practice, we discretize the probability path on a grid 0 = t1 < . . . < t K = 1 with ∆tk := 
+
+tk+1 − tk, and use forward Euler. We introduce a guidance onset time tguided : for t ≤ tguided ,sampling consists of plain Euler updates, while for t > t guided , each sampling step tk → tk+1 is coupled with an iteration of the mass-transport procedure. We denote the corresponding intermediate proxy by μtk . We realize the matching and directional improvement steps jointly through design-space optimization rather than by explicitly transporting the proxy in objective space. This avoids constructing increasingly optimistic objective-space vectors that need not correspond to feasible designs. At each sampling step k, we define the loss functional in Eq. (6) as 
+
+Jk(q) := W 22 (f#q, μ tk ) + γL n(f#q∥μtk ), Ln(ν∥μ) := − (EY ∼ν [Y ] − EY ∼μ[Y ]) ⊤ n, (7) where q denotes the terminal design-space distribution. Thus, the terminal loss functional is up-dated at each sampling step according to the current proxy distribution μtk . The Wasserstein term controls the probability-mass allocation in terms of the current proxy, while the directional term encourages transport along the surrogate projection direction n. Since the projection direction is unknown, we use the CHIM (Convex Hull of Individual Minima; Das & Dennis, 1998) normal n as a global surrogate 5. We use the same notation γ because it controls the strength of the directional improvement along the normal direction, analogously to the displacement fraction in the transport map of Section 5. We represent each intermediate distribution eptk by a particle system (exitk )Ni=1 , approximating the probability path by a set of particle trajectories. Following the single-trajectory approximation of Li et al. (2026); Pourya et al. (2026), we apply the same construction to the particle system, replac-ing the full-horizon optimization problem by a sequence of single-step subproblems. The particle trajectories are coupled through the distributional loss. We denote by R the proxy-update operator that combines the current proxy with the optimized objective vectors to construct the next proxy distribution, updating its support and assigning probability masses according to local crowding so that sparsely represented regions receive more mass and densely represented regions receive less. The pseudocode is provided in Algorithm 1; further details on its derivation and implementation are provided in Appendices A.1 and A.2. 
+
+> 5
+
+If the individual-minimum objective vectors are affinely independent, then the CHIM spans an (m − 1) -dimensional affine hyperplane with a unique normal direction up to orientation. We resolve the sign ambiguity by choosing the orientation with nonnegative inner product with the simultaneous-decrease direction −1m.
+
+66 RELATED WORK 
+
+A common forward paradigm in offline optimization is to learn surrogate models that map candidate designs to objective values and then optimize these surrogates to identify promising designs (Xue et al., 2024; Kim et al., 2025b). In single-objective optimization, surrogates enable gradient-based optimization (Trabucco et al., 2022) and evolutionary computation (Jones et al., 1998). In offline MOO, this extends to multiple objectives by learning one or more surrogate models and optimizing them with multi-objective search algorithms, commonly evolutionary algorithms (Knowles, 2006; Jin, 2011; Wang et al., 2018; Yang et al., 2019), such as NSGA-II (Deb et al., 2002a). Recently, gen-erative methods have emerged as an inverse paradigm, using desired objective information to directly generate candidate designs. This can be realized through conditional generative modeling, where objective information is already incorporated during training (Kumar & Levine, 2020; Hotegni & Peitz, 2026; Shrestha et al., 2026), or through training-free guidance, where objective information steers a pre-trained unconditional generative model only during sampling (Yuan et al., 2025; An-nadani et al., 2025). Training-free guidance is particularly attractive because it separates generative modeling from task-specific optimization, allowing the same pre-trained generative model to be reused across different optimization objectives without retraining. 
+
+7 EXPERIMENTS 
+
+We evaluate our method on standard offline MOO benchmarks (Xue et al., 2024), ranging from synthetic tasks (Zitzler et al., 2000; Deb et al., 2002b) to real-world engineering tasks (Tanabe & Ishibuchi, 2020). Each task provides an offline dataset of 60 k designs and their corresponding objective vectors. The Synthetic benchmark suite contains 12 tasks widely used in MOO, including the ZDT (Zitzler et al., 2000) and the DTLZ (Deb et al., 2002b) tasks. The objective functions are analytical, and their Pareto fronts are known in closed form. Each task has 2–3 objectives and 
+
+10 –30 design variables. The RE benchmark suite (Tanabe & Ishibuchi, 2020) contains 15 tasks based on real-world engineering design problems, including bar truss, welded beam, and disc brake design. Each task has 2–6 objectives and 3–7 design variables. For evaluation, we use Pareto front approximations provided with the RE benchmark. Further details on the benchmarks are provided in Appendix A.3.3. 
+
+Baselines. We compare our method against state-of-the-art offline MOO methods. A common paradigm for offline MOO is to first learn surrogate models on the offline dataset and then use the learned surrogates to identify Pareto-optimal designs. Existing methods differ in both the learned surrogate models and the optimization algorithm used to search the design space. Inverse methods optimize the learned surrogates using a generative model. ParetoFlow (Yuan et al., 2025) trains one surrogate model per objective and then uses these models to guide the sampling process of a pre-trained flow matching model. Preference Guided Diffusion (Annadani et al., 2025) instead trains a preference model that predicts the probability of whether a design dominates another design, and then guides the sampling process of a pre-trained diffusion model. Forward methods optimize the learned surrogates using an evolutionary algorithm such as NSGA-II (Deb et al., 2002a). Fol-lowing Xue et al. (2024), we consider two surrogate learning strategies for the forward methods. 
+
+Multi-Head trains a single surrogate model using multi-task learning methods, including Grad-Norm (Chen et al., 2018) and PCGrad (Yu et al., 2020). Multiple-Models trains one surrogate model per objective using offline single-objective optimization methods, including COM (Trabucco et al., 2021), IOM (Qi et al., 2022), ICT (Yuan et al., 2023), RoMA (Yu et al., 2021), and TriMen-toring (Chen et al., 2023). 
+
+Evaluation. We evaluate all methods using Hypervolume (HV), Generational Distance (GD), In-verted Generational Distance (IGD), and the Wasserstein distance W2. HV measures the dominated objective-space volume and can be strongly influenced by individual solutions, while GD and IGD provide complementary set-based measures of convergence to and coverage of the Pareto front, re-spectively. Motivated by our sampling view of MOO in Section 4, we further report W2 between the generated objective-space distribution and the uniform distribution on the Pareto front. Unlike the set-based metrics, W2 additionally accounts for probability-mass allocation along the front. To our knowledge, this is the first offline MOO evaluation to use W2 against a Pareto-front distribution. Further details on the metrics are provided in Appendix A.3.2. 77.1 TRAINING DETAILS 
+
+For the surrogate models, we follow the multiple-model configuration of Xue et al. (2024) and train one surrogate per objective. Each surrogate is a three-layer MLP with two 2048 -dimensional hidden layers and ReLU activations, trained with MSE loss and Adam with learning rate 10 −3 for 200 
+
+epochs. For the flow matching model, we use an architecture based on Yuan et al. (2025), consisting of a four-layer MLP with three 256 -dimensional hidden layers and SeLU activations. The model is trained with Adam with learning rate 10 −3 for up to 200 epochs. At inference, we integrate the learned velocity field using explicit Euler with K = 100 steps, gen-erate a population of size N = 256 , and use a proxy support of size M = 256 . Following Yuan et al. (2025), guidance is applied only for t > t guided = 0 .8; earlier steps are plain Euler updates. At each guided step, we perform 10 Adam steps with learning rate 0.01 to minimize the directed loss functional in Eq. (7), using γ = 0 .5 and λ = 10 −4. Additional training details are provided in Appendix A.3.1. 7.2 RESULTS 
+
+All metrics are computed in the normalized objective space using the fixed min–max statistics of the offline dataset. We evaluate each method over 5 random seeds using a population of N = 256 candi-date designs. Table 1 reports HV on a representative subset of tasks across all three benchmark fam-ilies. ParetoTransport remains competitive in terms of HV with both forward and inverse methods. Overall, we observe only limited differences in HV performance across methods. This motivates additionally evaluating GD, IGD, and W2 to assess convergence, coverage, and probability-mass allocation. Table 1: HV ( ↑) results; see Appendix A.5 for further results. Bold = best per column. Each method is run for 5 seeds and evaluated on 256 designs. Method ZDT2 ZDT6 DTLZ6 DTLZ7 RE22 RE23 RE24 D(best) 4.677 4.608 10.671 8.992 4.806 4.751 4.595 MultiHead-Vallina 5.612 ± 0.098 4.774 ± 0.003 10.900 ± 0.019 10.715 ± 0.027 4.840 ± 0.000 4.840 ± 0.000 4.075 ± 0.815 MultiHead-PcGrad 5.605 ± 0.047 4.776 ± 0.013 10.918 ± 0.011 10.598 ± 0.028 4.828 ± 0.023 4.763 ± 0.170 4.544 ± 0.231 MultiHead-GradNorm 5.483 ± 0.115 4.709 ± 0.025 10.848 ± 0.060 9.654 ± 0.735 4.721 ± 0.218 2.714 ± 0.067 4.333 ± 0.094 MultipleModels-Vallina 5.600 ± 0.043 4.774 ± 0.004 10.928 ± 0.008 10.535 ± 0.079 4.840 ± 0.000 4.831 ± 0.018 4.831 ± 0.010 MultipleModels-COM 5.093 ± 0.131 3.435 ± 0.750 10.786 ± 0.017 9.809 ± 0.273 4.809 ± 0.012 4.817 ± 0.033 4.658 ± 0.071 MultipleModels-IOM 5.530 ± 0.101 4.777 ± 0.005 10.886 ± 0.008 10.544 ± 0.126 4.840 ± 0.000 4.813 ± 0.034 4.789 ± 0.104 MultipleModels-ICT 5.428 ± 0.004 4.723 ± 0.051 10.781 ± 0.022 10.342 ± 0.092 4.840 ± 0.000 4.455 ± 0.071 4.830 ± 0.011 MultipleModels-RoMA 5.496 ± 0.067 2.597 ± 0.027 10.742 ± 0.015 10.596 ± 0.036 4.543 ± 0.664 4.836 ± 0.006 3.954 ± 1.200 MultipleModels-Trimentoring 5.548 ± 0.041 4.045 ± 0.122 10.778 ± 0.049 10.392 ± 0.423 4.840 ± 0.000 4.840 ± 0.000 4.530 ± 0.406 ParetoFlow 4.695 ± 0.071 4.683 ± 0.068 10.686 ± 0.039 8.875 ± 0.099 4.815 ± 0.028 4.800 ± 0.022 4.832 ± 0.005 PreferenceGuidedDiffusion 5.367 ± 0.064 4.823 ± 0.004 10.336 ± 0.204 9.767 ± 0.141 4.836 ± 0.003 4.837 ± 0.003 4.834 ± 0.001                      
+
+> ParetoTransport 5.660 ±0.026 4.825 ±0.001 11.028 ±0.019 10.728 ±0.076 4.839 ±0.002 4.840 ±0.000 4.831 ±0.002
+
+Table 2: Average rank per metric across benchmark families (lower is better). Bold = best per column. Each method is run for 5 seeds and evaluated on 256 designs. ZDT DTLZ RE HV GD IGD W2 HV GD IGD W2 HV GD IGD W2 MultiHead-Vallina 4.200 4.200 5.200 4.400 3.571 6.000 5.286 5.571 4.750 6.417 5.917 5.833 MultiHead-PcGrad 6.000 5.000 5.400 4.600 2.857 4.143 4.286 4.143 7.000 7.167 7.167 6.917 MultiHead-GradNorm 8.000 7.200 8.400 7.000 9.000 5.429 7.714 5.857 11.500 7.833 10.333 9.000 MultipleModels-Vallina 5.600 4.000 5.800 6.400 4.429 4.286 5.429 4.000 3.417 5.500 5.083 5.750 MultipleModels-COM 8.800 7.800 8.200 7.600 7.714 8.571 7.000 7.714 8.750 5.333 7.167 5.750 MultipleModels-IOM 4.000 5.400 4.200 4.200 5.143 5.714 5.429 5.286 3.500 6.333 3.167 5.083 MultipleModels-ICT 7.400 6.800 7.800 7.600 7.286 9.286 7.714 9.286 4.833 5.250 6.083 5.750 MultipleModels-RoMA 7.000 7.600 7.600 7.600 8.714 10.857 9.714 10.000 7.750 9.167 7.583 8.667 MultipleModels-Trimentoring 8.000 9.400 7.800 9.200 9.000 6.714 7.143 6.571 5.750 6.167 7.250 6.083 ParetoFlow 9.600 8.000 9.600 9.400 9.857 8.429 8.571 8.714 9.250 6.083 6.917 6.500 PreferenceGuidedDiffusion 6.800 9.000 6.400 7.800 8.571 7.286 6.857 8.571 7.167 8.333 5.917 7.909 ParetoTransport 2.600 3.600 1.600 2.200 1.714 2.000 2.714 1.857 4.333 4.417 5.417 4.417 
+
+Table 2 reports the average rank across tasks within each benchmark family for HV, GD, IGD, and 
+
+W2. ParetoTransport achieves the best average rank on all four metrics for both ZDT and DTLZ. On the RE tasks, it remains competitive, achieving the best average rank in GD and W2, and the third-best rank in both HV and IGD. Most notably, ParetoTransport attains the best average W2 rank across 8all three benchmark families, supporting our approach of coupling transport toward the Pareto front with explicit Wasserstein control of probability-mass allocation. It also achieves the best average GD rank across all three families, indicating consistently strong convergence. Complete per-task results are provided in Appendix A.5. 7.3 ABLATIONS 
+
+We study the contributions of the matching and directional improvement terms in Eq. (7), as well as the role of γ.
+
+Wasserstein matching and directional improvement. Table 3 reports HV, GD, IGD, and W2 for the offline front, denoted by D(best). We report the corresponding changes ∆ relative to D(best) when using the matching term W2, the directional improvement term Ln, or both. Results are av-eraged over 5 random seeds per task and then across all tasks within each benchmark family. The directional improvement term Ln alone yields the largest reduction in GD on both benchmark fami-lies, consistent with its role in moving the candidate distribution toward the Pareto front. Combining 
+
+Ln with Wasserstein control yields the largest improvements in IGD, W2, and HV on both fami-lies, at a small trade-off in GD relative to Ln alone. Overall, the two terms are complementary: 
+
+Ln is particularly effective for convergence, while their combination provides the best performance across coverage and probability-mass allocation. Complete per-task ablation results are provided in Appendix A.6. Table 3: Ablation of Wasserstein matching W2 and directional improvement Ln. Results are aver-aged over all tasks within each benchmark family and reported as changes ∆ relative to the offline front D(best); bold = best per column.                                              
+
+> ZDT DTLZ
+> W2LnGD ( ↓)IGD ( ↓)W2(↓)HV ( ↑)GD ( ↓)IGD ( ↓)W2(↓)HV ( ↑)D(best) 0.262 0.261 0.374 4.812 0.373 0.247 0.427 11.542
+> ∆
+> ✓-0.124 -0.059 +0.029 +0.419 -0.151 -0.123 -0.101 +0.285
+> ✓-0.054 -0.087 -0.063 +0.413 -0.065 -0.120 -0.065 +0.286
+> ✓✓-0.118 -0.165 -0.113 +0.464 -0.139 -0.138 -0.131 +0.326
+
+Table 4: Ablation of γ on DTLZ family. GD is computed over a population of 256 candidate designs and averaged over 5 random seeds.                                                                                                                                                                                
+
+> γDTLZ1 DTLZ2 DTLZ3 DTLZ4 DTLZ5 DTLZ6 DTLZ7 00.419 ±0.005 0.044 ±0.003 0.533 ±0.008 0.124 ±0.014 0.081 ±0.013 0.703 ±0.007 0.252 ±0.041 0.1 0.428 ±0.010 0.033 ±0.003 0.509 ±0.020 0.115 ±0.017 0.081 ±0.009 0.687 ±0.010 0.164 ±0.048 0.2 0.415 ±0.018 0.025 ±0.003 0.501 ±0.015 0.096 ±0.015 0.073 ±0.012 0.671 ±0.010 0.101 ±0.022 0.5 0.397 ±0.021 0.023 ±0.003 0.451 ±0.030 0.063 ±0.016 0.063 ±0.008 0.576 ±0.030 0.063 ±0.018 10.355 ±0.016 0.021 ±0.004 0.396 ±0.024 0.050 ±0.012 0.047 ±0.006 0.327 ±0.012 0.059 ±0.012 20.377 ±0.025 0.020 ±0.003 0.387 ±0.013 0.050 ±0.012 0.038 ±0.005 0.322 ±0.009 0.040 ±0.014
+> 50.411 ±0.017 0.026 ±0.003 0.387 ±0.013 0.051 ±0.013 0.034 ±0.009 0.482 ±0.020 0.042 ±0.009 10 0.428 ±0.014 0.026 ±0.003 0.387 ±0.015 0.051 ±0.013 0.035 ±0.011 0.494 ±0.016 0.048 ±0.014
+
+Directional improvement weight γ. We further study the effect of γ in Eq. (7). We rescale the Ln
+
+gradient to match the norm of the W2 gradient; details are provided in Appendix A.6. Table 4 shows that increasing γ initially improves GD, consistent with stronger directional improvement toward the Pareto front. For large γ, however, GD increases again, indicating that stronger directional transport does not continue to improve convergence. Complete results across γ, including GD, IGD, W2, and HV, are provided in Appendix A.6. 
+
+8 CONCLUSION 
+
+In this work, we approached offline MOO by mass transport toward the Pareto front and introduced a training-free guidance method for pre-trained flow matching models that explicitly refines the ge-ometry and mass allocation of the generated objective-space distribution. More broadly, generative models inherently operate on distributions over designs, making it natural to treat the induced distri-bution itself as the object of optimization rather than solely generating individual candidate solutions 9independently. Beyond distribution-level control, generative methods are also particularly promising for offline MOO problems where feasible candidate designs live on low-dimensional manifolds em-bedded in high-dimensional ambient spaces (Song & Ermon, 2019). Forward optimization methods such as gradient-based or evolutionary approaches typically rely on operations directly in the am-bient space, which may fail to preserve this manifold structure and move candidate designs outside the data-supported region. 
+
+Limitations. We leave the many-objective setting ( m ≥ 4) for future work, where a single global CHIM normal may be insufficient to capture the higher-dimensional Pareto-front geometry. ACKNOWLEDGMENTS 
+
+We thank Alexandru-Ciprian Z˘ avoianu for helpful discussions during the early stages of this work. The ELLIS Unit Linz, the LIT AI Lab, the Institute for Machine Learning, are supported by the Federal State Upper Austria. We thank the projects LCM-COMET K2 Center, FWF AIRI FG 9-N (10.55776/FG9), AI4GreenHeatingGrids (FFG-899943), ELISE (H2020-ICT-2019-3 ID: 951847), Stars4Waters (HORIZON-CL6-2021-CLIMATE-01-01), FWF Bilateral Artificial Intelli-gence ([10.55776/COE12]). We thank NXAI GmbH, Silicon Austria Labs (SAL), FILL Gesellschaft mbH, Google, ZF Friedrichshafen AG, Robert Bosch GmbH, Merck Healthcare KGaA, GLS (Univ. Waterloo), Borealis AG, T ¨ UV Austria, TRUMPF and the NVIDIA Corporation. 
+
+REFERENCES 
+
+Michael Samuel Albergo and Eric Vanden-Eijnden. Building Normalizing Flows with Stochastic Interpolants. In The Eleventh International Conference on Learning Representations , 2023. URL 
+
+https://openreview.net/forum?id=li7qeBbCR1t .Yashas Annadani, Syrine Belakaria, Stefano Ermon, Stefan Bauer, and Barbara Engel-hardt. Preference-Guided Diffusion for Multi-Objective Offline Optimization. In D. Bel-grave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (eds.), 
+
+Advances in Neural Information Processing Systems , volume 38, Main Conference, pp. 15738–15761. Curran Associates, Inc., 2025. doi: 10.52202/085713-0533. URL 
+
+https://proceedings.neurips.cc/paper_files/paper/2025/file/ 175fa4fc8f275f877ec85340131c5d7a-Paper-Conference.pdf .Heli Ben-Hamu, Omri Puny, Itai Gat, Brian Karrer, Uriel Singer, and Yaron Lipman. D-Flow: Differentiating through Flows for Controlled Generation. In Proceedings of the 41st International Conference on Machine Learning , volume 235 of Proceedings of Machine Learning Research , pp. 3462–3483. PMLR, 21–27 Jul 2024. Guillermo Canas and Lorenzo Rosasco. Learning probability measures with respect to op-timal transport metrics. In F. Pereira, C.J. Burges, L. Bottou, and K. Weinberger (eds.), 
+
+Advances in Neural Information Processing Systems , volume 25. Curran Associates, Inc., 2012. URL https://proceedings.neurips.cc/paper_files/paper/2012/ file/c54e7837e0cd0ced286cb5995327d1ab-Paper.pdf .Can (Sam) Chen, Christopher Beckham, Zixuan Liu, Xue (Steve) Liu, and Chris Pal. Parallel-mentoring for Offline Model-based Optimization. In A. Oh, T. Naumann, A. Globerson, K. Saenko, M. Hardt, and S. Levine (eds.), Advances in Neural In-formation Processing Systems , volume 36, pp. 76619–76636. Curran Associates, Inc., 2023. URL https://proceedings.neurips.cc/paper_files/paper/2023/ file/f189e7580acad0fc7fd45405817ddee3-Paper-Conference.pdf .Yu Chen, Xiufen Zou, and Weicheng Xie. Convergence of multi-objective evolutionary algorithms to a uniformly distributed representation of the Pareto front. Information Sciences , 181(16):3336– 3355, 2011. ISSN 0020-0255. doi: https://doi.org/10.1016/j.ins.2011.04.004. URL https: //www.sciencedirect.com/science/article/pii/S0020025511001721 .Zhao Chen, Vijay Badrinarayanan, Chen-Yu Lee, and Andrew Rabinovich. GradNorm: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks. In Jennifer Dy and 10 Andreas Krause (eds.), Proceedings of the 35th International Conference on Machine Learning ,volume 80 of Proceedings of Machine Learning Research , pp. 794–803. PMLR, 10–15 Jul 2018. URL https://proceedings.mlr.press/v80/chen18a.html .Hyungjin Chung, Jeongsol Kim, Michael Thompson Mccann, Marc Louis Klasky, and Jong Chul Ye. Diffusion Posterior Sampling for General Noisy Inverse Problems. In The Eleventh Interna-tional Conference on Learning Representations , 2023. URL https://openreview.net/ forum?id=OnD9zGAGT0k .Carlos A. Coello Coello and Margarita Reyes Sierra. A study of the parallelization of a coevo-lutionary multi-objective evolutionary algorithm. In Ra´ ul Monroy, Gustavo Arroyo-Figueroa, Luis Enrique Sucar, and Humberto Sossa (eds.), MICAI 2004: Advances in Artificial Intelligence ,pp. 688–697, Berlin, Heidelberg, 2004. Springer Berlin Heidelberg. ISBN 978-3-540-24694-7. Indraneel Das and J. E. Dennis. Normal-Boundary Intersection: A New Method for Generating the Pareto Surface in Nonlinear Multicriteria Optimization Problems. SIAM Journal on Optimiza-tion , 8(3):631–657, 1998. doi: 10.1137/S1052623496307510. URL https://doi.org/10. 1137/S1052623496307510 .K. Deb, A. Pratap, S. Agarwal, and T. Meyarivan. A fast and elitist multiobjective genetic algorithm: NSGA-II. Trans. Evol. Comp , 6(2):182–197, April 2002a. ISSN 1089-778X. doi: 10.1109/4235. 996017. URL https://doi.org/10.1109/4235.996017 .Kalyanmoy Deb, Lothar Thiele, Marco Laumanns, and Eckart Zitzler. Scalable multi-objective optimization test problems. In Proceedings of the 2002 Congress on Evolutionary Computation. CEC’02 (Cat. No.02TH8600) , volume 1, pp. 825–830 vol.1, 2002b. doi: 10.1109/CEC.2002. 1007032. Yuanqi Du, Arian R. Jamasb, Jeff Guo, Tianfan Fu, Charles Harris, Yingheng Wang, Chenru Duan, Pietro Li` o, Philippe Schwaller, and Tom L. Blundell. Machine learning-aided generative molec-ular design. Nature Machine Intelligence , 6(6):589–604, 2024. ISSN 2522-5839. doi: 10.1038/ s42256-024-00843-5. URL https://doi.org/10.1038/s42256-024-00843-5 .Ruiqi Feng, Chenglei Yu, Wenhao Deng, Peiyan Hu, and Tailin Wu. On the Guidance of Flow Matching. In Aarti Singh, Maryam Fazel, Daniel Hsu, Simon Lacoste-Julien, Felix Berkenkamp, Tegan Maharaj, Kiri Wagstaff, and Jerry Zhu (eds.), Proceedings of the 42nd International Conference on Machine Learning , volume 267 of Proceedings of Machine Learning Research ,pp. 16993–17029. PMLR, 13–19 Jul 2025. URL https://proceedings.mlr.press/ v267/feng25s.html .R´ emi Flamary, Nicolas Courty, Alexandre Gramfort, Mokhtar Z. Alaya, Aur´ elie Boisbunon, Stanis-las Chambon, Laetitia Chapel, Adrien Corenflos, Kilian Fatras, Nemo Fournier, L´ eo Gautheron, Nathalie T.H. Gayraud, Hicham Janati, Alain Rakotomamonjy, Ievgen Redko, Antoine Rolet, Antony Schutz, Vivien Seguy, Danica J. Sutherland, Romain Tavenard, Alexander Tong, and Titouan Vayer. POT: Python Optimal Transport. Journal of Machine Learning Research , 22(78): 1–8, 2021. URL http://jmlr.org/papers/v22/20-451.html .Sedjro Salomon Hotegni and Sebastian Peitz. SPREAD: Sampling-based Pareto front Refinement via Efficient Adaptive Diffusion. In The Fourteenth International Conference on Learning Rep-resentations , 2026. URL https://openreview.net/forum?id=4731mIqv89 .Yaochu Jin. Surrogate-assisted evolutionary computation: Recent advances and future challenges. 
+
+Swarm and Evolutionary Computation , 1(2):61–70, 2011. Donald R. Jones, Matthias Schonlau, and William J. Welch. Efficient Global Optimization of Ex-pensive Black-Box Functions. Journal of Global Optimization , 13(4):455–492, 1998. ISSN 0925-5001. doi: 10.1023/a:1008306431147. Jeongsol Kim, Bryan Sangwoo Kim, and Jong Chul Ye. FlowDPS: Flow-Driven Posterior Sampling for Inverse Problems. In 2025 IEEE/CVF International Conference on Computer Vision (ICCV) ,pp. 12328–12337, 2025a. doi: 10.1109/ICCV51701.2025.01146. 11 Kwanyoung Kim and Jong Chul Ye. Noise2Score: Tweedie’s Approach to Self-Supervised Image Denoising without Clean Images. In A. Beygelzimer, Y. Dauphin, P. Liang, and J. Wortman Vaughan (eds.), Advances in Neural Information Processing Systems , 2021. URL https:// openreview.net/forum?id=ZqEUs3sTRU0 .Minsu Kim, Jiayao Gu, Ye Yuan, Taeyoung Yun, Zixuan Liu, Yoshua Bengio, and Can Chen. Offline Model-Based Optimization: Comprehensive Review. arXiv preprint arXiv:2503.17286, 2025b. URL https://arxiv.org/abs/2503.17286 .Sunwoo Kim, Minkyu Kim, and Dongmin Park. Test-time Alignment of Diffusion Models without Reward Over-optimization. In The Thirteenth International Conference on Learning Representa-tions , 2025c. URL https://openreview.net/forum?id=vi3DjUhFVm .J. Knowles. ParEGO: a hybrid algorithm with on-line landscape approximation for expensive multi-objective optimization problems. IEEE Transactions on Evolutionary Computation , 10(1):50–66, 2006. ISSN 1089-778X. doi: 10.1109/tevc.2005.851274. Aviral Kumar and Sergey Levine. Model Inversion Networks for Model-Based Optimization. In H. Larochelle, M. Ranzato, R. Hadsell, M.F. Balcan, and H. Lin (eds.), Advances in Neural Information Processing Systems , volume 33, pp. 5126–5137. Curran Associates, Inc., 2020. URL https://proceedings.neurips.cc/paper_files/paper/2020/ file/373e4c5d8edfa8b74fd4b6791d0cf6dc-Paper.pdf .Zeyang Li, Kaveh Alim, and Navid Azizan. HardFlow: Hard-Constrained Sampling for Flow-Matching Models via Trajectory Optimization, 2026. URL https://arxiv.org/abs/ 2511.08425 .Yaron Lipman, Ricky T. Q. Chen, Heli Ben-Hamu, Maximilian Nickel, and Matthew Le. Flow Matching for Generative Modeling. In The Eleventh International Conference on Learning Rep-resentations , 2023. URL https://openreview.net/forum?id=PqvMRDCJT9t .Xingchao Liu, Chengyue Gong, and qiang liu. Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow. In NeurIPS 2022 Workshop on Score-Based Methods , 2022. URL https://openreview.net/forum?id=gWxpdtQpiYV .Xingchao Liu, Lemeng Wu, Shujian Zhang, Chengyue Gong, Wei Ping, and Qiang Liu. FlowGrad: Controlling the Output of Generative ODEs With Gradients. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 24335–24344, June 2023. Mehryar Mohri, Afshin Rostamizadeh, and Ameet Talwalkar. Foundations of Machine Learning .MIT Press, 2 edition, 2018. Gabriel Peyr´ e and Marco Cuturi. Computational Optimal Transport with Applications to Data Sci-ences. Foundations and Trends in Machine Learning , 11(5-6):355–607, 02 2019. ISSN 1935-8237. doi: 10.1561/2200000073. URL https://doi.org/10.1561/2200000073 .Elizabeth A. Pogue, Alexander New, Kyle McElroy, Nam Q. Le, Michael J. Pekala, Ian McCue, Ed-die Gienger, Janna Domenico, Elizabeth Hedrick, Tyrel M. McQueen, Brandon Wilfong, Chris-tine D. Piatko, Christopher R. Ratto, Andrew Lennon, Christine Chung, Timothy Montalbano, Gregory Bassen, and Christopher D. Stiles. Closed-loop superconducting materials discovery. npj Computational Materials , 9(181), 2023. ISSN 2057-3960. doi: 10.1038/s41524-023-01131-3. URL https://doi.org/10.1038/s41524-023-01131-3 .Mehrsa Pourya, Bassam El Rawas, and Michael Unser. Flower: A Flow-Matching Solver for Inverse Problems. In The Fourteenth International Conference on Learning Representations , 2026. URL 
+
+https://openreview.net/forum?id=QGd34p02mI .Han Qi, Yi Su, Aviral Kumar, and Sergey Levine. Data-Driven Offline Decision-Making via Invariant Representation Learning. In S. Koyejo, S. Mohamed, A. Agar-wal, D. Belgrave, K. Cho, and A. Oh (eds.), Advances in Neural Information Pro-cessing Systems , volume 35, pp. 13226–13237. Curran Associates, Inc., 2022. URL 
+
+https://proceedings.neurips.cc/paper_files/paper/2022/file/ 559726fdfb19005e368be4ce3d40e3e5-Paper-Conference.pdf .12 Filippo Santambrogio. Optimal Transport for Applied Mathematicians: Calculus of Variations, PDEs, and Modeling , volume 87 of Progress in Nonlinear Differential Equations and Their Ap-plications . Birkh¨ auser, 2015. ISBN 978-3-319-20828-2. doi: 10.1007/978-3-319-20828-2. Oliver Sch¨ utze, Xavier Esquivel, Adriana Lara, and Carlos A. Coello Coello. Using the Aver-aged Hausdorff Distance as a Performance Measure in Evolutionary Multiobjective Optimiza-tion. IEEE Transactions on Evolutionary Computation , 16(4):504–522, 2012. doi: 10.1109/ TEVC.2011.2161872. Shai Shalev-Shwartz and Shai Ben-David. Understanding Machine Learning: From Theory to Algorithms . Cambridge University Press, 2014. Jatan Shrestha, Santeri Heiskanen, Kari Hepola, Severi Rissanen, Pekka J¨ a¨ askel¨ ainen, and Joni Pajarinen. Pareto-Conditioned Diffusion Models for Offline Multi-Objective Optimization. In 
+
+The Fourteenth International Conference on Learning Representations , 2026. URL https: //openreview.net/forum?id=S2Q00li155 .Yang Song and Stefano Ermon. Generative Modeling by Estimating Gradients of the Data Distribution. In H. Wallach, H. Larochelle, A. Beygelzimer, F. d'Alch´ e-Buc, E. Fox, and R. Garnett (eds.), Advances in Neural Information Processing Systems , volume 32. Curran Associates, Inc., 2019. URL https://proceedings.neurips.cc/paper_files/ paper/2019/file/3001ef257407d5a371a96dcd947c7d93-Paper.pdf .Ryoji Tanabe and Hisao Ishibuchi. An easy-to-use real-world multi-objective optimization problem suite. Applied Soft Computing , 89:106078, 2020. ISSN 1568-4946. doi: https://doi.org/10.1016/ j.asoc.2020.106078. URL https://www.sciencedirect.com/science/article/ pii/S1568494620300181 .Brandon Trabucco, Aviral Kumar, Xinyang Geng, and Sergey Levine. Conservative Objective Models for Effective Offline Model-Based Optimization. In Marina Meila and Tong Zhang (eds.), Proceedings of the 38th International Conference on Machine Learning , volume 139 of 
+
+Proceedings of Machine Learning Research , pp. 10358–10368. PMLR, 18–24 Jul 2021. URL 
+
+https://proceedings.mlr.press/v139/trabucco21a.html .Brandon Trabucco, Xinyang Geng, Aviral Kumar, and Sergey Levine. Design-Bench: Benchmarks for Data-Driven Offline Model-Based Optimization. In Kamalika Chaudhuri, Stefanie Jegelka, Le Song, Csaba Szepesvari, Gang Niu, and Sivan Sabato (eds.), Proceedings of the 39th Inter-national Conference on Machine Learning , volume 162 of Proceedings of Machine Learning Research , pp. 21658–21676. PMLR, 17–23 Jul 2022. URL https://proceedings.mlr. press/v162/trabucco22a.html .D.A. Van Veldhuizen and G.B. Lamont. On measuring multiobjective evolutionary algorithm per-formance. In Proceedings of the 2000 Congress on Evolutionary Computation. CEC00 (Cat. No.00TH8512) , volume 1, pp. 204–211 vol.1, 2000. doi: 10.1109/CEC.2000.870296. Titouan Vayer and R´ emi Gribonval. Controlling wasserstein distances by kernel norms with appli-cation to compressive statistical learning. Journal of Machine Learning Research , 24(149):1–51, 2023. URL https://jmlr.org/papers/v24/21-1516.html .C´ edric Villani. Optimal Transport: Old and New , volume 338 of Grundlehren der mathematischen Wissenschaften . Springer, Berlin, Heidelberg, 2009. ISBN 978-3-540-71049-3. doi: 10.1007/ 978-3-540-71050-9. Handing Wang, Yaochu Jin, Chaoli Sun, and John Doherty. Offline data-driven evolutionary opti-mization using selective surrogate ensembles. IEEE Transactions on Evolutionary Computation ,23(2):203–216, 2018. Jike Wang, Chang-Yu Hsieh, Mingyang Wang, Xiaorui Wang, Zhenxing Wu, Dejun Jiang, Ben-ben Liao, Xujun Zhang, Bo Yang, Qiaojun He, Dongsheng Cao, Xi Chen, and Tingjun Hou. Multi-constraint molecular generation based on conditional transformer, knowledge distilla-tion and reinforcement learning. Nature Machine Intelligence , 3(10):914–922, 2021. ISSN 2522-5839. doi: 10.1038/s42256-021-00403-1. URL https://doi.org/10.1038/ s42256-021-00403-1 .13 Luran Wang, Chaoran Cheng, Yizhen Liao, Yanru Qu, and Ge Liu. Training Free Guided Flow-Matching with Optimal Control. In The Thirteenth International Conference on Learning Repre-sentations , 2025. URL https://openreview.net/forum?id=61ss5RA1MM .George Webber, Alexander Denker, Riccardo Barbano, and Andrew J Reader. Solving Inverse Prob-lems with Flow-based Models via Model Predictive Control, 2026. URL https://arxiv. org/abs/2601.23231 .Ke Xue, Rongxi Tan, Xiaobin Huang, and Chao Qian. Offline Multi-Objective Optimization. In Ruslan Salakhutdinov, Zico Kolter, Katherine Heller, Adrian Weller, Nuria Oliver, Jonathan Scar-lett, and Felix Berkenkamp (eds.), Proceedings of the 41st International Conference on Machine Learning , volume 235 of Proceedings of Machine Learning Research , pp. 55595–55624. PMLR, 21–27 Jul 2024. URL https://proceedings.mlr.press/v235/xue24b.html .Cuie Yang, Jinliang Ding, Yaochu Jin, and Tianyou Chai. Offline data-driven multiobjective opti-mization: Knowledge transfer between surrogates and generation of final solutions. IEEE Trans-actions on Evolutionary Computation , 24(3):409–423, 2019. Sihyun Yu, Sungsoo Ahn, Le Song, and Jinwoo Shin. RoMA: Robust Model Adaptation for Offline Model-based Optimization. In M. Ranzato, A. Beygelzimer, Y. Dauphin, P.S. Liang, and J. Wortman Vaughan (eds.), Advances in Neural In-formation Processing Systems , volume 34, pp. 4619–4631. Curran Associates, Inc., 2021. URL https://proceedings.neurips.cc/paper_files/paper/2021/ file/24b43fb034a10d78bec71274033b4096-Paper.pdf .Tianhe Yu, Saurabh Kumar, Abhishek Gupta, Sergey Levine, Karol Hausman, and Chelsea Finn. Gradient Surgery for Multi-Task Learning. In H. Larochelle, M. Ranzato, R. Hadsell, M.F. Balcan, and H. Lin (eds.), Advances in Neural In-formation Processing Systems , volume 33, pp. 5824–5836. Curran Associates, Inc., 2020. URL https://proceedings.neurips.cc/paper_files/paper/2020/ file/3fe78a8acf5fda99de95303940a2420c-Paper.pdf .Ye Yuan, Can (Sam) Chen, Zixuan Liu, Willie Neiswanger, and Xue (Steve) Liu. Importance-aware Co-Teaching for Offline Model-based Optimization. In A. Oh, T. Naumann, A. Globerson, K. Saenko, M. Hardt, and S. Levine (eds.), Advances in Neural In-formation Processing Systems , volume 36, pp. 55718–55733. Curran Associates, Inc., 2023. URL https://proceedings.neurips.cc/paper_files/paper/2023/ file/ae8b0b5838ba510daff1198474e7b984-Paper-Conference.pdf .Ye Yuan, Can Chen, Christopher Pal, and Xue Liu. ParetoFlow: Guided Flows in Multi-Objective Optimization. In The Thirteenth International Conference on Learning Representations , 2025. URL https://openreview.net/forum?id=mLyyB4le5u .Claudio Zeni, Robert Pinsler, Daniel Z¨ ugner, Andrew Fowler, Matthew Horton, Xiang Fu, Zi-long Wang, Aliaksandra Shysheya, Jonathan Crabb´ e, Shoko Ueda, Roberto Sordillo, Lixin Sun, Jake Smith, Bichlien Nguyen, Hannes Schulz, Sarah Lewis, Chin-Wei Huang, Ziheng Lu, Yichi Zhou, Han Yang, Hongxia Hao, Jielan Li, Chunlei Yang, Wenjie Li, Ryota Tomioka, and Tian Xie. A generative model for inorganic materials design. Nature , 639(8055):624–632, 2025. ISSN 1476-4687. doi: 10.1038/s41586-025-08628-5. URL https://doi.org/10.1038/ s41586-025-08628-5 .E. Zitzler and L. Thiele. Multiobjective evolutionary algorithms: a comparative case study and the strength Pareto approach. IEEE Transactions on Evolutionary Computation , 3(4):257–271, 1999. doi: 10.1109/4235.797969. Eckart Zitzler, Kalyanmoy Deb, and Lothar Thiele. Comparison of Multiobjective Evolutionary Algorithms: Empirical Results. Evolutionary Computation , 8(2):173–195, 2000. doi: 10.1162/ 106365600568202. 14 A APPENDIX 
+
+A.1 TRAINING -FREE GUIDANCE OF FLOW -MATCHING MODELS 
+
+Flow matching (FM) (Lipman et al., 2023; Albergo & Vanden-Eijnden, 2023; Liu et al., 2022) is an efficient and simulation-free framework for generative modeling. The goal is to learn a time-dependent velocity field u : [0 , 1] × Rd → Rd that transforms a simple initial distribution p0 into a complex terminal distribution p1. The flow map ϕ : [0 , 1] × Rd → Rd is defined by ϕt(x0) := x(t),where x : [0 , 1] → Rd is the solution of the ordinary differential equation (ODE) 
+
+dx (t)
+
+dt = ut
+
+ x(t), x(0) = x0. (8) This flow map induces a probability path pt := ( ϕt)#p0 that satisfies the continuity equation 
+
+∂tpt + ∇ · (utpt) = 0 . FM learns a model uθt by minimizing the regression loss w.r.t. the ground truth velocity field ut,
+
+LFM (θ) := Et∼U [0 ,1] , X t∼pt uθt (Xt) − ut(Xt) 2 .
+
+Since the velocity field ut is unknown, the FM loss is intractable. FM therefore introduces a condi-tional probability path pt|Z with Z = ( X0, X 1) ∼ π, where π ∈ Γ( p0, p 1) is a coupling of X0 ∼ p0
+
+and X1 ∼ p1. A standard choice is an affine conditional probability path Xt := αtX1 + βtX0 with scheduler (αt, β t) satisfying α0 = β1 = 0 , α 1 = β0 = 1 . The induced velocity field ut|Z is then given by ut|Z (Xt) = ˙ αtX1 + ˙βtX0. This yields a tractable conditional FM loss 
+
+LCFM (θ) := Et∼U [0 ,1] , Z ∼π, X t∼pt|Z uθt|Z (Xt) − ut|Z (Xt) 2
+
+.
+
+The marginal and conditional velocity fields are related through 
+
+ut(x) = E ut|Z (Xt) | Xt = x .
+
+Moreover, it has been shown that ∇L FM (θ) = ∇L CFM (θ) (Lipman et al., 2023). Therefore, the velocity field uθt can be trained by minimizing the conditional FM loss LCFM (θ). At inference time, sampling is performed by drawing an initial sample x0 ∼ p0 and integrating the ODE in (8) with the learned velocity field. 
+
+Training-free guidance. A key challenge in training-free guidance is the approximation of the full-horizon optimization problem by a sequence of single-step subproblems. Recent work (Li et al., 2026; Pourya et al., 2026) further introduces a reverse parameterization that reformulates the op-timization in terms of the terminal sample, thereby avoiding differentiation of the terminal loss through the neural network. The full-horizon optimization problem (Ben-Hamu et al., 2024) is formulated as 
+
+min  ex(t), c (t)
+
+
+
+> t∈[0 ,1]
+
+J ex(1)  + λ
+
+Z 10
+
+12 ∥c(t)∥2 dt 
+
+s.t. ex(0) = x0,dex(t)
+
+dt = ut
+
+ ex(t) + c(t) t ∈ [0 , 1] .
+
+(9) In practice, the continuous-time dynamics are discretized on a time grid 0 = t1 < . . . < t K = 1 ,
+
+∆tk := tk+1 − tk. Using forward Euler, the full-horizon optimization problem becomes 
+
+min    
+
+> (extk)Kk=1 ,(ctk)K−1
+> k=1
+
+J ex1
+
+ + λ
+
+> K−1
+
+X
+
+> k=1
+
+∆tk
+
+2 ∥ctk ∥2
+
+s.t. ex0 = x0,
+
+extk+1 = extk + ∆ tk (utk (extk ) + ctk ) k = 1 , . . . , K − 1.
+
+(10) Although Eq. (10) is written in terms of both the trajectory and guidance variables, the Euler re-cursion uniquely determines the trajectory from the guidance variables once the initial samples are 15 fixed. Hence, the problem can equivalently be viewed as a full-horizon optimization over (ctk )K−1
+
+> k=1
+
+alone. Prior work (Li et al., 2026; Webber et al., 2026) approximates this discrete-time full-horizon problem by a sequence of single-step subproblems. At step k, future guidance velocities ctk+1 , . . . , c tK−1 are ignored, and the posterior mean bx1|tk+1 is used to approximate the terminal sample resulting from the current guidance step. Hence, rather than jointly optimizing the guidance velocities over the entire sampling path, each subproblem optimizes only ctk . Given x0 ∼ p0 and ex0 := x0, the resulting recursion for k = 1 , . . . , K − 1 is 
+
+copt := arg min 
+
+> ctk
+
+J(bx1) + λ ∆tk
+
+2 ∥ctk ∥2
+
+s.t. bx1 = bx1|tk+1 
+
+ extk + ∆ tk (utk (extk ) + ctk ) ,
+
+extk+1 := extk + ∆ tk (utk (extk ) + copt ) .
+
+(11) Since the terminal loss depends on ctk only through the estimated terminal sample, Li et al. (2026) reformulate each subproblem directly in terminal space. The optimized terminal sample is then mapped back to the sampling path using the local reverse parameterization, denoted here by bxtk+1 |1.The regularization term on the guidance velocity can be equivalently expressed in terms of the terminal sample (Li et al., 2026), resulting in the following recursion for k = 1 , . . . , K − 1:
+
+bx1 := bx1|tk+1 
+
+ extk + ∆ tkutk (extk ),xopt := arg min 
+
+> x1
+
+J(x1) + λ α2
+
+> tk+1
+
+2∆ tk
+
+∥x1 − bx1∥2,
+
+extk+1 := bxtk+1 |1(xopt ).
+
+(12) A detailed analysis of the approximation error is provided by Li et al. (2026). 
+
+Posterior mean estimation. Prior work in diffusion (Kim & Ye, 2021; Chung et al., 2023; Kim et al., 2025c) has leveraged Tweedie’s formula to obtain the posterior mean estimator of the terminal sample. Under a Gaussian initial distribution and an affine conditional probability path, Tweedie’s formula has also been adopted for flow matching (Kim et al., 2025a; Pourya et al., 2026). However, flow matching also admits a direct derivation of the same posterior mean estimator that relies only on the affine conditional probability path, without explicit use of Tweedie’s formula (Feng et al., 2025; Li et al., 2026; Webber et al., 2026). 
+
+Lemma 1. (Feng et al., 2025) Let Z := ( X0, X 1) ∼ π ∈ Γ( p0, p 1) and consider the affine condi-tional probability path Xt := αtX1 + βtX0, t ∈ [0 , 1] , where (αt, β t) is a differentiable scheduler satisfying α0 = β1 = 0 , α 1 = β0 = 1 . The induced conditional velocity field ut|Z is therefore 
+
+ut|Z (Xt) = ˙ αtX1 + ˙βtX0. Define Λt := αt ˙βt − ˙αtβt. Assume that Λt̸ = 0 for all t ∈ [0 , 1] . Then, for every x ∈ Rd, the posterior means are given by 
+
+bx0|t(x) := E[X0 | Xt = x] = − ˙αt x + αt ut(x)Λt
+
+.
+
+and 
+
+bx1|t(x) := E[X1 | Xt = x] = ˙βt x − βt ut(x)Λt
+
+.
+
+Moreover, they satisfy the identity 
+
+x = αt bx1|t(x) + βt bx0|t(x). (13) 
+
+Corollary 2. Consider the linear scheduler αt := t, β t := 1 − t corresponding to the affine condi-tional probability path Xt := tX 1 + (1 − t)X0. Then the posterior means simplify to 
+
+bx0|t(x) = x − tu t(x), bx1|t(x) = x + (1 − t)ut(x). (14) 
+
+Remark 1. The identity in (13) yields an implicit characterization of the reverse parameterization. For αt̸ = 0 ,
+
+x1 = bx1|t(xt) ⇐⇒ xt = αtx1 + βt bx0|t(xt).
+
+16 Therefore, recovering xt from a given terminal sample x1 is equivalent to finding a fixed point of the mapping 
+
+Tx1 (x) := αtx1 + βt bx0|t(x).
+
+If Tx1 is a contraction, the Banach fixed-point theorem guarantees that, for any initialization x(0) ,the iterates 
+
+x(k+1) = Tx1 (x(k))
+
+converge to the unique fixed point. 
+
+Given a reference intermediate sample xref  
+
+> t
+
+, Li et al. (2026) approximate the solution of the fixed-point equation by a single iteration initialized at x(0) := xref  
+
+> t
+
+. Thus, for a given terminal sample 
+
+x1,
+
+bxt|1
+
+ x1; xref 
+
+> t
+
+ := x(1) = Tx1 (x(0) ) = αtx1 + βt bx0|t
+
+ xref 
+
+> t
+
+.
+
+Pourya et al. (2026) instead define the reverse parameterization by 
+
+bxt|1(x1) := αtx1 + βtx0,
+
+where x0 ∼ p0 is independently sampled at each step. A.2 ALGORITHMIC DETAILS 
+
+A.2.1 PARTICLE -LEVEL APPROXIMATION OF DISTRIBUTIONAL GUIDANCE .We derive the particle-level approximation of the distributional guidance problem in Eq. (6). We approximate the probability path (ept)t∈[0 ,1] by the empirical path and, with a slight abuse of notation, write ept = 1
+
+> N
+
+PNi=1 δexit . Thus, the probability path (ept)t∈[0 ,1] is represented by a system of particle trajectories {(exit)t∈[0 ,1] | i = 1 , . . . , N }. The continuity equation in Eq. (6) then takes the form 
+
+ddt exit = ut(exit) + ct(exit), exi 
+
+> 0
+
+= xi
+
+> 0
+
+, i = 1 , . . . , N. (15) On the time grid 0 = t1 < . . . < t K = 1 , ∆tk := tk+1 − tk, the forward Euler discretization of Eq. (15) is 
+
+exitk+1 = exitk + ∆ tk
+
+ utk (exitk ) + ctk (exitk ) . (16) Thus, the particle-level time-discrete approximation of the guidance regularization term in Eq. (6) becomes 
+
+λ
+
+Z 10
+
+Z 12 ∥ct(x)∥2 dept(x) dt = λN
+
+> N
+
+X
+
+> i=1
+
+Z 10
+
+12 ∥ct(exit)∥2 dt ≈ λN
+
+> N
+
+X
+
+> i=1
+> K−1
+
+X
+
+> k=1
+
+∆tk
+
+2 ∥ctk (exitk )∥2.
+
+The distributional guidance problem in Eq. (6) is then approximated by 
+
+min     
+
+> (exitk)i,k ,(citk)i,k
+
+J 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+δexi
+
+> 1
+
+!
+
++ λN
+
+> N
+
+X
+
+> i=1
+> K−1
+
+X
+
+> k=1
+
+∆tk
+
+2 ∥citk ∥2 (17) s.t. exi 
+
+> 0
+
+= xi
+
+> 0
+
+, i = 1 , . . . , N, 
+
+exitk+1 = exitk + ∆ tk
+
+ utk (exitk ) + citk
+
+ , i = 1 , . . . , N, k = 1 , . . . , K − 1.
+
+The single-trajectory approximation described in Appendix A.1 replaces the corresponding time-discrete full-horizon optimization problem by a sequence of single-step terminal-space subproblems. We apply this approximation to each particle trajectory. Thus, at step k, only the current guidance variables (citk )Ni=1 are considered. For each particle, the terminal estimate is obtained by evaluating the posterior mean map at the unguided Euler update, 
+
+bxi 
+
+> 1
+
+:= bx1|tk+1 
+
+ exitk + ∆ tkutk (exitk ) , i = 1 , . . . , N. 
+
+The particle-wise guidance variables (citk )Ni=1 are then reparameterized by terminal variables 
+
+(xi
+
+> 1
+
+)Ni=1 . The resulting subproblem is 
+
+ xi
+
+> opt
+
+Ni=1 ∈ arg min 
+
+> (xi
+> 1)Ni=1
+
+J 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+δxi
+
+> 1
+
+!
+
++ λN
+
+> N
+
+X
+
+> i=1
+
+α2
+
+> tk+1
+
+2∆ tk
+
+xi 
+
+> 1
+
+− bxi 
+
+> 1
+> 2
+
+.
+
+17 Unlike in the single-trajectory setting, the loss functional J acts on the empirical distribution of the terminal particles and therefore couples the terminal variables in a joint optimization. Finally, the optimized terminal particles are mapped back to the sampling path using the local reverse parame-terization, 
+
+exitk+1 := bxtk+1 |1
+
+ xi
+
+> opt
+
+, i = 1 , . . . , N. 
+
+A.2.2 INTERMEDIATE PROXY DISTRIBUTIONS 
+
+Objective-space normalization. All objective-space computations in ParetoTransport are per-formed after min–max normalization using statistics computed once from the offline dataset Doff .Since the W2 term uses Euclidean distances in objective space, normalization ensures that its trans-port cost is not dominated by differences in objective scales. For objective r = 1 , . . . , m , let 
+
+f min  
+
+> r
+
+:= min 
+
+> x∈D off
+
+fr (x), f max  
+
+> r
+
+:= max 
+
+> x∈D off
+
+fr (x).
+
+We define the normalized objective functions 
+
+¯fr (x) := fr (x) − f min 
+
+> r
+
+f max  
+
+> r
+
+− f min 
+
+> r
+
+, r = 1 , . . . , m, 
+
+and keep these normalization constants fixed throughout surrogate training, flow model training, and sampling. For simplicity, we write f for the normalized objective function ¯f := ( ¯f1, . . . , ¯fm).
+
+Crowding distance. For a set {yj }Mj=1 ⊂ Rm, we compute the standard NSGA-II (Deb et al., 2002a) crowding distance. For each objective r, the points are sorted according to their r-th objective value. For an interior point yj , its contribution along objective r is 
+
+djr := yj+ 
+
+> r
+
+− yj−
+
+> r
+
+ymax  
+
+> r
+
+− ymin 
+
+> r
+
+,
+
+where j− and j+ denote the adjacent points in the ordering of objective r. The total crowding distance is 
+
+dj := 
+
+> m
+
+X
+
+> r=1
+
+djr .
+
+As in NSGA-II, boundary points are assigned infinite crowding distance during the sorting proce-dure. 
+
+Proxy-update operator. We denote by R the proxy-update operator that combines the current proxy with the optimized objective vectors to construct the next proxy distribution, updating its support and assigning probability masses according to local crowding so that sparsely represented regions receive more mass and densely represented regions receive less. In particular, we combine the support of the current proxy with the new candidate objective vectors. Let (yj )Mj=1 denote the M points retained after non-dominated filtering and crowding-based trunca-tion. We then compute the crowding distance dj for each point. Since boundary points are assigned infinite crowding distance, we replace each infinite value by the largest finite crowding distance in the archive, 
+
+edj := 
+
+
+
+dj , dj < ∞,
+
+max  
+
+> ℓ:dℓ<∞
+
+dℓ, dj = ∞.
+
+Direct normalization of these scores can assign excessive mass to isolated points. We therefore impose the upper bound 
+
+bj ≤ κM ,
+
+where κ ≥ 1 is a fixed cap parameter. The target marginal is defined by 
+
+bj := min 
+
+n κM , λw j o
+
+, j = 1 , . . . , M, 
+
+where λ > 0 is chosen such that MX
+
+> j=1
+
+bj = 1 .
+
+18 Thus, the uncapped masses remain proportional to the crowding distances, while excess mass from capped points is redistributed proportionally among the remaining points. We use κ = 5 . The resulting next target is 
+
+μtk+1 := 
+
+> M
+
+X
+
+> j=1
+
+bj δyj .
+
+A.2.3 LOSS FUNCTIONAL 
+
+We derive the implementation details of the loss functional in equation Eq. (7), 
+
+Jk(q) = W 22 (f#q, μ tk ) + γL n(f#q∥μtk ).
+
+For candidate terminal particles X := ( xi
+
+> 1
+
+)Ni=1 , the terminal design-space distribution is represented by the empirical distribution q := 1
+
+> N
+
+PNi=1 δxi 
+
+> 1
+
+. The particle-level optimization acts on the parti-cle locations xi
+
+> 1
+
+, while each particle retains mass 1 
+
+> N
+
+. Consequently, the induced objective-space distribution is f#q = 1
+
+> N
+
+PNi=1 δf (xi
+
+> 1)
+
+.
+
+Directional improvement term. We give details on the surrogate projection direction and the particle-level implementation of the transport term Ln,
+
+Ln(f#q∥μtk ) = −
+
+
+
+EY ∼f#q [Y ] − EY ∼μtk [Y ]
+
+⊤
+
+n. 
+
+Following Das & Dennis (1998), we construct the Convex Hull of Individual Minima (CHIM) from the objective vectors corresponding to the individual objective minima. For each r = 1 , . . . , m , let 
+
+xr 
+
+> IM
+
+∈ arg min 
+
+> x∈D off
+
+fr (x), zr := f (xr
+
+> IM
+
+) ∈ Rm.
+
+The CHIM is H := conv {z1, . . . , z m}. We use a unit normal n to the affine hull of H as the global surrogate direction in Eq. (7). To compute the normal, for m = 2 we set 
+
+v := z2 − z1, en := ( −v2, v 1)⊤,
+
+while for m = 3 we use 
+
+en := ( z2 − z1) × (z3 − z1).
+
+Finally, we normalize the vector and resolve its sign ambiguity by orienting it toward simultaneous objective decrease: 
+
+¯n := en
+
+∥en∥2
+
+, n := 
+
+¯n, ¯n⊤(−1m) ≥ 0,
+
+−¯n, otherwise . (18) The resulting direction n is computed once from the offline dataset and kept fixed throughout guided sampling. At sampling step k, let (bxi
+
+> 1
+
+)Ni=1 denote the posterior terminal estimates. For any fixed reference distribution ρ ∈ P 2(Rm), the particle-level transport term is 
+
+Ln(f#q∥ρ) = − 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+f (xi
+
+> 1
+
+) − EY ∼ρ[Y ]
+
+!⊤
+
+n. 
+
+Since EY ∼ρ[Y ]⊤n is constant with respect to the candidate particles, the gradient of Ln is indepen-dent of the choice of the fixed reference distribution. In the implementation, we use the empirical distribution of the posterior terminal estimates ρ := 1
+
+> N
+
+PNi=1 δf (bxi 
+
+> 1)
+
+as the reference for the transport term. The posterior estimates are held fixed during the terminal optimization, so this formulation induces the same gradient as Ln(f#q∥μtk ). We center the loss at the posterior estimates so that it directly represents the displacement of the candidate objective vectors along the surrogate pro-jection direction. The proxy μtk remains the reference for the Wasserstein term, where it controls probability-mass allocation. 
+
+Wasserstein term. We approximate the discrete optimal transport problem defining W 22 (f#q, μ tk )
+
+by an entropically regularized optimal transport problem. The source marginal of the objective-space distribution f#q in the optimal transport problem is a := 1 
+
+> N
+
+1N . In contrast, the target marginal 19 btk := ( bjtk )Mj=1 is determined by the crowding-based weighting rule. For simplicity, at a fixed step 
+
+k, we write y := ytk and b := btk .We define the quadratic cost matrix C(X) ∈ RN ×M by Cij (X) := ∥f (xi
+
+> 1
+
+) − yj ∥2. The set of admissible couplings is U(a, b ) := P ∈ RN ×M 
+
+> +
+
+: P 1M = a, P ⊤1N = b . The entropically regularized optimal transport problem is 
+
+Wε(X) := min   
+
+> P∈U (a,b )
+
+Fε(X, P ), Fε(X, P ) := ⟨P, C (X)⟩ + ε
+
+> N
+
+X
+
+> i=1
+> M
+
+X
+
+> j=1
+
+Pij (log Pij − 1) .
+
+For ε > 0, Fε(X, ·) is strictly convex and therefore admits a unique minimizer P ⋆ε (X) (Peyr´ e & Cuturi, 2019). Hence, Danskin’s theorem yields 
+
+∇X Wε(X) = ∇X Fε
+
+ X, P ⋆ε (X),
+
+where P ⋆ε (X) is held fixed in the derivative on the right-hand side. Thus, gradients with respect to the terminal particles can be computed without differentiating through the optimal coupling. In practice, we approximate the coupling using the log-domain Sinkhorn solver implemented in the POT library (Flamary et al., 2021), using ε = 10 −3. Given the resulting coupling P , we optimize the weighted quadratic transport cost 
+
+⟨P, C (X)⟩ =
+
+> N
+
+X
+
+> i=1
+> M
+
+X
+
+> j=1
+
+Pij f (xi
+
+> 1
+
+) − yj 2
+
+with respect to the terminal particles X.A.3 IMPLEMENTATION DETAILS 
+
+We provide details on the implementation of ParetoTransport and the datasets used in our experi-ments. A.3.1 TRAINING DETAILS 
+
+For the surrogate models, we adopt the training configuration from Xue et al. (2024). We use the multiple model setting and train an individual surrogate for each objective. Each surrogate is a three-layer MLP with two 2048 -dimensional hidden layers and ReLU activations. The models are trained on the offline dataset using mean squared error (MSE) loss and the Adam optimizer with initial learning rate 1 × 10 −3 and learning rate decay 0.98 per epoch. We train for 200 epochs with a batch size of 128 . For the flow matching model, we use an architecture based on Yuan et al. (2025): a four-layer MLP with three hidden layers and SeLU activations. We use a hidden width of 256 and train for up to 200 epochs with early stopping (patience 20 ), using the Adam optimizer with learning rate of 1 × 10 −3 and a batch size of 512 .We min-max normalize the design space to [0 , 1] d and set the initial distribution to be uniform over this cube. We integrate the learned velocity field along the affine probability path, using an explicit Euler scheme on a uniform grid of T = 100 points. We generate N = 256 solutions in parallel. As in Yuan et al. (2025), guidance is confined to the final phase of the trajectory, t > 0.8; earlier steps are plain Euler updates. At each guidance step, we run 10 Adam steps with learning rate 0.01 to minimize the loss functional J in Eq. (7), using γ = 0 .5.A.3.2 MOO M ETRICS 
+
+We provide details on the evaluation metrics. Hypervolume (HV) (Zitzler & Thiele, 1999) measures m-dimensional volume of the objective-space region dominated by the solution set A ⊂ Rm and bounded by a reference point r ∈ Rm. The reference point is selected such that ai ≤ ri for all a ∈ A and i = 1 , . . . , m . The hypervolume is defined as 
+
+HV( A, r ) := λ [
+
+> a∈A
+
+[a1, r 1] × [a2, r 2] × · · · × [am, r m]
+
+!
+
+, (19) 20 where λ denotes the Lebesgue measure in Rm.Generational Distance (GD) (Van Veldhuizen & Lamont, 2000; Sch¨ utze et al., 2012) measures the root mean squared distance from points in the solution set A to their closest points in a discrete approximation Z of the Pareto front, 
+
+GD( A, Z ) := 
+
+s 1
+
+|A|
+
+X
+
+> a∈A
+
+d(a, Z )2. (20) Analogously, the Inverted Generational Distance (IGD) (Coello Coello & Reyes Sierra, 2004; Sch¨ utze et al., 2012) measures the root mean squared distance from points in a discrete approxi-mation Z of the Pareto front to their closest points in the solution set A, IGD( A, Z ) := GD( Z, A ).HV can be strongly influenced by individual solutions, whereas GD and IGD aggregate distances across the solution set and Pareto-front approximation, respectively, providing complementary mea-sures of convergence and coverage. A.3.3 DATASET DETAILS 
+
+We provide further details on the datasets 6 in Tables 5 and 6. We use the original reference points provided in the code repository of Xue et al. (2024). Table 5: Synthetic tasks; dataset information and reference point for HV computation. Name d m Pareto Front Shape Reference Point DTLZ1 7 3 Linear (507.46516068, 502.09050332, 516.68985527) DTLZ2 10 3 Concave (2.51925352, 2.53011955, 2.66682285) DTLZ3 10 3 Concave (1548.83497615, 1459.58638514, 1518.61926977) DTLZ4 10 3 Concave (2.75747516, 2.57674881, 2.52558196) DTLZ5 10 3 Concave (2.40756462, 2.36937324, 2.45008585) DTLZ6 10 3 Concave (8.90471718, 8.89404128, 8.88893072) DTLZ7 10 3 Disconnected (0.99999540, 0.99999772, 30.79227037) ZDT1 30 2 Convex (0.99999809, 7.82506630) ZDT2 30 2 Concave (0.99999706, 9.74316166) ZDT3 30 2 Disconnected (0.99999954, 9.83643758) ZDT4 10 2 Convex (0.99980978, 273.25533168) ZDT6 10 2 Concave (1.00000000, 9.34365208) Table 6: Real-engineering tasks; dataset information and reference point for HV computation. Name d m Pareto Front Shape Reference Point RE21 (Four bar truss design) 4 2 Convex (2971.23988, 0.0485512338) RE22 (Reinforced concrete beam design) 3 2 Mixed (829.079443, 2407217.25) RE23 (Pressure vessel design) 4 2 Mixed, Disconnected (713710.875, 1288669.78054) RE24 (Hatch cover design) 2 2 Convex (5997.8316325, 43.67584229) RE25 (Coil compression spring design) 3 2 Mixed, Disconnected (124.795202, 10038735.0) RE31 (Two bar truss design) 3 3 Unknown (808.852742, 6893375.82, 6793450.00) RE32 (Welded beam design) 4 3 Unknown (290.661885, 16552.4628, 388265024.0) RE33 (Disc brake design) 4 3 Unknown (8.01164324, 8.83604223, 2343.29711914) RE34 (Vehicle crashworthiness design) 5 3 Unknown (1702.51811, 11.6807224, 0.263918844) RE35 (Speed reducer design) 7 3 Unknown (7050.78959905, 1696.66697789, 397.83456421) RE36 (Gear train design) 4 3 Concave, Disconnected (10.21185714, 60.0, 0.97335988) RE37 (Rocket injector design) 4 3 Unknown (0.98949120096, 0.956587924661, 0.987530948586) A.4 THEORETICAL RESULTS 
+
+Corollary 1. For μ, ν ∈ P 2(Rm), GD( μ∥ν) ≤ W2(μ, ν ) and IGD( μ∥ν) ≤ W2(μ, ν ).
+
+> 6
+
+We focus on tasks with m ≤ 3, and leave the extension to the many-objective setting ( m ≥ 4) for future work. This choice is motivated by the complex structure of high-dimensional Pareto fronts. 
+
+21 Proof. Let π ∈ Γ( μ, ν ). Since y ∈ supp ν for π-almost every (x, y ), it follows that d(x, supp ν) ≤∥x − y∥ for π-a.e. (x, y ). Therefore, 
+
+GD 2(μ∥ν) ≤
+
+Z
+
+> Rm×Rm
+
+∥x − y∥2 dπ (x, y ).
+
+Taking the infimum over π ∈ Γ( μ, ν ) yields GD( μ∥ν) ≤ W2(μ, ν ). Since IGD( μ∥ν) = GD( ν∥μ)
+
+and W2 is symmetric, the IGD bound follows. 
+
+Remark 2 (One-sided optimal transport interpretation) . GD and IGD admit a one-sided optimal-transport interpretation in which one marginal is relaxed subject to a hard support constraint. In contrast, W2(μ, ν ) fixes both marginals and therefore also accounts for probability-mass allocation. Indeed, as a direct consequence of Lemma 31 of Vayer & Gribonval (2023), attributed therein to Canas & Rosasco (2012), we have 
+
+GD 2(μ∥ν) = min   
+
+> ρ∈P 2(supp ν)
+
+W 22 (μ, ρ ), IGD 2(μ∥ν) = min   
+
+> ρ∈P 2(supp μ)
+
+W 22 (ν, ρ ).
+
+Thus, Corollary 1 follows also by evaluating the respective minima at ρ = ν and ρ = μ.
+
+Assumption 1 (Projection condition) . The Pareto front M ∗ ⊂ Rm is nonempty and closed. There exists a set U ⊃ M ∗ such that every y ∈ U has a unique nearest point in M ∗, denoted by ΠM ∗ (y) := argmin z∈M ∗ ∥y − z∥.
+
+Assumption 2 (Moment and concentration condition) . The offline front and Pareto front distribu-tions satisfy μ0, μ ∗ ∈ P 2(Rm) and μ0(U ) = 1 .
+
+Assumption 3 (Invariance under transport) . For a fixed η ∈ (0 , 1] , define Tη (y) := (1 − η)y +
+
+ηΠM ∗ (y), y ∈ U . Tη satisfies Tη (U ) ⊆ U .
+
+Theorem 1. Let (μk)k≥0 denote the sequence of intermediate proxy distributions defined by the iterative procedure in Section 5. If Step (i) achieves exact matching, W2(f#qk+1 , μ k) = 0 for all k,and the technical Assumptions (1)–(3) hold, then 
+
+W2(μk, μ ∗) ≤ (1 − γ)kW2(μ0, ¯μ) + W2(¯ μ, μ ∗). (21) 
+
+Proof. Since W2 is a metric on P2(Rm), exact matching in Step (i) implies f#qk+1 = μk, and hence by Step (ii), μk+1 = ( Tη )#μk. In particular, μk = ( T kη )#μ0.
+
+Step 1: We first establish T kη = (1 − ξk) Id + ξkΠM ∗ for ξk := 1 − (1 − η)k. By Assumptions 1 and 3, 
+
+ΠM ∗ (Tη (y)) = Π M ∗ (y), y ∈ U. (22) Indeed, fix y ∈ U , let z := Π M ∗ (y) and r := ∥y − z∥ = d(y, M ∗), and set w := Π M ∗ (Tη (y)) . The latter is well defined by Assumption 3. Since w ∈ M ∗, r ≤ ∥ y − w∥. Since w is a nearest point to 
+
+Tη (y) and z ∈ M ∗,
+
+∥y − w∥ ≤ ∥ y − Tη (y)∥ + ∥Tη (y) − w∥ ≤ ηr + (1 − η)r = r. 
+
+Thus ∥y − w∥ = r, so w is also a nearest point in M ∗ to y. By uniqueness in Assumption 1, 
+
+w = z, proving Eq. (22). By Assumption 3, the identity Eq. (22) may be iterated. A direct induction therefore gives 
+
+T kη (y) = (1 − ξk)y + ξkΠM ∗ (y), y ∈ U. (23) 
+
+Step 2: Assumptions 2 and 3, together with μk = ( T kη )#μ0, imply μk(U ) = 1 for all k. Moreover, all iterates μk belong to P2(Rm). Indeed, fixing any z0 ∈ M ∗, for y ∈ U ,
+
+∥Tη (y)∥ ≤ ∥ y∥ + ∥y − Tη (y)∥ = ∥y∥ + η∥y − ΠM∗ (y)∥ ≤ (1 + η)∥y∥ + η∥z0∥,
+
+so finite second moments are preserved by (Tη )#.
+
+Step 3: We now relate the iteration to a Wasserstein geodesic. Since M ∗ is nonempty and closed by Assumption 1, there exists a Borel measurable nearest-point selection PM ∗ : Rm → M ∗. On U
+
+the nearest point is unique, hence PM ∗ (y) = Π M ∗ (y), y ∈ U . Since μ0(U ) = 1 by Assumption 2, 
+
+(PM ∗ )#μ0 = (Π M ∗ )#μ0 = ¯ μ.22 By Lemma 31 of Vayer & Gribonval (2023), it holds that 
+
+W 22 (μ0, ¯μ) = 
+
+Z
+
+> Rm
+
+∥y − PM ∗ (y)∥2 dμ 0(y), (24) and the coupling π := (Id , P M ∗ )#μ0 ∈ Γ( μ0, ¯μ) is an optimal transport plan between μ0 and 
+
+¯μ. Since μ0 ∈ P 2(Rm) by Assumption 2, and ¯μ ∈ P 2(Rm), we may apply the displacement-interpolation theorem 5.27 of Santambrogio (2015) to π. Thus 
+
+μ(s) :=  (1 − s) pr 1 +s pr 2
+
+
+
+> #
+
+π, s ∈ [0 , 1] , (25) is a constant-speed W2-geodesic from μ0 to ¯μ, that is, 
+
+W2(μ(s), ¯μ) = (1 − s)W2(μ0, ¯μ), s ∈ [0 , 1] . (26) Using the Monge form of π together with (PM ∗ )#μ0 = (Π M ∗ )#μ0 and μ0(U ) = 1 , we may equivalently write 
+
+μ(s) =  (1 − s) Id + sΠM ∗
+
+
+
+> #
+
+μ0. (27) Combining μk = ( T kη )#μ0, Eq. (23), and Eq. (27) yields μk = μ(ξk ). Therefore, by Eq. (26), 
+
+W2(μk, ¯μ) = W2(μ(ξk ), ¯μ) = (1 − ξk)W2(μ0, ¯μ) = (1 − η)kW2(μ0, ¯μ).
+
+Finally, μ∗ ∈ P 2(Rm) by Assumption 2, so the triangle inequality for W2 gives 
+
+W2(μk, μ ∗) ≤ W2(μk, ¯μ) + W2(¯ μ, μ ∗) = (1 − η)kW2(μ0, ¯μ) + W2(¯ μ, μ ∗),
+
+which proves the claim. A.5 ADDITIONAL RESULTS 
+
+Table 7: HV results on ZDT ( ↑). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method ZDT1 ZDT2 ZDT3 ZDT4 ZDT6 Avg. Rank D(best) 4.168 4.677 5.147 5.457 4.608 –MultiHead-Vallina 4.823 ± 0.030 5.612 ± 0.098 5.637 ± 0.131 4.938 ± 0.237 4.774 ± 0.003 4.200 MultiHead-PcGrad 4.831 ± 0.028 5.605 ± 0.047 5.524 ± 0.048 3.239 ± 0.678 4.776 ± 0.013 6.000 MultiHead-GradNorm 4.741 ± 0.034 5.483 ± 0.115 5.589 ± 0.192 3.489 ± 0.665 4.709 ± 0.025 8.000 MultipleModels-Vallina 4.812 ± 0.028 5.600 ± 0.043 5.536 ± 0.140 4.991 ± 0.067 4.774 ± 0.004 5.600 MultipleModels-COM 4.679 ± 0.112 5.093 ± 0.131 5.530 ± 0.072 5.260 ± 0.193 3.435 ± 0.750 8.800 MultipleModels-IOM 4.763 ± 0.033 5.530 ± 0.101 5.681 ± 0.038 5.338 ± 0.174 4.777 ± 0.005 4.000 MultipleModels-ICT 4.748 ± 0.004 5.428 ± 0.004 5.560 ± 0.049 4.830 ± 0.243 4.723 ± 0.051 7.400 MultipleModels-RoMA 4.817 ± 0.029 5.496 ± 0.067 5.894 ± 0.027 3.679 ± 0.049 2.597 ± 0.027 7.000 MultipleModels-Trimentoring 4.821 ± 0.002 5.548 ± 0.041 4.569 ± 0.083 4.557 ± 0.556 4.045 ± 0.122 8.000 ParetoFlow 4.136 ± 0.030 4.695 ± 0.071 5.171 ± 0.061 5.104 ± 0.125 4.683 ± 0.068 9.600 PreferenceGuidedDiffusion 4.567 ± 0.045 5.367 ± 0.064 5.540 ± 0.066 4.999 ± 0.085 4.823 ± 0.004 6.800 ParetoTransport 4.829 ± 0.034 5.660 ± 0.026 5.531 ± 0.028 5.495 ± 0.000 4.825 ± 0.001 2.600 
+
+23 Table 8: GD results on ZDT ( ↓). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method ZDT1 ZDT2 ZDT3 ZDT4 ZDT6 Avg. Rank D(best) 0.378 0.433 0.382 0.051 0.064 –MultiHead-Vallina 0.032 ± 0.017 0.043 ± 0.048 0.154 ± 0.031 0.597 ± 0.108 0.113 ± 0.016 4.200 MultiHead-PcGrad 0.011 ± 0.002 0.091 ± 0.048 0.255 ± 0.018 0.935 ± 0.221 0.074 ± 0.120 5.000 MultiHead-GradNorm 0.098 ± 0.084 0.103 ± 0.058 0.169 ± 0.010 0.960 ± 0.107 0.098 ± 0.053 7.200 MultipleModels-Vallina 0.042 ± 0.019 0.074 ± 0.017 0.190 ± 0.021 0.494 ± 0.025 0.096 ± 0.011 4.000 MultipleModels-COM 0.072 ± 0.038 0.237 ± 0.072 0.234 ± 0.018 0.413 ± 0.077 0.301 ± 0.092 7.800 MultipleModels-IOM 0.084 ± 0.013 0.109 ± 0.037 0.149 ± 0.014 0.411 ± 0.037 0.112 ± 0.020 5.400 MultipleModels-ICT 0.049 ± 0.011 0.103 ± 0.009 0.202 ± 0.004 0.646 ± 0.075 0.252 ± 0.063 6.800 MultipleModels-RoMA 0.043 ± 0.018 0.113 ± 0.009 0.086 ± 0.011 0.972 ± 0.022 0.614 ± 0.028 7.600 MultipleModels-Trimentoring 0.049 ± 0.008 0.185 ± 0.032 0.702 ± 0.041 0.851 ± 0.216 0.513 ± 0.023 9.400 ParetoFlow 0.363 ± 0.019 0.455 ± 0.010 0.354 ± 0.019 0.395 ± 0.008 0.087 ± 0.024 8.000 PreferenceGuidedDiffusion 0.275 ± 0.041 0.184 ± 0.032 0.247 ± 0.010 0.565 ± 0.006 0.515 ± 0.041 9.000 ParetoTransport 0.026 ± 0.012 0.102 ± 0.010 0.261 ± 0.013 0.174 ± 0.008 0.049 ± 0.002 3.600 
+
+Table 9: IGD results on ZDT ( ↓). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method ZDT1 ZDT2 ZDT3 ZDT4 ZDT6 Avg. Rank D(best) 0.359 0.441 0.367 0.068 0.071 –MultiHead-Vallina 0.049 ± 0.076 0.094 ± 0.169 0.162 ± 0.108 0.607 ± 0.060 0.022 ± 0.002 5.200 MultiHead-PcGrad 0.036 ± 0.057 0.057 ± 0.055 0.194 ± 0.027 0.939 ± 0.231 0.020 ± 0.003 5.400 MultiHead-GradNorm 0.090 ± 0.044 0.100 ± 0.052 0.223 ± 0.167 0.879 ± 0.061 0.057 ± 0.016 8.400 MultipleModels-Vallina 0.058 ± 0.060 0.047 ± 0.020 0.232 ± 0.159 0.584 ± 0.020 0.022 ± 0.001 5.800 MultipleModels-COM 0.159 ± 0.159 0.288 ± 0.046 0.196 ± 0.051 0.423 ± 0.152 0.317 ± 0.132 8.200 MultipleModels-IOM 0.059 ± 0.020 0.081 ± 0.034 0.098 ± 0.014 0.524 ± 0.031 0.022 ± 0.001 4.200 MultipleModels-ICT 0.072 ± 0.011 0.489 ± 0.039 0.147 ± 0.009 0.622 ± 0.087 0.155 ± 0.185 7.800 MultipleModels-RoMA 0.031 ± 0.024 0.420 ± 0.161 0.017 ± 0.005 1.024 ± 0.014 0.505 ± 0.002 7.600 MultipleModels-Trimentoring 0.022 ± 0.002 0.084 ± 0.027 0.614 ± 0.035 0.699 ± 0.146 0.420 ± 0.049 7.800 ParetoFlow 0.342 ± 0.010 0.465 ± 0.023 0.336 ± 0.026 0.541 ± 0.019 0.224 ± 0.025 9.600 PreferenceGuidedDiffusion 0.155 ± 0.036 0.138 ± 0.019 0.173 ± 0.042 0.312 ± 0.033 0.023 ± 0.010 6.400 ParetoTransport 0.018 ± 0.025 0.017 ± 0.008 0.155 ± 0.012 0.185 ± 0.002 0.015 ± 0.001 1.600 
+
+Table 10: W2 results on ZDT ( ↓). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method ZDT1 ZDT2 ZDT3 ZDT4 ZDT6 Avg. Rank D(best) 0.385 0.475 0.405 0.433 0.171 –MultiHead-Vallina 0.194 ± 0.144 0.130 ± 0.219 0.306 ± 0.149 0.802 ± 0.084 0.195 ± 0.036 4.400 MultiHead-PcGrad 0.088 ± 0.106 0.196 ± 0.175 0.290 ± 0.025 1.085 ± 0.203 0.087 ± 0.120 4.600 MultiHead-GradNorm 0.222 ± 0.133 0.221 ± 0.057 0.343 ± 0.106 1.038 ± 0.056 0.259 ± 0.126 7.000 MultipleModels-Vallina 0.328 ± 0.081 0.224 ± 0.128 0.375 ± 0.106 0.724 ± 0.019 0.186 ± 0.022 6.400 MultipleModels-COM 0.363 ± 0.154 0.440 ± 0.066 0.342 ± 0.052 0.629 ± 0.091 0.442 ± 0.176 7.600 MultipleModels-IOM 0.224 ± 0.049 0.134 ± 0.052 0.175 ± 0.017 0.662 ± 0.024 0.258 ± 0.036 4.200 MultipleModels-ICT 0.332 ± 0.045 0.522 ± 0.002 0.261 ± 0.008 0.836 ± 0.062 0.395 ± 0.144 7.600 MultipleModels-RoMA 0.089 ± 0.033 0.507 ± 0.040 0.137 ± 0.033 1.122 ± 0.019 0.776 ± 0.022 7.600 MultipleModels-Trimentoring 0.218 ± 0.027 0.448 ± 0.061 0.731 ± 0.048 0.960 ± 0.153 0.657 ± 0.021 9.200 ParetoFlow 0.491 ± 0.012 0.633 ± 0.006 0.471 ± 0.014 0.650 ± 0.005 0.417 ± 0.004 9.400 PreferenceGuidedDiffusion 0.333 ± 0.058 0.344 ± 0.022 0.447 ± 0.045 0.579 ± 0.007 0.591 ± 0.032 7.800 ParetoTransport 0.051 ± 0.026 0.185 ± 0.007 0.289 ± 0.012 0.362 ± 0.005 0.153 ± 0.001 2.200 
+
+Table 11: HV results on DTLZ ( ↑). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method DTLZ1 DTLZ2 DTLZ3 DTLZ4 DTLZ5 DTLZ6 DTLZ7 Avg. Rank D(best) 10.614 12.427 9.897 17.503 10.692 10.671 8.992 –MultiHead-Vallina 10.643 ± 0.002 12.444 ± 0.000 9.882 ± 0.004 17.567 ± 0.091 10.758 ± 0.001 10.900 ± 0.019 10.715 ± 0.027 3.714 MultiHead-PcGrad 10.644 ± 0.001 12.443 ± 0.001 9.895 ± 0.004 17.533 ± 0.014 10.759 ± 0.001 10.918 ± 0.011 10.598 ± 0.028 2.857 MultiHead-GradNorm 10.537 ± 0.239 12.439 ± 0.001 9.657 ± 0.307 17.451 ± 0.190 9.833 ± 2.028 10.848 ± 0.060 9.654 ± 0.735 9.000 MultipleModels-Vallina 10.644 ± 0.001 12.445 ± 0.000 9.886 ± 0.003 17.046 ± 0.179 10.758 ± 0.000 10.928 ± 0.008 10.535 ± 0.079 4.429 MultipleModels-COM 10.642 ± 0.002 12.433 ± 0.001 9.877 ± 0.006 17.077 ± 0.381 10.747 ± 0.003 10.786 ± 0.017 9.809 ± 0.273 7.714 MultipleModels-IOM 10.643 ± 0.002 12.443 ± 0.001 9.898 ± 0.000 16.937 ± 0.203 10.757 ± 0.001 10.886 ± 0.008 10.544 ± 0.126 5.143 MultipleModels-ICT 10.644 ± 0.001 12.429 ± 0.003 9.855 ± 0.050 17.109 ± 0.251 10.688 ± 0.011 10.781 ± 0.022 10.342 ± 0.092 7.286 MultipleModels-RoMA 10.641 ± 0.002 12.349 ± 0.014 9.878 ± 0.002 15.201 ± 0.490 10.594 ± 0.033 10.742 ± 0.015 10.596 ± 0.036 8.714 MultipleModels-Trimentoring 10.642 ± 0.007 11.854 ± 0.892 9.326 ± 0.020 17.107 ± 0.040 10.650 ± 0.004 10.778 ± 0.049 10.392 ± 0.423 9.000 ParetoFlow 10.626 ± 0.006 12.253 ± 0.075 9.792 ± 0.054 17.508 ± 0.005 10.546 ± 0.046 10.686 ± 0.039 8.875 ± 0.099 9.857 PreferenceGuidedDiffusion 10.645 ± 0.001 12.387 ± 0.024 9.889 ± 0.002 14.504 ± 0.074 10.369 ± 0.357 10.336 ± 0.204 9.767 ± 0.141 8.571 ParetoTransport 10.646 ± 0.000 12.448 ± 0.000 9.897 ± 0.001 17.605 ± 0.009 10.754 ± 0.001 11.028 ± 0.019 10.728 ± 0.076 1.714 
+
+24 Table 12: GD results on DTLZ ( ↓). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method DTLZ1 DTLZ2 DTLZ3 DTLZ4 DTLZ5 DTLZ6 DTLZ7 Avg. Rank D(best) 0.601 0.102 0.341 0.185 0.131 0.759 0.490 –MultiHead-Vallina 0.469 ± 0.021 0.066 ± 0.014 0.531 ± 0.035 0.275 ± 0.037 0.064 ± 0.006 0.555 ± 0.027 0.190 ± 0.022 6.000 MultiHead-PcGrad 0.414 ± 0.032 0.066 ± 0.015 0.435 ± 0.020 0.321 ± 0.048 0.049 ± 0.007 0.521 ± 0.036 0.078 ± 0.048 4.000 MultiHead-GradNorm 0.402 ± 0.029 0.067 ± 0.024 0.401 ± 0.116 0.307 ± 0.034 0.244 ± 0.234 0.596 ± 0.082 0.209 ± 0.065 5.143 MultipleModels-Vallina 0.407 ± 0.029 0.035 ± 0.009 0.486 ± 0.029 0.557 ± 0.102 0.011 ± 0.005 0.522 ± 0.010 0.162 ± 0.020 4.143 MultipleModels-COM 0.459 ± 0.016 0.162 ± 0.023 0.527 ± 0.017 0.285 ± 0.036 0.145 ± 0.027 0.684 ± 0.008 0.498 ± 0.021 8.571 MultipleModels-IOM 0.436 ± 0.021 0.078 ± 0.020 0.424 ± 0.009 0.278 ± 0.034 0.090 ± 0.022 0.606 ± 0.012 0.305 ± 0.053 5.714 MultipleModels-ICT 0.450 ± 0.019 0.279 ± 0.012 0.493 ± 0.027 0.614 ± 0.036 0.174 ± 0.019 0.692 ± 0.023 0.426 ± 0.068 9.286 MultipleModels-RoMA 0.446 ± 0.009 0.303 ± 0.040 0.561 ± 0.023 0.707 ± 0.050 0.273 ± 0.042 0.724 ± 0.008 0.397 ± 0.030 10.857 MultipleModels-Trimentoring 0.250 ± 0.095 0.275 ± 0.058 0.175 ± 0.008 0.594 ± 0.040 0.206 ± 0.022 0.711 ± 0.061 0.288 ± 0.136 6.714 ParetoFlow 0.510 ± 0.023 0.130 ± 0.015 0.513 ± 0.023 0.193 ± 0.004 0.150 ± 0.010 0.725 ± 0.040 0.479 ± 0.016 8.429 PreferenceGuidedDiffusion 0.402 ± 0.011 0.205 ± 0.051 0.523 ± 0.011 0.212 ± 0.022 0.252 ± 0.027 0.667 ± 0.006 0.359 ± 0.028 7.143 ParetoTransport 0.403 ± 0.011 0.023 ± 0.004 0.408 ± 0.015 0.063 ± 0.012 0.063 ± 0.007 0.493 ± 0.027 0.050 ± 0.016 2.000 
+
+Table 13: IGD results on DTLZ ( ↓). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method DTLZ1 DTLZ2 DTLZ3 DTLZ4 DTLZ5 DTLZ6 DTLZ7 Avg. Rank D(best) 0.259 0.059 0.083 0.209 0.042 0.684 0.390 –MultiHead-Vallina 0.132 ± 0.038 0.024 ± 0.001 0.215 ± 0.020 0.158 ± 0.056 0.003 ± 0.000 0.467 ± 0.016 0.076 ± 0.040 5.143 MultiHead-PcGrad 0.114 ± 0.018 0.025 ± 0.002 0.103 ± 0.039 0.158 ± 0.006 0.003 ± 0.000 0.448 ± 0.020 0.353 ± 0.084 4.143 MultiHead-GradNorm 0.108 ± 0.027 0.032 ± 0.001 0.150 ± 0.043 0.211 ± 0.042 0.161 ± 0.334 0.494 ± 0.058 0.555 ± 0.272 7.714 MultipleModels-Vallina 0.101 ± 0.027 0.023 ± 0.001 0.185 ± 0.025 0.407 ± 0.096 0.003 ± 0.000 0.453 ± 0.009 0.247 ± 0.127 5.571 MultipleModels-COM 0.125 ± 0.016 0.042 ± 0.003 0.183 ± 0.020 0.318 ± 0.065 0.008 ± 0.001 0.528 ± 0.020 0.225 ± 0.039 7.143 MultipleModels-IOM 0.128 ± 0.023 0.027 ± 0.002 0.072 ± 0.015 0.336 ± 0.030 0.003 ± 0.000 0.483 ± 0.014 0.158 ± 0.108 5.571 MultipleModels-ICT 0.095 ± 0.015 0.061 ± 0.007 0.185 ± 0.028 0.312 ± 0.009 0.076 ± 0.014 0.571 ± 0.014 0.309 ± 0.024 7.714 MultipleModels-RoMA 0.130 ± 0.032 0.183 ± 0.015 0.215 ± 0.055 0.779 ± 0.048 0.101 ± 0.020 0.616 ± 0.017 0.097 ± 0.007 9.714 MultipleModels-Trimentoring 0.076 ± 0.006 0.196 ± 0.114 0.124 ± 0.004 0.362 ± 0.066 0.160 ± 0.000 0.570 ± 0.038 0.126 ± 0.090 7.000 ParetoFlow 0.087 ± 0.041 0.121 ± 0.009 0.217 ± 0.045 0.208 ± 0.001 0.077 ± 0.009 0.608 ± 0.040 0.406 ± 0.022 8.571 PreferenceGuidedDiffusion 0.083 ± 0.029 0.120 ± 0.031 0.152 ± 0.023 0.457 ± 0.005 0.123 ± 0.016 0.427 ± 0.043 0.268 ± 0.034 7.000 ParetoTransport 0.082 ± 0.016 0.021 ± 0.001 0.124 ± 0.009 0.161 ± 0.013 0.006 ± 0.001 0.284 ± 0.001 0.132 ± 0.083 2.714 
+
+Table 14: W2 results on DTLZ ( ↓). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method DTLZ1 DTLZ2 DTLZ3 DTLZ4 DTLZ5 DTLZ6 DTLZ7 Avg. Rank D(best) 0.602 0.113 0.341 0.461 0.199 0.764 0.508 –MultiHead-Vallina 0.469 ± 0.021 0.107 ± 0.022 0.531 ± 0.035 0.351 ± 0.051 0.110 ± 0.012 0.558 ± 0.026 0.294 ± 0.038 5.714 MultiHead-PcGrad 0.415 ± 0.032 0.100 ± 0.017 0.435 ± 0.020 0.380 ± 0.048 0.096 ± 0.012 0.528 ± 0.030 0.415 ± 0.083 4.286 MultiHead-GradNorm 0.402 ± 0.029 0.095 ± 0.026 0.402 ± 0.116 0.423 ± 0.038 0.323 ± 0.297 0.607 ± 0.082 0.683 ± 0.097 5.571 MultipleModels-Vallina 0.408 ± 0.029 0.063 ± 0.013 0.487 ± 0.029 0.659 ± 0.106 0.037 ± 0.013 0.526 ± 0.010 0.412 ± 0.053 4.286 MultipleModels-COM 0.459 ± 0.016 0.179 ± 0.023 0.527 ± 0.017 0.528 ± 0.055 0.188 ± 0.026 0.688 ± 0.008 0.526 ± 0.021 7.714 MultipleModels-IOM 0.436 ± 0.021 0.101 ± 0.021 0.424 ± 0.009 0.541 ± 0.025 0.125 ± 0.023 0.609 ± 0.013 0.398 ± 0.091 5.429 MultipleModels-ICT 0.451 ± 0.019 0.312 ± 0.012 0.493 ± 0.027 0.756 ± 0.059 0.255 ± 0.020 0.697 ± 0.024 0.567 ± 0.025 9.286 MultipleModels-RoMA 0.446 ± 0.009 0.342 ± 0.036 0.561 ± 0.023 0.931 ± 0.029 0.282 ± 0.041 0.726 ± 0.009 0.498 ± 0.036 10.000 MultipleModels-Trimentoring 0.250 ± 0.095 0.419 ± 0.119 0.175 ± 0.008 0.693 ± 0.045 0.319 ± 0.028 0.714 ± 0.061 0.349 ± 0.123 6.714 ParetoFlow 0.510 ± 0.023 0.200 ± 0.020 0.513 ± 0.023 0.463 ± 0.003 0.196 ± 0.018 0.732 ± 0.040 0.543 ± 0.012 8.714 PreferenceGuidedDiffusion 0.403 ± 0.011 0.255 ± 0.054 0.523 ± 0.011 0.566 ± 0.016 0.405 ± 0.048 0.689 ± 0.005 0.544 ± 0.037 8.429 ParetoTransport 0.403 ± 0.012 0.039 ± 0.003 0.408 ± 0.015 0.339 ± 0.020 0.081 ± 0.011 0.501 ± 0.026 0.274 ± 0.122 1.857 
+
+Table 15: HV results on RE ( ↑). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method RE21 RE22 RE23 RE24 RE25 RE31 RE32 RE33 RE34 RE35 RE36 RE37 Avg. Rank D(best) 4.176 4.806 4.751 4.595 4.794 10.607 10.611 10.533 9.652 10.217 7.760 5.916 –MultiHead-Vallina 4.598 ± 0.000 4.840 ± 0.000 4.840 ± 0.000 4.075 ± 0.815 4.540 ± 0.287 10.647 ± 0.001 10.632 ± 0.009 10.619 ± 0.007 10.109 ± 0.004 10.556 ± 0.024 10.201 ± 0.074 6.740 ± 0.003 4.750 MultiHead-PcGrad 4.598 ± 0.001 4.828 ± 0.023 4.763 ± 0.170 4.544 ± 0.231 4.739 ± 0.206 10.648 ± 0.000 10.628 ± 0.002 10.588 ± 0.025 10.101 ± 0.007 10.498 ± 0.085 10.189 ± 0.070 6.650 ± 0.075 7.000 MultiHead-GradNorm 4.120 ± 0.606 4.721 ± 0.218 2.714 ± 0.067 4.333 ± 0.094 4.689 ± 0.295 10.228 ± 0.577 10.505 ± 0.190 6.970 ± 0.349 8.408 ± 2.057 8.225 ± 3.414 8.496 ± 1.387 5.898 ± 1.595 11.500 MultipleModels-Vallina 4.598 ± 0.001 4.840 ± 0.000 4.831 ± 0.018 4.831 ± 0.010 4.838 ± 0.002 10.648 ± 0.000 10.639 ± 0.002 10.618 ± 0.004 10.112 ± 0.003 10.547 ± 0.035 10.230 ± 0.091 6.739 ± 0.006 3.417 
+
+MultipleModels-COM 4.238 ± 0.012 4.809 ± 0.012 4.817 ± 0.033 4.658 ± 0.071 4.803 ± 0.004 10.595 ± 0.005 10.617 ± 0.004 10.611 ± 0.008 9.858 ± 0.079 10.471 ± 0.019 9.540 ± 0.049 6.245 ± 0.071 8.750 MultipleModels-IOM 4.594 ± 0.007 4.840 ± 0.000 4.813 ± 0.034 4.789 ± 0.104 4.841 ± 0.000 10.648 ± 0.000 10.648 ± 0.000 10.620 ± 0.001 10.105 ± 0.005 10.569 ± 0.009 10.226 ± 0.138 6.723 ± 0.008 3.500 MultipleModels-ICT 4.598 ± 0.001 4.840 ± 0.000 4.455 ± 0.071 4.830 ± 0.011 4.834 ± 0.003 10.648 ± 0.000 10.639 ± 0.003 10.621 ± 0.004 10.101 ± 0.003 10.490 ± 0.006 10.312 ± 0.012 6.732 ± 0.007 4.833 MultipleModels-RoMA 4.566 ± 0.003 4.543 ± 0.664 4.836 ± 0.006 3.954 ± 1.200 4.832 ± 0.010 10.644 ± 0.004 10.635 ± 0.005 10.592 ± 0.021 9.917 ± 0.010 10.533 ± 0.022 9.490 ± 0.442 6.611 ± 0.054 7.750 MultipleModels-Trimentoring 4.595 ± 0.001 4.840 ± 0.000 4.840 ± 0.000 4.530 ± 0.406 4.807 ± 0.002 10.648 ± 0.000 10.631 ± 0.010 10.626 ± 0.000 10.093 ± 0.004 10.521 ± 0.020 7.270 ± 2.131 6.718 ± 0.017 5.750 ParetoFlow 4.133 ± 0.093 4.815 ± 0.028 4.800 ± 0.022 4.832 ± 0.005 4.823 ± 0.005 10.528 ± 0.103 10.630 ± 0.012 10.340 ± 0.087 9.693 ± 0.037 10.410 ± 0.044 8.785 ± 0.221 5.595 ± 0.405 9.250 PreferenceGuidedDiffusion 4.479 ± 0.046 4.836 ± 0.003 4.837 ± 0.003 4.834 ± 0.001 4.839 ± 0.000 10.613 ± 0.021 10.646 ± 0.001 10.430 ± 0.114 9.444 ± 0.164 10.248 ± 0.110 9.426 ± 0.223 6.182 ± 0.131 7.167 ParetoTransport 4.588 ± 0.004 4.839 ± 0.002 4.840 ± 0.000 4.831 ± 0.002 4.840 ± 0.001 10.613 ± 0.000 10.644 ± 0.003 10.621 ± 0.004 10.045 ± 0.014 10.581 ± 0.005 10.118 ± 0.207 6.670 ± 0.009 4.333 Table 16: GD results on RE ( ↓). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method RE21 RE22 RE23 RE24 RE25 RE31 RE32 RE33 RE34 RE35 RE36 RE37 Avg. Rank D(best) 0.111 0.001 0.034 0.040 0.030 0.017 0.051 0.007 0.065 0.077 0.377 0.093 –MultiHead-Vallina 0.001 ± 0.000 272.464 ± 557.607 0.219 ± 0.071 0.460 ± 0.364 0.461 ± 0.059 0.054 ± 0.023 0.006 ± 0.010 0.093 ± 0.033 0.007 ± 0.001 0.005 ± 0.003 0.160 ± 0.031 0.016 ± 0.001 6.417 MultiHead-PcGrad 0.002 ± 0.000 96.838 ± 169.131 0.217 ± 0.125 0.251 ± 0.320 0.255 ± 0.254 0.039 ± 0.028 0.154 ± 0.344 0.084 ± 0.029 0.029 ± 0.010 0.095 ± 0.088 0.177 ± 0.035 0.013 ± 0.001 7.167 MultiHead-GradNorm 0.081 ± 0.157 0.919 ± 2.027 0.020 ± 0.020 0.240 ± 0.061 0.211 ± 0.144 0.019 ± 0.018 0.133 ± 0.170 0.335 ± 0.055 0.160 ± 0.082 0.242 ± 0.338 0.198 ± 0.169 0.081 ± 0.146 7.833 MultipleModels-Vallina 0.001 ± 0.000 0.084 ± 0.179 0.041 ± 0.049 0.443 ± 0.066 0.153 ± 0.112 0.040 ± 0.020 0.190 ± 0.184 0.102 ± 0.038 0.007 ± 0.001 0.039 ± 0.081 0.143 ± 0.026 0.016 ± 0.002 5.500 MultipleModels-COM 0.062 ± 0.002 6.222 ± 13.724 0.023 ± 0.009 0.035 ± 0.014 0.125 ± 0.043 0.015 ± 0.013 0.039 ± 0.049 0.012 ± 0.004 0.041 ± 0.005 0.035 ± 0.012 0.162 ± 0.021 0.054 ± 0.003 5.333 MultipleModels-IOM 0.006 ± 0.005 3.791 ± 4.118 0.043 ± 0.031 0.118 ± 0.055 4.658 ± 10.412 0.037 ± 0.019 0.211 ± 0.058 0.053 ± 0.036 0.010 ± 0.002 0.072 ± 0.005 0.092 ± 0.016 0.023 ± 0.003 6.333 MultipleModels-ICT 0.001 ± 0.000 17.170 ± 15.728 0.006 ± 0.000 0.437 ± 0.033 0.284 ± 0.025 0.050 ± 0.006 0.001 ± 0.000 0.057 ± 0.042 0.022 ± 0.002 0.015 ± 0.002 0.106 ± 0.009 0.019 ± 0.002 5.250 MultipleModels-RoMA 0.042 ± 0.008 198.883 ± 411.102 0.087 ± 0.187 0.648 ± 0.260 0.260 ± 0.221 0.015 ± 0.007 0.355 ± 0.065 0.105 ± 0.033 0.105 ± 0.006 0.026 ± 0.006 0.574 ± 0.052 0.058 ± 0.002 9.167 MultipleModels-Trimentoring 0.003 ± 0.001 0.009 ± 0.021 0.072 ± 0.027 0.367 ± 0.216 0.029 ± 0.006 0.071 ± 0.010 0.352 ± 0.073 0.009 ± 0.003 0.013 ± 0.002 0.019 ± 0.009 0.623 ± 0.268 0.017 ± 0.002 6.167 ParetoFlow 0.042 ± 0.014 0.000 ± 0.000 0.073 ± 0.006 0.117 ± 0.004 0.046 ± 0.006 0.024 ± 0.023 0.058 ± 0.005 0.007 ± 0.000 0.058 ± 0.007 0.065 ± 0.004 0.278 ± 0.022 0.118 ± 0.009 6.083 PreferenceGuidedDiffusion 0.115 ± 0.003 inf ± nan 0.050 ± 0.004 0.470 ± 0.060 0.035 ± 0.016 0.193 ± 0.074 0.084 ± 0.015 0.017 ± 0.003 0.101 ± 0.009 0.011 ± 0.009 0.469 ± 0.013 0.119 ± 0.008 8.333 ParetoTransport 0.002 ± 0.000 0.009 ± 0.010 0.002 ± 0.001 0.074 ± 0.018 0.023 ± 0.026 0.130 ± 0.064 0.157 ± 0.083 0.030 ± 0.008 0.014 ± 0.004 0.014 ± 0.022 0.148 ± 0.034 0.032 ± 0.003 4.417 
+
+25 Table 17: IGD results on RE ( ↓). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method RE21 RE22 RE23 RE24 RE25 RE31 RE32 RE33 RE34 RE35 RE36 RE37 Avg. Rank D(best) 0.108 0.002 0.046 0.063 0.018 0.402 0.064 0.058 0.070 0.084 0.435 0.121 –MultiHead-Vallina 0.002 ± 0.000 0.067 ± 0.011 0.011 ± 0.004 0.361 ± 0.331 0.145 ± 0.125 0.237 ± 0.086 0.254 ± 0.123 0.060 ± 0.025 0.023 ± 0.002 0.140 ± 0.100 0.035 ± 0.013 0.040 ± 0.001 5.917 MultiHead-PcGrad 0.003 ± 0.000 0.138 ± 0.084 0.081 ± 0.101 0.127 ± 0.111 0.045 ± 0.093 0.243 ± 0.078 0.312 ± 0.006 0.048 ± 0.010 0.028 ± 0.005 0.138 ± 0.129 0.052 ± 0.026 0.057 ± 0.007 7.167 MultiHead-GradNorm 0.121 ± 0.153 0.150 ± 0.054 0.566 ± 0.030 0.226 ± 0.042 0.072 ± 0.131 0.182 ± 0.038 0.254 ± 0.130 0.509 ± 0.087 0.215 ± 0.206 0.585 ± 0.359 0.237 ± 0.152 0.197 ± 0.176 10.333 MultipleModels-Vallina 0.002 ± 0.000 0.100 ± 0.013 0.004 ± 0.002 0.024 ± 0.030 0.001 ± 0.001 0.283 ± 0.091 0.308 ± 0.008 0.094 ± 0.045 0.024 ± 0.001 0.136 ± 0.110 0.042 ± 0.026 0.040 ± 0.002 5.083 MultipleModels-COM 0.056 ± 0.002 0.055 ± 0.043 0.397 ± 0.012 0.038 ± 0.026 0.016 ± 0.002 0.345 ± 0.055 0.054 ± 0.042 0.077 ± 0.063 0.044 ± 0.003 0.027 ± 0.002 0.079 ± 0.011 0.059 ± 0.003 7.167 MultipleModels-IOM 0.003 ± 0.000 0.038 ± 0.041 0.187 ± 0.197 0.013 ± 0.026 0.002 ± 0.001 0.173 ± 0.020 0.066 ± 0.028 0.030 ± 0.003 0.024 ± 0.002 0.020 ± 0.003 0.022 ± 0.008 0.039 ± 0.001 3.167 
+
+MultipleModels-ICT 0.002 ± 0.000 0.115 ± 0.054 0.042 ± 0.010 0.020 ± 0.034 0.009 ± 0.006 0.218 ± 0.070 0.305 ± 0.002 0.145 ± 0.096 0.031 ± 0.003 0.152 ± 0.010 0.020 ± 0.004 0.040 ± 0.002 6.083 MultipleModels-RoMA 0.022 ± 0.002 0.193 ± 0.300 0.092 ± 0.173 0.391 ± 0.512 0.004 ± 0.004 0.325 ± 0.047 0.055 ± 0.009 0.038 ± 0.008 0.086 ± 0.003 0.029 ± 0.004 0.199 ± 0.067 0.052 ± 0.002 7.583 MultipleModels-Trimentoring 0.003 ± 0.001 0.147 ± 0.046 0.007 ± 0.002 0.144 ± 0.176 0.015 ± 0.001 0.276 ± 0.049 0.121 ± 0.022 0.172 ± 0.019 0.052 ± 0.014 0.028 ± 0.006 0.469 ± 0.340 0.041 ± 0.002 7.250 ParetoFlow 0.115 ± 0.024 0.010 ± 0.009 0.042 ± 0.002 0.007 ± 0.005 0.006 ± 0.002 0.395 ± 0.033 0.062 ± 0.001 0.042 ± 0.007 0.066 ± 0.004 0.062 ± 0.018 0.240 ± 0.022 0.173 ± 0.026 6.917 PreferenceGuidedDiffusion 0.041 ± 0.005 0.001 ± 0.000 0.020 ± 0.002 0.007 ± 0.003 0.000 ± 0.000 0.287 ± 0.004 0.072 ± 0.016 0.031 ± 0.008 0.079 ± 0.009 0.268 ± 0.043 0.198 ± 0.032 0.093 ± 0.005 5.917 ParetoTransport 0.006 ± 0.000 0.018 ± 0.016 0.009 ± 0.002 0.010 ± 0.003 0.000 ± 0.000 0.323 ± 0.006 0.079 ± 0.035 0.068 ± 0.017 0.029 ± 0.002 0.052 ± 0.044 0.058 ± 0.038 0.060 ± 0.003 5.417 Table 18: W2 results on RE ( ↓). Bold = best per column. Each algorithm is run for 5 seeds and evaluated on 256 designs. Method RE21 RE22 RE23 RE24 RE25 RE31 RE32 RE33 RE34 RE35 RE36 RE37 Avg. Rank D(best) 0.120 0.032 0.350 0.063 0.064 0.452 0.296 0.172 0.252 0.191 0.479 0.237 –MultiHead-Vallina 0.009 ± 0.004 272.533 ± 557.568 0.323 ± 0.079 0.479 ± 0.366 0.465 ± 0.054 0.348 ± 0.064 0.266 ± 0.103 0.259 ± 0.041 0.148 ± 0.010 0.201 ± 0.101 0.210 ± 0.020 0.108 ± 0.006 5.833 MultiHead-PcGrad 0.014 ± 0.005 96.952 ± 169.051 0.348 ± 0.126 0.267 ± 0.320 0.263 ± 0.261 0.386 ± 0.047 0.445 ± 0.293 0.237 ± 0.020 0.174 ± 0.014 0.325 ± 0.164 0.222 ± 0.030 0.119 ± 0.014 6.917 MultiHead-GradNorm 0.226 ± 0.172 1.045 ± 1.962 0.571 ± 0.028 0.258 ± 0.060 0.236 ± 0.172 0.401 ± 0.064 0.359 ± 0.162 0.656 ± 0.175 0.332 ± 0.119 0.690 ± 0.388 0.444 ± 0.071 0.275 ± 0.161 9.000 MultipleModels-Vallina 0.007 ± 0.002 0.233 ± 0.159 0.212 ± 0.064 0.455 ± 0.067 0.246 ± 0.150 0.401 ± 0.051 0.427 ± 0.114 0.293 ± 0.043 0.151 ± 0.011 0.244 ± 0.127 0.217 ± 0.023 0.102 ± 0.001 5.750 MultipleModels-COM 0.069 ± 0.003 6.319 ± 13.674 0.404 ± 0.004 0.055 ± 0.018 0.224 ± 0.070 0.440 ± 0.017 0.174 ± 0.074 0.197 ± 0.062 0.219 ± 0.012 0.115 ± 0.011 0.229 ± 0.017 0.163 ± 0.007 5.750 MultipleModels-IOM 0.015 ± 0.007 3.876 ± 4.104 0.292 ± 0.160 0.134 ± 0.052 4.673 ± 10.441 0.311 ± 0.074 0.402 ± 0.056 0.172 ± 0.034 0.165 ± 0.016 0.209 ± 0.010 0.142 ± 0.022 0.124 ± 0.003 5.083 MultipleModels-ICT 0.007 ± 0.001 17.261 ± 15.678 0.337 ± 0.017 0.451 ± 0.032 0.396 ± 0.030 0.371 ± 0.059 0.314 ± 0.000 0.267 ± 0.106 0.146 ± 0.012 0.266 ± 0.044 0.179 ± 0.009 0.107 ± 0.004 5.750 MultipleModels-RoMA 0.064 ± 0.013 198.919 ± 411.081 0.309 ± 0.169 0.667 ± 0.262 0.287 ± 0.213 0.424 ± 0.018 0.456 ± 0.068 0.258 ± 0.051 0.305 ± 0.007 0.194 ± 0.059 0.670 ± 0.061 0.191 ± 0.007 8.667 MultipleModels-Trimentoring 0.007 ± 0.001 0.190 ± 0.012 0.164 ± 0.021 0.379 ± 0.218 0.112 ± 0.003 0.447 ± 0.018 0.512 ± 0.127 0.304 ± 0.009 0.190 ± 0.040 0.149 ± 0.020 0.729 ± 0.333 0.102 ± 0.010 6.083 ParetoFlow 0.187 ± 0.004 0.034 ± 0.015 0.360 ± 0.002 0.137 ± 0.004 0.076 ± 0.006 0.433 ± 0.006 0.313 ± 0.006 0.129 ± 0.004 0.191 ± 0.035 0.233 ± 0.009 0.413 ± 0.031 0.327 ± 0.040 6.500 PreferenceGuidedDiffusion 0.147 ± 0.034 – 0.228 ± 0.067 0.483 ± 0.061 0.046 ± 0.014 0.466 ± 0.034 0.271 ± 0.009 0.226 ± 0.037 0.273 ± 0.029 0.460 ± 0.044 0.533 ± 0.012 0.248 ± 0.016 7.909 ParetoTransport 0.074 ± 0.011 0.119 ± 0.012 0.159 ± 0.053 0.094 ± 0.019 0.049 ± 0.041 0.452 ± 0.053 0.301 ± 0.044 0.217 ± 0.024 0.117 ± 0.027 0.171 ± 0.072 0.231 ± 0.045 0.144 ± 0.005 4.417 
+
+A.6 ADDITIONAL ABLATIONS 
+
+A.6.1 WASSERSTEIN AND DIRECTIONAL IMPROVEMENT COMPONENTS 
+
+Table 19: Ablation of the Wasserstein matching term W2 and directional improvement term Ln on ZDT. Bold = best per column. Each experiment is run for 5 seeds and evaluated on 256 designs. 
+
+W2 Ln Metric ZDT1 ZDT2 ZDT3 ZDT4 ZDT6 
+
+✓
+
+HV ( ↑) 4.750 ± 0.011 5.499 ± 0.019 5.611 ± 0.198 5.479 ± 0.009 4.816 ± 0.008 GD ( ↓) 0.015 ± 0.003 0.033 ± 0.036 0.183 ± 0.026 0.443 ± 0.012 0.016 ± 0.016 IGD ( ↓) 0.116 ± 0.060 0.368 ± 0.142 0.164 ± 0.113 0.346 ± 0.085 0.019 ± 0.002 W2 ( ↓) 0.350 ± 0.026 0.507 ± 0.010 0.357 ± 0.138 0.642 ± 0.012 0.156 ± 0.060 
+
+✓
+
+HV ( ↑) 4.750 ± 0.018 5.617 ± 0.040 5.508 ± 0.040 5.491 ± 0.006 4.755 ± 0.086 GD ( ↓) 0.130 ± 0.009 0.169 ± 0.016 0.303 ± 0.021 0.382 ± 0.010 0.054 ± 0.040 IGD ( ↓) 0.178 ± 0.006 0.155 ± 0.023 0.229 ± 0.018 0.264 ± 0.048 0.045 ± 0.025 W2 ( ↓) 0.225 ± 0.005 0.242 ± 0.023 0.357 ± 0.022 0.545 ± 0.037 0.184 ± 0.015 
+
+✓ ✓
+
+HV ( ↑) 4.833 ± 0.023 5.660 ± 0.039 5.577 ± 0.075 5.485 ± 0.000 4.825 ± 0.001 GD ( ↓) 0.013 ± 0.004 0.039 ± 0.013 0.250 ± 0.028 0.404 ± 0.018 0.013 ± 0.003 IGD ( ↓) 0.032 ± 0.053 0.023 ± 0.011 0.150 ± 0.023 0.261 ± 0.023 0.016 ± 0.001 W2 ( ↓) 0.181 ± 0.108 0.131 ± 0.024 0.305 ± 0.025 0.542 ± 0.044 0.147 ± 0.026 Table 20: Ablation of the Wasserstein matching term W2 and directional improvement term Ln on DTLZ. Bold = best per column. Each experiment is run for 5 seeds and evaluated on 256 designs. 
+
+W2 Ln Metric DTLZ1 DTLZ2 DTLZ3 DTLZ4 DTLZ5 DTLZ6 DTLZ7 
+
+✓
+
+HV ( ↑) 10.645 ± 0.001 12.440 ± 0.001 9.898 ± 0.001 17.324 ± 0.250 10.739 ± 0.006 11.004 ± 0.008 10.738 ± 0.009 GD ( ↓) 0.448 ± 0.024 0.027 ± 0.002 0.394 ± 0.013 0.050 ± 0.010 0.026 ± 0.004 0.514 ± 0.008 0.095 ± 0.026 IGD ( ↓) 0.062 ± 0.012 0.038 ± 0.001 0.107 ± 0.009 0.238 ± 0.045 0.015 ± 0.003 0.295 ± 0.003 0.112 ± 0.012 W2 ( ↓) 0.449 ± 0.025 0.121 ± 0.018 0.394 ± 0.013 0.410 ± 0.008 0.102 ± 0.011 0.520 ± 0.009 0.281 ± 0.038 
+
+✓
+
+HV ( ↑) 10.645 ± 0.001 12.442 ± 0.001 9.891 ± 0.004 17.619 ± 0.023 10.730 ± 0.002 10.896 ± 0.037 10.577 ± 0.052 GD ( ↓) 0.419 ± 0.005 0.044 ± 0.003 0.533 ± 0.008 0.124 ± 0.014 0.081 ± 0.013 0.703 ± 0.007 0.252 ± 0.041 IGD ( ↓) 0.081 ± 0.031 0.036 ± 0.001 0.153 ± 0.047 0.158 ± 0.012 0.020 ± 0.001 0.287 ± 0.001 0.149 ± 0.019 W2 ( ↓) 0.420 ± 0.005 0.065 ± 0.003 0.533 ± 0.008 0.333 ± 0.013 0.107 ± 0.019 0.712 ± 0.006 0.365 ± 0.028 
+
+✓ ✓
+
+HV ( ↑) 10.646 ± 0.000 12.448 ± 0.000 9.896 ± 0.002 17.611 ± 0.006 10.754 ± 0.001 10.966 ± 0.042 10.759 ± 0.057 GD ( ↓) 0.397 ± 0.021 0.023 ± 0.003 0.451 ± 0.030 0.063 ± 0.016 0.063 ± 0.008 0.576 ± 0.030 0.063 ± 0.018 IGD ( ↓) 0.087 ± 0.020 0.021 ± 0.001 0.120 ± 0.026 0.152 ± 0.005 0.007 ± 0.001 0.290 ± 0.006 0.087 ± 0.062 W2 ( ↓) 0.398 ± 0.021 0.040 ± 0.002 0.452 ± 0.030 0.298 ± 0.010 0.087 ± 0.019 0.582 ± 0.030 0.216 ± 0.080 26 Table 21: Ablation of the transport weight γ on ZDT tasks. HV is computed over a population of 
+
+256 candidate designs and averaged over 5 random seeds. 
+
+γ ZDT1 ZDT2 ZDT3 ZDT4 ZDT6 0 4.750 ± 0.018 5.617 ± 0.040 5.508 ± 0.040 5.491 ± 0.006 4.755 ± 0.086 0.1 4.761 ± 0.015 5.656 ± 0.025 5.550 ± 0.056 5.486 ± 0.005 4.822 ± 0.007 0.2 4.796 ± 0.018 5.656 ± 0.026 5.528 ± 0.020 5.487 ± 0.005 4.822 ± 0.007 0.5 4.833 ± 0.023 5.660 ± 0.039 5.577 ± 0.075 5.485 ± 0.000 4.825 ± 0.001 
+
+1 4.831 ± 0.028 5.658 ± 0.038 5.590 ± 0.115 5.487 ± 0.005 4.822 ± 0.007 2 4.805 ± 0.040 5.641 ± 0.049 5.578 ± 0.139 5.488 ± 0.006 4.822 ± 0.006 5 4.770 ± 0.022 5.550 ± 0.035 5.593 ± 0.144 5.486 ± 0.005 4.825 ± 0.001 
+
+10 4.761 ± 0.015 5.497 ± 0.022 5.607 ± 0.180 5.484 ± 0.002 4.823 ± 0.006 Table 22: Ablation of the transport weight γ on ZDT tasks. GD is computed over a population of 
+
+256 candidate designs and averaged over 5 random seeds. 
+
+γ ZDT1 ZDT2 ZDT3 ZDT4 ZDT6 0 0.130 ± 0.009 0.169 ± 0.016 0.303 ± 0.021 0.382 ± 0.010 0.054 ± 0.040 0.1 0.109 ± 0.011 0.115 ± 0.017 0.312 ± 0.025 0.400 ± 0.028 0.010 ± 0.002 
+
+0.2 0.064 ± 0.018 0.075 ± 0.019 0.302 ± 0.027 0.401 ± 0.027 0.012 ± 0.003 0.5 0.013 ± 0.004 0.039 ± 0.013 0.250 ± 0.028 0.404 ± 0.018 0.013 ± 0.003 1 0.008 ± 0.004 0.024 ± 0.011 0.185 ± 0.030 0.419 ± 0.018 0.013 ± 0.003 2 0.010 ± 0.001 0.028 ± 0.027 0.185 ± 0.026 0.415 ± 0.016 0.014 ± 0.003 5 0.014 ± 0.003 0.027 ± 0.030 0.184 ± 0.030 0.419 ± 0.016 0.013 ± 0.004 10 0.015 ± 0.003 0.030 ± 0.032 0.183 ± 0.028 0.428 ± 0.016 0.013 ± 0.004 A.6.2 TRANSPORT STRENGTH γ
+
+The Wasserstein and directional improvement terms can induce gradients of different magnitudes with respect to the terminal particles. To make γ control their relative contribution rather than compensate for differences in their raw gradient scales, we rescale the Ln gradient relative to the 
+
+W2 gradient. Following the notation in Appendix A.2.3, let 
+
+gW := ∇X W 22 (f#q, μ tk ), gn := ∇X Ln(f#q∥μtk ).
+
+We define 
+
+egn := ∥gW ∥2
+
+∥gn∥2
+
+gn,
+
+such that ∥egn∥2 = ∥gW ∥2. The combined guidance gradient is then g = gW + γegn. Thus, γ directly controls the relative strength of the transport contribution. We study the effect of the transport strength by varying γ ∈ { 0, 0.1, 0.2, 0.5, 1, 2, 5, 10 }, and report GD, IGD, W2, and HV for all ZDT and DTLZ tasks in Tables 21–27. 27 Table 23: Ablation of the transport weight γ on ZDT tasks. IGD is computed over a population of 
+
+256 candidate designs and averaged over 5 random seeds. 
+
+γ ZDT1 ZDT2 ZDT3 ZDT4 ZDT6 0 0.178 ± 0.006 0.155 ± 0.023 0.229 ± 0.018 0.264 ± 0.048 0.045 ± 0.025 0.1 0.151 ± 0.008 0.057 ± 0.033 0.205 ± 0.028 0.230 ± 0.036 0.016 ± 0.002 0.2 0.071 ± 0.016 0.025 ± 0.008 0.192 ± 0.019 0.240 ± 0.027 0.016 ± 0.002 0.5 0.032 ± 0.053 0.023 ± 0.011 0.150 ± 0.023 0.261 ± 0.023 0.016 ± 0.001 1 0.044 ± 0.066 0.023 ± 0.014 0.143 ± 0.057 0.274 ± 0.033 0.016 ± 0.002 2 0.066 ± 0.090 0.032 ± 0.019 0.161 ± 0.092 0.288 ± 0.020 0.016 ± 0.002 5 0.097 ± 0.070 0.125 ± 0.118 0.167 ± 0.098 0.324 ± 0.058 0.015 ± 0.001 
+
+10 0.098 ± 0.067 0.369 ± 0.142 0.161 ± 0.109 0.342 ± 0.059 0.015 ± 0.001 
+
+Table 24: Ablation of the transport weight γ on ZDT tasks. W2 is computed over a population of 
+
+256 candidate designs and averaged over 5 random seeds. 
+
+γ ZDT1 ZDT2 ZDT3 ZDT4 ZDT6 0 0.225 ± 0.005 0.242 ± 0.023 0.357 ± 0.022 0.545 ± 0.037 0.184 ± 0.015 0.1 0.213 ± 0.010 0.216 ± 0.025 0.368 ± 0.027 0.544 ± 0.039 0.188 ± 0.007 0.2 0.148 ± 0.018 0.143 ± 0.024 0.347 ± 0.029 0.538 ± 0.043 0.170 ± 0.020 0.5 0.181 ± 0.108 0.131 ± 0.024 0.305 ± 0.025 0.542 ± 0.044 0.147 ± 0.026 1 0.218 ± 0.130 0.139 ± 0.077 0.346 ± 0.092 0.554 ± 0.038 0.151 ± 0.034 2 0.189 ± 0.151 0.352 ± 0.038 0.379 ± 0.116 0.570 ± 0.013 0.147 ± 0.048 5 0.304 ± 0.079 0.468 ± 0.035 0.375 ± 0.112 0.605 ± 0.012 0.133 ± 0.028 10 0.330 ± 0.049 0.506 ± 0.008 0.368 ± 0.123 0.623 ± 0.005 0.069 ± 0.023 
+
+Table 25: Ablation of the transport weight γ on DTLZ tasks. HV is computed over a population of 
+
+256 candidate designs and averaged over 5 random seeds.                                                                                                                                                                                
+
+> γDTLZ1 DTLZ2 DTLZ3 DTLZ4 DTLZ5 DTLZ6 DTLZ7 010.645 ±0.001 12.442 ±0.001 9.891 ±0.004 17.619 ±0.023 10.730 ±0.002 10.896 ±0.037 10.577 ±0.052 0.1 10.645 ±0.001 12.445 ±0.000 9.891 ±0.005 17.621 ±0.023 10.738 ±0.002 10.909 ±0.043 10.716 ±0.056 0.2 10.646 ±0.000 12.447 ±0.000 9.891 ±0.005 17.622 ±0.027 10.748 ±0.002 10.917 ±0.035 10.732 ±0.049 0.5 10.646 ±0.000 12.448 ±0.000 9.896 ±0.002 17.611 ±0.006 10.754 ±0.001 10.966 ±0.042 10.759 ±0.057
+> 110.647 ±0.000 12.448 ±0.000 9.898 ±0.001 17.611 ±0.011 10.757 ±0.000 11.047 ±0.012 10.748 ±0.063 210.646 ±0.001 12.447 ±0.000 9.897 ±0.002 17.534 ±0.032 10.756 ±0.000 11.062 ±0.004 10.724 ±0.068 510.647 ±0.000 12.442 ±0.000 9.898 ±0.000 17.231 ±0.240 10.742 ±0.004 11.013 ±0.007 10.730 ±0.046 10 10.646 ±0.000 12.441 ±0.001 9.898 ±0.001 17.215 ±0.261 10.738 ±0.006 11.010 ±0.006 10.744 ±0.009
+
+Table 26: Ablation of the transport weight γ on DTLZ tasks. IGD is computed over a population of 
+
+256 candidate designs and averaged over 5 random seeds. 
+
+γ DTLZ1 DTLZ2 DTLZ3 DTLZ4 DTLZ5 DTLZ6 DTLZ7 0 0.081 ± 0.031 0.036 ± 0.001 0.153 ± 0.047 0.158 ± 0.012 0.020 ± 0.001 0.287 ± 0.001 0.149 ± 0.019 0.1 0.078 ± 0.017 0.028 ± 0.001 0.170 ± 0.033 0.156 ± 0.009 0.016 ± 0.002 0.292 ± 0.010 0.096 ± 0.019 0.2 0.071 ± 0.010 0.024 ± 0.001 0.136 ± 0.055 0.158 ± 0.007 0.010 ± 0.001 0.288 ± 0.001 0.102 ± 0.049 0.5 0.087 ± 0.020 0.021 ± 0.001 0.120 ± 0.026 0.152 ± 0.005 0.007 ± 0.001 0.290 ± 0.006 0.087 ± 0.062 
+
+1 0.070 ± 0.006 0.018 ± 0.001 0.104 ± 0.021 0.152 ± 0.010 0.005 ± 0.000 0.283 ± 0.000 0.100 ± 0.063 2 0.070 ± 0.009 0.024 ± 0.000 0.116 ± 0.013 0.200 ± 0.034 0.005 ± 0.001 0.283 ± 0.000 0.145 ± 0.073 5 0.066 ± 0.008 0.035 ± 0.001 0.113 ± 0.006 0.231 ± 0.017 0.014 ± 0.002 0.290 ± 0.001 0.125 ± 0.053 10 0.060 ± 0.011 0.036 ± 0.001 0.114 ± 0.023 0.247 ± 0.041 0.016 ± 0.002 0.292 ± 0.002 0.111 ± 0.013 28 Table 27: Ablation of the transport weight γ on DTLZ tasks. W2 is computed over a population of 
+
+256 candidate designs and averaged over 5 random seeds. 
+
+γ DTLZ1 DTLZ2 DTLZ3 DTLZ4 DTLZ5 DTLZ6 DTLZ7 0 0.420 ± 0.005 0.065 ± 0.003 0.533 ± 0.008 0.333 ± 0.013 0.107 ± 0.019 0.712 ± 0.006 0.365 ± 0.028 0.1 0.429 ± 0.010 0.054 ± 0.007 0.509 ± 0.020 0.336 ± 0.021 0.125 ± 0.023 0.695 ± 0.011 0.262 ± 0.042 0.2 0.415 ± 0.018 0.042 ± 0.003 0.501 ± 0.015 0.321 ± 0.011 0.111 ± 0.028 0.679 ± 0.010 0.232 ± 0.060 0.5 0.398 ± 0.021 0.040 ± 0.002 0.452 ± 0.030 0.298 ± 0.010 0.087 ± 0.019 0.582 ± 0.030 0.216 ± 0.080 
+
+1 0.356 ± 0.016 0.038 ± 0.005 0.397 ± 0.024 0.321 ± 0.018 0.068 ± 0.011 0.333 ± 0.011 0.223 ± 0.091 2 0.377 ± 0.025 0.063 ± 0.004 0.388 ± 0.013 0.397 ± 0.032 0.084 ± 0.010 0.329 ± 0.008 0.271 ± 0.081 5 0.411 ± 0.017 0.105 ± 0.011 0.387 ± 0.013 0.413 ± 0.010 0.107 ± 0.011 0.492 ± 0.018 0.242 ± 0.052 10 0.429 ± 0.014 0.116 ± 0.014 0.388 ± 0.015 0.411 ± 0.008 0.108 ± 0.008 0.503 ± 0.014 0.224 ± 0.045 29
