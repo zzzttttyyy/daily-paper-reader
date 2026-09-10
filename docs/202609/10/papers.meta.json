@@ -1,0 +1,69 @@
+{
+  "label": "2026-09-10",
+  "date": "2026-09-10",
+  "generated_at": "2026-09-10T21:18:07",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202609/10/2609.09890v1-streetdiff-multi-view-street-scenes-generation-via-cross-view-consistent-multi-view-stable-diffusion-with-structure-prompts",
+      "section": "quick",
+      "title_en": "StreetDiff: Multi-view Street Scenes Generation via Cross-view Consistent Multi-view Stable Diffusion with Structure Prompts",
+      "authors": "Qi Zhang, Yanyifan Wang, Weiyuan Zhang, Hui Huang",
+      "date": "2026-09-09",
+      "pdf": "https://arxiv.org/pdf/2609.09890v1",
+      "score": "7.0",
+      "evidence": "面向街景图像生成、强调跨视角一致的多视图扩散框架",
+      "tldr": "针对多视图扩散模型在相机旋转下难以保持跨视角一致性、在复杂城市场景中易出现物体重复、结构畸变与布局不一致的问题，本文提出StreetDiff多视图扩散框架。方法在去噪过程中显式强制跨视角对齐，引入全景-透视协同机制，对球面对应关系进行建模，从而提升结构复杂城市环境的生成一致性。该工作属于扩散模型图像生成方向，与多视图图像生成相关，但与免训练采样优化的直接关联有限。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Multi-view diffusion models have shown strong performance in scenes with strong geometric priors and sparse semantics, such as indoor rooms or simple outdoor environments (e.g., fields, courtyards). However, they often fail to maintain cross-view consistency under camera rotation, especially in structurally complex urban environments. Without explicit modeling of spherical correspondence across views, existing approaches tend to produce object duplication, structural distortion, and layout inconsistency. To address this limitation, we propose StreetDiff, a multi-view diffusion framework that explicitly enforces cross-view alignment during denoising. StreetDiff introduces a Panorama--Perspective Synergy design to decouple global layout reasoning from local detail synthesis, and incorporates a Panorama Alignment Module (PAM) that establishes spherical-projection-based attention constraints across views. By injecting structured alignment constraints without modifying the diffusion backbone, our framework achieves robust cross-view coherence in challenging urban street scene generation tasks. In addition, we construct Street360, a large-scale HDR multi-view urban panorama dataset. Extensive experiments demonstrate that StreetDiff significantly improves structural consistency and visual fidelity compared to prior multi-view diffusion generation methods.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/10/2609.08981v1-transformers-as-in-context-samplers-from-closed-form-diffusion-to-estimation-free-sampling",
+      "section": "quick",
+      "title_en": "Transformers as In-Context Samplers: From Closed-Form Diffusion to Estimation-Free Sampling",
+      "authors": "Arman Adibi, Alireza Jafari, Mohammad Ghavamzadeh, Hadi Daneshmand",
+      "date": "2026-09-08",
+      "pdf": "https://arxiv.org/pdf/2609.08981v1",
+      "score": "6.0",
+      "evidence": "无需参数更新的免训练上下文扩散采样",
+      "tldr": "已有研究表明大模型可进行上下文学习，但能否用于数据生成尚不明确。本文证明冻结的Transformer可作为上下文采样器，仅凭提示中的示例模拟闭式与平滑闭式扩散采样过程，并揭示softmax注意力在此扮演的生成角色。研究给出了一条免训练、免估计的迭代生成采样路径。该工作从理论层面支持扩散采样的免训练实现，与免训练采样优化主题相关。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "A growing body of work establishes that large language models are not mere statistical memorizers, but are capable of in-context learning: performing inference at test time using only examples provided in the prompt, without any parameter updates. Prior theoretical work has shown that this capability extends to supervised learning tasks such as linear regression. We prove that in-context learning extends further to \\emph{data generation}: frozen transformers can simulate iterative generative samplers from in-context samples. We first show that transformers can realize closed-form and smoothed closed-form diffusion samplers. The construction identifies a concrete generative role for softmax attention: it computes responsibility weights and weighted empirical averages, while feedforward layers implement Euler updates.   To empirically relate these constructions to pretrained language models, we study \\emph{semantic-topic sampling}: prompts consisting of words drawn from a common semantic category, such as animals, foods, or cities. Across transformer layers, the normalized hidden states exhibit a two-stage geometry: they move toward a uniform spherical reference in intermediate layers and then return to structured, topic-dependent representations near the output. We further measure an interacting-particle energy on these hidden-state clouds and observe the same U-shape pattern. We then prove that transformers can approximate an energy-based sampler, constructing the same U-shape energy across the layers.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/10/2609.10363v1-scenehi-high-resolution-3d-consistent-scene-texturing-with-controllable-illumination",
+      "section": "quick",
+      "title_en": "SceneHI: High-Resolution 3D-Consistent Scene Texturing with Controllable Illumination",
+      "authors": "Athanasios Tragakis, Marco Aversa, Daniela Ivanova, Chaitanya Kaul, Roderick Murray-Smith, Daniele Faccio, Paul Henderson",
+      "date": "2026-09-09",
+      "pdf": "https://arxiv.org/pdf/2609.10363v1",
+      "score": "6.0",
+      "evidence": "无需微调或优化即用扩散先验进行3D纹理合成",
+      "tldr": "SceneHI面向复杂多物体场景的高分辨率3D纹理生成，解决多视角一致性与光照阴影难以兼顾的问题。它从2D扩散模型提取高分辨率、光照感知先验，无需微调或优化即可直接在3D对象上合成纹理。方法引入精确的像素到纹素映射对齐扩散轨迹，并以高分辨率潜在纹理HRLT作为持久画布，在潜像素空间逐步去噪，最终通过光照感知生成将几何一致阴影烘焙进图集。结果在保持高视觉保真度的同时，生成时间较现有场景级方法减少80%。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "SceneHI is a framework that lifts high-resolution, illumination-aware priors from 2D diffusion models to perform 3D texture synthesis. It is the first to demonstrate that high-resolution textures, previously limited to 2D synthesis, can be generated directly on 3D objects without model fine-tuning or optimization. Designed for complex, multi-object environments, SceneHI uniquely combines 3D-consistency, high-resolution fidelity, and physically plausible baked shadows within a single generative pipeline. To enforce strict geometric coherence, we introduce an exact analytical pixel-to-texel mapping that aligns diffusion trajectories across multiple viewpoints. We utilize High-Resolution Latent Textures (HRLTs) as a persistent canvas for gradually denoised textures, while camera views perform the denoising steps in latent pixel space. This ensures a shared base texture that can be subsequently refined to high resolution without compromising multi-view consistency. Finally, a light-aware generative pass embeds realistic geometry-consistent shadows directly into the atlases, bridging the gap to production workflows. SceneHI achieves high visual fidelity while reducing generation time by 80% compared to existing scene-level methods.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/10/2609.10531v1-guiding-image-to-3d-generation-with-test-time-partial-observations",
+      "section": "quick",
+      "title_en": "Guiding Image-to-3D Generation with Test-Time Partial Observations",
+      "authors": "Jerred Chen, Simon Weber, Ronald Clark",
+      "date": "2026-09-09",
+      "pdf": "https://arxiv.org/pdf/2609.10531v1",
+      "score": "6.0",
+      "evidence": "免训练地在测试时引导预训练图像到3D生成扩散模型",
+      "tldr": "单图生成3D模型视觉效果好，但几何常仅被弱约束，难以满足高保真需求。本文提出免训练框架，在测试时利用部分几何观测，通过定义在占用表示上的射线一致观测似然引导生成，融合表面占用与自由空间证据。在SAM 3D及其多视图扩展上，该方法在不同可观测程度下均显著提升几何保真度与视觉质量。表明预训练图像到3D模型无需重训或微调，即可借显式测试时引导整合部分几何观测，补充生成先验。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Image-to-3D models can generate visually compelling 3D assets from a single RGB image, but their geometry is often only loosely constrained by the available observations, limiting their use in applications that require geometric fidelity. In many real-world settings, however, partial geometric observations of the object may be available at test time. We introduce a training-free framework for incorporating such evidence into pretrained image-to-3D generative models without retraining or finetuning. To do this, we guide generation using a ray-consistent observation likelihood defined over the model's occupancy representation, combining surface occupancy and free-space evidence. Applied to SAM 3D and its multi-view extension, our approach substantially improves geometric fidelity across different levels of observability, as well as visual quality. Our results demonstrate that pretrained image-to-3D models can effectively integrate partial geometric observations through explicit test-time guidance, complementing their learned generative priors without modifying the underlying model.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

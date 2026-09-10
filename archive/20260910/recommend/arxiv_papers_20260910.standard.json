@@ -1,0 +1,176 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-10T21:15:16.990844+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.09890v1",
+      "source": "arxiv",
+      "title": "StreetDiff: Multi-view Street Scenes Generation via Cross-view Consistent Multi-view Stable Diffusion with Structure Prompts",
+      "abstract": "Multi-view diffusion models have shown strong performance in scenes with strong geometric priors and sparse semantics, such as indoor rooms or simple outdoor environments (e.g., fields, courtyards). However, they often fail to maintain cross-view consistency under camera rotation, especially in structurally complex urban environments. Without explicit modeling of spherical correspondence across views, existing approaches tend to produce object duplication, structural distortion, and layout inconsistency. To address this limitation, we propose StreetDiff, a multi-view diffusion framework that explicitly enforces cross-view alignment during denoising. StreetDiff introduces a Panorama--Perspective Synergy design to decouple global layout reasoning from local detail synthesis, and incorporates a Panorama Alignment Module (PAM) that establishes spherical-projection-based attention constraints across views. By injecting structured alignment constraints without modifying the diffusion backbone, our framework achieves robust cross-view coherence in challenging urban street scene generation tasks. In addition, we construct Street360, a large-scale HDR multi-view urban panorama dataset. Extensive experiments demonstrate that StreetDiff significantly improves structural consistency and visual fidelity compared to prior multi-view diffusion generation methods.",
+      "authors": [
+        "Qi Zhang",
+        "Yanyifan Wang",
+        "Weiyuan Zhang",
+        "Hui Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-09T08:46:34+00:00",
+      "link": "https://arxiv.org/pdf/2609.09890v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-view diffusion framework for street scene image generation with cross-view consistency",
+      "llm_evidence_cn": "面向街景图像生成、强调跨视角一致的多视图扩散框架",
+      "llm_evidence": "面向街景图像生成、强调跨视角一致的多视图扩散框架",
+      "canonical_evidence": "面向街景图像生成、强调跨视角一致的多视图扩散框架",
+      "llm_tldr_en": "StreetDiff is a multi-view diffusion framework that enforces cross-view alignment during denoising to generate consistent street scene images under camera rotation.",
+      "llm_tldr_cn": "针对多视图扩散模型在相机旋转下难以保持跨视角一致性、在复杂城市场景中易出现物体重复、结构畸变与布局不一致的问题，本文提出StreetDiff多视图扩散框架。方法在去噪过程中显式强制跨视角对齐，引入全景-透视协同机制，对球面对应关系进行建模，从而提升结构复杂城市环境的生成一致性。该工作属于扩散模型图像生成方向，与多视图图像生成相关，但与免训练采样优化的直接关联有限。",
+      "llm_tldr": "针对多视图扩散模型在相机旋转下难以保持跨视角一致性、在复杂城市场景中易出现物体重复、结构畸变与布局不一致的问题，本文提出StreetDiff多视图扩散框架。方法在去噪过程中显式强制跨视角对齐，引入全景-透视协同机制，对球面对应关系进行建模，从而提升结构复杂城市环境的生成一致性。该工作属于扩散模型图像生成方向，与多视图图像生成相关，但与免训练采样优化的直接关联有限。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.08981v1",
+      "source": "arxiv",
+      "title": "Transformers as In-Context Samplers: From Closed-Form Diffusion to Estimation-Free Sampling",
+      "abstract": "A growing body of work establishes that large language models are not mere statistical memorizers, but are capable of in-context learning: performing inference at test time using only examples provided in the prompt, without any parameter updates. Prior theoretical work has shown that this capability extends to supervised learning tasks such as linear regression. We prove that in-context learning extends further to \\emph{data generation}: frozen transformers can simulate iterative generative samplers from in-context samples. We first show that transformers can realize closed-form and smoothed closed-form diffusion samplers. The construction identifies a concrete generative role for softmax attention: it computes responsibility weights and weighted empirical averages, while feedforward layers implement Euler updates.   To empirically relate these constructions to pretrained language models, we study \\emph{semantic-topic sampling}: prompts consisting of words drawn from a common semantic category, such as animals, foods, or cities. Across transformer layers, the normalized hidden states exhibit a two-stage geometry: they move toward a uniform spherical reference in intermediate layers and then return to structured, topic-dependent representations near the output. We further measure an interacting-particle energy on these hidden-state clouds and observe the same U-shape pattern. We then prove that transformers can approximate an energy-based sampler, constructing the same U-shape energy across the layers.",
+      "authors": [
+        "Arman Adibi",
+        "Alireza Jafari",
+        "Mohammad Ghavamzadeh",
+        "Hadi Daneshmand"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "stat.AP",
+        "stat.CO",
+        "stat.ML"
+      ],
+      "published": "2026-09-08T16:25:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.08981v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free in-context diffusion sampling without parameter updates",
+      "llm_evidence_cn": "无需参数更新的免训练上下文扩散采样",
+      "llm_evidence": "无需参数更新的免训练上下文扩散采样",
+      "canonical_evidence": "无需参数更新的免训练上下文扩散采样",
+      "llm_tldr_en": "This work proves frozen transformers can act as in-context samplers, simulating closed-form and smoothed closed-form diffusion samplers from prompt examples alone, giving a training-free, estimation-free route to iterative generative sampling.",
+      "llm_tldr_cn": "已有研究表明大模型可进行上下文学习，但能否用于数据生成尚不明确。本文证明冻结的Transformer可作为上下文采样器，仅凭提示中的示例模拟闭式与平滑闭式扩散采样过程，并揭示softmax注意力在此扮演的生成角色。研究给出了一条免训练、免估计的迭代生成采样路径。该工作从理论层面支持扩散采样的免训练实现，与免训练采样优化主题相关。",
+      "llm_tldr": "已有研究表明大模型可进行上下文学习，但能否用于数据生成尚不明确。本文证明冻结的Transformer可作为上下文采样器，仅凭提示中的示例模拟闭式与平滑闭式扩散采样过程，并揭示softmax注意力在此扮演的生成角色。研究给出了一条免训练、免估计的迭代生成采样路径。该工作从理论层面支持扩散采样的免训练实现，与免训练采样优化主题相关。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.10363v1",
+      "source": "arxiv",
+      "title": "SceneHI: High-Resolution 3D-Consistent Scene Texturing with Controllable Illumination",
+      "abstract": "SceneHI is a framework that lifts high-resolution, illumination-aware priors from 2D diffusion models to perform 3D texture synthesis. It is the first to demonstrate that high-resolution textures, previously limited to 2D synthesis, can be generated directly on 3D objects without model fine-tuning or optimization. Designed for complex, multi-object environments, SceneHI uniquely combines 3D-consistency, high-resolution fidelity, and physically plausible baked shadows within a single generative pipeline. To enforce strict geometric coherence, we introduce an exact analytical pixel-to-texel mapping that aligns diffusion trajectories across multiple viewpoints. We utilize High-Resolution Latent Textures (HRLTs) as a persistent canvas for gradually denoised textures, while camera views perform the denoising steps in latent pixel space. This ensures a shared base texture that can be subsequently refined to high resolution without compromising multi-view consistency. Finally, a light-aware generative pass embeds realistic geometry-consistent shadows directly into the atlases, bridging the gap to production workflows. SceneHI achieves high visual fidelity while reducing generation time by 80% compared to existing scene-level methods.",
+      "authors": [
+        "Athanasios Tragakis",
+        "Marco Aversa",
+        "Daniela Ivanova",
+        "Chaitanya Kaul",
+        "Roderick Murray-Smith",
+        "Daniele Faccio",
+        "Paul Henderson"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-09-09T15:56:02+00:00",
+      "link": "https://arxiv.org/pdf/2609.10363v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion priors used without fine-tuning or optimization for 3D texture synthesis",
+      "llm_evidence_cn": "无需微调或优化即用扩散先验进行3D纹理合成",
+      "llm_evidence": "无需微调或优化即用扩散先验进行3D纹理合成",
+      "canonical_evidence": "无需微调或优化即用扩散先验进行3D纹理合成",
+      "llm_tldr_en": "SceneHI lifts high-resolution illumination-aware priors from 2D diffusion models to synthesize 3D textures without fine-tuning or optimization, using an analytical pixel-to-texel mapping to keep multi-view diffusion trajectories geometrically consistent.",
+      "llm_tldr_cn": "高分辨率纹理生成此前局限于二维合成，难以直接生成于三维物体且通常需要微调或优化。本文提出SceneHI框架，从二维扩散模型中提取高分辨率光照感知先验，通过精确的像素到纹素映射对齐多视角扩散轨迹，实现免微调的三维纹理合成。实验在复杂多物体场景中同时实现三维一致性、高分辨率保真与物理合理的烘焙阴影。该工作证明扩散先验可免微调直接驱动三维生成，属免优化式扩散应用。",
+      "llm_tldr": "高分辨率纹理生成此前局限于二维合成，难以直接生成于三维物体且通常需要微调或优化。本文提出SceneHI框架，从二维扩散模型中提取高分辨率光照感知先验，通过精确的像素到纹素映射对齐多视角扩散轨迹，实现免微调的三维纹理合成。实验在复杂多物体场景中同时实现三维一致性、高分辨率保真与物理合理的烘焙阴影。该工作证明扩散先验可免微调直接驱动三维生成，属免优化式扩散应用。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.10531v1",
+      "source": "arxiv",
+      "title": "Guiding Image-to-3D Generation with Test-Time Partial Observations",
+      "abstract": "Image-to-3D models can generate visually compelling 3D assets from a single RGB image, but their geometry is often only loosely constrained by the available observations, limiting their use in applications that require geometric fidelity. In many real-world settings, however, partial geometric observations of the object may be available at test time. We introduce a training-free framework for incorporating such evidence into pretrained image-to-3D generative models without retraining or finetuning. To do this, we guide generation using a ray-consistent observation likelihood defined over the model's occupancy representation, combining surface occupancy and free-space evidence. Applied to SAM 3D and its multi-view extension, our approach substantially improves geometric fidelity across different levels of observability, as well as visual quality. Our results demonstrate that pretrained image-to-3D models can effectively integrate partial geometric observations through explicit test-time guidance, complementing their learned generative priors without modifying the underlying model.",
+      "authors": [
+        "Jerred Chen",
+        "Simon Weber",
+        "Ronald Clark"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-09T17:58:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.10531v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free test-time guidance of pretrained image-to-3D generative diffusion models",
+      "llm_evidence_cn": "免训练地在测试时引导预训练图像到3D生成扩散模型",
+      "llm_evidence": "免训练地在测试时引导预训练图像到3D生成扩散模型",
+      "canonical_evidence": "免训练地在测试时引导预训练图像到3D生成扩散模型",
+      "llm_tldr_en": "This paper introduces a training-free framework that guides pretrained image-to-3D generative models at test time using partial geometric observations.",
+      "llm_tldr_cn": "针对图像到三维生成模型几何约束松散、难以满足高保真需求的问题，本文提出一种免训练框架，在测试时把可获得的局部几何观测注入预训练的图像到三维生成模型，无需重训或微调。方法在模型的占据表示上定义射线一致的观测似然，融合表面占据与自由空间证据，对生成过程进行引导。将其应用于SAM 3D及其多视图扩展后，几何保真度显著提升，说明测试时引导可作为免训练优化生成模型的通用手段，但面向三维而非图像视频。",
+      "llm_tldr": "针对图像到三维生成模型几何约束松散、难以满足高保真需求的问题，本文提出一种免训练框架，在测试时把可获得的局部几何观测注入预训练的图像到三维生成模型，无需重训或微调。方法在模型的占据表示上定义射线一致的观测似然，融合表面占据与自由空间证据，对生成过程进行引导。将其应用于SAM 3D及其多视图扩展后，几何保真度显著提升，说明测试时引导可作为免训练优化生成模型的通用手段，但面向三维而非图像视频。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
