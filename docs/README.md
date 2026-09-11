@@ -6,30 +6,29 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-13 ~ 2026-09-11
-- 运行时间：2026-09-11 06:56:21 UTC
+- 最新运行日期：2026-09-11
+- 运行时间：2026-09-11 21:49:25 UTC
 - 运行状态：成功
 - 本次总论文数：3
-- 精读区：0
-- 速读区：3
+- 精读区：1
+- 速读区：2
 
 ### 今日简报（AI）
-本期速读3篇生成式AI论文，涵盖零样本肋骨设计、多主体视频生成与GAN-Diff图像生成。最值得关注的是零样本肋骨设计用无训练生成先验结合拓扑优化（7.0分），以及利用内在主体感知注意力实现可控多主体视频生成（7.0分）。普通读者可优先浏览这两篇，感受生成模型在医学工程与视频创作中的落地思路。
-- 详情：[/20260813-20260911/README](/20260813-20260911/README)
+今日精读1篇、速读2篇，重点聚焦扩散Transformer的可控生成与高效注意力优化。最值得看的是AcFlow以学习式条件激活流控制文本到图像扩散Transformer（8.0/10），以及RoLA用旋转位置低秩线性注意力提升扩散Transformer效率。普通读者可先读AcFlow了解可控生成新思路，再按需关注RoLA等效率方案。
+- 详情：[/202609/11/README](/202609/11/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [AcFlow: Controlling Text-to-Image Diffusion Transformers via Learned Conditional Activation Flow](/202609/11/2609.10723v1-acflow-controlling-text-to-image-diffusion-transformers-via-learned-conditional-activation-flow)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：冻结基座DiT的推理时控制器
 
 ### 速读区论文标签
-1. [Zero-shot rib design: merging training-free generative prior with topology optimization](/20260813-20260911/2609.10643v1-zero-shot-rib-design-merging-training-free-generative-prior-with-topology-optimization)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：冻结文生图扩散模型作为免训练设计知识源
-2. [Harnessing Intrinsic Subject-Aware Attention for Controllable Multi-Subject Video Generation](/20260813-20260911/2609.11507v1-harnessing-intrinsic-subject-aware-attention-for-controllable-multi-subject-video-generation)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：免训练推理控制多主体视频生成
-3. [GAN-Diff : Coupling Pretrained WGAN-GP Features with Conditional Diffusion U-Nets](/20260813-20260911/2608.22272v2-gan-diff--coupling-pretrained-wgan-gp-features-with-conditional-diffusion-u-nets)  
+1. [RoLA: Rotary-Positioned Low-Rank Linear Attention for Efficient Diffusion Transformers](/202609/11/2609.06712v2-rola-rotary-positioned-low-rank-linear-attention-for-efficient-diffusion-transformers)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：用冻结的WGAN-GP特征引导条件扩散进行图像恢复
+   evidence：面向视频生成的高效扩散Transformer
+2. [Decoupled Self-Forcing Distillation for Streaming Talking Head Generation](/202609/11/2609.10317v1-decoupled-self-forcing-distillation-for-streaming-talking-head-generation)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：视频扩散模型用于说话人头生成
 
 
 <div class="dpr-home-promo-card">

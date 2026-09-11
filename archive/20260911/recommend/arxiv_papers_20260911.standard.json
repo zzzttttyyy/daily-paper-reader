@@ -1,0 +1,146 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-11T21:45:45.257278+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2609.10723v1",
+      "source": "arxiv",
+      "title": "AcFlow: Controlling Text-to-Image Diffusion Transformers via Learned Conditional Activation Flow",
+      "abstract": "Text-to-image diffusion transformers (DiTs) are powerful generators, yet direct prompting provides limited control interface for style intensity and can fail to suppress unwanted concepts. To enable these controls, we introduce AcFlow, an inference-time controller that transports intermediate layer image-token activations through a learned concept-conditioned velocity field while keeping the base DiT frozen. A textual concept description specifies the desired intervention, while the integration horizon provides a continuous control parameter. The field produces token-varying, activation-dependent updates. With parameters shared across concepts within each task family, the field supports fine-grained descriptions and generalizes to concepts unseen during training without per-concept fitting. On style control, AcFlow achieves the best style--content trade-off among the evaluated baselines in the high-style-alignment regime. At a fixed operating point, AcFlow attains style--content alignment of 0.5365/0.2860, compared with 0.4397/0.2684 for the baseline with the highest style alignment. Qualitative results demonstrate suppression of diverse concepts, including cases where direct prompting fails. Our analyses support the learned velocity field as an adaptive control mechanism, with update directions varying across tokens and depend on their activation states. Our code is available at https://github.com/Nove1yst/AcFlow.",
+      "authors": [
+        "Junran Wang",
+        "Zehao Jin",
+        "Tianyu Luan",
+        "Xinjie Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-09T18:16:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.10723v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "inference-time controller keeping the base DiT frozen for text-to-image generation",
+      "llm_evidence_cn": "冻结基座DiT的推理时控制器",
+      "llm_evidence": "冻结基座DiT的推理时控制器",
+      "canonical_evidence": "冻结基座DiT的推理时控制器",
+      "llm_tldr_en": "AcFlow is an inference-time controller that steers text-to-image diffusion transformers via a learned conditional activation flow while keeping the base model frozen, enabling style and concept control.",
+      "llm_tldr_cn": "文本到图像扩散Transformer虽然强大，但直接提示对风格强度控制有限，也难以抑制不需要的概念。本文提出AcFlow，一种推理时控制器，在保持基座DiT冻结的前提下，通过学习到的概念条件速度场运输中间层图像token激活。文本概念描述指定干预目标，积分时长提供连续控制参数，该场产生随token和激活变化的更新。参数在任务族内跨概念共享，支持细粒度描述与泛化，实现了免微调的图像生成控制。",
+      "llm_tldr": "文本到图像扩散Transformer虽然强大，但直接提示对风格强度控制有限，也难以抑制不需要的概念。本文提出AcFlow，一种推理时控制器，在保持基座DiT冻结的前提下，通过学习到的概念条件速度场运输中间层图像token激活。文本概念描述指定干预目标，积分时长提供连续控制参数，该场产生随token和激活变化的更新。参数在任务族内跨概念共享，支持细粒度描述与泛化，实现了免微调的图像生成控制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.06712v2",
+      "source": "arxiv",
+      "title": "RoLA: Rotary-Positioned Low-Rank Linear Attention for Efficient Diffusion Transformers",
+      "abstract": "Diffusion Transformers (DiTs) achieve strong video generation quality, but their dense spatiotemporal self-attention scales quadratically with sequence length and quickly becomes the dominant inference bottleneck. Sparse low-rank hybrids alleviate this cost by combining a local sparse branch with a global compressed branch. In video DiTs equipped with 3D Rotary Position Embeddings (RoPE), the global branch faces a structural compatibility issue: when RoPE is applied before a nonlinear feature map, the rotation and nonlinearity generally do not commute, making it difficult to keep a query-independent linear summary while preserving relative rotary geometry. Existing work often sidesteps this issue by replacing genuine cross-token global aggregation with coordinate-conditioned surrogates or learnable absolute positional modules. These compromises can be effective, but they approximate relative decay from absolute coordinates and introduce extra positional parameters. We propose \\textbf{RoLA}, a rotary-positioned low-rank linear-attention branch that keeps genuine cross-token aggregation while remaining compatible with a reusable linear summary. The design applies RoPE \\emph{outside} the nonlinear low-rank feature map and reuses a truncated subset of the pre-trained rotary schedule matched to the low-rank bottleneck.   This yields a linear-time low-rank global branch with relative positional behavior by design and no additional positional parameters; the full sparse--low-rank module still includes the fixed-sparsity sparse branch. Experiments on open-source video DiTs show that the resulting method remains competitive in generation quality at 90\\% sparsity while achieving 2.63$\\times$ end-to-end inference speedup on Wan2.1-14B (720p, 81 frames, measured on an NVIDIA H100 GPU).",
+      "authors": [
+        "Zekun Zhang",
+        "Yixiang Cai",
+        "Yuxi Liu",
+        "Tengxu Sun",
+        "Tianle Liu",
+        "Zhoutong Wu",
+        "Haoyu Li",
+        "Baole Ai",
+        "Ang Wang",
+        "Jiamang Wang",
+        "Lin Qu",
+        "Kun Yuan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-06T16:34:46+00:00",
+      "link": "https://arxiv.org/pdf/2609.06712v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "efficient diffusion transformer for video generation",
+      "llm_evidence_cn": "面向视频生成的高效扩散Transformer",
+      "llm_evidence": "面向视频生成的高效扩散Transformer",
+      "canonical_evidence": "面向视频生成的高效扩散Transformer",
+      "llm_tldr_en": "RoLA tackles the quadratic inference bottleneck of diffusion transformers for video generation by introducing rotary-positioned low-rank linear attention that keeps a query-independent linear summary while preserving relative rotary geometry.",
+      "llm_tldr_cn": "扩散Transformer在视频生成中表现优异，但密集时空自注意力随序列长度平方增长，成为推理瓶颈。本文提出RoLA，将局部稀疏分支与全局压缩分支结合，并解决三维旋转位置嵌入与非线性特征映射不兼容的问题。方法在保持相对旋转几何的同时维持与查询无关的线性摘要，显著降低注意力开销，为高效视频扩散Transformer提供了可行的注意力设计。",
+      "llm_tldr": "扩散Transformer在视频生成中表现优异，但密集时空自注意力随序列长度平方增长，成为推理瓶颈。本文提出RoLA，将局部稀疏分支与全局压缩分支结合，并解决三维旋转位置嵌入与非线性特征映射不兼容的问题。方法在保持相对旋转几何的同时维持与查询无关的线性摘要，显著降低注意力开销，为高效视频扩散Transformer提供了可行的注意力设计。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.10317v1",
+      "source": "arxiv",
+      "title": "Decoupled Self-Forcing Distillation for Streaming Talking Head Generation",
+      "abstract": "Streaming talking-head generation produces each frame as its driving audio arrives, yet fidelity and efficiency have so far pulled in opposite directions: end-to-end methods condition a video diffusion model on audio directly and achieve high quality but only at large scale, while cheaper two-stage methods generate an intermediate motion representation and trail in fidelity. We argue the cost of the former lies in the target of fusion: the video latent is dominated by identity, appearance and background, none of which audio bears on, so coupling audio to every pixel blurs detail and wastes capacity. We instead fuse conditions in a low-dimensional identity-disentangled motion space, routing audio and motion captions by their temporal granularity, and generate motion latents with a small causal autoregressive transformer that a pretrained diffusion renderer turns into video. Conditions thus control video transitively, and high fidelity no longer requires a large backbone. Streaming this decomposition needs both models to be causal, and the exposure-bias problem could be solved by self-forcing given a bidirectional teacher. But there is no such teacher in motion space. Our decoupled self-forcing distillation resolves both models under one frozen teacher: conditioned on motion, it distills the renderer into a block-causal student; unconditionally, it scores rendered rollouts against real videos, supervising motion by the video it produces. This lifts the fidelity ceiling from the motion generator onto the stronger renderer. The two models run as parallel causal streams, reaching 15.4 FPS at 1.3 s latency with no quality degradation.",
+      "authors": [
+        "Yanru An",
+        "Ruiyan Wang",
+        "Wenwu Wei",
+        "Rui Bu",
+        "Qi Wang",
+        "Hongwei Hu",
+        "Zhengxue Cheng",
+        "Rong Xie",
+        "Li Song",
+        "Wenjun Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-09T15:22:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.10317v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video diffusion model for talking head generation",
+      "llm_evidence_cn": "视频扩散模型用于说话人头生成",
+      "llm_evidence": "视频扩散模型用于说话人头生成",
+      "canonical_evidence": "视频扩散模型用于说话人头生成",
+      "llm_tldr_en": "This paper addresses streaming talking-head generation where fidelity and efficiency conflict, proposing to fuse audio and motion conditions in a low-dimensional identity-disentangled motion space with decoupled self-forcing distillation to improve video diffusion quality.",
+      "llm_tldr_cn": "流式说话人头生成需在保真度与效率间权衡，端到端方法质量高但依赖大规模视频扩散模型。本文指出音频与视频潜在空间的耦合目标不当，转而将条件融合到低维、身份解耦的运动空间，并按时间粒度路由音频与运动描述。方法提出解耦自强迫蒸馏，提升流式生成的质量与效率，为高质量实时说话人头视频生成提供新思路。",
+      "llm_tldr": "流式说话人头生成需在保真度与效率间权衡，端到端方法质量高但依赖大规模视频扩散模型。本文指出音频与视频潜在空间的耦合目标不当，转而将条件融合到低维、身份解耦的运动空间，并按时间粒度路由音频与运动描述。方法提出解耦自强迫蒸馏，提升流式生成的质量与效率，为高质量实时说话人头视频生成提供新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
