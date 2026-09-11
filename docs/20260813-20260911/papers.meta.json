@@ -1,12 +1,12 @@
 {
   "label": "2026-08-13 ~ 2026-09-11",
   "date": "2026-08-13 ~ 2026-09-11",
-  "generated_at": "2026-09-11T06:40:28",
-  "count": 1,
+  "generated_at": "2026-09-11T06:48:39",
+  "count": 2,
   "papers": [
     {
       "paper_id": "20260813-20260911/2609.11507v1-harnessing-intrinsic-subject-aware-attention-for-controllable-multi-subject-video-generation",
-      "section": "deep",
+      "section": "quick",
       "title_en": "Harnessing Intrinsic Subject-Aware Attention for Controllable Multi-Subject Video Generation",
       "authors": "Niange Yu, Ye Tian, Biaolong Chen, Miao Lu, Aixi Zhang, Hao Jiang, Yunhai Tong, Pipei Huang",
       "date": "2026-09-10",
@@ -16,6 +16,21 @@
       "tldr": "多主体视频生成常受保真强度不可控与语义漂移困扰。作者分析 Diffusion Transformers 内部注意力，发现部分注意力块会自然形成内在空间定位图 ISGM，可精确定位参考主体。基于此提出双阶段内在注意力利用框架 DIAL：低噪声阶段用 ISGM 引导注意力，实现无需重训的可控保真强度；高噪声阶段用同一地图零成本构建偏好对，通过强化学习锚定参考主体并缓解漂移。在 OpenS2V-Eval 上，DIAL 显著超越基线，提升身份一致性并实现保真强度可控。",
       "tags": "query:tfree-diff",
       "abstract_en": "Multi-subject video generation faces two key challenges: uncontrollable fidelity strength and potential semantic drift. We address these by analyzing the internal mechanisms of Diffusion Transformers (DiTs). We found that certain attention blocks naturally form an Intrinsic Spatial Grounding Map (ISGM) that precisely locates reference subjects. Building on this insight, we propose Dual-phase Intrinsic Attention Leveraging (DIAL), a framework that uses these internal signals for both training and inference. In low-noise stages, we use ISGM to guide the attention mechanism, allowing precise control over fidelity strength during inference without retraining. In high-noise stages, we use these same maps to automatically build preference pairs at no additional cost for Reinforcement Learning (RL). This RL procedure effectively anchors the model's attention to reference subjects and mitigates semantic drift. Extensive experiments show that DIAL significantly outperforms baseline models on the OpenS2V-Eval benchmark, consistently improving identity consistency and enabling controllable fidelity strength.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "20260813-20260911/2609.09123v1-mask-forcing-improving-autoregressive-video-diffusion-distillation-via-dual-noise-masking-rollout",
+      "section": "quick",
+      "title_en": "Mask Forcing: Improving Autoregressive Video Diffusion Distillation via Dual-Noise Masking Rollout",
+      "authors": "Zhuoran Zhao, Shengju Qian, Tongtong Liang, Xianghao Kong, Songchun Zhang, Junchao Huang, Guian Fang, Xin Wang, Pan Hui, Anyi Rao",
+      "date": "2026-09-08",
+      "pdf": "https://arxiv.org/pdf/2609.09123v1",
+      "score": "6.0",
+      "evidence": "自回归视频扩散蒸馏提升生成质量",
+      "tldr": "自回归视频扩散模型实时生成潜力大，但现有DMD蒸馏常因反向KL模式寻求导致过饱和、过平滑，视觉质量受限。本文提出Mask Forcing，一种双噪声掩码 rollout 策略，在AR学生自rollout中沿空间和时间轴随机注入更干净信号，扰动输入以缓解模式坍缩。该方法促使学生探索教师分布更多区域，并提供去噪引导、减少误差累积。实验表明，它无需真实视频或额外后训练即可高效提升多种AR视频扩散蒸馏方法，获得更高视觉质量。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Autoregressive (AR) video diffusion models have shown great potential in real-time video generation. Recent methods distill pretrained bidirectional video diffusion models into causal AR students through Distribution Matching Distillation (DMD), but the generated videos often suffer from over-saturation and over-smoothing issues, resulting in limited visual quality and realism. The key contributing factor is the mode-seeking behavior of the reverse KL objective in DMD, which can cause the student distribution to collapse onto only a few modes of the teacher distribution. To address this, we propose Mask Forcing, a Dual-Noise Masking Rollout strategy that perturbs the AR student self-rollout to mitigate mode collapse induced by reverse-KL mode seeking. The core idea is to inject cleaner signals into noisy rollout inputs via random masks along spatial and temporal axes during the self-rollout process of AR diffusion distillation. Such perturbations encourage the student rollouts to explore more regions of the teacher distribution, allowing DMD to provide learning signals beyond the modes already covered by the student. Moreover, the cleaner tokens act as denoising guidance for other noisier tokens, improving the intermediate rollout predictions and reducing error accumulation. Extensive experiments demonstrate that our method improves multiple AR video diffusion distillation methods with higher visual quality efficiently, without incorporating real video data or additional post-training stages.",
       "source": "arxiv",
       "selection_source": "fresh_fetch"
     }

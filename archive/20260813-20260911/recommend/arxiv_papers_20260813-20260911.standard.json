@@ -1,17 +1,18 @@
 {
   "mode": "standard",
-  "generated_at": "2026-09-11T06:38:48.667222+00:00",
+  "generated_at": "2026-09-11T06:47:07.564265+00:00",
   "stats": {
     "mode": "standard",
     "tag_count": 1,
-    "deep_divecandidates": 1,
+    "deep_divecandidates": 0,
     "deep_cap": 6,
-    "deep_selected": 1,
-    "quick_candidates": 0,
+    "deep_selected": 0,
+    "quick_candidates": 2,
     "quick_skim_target": 11,
-    "quick_selected": 0
+    "quick_selected": 2
   },
-  "deep_dive": [
+  "deep_dive": [],
+  "quick_skim": [
     {
       "id": "2609.11507v1",
       "source": "arxiv",
@@ -37,22 +38,66 @@
         "keyword:tfree-diff",
         "query:tfree-diff"
       ],
-      "llm_score": 8.0,
-      "llm_evidence_en": "inference-time control of video generation without retraining",
-      "llm_evidence_cn": "无需重训练的视频生成推理时控制",
-      "llm_evidence": "无需重训练的视频生成推理时控制",
-      "canonical_evidence": "无需重训练的视频生成推理时控制",
-      "llm_tldr_en": "This paper proposes DIAL, which exploits intrinsic spatial grounding maps in Diffusion Transformers to enable controllable multi-subject video generation without retraining.",
-      "llm_tldr_cn": "多主体视频生成面临保真度强度不可控与语义漂移两大难题。作者通过分析扩散Transformer的内部机制，发现某些注意力块会自然形成内在空间定位图，可精确定位参考主体，并据此提出双阶段内在注意力利用框架DIAL。该框架在低噪声阶段用定位图引导注意力，实现推理时无需重训练的保真度精确控制；在高噪声阶段利用同一信号自动构建偏好。研究为免训练的多主体视频生成提供了新的内部机制视角与控制手段。",
-      "llm_tldr": "多主体视频生成面临保真度强度不可控与语义漂移两大难题。作者通过分析扩散Transformer的内部机制，发现某些注意力块会自然形成内在空间定位图，可精确定位参考主体，并据此提出双阶段内在注意力利用框架DIAL。该框架在低噪声阶段用定位图引导注意力，实现推理时无需重训练的保真度精确控制；在高噪声阶段利用同一信号自动构建偏好。研究为免训练的多主体视频生成提供了新的内部机制视角与控制手段。",
+      "llm_score": 7.0,
+      "llm_evidence_en": "inference-time control of multi-subject video generation without retraining",
+      "llm_evidence_cn": "免重训练的多主体视频生成推理控制",
+      "llm_evidence": "免重训练的多主体视频生成推理控制",
+      "canonical_evidence": "免重训练的多主体视频生成推理控制",
+      "llm_tldr_en": "DIAL leverages intrinsic subject-aware attention in diffusion transformers, using spatial grounding maps to control fidelity at inference without retraining and to build preferences in high-noise stages for multi-subject video generation.",
+      "llm_tldr_cn": "多主体视频生成面临保真强度不可控与语义漂移问题。本文分析扩散Transformer内部机制，发现部分注意力块自然形成可精确定位参考主体的内在空间定位图ISGM，进而提出双阶段内在注意力利用框架DIAL。低噪声阶段用该图引导注意力，在推理时无需重训练即可精确控制保真强度；高噪声阶段用其自动构建偏好。方法提升了多主体视频生成的可控性，体现免训练的推理期优化思路。",
+      "llm_tldr": "多主体视频生成面临保真强度不可控与语义漂移问题。本文分析扩散Transformer内部机制，发现部分注意力块自然形成可精确定位参考主体的内在空间定位图ISGM，进而提出双阶段内在注意力利用框架DIAL。低噪声阶段用该图引导注意力，在推理时无需重训练即可精确控制保真强度；高噪声阶段用其自动构建偏好。方法提升了多主体视频生成的可控性，体现免训练的推理期优化思路。",
       "llm_tags": [
         "query:tfree-diff"
       ],
       "matched_query_tag": "query:tfree-diff",
       "matched_query_text": "How to improve diffusion model video generation without additional training?",
       "matched_requirement_id": "req-6",
-      "selection_source": "fresh_fetch"
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.09123v1",
+      "source": "arxiv",
+      "title": "Mask Forcing: Improving Autoregressive Video Diffusion Distillation via Dual-Noise Masking Rollout",
+      "abstract": "Autoregressive (AR) video diffusion models have shown great potential in real-time video generation. Recent methods distill pretrained bidirectional video diffusion models into causal AR students through Distribution Matching Distillation (DMD), but the generated videos often suffer from over-saturation and over-smoothing issues, resulting in limited visual quality and realism. The key contributing factor is the mode-seeking behavior of the reverse KL objective in DMD, which can cause the student distribution to collapse onto only a few modes of the teacher distribution. To address this, we propose Mask Forcing, a Dual-Noise Masking Rollout strategy that perturbs the AR student self-rollout to mitigate mode collapse induced by reverse-KL mode seeking. The core idea is to inject cleaner signals into noisy rollout inputs via random masks along spatial and temporal axes during the self-rollout process of AR diffusion distillation. Such perturbations encourage the student rollouts to explore more regions of the teacher distribution, allowing DMD to provide learning signals beyond the modes already covered by the student. Moreover, the cleaner tokens act as denoising guidance for other noisier tokens, improving the intermediate rollout predictions and reducing error accumulation. Extensive experiments demonstrate that our method improves multiple AR video diffusion distillation methods with higher visual quality efficiently, without incorporating real video data or additional post-training stages.",
+      "authors": [
+        "Zhuoran Zhao",
+        "Shengju Qian",
+        "Tongtong Liang",
+        "Xianghao Kong",
+        "Songchun Zhang",
+        "Junchao Huang",
+        "Guian Fang",
+        "Xin Wang",
+        "Pan Hui",
+        "Anyi Rao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-08T17:50:05+00:00",
+      "link": "https://arxiv.org/pdf/2609.09123v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "autoregressive video diffusion distillation for real-time video generation",
+      "llm_evidence_cn": "自回归视频扩散蒸馏提升生成质量",
+      "llm_evidence": "自回归视频扩散蒸馏提升生成质量",
+      "canonical_evidence": "自回归视频扩散蒸馏提升生成质量",
+      "llm_tldr_en": "Mask Forcing addresses over-saturation and over-smoothing in distilled autoregressive video diffusion models by perturbing student self-rollout with dual-noise masking to mitigate mode collapse during distribution matching distillation.",
+      "llm_tldr_cn": "针对自回归视频扩散模型经分布匹配蒸馏后出现过饱和、过平滑与模式坍塌的问题，本文提出Mask Forcing双噪声掩码展开策略，在蒸馏过程中扰动学生模型的自回归展开以缓解反向KL目标导致的模式寻优坍塌。方法在实时视频生成任务上提升了视觉质量与真实感，为免训练部署之外的高效视频生成蒸馏提供了新思路。",
+      "llm_tldr": "针对自回归视频扩散模型经分布匹配蒸馏后出现过饱和、过平滑与模式坍塌的问题，本文提出Mask Forcing双噪声掩码展开策略，在蒸馏过程中扰动学生模型的自回归展开以缓解反向KL目标导致的模式寻优坍塌。方法在实时视频生成任务上提升了视觉质量与真实感，为免训练部署之外的高效视频生成蒸馏提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
     }
-  ],
-  "quick_skim": []
+  ]
 }
