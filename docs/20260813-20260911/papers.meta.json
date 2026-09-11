@@ -1,0 +1,24 @@
+{
+  "label": "2026-08-13 ~ 2026-09-11",
+  "date": "2026-08-13 ~ 2026-09-11",
+  "generated_at": "2026-09-11T06:40:28",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "20260813-20260911/2609.11507v1-harnessing-intrinsic-subject-aware-attention-for-controllable-multi-subject-video-generation",
+      "section": "deep",
+      "title_en": "Harnessing Intrinsic Subject-Aware Attention for Controllable Multi-Subject Video Generation",
+      "authors": "Niange Yu, Ye Tian, Biaolong Chen, Miao Lu, Aixi Zhang, Hao Jiang, Yunhai Tong, Pipei Huang",
+      "date": "2026-09-10",
+      "pdf": "https://arxiv.org/pdf/2609.11507v1",
+      "score": "8.0",
+      "evidence": "无需重训练的视频生成推理时控制",
+      "tldr": "多主体视频生成常受保真强度不可控与语义漂移困扰。作者分析 Diffusion Transformers 内部注意力，发现部分注意力块会自然形成内在空间定位图 ISGM，可精确定位参考主体。基于此提出双阶段内在注意力利用框架 DIAL：低噪声阶段用 ISGM 引导注意力，实现无需重训的可控保真强度；高噪声阶段用同一地图零成本构建偏好对，通过强化学习锚定参考主体并缓解漂移。在 OpenS2V-Eval 上，DIAL 显著超越基线，提升身份一致性并实现保真强度可控。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Multi-subject video generation faces two key challenges: uncontrollable fidelity strength and potential semantic drift. We address these by analyzing the internal mechanisms of Diffusion Transformers (DiTs). We found that certain attention blocks naturally form an Intrinsic Spatial Grounding Map (ISGM) that precisely locates reference subjects. Building on this insight, we propose Dual-phase Intrinsic Attention Leveraging (DIAL), a framework that uses these internal signals for both training and inference. In low-noise stages, we use ISGM to guide the attention mechanism, allowing precise control over fidelity strength during inference without retraining. In high-noise stages, we use these same maps to automatically build preference pairs at no additional cost for Reinforcement Learning (RL). This RL procedure effectively anchors the model's attention to reference subjects and mitigates semantic drift. Extensive experiments show that DIAL significantly outperforms baseline models on the OpenS2V-Eval benchmark, consistently improving identity consistency and enabling controllable fidelity strength.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

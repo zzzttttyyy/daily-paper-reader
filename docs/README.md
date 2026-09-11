@@ -6,35 +6,26 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-10
-- 运行时间：2026-09-10 21:17:59 UTC
+- 最新运行日期：2026-08-13 ~ 2026-09-11
+- 运行时间：2026-09-11 06:40:23 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：0
-- 速读区：4
+- 本次总论文数：1
+- 精读区：1
+- 速读区：0
 
 ### 今日简报（AI）
-- 今日共生成 4 篇推荐（精读 0 篇，速读 4 篇）
-- 速读：《StreetDiff: Multi-view Street Scenes Generation via Cross-view Consistent Multi-view Stable Diffusion with Structure Prompts》（7.0/10）, 《Transformers as In-Context Samplers: From Closed-Form Diffusion to Estimation-Free Sampling》（6.0/10）, 《SceneHI: High-Resolution 3D-Consistent Scene Texturing with Controllable Illumination》（6.0/10）
-- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
-- 详情：[/202609/10/README](/202609/10/README)
+今天精读1篇8.0分论文，聚焦《Harnessing Intrinsic Subject-Aware Attention for Controllable Multi-Subject Video Generation》。  
+最值得看的是“多主体视频生成的可控性”和“主体感知注意力”这一思路，适合关注多主体一致性与控制问题的人。  
+普通读者可先把它当作该方向的入口，后续再找同主题工作对照，理解“主体感知注意力”具体解决什么控制难题。
+- 详情：[/20260813-20260911/README](/20260813-20260911/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [Harnessing Intrinsic Subject-Aware Attention for Controllable Multi-Subject Video Generation](/20260813-20260911/2609.11507v1-harnessing-intrinsic-subject-aware-attention-for-controllable-multi-subject-video-generation)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：无需重训练的视频生成推理时控制
 
 ### 速读区论文标签
-1. [StreetDiff: Multi-view Street Scenes Generation via Cross-view Consistent Multi-view Stable Diffusion with Structure Prompts](/202609/10/2609.09890v1-streetdiff-multi-view-street-scenes-generation-via-cross-view-consistent-multi-view-stable-diffusion-with-structure-prompts)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：面向街景图像生成、强调跨视角一致的多视图扩散框架
-2. [Transformers as In-Context Samplers: From Closed-Form Diffusion to Estimation-Free Sampling](/202609/10/2609.08981v1-transformers-as-in-context-samplers-from-closed-form-diffusion-to-estimation-free-sampling)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：无需参数更新的免训练上下文扩散采样
-3. [SceneHI: High-Resolution 3D-Consistent Scene Texturing with Controllable Illumination](/202609/10/2609.10363v1-scenehi-high-resolution-3d-consistent-scene-texturing-with-controllable-illumination)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：无需微调或优化即用扩散先验进行3D纹理合成
-4. [Guiding Image-to-3D Generation with Test-Time Partial Observations](/202609/10/2609.10531v1-guiding-image-to-3d-generation-with-test-time-partial-observations)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：免训练地在测试时引导预训练图像到3D生成扩散模型
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
