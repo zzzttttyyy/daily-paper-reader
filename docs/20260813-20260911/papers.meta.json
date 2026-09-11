@@ -1,9 +1,24 @@
 {
   "label": "2026-08-13 ~ 2026-09-11",
   "date": "2026-08-13 ~ 2026-09-11",
-  "generated_at": "2026-09-11T06:48:39",
-  "count": 2,
+  "generated_at": "2026-09-11T06:56:24",
+  "count": 3,
   "papers": [
+    {
+      "paper_id": "20260813-20260911/2609.10643v1-zero-shot-rib-design-merging-training-free-generative-prior-with-topology-optimization",
+      "section": "quick",
+      "title_en": "Zero-shot rib design: merging training-free generative prior with topology optimization",
+      "authors": "Yongmin Kwon, Namwoo Kang",
+      "date": "2026-09-09",
+      "pdf": "https://arxiv.org/pdf/2609.10643v1",
+      "score": "7.0",
+      "evidence": "冻结文生图扩散模型作为免训练设计知识源",
+      "tldr": "自然承力结构如叶脉、骨小梁和蛛网具有高刚度质量比，但经典拓扑优化难以复现，且无法用自然语言表达设计意图。本文冻结文本到图像扩散模型作为免训练先验，通过得分蒸馏采样融入密度法拓扑优化的物理循环，将提示词变为可机读的设计意图。每次迭代融合生成梯度与有限元灵敏度，由物理决定提示特征去留。245次主实验覆盖四类几何域和两种物理机制，49个提示-域组合中38个显著降低柔度，最高机械降31.5%、热弹性降23.0%，并识别出抑制死端分支等结构特征。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Natural load-bearing patterns such as leaf venation, trabecular bone, and spider webs achieve high stiffness per unit mass, yet classical topology optimizers rarely reach such geometries, and few let engineers express structural design intent through natural language. This work treats a frozen text-to-image diffusion model as a training-free source of design knowledge and distills it into the physics loop of density-based topology optimization via score distillation sampling, so that a text prompt becomes an explicit, machine-interpretable representation of engineer intent. The prompt-induced generative gradient and the finite element sensitivity are combined at every iteration, letting physics decide which prompt-induced features survive. In 245 primary SDS runs spanning four geometric domains and two physics regimes, 38 of 49 prompt--domain combinations achieved statistically significant compliance reductions (up to $-31.5\\%$ mechanical and $-23.0\\%$ thermoelastic), outperforming gradient-based baselines. Cross-domain morphological analysis identifies a recurring structural signature of improvement: in most domains the generative prior suppresses dead-end branches in the rib skeleton, with endpoint--compliance correlation $r = +0.56$ to $+0.99$. A Heaviside projection with $β$-continuation resolves a pronounced intermediate-density tendency in this diffusion--physics coupling ($42.6\\%$ to $<3\\%$), and an automated skeleton-based pipeline converts optimized density fields into \\rev{candidate geometry ready for computer-aided design. By retargeting the generative prior across domains, loading conditions, and physics objectives through a change of text prompt, with each new problem's physics setup specified separately, the framework uses a pretrained generative model as a reusable, training-free prior for engineering design.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
     {
       "paper_id": "20260813-20260911/2609.11507v1-harnessing-intrinsic-subject-aware-attention-for-controllable-multi-subject-video-generation",
       "section": "quick",
@@ -20,17 +35,17 @@
       "selection_source": "fresh_fetch"
     },
     {
-      "paper_id": "20260813-20260911/2609.09123v1-mask-forcing-improving-autoregressive-video-diffusion-distillation-via-dual-noise-masking-rollout",
+      "paper_id": "20260813-20260911/2608.22272v2-gan-diff--coupling-pretrained-wgan-gp-features-with-conditional-diffusion-u-nets",
       "section": "quick",
-      "title_en": "Mask Forcing: Improving Autoregressive Video Diffusion Distillation via Dual-Noise Masking Rollout",
-      "authors": "Zhuoran Zhao, Shengju Qian, Tongtong Liang, Xianghao Kong, Songchun Zhang, Junchao Huang, Guian Fang, Xin Wang, Pan Hui, Anyi Rao",
-      "date": "2026-09-08",
-      "pdf": "https://arxiv.org/pdf/2609.09123v1",
+      "title_en": "GAN-Diff : Coupling Pretrained WGAN-GP Features with Conditional Diffusion U-Nets",
+      "authors": "Saif Ahmed, Asadullah Hil Galib, S. M. Riaz Rahman Antu, Ahmed Faizul Haque Dhrubo, Souvik Pramanik, Mohammad Abdul Qayum, Mohsin Sajjad, Mohammad Ashrafuzzaman Khan",
+      "date": "2026-08-23",
+      "pdf": "https://arxiv.org/pdf/2608.22272v2",
       "score": "6.0",
-      "evidence": "自回归视频扩散蒸馏提升生成质量",
-      "tldr": "自回归视频扩散模型实时生成潜力大，但现有DMD蒸馏常因反向KL模式寻求导致过饱和、过平滑，视觉质量受限。本文提出Mask Forcing，一种双噪声掩码 rollout 策略，在AR学生自rollout中沿空间和时间轴随机注入更干净信号，扰动输入以缓解模式坍缩。该方法促使学生探索教师分布更多区域，并提供去噪引导、减少误差累积。实验表明，它无需真实视频或额外后训练即可高效提升多种AR视频扩散蒸馏方法，获得更高视觉质量。",
+      "evidence": "用冻结的WGAN-GP特征引导条件扩散进行图像恢复",
+      "tldr": "针对GAN生成高效但扩散复原需迭代采样的问题，本文提出GAN引导的条件扩散混合框架。方法以预训练WGAN-GP冻结生成器的中间特征为先验，经交叉注意力注入扩散U-Net，并在DDIM采样中保持固定。在CelebA高斯去噪与2X超分任务上，去噪PSNR较输入基线提升4.40 dB，超分提升3.70 dB。该工作验证了冻结GAN特征先验可引导扩散模型实现稳定有效的图像复原。",
       "tags": "query:tfree-diff",
-      "abstract_en": "Autoregressive (AR) video diffusion models have shown great potential in real-time video generation. Recent methods distill pretrained bidirectional video diffusion models into causal AR students through Distribution Matching Distillation (DMD), but the generated videos often suffer from over-saturation and over-smoothing issues, resulting in limited visual quality and realism. The key contributing factor is the mode-seeking behavior of the reverse KL objective in DMD, which can cause the student distribution to collapse onto only a few modes of the teacher distribution. To address this, we propose Mask Forcing, a Dual-Noise Masking Rollout strategy that perturbs the AR student self-rollout to mitigate mode collapse induced by reverse-KL mode seeking. The core idea is to inject cleaner signals into noisy rollout inputs via random masks along spatial and temporal axes during the self-rollout process of AR diffusion distillation. Such perturbations encourage the student rollouts to explore more regions of the teacher distribution, allowing DMD to provide learning signals beyond the modes already covered by the student. Moreover, the cleaner tokens act as denoising guidance for other noisier tokens, improving the intermediate rollout predictions and reducing error accumulation. Extensive experiments demonstrate that our method improves multiple AR video diffusion distillation methods with higher visual quality efficiently, without incorporating real video data or additional post-training stages.",
+      "abstract_en": "Generative adversarial networks (GANs) can provide efficient image generation, while diffusion models offer high-quality image restoration but require iterative sampling. This paper presents a hybrid GAN-guided diffusion framework that uses a pretrained Wasserstein GAN with gradient penalty (WGAN-GP) as a feature prior for conditional diffusion-based image restoration. Intermediate features from the frozen WGAN-GP generator are incorporated into a diffusion U-Net through cross-attention and remain fixed during the DDIM sampling process. The framework is evaluated on two restoration tasks, Gaussian denoising and 2Xsuper-resolution, using CelebA face images. During development, several sources of instability were identified and addressed, including adversarial learning-rate imbalance, inappropriate diffusion initialization, excessive corruption, and insufficient parameter averaging. The resulting framework consistently improves the quality of both degraded and low-resolution images. In particular, it improves denoising performance by 4.40 dB in PSNR and super-resolution performance by 3.70 dB over their respective input baselines. These results demonstrate the potential of a frozen GAN feature prior to guide diffusion models toward stable and effective image restoration.",
       "source": "arxiv",
       "selection_source": "fresh_fetch"
     }

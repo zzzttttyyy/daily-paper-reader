@@ -1,0 +1,1608 @@
+Title: Zero-shot rib design: merging training-free generative prior with topology optimization
+
+URL Source: https://arxiv.org/pdf/2609.10643v1
+
+Published Time: Fri, 11 Sep 2026 00:10:25 GMT
+
+Number of Pages: 41
+
+Markdown Content:
+# Zero-shot rib design: merging a training-free generative prior with topology optimization 
+
+## Yongmin Kwon a,b , Namwoo Kang a,b ,∗
+
+> a
+
+Cho Chun Shik Graduate School of Mobility, Korea Advanced Institute of Science and Technology, 193 Munji-ro, Yuseong-gu, Daejeon, 34051, Republic of Korea 
+
+> b
+
+AI Research Team, Narnia Labs, 193 Munji-ro, Yuseong-gu, Daejeon, 34051, Republic of Korea 
+
+A R T I C L E I N F O 
+
+Keywords :Topology optimization Score distillation sampling Text-guided structural design Rib reinforcement design Training-free generative design Design intent representation 
+
+A B S T R A C T 
+
+Natural load-bearing patterns such as leaf venation, trabecular bone, and spider webs achieve high stiffness per unit mass, yet classical topology optimizers rarely reach such geometries, and few let engineers express structural design intent through natural language. This work treats a frozen text-to-image diffusion model as a training-free source of design knowledge and distills it into the physics loop of density-based topology optimization via score distillation sampling, so that a text prompt becomes an explicit, machine-interpretable representation of engineer intent. The prompt-induced generative gradient and the finite element sensitivity are combined at every iteration, letting physics decide which prompt-induced features survive. In 245 primary SDS runs spanning four geometric domains and two physics regimes, 38 of 49 prompt– domain combinations achieved statistically significant compliance reductions (up to −31 .5% 
+
+mechanical and −23 .0% thermoelastic), outperforming gradient-based baselines. Cross-domain morphological analysis identifies a recurring structural signature of improvement: in most domains the generative prior suppresses dead-end branches in the rib skeleton, with endpoint– compliance correlation 𝑟 = +0 .56 to +0 .99 . A Heaviside projection with 𝛽 -continuation resolves a pronounced intermediate-density tendency in this diffusion–physics coupling ( 42 .6% to < 3% ), and an automated skeleton-based pipeline converts optimized density fields into candidate geometry ready for computer-aided design. By retargeting the generative prior across domains, loading conditions, and physics objectives through a change of text prompt, with each new problem’s physics setup specified separately, the framework uses a pretrained generative model as a reusable, training-free prior for engineering design. 
+
+## 1. Introduction 
+
+Topology optimization determines the optimal distribution of material within a prescribed design domain to maximize structural performance subject to physical and manufacturing constraints [1]. The Solid Isotropic Material with Penalization (SIMP) method is the most widely adopted framework. A continuous density variable 𝜌 𝑒 ∈ [0 , 1] is assigned to each finite element and updated by gradient-based optimization to minimize structural compliance [2–5]. Recent isogeometric formulations employ multi-patch, T-spline, and Bézier-extraction representations [6–8] to handle complex plate and shell geometries with smoother boundaries, while particle-flow and material-point formulations [9, 10] provide alternative Lagrangian descriptions well suited to large geometric changes and hinge-free compliant-mechanism design. Despite its maturity, SIMP suffers from a fundamental limitation: the non-convexity introduced by the penalization parameter generates a rugged objective landscape with numerous local minima, so gradient-based optimizers converge to different solutions depending on the initial density distribution, with no guarantee of approaching the global optimum [11, 12]. This limitation is particularly acute in the design of rib reinforcements for thin-walled plate structures. Rib stiffeners serve as key elements for structural efficiency in virtually all thin-walled artifacts, including automotive tailgate panels, aircraft fuselage and wing skins, electronic device housings, and ship decks [13–15]. A rib is a thin wall protruding from one side of a plate, which substantially enhances local bending stiffness while minimizing weight increase. However, determining the optimal rib layout is a combinatorial, knowledge-intensive design task: the number, orientation, height, spacing, and branching topology of ribs all constitute design variables, producing an especially challenging optimization landscape [16]. Nature offers many efficient rib-like patterns (for example, leaf venation, trabecular bone, and dragonfly wing venation), many of which may not lie near the local optima identified by SIMP 
+
+> ∗
+
+Corresponding author. 
+
+kymin1002@kaist.ac.kr (Y. Kwon); nwkang@kaist.ac.kr (N. Kang) 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 1 of 41 arXiv:2609.10643v1 [cs.LG] 9 Sep 2026 Zero-shot rib design 
+
+and are therefore unlikely to be reached by its local search. Multi-start strategies that launch optimization from multiple random initializations can mitigate the problem, but the exploration remains unstructured and the computational cost scales linearly. A method that escapes local optima while preserving physical optimality is therefore needed. What conventional methods lack is a way to make design knowledge explicit and machine-interpretable, so that an optimizer can act on it directly. Expert designers draw on many structural patterns for rib layout, such as radial webs, branching venation, and cellular tessellations from other disciplines and from nature, yet these patterns have lacked a representation the optimizer can consume. The rib networks sought here are themselves nature-inspired, approximating the load-bearing geometries seen in leaf venation and trabecular bone. A diffusion model trained on billions of natural images therefore already encodes much of the structural vocabulary that rib design draws on, which makes it a well-matched, and so far unused, source of design knowledge for this task. Communicating design intent through generated text has long been studied in collaborative engineering design [17], and large language models are rapidly expanding the role of natural language in mechanics, product design, and manufacturing [18]. What has been missing is a mechanism that turns such linguistic intent into physics-coupled optimization gradients. Parametric templates capture only a narrow, pre-enumerated slice of this knowledge, and data-driven generative models internalize it implicitly in network weights tied to a single training distribution (Section 2). This work instead represents structural design intent as a natural-language prompt. The visual prior of a frozen text-to-image diffusion model [19] is distilled through score distillation sampling (SDS) [20] and coupled to the finite element sensitivity of SIMP at the gradient level. The prompt thereby becomes a direct input to the optimization: an explicit knowledge representation whose physical consequences are filtered, at every iteration, by finite element analysis (FEA). No prior study has applied SDS to density-based topology optimization with generative priors coupled to FEA at the gradient level. The framework proposed here addresses this gap through three contributions. 
+
+First, this constitutes the first application of score distillation sampling to physics-constrained topology optimization. By coupling a frozen Stable Diffusion 2.1 [19] to SIMP at the gradient level, the framework enables text-guided structural design without any training data or fine-tuning, a capability absent from existing data-driven generative methods. The framework is training-free. It needs no task-specific training, fine-tuning, or labeled topology-optimization data. Instead, it builds on a large-scale, publicly pretrained diffusion model whose weights stay frozen throughout optimization. Retargeting the generative prior to a new domain, loading condition, or physics objective needs no model retraining, though each new engineering problem still requires its own geometry, boundary and loading conditions, physical model, constraints, and numerical parameters. This extends the training-free paradigm of DreamFusion [20] from vision to structural engineering and turns a pretrained foundation model into a reusable knowledge source for engineering design. The prompt is the only change to the generative prior. As in any topology-optimization study, each new problem still requires the design domain, boundary and loading conditions, physical model, volume fraction, and numerical parameters, including the SDS weight 𝜆 0 
+
+> sds
+
+(Section 3.3). The retargeting cost is therefore much lower than for data-driven models that require retraining. 
+
+Second, dead-end suppression is identified as the predominant structural signature of SDS-guided improve-ment. Cross-domain morphological analysis across six physics settings reveals a positive correlation between skeleton endpoint count and compliance (Pearson 𝑟 = +0 .56 to +0 .99 , median 𝑟 = +0 .97 ), indicating that the generative prior improves designs through one physically interpretable mechanism. This cross-domain finding clarifies the mechanism: in most domains the gain comes from removing non-load-bearing dead ends, not from adding branches. 
+
+Third, the framework diagnoses and resolves a pronounced gray-density tendency in the SDS–SIMP coupling and is validated for generality and scalability. Heaviside projection with 𝛽 -continuation is itself a standard tool in density-based optimization. The contribution here is not the projection but the diagnosis that SDS induces a pronounced gray-density tendency (roughly doubling the intermediate-density ratio in the present SDS–SIMP coupling), resolved by synchronizing the 𝛽 -schedule with the SDS schedule. This reduces intermediate densities from 42 .6% to below 3% , and an automated skeleton-based pipeline converts the optimized density field directly into computer-aided design (CAD) geometry, i.e., a CAD-convertible candidate. Validation spans 245 primary SDS runs across four geometric domains (synthetic benchmarks through an industrial automotive suspension link) and two physics regimes (mechanical and thermoelastic bending). Of 49 primary prompt–domain combinations, 38 achieved statistically significant compliance reductions ( 𝑝 = 0.031 for the mechanical subset), with gains up to −31 .5% 
+
+mechanical and −23 .0% thermoelastic that consistently outperform all alternative baselines. A negative result on heat conduction (Section 7) delineates the boundary of applicability.   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 2 of 41 Zero-shot rib design
+
+The remainder of this paper is organized as follows. Section 2 reviews related work on data-driven generative topology optimization and score-based priors. Section 3 details the proposed framework, and Section 4 the experi-mental setup. Section 5 reports results across the four domains and two physics regimes, and Section 6 analyzes the mechanisms underlying the observed improvements. Section 7 discusses implications and limitations, and Section 8 concludes. 
+
+## 2. Related work 
+
+2.1. Data-driven generative models for topology optimization 
+
+Recent work has pursued data-driven generative models to overcome the local-optima limitation of classical topology optimization. TopoDiff [21] trained a diffusion model on approximately 33,000 topology-optimization solutions, using von Mises stress, strain energy density, and volume fraction as conditioning channels, achieving an eightfold reduction in compliance error compared to earlier generative adversarial network-based approaches. Diffusion Optimization Models (DOM) [22] learn entire SIMP optimization trajectories rather than single optimal designs, exploiting the structural similarity between iterative denoising and iterative convergence. The Physics-Informed Diffusion Model (PIDM) [23] integrates partial differential equation (PDE) residuals into training to reduce physical constraint violations by two orders of magnitude. Extensions to three-dimensional (3D) problems [24, 25], to large-scale structural datasets [26, 27], and to manufacturability-aware deep generative design [28] have also been explored. Learning-based components have also been integrated into topology optimization, including differentiable multiscale design [29] and network-based robust or concurrent formulations [30–32]. These still rely on task-specific training or surrogate data tied to a particular design distribution, unlike the frozen, publicly pretrained prior coupled to FEA at the gradient level in the present work. Recent latent-diffusion pipelines [33, 34] still learn their priors from precomputed solutions and thus inherit the dataset dependence discussed below, whereas training-dataset-free reparameterization [35] avoids the dataset but injects no external design knowledge or language interface. The representative data-driven methods considered here retain, to varying degrees, three limitations. First, they require massive domain-specific training datasets (tens of thousands of samples) tied to specific load and boundary conditions. Data-efficiency remedies such as geometric augmentation guided by engineering uncertainty [36] alleviate but do not remove this dependence. Second, they lose generalization when presented with unfamiliar conditions outside the training distribution. Third, the generative model produces outputs independently of physical analysis, offering no intrinsic guarantee of compliance optimality. These limitations apply unevenly, and several recent methods partially address them. PIDM [23] embeds PDE residuals during training to improve physical consistency, and DOM [22] learns full optimization trajectories rather than static optima. Prior methods, however, incorporate physics primarily at training time. Among the methods reviewed in Tables 1 and 2, none appears to couple a frozen text-to-image score gradient directly with an FEA sensitivity at every density-update iteration, so the evolving design is not tested against physical optimality during generation. The present framework closes this gap. Table 1 contrasts the training and retargeting costs of these methods with the present framework.                     
+
+> Table 1
+> Comparison of data-driven diffusion-based topology optimization (TO) methods.
+> TopoDiff [21] DOM [22] PIDM [23] This work Training data ∼33,000 TO solu-tions
+> ∼10,000 trajecto-ries PDE-specific 0 (zero-shot) Est. training cost ∼2,750 GPU-hrs ∼830 GPU-hrs Physics training 0New domain Full rebuild Full rebuild Retraining required No retraining New load condition Full rebuild Full rebuild Retraining required No retraining
+
+2.2. Score distillation and text-driven structural design 
+
+In a parallel development in computer vision, score distillation sampling, introduced by DreamFusion [20], demonstrated that the visual prior of a frozen text-to-image model (e.g., Stable Diffusion [19]) can be distilled into a 3D optimization loop, a Neural Radiance Field (NeRF) [37], without any training data, achieving high-quality text-to-3D generation. The core principle is that the score function of the pretrained diffusion model yields pixel-level   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 3 of 41
+
+Zero-shot rib design 
+
+gradients that indicate how the current output should be modified to better align with the text prompt. SDS-type score priors have also been applied to inverse problems such as medical imaging [38–40], similarly leveraging diffusion knowledge to structure an optimization problem. Separately, Contrastive Language-Image Pre-training (CLIP)-based topology optimization [41] used contrastive embeddings to impose text-based styles on optimized structures, but CLIP provides only a global image–text similarity measure and cannot generate spatially detailed generative gradients at the pixel level. In product design more broadly, knowledge-graph-guided semantic diffusion has been used for bio-inspired form generation [42], though without coupling to physical analysis. Closest in spirit to the present work, the recently proposed LMTO framework [43] couples a large visual–language model (LVLM) to conceptual topology optimization, semantically decomposing candidate structures within the large model’s knowledge space and steering the optimization toward human preference. LMTO and the present framework are complementary: LMTO uses the large model interpretively at the semantic level, whereas the present framework distills the generative prior into pixel-level score gradients summed with the FEA sensitivity at every density update. The two could in principle be combined. Table 2 contrasts all text- and diffusion-based approaches. 
+
+Table 2 
+
+Comparison of diffusion- and text-based approaches for structural design.                                
+
+> Data-driven diffu-sion TO [21, 22] SDS for vision [20] CLIP-based TO [41] LVLM-based TO [43] This work Training data Tens of thousands of TO solutions Not required Not required Not required Not required Physics integra-tion Condition channel (passive) None Compliance (ob-jective) Preference-weighted TO loop FEA sensitivity (active grad.) Design guidance Conditional genera-tion Text →3D Global similarity (CLIP) Semantic decom-position & prefer-ence weighting Pixel-level score gradient Output / domain Pixel density (TO) NeRF (3D vi-sion) Density field (TO style) Density field (con-ceptual TO) Element density (rib design) New-condition adaptability Full retraining High (prompt) High (prompt) High (concept) High (no retrain-ing)
+
+2.3. Research gap 
+
+Domain-specific generative models remain valuable when abundant labeled data exist, but their applicability is tied to the training distribution: a model trained under specific boundary conditions cannot transfer to other physics problems or unfamiliar domain geometries without retraining. Worse, because generated designs are produced at generation time without active coupling to an FEA solver, nothing guarantees they satisfy physical equilibrium, meet volume constraints, or approach optimality by any quantitative criterion. Even methods that embed physics during training may yield outputs that are visually plausible yet physically suboptimal. From a knowledge-representation standpoint, the design knowledge such models encode is implicit, non-transferable, and inaccessible to the engineer at design time. In summary, existing approaches fall into three groups: those that embed design knowledge implicitly in retraining-bound network weights, those that impose text guidance without spatially detailed physics-coupled gradients, and those that use a large model interpretively to weight the optimization toward semantic preference. Gradient-level coupling between a frozen text-to-image prior and an FEA sensitivity remains unexplored for density-based topology optimization. Closing this gap is the focus of the present work. 
+
+## 3. Methodology 
+
+The framework integrates two gradient sources into a single optimization loop that updates the density field ̂ 𝜌 
+
+(Fig. 1). The Inputs & Set-up phase specifies a user text prompt, the design domain with boundary conditions, and the physics information. At each iteration of the Iterative Optimization Loop , a Mindlin–Reissner plate FEA solver produces the physics gradient ∇𝜌 𝐶 . In parallel, the current density field is encoded into the latent space of a frozen Stable Diffusion 2.1, forward diffusion adds noise 𝝐 , and the U-Net predicts this noise under classifier-free guidance 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 4 of 41 Zero-shot rib design       
+
+> Figure 1: Computational framework for text-guided, physics-constrained topology optimization. Three stages: (i) Inputs & Set-up (text prompt, design domain, boundary conditions, volume fraction; frozen Stable Diffusion 2.1 as generative prior);
+> (ii) Iterative Optimization Loop coupling a Mindlin–Reissner plate FEA physics gradient with an SDS text gradient under four-stage scheduling; (iii) CAD Conversion of the converged density field into CAD-convertible candidate geometry.
+
+(CFG). The discrepancy between predicted and actual noise yields the SDS text gradient ∇𝜌 SDS via backpropagation. The two gradients combine as a weighted sum, Eq. (6), under a four-stage schedule governing their interaction: • Warmup (𝑘 warm = 30 ): only the physics gradient acts, stabilizing initial load paths. • Cosine cooldown (𝑘 cool = 500 ): the SDS weight 𝜆 sds (𝑘 ) decays gradually to zero. • Timestep annealing : the diffusion timestep 𝑡 linearly decreases from 𝑡 max = 0 .98 to 𝑡 min = 0 .50 for coarse-to-fine structural guidance. • Exponential moving average (EMA) smoothing : an EMA of the SDS gradient damps single-sample stochastic noise. The Adam optimizer updates the density field under a bisection-based volume constraint and Heaviside projection with 𝛽 -continuation for binarization. In the CAD Conversion stage, the converged density field is automatically processed by binarization, medial-axis thinning, Bézier curve fitting, and extrusion to yield CAD-convertible candidate geometries. 
+
+3.1. Problem formulation 
+
+The design problem is formulated as a two-dimensional (2D) density-based topology optimization. The design domain Ω is discretized into an 𝑛 elx × 𝑛 ely finite element mesh, with a continuous density variable 𝜌 𝑒 ∈ [0 , 1] assigned to each element. The optimization problem minimizes structural compliance subject to a volume fraction constraint: 
+
+min  
+
+> 𝝆
+
+𝐶 (𝝆 ) = 𝐅 ⊤𝐔 =
+
+> 𝑁
+
+∑
+
+> 𝑒 =1
+
+(̂𝜌 𝑒 )𝑝 𝐮 ⊤𝑒 𝐤 𝑒 𝐮 𝑒 
+
+s.t. 𝐊 (̂𝝆 ) 𝐔 = 𝐅 ,𝑉 (̂ 𝝆 )
+
+|Ω| = 𝑉 ∗,
+
+0 ≤ 𝜌 𝑒 ≤ 1 ∀ 𝑒 
+
+(1)   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 5 of 41 Zero-shot rib design
+
+where 𝐶 is the compliance, 𝐊 , 𝐔 , and 𝐅 are the global stiffness matrix, nodal displacement vector, and external force vector, respectively, and 𝑉 ∗ is the target volume fraction. The density field passes through three stages. The raw design variables 𝝆 are updated directly by the optimizer. The filtered density ̃ 𝝆 =  (𝝆 ) is obtained by a spatial averaging density filter [44, 45] with radius 𝑟 min = 5 that removes checkerboard patterns. Because this radius is fixed in physical units, the filter also limits mesh-dependent features (Appendix D.7). The physical density ̂ 𝝆 = (̃ 𝝆 ) is produced by a smoothed Heaviside projection [46] that drives elements toward near-binary {0 , 1} material states. The sequence 
+
+𝝆 
+
+←←←←←←←←→̃ 𝝆 
+
+←←←←←←←←←→̂ 𝝆 is fully differentiable. Compliance, stiffness, and all sensitivities are evaluated on the physical density ̂
+
+𝝆 , and chain-rule backpropagation carries the gradient back to 𝝆 . Under SIMP interpolation [2], the element stiffness is computed as 𝐊 𝑒 (̂𝜌 𝑒 ) = ̂ 𝜌 𝑝 𝑒 𝐊 max  
+
+> 𝑒
+
++ (1 − ̂𝜌 𝑝 𝑒 ) 𝐊 min  
+
+> 𝑒
+
+with penalty 𝑝 = 3 , where 𝐊 max  
+
+> 𝑒
+
+and 𝐊 min  
+
+> 𝑒
+
+correspond to elements with and without rib reinforcement, respectively. Since base-plate regions retain physical substance ( 𝐊 min  
+
+> 𝑒
+
+> 0), the formulation avoids the unphysical assumption that zero-density regions bear no load. Detailed derivations of the SIMP interpolation, density filter, and Heaviside projection are provided in Appendices A.2, A.3, and A.5. 
+
+3.2. Finite element analysis 
+
+The three plate-bending domains ( 𝐷 Rect , 𝐷 Circle , 𝐷 Hole ) are analyzed using Mindlin–Reissner plate theory [47, 48] with the Mixed Interpolation of Tensorial Components (MITC4) element [49]. The Mindlin–Reissner theory is adopted because rib-reinforced plates behave locally as thick plates in the rib regions, where transverse shear deformation (𝜸 ≠ 𝟎 ) cannot be neglected as in the Kirchhoff thin-plate theory. The MITC4 element is a 4-node bilinear quadrilateral with three degrees of freedom (DOF) per node ( 𝑤, 𝜃 𝑥 , 𝜃 𝑦 ), whose element stiffness matrix comprises bending and shear contributions: 
+
+𝐊 𝑒 = ∫Ω𝑒 
+
+𝐁 ⊤𝑏 𝐃 𝑏 𝐁 𝑏 𝑑 Ω + ∫Ω𝑒 
+
+𝐁 MITC ⊤𝑠 𝐃 𝑠 𝐁 MITC  
+
+> 𝑠
+
+𝑑 Ω (2) where 𝐃 𝑏 is the bending constitutive matrix and 𝐃 𝑠 the shear constitutive matrix (with Reissner correction factor 
+
+𝜅 𝑠 = 5∕6 ). The MITC4 formulation overcomes shear locking by evaluating shear strains at four tying points on the element edges and interpolating them into the interior, yielding accurate solutions even in the thin-plate limit. In the rib-reinforced plate model, zero-density regions retain the physical substance of the base plate rather than being void. A modified SIMP interpolation directly interpolates bending and shear stiffnesses: regions with ribs have effective thickness 𝑡 max (base plate + rib height), while regions without ribs have only 𝑡 min (base plate). Since flexural rigidity scales as 𝑡 3 and shear stiffness as 𝑡 , the element stiffness is interpolated as 𝐊 𝑒 (̂𝜌 𝑒 ) = ̂𝜌 𝑝 𝑒 𝐊 max  
+
+> 𝑒
+
++ (1 − ̂𝜌 𝑝 𝑒 ) 𝐊 min  
+
+> 𝑒
+
+,where 𝐊 max  
+
+> 𝑒
+
+and 𝐊 min  
+
+> 𝑒
+
+can be precomputed. The industrial 𝐷 Link domain is analyzed under plane stress using a standard 4-node bilinear quadrilateral element with two degrees of freedom per node ( 𝑢 , 𝑣 ). In both formulations, the compliance sensitivity exploits self-adjointness: 𝜕𝐶 ∕𝜕̂ 𝜌 𝑒 = − 𝑝̂ 𝜌 𝑝 −1  
+
+> 𝑒
+
+𝐮 ⊤𝑒 (𝐊 max  
+
+> 𝑒
+
+− 𝐊 min  
+
+> 𝑒
+
+) 𝐮 𝑒 ,where the quantity 𝐮 ⊤𝑒 (𝐊 max  
+
+> 𝑒
+
+− 𝐊 min  
+
+> 𝑒
+
+) 𝐮 𝑒 represents the strain energy associated with the stiffness gain from adding a rib to element 𝑒 . Elements with larger values yield greater compliance reduction upon rib placement. The sensitivity is extended to the raw design variables via the chain rule through the Heaviside projection and density filter. Checkerboard patterns and mesh dependency are suppressed by the density filter ( 𝑟 min = 5 ), which spatially averages raw densities within a neighborhood and provides indirect control of the minimum feature size. A companion maximum-thickness filter ( 𝑟 max = 10 ) additionally caps local rib thickness for manufacturability through a quadratic local-volume penalty added to the physics update. Its formulation and sensitivity are given in Appendix A.4. For the thermoelastic experiments, the same MITC4 plate FEA is used with a different load vector: a prescribed uniform through-thickness temperature gradient Δ𝑇 induces thermal bending moments 𝐌 th = 𝛼 𝑇 Δ𝑇 [1 , 1, 0] ⊤, with thermal expansion coefficient 𝛼 𝑇 , on every element, which are converted to equivalent nodal forces 𝐅 th via Gauss integration. In contrast to the design-dependent thermal loads of material-based thermoelastic formulations [50], a simplified prescribed-thermal-moment weak coupling is adopted. The thermal moment 𝐌 th is set by the prescribed 
+
+Δ𝑇 alone and does not scale with the element stiffness 𝐸 (̂𝜌 ). The assembled load 𝐅 th is therefore density-independent (𝜕 𝐅 th ∕𝜕̂ 𝜌 = 𝟎 ), so the compliance sensitivity keeps its standard self-adjoint form, 𝜕𝐶 ∕𝜕̂ 𝜌 𝑒 = − 𝐮 ⊤𝑒 (𝜕 𝐊 𝑒 ∕𝜕̂ 𝜌 𝑒 ) 𝐮 𝑒 . A finite-difference check is provided in Appendix A.7. Full derivations of the element formulations, constitutive matrices, and sensitivity are given in Appendices A.1, A.2, and A.6. 
+
+3.3. Score distillation sampling for topology optimization 
+
+The physical density field ̂ 𝝆 ∈ ℝ𝑛 elx ×𝑛 ely is converted to a three-channel RGB image by replicating the single grayscale channel, resized to 512 × 512 via bilinear interpolation, and mapped to the latent space by the encoder  of   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 6 of 41
+
+Zero-shot rib design 
+
+the frozen variational autoencoder (VAE) of Stable Diffusion 2.1, giving the latent code 𝐳 0 = (𝐱 ) ∈ ℝ4×64×64 . This entire pipeline is differentiable, enabling backpropagation to ̂ 𝝆 (Appendix B.1). Fig. 2 illustrates the full SDS pipeline. 
+
+Figure 2: SDS pipeline for topology optimization. (a) Forward pass: the density field ̂ 𝝆 is rendered as a grayscale image and encoded into the latent 𝐳 0 by the frozen VAE; Gaussian noise 𝝐 is added at a sampled diffusion timestep 𝑡 to produce 𝐳 𝑡 ;the frozen U-Net predicts the noise under both the text-conditioned input (prompt 𝑦 ) and the unconditional (null) input; the two predictions are combined via CFG with weight 𝜔 to form ̂ 𝝐 𝜙 . (b) SDS loss and parameter update: the difference ̂
+
+𝝐 𝜙 − 𝝐 is weighted by 𝑤 (𝑡 ) = 1 − ̄𝛼 𝑡 and backpropagated through the differentiable encode–render chain 𝜕 𝐳 0∕𝜕 𝝆 to yield the SDS gradient ∇𝝆 SDS , which is combined with the physics gradient in the final density update. 
+
+Forward diffusion adds Gaussian noise to the latent vector at a randomly sampled timestep 𝑡 :
+
+𝐳 𝑡 = √̄𝛼 𝑡 𝐳 0 + √1 − ̄𝛼 𝑡 𝝐 , 𝝐 ∼  (𝟎 , 𝐈 ) (3) where ̄𝛼 𝑡 = ∏𝑡 𝑠 =1 (1 − 𝛽 𝑠 ) is the cumulative noise schedule [51]. The U-Net noise predictions for the text prompt 𝑦 and the null condition are combined via CFG [52]: ̂
+
+𝝐 𝜙 (𝐳 𝑡 , 𝑦, 𝑡 ) = (1 + 𝜔 ) 𝝐 𝜙 (𝐳 𝑡 , 𝑦, 𝑡 ) − 𝜔 𝝐 𝜙 (𝐳 𝑡 , ∅, 𝑡 ) (4) 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 7 of 41 Zero-shot rib design 
+
+with guidance scale 𝜔 = 100 . The SDS gradient is computed with a stop-gradient on the U-Net Jacobian: 
+
+∇𝝆 SDS = 𝑤 (𝑡 ) (̂
+
+𝝐 𝜙 (𝐳 𝑡 , 𝑦, 𝑡 ) − 𝝐 ) 𝜕 𝐳 0
+
+𝜕 𝝆 (5) where 𝑤 (𝑡 ) = 1 − ̄𝛼 𝑡 is a time-dependent weight. The physics and SDS gradients are combined as a weighted sum: 
+
+∇𝝆 total = 𝜆 phys ∇𝝆 𝐶 + 𝜆 sds (𝑘 ) ∇ 𝝆 SDS (6) For clarity, Eq. (6) shows only the two principal gradients. The physics term additionally carries the maximum-thickness penalty gradient ∇𝝆 max used for manufacturability (Appendix A.4). The weights are 𝜆 phys = 1 .0, while 
+
+𝜆 0 
+
+> sds
+
+is scaled to the magnitude of the physics loss so that the generative signal stays competitive in the raw weighted sum. This sets 𝜆 0 
+
+> sds
+
+= 10 for the mechanical point-load domains 𝐷 Rect , 𝐷 Circle , and 𝐷 Link (baseline compliance ∼ 3 –9), 
+
+𝜆 0 
+
+> sds
+
+= 50 for 𝐷 Hole (baseline compliance ∼ 63 , roughly seven times higher due to 4-sided loading around the central hole), and 𝜆 0 
+
+> sds
+
+= 100 for thermoelastic compliance (baseline compliance ∼ 600 , with distributed thermal moments on every element. Empirical sweep in Appendix D.6 and Table 10). In each case, raising 𝜆 0 
+
+> sds
+
+proportionally to the physics-loss scale preserves a comparable relative influence between the physics and SDS gradients in the raw-sum update. Eq. (6) is a heuristic gradient-blending update rather than the exact gradient of a single scalar objective, with 
+
+𝜆 sds (𝑘 ) setting the trade-off between the compliance and generative terms [20] (the SDS term uses a stop-gradient approximation and is not the exact gradient of a scalar loss). Its behaviour is controlled empirically through gradient-scale matching, a decaying SDS weight, exact volume projection, and a final physics-only convergence phase: the cosine cooldown drives 𝜆 sds (𝑘 ) → 0, so the final iterations follow the pure physics gradient toward a physically consistent optimum. 
+
+3.4. Scheduling strategy 
+
+Naively applying the SDS gradient at constant intensity throughout optimization causes two problems: (1) before the physics solver establishes load paths in the early stages, SDS distorts the density field and generates unphysical patterns, and (2) in the final stages, stochastic SDS noise interferes with fine convergence. A four-stage scheduling strategy is therefore designed. During the warmup phase (iterations 1 to 𝑘 warm = 30 ), the SDS gradient is deactivated and only the physics gradient is used, forming a basic material distribution between external forces and supports that SDS subsequently refines. Since the Heaviside projection is weak at 𝛽 = 1 during the first 50 iterations, the density field evolves smoothly and exploratorily during this period. After warmup, the SDS weight follows a cosine cooldown: 
+
+𝜆 sds (𝑘 ) = 𝜆 0 
+
+> sds
+
+⋅ 12
+
+(
+
+1 + cos 
+
+( 𝜋 ⋅ min( 𝑘 − 𝑘 warm , 𝑘 cool )
+
+𝑘 cool 
+
+)) 
+
+(7) with 𝑘 cool = 500 , so that the SDS influence converges to zero after approximately 530 iterations and the final convergence proceeds with the physics gradient alone. Cosine decay maintains the SDS influence longer in the early stages compared to linear decay while decreasing sharply in the later stages, enabling a natural transition from exploration (SDS-guided) to exploitation (physics-driven). Simultaneously, the diffusion timestep is linearly annealed: 
+
+𝑡 (𝑘 ) = 𝑡 max − ( 𝑡 max − 𝑡 min ) ⋅ 𝑘 − 𝑘 warm 
+
+𝑘 cool 
+
+(8) from 𝑡 max = 0 .98 to 𝑡 min = 0 .50 , implementing a coarse-to-fine strategy [53]. Noise predictions at high 𝑡 induce global geometry (the coarse arrangement of the overall pattern, symmetry, and connectivity), while predictions at low 𝑡 refine local details such as branching points, member thickness, and boundary smoothness. Finally, the SDS gradient is stabilized by EMA smoothing: 
+
+𝐠 (𝑘 ) 
+
+> ema
+
+= 𝛼 𝐠 (𝑘 −1)  
+
+> ema
+
++ (1 − 𝛼 ) ∇ (𝑘 ) 
+
+> SDS
+
+(9) with 𝛼 = 0 .9, averaging gradients over approximately the most recent 10 iterations to damp the stochastic variance inherent in single-sample SDS gradient estimation (Appendix B.2).   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 8 of 41 Zero-shot rib design
+
+3.5. Optimization loop and implementation 
+
+The Adam optimizer [54] is used with momentum coefficients 𝛽 1 = 0 .5 and 𝛽 2 = 0 .9 and learning rate annealed from 0.04 to 0.01. Adam is preferred over the conventional Optimality Criteria ( OC ) update for two reasons: it accommodates arbitrary gradient combinations (physics + SDS), and it converges stably in conjunction with the Heaviside projection, whereas OC exhibits period-2 oscillation at high 𝛽 that prevents convergence (Appendix B.4; quantitative baseline comparison in Section 5.2). A bisection projection enforces the volume fraction constraint exactly at each iteration (Appendix B.3). Algorithm 1 summarizes the complete optimization loop, and Table 3 collects the hyperparameter values used throughout the study. 
+
+Algorithm 1 Zero-Shot Rib Design 
+
+Require: Domain Ω, boundary conditions, 𝑉 ∗, text prompt 𝑦 
+
+Ensure: Optimized density field ̂ 𝝆  
+
+> 1:
+
+Initialize 𝜌 𝑒 = 𝑉 ∗ for all 𝑒 ∈ Ω active {Uniform density}  
+
+> 2:
+
+Load pretrained Stable Diffusion 2.1 (all weights frozen)  
+
+> 3:
+
+𝛽 ← 1.0 {Initial Heaviside sharpness}  
+
+> 4:
+
+𝐠 ema ← 𝟎 {EMA buffer}  
+
+> 5:
+
+for 𝑘 = 1 to 𝐾 = 1000 do 
+
+> 6:
+
+̃ 𝝆 ← DensityFilter (𝝆 , 𝑟 min )
+
+> 7:
+
+̂ 𝝆 ← HeavisideProject (̃𝝆 , 𝛽 ) 
+
+> 8:
+
+Solve 𝐊 (̂𝝆 )𝐮 = 𝐟 via sparse Cholesky {FEA}  
+
+> 9:
+
+𝐠 phys ← 𝜕𝐶 ∕𝜕 𝝆 + 𝜕 max ∕𝜕 𝝆 {compliance + max-thickness penalty (App. A.4)}  
+
+> 10:
+
+if 𝑘 > 𝑘 warm and 𝜆 sds (𝑘 ) > 0 then  
+
+> 11:
+
+𝐱 ← resize (stack_rgb (̂ 𝝆 ), 512 × 512)  
+
+> 12:
+
+𝐳 0 ← (𝐱 ) {VAE encoding}  
+
+> 13:
+
+𝑡 ← anneal (𝑘, 𝑡 max , 𝑡 min ) 
+
+> 14:
+
+𝝐 ∼  (𝟎 , 𝐈 ) 
+
+> 15:
+
+𝐳 𝑡 ← √̄𝛼 𝑡 𝐳 0 + √1 − ̄𝛼 𝑡 𝝐 {Forward diffusion} 
+
+> 16:
+
+̂ 𝝐 ← (1 + 𝜔 ) 𝝐 𝜙 (𝐳 𝑡 , 𝑦, 𝑡 ) − 𝜔 ⋅ 𝝐 𝜙 (𝐳 𝑡 , ∅, 𝑡 ) {CFG}  
+
+> 17:
+
+𝐠 raw sds ← 𝑤 (𝑡 )( ̂𝝐 − 𝝐 ) 𝜕 𝐳 0∕𝜕 𝝆 {SDS gradient}  
+
+> 18:
+
+𝐠 ema ← 𝛼 ⋅ 𝐠 ema + (1 − 𝛼 ) ⋅ 𝐠 raw sds  
+
+> 19:
+
+𝜆 sds ← CosineDecay (𝑘, 𝜆 0
+
+> sds
+
+, 𝑘 cool ) 
+
+> 20:
+
+𝐠 sds ← 𝐠 ema  
+
+> 21:
+
+else  
+
+> 22:
+
+𝐠 sds ← 𝟎 ; 𝜆 sds ← 0 
+
+> 23:
+
+end if  
+
+> 24:
+
+𝐠 ← 𝜆 phys ⋅ 𝐠 phys + 𝜆 sds ⋅ 𝐠 sds {Weighted sum of raw gradients}  
+
+> 25:
+
+𝝆 ← Adam (𝝆 , 𝐠 , 𝑙𝑟 (𝑘 ))  
+
+> 26:
+
+𝝆 ← BisectionProject (𝝆 , 𝑉 ∗) 
+
+> 27:
+
+𝝆 ← clip (𝝆 , 0, 1)  
+
+> 28:
+
+if 𝑘 mod 𝑁 𝛽 = 0 then  
+
+> 29:
+
+𝛽 ← min(2 𝛽, 𝛽 max ) 
+
+> 30:
+
+end if  
+
+> 31:
+
+end for  
+
+> 32:
+
+return ̂ 𝝆 
+
+3.6. Post-processing 
+
+The optimized density field is automatically converted into CAD-convertible candidate geometry in the Standard for the Exchange of Product model data (STEP) format through a six-stage pipeline. The continuous density field is binarized at threshold 𝜌 th = 0 .5. Zhang–Suen thinning [55] then extracts the medial-axis skeleton, and a Euclidean distance transform computes local rib half-widths. The skeleton is converted to a topological graph with branch-point and endpoint nodes, each edge is fitted with piecewise cubic Bézier curves by least squares, and offset polygons of   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 9 of 41
+
+Zero-shot rib design 
+
+Table 3 
+
+Summary of experimental parameters. Parameter Value Description Grid resolution 150 × 150 FE mesh Volume fraction 𝑉 ∗ 0.20 (0.30 for 𝐷 Link ) Target volume SIMP penalization 𝑝 3.0 Material interpolation Filter radius 𝑟 min 5.0 Density filter Max-thickness radius 𝑟 max 10.0 Local-volume penalty (App. A.4) Heaviside 𝛽 1.0 → 64 .0 Doubling every 50 iter Optimizer Adam (𝛽 1 = 0 .5, 𝛽 2 = 0 .9) Gradient descent Learning rate 0.04 → 0.01 Cosine annealing CFG scale 𝜔 100 Guidance strength 
+
+𝜆 phys / 𝜆 0
+
+> sds
+
+1.0 / 10 (mech 𝐷 Rect , 𝐷 Circle , 𝐷 Link )Gradient weighting 1.0 / 50 (𝐷 Hole )1.0 / 100 (thermoelastic) SDS warmup / cooldown 30 / 500 iter Scheduling 
+
+𝑡 -annealing 0.98 → 0.50 Coarse-to-fine EMA decay 𝛼 0.9 Gradient smoothing Iterations 𝐾 1000 Total steps 
+
+physically meaningful width are generated from the fitted centerlines. Finally, the 2D polygons are extruded into 3D solids and exported as AP214-schema STEP files. The entire pipeline completes in 5 seconds on a single CPU core and requires no user parameters beyond the extrusion height. The exported STEP solids are watertight and importable into standard CAD software as “CAD-convertible candidates,” their fabrication feasibility assessed downstream rather than verified here. A 3D solid re-analysis (Appendix D.8) confirms the 2D design rankings are largely preserved. Full pipeline details are provided in Appendix C. 
+
+## 4. Experimental setup 
+
+The three plate-bending domains ( 𝐷 Rect , 𝐷 Circle , 𝐷 Hole ) use Mindlin–Reissner plate theory with the MITC4 element (3 DOF/node) at 𝑉 ∗ = 0 .20 . The industrial 𝐷 Link domain uses plane-stress 4-node bilinear elements (2 DOF/node) at 𝑉 ∗ = 0 .30 , with fixed supports on the left arc and combined tension–shear loading ( 𝑓 𝑥 = 𝑓 𝑦 = 0 .01 ) on the right. Domain geometries, load/support configurations, and representative baselines appear in Sections 5.1 and 5.3. Ten text prompts span three semantic categories (Table 4): biomimetic ( Tree , Leaf , Bone ), engineering ( Truss , Grid ,
+
+Honeycomb ), and geometric ( Voronoi , Spiderweb , Ornamental , Diamond ). Every prompt carries the prefix “bold black lines on white background,” which bridges the density field’s visual style to the diffusion model’s training distribution and mitigates source-distribution mismatch [56]. A negative prompt suppresses blurriness, color, 3D cues, and fine details below the filter radius. 
+
+Table 4 
+
+Classification of text prompts by structural characteristics. 
+
+Biomimetic Engineering Geometric 
+
+Prompts Tree , Leaf ,
+
+Bone Truss , Grid ,
+
+Honeycomb Voronoi , Spiderweb ,
+
+Ornamental , Diamond 
+
+Induced pattern Hierarchical, Fractal Regular cells, Tessellated Irregular, Radial Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 10 of 41 Zero-shot rib design 
+
+Each run uses 𝑁 = 1000 iterations on an NVIDIA RTX 4090 (24 GB VRAM), taking ∼44 minutes per SDS run, a ∼3-minute ( ∼7%) overhead over the pure-SIMP baseline. Full parameter values appear in Table 3. Statistical significance for SDS-guided improvements uses a one-sided binomial test on the five random seeds: the minimum achievable 𝑝 -value for 5/5 seeds beating the baseline is 𝑝 = 1∕2 5 = 0 .031 . The analysis is complemented by a one-sample effect size, Cohen’s 𝑑 = ( ̄𝐶 SDS −𝐶 base )∕ 𝑠 SDS measured relative to the baseline, with a median |𝑑 | = 1 .47 
+
+across significant combinations (all corresponding to compliance reductions) indicating large practical effects. 
+
+## 5. Results 
+
+5.1. SDS-guided optimization discovers superior topologies            
+
+> Figure 3: Representative optimized density fields across the three plate-bending domains ( 𝐷 Rect ,𝐷 Circle ,𝐷 Hole ). Each row: boundary-condition schematic (blue triangles = pin supports; red ⊗= transverse point load) ∣baseline SIMP ∣two best-performing and two worst-performing prompts (ranked by 5-seed mean compliance). Each SDS cell displays the seed whose final compliance is closest to the 5-seed mean. Cell-border color encodes Δ𝐶 ∕𝐶 base (green tones = improvement, red tones = degradation).
+
+A total of 150 experiments (10 prompts × 3 domains × 5 random seeds) ran across three plate-bending domains with volume fraction 𝑉 ∗ = 0 .20 . Statistical methodology and effect sizes are detailed in Section 4. In brief, the binomial-null 
+
+𝑝 = 0 .031 threshold for 5/5 wins defines significance, and median Cohen’s |𝑑 | = 1 .47 confirms large practical effect. Table 5 consolidates the results, and Fig. 3 shows representative designs. 
+
+𝐷 Rect (150 ×150, 4-corner pinned, center point load) offers the framework’s smallest headroom. SIMP already converges to an efficient solution, so only 5 of 10 prompts achieve significance, led by Spiderweb (−11 .9% ), Voronoi ,
+
+Bone , Leaf , and Tree . Grid and Diamond (≈ +6% ) actively degrade performance: their rigid lattice conflicts with the diagonal load paths and wastes material in low-stress regions. 
+
+𝐷 Circle (circular domain, 4-directional pins, center load) exposes the value of the generative prior. The combination of non-rectangular geometry and multi-directional supports produces a symmetric landscape with many   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 11 of 41
+
+Zero-shot rib design 
+
+near-optimal topologies, and SIMP converges to just one. SDS guides the density field to deeper optima that SIMP alone cannot reach, so 9 of 10 prompts achieve significance. Diamond leads at −15 .2% (best single run −23 .8% , 𝐶 = 2 .522 
+
+vs. baseline 3.308 ), with Spiderweb and Voronoi close behind. 
+
+𝐷 Hole (central hole, 4-side center loads) delivers the framework’s largest gains. The load-path detours around the hole and 4-sided symmetric loading trap the baseline SIMP at 𝐶 = 63 .113 , roughly seven times the 𝐷 Rect 
+
+baseline, so the raw weighted sum calls for a stronger SDS weight ( 𝜆 0 
+
+> sds
+
+= 50 ; Section 3.3). Under this setting, all ten prompts achieve 5/5 wins, with Spiderweb leading at −28 .4% , followed by distributed-branching priors Leaf (−25 .1% ), 
+
+Diamond (−24 .6% ), and Bone (−24 .5% ). The best single run reaches −31 .5% (Spiderweb , 𝐶 = 43 .20 ). Tiling priors whose geometry conflicts with the radial load flow lag behind ( Honeycomb −9 .7% , Grid −16 .7% ), foreshadowing the load-path alignment hypothesis developed in Section 5.4. Full mean ± std per-prompt values appear in Table 5. 
+
+Table 5 
+
+Per-prompt compliance 𝐶 across the four design domains (mean ± std over 𝑛 = 5 seeds). Bold entries denote statistically significant improvements over the baseline (5/5 seeds win, 𝑝 = 0 .031 binomial). The first two rows give the SIMP baseline and the SDS weight 𝜆 0 
+
+> sds
+
+per domain; the last two rows report the single best run and the number of prompts (out of 10) achieving significance. 𝑉 ∗ = 0 .20 for the three plate-bending domains and 𝑉 ∗ = 0 .30 for the plane-stress 𝐷 Link . 95% 
+
+confidence intervals follow as mean ± 2 .78 std ∕√5; the per-seed distributions for all combinations are shown in Figs. D.2– D.4. 
+
+𝐷 Rect 𝐷 Circle 𝐷 Hole 𝐷 Link 
+
+Baseline 𝐶 base 9.106 3.308 63 .113 5.258 
+
+𝜆 0 
+
+> sds
+
+10 10 50 10 
+
+Bone 𝟖 .𝟒𝟖 ± 𝟎 .𝟎𝟕 𝟑 .𝟎𝟎𝟏 ± 𝟎 .𝟏𝟒 𝟒𝟕 .𝟔𝟖 ± 𝟐 .𝟒𝟐 𝟒 .𝟕𝟑 ± 𝟎 .𝟏𝟖 
+
+Diamond 9.65 ± 0 .68 𝟐 .𝟖𝟎𝟒 ± 𝟎 .𝟐𝟐 𝟒𝟕 .𝟓𝟗 ± 𝟐 .𝟑𝟏 𝟒 .𝟖𝟎 ± 𝟎 .𝟐𝟎 
+
+Grid 9.64 ± 0 .06 3.359 ± 0 .14 𝟓𝟐 .𝟓𝟖 ± 𝟐 .𝟕𝟔 𝟒 .𝟕𝟖 ± 𝟎 .𝟐𝟏 
+
+Honeycomb 9.06 ± 0 .15 𝟑 .𝟏𝟑𝟏 ± 𝟎 .𝟏𝟐 𝟓𝟔 .𝟗𝟕 ± 𝟏 .𝟎𝟏 𝟒 .𝟕𝟗 ± 𝟎 .𝟐𝟓 
+
+Leaf 𝟖 .𝟓𝟎 ± 𝟎 .𝟎𝟗 𝟑 .𝟎𝟐𝟎 ± 𝟎 .𝟎𝟕 𝟒𝟕 .𝟑𝟎 ± 𝟏 .𝟏𝟒 𝟒 .𝟕𝟑 ± 𝟎 .𝟏𝟗 
+
+Ornamental 9.17 ± 0 .35 𝟑 .𝟎𝟓𝟐 ± 𝟎 .𝟎𝟔 𝟒𝟖 .𝟐𝟕 ± 𝟐 .𝟖𝟐 5.37 ± 0 .75 
+
+Spiderweb 𝟖 .𝟎𝟐 ± 𝟎 .𝟏𝟎 𝟐 .𝟖𝟒𝟔 ± 𝟎 .𝟎𝟔 𝟒𝟓 .𝟐𝟐 ± 𝟐 .𝟎𝟒 5.12 ± 0 .32 
+
+Tree 𝟖 .𝟓𝟏 ± 𝟎 .𝟏𝟗 𝟑 .𝟏𝟒𝟑 ± 𝟎 .𝟎𝟒 𝟒𝟕 .𝟕𝟖 ± 𝟎 .𝟓𝟏 𝟒 .𝟖𝟏 ± 𝟎 .𝟏𝟎 
+
+Truss 8.97 ± 0 .18 𝟑 .𝟎𝟖𝟑 ± 𝟎 .𝟎𝟓 𝟓𝟎 .𝟐𝟐 ± 𝟑 .𝟓𝟓 5.06 ± 0 .18 
+
+Voronoi 𝟖 .𝟒𝟑 ± 𝟎 .𝟏𝟐 𝟐 .𝟗𝟎𝟔 ± 𝟎 .𝟎𝟓 𝟒𝟖 .𝟑𝟗 ± 𝟐 .𝟔𝟕 𝟒 .𝟕𝟎 ± 𝟎 .𝟏𝟎 
+
+Best single run 𝐶 7.886 2.522 43 .20 4.459 
+
+Sig. prompts (5/5 wins) 5∕10 9∕10 10∕10 7∕10 
+
+5.2. Comparison with alternative baselines 
+
+Three alternative SIMP-only baselines test whether simpler methods can replicate the benefits of SDS (Fig. 4). Multi-start SIMP launches optimization from 50 random initial density fields (Gaussian noise, 𝜎 = 0 .15 ) and selects the best result. Although multi-start surpasses the single-seed baseline in all domains, the best SDS result consistently outperforms the multi-start best. Specifically, SDS achieves a best-run compliance of 7.886 versus 8.102 for multi-start in 𝐷 Rect , 2.522 versus 3.166 in 𝐷 Circle , and 43.20 versus 47.434 in 𝐷 Hole (the latter at 𝜆 0 
+
+> sds
+
+= 50 ; Section 5.1; numerical summary in Appendix D.1). Random perturbation SIMP periodically injects Gaussian noise into the density field. Such unstructured noise, however, cannot replace the text-conditioned structural guidance of SDS. Consequently, performance remains compa-rable to or worse than the baseline on average. Similarly, image-guided topology optimization tests whether the benefit originates from the final image or the dynamic optimization process by using the mean squared error loss with a fixed SDS-generated target. While this method partially recovers some benefits in 𝐷 Circle (3.105) and 𝐷 Hole (49.505), it remains substantially inferior to the adaptive SDS approach, which achieves 2.522 and 43.20, respectively. In 𝐷 Rect ,image-guided optimization even degrades performance relative to the baseline (9.217 vs. 9.106). The advantage of SDS therefore lies in its iterative, state-dependent gradient: even when given the exact SDS-generated design as a fixed target, image-guided optimization cannot recover the improvement, because it lacks the adaptive topology reshaping that SDS supplies during intermediate iterations. Multi-start SIMP, for its part, samples multiple initial conditions but remains limited to the basins of attraction reachable from unstructured Gaussian-noise 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 12 of 41 Zero-shot rib design                 
+
+> (a) 𝐷 Rect (b) 𝐷 Circle (c) 𝐷 Hole
+> Figure 4: Compliance comparison of SDS-guided optimization against three SIMP-only alternatives (Multi-start, Perturbation, Image-guided) across the three plate-bending domains; the multi-start and perturbation bars are the best of 50 runs per domain, with the matched-number-of-runs distributional analysis given in Appendix D.1.
+
+initializations. In contrast, SDS accesses qualitatively different topological regions by imposing structured, physics-compatible exploration guided by the generative prior. This gap is largest in 𝐷 Hole , where the complex load paths most severely trap conventional methods. Beyond the conventional OC optimizer, which performs substantially worse (Appendix B.4), a tuned Method of Moving Asymptotes ( MMA ) optimizer [57], a standard strong baseline in gradient-based topology optimization, is also benchmarked. Run for the same 1000 iterations under identical filtering and 𝛽 -continuation, MMA improves substantially on the Adam baseline in every domain (Table 6; converged designs in Fig. 5) and thus serves as a strong single-start gradient baseline. Even against this baseline, the best SDS run attains lower compliance in the two multi-directional domains, 𝐷 Circle (2.522 vs. 2.598 ) and 𝐷 Hole (43 .20 vs. 48 .85 ). Because 
+
+MMA is a single deterministic run, this best-run comparison is the matched one; on the five-seed mean the stochastic SDS prompts straddle MMA , as expected for a method with run-to-run variation. It trails only in the single-load radial domain 𝐷 Rect (7.886 vs. 7.721 ), where the radial load path makes the compliance landscape simple enough that gradient descent already reaches a near-global optimum. The comparison is conservative in favour of MMA . It is ≈2.1 × more expensive per iteration than Adam (4.90 vs. 2.34 s/iter), so an equal-iteration comparison already grants it roughly twice the compute budget of the gradient baselines. MMA is also a deterministic single-start method, whereas the matched-number-of-runs multi-start study (Appendix D.1) shows that even 50 random restarts do not reach the SDS result. That SDS still prevails wherever the load paths are non-trivial indicates that its contribution is not to win a compliance race against a tuned optimizer. Steered by a text prompt and without task-specific training, it reaches topological basins that gradient descent does not access, precisely in the domains where the design problem is hard.                               
+
+> Table 6
+> Baseline compliance: tuned MMA vs. Adam and the best SDS prompt (no SDS for the optimizer baselines; 𝑉 ∗= 0 .20 ,1000 iterations). MMA improves on Adam everywhere but is surpassed by SDS in the two multi-directional domains. Domain Adam 𝐶 MMA 𝐶 SDS best 𝐶 Lowest
+> 𝐷 Rect 9.106 7.721 7.886 MMA
+> 𝐷 Circle 3.308 2.598 2.522 SDS
+> 𝐷 Hole 63.113 48.848 43.20 SDS
+
+The cost contrast with data-driven generative alternatives is also large. Data-driven alternatives such as TopoDiff [21] and DOM [22] require thousands of GPU-hours and large pre-computed solution datasets (Table 1). The present framework eliminates both: retargeting to a new boundary condition, physics objective, or domain geometry reduces to a single optimization run (Section 4) with zero label cost. The saving recurs for each new condition explored, since retargeting needs no retraining.   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 13 of 41
+
+Zero-shot rib design            
+
+> (a) 𝐷 Rect (𝐶 = 7 .721 )(b) 𝐷 Circle (𝐶 = 2 .598 )(c) 𝐷 Hole (𝐶 = 48 .848 )
+
+Figure 5: Converged MMA baseline designs for the three plate-bending domains (the MMA column of Table 6; 𝑉 ∗ = 0 .20 ,1000 iterations, Heaviside 𝛽 -continuation, filter radii 𝑟 𝑚𝑖𝑛 = 5 and 𝑟 𝑚𝑎𝑥 = 10 ). The per-panel compliance 𝐶 is the best value attained over the run. 
+
+Figure 6: Optimized density fields for the 𝐷 Link domain (automotive suspension link, plane stress, 𝑉 ∗ = 0 .30 ). (a) Boundary conditions: the left arc is fixed and the right arc carries combined tension–shear loading; (b) baseline SIMP (no SDS); (c–l) designs under ten text prompts, ordered by ascending compliance. The irregular domain geometry and distributed boundary conditions produce complex, non-radial load paths that are qualitatively distinct from the synthetic domains. 
+
+5.3. Generalization to industrial geometry 
+
+To test generalization beyond synthetic benchmarks, 50 additional experiments (10 prompts × 5 seeds) ran on 𝐷 Link ,which uses the 2D cross-section of an automotive suspension link as the design domain (Fig. 6). Unlike the three plate-bending domains analyzed under Mindlin–Reissner plate theory, 𝐷 Link employs plane stress analysis (4-node bilinear element, 2 DOF per node) with 𝑉 ∗ = 0 .30 , and features an asymmetric geometry with distributed supports on the left arc and combined tension–shear loading ( 𝑓 𝑥 = 𝑓 𝑦 = 0 .01 ) on the right arc. Seven out of ten prompts achieved statistically significant improvements (5/5 wins, 𝑝 = 0 .031 . See 𝐷 Link column of Table 5). The top performer 
+
+Voronoi reduced mean compliance by −10 .6% , closely followed by Leaf (−10 .0% ) and Bone (−10 .0% ). These leading 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 14 of 41 Zero-shot rib design 
+
+prompts share a common characteristic: they induce distributed, irregularly branching networks that can adapt freely to asymmetric left-to-right load transmission paths. Conversely, the only prompt that degraded performance ( Ornamental ,
+
++2 .1% ) exhibited the highest seed-level variability (std = 0 .75 ), consistent with the observation that misaligned prompts produce unreliable results. Full mean ± std values per prompt appear in Table 5. 
+
+5.4. Prompt–domain interaction governs performance    
+
+> Figure 7: Parallel-coordinates plot of prompt rankings across the four design domains (Rank 1 = lowest mean compliance). Three prompts with the most informative trajectories ( Spiderweb ,Voronoi ,Grid ) are highlighted; the remaining seven appear in muted colors.
+
+Prompt rankings across the four domains reveal pronounced reversals that define a load-path alignment hypothesis :compliance improves when the SDS-induced pattern geometrically aligns with the domain’s actual load paths (Fig. 7). 
+
+Spiderweb , which induces a radial pattern, leads in 𝐷 Rect (−11 .9% ) and 𝐷 Hole (−28 .4% ) and ranks second in 𝐷 Circle 
+
+(−14 .0% ), where center-to-support load paths naturally align with radial geometry. The same prompt drops to 9th in the industrial 𝐷 Link domain ( −2 .6% ), because its single-focal-point bias does not match the distributed arc loading. 
+
+Voronoi shows the opposite pattern: its irregular cell partitioning imposes minimal geometric constraint, letting the physics solver adapt to distributed loads, which lifts it from 2nd in 𝐷 Rect and 3rd in 𝐷 Circle to 1st in 𝐷 Link (−10 .6% ). Biomimetic branching priors ( Leaf , Bone ) remain broadly effective, placing 3rd–4th in 𝐷 Rect and among the top four in 𝐷 Hole and 𝐷 Link .
+
+Grid underperforms in every radially loaded domain: +5 .9% degradation in 𝐷 Rect , 10th in 𝐷 Circle (+1 .5% ), and 9th in 𝐷 Hole (−16 .7% ). Its orthogonal geometry conflicts with radial load flow. The exception is 𝐷 Link , where Grid 
+
+rises to 4th ( −9 .1% ) because the orthogonal lattice aligns productively with the tension–shear decomposition of the distributed arc loading. The same alignment principle holds even in the most deeply trapped domain 𝐷 Hole , where radial/branching priors cluster near −25% while conflicting tiling priors ( Honeycomb −9 .7% ) trail the group by more than 15 percentage points. These rank reversals are a direct consequence of making prompt–domain compatibility explicit through physics feedback at every iteration, rather than learning it implicitly from labeled data as a trained generative model would. The design implications are developed in Section 7. 
+
+5.5. Generalization to thermoelastic loading 
+
+A further test applies the framework to thermoelastic compliance minimization, where a uniform through-thickness temperature gradient Δ𝑇 induces distributed thermal bending moments rather than concentrated external forces [50]. The objective becomes 𝐶 = 𝐅 ⊤
+
+> th
+
+𝐮 , with the thermal load prescribed (design-independent) so the sensitivity retains its standard self-adjoint form. The MITC4 plate FEA, SIMP interpolation, Heaviside projection, and SDS scheduling carry over unchanged. Only the load vector changes. The SDS weight scales to 𝜆 0 
+
+> sds
+
+= 100 to match the larger and more diffuse thermal physics gradient (Section 3.3; empirical sweep in Appendix D.6). Three prompts ( Spiderweb , Voronoi , Tree ) ran with five seeds each across 𝐷 Rect ,
+
+𝐷 Circle , and 𝐷 Hole . Fig. 8 shows representative designs and Table 7 the full results. In 𝐷 Rect (baseline 𝐶 = 613 .6), all three prompts reached 5/5 wins with mean improvements up to −23 .0% . In 𝐷 Circle (baseline 𝐶 = 818 .2), all three   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 15 of 41
+
+Zero-shot rib design 
+
+Figure 8: Thermoelastic topology optimization under a uniform through-thickness temperature gradient Δ𝑇 . Each row corresponds to one domain ( 𝐷 Rect , 𝐷 Circle , 𝐷 Hole ); columns show the boundary-condition schematic, the baseline SIMP solution, and SDS-guided designs at 𝜆 0 
+
+> sds
+
+= 100 for Spiderweb , Voronoi , and Tree . Cell-border color encodes the improvement using the same scale as Fig. 3; per-cell compliance 𝐶 and Δ% are overlaid. 
+
+reached 5/5 wins ( −9 .6% to −13 .9% ). In 𝐷 Hole (baseline 𝐶 = 556 .9), Voronoi achieved 5/5 significance ( −8 .5% ) while 
+
+Spiderweb and Tree reached 4/5 with −7 .2% and −2 .6% mean improvement, and no prompt degraded the baseline. Across all thermoelastic settings, 7 of 9 combinations reached 5/5 wins and the remaining two reached 4/5. 
+
+Table 7 
+
+Thermoelastic compliance results with 𝜆 0 
+
+> sds
+
+= 100 (mean ± std over 5 seeds, 𝑉 ∗ = 0 .20 ). Values are thermoelastic compliance 
+
+𝐶 ; lower is better. Bold with “5/5” indicates statistically significant improvement (5/5 wins vs. baseline); “4/5” denotes four out of five seeds improving over the baseline.                                          
+
+> 𝐷 Rect 𝐷 Circle 𝐷 Hole
+> Baseline ( Adam )613.6 818.2 556.9
+> Spiderweb 𝟒𝟕𝟐 .𝟓 ±𝟑𝟕 (−23 .0% , 5/5) 𝟕𝟎𝟒 .𝟔 ±𝟒 (−13 .9% , 5/5) 516 .5 ± 36 (−7 .2% , 4/5)
+> Voronoi 𝟒𝟖𝟎 .𝟓 ±𝟔 (−21 .7% , 5/5) 𝟕𝟐𝟕 .𝟕 ±𝟏𝟗 (−11 .1% , 5/5) 𝟓𝟎𝟗 .𝟔 ±𝟏𝟎 (−8 .5% , 5/5)
+> Tree 𝟒𝟖𝟔 .𝟗 ±𝟐 (−20 .7% , 5/5) 𝟕𝟑𝟗 .𝟗 ±𝟏𝟓 (−9 .6% , 5/5) 542 .4 ± 12 (−2 .6% , 4/5) Best Δ% −23 .0% −13 .9% −8 .5%
+
+The domain difficulty ranking reverses relative to mechanical loading: 𝐷 Rect , the easiest mechanical domain, becomes the most responsive under uniform thermal loading because its isotropic thermal moment admits many competing near-optimal topologies that the generative prior helps discriminate among. The central hole in 𝐷 Hole ,conversely, geometrically constrains feasible topologies and drives the baseline close to optimality ( 𝐶 = 556 .9 vs. 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 16 of 41 Zero-shot rib design 
+
+613 .6 for 𝐷 Rect ), leaving little headroom. This reversal is consistent with the load-path alignment hypothesis: radial priors still succeed at 𝐷 Circle and branching priors at 𝐷 Rect , but prompts whose spatial bias is less directly mirrored by the loading benefit from stronger generative weight to compete against the larger physics gradient. 
+
+## 6. Mechanisms of improvement 
+
+Across the six experiments (mechanical point loads, distributed arc loading, and thermoelastic bending), the same pattern of improvement recurs. This section examines the structural mechanism behind SDS-guided gains, the conditions under which it operates, and the roles of the scheduling and gray-density components. 
+
+6.1. Structural signature: dead-end suppression 
+
+In most domains tested, SDS-guided designs tend to eliminate non-load-bearing dead-end branches from the rib skeleton (free ends that extend from the skeleton but fail to reach a support). This runs counter to a natural expectation. Because generative image models are tuned for visual diversity, one might anticipate that a diffusion prior would enrich the skeleton with additional branches. Coupled to the FEA sensitivity, however, SDS does the opposite (Fig. 9). In the baseline design (left), many skeletal branches terminate without reaching a support, and the red endpoints in the magnified inset mark ribs that carry essentially no load, whereas the SDS-guided design (right) reroutes or removes these stubs, leaving a sparser network of fully connected load paths. The generative prior therefore simplifies the structure rather than diversifying it, and this pruning of dead ends is what improves physical performance. Stable Diffusion, trained on billions of image-text pairs from LAION-5B [58], produces continuous linear networks in response to structural prompts prefixed with “bold black lines on white background,” and this bias propagates through the VAE encoder back to the density field. A natural-image prior helps here for a concrete reason: the thin, branching line networks the model produces for such prompts are the morphologies (leaf venation, trabecular bone, spider webs) that efficient rib layouts approximate (Section 1). The visual bias of the prior and the structural objective are thus morphologically aligned, and the “bold black lines on white background” prefix explicitly steers the model toward this line-network sub-manifold of its training distribution. Morphological analysis across all six experimental domains (Fig. 11 and Table 9) shows that the prompt-level Pearson correlation between mean compliance and skeleton endpoint count 𝑛 end is positive in every domain ( 𝑟 = +0 .56 to +0 .99 , median 𝑟 = +0 .97 ). In several domains, top-performing prompts reduce endpoint counts by 30 –50% while preserving or extending total skeleton length: Spiderweb drops endpoints in 𝐷 Rect from 38 to 19 and elongates the network from 1090 to 1299 skeleton pixels. Leaf in 𝐷 Hole reduces endpoints from 22 to 13. Spiderweb in thermoelastic 𝐷 Circle collapses endpoints from 11 to below 1. By contrast, neither branch-point count 𝑛 branch nor raw connectivity correlates consistently with compliance across domains. The dot-prompt ablation provides controlled evidence consistent with this mechanism (Fig. 10; setup and full table in Appendix D.5). On 𝐷 Rect , changing a single prompt word (“lines” →“dots”) so that the prior places isolated, non-load-bearing points inflates the endpoint count beyond any other prompt and yields the largest degradation below the baseline (+7 .3% , the only condition with no seed improving on the baseline). The semantically irrelevant sunset prompt, with the next-highest endpoint count, is the only other condition to worsen the baseline ( +3 .6% ), so the two most endpoint-rich prompts are exactly the two that degrade compliance. Across the thirty individual runs (five seeds for each of the six prompts) the endpoint count and the compliance change track each other at 𝑟 = 0 .87 . Semantically empty or prefix-only prompts yield far smaller gains ( −3 .6% and −4 .5% ) than the structural prompt ( −11 .9% ). The improvement tracks the endpoint count, which structural prompts reliably minimize, rather than the mere presence of generative coupling. Even the semantically irrelevant fruit prompt helps ( −5 .5% ) when it happens to yield a low-endpoint morphology. A complementary within-design test isolates the endpoint effect without altering the surrounding morphology: on fixed optimized designs, surgically removing all dead-end twigs (skeleton-endpoint pruning followed by re-analysis) raises compliance by only ∼6% on average across nine designs, whereas removing a single load-bearing rib raises it by +61 .5% on average (up to +182% ), and grafting an artificial dead-end changes compliance by under 1% (Table 8). Dead ends therefore carry comparatively little load, providing direct intervention-based support for the mechanism, more directly than the dot ablation, which co-varies the global morphology. The interventions and per-design values are detailed in Appendix D.9. In most domains, therefore, SDS improves designs by eliminating non-load-bearing dead ends rather than by adding branches. The physical rationale is direct: a dead-end branch, disconnected from any support pathway, carries near-zero stress and contributes negligibly to stiffness, yet consumes volume fraction that the bisection constraint must redistribute from load-carrying members elsewhere. Each eliminated dead end therefore frees material budget   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 17 of 41
+
+Zero-shot rib design 
+
+Figure 9: Qualitative illustration of dead-end suppression on 𝐷 Hole . Skeletons (Zhang–Suen thinning, blue) of the baseline SIMP design (left) and an SDS-guided design ( Leaf , right), with endpoints/dead ends (red, one 8-connected neighbour) and branch points (green, three or more). The magnified insets show that the baseline retains numerous free-ending ribs that never reach a support, whereas the SDS-guided network reroutes or removes them, simplifying rather than enriching the topology. 
+
+Table 8 
+
+Within-design causal surgery: mean compliance change ( Δ𝐶 ) over three designs per domain for each intervention. Dead-end removal costs far less than removing a single load-bearing rib, and grafting a dead-end is inert. Domain Prune dead-ends Prune load-bearing rib Graft dead-end 
+
+𝐷 Rect +6 .9% +18 .1% −0 .8% 
+
+𝐷 Circle +7 .2% +24 .3% −0 .4% 
+
+𝐷 Hole +3 .5% +142 .0% −0 .1% 
+
+All (9 designs) +5 .9% +61 .5% ≈ 0 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 18 of 41 Zero-shot rib design 
+
+> (a) Optimized rib layouts under the six prompt conditions
+> (b) Endpoint count vs. compliance change
+
+Figure 10: Prompt comparison on 𝐷 Rect . (a) Optimized rib layouts under six prompts (one representative seed each; the labeled 𝐶 is the five-seed mean, with Spiderweb the main-experiment reference), ordered from the best structural prompt (Spiderweb ) to the dot prompt: as the prompt shifts from connected line networks toward isolated points, the layout accumulates fragmented, non-load-bearing stubs. (b) Per-seed compliance change versus per-seed skeleton endpoint count 
+
+𝑛 end (five seeds for each of the six prompts, 30 runs); the two correlate at Pearson 𝑟 = 0 .87 , and the two highest-𝑛 end 
+
+conditions ( dot and sunset ) are the ones that degrade the baseline, the dot prompt most. 
+
+for primary load paths without violating the volume target, explaining why endpoint count (not branch count or connectivity alone) tracks compliance across diverse physics settings. 
+
+6.2. Physical explanation: escape from local optima 
+
+The convergence histories (Fig. 12) make the optimization-level consequence of dead-end suppression directly visible. The SDS gradient deforms the effective energy landscape by adding a text-conditioned potential to the physics-based objective, enabling transitions to basins inaccessible under the physical landscape alone, analogous to how DreamFusion [20] discovers meaningful 3D structures from random NeRF initialization. During the warmup phase all curves track each other while SIMP establishes initial load paths. Once SDS activates, the best-prompt curve separates downward from the baseline, locking in the gap by the end of the SDS-active phase. The clearest example is 𝐷 Circle ,where the best prompt reaches a mean 𝐶 = 2 .804 (−15 .2% ) compared to the baseline local optimum at 𝐶 = 3 .308 : a topology that SIMP from uniform initialization never reaches. 
+
+6.3. Boundary condition: load-path alignment 
+
+Dead-end suppression operates most effectively when the prompt’s geometric bias aligns with the domain’s dominant load paths, the condition that governs which prompts succeed in which domains, as detailed in Section 5.4. When prompt and load path mismatch, the generative gradient opposes the physics gradient throughout the SDS-active phase, producing the +6% degradations seen for Diamond and Grid in 𝐷 Rect (failure-mode analysis in Appendix D.4). 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 19 of 41 Zero-shot rib design                  
+
+> (a) Baseline vs. best-SDS prompt skeleton endpoint counts across the six experimental domains. Per-bar labels give the percentage change from baseline.
+> (b) Prompt-level scatter of mean compliance improvement against mean skeleton endpoint count ̄𝑛 end across all six domains. Per-domain Pearson 𝑟 is annotated.
+
+Figure 11: Cross-domain evidence that dead-end suppression is the structural signature of SDS-guided improvement. Each panel shows one representative design per domain, so its endpoint counts differ slightly from the five-seed means in Table 9.      
+
+> (a) 𝐷 Rect (b) 𝐷 Circle (c) 𝐷 Hole
+
+Figure 12: Compliance convergence history on a log-scale 𝑦 -axis for the three plate-bending domains. Each panel superimposes the baseline SIMP trajectory (black), the best-prompt best-seed run (blue), and a high-compliance worst-prompt run (red dashed). Background shading marks the three scheduling phases: warmup (gray, 0–30), SDS-active cosine cooldown (blue, 30–530), and physics-only convergence (green, 530–1,000). 
+
+The two mechanisms are therefore complementary: dead-end suppression is the common operation. Load-path alignment determines its effectiveness. 
+
+6.4. Resolving the gray-density tendency 
+
+SDS–SIMP coupling inherits a distinct manufacturability challenge: the score function of Stable Diffusion operates in continuous image pixel space, and the smoothness of its training distribution biases the density field toward intermediate values. Without correction, the gray-density ratio of SDS-guided optimization reaches 42 .6% , nearly double the ∼20% of pure SIMP (Fig. 13). This did not affect DreamFusion’s NeRF outputs (which are inherently continuous radiance fields), but it renders SDS-guided density fields physically uninterpretable. Heaviside projection with 𝛽 -continuation [46, 59] resolves the issue. The projection and continuation schemes are themselves standard [46, 59]. What is specific to this work is the identification that SDS’s continuous pixel-space bias roughly doubles the gray-density ratio relative to pure SIMP, and the coupling of the 𝛽 -schedule to the SDS schedule so that generative exploration and binarization do not interfere. Doubling 𝛽 every 50 iterations from 𝛽 0 = 1 
+
+to 𝛽 max = 64 permits smooth global exploration early and enforces sharp binarization later, reducing the gray ratio to 
+
+2.5% at negligible compliance cost (quantitative sweep over 𝛽 max in Appendix D.3). The 𝛽 -schedule synergizes with SDS scheduling: low-𝛽 warmup coincides with early SDS activity to allow generative gradients to propagate across 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 20 of 41 Zero-shot rib design 
+
+Table 9 
+
+Network morphology metrics of representative designs across all six experimental domains. Values are per-prompt means over 𝑛 = 5 seeds of (i) final compliance 𝐶 , (ii) skeleton endpoint count 𝑛 end (non-load-bearing terminal branches, i.e. dead ends), (iii) branch-point count 𝑛 branch , and (iv) total skeleton length in pixel units. 𝑛 end correlates positively with 𝐶 within every domain tested (Pearson 𝑟 reported in the last column), whereas 𝑛 branch shows no consistent sign across domains. Rows within each domain are ordered by final compliance (best first); the last row per domain is the worst-performing prompt.                                                                                                                      
+
+> Domain Prompt 𝐶 𝑛 end 𝑛 branch 𝓁 skel 𝑟 (𝐶, 𝑛 end )
+> 𝐷 Rect (𝜆 0
+> sds = 10 )Baseline 9.106 38 .08.01090 +0 .96
+> Spiderweb 8.022 19 .240 .61299
+> Voronoi 8.433 14 .898 .21179
+> Grid 9.643 52 .017 .21040
+> 𝐷 Circle (𝜆 0
+> sds = 10 )Baseline 3.308 24 .00.0765 +0 .93
+> Diamond 2.804 24 .031 .2675
+> Spiderweb 2.846 14 .422 .4833
+> Grid 3.359 32 .226 .2727
+> 𝐷 Hole (𝜆 0
+> sds = 50 )Baseline 63 .113 22 .06.0978 +0 .56
+> Spiderweb 45 .22 23 .018 .81100
+> Leaf 47 .30 12 .823 .81048
+> Honeycomb 56 .97 24 .842 .81006
+> Thermo 𝐷 Rect (𝜆 0
+> sds = 100 )Baseline 613 .614 .048 .01056 +0 .99
+> Spiderweb 472 .516 .6121 .81242
+> Voronoi 480 .518 .6130 .61204
+> Tree 486 .920 .0111 .01196
+> Thermo 𝐷 Circle (𝜆 0
+> sds = 100 )Baseline 818 .211 .088 .01019 +0 .99
+> Spiderweb 704 .60.824 .0742
+> Voronoi 727 .77.279 .6871
+> Tree 739 .910 .272 .2828
+> Thermo 𝐷 Hole (𝜆 0
+> sds = 100 )Baseline 556 .928 .090 .01087 +0 .98
+> Voronoi 509 .613 .487 .61079
+> Spiderweb 516 .513 .485 .41074
+> Tree 542 .419 .292 .81067
+
+the entire field, while high-𝛽 (64) phases overlap with SDS cooldown so the physics gradient finalizes the binarized design. 
+
+6.5. Scheduling component ablation 
+
+To quantitatively verify the contribution of each component in the four-stage SDS scheduling strategy, a one-at-a-time ablation study was conducted under the Spiderweb × 𝐷 Rect × ( seed = 0) condition, selected because it exhibits the most consistent improvement ( −11 .9% ) across multiple seeds. Table 10 presents the complete results, including the thermoelastic 𝜆 0 
+
+> sds
+
+sweep used to set the thermal SDS weight. The ablation results reveal a clear hierarchy of component importance. Gradient weighting ( 𝜆 sds ) has the largest impact (+6.0–21.4%): a U-shaped relationship is observed, in which 𝜆 sds = 1 causes +21.4% degradation due to insufficient SDS influence, while 𝜆 sds = 20 causes +6.9% degradation from SDS overwhelming the physics gradient. The optimal 𝜆 sds = 10 balances the two gradients, as the SDS gradient norm is experimentally approximately 0.1 times that of the physics gradient. This confirms that SDS is an auxiliary to physics-based optimization, not a replacement [38, 39]. Timestep annealing is the second most influential factor (+13.0%): without annealing, random timesteps are sampled uniformly throughout optimization, leading to inefficient guidance in which local details are induced before global structure is established. CFG scale ( 𝜔 ) shows +4.7–9.7% sensitivity, with both 𝜔 = 10 (insufficient text guidance) and 𝜔 = 200 (over-saturation causing gradient instability) degrading performance. 𝜔 = 100 matches the original DreamFusion setting [20]. EMA smoothing ( 𝛼 ) contributes +3.4–5.0%, and warmup +0.9–8.3%: immediate SDS activation (warmup = 0) biases the uniform initial density field in physically meaningless directions, while excessive warmup (100 iterations) delays SDS engagement to a point where 𝛽 is already elevated. 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 21 of 41 Zero-shot rib design            
+
+> (a) No Heaviside (b) Heaviside, 𝛽 max = 64 (c) Heaviside, 𝛽 max = 32
+> Figure 13: Effect of Heaviside projection and 𝛽 -continuation on binarization. Without Heaviside (a) the gray-density ratio reaches 42.6%; with 𝛽 max = 64 (b) it drops below 3%.
+
+In summary, every single-component modification degrades performance, indicating that each scheduling compo-nent addresses a distinct failure mode rather than providing redundant regularization. Gradient weight scheduling and timestep annealing serve as the primary coupling mechanisms between SDS and SIMP, EMA provides stability, and Heaviside projection is indispensable for binarization. The thermoelastic 𝜆 0 
+
+> sds
+
+sweep (lower block of Table 10) mirrors the mechanical U-shape but is shifted roughly tenfold toward larger values, quantifying the claim that the optimal SDS weight scales with the magnitude of the physics gradient under the raw weighted sum (Appendix D.6). 
+
+## 7. Discussion 
+
+The central finding of this work is that engineer intent, expressed as a natural-language prompt, changes the outcome of a physics-constrained optimization by statistically significant margins. The compliance reductions reported in Section 5 are not stochastic by-products of perturbing the optimizer: in most experimental settings they trace to one operation, the suppression of non-load-bearing dead ends in the rib skeleton (Section 6). The methodological contribution is the active gradient-level coupling of a pretrained visual prior to a finite-element sensitivity at every iteration. Prior generative approaches to topology optimization either train a domain-specific model on thousands of labeled solutions [21–23] or generate designs independently of physical analysis, so their outputs may be visually plausible yet physically suboptimal. The framework introduced here keeps the diffusion model frozen and lets the FEA gradient, not a loss function trained on examples, control what survives the update. This sets SDS-guided topology optimization apart from prior text- and data-driven approaches. Data-driven generative design needs labeled examples, and CLIP-based text guidance [41] acts only through a global image–text similarity without pixel-level gradients. Semantic, preference-guided large-model optimization [43] works at a complementary, higher level. Here, by contrast, the generative prior contributes pixel-level gradients directly to each density update. This broadens how design intent can be specified. Conventional parametric approaches encode intent through pre-chosen bases (rib orientations, truss templates, lattice cells), which implicitly restrict the design space to combinations the designer foresaw. For instance, a rib parameterization over four orientation angles, three spacings, and two branching styles enumerates only ∼24 distinct topologies. A prompt such as “leaf venation,” by contrast, addresses the entire manifold of leaf-like patterns embedded in a pretrained diffusion model’s billion-image prior, with no human enumeration required. The FEA gradient continuously filters these prompt-induced candidates against physical optimality, so engineer intent becomes a direct optimization input rather than a pre-commitment that forecloses exploration. Which regions of this expanded space actually pay off is governed by load-path alignment, as the cross-domain rank reversals make clear: Spiderweb is excellent in 𝐷 Rect ∕𝐷 Circle ∕𝐷 Hole yet drops to 9th in 𝐷 Link , and Voronoi 
+
+rises from 3rd to 1st between 𝐷 Circle and 𝐷 Link . The framework surfaces this compatibility through physics feedback at every iteration, so the expansion is neither uniform nor automatic. This exposes the central assumption behind using a natural-image prior for structural design: nothing guarantees that a visual prior aligns with a given load path. The   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 22 of 41
+
+Zero-shot rib design 
+
+Table 10 
+
+SDS scheduling ablation ( Spiderweb prompt). The upper block perturbs scheduling hyperparameters in the mechanical 
+
+𝐷 Rect setting ( 𝜆 0 
+
+> sds
+
+= 10 default, seed 0, default-SDS run 𝐶 = 7 .91 ); the lower block sweeps 𝜆 0 
+
+> sds
+
+in the thermoelastic 𝐷 Rect 
+
+setting ( 𝑛 = 5 seeds, baseline 𝐶 = 613 .6). Setting Compliance vs. Default (mech) / baseline (thermo) 
+
+Mechanical 𝐷 Rect (𝜆 0 
+
+> sds
+
+= 10 default, seed 0) Default 7.91 —
+
+Weighting 
+
+𝜆 sds = 1 9.60 +21 .4% 
+
+𝜆 sds = 5 8.38 +6 .0% 
+
+𝜆 sds = 20 8.45 +6 .9% 
+
+Scheduling 
+
+No 𝑡 -annealing 8.94 +13 .0% 
+
+warmup = 0 8.57 +8 .3% 
+
+warmup = 100 7.98 +0 .9% 
+
+Guidance 
+
+𝜔 = 50 8.28 +4 .7% 
+
+𝜔 = 10 8.57 +8 .4% 
+
+𝜔 = 200 8.67 +9 .7% 
+
+Smoothing 
+
+𝛼 = 0 .5 8.18 +3 .4% 
+
+𝛼 = 0 .0 (off) 8.31 +5 .0% 
+
+Thermoelastic 𝐷 Rect (𝜆 0 
+
+> sds
+
+sweep, mean over 5 seeds) 
+
+𝜆 0 
+
+> sds
+
+= 10 507.6 −17 .3% 
+
+𝜆 0 
+
+> sds
+
+= 50 486.6 −20 .7% 
+
+𝜆 0 
+
+> sds
+
+= 100 472.5 −𝟐𝟑 .𝟎 %
+
+𝜆 0 
+
+> sds
+
+= 200 490.9 −20 .0% 
+
+results make the failure mode explicit. When the prompt-induced morphology conflicts with the dominant load paths, the generative gradient opposes the physics gradient and can degrade compliance ( +6% for Diamond /Grid in 𝐷 Rect ;see Sections 5.4 and 6.3). The framework stays robust because the FEA sensitivity continuously constrains the prompt-induced update, and the scheduled decay of the SDS weight ensures that the final optimization stage is governed by the physics gradient alone. Cross-domain transfer of the visual prior is therefore beneficial only insofar as physics filters it, which is also why prompt screening remains necessary in practice. For the broader AI-for-science and knowledge-intensive design communities, the work extends SDS beyond its native vision domain into physics-constrained optimization, where the output must satisfy equilibrium and volume constraints rather than achieve visual plausibility. Two transferable techniques emerge. First, the optimal SDS weight 
+
+𝜆 0 
+
+> sds
+
+scales with the magnitude of the physics gradient under the raw weighted sum, so identical prompt sets generalize across physics regimes once 𝜆 0 
+
+> sds
+
+is retuned (empirically 10 for single-point loads, ∼50 for multi-point geometries with elevated baseline compliance, ∼100 for spatially diffuse thermal loads). Second, 𝛽 -continuation, developed here to reconcile SDS’s continuous pixel-space bias with the binary nature of density fields, addresses a general problem in AI-guided optimization: reconciling continuous generative priors with discrete or binary solution spaces. The same 
+
+𝛽 -continuation should apply wherever a continuous generative prior must be reconciled with a binary design field, though this is not tested here. The framework’s benefit scales with the non-convexity of the physics landscape. To probe this boundary, the identical pipeline was applied to 2D heat conduction topology optimization (thermal compliance 𝐶 = 𝐅 ⊤𝐓 ,conductivity interpolation 𝑘 𝑒 = 𝑘 min +̂𝜌 𝑝 𝑒 (𝑘 0 − 𝑘 min ) with 𝑘 0 = 1 .0, 𝑘 min = 10 −3 [5]) on a representative 𝐷 Rect 
+
+configuration: a center point source with 𝑇 = 0 on all four edges, three prompts × five seeds. SDS guidance either matched or worsened thermal compliance relative to the Adam baseline across all prompts (Table 11). This negative result is consistent with the central finding of this study: heat conduction under SIMP penalization produces 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 23 of 41 Zero-shot rib design 
+
+a fundamentally smoother objective landscape than structural compliance, and the optimal topology is typically a branching tree whose global structure is largely determined by the source–sink geometry, leaving few alternative topologies for SDS to explore. The baseline SIMP optimizer already converges to near-optimal branching networks, and the SDS gradient introduces perturbations that disrupt rather than improve these solutions. Pretrained generative priors are therefore most valuable for physics problems where gradient-based optimizers are known to trap severely, such as bending-dominated compliance, fluid–structure coupling, photonic crystal design, or metamaterial unit-cell optimization.             
+
+> Table 11
+> Heat conduction results: SDS does not improve thermal compliance. Values are thermal compliance 𝐶 on the 𝐷 Rect
+> center-source configuration (mean ±std over 5 seeds); lower is better. Baseline ( Adam )Spiderweb Voronoi Tree
+> 𝐶 3.547 3.718 ± 0 .44 3.969 ± 0 .07 3.973 ± 0 .15
+
+Two practical limitations bound the present study. First, the framework is 2D: the density-to-image encoding feeds a 2D diffusion prior, so a 3D extension must first resolve the dimensionality mismatch between 3D density fields and 2D priors, with attendant discretization artifacts such as stair-stepping. Second, prompt selection is manual, and the cross-domain rank reversals confirm that no single prompt is universally optimal. The latter motivates a practical screening protocol for deployment: when retargeting to a new domain, one may try three to five prompts from distinct structural categories, one radial ( Spiderweb ), one distributed-branching ( Leaf or Bone ), and one tiling ( Grid or Honeycomb ), with single-seed pilot runs, promoting only the shortlisted prompts to a full five-seed evaluation. The present study instead evaluates all prompts at five seeds to characterize the complete prompt–domain landscape. Strong prompt–load-path alignment is typically visible within the first ∼200 iterations of the SDS-active phase. The compliance curve of a well-matched prompt separates downward from the baseline before 𝑘 ≈ 230 , whereas poorly matched prompts stagnate or drift upward by the same point. This early signal, combined with the U-shaped 𝜆 0 
+
+> sds
+
+sweep (Table 10; Appendix D.6), reduces the search cost of adapting the framework to an unfamiliar physics regime to a handful of screening runs. 
+
+## 8. Conclusions 
+
+This paper presented a zero-shot rib design framework that merges a training-free generative prior with density-based topology optimization. A frozen Stable Diffusion 2.1 is coupled to a Mindlin–Reissner plate (and plane-stress) SIMP solver through score distillation sampling, so that a natural-language prompt acts as an explicit knowledge representation of engineer design intent whose physical consequences are arbitrated by the FEA sensitivity at every iteration. Four-stage scheduling (warmup, cosine cooldown, timestep annealing, EMA smoothing) stabilizes the coupling. Heaviside projection with 𝛽 -continuation reduces the SDS-induced gray-density ratio from 42 .6% to below 
+
+3% , and an automated skeleton-based pipeline converts converged density fields into CAD-convertible candidate STEP geometry in seconds. Across 245 primary SDS runs spanning four geometric domains and two physics regimes, 38 of 49 prompt–domain combinations achieved statistically significant compliance reductions that outperform multi-start, perturbation, and image-guided baselines (Section 5). These 38 combinations remain significant under a Benjamini–Hochberg false-discovery-rate correction across all 49 tests ( 𝑞 < 0.05 ), and carry a median Cohen’s |𝑑 | = 1.47 . These gains trace, in most domains, to a physically interpretable signature (dead-end suppression in the rib skeleton) and a load-path alignment hypothesis explains which prompts succeed in which domains, while a negative result on heat conduction delineates the scope: pretrained generative priors help most where the physics landscape traps gradient-based optimizers severely. Future work will extend the framework to 3D via multi-view SDS or native 3D diffusion priors [60, 61], automate prior discovery through optimization in the continuous text-embedding space (textual inversion), and explore physics regimes with severe local-optima trapping such as fluid–structure interaction and metamaterial unit-cell design. More broadly, this work uses a pretrained generative model as a design interface rather than a design generator: coupling a text prompt to a physics-constrained optimizer produces rib layouts that parametric methods and data-driven generative models do not reach.   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 24 of 41 Zero-shot rib design
+
+## Declaration of competing interest 
+
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. 
+
+## Funding 
+
+This work was supported by grants from the Ministry of Science and ICT (GTL24033-000, N10250154, and No. 2022-0-00986), the Ministry of Trade, Industry and Energy (RS-2025-02317327 and RS-2025-25444634), the Ministry of Oceans and Fisheries (PET0050), and Korea Hydro & Nuclear Power Co., Ltd. (No. 8-Tech-07). 
+
+## Data availability 
+
+No training datasets were generated or used in this study. The proposed framework is training-free and relies on a publicly available pretrained diffusion model (Stable Diffusion 2.1, https://huggingface.co/stabilityai/ stable-diffusion-2-1 ). All numerical results reported in this paper are computational outputs of the framework, fully determined by the code, input specifications (text prompts, domain geometries, boundary conditions), and random seeds documented in the main text and appendices. The implementation code developed for this study will be made available by the corresponding author upon reasonable request for non-commercial research use. 
+
+## CRediT authorship contribution statement 
+
+Yongmin Kwon: Conceptualization, Data curation, Formal analysis, Investigation, Methodology, Resources, Software, Validation, Visualization, Writing – original draft. Namwoo Kang: Project administration, Supervision, Investigation, Funding acquisition, Writing – review & editing. 
+
+## A. Finite element and SIMP modeling details 
+
+A.1. Mindlin–Reissner plate FEA 
+
+The Mindlin–Reissner plate theory [47, 48] is adopted to analyze the bending behavior of rib-reinforced plates. Since rib-reinforced plates behave locally as thick plates in the rib regions, the Mindlin–Reissner theory, which accounts for transverse shear deformation, is more appropriate than the Kirchhoff plate theory, which neglects shear deformation. The displacement field is defined as follows: 
+
+𝑢 (𝑥, 𝑦, 𝑧 ) = 𝑧 ⋅ 𝜃 𝑦 (𝑥, 𝑦 ), 𝑣 (𝑥, 𝑦, 𝑧 ) = − 𝑧 ⋅ 𝜃 𝑥 (𝑥, 𝑦 ), 𝑤 = 𝑤 (𝑥, 𝑦 ) (A.1) where 𝑤 is the transverse displacement, 𝜃 𝑥 the rotation about the 𝑥 -axis, and 𝜃 𝑦 the rotation about the 𝑦 -axis. The bending strains and shear strains are given respectively as: 
+
+𝜿 =
+
+⎛⎜⎜⎝
+
+𝜕𝜃 𝑦 ∕𝜕𝑥 
+
+−𝜕𝜃 𝑥 ∕𝜕𝑦 
+
+−𝜕𝜃 𝑥 ∕𝜕𝑥 + 𝜕𝜃 𝑦 ∕𝜕𝑦 
+
+⎞⎟⎟⎠
+
+, 𝜸 =
+
+(𝜕𝑤 ∕𝜕𝑥 + 𝜃 𝑦 
+
+𝜕𝑤 ∕𝜕𝑦 − 𝜃 𝑥 
+
+)
+
+(A.2) In the Kirchhoff theory, 𝜸 = 𝟎 is enforced, whereas the Mindlin–Reissner theory permits 𝜸 ≠ 𝟎 , thereby accurately capturing the shear strain energy in thick plates. By explicitly accounting for transverse shear deformation ( 𝜃 𝑥 ≠
+
+𝜕𝑤 ∕𝜕𝑥 , 𝜃 𝑦 ≠ 𝜕𝑤 ∕𝜕𝑦 ), the Mindlin–Reissner theory is well suited for structures with localized stiffness variations such as ribs. To numerically implement this theory without shear locking, the MITC4 element is employed [49]. This 4-node bilinear quadrilateral element has three degrees of freedom per node (𝑤, 𝜃 𝑥 , 𝜃 𝑦 ), and the shape functions are 
+
+𝑁 𝑖 (𝜉, 𝜂 ) = 14 (1 + 𝜉 𝑖 𝜉 )(1 + 𝜂 𝑖 𝜂 ). The element stiffness matrix is decomposed into bending and shear contributions as given in Eq. (2), where 𝐃 𝑏 is the bending constitutive matrix ( 3 × 3 ) and 𝐃 𝑠 is the shear constitutive matrix ( 2 × 2 ,including the Reissner correction factor 𝜅 𝑠 = 5∕6 ). A standard displacement-based 4-node Mindlin element suffers from shear locking in thin plates due to parasitic shear energy. The MITC4 element overcomes this by using an assumed strain technique that evaluates shear strains at four tying points located at the midpoints of the element edges and then interpolates them into the interior, yielding accurate solutions even in the thin-plate limit ( ℎ → 0).   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 25 of 41
+
+Zero-shot rib design 
+
+A.2. SIMP interpolation: rib stiffness modeling 
+
+In conventional SIMP, the elastic modulus is interpolated as 𝐸 𝑒 = 𝜌 𝑝 𝑒 𝐸 0, effectively reducing the stiffness of zero-density regions to nearly zero. However, in the rib-reinforced plate model, zero-density regions still have physical substance, as in the base plate. Therefore, a modified SIMP scheme is adopted that directly interpolates bending and shear stiffnesses based on the presence or absence of ribs. Regions with attached ribs have an effective thickness 𝑡 max 
+
+(base plate thickness + rib height), while regions without ribs have only the base plate thickness 𝑡 min . Since the flexural rigidity of a plate is proportional to the cube of the thickness ( 𝐷 𝑏 ∝ 𝑡 3) and the shear stiffness is linearly proportional to the thickness ( 𝐷 𝑠 ∝ 𝑡 ), the stiffness varies significantly depending on the presence or absence of ribs. To reflect this physical difference, the stiffness matrices for the two limiting states are defined as follows: 
+
+𝐃 max  
+
+> 𝑏
+
+= 𝐸𝑡 3max 
+
+12(1 − 𝜈 2) 𝐂 𝑏 , 𝐃 min  
+
+> 𝑏
+
+= 𝐸𝑡 3min 
+
+12(1 − 𝜈 2) 𝐂 𝑏 (A.3) 
+
+𝐃 max  
+
+> 𝑠
+
+= 𝜅 𝑠 𝐸𝑡 max 
+
+2(1 + 𝜈 ) 𝐈 2, 𝐃 min  
+
+> 𝑠
+
+= 𝜅 𝑠 𝐸𝑡 min 
+
+2(1 + 𝜈 ) 𝐈 2 (A.4) where 𝐂 𝑏 is the normalized bending constitutive matrix, 𝐈 2 is the 2 × 2 identity matrix, and 𝜅 𝑠 = 5∕6 is the Reissner shear correction factor. For the physical density ̂𝜌 𝑒 , the bending and shear constitutive matrices of each element are interpolated as follows: 
+
+𝐃 𝑒 𝑏 (̂𝜌 𝑒 ) = ̂𝜌 𝑝 𝑒 𝐃 max  
+
+> 𝑏
+
++ (1 − ̂𝜌 𝑝 𝑒 )𝐃 min  
+
+> 𝑏
+
+(A.5) 
+
+𝐃 𝑒 𝑠 (̂𝜌 𝑒 ) = ̂𝜌 𝑝 𝑒 𝐃 max  
+
+> 𝑠
+
++ (1 − ̂𝜌 𝑝 𝑒 )𝐃 min  
+
+> 𝑠
+
+(A.6) where 𝑝 = 3 is the penalty parameter. This interpolation possesses the following properties: •̂ 𝜌 𝑒 = 1 (rib present): 𝐃 𝑒 𝑏 = 𝐃 max  
+
+> 𝑏
+
+, corresponding to the maximum bending stiffness at 𝑡 max .•̂ 𝜌 𝑒 = 0 (base plate only): 𝐃 𝑒 𝑏 = 𝐃 min  
+
+> 𝑏
+
+, corresponding to the baseline bending stiffness at 𝑡 min .• Since 𝑡 min > 0, 𝐃 min  
+
+> 𝑏
+
+> 0 is guaranteed, preventing the unphysical assumption that plate regions without ribs bear no load whatsoever. Accordingly, the element stiffness matrix is expressed as follows: 
+
+𝐊 𝑒 (̂𝜌 𝑒 ) = ∫Ω𝑒 
+
+𝐁 𝑇 𝑏 𝐃 𝑒 𝑏 (̂𝜌 𝑒 )𝐁 𝑏 𝑑 Ω + ∫Ω𝑒 
+
+𝐁 MITC ,𝑇 𝑠 𝐃 𝑒 𝑠 (̂𝜌 𝑒 )𝐁 MITC  
+
+> 𝑠
+
+𝑑 Ω (A.7) Since both 𝐃 𝑒 𝑏 and 𝐃 𝑒 𝑠 follow the same interpolation form ̂𝜌 𝑝 𝑒 (⋅)max + (1 − ̂𝜌 𝑝 𝑒 )( ⋅)min with respect to ̂𝜌 𝑒 , aggregating at the element stiffness matrix level yields 𝐊 𝑒 (̂𝜌 𝑒 ) = ̂𝜌 𝑝 𝑒 𝐊 max  
+
+> 𝑒
+
++ (1 − ̂𝜌 𝑝 𝑒 )𝐊 min  
+
+> 𝑒
+
+. Here, 𝐊 max  
+
+> 𝑒
+
+and 𝐊 min  
+
+> 𝑒
+
+are the element stiffness matrices corresponding to 𝑡 max and 𝑡 min , respectively, and can be precomputed to reduce the stiffness matrix assembly cost at each iteration. 
+
+A.3. Density filter 
+
+Checkerboard patterns and mesh dependency are well-known numerical pathologies in density-based topology optimization [11]. A checkerboard pattern, in which densities of 0 and 1 alternate between adjacent elements, achieves low compliance mathematically but is impossible to manufacture, constituting an artifact of finite element discretization. To prevent this, a spatially weighted averaging filter is applied to the raw density 𝝆 [44, 45]: ̃𝜌 𝑒 =
+
+∑𝑗 ∈𝑁 𝑒 𝑤 𝑒𝑗 𝜌 𝑗 
+
+∑𝑗 ∈𝑁 𝑒 𝑤 𝑒𝑗 
+
+, 𝑤 𝑒𝑗 = max(0 , 𝑟 min − dist (𝑒, 𝑗 )) (A.8) where 𝑁 𝑒 is the set of neighboring elements within a radius 𝑟 min of element 𝑒 , and 𝑤 𝑒𝑗 is a linear weight inversely proportional to the distance. In this study, 𝑟 min = 5 (in element size units) is used. This filtering suppresses checkerboard 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 26 of 41 Zero-shot rib design 
+
+patterns by smoothing abrupt density variations between adjacent elements, and consequently provides indirect control of the minimum feature size to approximately 𝑟 min . The derivative of the filter is given by: 
+
+𝜕̃ 𝜌 𝑒 
+
+𝜕𝜌 𝑗 
+
+= 𝑤 𝑒𝑗 
+
+∑𝑘 ∈𝑁 𝑒 𝑤 𝑒𝑘 
+
+(A.9) 
+
+A.4. Maximum feature size control ( 𝑟 max )
+
+While the density filter ( 𝑟 min ) controls the minimum member size, restricting the maximum member thickness is also important for manufacturability in rib reinforcement design. Excessively thick ribs cause shrinkage defects during casting and reduce material efficiency. In this study, the local volume constraint approach [62] is adopted to indirectly control the maximum member thickness to approximately 2𝑟 max . Specifically, a spatial averaging filter with the same structure as the 𝑟 min filter is constructed with radius 𝑟 max , computing the average density in the neighborhood of each element 𝑒 :̄𝜌 max  
+
+> 𝑒
+
+=
+
+∑𝑗 ∈𝑁 max  
+
+> 𝑒
+
+𝑤 max  
+
+> 𝑒𝑗
+
+𝜌 𝑗 
+
+∑𝑗 ∈𝑁 max  
+
+> 𝑒
+
+𝑤 max 
+
+> 𝑒𝑗
+
+, 𝑤 max  
+
+> 𝑒𝑗
+
+= max(0 , 𝑟 max − dist (𝑒, 𝑗 )) (A.10) If this local average exceeds a threshold 𝜂 max , it indicates that material is overly concentrated in that region. This is suppressed via a quadratic penalty: 
+
+max = 𝜆 max 
+
+∑
+
+> 𝑒
+
+[max(0 ,̄𝜌 max  
+
+> 𝑒
+
+− 𝜂 max )]2 (A.11) where 𝜆 max = 10 is the penalty weight and 𝜂 max = 2 𝑉 ∗ is the default threshold. The sensitivity of this penalty is efficiently computed through the chain rule of the averaging filter: 
+
+𝜕 max 
+
+𝜕𝜌 𝑗 
+
+= 𝜆 max 
+
+∑
+
+> 𝑒
+
+2𝑤 max 
+
+> 𝑒𝑗
+
+∑𝑘 𝑤 max 
+
+> 𝑒𝑘
+
+max(0 ,̄𝜌 max  
+
+> 𝑒
+
+− 𝜂 max ) (A.12) This gradient disperses material away from thick concentration regions, guiding the rib network toward thinner, more distributed patterns. Because the 𝑟 max constraint caps how thick SDS-induced members may become, an overly aggressive setting can force strongly clustered patterns (e.g., thick radial branches) to thin out and converge to a less efficient compromise. The value 𝑟 max = 10 (with 𝑟 min = 5 ) was adopted throughout this study to balance manufacturability against this loss of design freedom. 
+
+A.5. Heaviside projection and 𝛽 -continuation 
+
+Density filtering alone does not completely eliminate intermediate densities (gray elements). In fact, the filter tends to smooth density boundaries, widening the gray zone. To address this, the smoothed Heaviside projection [46] is applied to transform the filtered density ̃𝜌 𝑒 into a physical density ̂𝜌 𝑒 that closely approximates a binarized distribution: ̂𝜌 𝑒 = tanh( 𝛽𝜂 ) + tanh (𝛽 (̃𝜌 𝑒 − 𝜂 ))
+
+tanh( 𝛽𝜂 ) + tanh (𝛽 (1 − 𝜂 )) (A.13) where 𝜂 = 0 .5 is the threshold and 𝛽 controls the projection sharpness: as 𝛽 → ∞, the function approaches the ideal Heaviside step function. Setting 𝛽 to a large value from the outset causes convergence instability due to severe non-convexity [59]. A continuation strategy is therefore applied in which 𝛽 starts at 𝛽 0 = 1 and doubles every 𝑁 𝛽 = 50 iterations until reaching 𝛽 max = 64 :
+
+𝛽 (𝑘 ) = min 
+
+(
+
+𝛽 0 ⋅ 2⌊𝑘 ∕𝑁 𝛽 ⌋, 𝛽 max 
+
+)
+
+(A.14) This 𝛽 -continuation is particularly important in the present study because the SDS gradient inherently operates toward a continuous image space, tending to induce intermediate densities. A natural two-phase division of labor is established: SDS forms global patterns during the low-𝛽 stages, and the subsequent increase in 𝛽 sharply binarizes these patterns. The effectiveness of this mechanism is quantitatively analyzed in Appendix D.3.   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 27 of 41 Zero-shot rib design
+
+A.6. Compliance sensitivity (physics gradient) 
+
+Exploiting the self-adjointness of the compliance 𝐶 = 𝐅 ⊤𝐔 , the sensitivity with respect to the physical density ̂𝜌 𝑒 
+
+is derived as shown in Eq. (A.15), where 𝐮 𝑒 and 𝐊 𝑒 denote the element-level displacement vector and stiffness matrix, respectively. This sensitivity, further extended via the chain rule in Eq. (A.16), constitutes the physics gradient ∇𝜌 𝐶 
+
+used in the combined optimization loop. 
+
+𝜕𝐶 𝜕̂ 𝜌 𝑒 
+
+= − 𝐮 ⊤𝑒 
+
+𝜕 𝐊 𝑒 
+
+𝜕̂ 𝜌 𝑒 
+
+𝐮 𝑒 = − 𝑝̂ 𝜌 𝑝 −1  
+
+> 𝑒
+
+𝐮 ⊤𝑒 
+
+(𝐊 max  
+
+> 𝑒
+
+− 𝐊 min 
+
+> 𝑒
+
+) 𝐮 𝑒 (A.15) Since 𝐊 max  
+
+> 𝑒
+
+− 𝐊 min  
+
+> 𝑒
+
+is a constant matrix independent of density, it can be precomputed, and no additional linear system solve is required for the sensitivity computation (self-adjointness of compliance). Extending to the raw design variables 
+
+𝜌 𝑒 via the chain rule: 
+
+𝜕𝐶 𝜕𝜌 𝑒 
+
+= 𝜕𝐶 𝜕̂ 𝜌 𝑒 
+
+⋅ 𝜕̂ 𝜌 𝑒 
+
+𝜕̃ 𝜌 𝑒 
+
+⋅ 𝜕̃ 𝜌 𝑒 
+
+𝜕𝜌 𝑒 
+
+(A.16) where the last two terms represent the chain rule contributions of the Heaviside projection (Appendix A.5) and the density filter (Appendix A.3), respectively. This complete sensitivity is denoted by the physics gradient ∇𝜌 𝐶 in this study and constitutes the key component combined with the SDS gradient. The quantity 𝐮 ⊤𝑒 (𝐊 max  
+
+> 𝑒
+
+− 𝐊 min  
+
+> 𝑒
+
+)𝐮 𝑒 represents the strain energy associated with the stiffness gain from adding a rib to element 𝑒 . Elements with larger values of this quantity yield greater compliance reduction upon rib placement, and thus the sensitivity provides information on where rib placement would be most efficient. 
+
+A.7. Finite-difference verification of the thermoelastic sensitivity 
+
+For the thermoelastic objective the load 𝐅 th is assembled from the prescribed moment 𝐌 th = 𝛼 𝑇 Δ𝑇 [1 , 1, 0] ⊤
+
+without any dependence on the element stiffness 𝐸 (̂𝜌 ). Consequently 𝜕 𝐅 th ∕𝜕̂ 𝜌 = 𝟎 : the load carries no design-derivative term, and the self-adjoint sensitivity of Eq. (A.15) applies unchanged, with only the stiffness 𝐊 (̂𝜌 ) being density-dependent. To confirm this numerically, the analytic sensitivity was compared against a central finite difference 
+
+[ 𝐶 (̂𝜌 𝑒 +ℎ)− 𝐶 (̂𝜌 𝑒 −ℎ) ]∕(2 ℎ) with ℎ = 10 −4 at 30 randomly selected elements of a mid-density field ( ̂𝜌 𝑒 ∼  [0 .3, 0.7] ). The analytic and finite-difference gradients show excellent agreement (maximum relative error 3.2 × 10 −4 , mean 
+
+7.0 × 10 −5 , at the level of the central-difference truncation error; Pearson correlation 0.99999995 ). In the adopted prescribed-thermal-moment formulation the assembled thermal load is density-independent, so the standard self-adjoint sensitivity is consistent with this formulation and no load-derivative correction is required. 
+
+## B. SDS coupling and optimization details 
+
+B.1. Density field to image conversion 
+
+Section 3.3 describes the conversion of ̂ 𝝆 ∈ ℝ𝑛 elx ×𝑛 ely into the diffusion-model latent 𝐳 0 = (𝐱 ) ∈ ℝ4×64×64 via three-channel replication, bilinear resize to 512 × 512 , and VAE encoding. This pipeline is fully differentiable. The chain rule for backpropagation of the SDS gradient from 𝐳 0 to ̂ 𝝆 is 
+
+𝜕 𝐳 0
+
+𝜕̂ 𝝆 = 𝜕 
+
+𝜕 𝐱 ⋅ 𝜕 𝐱 
+
+𝜕̂ 𝝆 (B.1) The full SDS pipeline, including the forward diffusion, classifier-free guidance, and back-propagation path, is illustrated in Fig. 2. 
+
+B.2. EMA smoothing 
+
+The SDS gradient is inherently stochastic. Since the timestep 𝑡 and noise 𝜖 are randomly sampled at each iteration, considerable variance exists in both the direction and magnitude of the gradient. In particular, under the setting of this study where a single-sample gradient is used without mini-batch averaging, this variance can undermine optimization stability. To mitigate this, EMA smoothing is applied as defined in Eq. (9) (Section 3.4). The smoothing coefficient is set to 𝛼 = 0 .9, with gradients exponentially averaged over approximately the most recent 10 iterations. This provides an appropriate balance between smoothing the noise of individual iterations and reflecting the temporal evolution of the SDS gradient due to timestep annealing. The ablation study (Section 6.5) shows that 𝛼 = 0 (no EMA) results in +5.0% degradation and 𝛼 = 0 .5 yields +3.4% degradation.   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 28 of 41 Zero-shot rib design
+
+B.3. Volume constraint enforcement 
+
+A bisection projection is employed to satisfy the volume fraction constraint 𝑉 (̂𝝆 ) = 𝑉 ∗ exactly at each iteration. After the Adam optimizer updates the densities, a uniform shift Δ is applied to all design variables such that the projected volume matches the target: 
+
+𝜌 (𝑘 +1)  
+
+> 𝑒
+
+← 𝜌 (𝑘 +1)  
+
+> 𝑒
+
++ Δ , where Δ solves 1
+
+𝑁 active 
+
+∑
+
+> 𝑒 ∈Ω active
+
+̂𝜌 𝑒 (𝝆 (𝑘 +1) + Δ) = 𝑉 ∗ (B.2) While traditional topology optimization uses the Lagrangian multiplier method [3] or MMA [57] to handle volume constraints, this direct bisection approach is adopted, given the compatibility with the Adam optimizer and the stochastic nature of the SDS gradient. The scalar Δ is found via bisection on the monotone left-hand side of Eq. (B.2). Here, Ωactive 
+
+denotes the set of active elements within the domain (excluding elements outside the circle in 𝐷 Circle ). The bisection exploits the monotonicity of the Heaviside projection and converges to machine precision within approximately 30 iterations. This method fixes the volume fraction exactly at the target value, eliminating ambiguity caused by volume-fraction differences when comparing compliance. 
+
+B.4. Optimizer: Adam vs. OC 
+
+The Adam optimizer [54] is used in this study instead of OC , which is widely employed in conventional topology optimization. There are two reasons for this choice. First, it offers good compatibility with the SDS gradient. OC is a heuristic update rule that exploits the special structure of compliance sensitivity (self-adjointness and non-negativity), making it difficult to integrate arbitrary gradients, such as the SDS gradient, in a natural way. Adam tracks the first and second moments of arbitrary gradients and applies an adaptive learning rate, making it well suited for combining physics and SDS gradients. Second, it converges stably in conjunction with the Heaviside projection. In experiments, 
+
+OC combined with Heaviside was observed to exhibit period-2 oscillation at high 𝛽 values without converging (see Fig. B.1). This occurs because the bisection update of OC interacts with the sharp nonlinearity of the Heaviside projection, causing oscillation between two stable attractors. Adam naturally damps this oscillation through momentum and learning rate decay ( 0.04 → 0.01 , cosine annealing). The momentum coefficients ( 𝛽 1 = 0 .5, 𝛽 2 = 0 .9) are set lower than the standard defaults ( 0.9, 0.999 ) to shorten the gradient memory, allowing the optimizer to adapt quickly as the SDS weight and timestep change during the scheduling phases. This behavior is illustrated in Fig. B.1.                
+
+> (a) 𝐷 Rect : Compliance (b) 𝐷 Circle : Compliance (c) 𝐷 Hole : Compliance
+> (d) 𝐷 Rect : Volume fraction (e) 𝐷 Circle : Volume fraction (f) 𝐷 Hole : Volume fraction
+> Figure B.1: Convergence comparison of OC (oscillatory) vs. Adam (stable) under Heaviside projection.
+
+The same SIMP optimization (without SDS) was conducted with the conventional OC optimizer across all three plate-bending domains. The quantitative comparison appears in Table B.1 and the corresponding density fields in Fig. B.2. The most severe case is 𝐷 Circle , where OC compliance oscillates between 𝐶 = 10 .639 and 𝐶 = 8 .393 in the   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 29 of 41
+
+Zero-shot rib design 
+
+final iterations, and the volume fraction collapses to 𝑉 = 0 .13 (target 𝑉 ∗ = 0 .20 ), resulting in a nearly empty density field (Fig. B.2b). In 𝐷 Hole , OC compliance ( 𝐶 = 148 .959 ) is 2.36× worse than the Adam baseline ( 𝐶 = 63 .113 ), with severe fragmentation visible in the density field (Fig. B.2c). In 𝐷 Rect , OC produces a recognizable but disconnected structure with compliance 1.84× worse than Adam (Fig. B.2a). The Adam baseline therefore represents a strong conventional SIMP result, justifying the choice of Adam over OC for the Heaviside-projected SIMP framework used throughout this study. 
+
+Table B.1 
+
+Baseline compliance comparison: Adam vs. OC optimizer (no SDS, 𝑉 ∗ = 0 .20 ). Domain Adam 𝐶 OC 𝐶 OC / Adam 
+
+𝐷 Rect 9.106 16.736 1.84× 
+
+𝐷 Circle 3.308 10.639 3.22× 
+
+𝐷 Hole 63.113 148.959 2.36×               
+
+> (a) 𝐷 Rect :OC (𝐶 = 16 .74 )(b) 𝐷 Circle :OC (𝐶 = 10 .64 )(c) 𝐷 Hole :OC (𝐶 = 148 .96 )
+
+Figure B.2: OC baseline density fields (no SDS). (a) 𝐷 Rect : disconnected rib pattern with compliance 1.84× worse than 
+
+Adam . (b) 𝐷 Circle : catastrophic failure due to period-2 oscillation; volume fraction collapses to 𝑉 = 0 .13 , yielding a nearly empty domain. (c) 𝐷 Hole : severely fragmented density field with compliance 2.36× worse than Adam .
+
+## C. Post-processing details: density field to CAD geometry 
+
+The optimized density field ̂ 𝝆 is a continuous 2D image that cannot be directly manufactured. A six-stage pipeline is presented to automatically convert it into a CAD-convertible candidate geometry (STEP format). The complete pipeline is illustrated in Fig. C.1. This optimization-to-CAD/CAE (computer-aided engineering) integration shares a similar objective to prior work [63] that automated a 3D conceptual wheel design-evaluation pipeline in deep-learning-based generative design. However, the present study adopts a skeleton-based approach tailored to density-field topology-optimization results. The entire pipeline completes in 5 seconds on a single CPU core and requires no user parameters beyond the extrusion height. 
+
+Step 1: Binarization The continuous density field is converted into a binary mask 𝑀 using a threshold of 𝜌 th = 0 .5:
+
+𝑀 (𝑖, 𝑗 ) = 
+
+{
+
+1 if ̂𝜌 (𝑖, 𝑗 ) > 0.50 otherwise Since the Heaviside projection ( 𝛽 = 64 ) already produces a nearly binary distribution (gray density < 3%, as shown in Appendix D.3), additional morphological post-processing (closing, opening) is unnecessary. 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 30 of 41 Zero-shot rib design            
+
+> Figure C.1: Post-processing pipeline: density field →binarization →skeletonization →graph →Bézier fitting →CAD export.
+
+Step 2: Skeletonization and Distance Transform Two operations are performed in parallel on the binary mask. First, Zhang–Suen thinning [55] extracts the one-pixel-wide medial axis (skeleton) of the foreground region. This skeleton captures the topological structure of the rib network, including branching patterns and connectivity. Second, a Euclidean distance transform computes the distance from each foreground pixel to the nearest background pixel. The distance value at skeleton pixels corresponds to the local half-thickness of the respective rib, which is used in Step 5 
+
+to assign physically meaningful rib widths. 
+
+Step 3: Graph Extraction The skeleton image is converted into a topological graph 𝐺 = ( 𝑉 , 𝐸 ). Each skeleton pixel is classified by its degree in the 8-connected neighborhood: pixels with degree ≥ 3 are registered as branch point nodes, and pixels with degree = 1 as endpoint nodes. Skeleton paths between nodes are traced via depth-first search to construct edges 𝐸 , where each edge is represented as (𝑣 𝑎 , 𝑣 𝑏 , 𝐏 ) with 𝐏 ∈ ℝ𝑛 𝑒 ×2 being the pixel coordinate sequence of the skeleton path. 
+
+Step 4: Bézier Curve Fitting Each edge path 𝐏 is approximated by a piecewise cubic Bézier curve. First, points where the local direction changes by more than 30 ◦ within an adaptive window are detected as corners, thereby splitting the path into sub-segments. For each segment, the two endpoints are fixed, and the internal control points 𝐏 1, 𝐏 2 are determined via least-squares fitting based on chord-length parameterization. 
+
+𝐁 (𝜉 ) = (1 − 𝜉 )3𝐏 0 + 3(1 − 𝜉 )2𝜉 𝐏 1 + 3(1 − 𝜉 )𝜉 2 𝐏 2 + 𝜉 3𝐏 3  
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 31 of 41 Zero-shot rib design
+
+All control points are converted from pixel coordinates to physical domain coordinates (𝑥, 𝑦 ).
+
+Step 5: Offset Polygon Generation The Bézier centerline of each edge is expanded into a closed 2D polygon with physically meaningful thickness. The distance transform values are sampled along the skeleton path of each edge, and their mean is taken as the half-width 𝑤 half of the edge (in pixel units). This is converted to domain coordinates using the average pixel-to-domain scale factor 𝑠 = ( 𝑊 ∕𝑛 elx + 𝐻 ∕𝑛 ely )∕2 . A minimum half-width of 0.3 is enforced to prevent degenerate polygons. Each Bézier segment is evaluated at 20 equally spaced parameter values to obtain centerline points and tangent vectors. At each point, the unit normal 𝐧 = (− ̇𝑦,̇𝑥 )∕ |̇ 𝐁 | is computed, and left/right offset curves are generated: 
+
+𝐂 left = 𝐁 (𝜉 ) + 𝑤 half ⋅ 𝐧 (𝜉 ), 𝐂 right = 𝐁 (𝜉 ) − 𝑤 half ⋅ 𝐧 (𝜉 )
+
+The left curve and the reversed right curve are connected to form a closed polygon. 
+
+Step 6: CAD Export The 2D polygons are extruded into 3D solids to ensure CAD compatibility. Each polygon is converted into a closed wire, a planar face is constructed, and the face is extruded by a specified height ℎ (default 5 mm) in the 𝑧 -direction. All solids are exported as an AP214 schema (ISO 10303-214) STEP data file. Optionally, a base plate with a configurable thickness can be added beneath the rib structure. 
+
+## D. Additional results 
+
+D.1. Alternative baselines: numerical summary 
+
+Best-of-run compliance values underpinning the comparison in Section 5.2 appear in Table D.1.                            
+
+> Table D.1
+> Best-of-run compliance 𝐶 for the proposed SDS framework against three SIMP-only alternatives (lower is better). All methods share the same SIMP solver and therefore require no additional training. The multi-start and perturbation entries are the best of 50 runs per domain; a matched-budget distributional comparison is given in Fig. D.1. †Best SDS run on
+> 𝐷 Hole is at 𝜆 0
+> sds = 50 (see Appendix D.2); the remaining domains use 𝜆 0
+> sds = 10 .Method 𝐷 Rect 𝐷 Circle 𝐷 Hole
+> Baseline SIMP ( Adam )9.106 3.308 63.113 Multi-start SIMP (best) 8.102 3.166 47.434 Perturbation SIMP (best) 8.339 3.117 47.495 Image-guided (best) 9.217 3.105 49.505
+> SDS (best) 7.886 2.522 43.20 †
+
+A best-of-run comparison alone could be confounded by the number of restarts allocated to each method. To control for this, the two SIMP-only baselines were re-run under a matched budget of 50 random restarts (multi-start) and 50 periodic-perturbation runs ( 𝜎 = 0 .05 ) per domain, then compared against the five SDS seeds by resampling equal-sized five-run subsets. Fig. D.1 shows the resulting distributions. In none of 5000 resampled five-run subsets, for either baseline in any of the three domains, does the best baseline compliance reach the best SDS compliance. Indeed, even the best of all 50 runs per baseline falls short of the best SDS result in every domain, so no resampled five-run subset reaches it (0 of 5000). The baseline distributions lie at or above the SDS result, and in 𝐷 Circle both baselines remain near the SIMP baseline compliance. The SDS improvement is therefore not reproducible by additional unstructured search under a matched number-of-runs budget. Wall-clock costs are reported separately because SDS and SIMP use different CPU/GPU resources. For full transparency of the per-seed results underlying the mean ±std values in Table 5, Figs. D.2, D.3, and D.4 show the compliance of every individual seed (five per prompt–domain combination) as strip-and-box plots, with the SIMP-only baseline marked. Prompt and hyperparameter selection was carried out on separate single-seed pilot runs before this five-seed statistical evaluation, keeping model selection distinct from final testing. 
+
+D.2. 𝐷 Hole SDS weight ( 𝜆 0 
+
+> sds
+
+= 50 )
+
+𝐷 Hole uses 𝜆 0 
+
+> sds
+
+= 50 rather than the 𝜆 0 
+
+> sds
+
+= 10 adopted for 𝐷 Rect , 𝐷 Circle , and 𝐷 Link . Because the baseline compliance ( 𝐶 = 63 .113 ) is roughly seven times that of 𝐷 Rect , the physics-gradient magnitude is correspondingly   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 32 of 41
+
+Zero-shot rib design      
+
+> (a) 𝐷 Rect (b) 𝐷 Circle (c) 𝐷 Hole
+
+Figure D.1: Matched-number-of-runs comparison of the SIMP-only baselines against SDS across the three plate-bending domains. Box plots show the final compliance of 50 multi-start and 50 perturbation runs per domain (individual runs jittered; green triangle = mean); the dashed line is the SIMP baseline and the solid red line the best SDS compliance. In every domain the best SDS result lies below the entire baseline distribution, so neither multi-start nor perturbation reaches it under a matched budget.      
+
+> (a) 𝐷 Rect (b) 𝐷 Circle (c) 𝐷 Hole
+
+Figure D.2: Seed-level compliance for the three mechanical plate-bending domains, all ten prompts, five seeds each (dots: individual seeds; box: interquartile range; red line: median). Prompts are ordered by mean compliance; the dashed line is the SIMP-only baseline. 
+
+larger. Under the raw-weighted-sum update, 𝜆 0 
+
+> sds
+
+must rise to keep the generative signal competitive. The scaling rationale is identical to the thermoelastic case (Appendix D.6). Full per-prompt results at 𝜆 0 
+
+> sds
+
+= 50 appear in Table 5. Domain-level interpretation is developed in Section 5.1. 
+
+D.3. Gray density: quantitative ablation 
+
+This section reports the quantitative ablation of Heaviside projection and 𝛽 -continuation. The mechanistic origin of the SDS-induced gray-density tendency is discussed in Section 6.4. Without Heaviside projection, SDS guidance yields a gray-density ratio of 42 .6% against 20 –21% for pure SIMP, nearly doubling the baseline. 𝛽 doubles every 50 iterations following 𝛽 𝑘 = min(2 ⌊𝑘 ∕50 ⌋, 64) . Fig. 13 and Table D.2 report the gray-density/compliance trade-off for 𝛽 max ∈ {32 , 64} against the projection-off baseline. Higher 𝛽 max drives the gray ratio below 3% with no compliance penalty (Table D.2: 𝐶 = 9 .29 at 𝛽 max = 64 versus 9.93 at 𝛽 max = 32 ), which justifies the choice 𝛽 max = 64 .
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 33 of 41 Zero-shot rib design 
+
+Figure D.3: Seed-level compliance for the industrial 𝐷 Link domain (ten prompts, five seeds each; baseline 𝐶 = 5 .258 dashed).      
+
+> (a) 𝐷 Rect (b) 𝐷 Circle (c) 𝐷 Hole
+
+Figure D.4: Seed-level thermoelastic compliance for the three plate-bending domains (three prompts each, five seeds); every prompt improves on the baseline (dashed). 
+
+Table D.2 
+
+Effect of Heaviside projection and 𝛽 -continuation on compliance and gray density. Experiment Heaviside 𝛽 max Compliance Gray ratio (%) A OFF — 18.66 42.6 B ON 64 9.29 2.5 C ON 32 9.93 5.1 
+
+D.4. When SDS fails: over-constraining 
+
+Conversely, there are cases where SDS degrades performance. Two representative failure modes are observed in 
+
+𝐷 Rect . The Diamond prompt ( +6 .0% ) over-constrains the density field into a rigid rhombus lattice that conflicts with the natural diagonal load paths from center to corners. Similarly, the Grid prompt ( +5 .9% ) forces an orthogonal lattice that wastes material in regions of low stress concentration. In both cases, the SDS gradient consistently opposes the physics gradient: while the physics gradient seeks to concentrate material along load paths, the SDS gradient redistributes it to maintain the prompted pattern, leading to a compromise that is optimal for neither. 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 34 of 41 Zero-shot rib design 
+
+The cosine cooldown mitigates this conflict by gradually reducing SDS influence. However, without cooldown, such conflicts persist until the final convergence, as confirmed in the scheduling ablation (Section 6.5): removing the timestep annealing alone causes +13 .0% degradation even for the well-aligned Spiderweb prompt. For misaligned prompts, the degradation would be more severe. These observations suggest a practical guideline: when the prompted pattern is uncertain in its compatibility with the load paths, a shorter cooldown or lower 𝜆 sds can serve as a conservative safeguard. 
+
+D.5. Prompt ablation: isolating the semantic contribution 
+
+The contribution of the prompt’s semantic content is isolated by varying the prompt while holding the solver and the SDS coupling fixed. On 𝐷 Rect , the five control conditions share the same five random seeds ( 𝜆 0 
+
+> sds
+
+= 10 ), so they are compared under identical initialization and noise realizations (a matched-seed comparison); the Spiderweb reference is the main-experiment value ( −11 .9% , Table 5). The analysis relies only on the relative ranking across the six conditions. The best structural prompt ( Spiderweb ) is placed alongside five controls: an empty prompt (unconditional SDS), a 
+
+prefix-only prompt (“bold black lines on white background,” with the structural noun removed), two semantically irrelevant prompts ( fruit , sunset ), and a dot prompt that changes a single word (“lines” →“dots”) so that the prior forms isolated points rather than connected line networks. Table D.3 reports the final compliance, win rate, and mean skeleton endpoint count 𝑛 end . The corresponding rib morphologies and the 𝑛 end –compliance correlation appear in Fig. 10 (Section 6.1). Three findings emerge. First, the structural prompt ( −11 .9% ) far outperforms the empty and prefix-only controls (−3 .6% and −4 .5% ), and the improvement tracks the endpoint count that structural prompts minimize rather than the mere presence of a generative term. The semantically irrelevant fruit prompt still helps ( −5 .5% ) by yielding a relatively low-endpoint morphology. Second, the dot prompt degrades compliance the most ( +7 .3% , 0/5 seeds winning), raising the endpoint count to the highest of any condition ( 𝑛 end = 49 versus 19 for Spiderweb ). The semantically irrelevant 
+
+sunset prompt, with the next-highest endpoint count ( 𝑛 end = 36 ), is the only other condition to worsen the baseline (+3 .6% ), so the two most endpoint-rich prompts are precisely the two that degrade compliance. Third, across the thirty individual runs (five seeds per prompt) the endpoint count and the compliance change are strongly correlated (Pearson 
+
+𝑟 = 0 .87 ). This controlled variation is consistent with a causal role for the endpoint count in the dead-end suppression mechanism of Section 6.1. The within-design surgery of Appendix D.9, which manipulates the endpoints without altering the surrounding morphology, provides the direct intervention-based support.                                          
+
+> Table D.3
+> Prompt ablation on 𝐷 Rect (mean ±std over five seeds; baseline 𝐶 = 9 .106 ). Conditions are ordered by mean skeleton endpoint count 𝑛 end . “Wins” counts seeds improving over the baseline. The two conditions with the highest 𝑛 end (dot ,
+> sunset ) degrade compliance, the dot prompt most. Prompt condition 𝐶 Δ% Wins 𝑛 end
+> Semantic ( Spiderweb )𝟖 .𝟎𝟐 ±𝟎 .𝟏𝟎 −𝟏𝟏 .𝟗 %5/5 19.2 Random ( fruit )8.61 ± 0 .31 −5 .5% 5/5 22.6 Empty (unconditional) 8.77 ± 0 .23 −3 .6% 4/5 25.8 Prefix-only 8.70 ± 0 .29 −4 .5% 5/5 26.4 Random ( sunset )9.43 ± 0 .36 +3 .6% 2/5 36.2 Dot (isolated points) 9.77 ± 0 .34 +7 .3% 0/5 49.2
+
+D.6. 𝜆 0 
+
+> sds
+
+sensitivity in thermoelastic loading 
+
+To empirically locate the optimal SDS weight for thermoelastic loading, the 𝐷 Rect domain was swept across 
+
+𝜆 0 
+
+> sds
+
+∈ {10 , 50 , 100 , 200} using the Spiderweb prompt as a consistent probe (5 seeds per cell). The value adopted for all three prompts in the thermoelastic experiments ( 𝜆 0 
+
+> sds
+
+= 100 ) was selected based on this single-prompt sweep. The results appear in the lower block of Table 10: a clear U-shape emerges, in which small 𝜆 0 
+
+> sds
+
+provides insufficient generative guidance against the larger and more diffuse thermal physics gradient, the improvement grows monotonically up to 𝜆 0 
+
+> sds
+
+≈ 100 (best −23 .0% ), and 𝜆 0 
+
+> sds
+
+= 200 already shows mild saturation ( −20 .0% ), consistent with excessive SDS overriding the physics gradient. This U-shape mirrors the 𝜆 sds ablation observed in the mechanical setting (upper block of the same table) but is shifted roughly tenfold toward larger values, quantifying the claim that the optimal SDS weight scales with the magnitude of the physics gradient under the raw weighted sum (Section 5.5).   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 35 of 41
+
+Zero-shot rib design 
+
+D.7. Mesh refinement and the filter length scale 
+
+Section 3.1 notes that fixing the filter radius in physical units reduces mesh-dependent features. To examine this beyond the single 150 × 150 resolution used in the main experiments, a mesh-refinement study was carried out on 
+
+𝐷 Hole at three resolutions, 𝑁 ∈ {100 , 150 , 200} . The essential requirement is that the filter radius be fixed in physical 
+
+units rather than in element counts: setting 𝑟 min = 𝑁 ∕30 and 𝑟 max = 𝑁 ∕15 holds the minimum feature size constant under refinement, whereas a fixed element-count radius would shrink the physical feature size and reintroduce mesh-dependent fine detail. 𝐷 Hole is used here because its four-sided distributed loading provides a well-conditioned setting for assessing mesh convergence. Table D.4 and Fig. D.5 summarize the outcome, and two observations provide preliminary evidence of mesh-refinement robustness. First, the baseline SIMP topology is qualitatively consistent across resolutions (Fig. D.5, first column): the same four curved ribs framing the central hole emerge at both resolutions, confirming that the physical-unit filter fixes the structural length scale. Second, the SDS improvement over the same-resolution baseline persists at every resolution (for the Spiderweb probe, −19 .3% , −28 .4% , and −10 .0% at 𝑁 = 100 , 150 , 200 , mean over 5 seeds), so the improvement is not confined to a single discretization. At each resolution, 𝜆 0 
+
+> sds
+
+was scaled with the baseline compliance following the convention adopted across domains (Section 3.3). Because the density field is resized to 512 × 512 before entering the diffusion model, the SDS gradient magnitude is essentially resolution-independent, whereas the physics-gradient magnitude grows with the baseline compliance. Scaling 𝜆 0 
+
+> sds
+
+accordingly keeps the two gradients in a comparable balance as the mesh is refined. 
+
+Table D.4 
+
+Mesh refinement of 𝐷 Hole with the filter radius fixed in physical units ( 𝑟 min = 𝑁 ∕30 , 𝑟 max = 𝑁 ∕15 ). 𝐶 base and 𝐶 SDS (mean 
+
+± std over 5 seeds) are the SIMP-only and SDS-guided compliances; Δ% is the improvement over the same-resolution baseline. The Spiderweb prompt is used as a consistent probe. 
+
+𝑁 𝑟 min 𝐶 base 𝜆 0 
+
+> sds
+
+𝐶 SDS Δ% 100 3.33 26 .65 22 .7 21 .50 ± 1 .45 −19 .3% 150 5.00 63 .11 50 .0 45 .22 ± 2 .04 −28 .4% 200 6.67 86 .69 73 .9 78 .01 ± 3 .67 −10 .0% 
+
+Figure D.5: Mesh refinement of 𝐷 Hole with the filter radius fixed in physical units ( 𝑟 min = 𝑁 ∕30 ). Rows: 𝑁 = 100 and 
+
+𝑁 = 200 (𝑁 = 150 appears in Fig. 3 and Table 5). Columns: the same-resolution SIMP baseline and three representative prompts ( Spiderweb , Leaf , Diamond ; median seed). Cell-border color encodes the improvement over the baseline; per-panel compliance 𝐶 and Δ% are overlaid. Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 36 of 41 Zero-shot rib design 
+
+D.8. 3D re-analysis of the protruding-rib geometry 
+
+The optimization models a reinforced region as a locally stiffened Mindlin plate, whereas the exported geometry is a base plate with protruding ribs whose bending stiffness derives from a neutral-axis offset. To verify that this 2D model preserves the design comparisons under a 3D protruding-rib solid representation reconstructed from the converged density field, each field was re-analyzed as a 3D solid: it was extruded into a base plate (thickness 1) carrying ribs (height 5) on the material elements and solved with 3D linear elasticity in FEniCSx under the same loading and support as the corresponding 2D problem for each domain. Table D.5 and Fig. D.6 report the outcome across the three plate-bending domains. The compliance predicted by the 2D plate model correlates positively with that of the full 3D solid re-analysis in every domain (Pearson 𝑟 = 0 .92 ,
+
+0.82 , and 0.98 for 𝐷 Rect , 𝐷 Circle , and 𝐷 Hole ), and the top-ranked prompt coincides between the two models in 𝐷 Rect 
+
+(Spiderweb ). In 𝐷 Circle and 𝐷 Hole the best 2D prompt remains among the strongest designs in 3D. The relative ranking of prompts is thus largely preserved under the 3D solid representation, indicating that the 2D plate model retains substantial predictive value for comparative ranking, although this does not by itself eliminate the modeling discrepancy between locally thickened plates and protruding-rib solids. A full density–binary–STEP comparison including mass, volume fraction, and deformation fields would provide more comprehensive validation and remains future work. 
+
+Table D.5 
+
+Agreement between the 2D plate model and the full 3D solid re-analysis of the protruding-rib geometry, across the three plate-bending domains. 𝐶 base is the SIMP-only baseline compliance (2D). Correlation is Pearson 𝑟 between the compliance values predicted by the two models over the prompt set (baseline included). Domain 𝐶 base (2D) 𝑛 prompts Pearson 𝑟 𝐷 Rect 9.106 10 0.92 
+
+𝐷 Circle 3.308 10 0.82 
+
+𝐷 Hole 63 .113 10 0.98 
+
+Figure D.6: Compliance of the 2D plate model (horizontal) versus the full 3D solid re-analysis of the protruding-rib geometry (vertical), both normalized by the SIMP-only baseline compliance, for the three plate-bending domains under matched loading and support. Points below and to the left of the baseline (ratio = 1 ) improve over the baseline in both models; the positive correlation and per-domain trend lines show that the 2D design ranking is largely preserved in 3D. Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 37 of 41 Zero-shot rib design 
+
+D.9. Within-design causal test of dead-end removal 
+
+The prompt ablation (Appendix D.5) shows that prompts inducing more skeleton endpoints yield worse compliance, and the dot prompt establishes this by natural variation. A differentiable endpoint-count penalty is not available in the present implementation because the skeletonization that defines endpoints is non-differentiable, so a direct post-optimization intervention is used instead to isolate the mechanical role of endpoint branches. To rule out any confound from the prompt also reshaping the global morphology, on a fixed optimized design only the skeleton endpoints are altered and re-analyzed by FEA. Three interventions are applied to nine designs (three seeds in each of 𝐷 Rect , 𝐷 Circle ,and 𝐷 Hole ): (i) prune dead-ends , in which every skeleton-endpoint twig, traced to its nearest branch point, is removed together with its local thickness; (ii) prune a load-bearing rib , a control in which the single non-dead-end rib carrying the most strain energy is removed. And (iii) graft a dead-end , in which an artificial stub is added at a branch point toward the void. Compliance is evaluated with the same plate FEA and boundary conditions used throughout. Fig. D.7 illustrates the interventions, and the per-design means are collected in Table 8 (Section 6.1). The contrast is consistent across all nine designs. Pruning dead ends raises compliance by only +5 .9% on average (range +0 .6 to 
+
++12 .1% ), whereas pruning a single load-bearing rib raises it by +61 .5% on average (up to +182% in 𝐷 Hole ). Grafting an artificial dead-end changes compliance by less than 1% (−0 .9 to −0 .1% ), directly showing that a dead-end adds no meaningful load path. Consistently, the pruned dead-end regions carry only 0.07 –3.7% of the total strain energy, versus 8.3–49 .5% for the removed load-bearing rib. The small but non-zero cost of dead-end removal is the expected first-order effect ( Δ𝐶 ≈ 𝑝 𝑓 when removing material of strain-energy fraction 𝑓 at penalization 𝑝 = 3 ). Because dead ends carry only a few percent of the strain energy, removing them costs roughly an order of magnitude less than removing a true rib. This intervention leaves the surrounding topology unchanged and thus confirms causally, without the morphological confound of the dot prompt, that dead-end suppression underlies the SDS-guided improvement.   
+
+> Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 38 of 41
+
+Zero-shot rib design 
+
+Figure D.7: Within-design causal test of dead-end (skeleton-endpoint) removal, one representative design per domain. Columns: original; dead-ends pruned (removed material in red); a single load-bearing rib pruned (red); an artificial dead-end grafted (added material in green). Each panel is labeled with its compliance 𝐶 and change Δ𝐶 . Removing dead ends barely changes 𝐶 and grafting one is inert, whereas removing a load-bearing rib is catastrophic (up to +182% in 𝐷 Hole ), establishing that dead ends carry comparatively little load. Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 39 of 41 Zero-shot rib design 
+
+## References 
+
+[1] M. P. Bendsoe, O. Sigmund, Topology optimization: theory, methods, and applications, Springer Science & Business Media, Berlin, Heidelberg, 2013. [2] M. P. Bendsøe, O. Sigmund, Material interpolation schemes in topology optimization, Archive of applied mechanics 69 (9) (1999) 635–654. [3] M. P. Bendsøe, Optimal shape design as a material distribution problem, Structural optimization 1 (4) (1989) 193–202. [4] O. Sigmund, A 99 line topology optimization code written in matlab, Structural and multidisciplinary optimization 21 (2) (2001) 120–127. [5] E. Andreassen, A. Clausen, M. Schevenels, B. S. Lazarov, O. Sigmund, Efficient topology optimization in matlab using 88 lines of code, Structural and Multidisciplinary Optimization 43 (1) (2011) 1–16. [6] J. Gao, X. Wu, M. Xiao, V. P. Nguyen, L. Gao, T. Rabczuk, Multi-patch isogeometric topology optimization for cellular structures with flexible designs using nitsche’s method, Computer Methods in Applied Mechanics and Engineering 410 (2023) 116036. [7] X. Zhang, M. Xiao, L. Gao, J. Gao, A t-splines-oriented isogeometric topology optimization for plate and shell structures with arbitrary geometries using bézier extraction, Computer Methods in Applied Mechanics and Engineering 425 (2024) 116929. [8] X. Zhang, L. Gao, M. Xiao, J. Gao, T-splines-based panel method for aerodynamic topology optimization of engineering shell structures using isogeometric analysis, Computer Methods in Applied Mechanics and Engineering 444 (2025) 118154. [9] D. Lin, L. Gao, J. Gao, The lagrangian-eulerian described particle flow topology optimization (pfto) approach with isogeometric material point method, Computer Methods in Applied Mechanics and Engineering 440 (2025) 117892. [10] J. Zhu, D. Lin, L. Gao, H. Cao, J. Gao, Particle-flow topology optimization with the sph kernel for hinge-free designs of compliant mechanisms using isogeometric material point method, Chinese Journal of Mechanical Engineering (2026) 100229. [11] O. Sigmund, J. Petersson, Numerical instabilities in topology optimization: a survey on procedures dealing with checkerboards, mesh-dependencies and local minima, Structural optimization 16 (1) (1998) 68–75. [12] G. I. Rozvany, A critical review of established methods of structural topology optimization, Structural and multidisciplinary optimization 37 (3) (2009) 217–237. [13] K.-T. Cheng, N. Olhoff, An investigation concerning optimal design of solid elastic plates, International Journal of Solids and Structures 17 (3) (1981) 305–323. [14] Y. Lam, S. Santhikumar, Automated rib location and optimization for plate structures, Structural and multidisciplinary optimization 25 (1) (2003) 35–45. [15] H. Lee, J. Yeo, K. Kong, D. Myeong, D. Jang, J. Lee, H. Choi, N. Kim, S. Ryu, Bayesian optimization of tailgate rib structures enhancing structural stiffness under manufacturing constraints of injection molding, Journal of Manufacturing Processes 134 (2025) 739–748. [16] X. Ding, K. Yamazaki, Stiffener layout design for plate structures by growing and branching tree model (application to vibration-proof design), Structural and Multidisciplinary Optimization 26 (1) (2004) 99–110. [17] Y. Cheng, F. He, X. Lv, W. Cai, On the role of generating textual description for design intent communication in feature-based 3d collaborative design, Advanced Engineering Informatics 39 (2019) 331–346. [18] K. Mustapha, A survey of emerging applications of large language models for problems in mechanics, product design, and manufacturing, Advanced Engineering Informatics 64 (2025) 103066. [19] R. Rombach, A. Blattmann, D. Lorenz, P. Esser, B. Ommer, High-resolution image synthesis with latent diffusion models, in: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, 2022, pp. 10684–10695. [20] B. Poole, A. Jain, J. T. Barron, B. Mildenhall, Dreamfusion: Text-to-3d using 2d diffusion, arXiv preprint arXiv:2209.14988 (2022). [21] F. Mazé, F. Ahmed, Diffusion models beat gans on topology optimization, in: Proceedings of the AAAI conference on artificial intelligence, Vol. 37, 2023, pp. 9108–9116. [22] G. Giannone, A. Srivastava, O. Winther, F. Ahmed, Aligning optimization trajectories with diffusion models for constrained design generation, Advances in neural information processing systems 36 (2023) 51830–51861. [23] J.-H. Bastek, W. Sun, D. M. Kochmann, Physics-informed diffusion models, arXiv preprint arXiv:2403.14404 (2024). [24] Y. Kwon, N. Kang, Three-dimensional deep shape optimization with a limited dataset, Engineering Applications of Artificial Intelligence 159 (2025) 111504. [25] A. Bekbolat, S. Kurokawa, F. H. Kamaru Zaman, M. A. Samad Kamal, E. Shehab, M. H. Ali, Diffusion models for topology optimization in 3d printing applications, Journal of Applied Physics 137 (13) (2025). [26] S. Yoo, N. Kang, Deepwheel: Generating a 3d synthetic wheel dataset for design and performance evaluation, Journal of Mechanical Design 148 (5) (2026) 051702. [27] S. Hong, Y. Kwon, D. Shin, J. Park, N. Kang, Deepjeb: 3d deep learning-based synthetic jet engine bracket dataset, Journal of Mechanical Design 147 (4) (2025) 041703. [28] J. Kim, Y. Kwon, N. Kang, Deep generative design for mass production, arXiv preprint arXiv:2403.12098 (2024). [29] Y. Wu, L. Wang, Y. Liu, Machine-learning driven differentiable concurrent multiscale topology optimization framework for truss structures, Computer Methods in Applied Mechanics and Engineering 460 (2026) 119135. [30] Z. Li, L. Wang, X. Zhang, Y. Liu, A level-set-oriented and problem-independent robust topology optimization strategy based on convolutional neural networks and uncertainty clustering, Computer Methods in Applied Mechanics and Engineering 455 (2026) 118894. [31] Z. Li, L. Wang, F. Li, Model-and-data-driven robust concurrent optimization for structural topology and device layout integrating load location and non-design domain effects, Aerospace Science and Technology (2025) 111566. [32] X. Zhao, L. Wang, Y. Liu, A novel reliability-oriented concurrent topology optimization framework based on improved sequential decoupling and interval-modeled boundary modification strategies, Composite Structures (2026) 120211. [33] W. Zhang, G. Zhao, L. Su, Research on multi-stage topology optimization method based on latent diffusion model, Advanced Engineering Informatics 63 (2025) 102966. [34] W. Zhang, K. Yu, L. Lu, L. Su, S. L. Sing, TO-MambaLDM: Multi-physics informed Mamba-enhanced latent diffusion for cooling structure topology optimization, Advanced Engineering Informatics 71 (2026) 104292. 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 40 of 41 Zero-shot rib design 
+
+[35] T. Liu, F. Yu, Q. Li, X.-J. Wan, Z. Han, S. Liu, Topology optimization approach using a training-dataset-free neural network reparameterization framework, Advanced Engineering Informatics 70 (2026) 104111. [36] Y. Kwon, N. Kang, Three-dimensional geometric augmentation guided by engineering uncertainty, SSRN preprint (2025). doi:10.2139/ ssrn.5380284 .[37] B. Mildenhall, P. P. Srinivasan, M. Tancik, J. T. Barron, R. Ramamoorthi, R. Ng, Nerf: Representing scenes as neural radiance fields for view synthesis, Communications of the ACM 65 (1) (2021) 99–106. [38] B. T. Feng, J. Smith, M. Rubinstein, H. Chang, K. L. Bouman, W. T. Freeman, Score-based diffusion models as principled priors for inverse imaging, in: Proceedings of the IEEE/CVF international conference on computer vision, 2023, pp. 10520–10531. [39] H. Chung, D. Ryu, M. T. McCann, M. L. Klasky, J. C. Ye, Solving 3d inverse problems using pre-trained 2d diffusion models, in: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, 2023, pp. 22542–22551. [40] J. Song, A. Vahdat, M. Mardani, J. Kautz, Pseudoinverse-guided diffusion models for inverse problems, in: International conference on learning representations, 2023. [41] S. Zhong, P. Punpongsanon, D. Iwai, K. Sato, Topology optimization with text-guided stylization, Structural and Multidisciplinary Optimization 66 (12) (2023) 256. [42] Z. Wang, C. Fu, S.-f. Niu, S.-j. Hu, Research on bio-inspired product design based on knowledge graph and semantic fusion diffusion model, Advanced Engineering Informatics 62 (2024) 102797. [43] Z. Liang, Y.-F. Zhang, Y. Wang, W. Li, Integrating large models with topology optimization for conceptual design realization, Advanced Engineering Informatics 67 (2025) 103524. [44] B. Bourdin, Filters in topology optimization, International journal for numerical methods in engineering 50 (9) (2001) 2143–2158. [45] T. E. Bruns, D. A. Tortorelli, Topology optimization of non-linear elastic structures and compliant mechanisms, Computer methods in applied mechanics and engineering 190 (26-27) (2001) 3443–3459. [46] J. K. Guest, J. H. Prévost, T. Belytschko, Achieving minimum length scale in topology optimization using nodal design variables and projection functions, International journal for numerical methods in engineering 61 (2) (2004) 238–254. [47] R. Mindlin, Influence of rotatory inertia and shear on flexural motions of isotropic, elastic plates (1951). [48] E. Reissner, The effect of transverse shear deformation on the bending of elastic plates (1945). [49] K.-J. Bathe, E. N. Dvorkin, A four-node plate bending element based on mindlin/reissner plate theory and a mixed interpolation, International Journal for Numerical Methods in Engineering 21 (2) (1985) 367–383. [50] H. Rodrigues, P. Fernandes, A material based model for topology optimization of thermoelastic structures, International Journal for Numerical Methods in Engineering 38 (12) (1995) 1951–1965. [51] J. Ho, A. Jain, P. Abbeel, Denoising diffusion probabilistic models, Advances in neural information processing systems 33 (2020) 6840–6851. [52] J. Ho, T. Salimans, Classifier-free diffusion guidance, arXiv preprint arXiv:2207.12598 (2022). [53] B. Tang, J. Wang, Z. Wu, L. Zhang, Stable score distillation for high-quality 3d generation, arXiv preprint arXiv:2312.09305 (2023). [54] D. P. Kingma, J. Ba, Adam: A method for stochastic optimization, arXiv preprint arXiv:1412.6980 (2014). [55] T. Y. Zhang, C. Y. Suen, A fast parallel algorithm for thinning digital patterns, Communications of the ACM 27 (3) (1984) 236–239. [56] D. McAllister, S. Ge, J.-B. Huang, D. W. Jacobs, A. A. Efros, A. Holynski, A. Kanazawa, Rethinking score distillation as a bridge between image distributions, Advances in Neural Information Processing Systems 37 (2024) 33779–33804. [57] K. Svanberg, The method of moving asymptotes—a new method for structural optimization, International journal for numerical methods in engineering 24 (2) (1987) 359–373. [58] C. Schuhmann, R. Beaumont, R. Vencu, C. Gordon, R. Wightman, M. Cherti, T. Coombes, A. Katta, C. Mullis, M. Wortsman, et al., Laion-5b: An open large-scale dataset for training next generation image-text models, Advances in neural information processing systems 35 (2022) 25278–25294. [59] F. Wang, B. S. Lazarov, O. Sigmund, On projection methods, convergence and robust formulations in topology optimization, Structural and multidisciplinary optimization 43 (6) (2011) 767–784. [60] H. Jun, A. Nichol, Shap-e: Generating conditional 3d implicit functions, arXiv preprint arXiv:2305.02463 (2023). [61] Y. Shi, P. Wang, J. Ye, M. Long, K. Li, X. Yang, Mvdream: Multi-view diffusion for 3d generation, arXiv preprint arXiv:2308.16512 (2023). [62] J. K. Guest, Imposing maximum length scale in topology optimization, Structural and Multidisciplinary Optimization 37 (2009) 463–473. [63] S. Yoo, S. Lee, S. Kim, K. H. Hwang, J. H. Park, N. Kang, Integrating deep learning into cad/cae system: generative design and evaluation of 3d conceptual wheel: Integrating deep learning into cad/cae system: Generative design and evaluation of 3d conceptual wheel, Structural and multidisciplinary optimization 64 (4) (2021) 2725–2747. 
+
+Y. Kwon and N. Kang: Preprint submitted to Elsevier Page 41 of 41

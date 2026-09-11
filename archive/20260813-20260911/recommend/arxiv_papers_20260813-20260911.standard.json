@@ -1,18 +1,97 @@
 {
   "mode": "standard",
-  "generated_at": "2026-09-11T06:47:07.564265+00:00",
+  "generated_at": "2026-09-11T06:54:18.303330+00:00",
   "stats": {
     "mode": "standard",
     "tag_count": 1,
     "deep_divecandidates": 0,
     "deep_cap": 6,
     "deep_selected": 0,
-    "quick_candidates": 2,
+    "quick_candidates": 3,
     "quick_skim_target": 11,
-    "quick_selected": 2
+    "quick_selected": 3
   },
   "deep_dive": [],
   "quick_skim": [
+    {
+      "id": "2609.10643v1",
+      "source": "arxiv",
+      "title": "Zero-shot rib design: merging training-free generative prior with topology optimization",
+      "abstract": "Natural load-bearing patterns such as leaf venation, trabecular bone, and spider webs achieve high stiffness per unit mass, yet classical topology optimizers rarely reach such geometries, and few let engineers express structural design intent through natural language. This work treats a frozen text-to-image diffusion model as a training-free source of design knowledge and distills it into the physics loop of density-based topology optimization via score distillation sampling, so that a text prompt becomes an explicit, machine-interpretable representation of engineer intent. The prompt-induced generative gradient and the finite element sensitivity are combined at every iteration, letting physics decide which prompt-induced features survive. In 245 primary SDS runs spanning four geometric domains and two physics regimes, 38 of 49 prompt--domain combinations achieved statistically significant compliance reductions (up to $-31.5\\%$ mechanical and $-23.0\\%$ thermoelastic), outperforming gradient-based baselines. Cross-domain morphological analysis identifies a recurring structural signature of improvement: in most domains the generative prior suppresses dead-end branches in the rib skeleton, with endpoint--compliance correlation $r = +0.56$ to $+0.99$. A Heaviside projection with $β$-continuation resolves a pronounced intermediate-density tendency in this diffusion--physics coupling ($42.6\\%$ to $<3\\%$), and an automated skeleton-based pipeline converts optimized density fields into \\rev{candidate geometry ready for computer-aided design. By retargeting the generative prior across domains, loading conditions, and physics objectives through a change of text prompt, with each new problem's physics setup specified separately, the framework uses a pretrained generative model as a reusable, training-free prior for engineering design.",
+      "authors": [
+        "Yongmin Kwon",
+        "Namwoo Kang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "physics.app-ph"
+      ],
+      "published": "2026-09-09T12:30:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.10643v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "frozen text-to-image diffusion as training-free design knowledge source",
+      "llm_evidence_cn": "冻结文生图扩散模型作为免训练设计知识源",
+      "llm_evidence": "冻结文生图扩散模型作为免训练设计知识源",
+      "canonical_evidence": "冻结文生图扩散模型作为免训练设计知识源",
+      "llm_tldr_en": "Classical topology optimizers rarely reach natural load-bearing geometries and offer no natural-language design intent. This work treats a frozen text-to-image diffusion model as a training-free knowledge source, distilling it into density-based topology optimization via score distillation sampling, combining generative and finite-element gradients.",
+      "llm_tldr_cn": "经典拓扑优化难以得到叶脉、骨小梁等自然承力几何，也缺乏用自然语言表达设计意图的途径。本文把冻结的文生图扩散模型当作免训练的设计知识源，通过分数蒸馏采样将其蒸馏进密度法拓扑优化的物理循环，使文本提示成为机器可解释的设计意图。每轮迭代将提示诱导的生成梯度与有限元灵敏度结合，由物理决定保留哪些特征，实现零样本肋骨等结构设计。",
+      "llm_tldr": "经典拓扑优化难以得到叶脉、骨小梁等自然承力几何，也缺乏用自然语言表达设计意图的途径。本文把冻结的文生图扩散模型当作免训练的设计知识源，通过分数蒸馏采样将其蒸馏进密度法拓扑优化的物理循环，使文本提示成为机器可解释的设计意图。每轮迭代将提示诱导的生成梯度与有限元灵敏度结合，由物理决定保留哪些特征，实现零样本肋骨等结构设计。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.22272v2",
+      "source": "arxiv",
+      "title": "GAN-Diff : Coupling Pretrained WGAN-GP Features with Conditional Diffusion U-Nets",
+      "abstract": "Generative adversarial networks (GANs) can provide efficient image generation, while diffusion models offer high-quality image restoration but require iterative sampling. This paper presents a hybrid GAN-guided diffusion framework that uses a pretrained Wasserstein GAN with gradient penalty (WGAN-GP) as a feature prior for conditional diffusion-based image restoration. Intermediate features from the frozen WGAN-GP generator are incorporated into a diffusion U-Net through cross-attention and remain fixed during the DDIM sampling process. The framework is evaluated on two restoration tasks, Gaussian denoising and 2Xsuper-resolution, using CelebA face images. During development, several sources of instability were identified and addressed, including adversarial learning-rate imbalance, inappropriate diffusion initialization, excessive corruption, and insufficient parameter averaging. The resulting framework consistently improves the quality of both degraded and low-resolution images. In particular, it improves denoising performance by 4.40 dB in PSNR and super-resolution performance by 3.70 dB over their respective input baselines. These results demonstrate the potential of a frozen GAN feature prior to guide diffusion models toward stable and effective image restoration.",
+      "authors": [
+        "Saif Ahmed",
+        "Asadullah Hil Galib",
+        "S. M. Riaz Rahman Antu",
+        "Ahmed Faizul Haque Dhrubo",
+        "Souvik Pramanik",
+        "Mohammad Abdul Qayum",
+        "Mohsin Sajjad",
+        "Mohammad Ashrafuzzaman Khan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-08-23T08:03:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.22272v2",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "hybrid GAN-guided diffusion for image restoration with frozen WGAN-GP features fixed during DDIM sampling",
+      "llm_evidence_cn": "用冻结的WGAN-GP特征引导条件扩散进行图像恢复",
+      "llm_evidence": "用冻结的WGAN-GP特征引导条件扩散进行图像恢复",
+      "canonical_evidence": "用冻结的WGAN-GP特征引导条件扩散进行图像恢复",
+      "llm_tldr_en": "GAN-Diff couples a pretrained WGAN-GP feature prior with a conditional diffusion U-Net, keeping the GAN features fixed during DDIM sampling for image denoising and super-resolution.",
+      "llm_tldr_cn": "该文针对扩散模型迭代采样开销大、图像恢复质量与效率难以兼顾的问题，提出GAN-Diff混合框架，把预训练WGAN-GP生成器的中间特征通过交叉注意力注入条件扩散U-Net，并在DDIM采样中保持冻结。在CelebA人脸的高斯去噪与2倍超分任务上进行评估，并分析了开发中的不稳定因素。工作展示了免训练先验复用与扩散采样结合的可行性，为高效图像恢复提供思路。",
+      "llm_tldr": "该文针对扩散模型迭代采样开销大、图像恢复质量与效率难以兼顾的问题，提出GAN-Diff混合框架，把预训练WGAN-GP生成器的中间特征通过交叉注意力注入条件扩散U-Net，并在DDIM采样中保持冻结。在CelebA人脸的高斯去噪与2倍超分任务上进行评估，并分析了开发中的不稳定因素。工作展示了免训练先验复用与扩散采样结合的可行性，为高效图像恢复提供思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
     {
       "id": "2609.11507v1",
       "source": "arxiv",
@@ -39,13 +118,13 @@
         "query:tfree-diff"
       ],
       "llm_score": 7.0,
-      "llm_evidence_en": "inference-time control of multi-subject video generation without retraining",
-      "llm_evidence_cn": "免重训练的多主体视频生成推理控制",
-      "llm_evidence": "免重训练的多主体视频生成推理控制",
-      "canonical_evidence": "免重训练的多主体视频生成推理控制",
-      "llm_tldr_en": "DIAL leverages intrinsic subject-aware attention in diffusion transformers, using spatial grounding maps to control fidelity at inference without retraining and to build preferences in high-noise stages for multi-subject video generation.",
-      "llm_tldr_cn": "多主体视频生成面临保真强度不可控与语义漂移问题。本文分析扩散Transformer内部机制，发现部分注意力块自然形成可精确定位参考主体的内在空间定位图ISGM，进而提出双阶段内在注意力利用框架DIAL。低噪声阶段用该图引导注意力，在推理时无需重训练即可精确控制保真强度；高噪声阶段用其自动构建偏好。方法提升了多主体视频生成的可控性，体现免训练的推理期优化思路。",
-      "llm_tldr": "多主体视频生成面临保真强度不可控与语义漂移问题。本文分析扩散Transformer内部机制，发现部分注意力块自然形成可精确定位参考主体的内在空间定位图ISGM，进而提出双阶段内在注意力利用框架DIAL。低噪声阶段用该图引导注意力，在推理时无需重训练即可精确控制保真强度；高噪声阶段用其自动构建偏好。方法提升了多主体视频生成的可控性，体现免训练的推理期优化思路。",
+      "llm_evidence_en": "training-free inference-time control for multi-subject video generation",
+      "llm_evidence_cn": "免训练推理控制多主体视频生成",
+      "llm_evidence": "免训练推理控制多主体视频生成",
+      "canonical_evidence": "免训练推理控制多主体视频生成",
+      "llm_tldr_en": "DIAL exploits intrinsic spatial grounding maps in Diffusion Transformers to control fidelity and reduce semantic drift in multi-subject video generation at inference time without retraining.",
+      "llm_tldr_cn": "多主体视频生成存在保真强度难以控制、语义易漂移的问题。作者分析扩散Transformer内部机制，发现部分注意力块天然形成固有空间定位图，据此提出DIAL框架，在低噪声阶段引导注意力以精确控制保真度，高噪声阶段构建偏好信号。该方法无需重训练即可在推理时实现精细控制，有效缓解语义漂移，为免训练可控视频生成提供新思路。",
+      "llm_tldr": "多主体视频生成存在保真强度难以控制、语义易漂移的问题。作者分析扩散Transformer内部机制，发现部分注意力块天然形成固有空间定位图，据此提出DIAL框架，在低噪声阶段引导注意力以精确控制保真度，高噪声阶段构建偏好信号。该方法无需重训练即可在推理时实现精细控制，有效缓解语义漂移，为免训练可控视频生成提供新思路。",
       "llm_tags": [
         "query:tfree-diff"
       ],
@@ -54,50 +133,6 @@
       "matched_requirement_id": "req-6",
       "selection_source": "fresh_fetch",
       "quick_tier": "7"
-    },
-    {
-      "id": "2609.09123v1",
-      "source": "arxiv",
-      "title": "Mask Forcing: Improving Autoregressive Video Diffusion Distillation via Dual-Noise Masking Rollout",
-      "abstract": "Autoregressive (AR) video diffusion models have shown great potential in real-time video generation. Recent methods distill pretrained bidirectional video diffusion models into causal AR students through Distribution Matching Distillation (DMD), but the generated videos often suffer from over-saturation and over-smoothing issues, resulting in limited visual quality and realism. The key contributing factor is the mode-seeking behavior of the reverse KL objective in DMD, which can cause the student distribution to collapse onto only a few modes of the teacher distribution. To address this, we propose Mask Forcing, a Dual-Noise Masking Rollout strategy that perturbs the AR student self-rollout to mitigate mode collapse induced by reverse-KL mode seeking. The core idea is to inject cleaner signals into noisy rollout inputs via random masks along spatial and temporal axes during the self-rollout process of AR diffusion distillation. Such perturbations encourage the student rollouts to explore more regions of the teacher distribution, allowing DMD to provide learning signals beyond the modes already covered by the student. Moreover, the cleaner tokens act as denoising guidance for other noisier tokens, improving the intermediate rollout predictions and reducing error accumulation. Extensive experiments demonstrate that our method improves multiple AR video diffusion distillation methods with higher visual quality efficiently, without incorporating real video data or additional post-training stages.",
-      "authors": [
-        "Zhuoran Zhao",
-        "Shengju Qian",
-        "Tongtong Liang",
-        "Xianghao Kong",
-        "Songchun Zhang",
-        "Junchao Huang",
-        "Guian Fang",
-        "Xin Wang",
-        "Pan Hui",
-        "Anyi Rao"
-      ],
-      "primary_category": "cs.CV",
-      "categories": [
-        "cs.CV"
-      ],
-      "published": "2026-09-08T17:50:05+00:00",
-      "link": "https://arxiv.org/pdf/2609.09123v1",
-      "tags": [
-        "keyword:tfree-diff",
-        "query:tfree-diff"
-      ],
-      "llm_score": 6.0,
-      "llm_evidence_en": "autoregressive video diffusion distillation for real-time video generation",
-      "llm_evidence_cn": "自回归视频扩散蒸馏提升生成质量",
-      "llm_evidence": "自回归视频扩散蒸馏提升生成质量",
-      "canonical_evidence": "自回归视频扩散蒸馏提升生成质量",
-      "llm_tldr_en": "Mask Forcing addresses over-saturation and over-smoothing in distilled autoregressive video diffusion models by perturbing student self-rollout with dual-noise masking to mitigate mode collapse during distribution matching distillation.",
-      "llm_tldr_cn": "针对自回归视频扩散模型经分布匹配蒸馏后出现过饱和、过平滑与模式坍塌的问题，本文提出Mask Forcing双噪声掩码展开策略，在蒸馏过程中扰动学生模型的自回归展开以缓解反向KL目标导致的模式寻优坍塌。方法在实时视频生成任务上提升了视觉质量与真实感，为免训练部署之外的高效视频生成蒸馏提供了新思路。",
-      "llm_tldr": "针对自回归视频扩散模型经分布匹配蒸馏后出现过饱和、过平滑与模式坍塌的问题，本文提出Mask Forcing双噪声掩码展开策略，在蒸馏过程中扰动学生模型的自回归展开以缓解反向KL目标导致的模式寻优坍塌。方法在实时视频生成任务上提升了视觉质量与真实感，为免训练部署之外的高效视频生成蒸馏提供了新思路。",
-      "llm_tags": [
-        "query:tfree-diff"
-      ],
-      "matched_query_tag": "query:tfree-diff",
-      "matched_query_text": "video generation with diffusion models",
-      "matched_requirement_id": "req-3",
-      "selection_source": "fresh_fetch",
-      "quick_tier": "6"
     }
   ]
 }
