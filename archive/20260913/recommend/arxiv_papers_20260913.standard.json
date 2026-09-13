@@ -1,0 +1,267 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-13T21:28:07.868695+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.05981v1",
+      "source": "arxiv",
+      "title": "Accelerating Diffusion Transformers with Gaussian Process Rectified Feature Cache",
+      "abstract": "Diffusion Transformers have become the dominant paradigm in generative AI, but their high computational costs severely hinder real-time applications. Prediction-based feature caching is widely used to accelerate diffusion transformers; however, as the number of steps increases, the deviation between its predictions and the reference full-compute trajectory gradually grows. An intuitive idea is to use an online regression model to dynamically correct this deviation, but it faces the issue of label data being unavailable during the acceleration process. This paper presents a statistical observation that the residuals between the features of full computation steps using caching methods and reference full-compute trajectory locally exhibit a zero-mean Gaussian distribution. By treating the features of full computation steps as noisy observations of reference features, the data acquisition problem is resolved. Based on this observation, a plug-and-play GP-Refiner correction framework is proposed. This method utilizes Gaussian Process Regression for correction and, leveraging the properties of GPR, introduces an uncertainty-adaptive computation strategy that triggers necessary full-computation calibration by monitoring the posterior variance in real time. Experiments demonstrate significant improvements across different models when combined with various state-of-the-art methods. Integrating the proposed framework with TaylorSeer reduces the computational load by 19.3% while improving PSNR by 0.9 dB and reducing LPIPS from 0.46 to 0.29. Code is available in https://github.com/Aredstone/GP-Refiner.",
+      "authors": [
+        "Zhirong Shen",
+        "Rui Huang",
+        "Chang Zou",
+        "Shikang Zheng",
+        "Jiacheng Liu",
+        "Peiliang Cai",
+        "Zhengyi Shi",
+        "Yaosong Du",
+        "Liang Feng",
+        "Xiaobing Tu",
+        "Jinkui Ren",
+        "Xiantao Zhang",
+        "Linfeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-05T08:54:54+00:00",
+      "link": "https://arxiv.org/pdf/2609.05981v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free acceleration of diffusion transformers via rectified feature cache",
+      "llm_evidence_cn": "通过校正特征缓存免训练加速扩散Transformer",
+      "llm_evidence": "通过校正特征缓存免训练加速扩散Transformer",
+      "canonical_evidence": "通过校正特征缓存免训练加速扩散Transformer",
+      "llm_tldr_en": "This paper addresses the growing prediction error of feature caching in diffusion transformers by using an online Gaussian-process regression to correct residuals, accelerating sampling without retraining the model.",
+      "llm_tldr_cn": "扩散Transformer计算开销大，基于预测的特征缓存虽可加速，但随步数增加其预测与完整计算轨迹的偏差逐渐累积。本文观察到缓存残差在局部呈零均值特性，提出高斯过程校正特征缓存，用在线回归动态修正偏差，且无需训练过程所需的标签数据。该方法在不重新训练模型的前提下提升加速精度，为扩散模型的实时推理与免训练采样优化提供了有效工具。",
+      "llm_tldr": "扩散Transformer计算开销大，基于预测的特征缓存虽可加速，但随步数增加其预测与完整计算轨迹的偏差逐渐累积。本文观察到缓存残差在局部呈零均值特性，提出高斯过程校正特征缓存，用在线回归动态修正偏差，且无需训练过程所需的标签数据。该方法在不重新训练模型的前提下提升加速精度，为扩散模型的实时推理与免训练采样优化提供了有效工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.06373v1",
+      "source": "arxiv",
+      "title": "Multi-Grid Post-Training for Long-Form Multi-Shot Video Generation",
+      "abstract": "Generating long-form multi-shot videos requires coherent within-shot motion and visually consistent narratives across shots. Existing video generators favor continuous motion and struggle to present complete shot sets when an entire narrative is packed along one temporal axis. We propose MovieGrid, a Multi-Grid Post-Training paradigm that decomposes a long video into shorter, temporally ordered chunks and arranges them on a spatial grid for joint modeling. This design reduces the number of shots handled by each temporal axis while enabling global information exchange across chunks. We construct the Multi-Grid Long Video (MGLV) dataset from 1,000 long-form videos using source video collection, hierarchical segmentation, grid video construction, and character-aware story annotation, producing 54K grid videos paired with story prompts. Our Noise-Free Random-Grid Training retains a random subset of chunks as clean visual context for denoising the remaining chunks. Grid Embedding encodes grid structure, character-aware Story Prompts link recurring entities, and Grid Boundary Loss stabilizes layouts. Under the same token budget, MovieGrid generates 6.05 times more shots than Temporal Packing in a 1,616-frame video. On a benchmark spanning five real-world categories, it achieves state-of-the-art intra-shot consistency (0.9131 versus 0.8086 for HoloCine) and inter-shot consistency (0.5914 versus 0.5384 for StoryMem). MovieGrid can further scale video length with minimal compromise through single or multiple generations.",
+      "authors": [
+        "Jiawei Mao",
+        "Haoqin Tu",
+        "Hardy Chen",
+        "Yuhan Wang",
+        "Keyang Xu",
+        "Jieru Mei",
+        "Hongliang Fei",
+        "Ruogu Fang",
+        "Wei Shao",
+        "Cihang Xie",
+        "Yuyin Zhou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-06T04:20:32+00:00",
+      "link": "https://arxiv.org/pdf/2609.06373v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-grid post-training for long-form video generation",
+      "llm_evidence_cn": "面向长视频生成的多网格后训练",
+      "llm_evidence": "面向长视频生成的多网格后训练",
+      "canonical_evidence": "面向长视频生成的多网格后训练",
+      "llm_tldr_en": "MovieGrid is a multi-grid post-training paradigm that decomposes a long video into temporally ordered chunks arranged on a spatial grid for joint modeling, improving long-form multi-shot video generation.",
+      "llm_tldr_cn": "针对现有视频生成器偏好连续运动、难以在单一时间轴上呈现完整镜头叙事的问题，本文提出MovieGrid多网格后训练范式。方法将长视频分解为按时间排序的短片段并排列在空间网格上联合建模，减少单一时间轴处理的镜头数并实现跨片段全局信息交换，同时构建了MGLV数据集。该工作为长时多镜头视频生成提供了新的后训练范式与数据支持。",
+      "llm_tldr": "针对现有视频生成器偏好连续运动、难以在单一时间轴上呈现完整镜头叙事的问题，本文提出MovieGrid多网格后训练范式。方法将长视频分解为按时间排序的短片段并排列在空间网格上联合建模，减少单一时间轴处理的镜头数并实现跨片段全局信息交换，同时构建了MGLV数据集。该工作为长时多镜头视频生成提供了新的后训练范式与数据支持。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.06549v1",
+      "source": "arxiv",
+      "title": "Generating radio continuum survey maps of arbitrary size with latent diffusion models",
+      "abstract": "Radio surveys provide exponentially increasing amounts of observational data, which requires the development of novel data reduction and analysis methods. To this end, realistic simulations of observational data provide controlled environments for testing and developing new methods. Diffusion models excel at synthesizing realistic image data, but are limited by size constraints and high computational demands. We implemented a latent diffusion model (LDM) to synthesize realistic radio survey map cutouts. Further, we developed a technique for sampling radio survey maps of arbitrary size with the LDM. This is done by sampling in multiple sequential steps, whereby consistency is provided through context vectors and image inpainting. We trained our model on observations from the LOFAR telescope obtained from the third data release of the LOFAR Two-Metre Sky Survey. We implemented a LDM composed of a vector-quantized variational autoencoder and a diffusion model operating on the resulting latent representations. We added information on source locations, brightness and sizes by extracting parameters from the public source catalog and encoding them into a vector format passed as context to the LDM. We trained the model for image inpainting to facilitate continuous sequential sampling. We were able to generate realistic cutouts of 512 pixel side length, corresponding to ~5.7 arcmin, with precise control over source locations and brightness. Control over source extension was achieved at lower precision. Sampling of arbitrary-sized maps was made possible, showing realistic results with seamless combination of individual samples and limited only by occasional sampling artifacts.",
+      "authors": [
+        "Tobias Vičánek Martínez",
+        "Marcus Brüggen"
+      ],
+      "primary_category": "astro-ph.IM",
+      "categories": [
+        "astro-ph.IM"
+      ],
+      "published": "2026-09-06T11:48:36+00:00",
+      "link": "https://arxiv.org/pdf/2609.06549v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "latent diffusion model synthesizes realistic radio survey map images",
+      "llm_evidence_cn": "潜扩散模型生成逼真射电巡天图",
+      "llm_evidence": "潜扩散模型生成逼真射电巡天图",
+      "canonical_evidence": "潜扩散模型生成逼真射电巡天图",
+      "llm_tldr_en": "A latent diffusion model generates realistic radio survey map cutouts, and a multi-step sequential sampling scheme with context vectors and inpainting enables arbitrary-size maps with global consistency.",
+      "llm_tldr_cn": "射电巡天观测数据急剧增长，亟需逼真的大尺度仿真数据用于方法测试，但扩散模型受限于固定尺寸与高昂算力。作者实现潜扩散模型生成射电巡天图小块，并提出多步顺序采样策略，借助上下文向量与图像修复保证一致性，从而合成任意尺寸的巡天图。实验表明该方法能生成逼真且全局一致的巡天图，为天文数据仿真提供了可扩展的生成工具。",
+      "llm_tldr": "射电巡天观测数据急剧增长，亟需逼真的大尺度仿真数据用于方法测试，但扩散模型受限于固定尺寸与高昂算力。作者实现潜扩散模型生成射电巡天图小块，并提出多步顺序采样策略，借助上下文向量与图像修复保证一致性，从而合成任意尺寸的巡天图。实验表明该方法能生成逼真且全局一致的巡天图，为天文数据仿真提供了可扩展的生成工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.08084v1",
+      "source": "arxiv",
+      "title": "Marigold V2: Revisiting Diffusion Transformers for Monocular Depth Estimation",
+      "abstract": "Monocular depth estimation is a ubiquitous yet highly ill-posed computer vision task, with downstream applications in scene reconstruction, computational photography, and robotics, among others. Despite the field's maturity, recent models still struggle to generalize to out-of-distribution inputs and to produce sharp and detailed depth maps. In this paper, we revisit Marigold, a set of techniques for repurposing modern image generation and editing models, powered by the diffusion transformer (DiT) architecture, into state-of-the-art monocular depth estimators. Our recipes target single-step inference from pretrained multi-step flow-matching models, with quantization where needed, preserving model capacity while remaining cheap to run. We analyze the artifacts of naive training and identify two effective remedies: aligning the model's internal representations with semantic features extracted from ground-truth, and adopting a 2-stage fine-tuning protocol built around a novel Sinkhorn-based loss. The results are crisper, cleaner depth maps that generalize well out-of-distribution, with 16-26% improvement in AbsRel over the previous best on KITTI and ETH3D. Qualitatively, our model resolves fur, foliage, and hair-thin edges that have eluded prior models. Furthermore, Marigold V2 achieves state-of-the-art results when applied to other dense regression tasks, such as surface normals estimation and intrinsic image decomposition. Project website: https://hf.co/spaces/huawei-bayerlab/marigold-v2-web",
+      "authors": [
+        "Igor Pavlovic",
+        "Thiemo Wandel",
+        "Anton Obukhov",
+        "Luca Bartolomei",
+        "Andrey Davydov",
+        "Fabio Tosi",
+        "Matteo Poggi",
+        "Sabine Süsstrunk",
+        "Dengxin Dai"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-08T00:52:01+00:00",
+      "link": "https://arxiv.org/pdf/2609.08084v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free repurposing of pretrained diffusion models for depth",
+      "llm_evidence_cn": "免训练复用预训练扩散模型做深度估计",
+      "llm_evidence": "免训练复用预训练扩散模型做深度估计",
+      "canonical_evidence": "免训练复用预训练扩散模型做深度估计",
+      "llm_tldr_en": "Revisits Marigold to repurpose pretrained flow-matching diffusion Transformers into strong monocular depth estimators, enabling cheap single-step inference and quantization while preserving model capacity.",
+      "llm_tldr_cn": "单目深度估计高度病态，现有模型难以泛化到分布外输入并生成锐利细节。本文重新审视Marigold，将现代图像生成与编辑模型（DiT架构）复用为先进的深度估计器，从预训练多步流匹配模型实现单步推理并按需量化。该方法在保持模型容量的同时显著降低运行成本。该工作展示预训练扩散生成模型可免训练地迁移到深度估计任务。",
+      "llm_tldr": "单目深度估计高度病态，现有模型难以泛化到分布外输入并生成锐利细节。本文重新审视Marigold，将现代图像生成与编辑模型（DiT架构）复用为先进的深度估计器，从预训练多步流匹配模型实现单步推理并按需量化。该方法在保持模型容量的同时显著降低运行成本。该工作展示预训练扩散生成模型可免训练地迁移到深度估计任务。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.08449v1",
+      "source": "arxiv",
+      "title": "GSComplete: Gaussian Splat Completion with 2D Diffusion Priors",
+      "abstract": "Gaussian splats provide a fast, high-fidelity representation for 3D objects but are often constructed from incomplete input data in practice, leaving missing regions. Existing completion methods either do not preserve the original splats or require scarcely available 3D training data. We propose GSComplete, which combines 3D generation based on Score Distillation Sampling with a novel preservation loss that encourages the original splats to be preserved where they should be visible. This effectively completes the Gaussian splat object using only 2D diffusion priors while fully preserving existing splats and generating new splats only in missing regions, without occluding the input. To evaluate our approach, we introduce a new dataset of partial Gaussian splat objects and show that GSComplete achieves significantly more accurate preservation of the input than existing methods with comparable plausibility of the completed result. Our code and dataset will be made available upon acceptance.",
+      "authors": [
+        "Elias Brugger",
+        "Philipp Erler",
+        "Stefan Ohrhallinger",
+        "Paul Guerrero"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-08T08:51:00+00:00",
+      "link": "https://arxiv.org/pdf/2609.08449v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "completes Gaussian splats using only 2D diffusion priors via score distillation sampling",
+      "llm_evidence_cn": "仅用二维扩散先验与分数蒸馏采样完成补全",
+      "llm_evidence": "仅用二维扩散先验与分数蒸馏采样完成补全",
+      "canonical_evidence": "仅用二维扩散先验与分数蒸馏采样完成补全",
+      "llm_tldr_en": "GSComplete completes partial Gaussian splats using only 2D diffusion priors via Score Distillation Sampling plus a preservation loss, generating new splats only in missing regions while preserving existing ones.",
+      "llm_tldr_cn": "高斯泼溅虽能快速高保真地表示三维物体，但常由不完整输入构建而留下缺失区域，现有补全方法或破坏原始泼溅，或依赖稀缺的三维训练数据。作者提出 GSComplete，结合基于分数蒸馏采样的三维生成与保真损失，仅借助二维扩散先验补全缺失区域，同时完整保留已有泼溅。该方法不遮挡输入并构建了部分高斯泼溅数据集，为无三维训练数据的补全提供了新方案。",
+      "llm_tldr": "高斯泼溅虽能快速高保真地表示三维物体，但常由不完整输入构建而留下缺失区域，现有补全方法或破坏原始泼溅，或依赖稀缺的三维训练数据。作者提出 GSComplete，结合基于分数蒸馏采样的三维生成与保真损失，仅借助二维扩散先验补全缺失区域，同时完整保留已有泼溅。该方法不遮挡输入并构建了部分高斯泼溅数据集，为无三维训练数据的补全提供了新方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.11842v1",
+      "source": "arxiv",
+      "title": "Model-Aware Schedules Improve Generation via Fiberwise Optimal Transport",
+      "abstract": "Diffusion and flow-matching schedules control the signal and noise coefficients that mix data and noise along affine probability paths. Minimizing a kinetic action defined on coefficient paths, motivated by optimal transport, helps explain strong baselines but remains model-agnostic and ignores prediction error. Here we introduce a model-aware schedule construction based on fiberwise optimal transport. At a fixed time and state on the probability path, compatible signal/noise decompositions form an affine fiber. We define a fiberwise prediction risk by averaging optimal-transport costs between the true and predictor-induced decompositions within these fibers. On a fixed coefficient curve, combining this risk with coefficient-path kinetic action yields a closed-form optimal time allocation. This construction extends to general linear prediction targets, and the risk profile can be estimated from an early baseline checkpoint. We evaluate DDPMs and flow matching across prediction targets, training configurations, risk-estimation checkpoints, datasets, and architectures. Our model-aware schedules consistently outperform strong baselines, including a 38.6% relative FID reduction for flow matching on CIFAR-10 at 16 function evaluations. Each model-agnostic kinetic baseline determines its own kinetic reference coordinate. In these coordinates, fiberwise-risk profiles from independently trained models in different settings align closely after normalization to unit area. The resulting schedule deformations used in training also align, suggesting empirical universality across the evaluated models and settings. Pretrained-checkpoint diagnostics extend this normalized-risk agreement to larger conditional latent diffusion and 2-RF models. A frozen analytic allocation template retains most of the model-aware improvement without further risk estimation or model-specific fitting.",
+      "authors": [
+        "Luyi Jia",
+        "Boyan Zhang",
+        "Yilun Liu",
+        "Steffen Rulands"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-10T17:30:44+00:00",
+      "link": "https://arxiv.org/pdf/2609.11842v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "model-aware diffusion schedules improve generation without retraining",
+      "llm_evidence_cn": "模型感知扩散调度无需重训练即可改进生成",
+      "llm_evidence": "模型感知扩散调度无需重训练即可改进生成",
+      "canonical_evidence": "模型感知扩散调度无需重训练即可改进生成",
+      "llm_tldr_en": "This paper introduces model-aware schedule construction via fiberwise optimal transport, combining prediction risk with kinetic action to improve diffusion and flow-matching generation quality at sampling time.",
+      "llm_tldr_cn": "扩散与流匹配的调度决定信号与噪声系数的混合路径，但已有基于最优传输的调度与模型无关、忽略预测误差。本文提出基于纤维最优传输的模型感知调度构造，在概率路径的仿射纤维上定义预测风险，并与系数路径动能联合优化。该方法在采样阶段改进生成质量而无需改变模型训练。这为扩散模型的免训练采样优化提供了理论驱动的调度设计思路。",
+      "llm_tldr": "扩散与流匹配的调度决定信号与噪声系数的混合路径，但已有基于最优传输的调度与模型无关、忽略预测误差。本文提出基于纤维最优传输的模型感知调度构造，在概率路径的仿射纤维上定义预测风险，并与系数路径动能联合优化。该方法在采样阶段改进生成质量而无需改变模型训练。这为扩散模型的免训练采样优化提供了理论驱动的调度设计思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -6,35 +6,43 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-12
-- 运行时间：2026-09-12 20:54:43 UTC
+- 最新运行日期：2026-09-13
+- 运行时间：2026-09-13 21:32:21 UTC
 - 运行状态：成功
-- 本次总论文数：4
+- 本次总论文数：6
 - 精读区：0
-- 速读区：4
+- 速读区：6
 
 ### 今日简报（AI）
-- 今日共生成 4 篇推荐（精读 0 篇，速读 4 篇）
-- 速读：《Newton Matching for Generative Modeling: A Unified Framework for Fine-Tuning and Sampling》（6.0/10）, 《PhysFlow: Physics-Aware Optical Flow for Motion Controllable Video Generation》（6.0/10）, 《Mask Forcing: Improving Autoregressive Video Diffusion Distillation via Dual-Noise Masking Rollout》（6.0/10）
-- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
-- 详情：[/202609/12/README](/202609/12/README)
+今天速读6篇论文、精读0篇，重点集中在扩散模型加速、长视频生成与射电巡天图生成三个方向。
+
+最值得看的是扩散Transformer的特征缓存加速（Gaussian Process Rectified Feature Cache），以及用潜在扩散模型生成任意大小射电连续谱巡天图，两篇均为6.0分。
+
+普通读者可先挑与自己场景最贴近的一篇速读，关注方法能否直接迁移，并留意后续是否有精读或复现验证。
+- 详情：[/202609/13/README](/202609/13/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Newton Matching for Generative Modeling: A Unified Framework for Fine-Tuning and Sampling](/202609/12/2609.05727v1-newton-matching-for-generative-modeling-a-unified-framework-for-fine-tuning-and-sampling)  
+1. [Accelerating Diffusion Transformers with Gaussian Process Rectified Feature Cache](/202609/13/2609.05981v1-accelerating-diffusion-transformers-with-gaussian-process-rectified-feature-cache)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向生成模型的采样与微调统一优化框架
-2. [PhysFlow: Physics-Aware Optical Flow for Motion Controllable Video Generation](/202609/12/2609.08215v1-physflow-physics-aware-optical-flow-for-motion-controllable-video-generation)  
+   evidence：通过校正特征缓存免训练加速扩散Transformer
+2. [Multi-Grid Post-Training for Long-Form Multi-Shot Video Generation](/202609/13/2609.06373v1-multi-grid-post-training-for-long-form-multi-shot-video-generation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向运动可控视频生成的物理感知光流
-3. [Mask Forcing: Improving Autoregressive Video Diffusion Distillation via Dual-Noise Masking Rollout](/202609/12/2609.09123v1-mask-forcing-improving-autoregressive-video-diffusion-distillation-via-dual-noise-masking-rollout)  
+   evidence：面向长视频生成的多网格后训练
+3. [Generating radio continuum survey maps of arbitrary size with latent diffusion models](/202609/13/2609.06549v1-generating-radio-continuum-survey-maps-of-arbitrary-size-with-latent-diffusion-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：通过掩码展开改进自回归视频扩散生成
-4. [Overpainting: Localized Context-aware Diffusion Image Editing](/202609/12/2609.10811v1-overpainting-localized-context-aware-diffusion-image-editing)  
+   evidence：潜扩散模型生成逼真射电巡天图
+4. [Marigold V2: Revisiting Diffusion Transformers for Monocular Depth Estimation](/202609/13/2609.08084v1-marigold-v2-revisiting-diffusion-transformers-for-monocular-depth-estimation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：基于预训练扩散模型的局部上下文感知图像编辑
+   evidence：免训练复用预训练扩散模型做深度估计
+5. [GSComplete: Gaussian Splat Completion with 2D Diffusion Priors](/202609/13/2609.08449v1-gscomplete-gaussian-splat-completion-with-2d-diffusion-priors)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：仅用二维扩散先验与分数蒸馏采样完成补全
+6. [Model-Aware Schedules Improve Generation via Fiberwise Optimal Transport](/202609/13/2609.11842v1-model-aware-schedules-improve-generation-via-fiberwise-optimal-transport)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：模型感知扩散调度无需重训练即可改进生成
 
 
 <div class="dpr-home-promo-card">
