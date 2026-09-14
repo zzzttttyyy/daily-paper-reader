@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-14 <!--dpr-date:20260914-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/14/2609.11886v1-guided-super-resolution-of-digital-elevation-models-with-diffusion-based-image-generators" data-sidebar-item="{&quot;title&quot;: &quot;Guided Super-Resolution of Digital Elevation Models with Diffusion-Based Image Generators&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.11886v1-guided-super-resolution-of-digital-elevation-models-with-diffusion-based-image-generators&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;基于扩散图像生成器的引导超分辨率&quot;}">Guided Super-Resolution of Digital Elevation Models with Diffusion-Based Image Generators</a>
   * 2026-09-13 <!--dpr-date:20260913-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/13/2609.05981v1-accelerating-diffusion-transformers-with-gaussian-process-rectified-feature-cache" data-sidebar-item="{&quot;title&quot;: &quot;Accelerating Diffusion Transformers with Gaussian Process Rectified Feature Cache&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.05981v1-accelerating-diffusion-transformers-with-gaussian-process-rectified-feature-cache&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;通过校正特征缓存免训练加速扩散Transformer&quot;}">Accelerating Diffusion Transformers with Gaussian Process Rectified Feature Cache</a>

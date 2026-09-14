@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-14",
+  "date": "2026-09-14",
+  "generated_at": "2026-09-14T22:49:58",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/14/2609.11886v1-guided-super-resolution-of-digital-elevation-models-with-diffusion-based-image-generators",
+      "section": "quick",
+      "title_en": "Guided Super-Resolution of Digital Elevation Models with Diffusion-Based Image Generators",
+      "authors": "Armand Mihai Nicolicioiu, Dominik Narnhofer, Nando Metzger, Daniel Panangian, Ksenia Bittner, Konrad Schindler",
+      "date": "2026-09-10",
+      "pdf": "https://arxiv.org/pdf/2609.11886v1",
+      "score": "6.0",
+      "evidence": "基于扩散图像生成器的引导超分辨率",
+      "tldr": "高分辨率数字表面模型对城市分析、三维建筑重建与基础设施监测很重要，但获取成本高、覆盖有限；商用卫星粗DSM易得，高分辨率光学影像日益丰富。本文提出引导式DSM超分辨率方法，将5米DSM提升至0.5米，利用高分辨率光谱影像作为引导。方法采用去噪扩散模型，把影像中清晰轮廓与屋顶结构等细节迁移到高程图。中欧多城实验表明，重建DSM结构细节更优、表面几何更准，优于传统插值与滤波。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "High-resolution digital surface models (DSMs) play an important role in urban analysis, 3D building reconstruction, and infrastructure monitoring, yet their availability remains limited due to the high cost and complexity of data acquisition. In contrast, coarse DSMs from commercial satellite missions are widely accessible, and high-resolution optical imagery is increasingly available from aerial and satellite platforms. We address the resulting mismatch in spatial resolution and propose a DSM superresolution approach that enhances 5 m DSMs to 0.5 m resolution, using guidance from high-resolution spectral images. Our method employs denoising diffusion to transfer information that is visible only in the image, like crisp outlines and detailed roof structures, into the elevation maps. In this way, surface details are reconstructed more accurately than with conventional interpolation or filtering techniques. Experiments on several cities in Central Europe demonstrate that the proposed approach produces high-quality DSMs with improved structural detail and accurate surface geometry. Our results highlight the potential of guided super-resolution with foundational image priors as a means of reconstructing high-resolution surface models.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

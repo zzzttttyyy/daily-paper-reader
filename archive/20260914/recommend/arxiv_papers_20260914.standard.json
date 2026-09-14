@@ -1,0 +1,57 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-14T22:48:40.106189+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.11886v1",
+      "source": "arxiv",
+      "title": "Guided Super-Resolution of Digital Elevation Models with Diffusion-Based Image Generators",
+      "abstract": "High-resolution digital surface models (DSMs) play an important role in urban analysis, 3D building reconstruction, and infrastructure monitoring, yet their availability remains limited due to the high cost and complexity of data acquisition. In contrast, coarse DSMs from commercial satellite missions are widely accessible, and high-resolution optical imagery is increasingly available from aerial and satellite platforms. We address the resulting mismatch in spatial resolution and propose a DSM superresolution approach that enhances 5 m DSMs to 0.5 m resolution, using guidance from high-resolution spectral images. Our method employs denoising diffusion to transfer information that is visible only in the image, like crisp outlines and detailed roof structures, into the elevation maps. In this way, surface details are reconstructed more accurately than with conventional interpolation or filtering techniques. Experiments on several cities in Central Europe demonstrate that the proposed approach produces high-quality DSMs with improved structural detail and accurate surface geometry. Our results highlight the potential of guided super-resolution with foundational image priors as a means of reconstructing high-resolution surface models.",
+      "authors": [
+        "Armand Mihai Nicolicioiu",
+        "Dominik Narnhofer",
+        "Nando Metzger",
+        "Daniel Panangian",
+        "Ksenia Bittner",
+        "Konrad Schindler"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-10T17:49:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.11886v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Diffusion-based image generator for guided super-resolution",
+      "llm_evidence_cn": "基于扩散图像生成器的引导超分辨率",
+      "llm_evidence": "基于扩散图像生成器的引导超分辨率",
+      "canonical_evidence": "基于扩散图像生成器的引导超分辨率",
+      "llm_tldr_en": "This work addresses the scarcity of high-resolution digital surface models by proposing a diffusion-based super-resolution approach that uses high-resolution spectral imagery as guidance to enhance 5 m DSMs to 0.5 m resolution.",
+      "llm_tldr_cn": "该文针对高分辨率数字表面模型获取成本高、数据稀缺的问题，提出基于扩散图像生成器的超分辨率方法。方法利用高分辨率光谱影像作引导，通过去噪扩散把仅见于图像中的清晰轮廓等信息迁移到5米粗分辨率DSM，提升至0.5米。结果表明引导式扩散能有效恢复精细地形结构。其贡献在于把预训练扩散生成器复用于遥感高程数据增强。",
+      "llm_tldr": "该文针对高分辨率数字表面模型获取成本高、数据稀缺的问题，提出基于扩散图像生成器的超分辨率方法。方法利用高分辨率光谱影像作引导，通过去噪扩散把仅见于图像中的清晰轮廓等信息迁移到5米粗分辨率DSM，提升至0.5米。结果表明引导式扩散能有效恢复精细地形结构。其贡献在于把预训练扩散生成器复用于遥感高程数据增强。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
