@@ -1,0 +1,206 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-15T22:20:19.399715+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2609.14377v1",
+      "source": "arxiv",
+      "title": "Rethinking Camouflage Image Generation towards a Training-Free Paradigm",
+      "abstract": "Camouflage image generation (CIG) aims to synthesize realistic camouflaged images by blending foreground objects into concealment-compatible background contexts. Achieving this objective requires jointly satisfying three coupled requirements: foreground preservation to retain target integrity, semantic compatibility to select plausible concealment contexts, and appearance assimilation to reduce visual discrepancies. Recent approaches predominantly rely on task-specific training on camouflage datasets to address these requirements, incurring substantial computational cost and limiting generalization beyond the training domain. To address these limitations, we formulate training-free CIG as a concealment-oriented paradigm that preserves the target while reducing its perceptual separability from the synthesized surroundings, rather than maintaining its visual prominence, without parameter updates. We instantiate this paradigm with FreeCam based on a frozen inpainting diffusion framework to preserve the foreground. Within this framework, a Contextual Reasoning Module exploits frozen multimodal priors to infer an environment favorable to concealment, thereby promoting semantic compatibility, while an Intrinsic Appearance Module extracts low-level color and texture cues from the foreground to guide background synthesis toward appearance assimilation. Extensive experiments demonstrate that FreeCam achieves state-of-the-art generation quality and camouflage effectiveness without task-specific training, while its generated images provide synthetic supervision for camouflaged object detection and reduce target detectability under general object detectors.",
+      "authors": [
+        "Haodong Yang",
+        "Zhongling Huang",
+        "Gong Cheng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-13T08:24:45+00:00",
+      "link": "https://arxiv.org/pdf/2609.14377v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free camouflage image generation paradigm without task-specific training",
+      "llm_evidence_cn": "无需任务特定训练的免训练伪装图像生成范式",
+      "llm_evidence": "无需任务特定训练的免训练伪装图像生成范式",
+      "canonical_evidence": "无需任务特定训练的免训练伪装图像生成范式",
+      "llm_tldr_en": "Camouflage image generation usually relies on costly task-specific training that limits generalization. This work reformulates CIG as a training-free, concealment-oriented paradigm that preserves the target while achieving semantic compatibility and appearance assimilation, improving generalization at lower cost.",
+      "llm_tldr_cn": "伪装图像生成需要同时满足前景保持、语义兼容与外观同化三项耦合要求，现有方法普遍依赖在伪装数据集上进行任务特定训练，计算成本高且难以泛化到训练域之外。本文将其重新表述为以隐藏为导向的免训练范式，在保留目标完整性的同时实现语义兼容与外观同化。实验表明该免训练方法无需额外训练即可生成逼真伪装图像，并具备更好的跨域泛化能力，为伪装图像生成提供了低成本的新范式。",
+      "llm_tldr": "伪装图像生成需要同时满足前景保持、语义兼容与外观同化三项耦合要求，现有方法普遍依赖在伪装数据集上进行任务特定训练，计算成本高且难以泛化到训练域之外。本文将其重新表述为以隐藏为导向的免训练范式，在保留目标完整性的同时实现语义兼容与外观同化。实验表明该免训练方法无需额外训练即可生成逼真伪装图像，并具备更好的跨域泛化能力，为伪装图像生成提供了低成本的新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.14596v1",
+      "source": "arxiv",
+      "title": "Direct Conditional Transition Sampling for Diffusion Inverse Problems",
+      "abstract": "Training-free diffusion inverse solvers typically choose between local measurement guidance and costly clean-space posterior updates. Independent posterior refresh can improve global correction by sampling a clean conditional and re-noising it, but its practical realization requires probability-flow ODE integration and clean-space Markov chain Monte Carlo (MCMC). We propose Direct Conditional Transition Sampling (DCTS), a direct stochastic-flow approximation to the same ideal refresh target. Rather than explicitly drawing a clean sample, DCTS estimates the measurement-conditioned clean mean along a short inner path and transports Gaussian source noise directly to the next noisy state. A denoiser-compatible sufficient statistic and a covariance-scaled operator update enable this conditional-mean estimation. Experiments on four inverse problems demonstrate that DCTS achieves competitive reconstruction quality with up to $16.8\\times$ speedups over competing methods.",
+      "authors": [
+        "Qi Yu",
+        "Hanlin Wu",
+        "Xiaohui Sun"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "stat.ML"
+      ],
+      "published": "2026-09-13T15:24:33+00:00",
+      "link": "https://arxiv.org/pdf/2609.14596v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free diffusion inverse solver with direct stochastic-flow sampling optimization",
+      "llm_evidence_cn": "免训练扩散逆问题求解与直接随机流采样优化",
+      "llm_evidence": "免训练扩散逆问题求解与直接随机流采样优化",
+      "canonical_evidence": "免训练扩散逆问题求解与直接随机流采样优化",
+      "llm_tldr_en": "Training-free diffusion inverse solvers trade local measurement guidance against costly clean-space posterior updates; DCTS approximates the ideal posterior refresh with direct stochastic-flow sampling, avoiding ODE integration and MCMC while improving global correction and reconstruction.",
+      "llm_tldr_cn": "免训练扩散逆问题求解器通常只能在局部测量引导与昂贵的干净空间后验更新之间二选一，独立后验刷新虽能改善全局校正却依赖概率流ODE积分与MCMC。本文提出直接条件转移采样DCTS，以随机流近似理想刷新目标，沿短内路径估计测量条件下的干净均值，并将高斯源噪声直接传输到下一噪声状态。实验显示该方法在保持或提升重建质量的同时显著降低计算开销，为免训练扩散采样优化提供了高效的新途径。",
+      "llm_tldr": "免训练扩散逆问题求解器通常只能在局部测量引导与昂贵的干净空间后验更新之间二选一，独立后验刷新虽能改善全局校正却依赖概率流ODE积分与MCMC。本文提出直接条件转移采样DCTS，以随机流近似理想刷新目标，沿短内路径估计测量条件下的干净均值，并将高斯源噪声直接传输到下一噪声状态。实验显示该方法在保持或提升重建质量的同时显著降低计算开销，为免训练扩散采样优化提供了高效的新途径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.15702v1",
+      "source": "arxiv",
+      "title": "Backward SDEs-based Diffusion for Physics-Constrained Generation",
+      "abstract": "Pretrained score-based diffusion models provide strong unconditional priors, yet enforcing measurement or physics consistency in inverse problems is often handled by heuristic guidance, intermittent projections, or task-specific conditional training, with limited guarantees of feasibility at the end of inference. We propose terminal-conditioned inversion for score-based SDE priors. Given a frozen Score-SDE prior and a task-defined terminal feasibility specification, we construct an associated backward stochastic differential equation whose adapted solution defines a principled inverse map from the terminal requirement to a prior state at a chosen noise level. Under standard regularity conditions, we establish existence and uniqueness of the adapted solution and obtain terminal consistency by construction. We further develop a practical neural BSDE solver that composes arbitrary pretrained diffusion priors with domain constraints without modifying the score-defined coefficients, producing an anchored prior state that enables neighborhood sampling for uncertainty characterization. Experiments on toy datasets validate stable terminal-conditioned inversion and distributionally consistent neighborhood sampling. As a real-world case study, we apply the framework to sparse-view CT reconstruction and achieve improved reconstruction quality over representative training-free baselines while satisfying strict measurement feasibility under the prescribed terminal specification. Project is available in: \\href{https://laplacelab.github.io/BSDEDiffusion/}{https://laplace.center/icmlbsdeI/}",
+      "authors": [
+        "Zihao Wang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-14T15:05:13+00:00",
+      "link": "https://arxiv.org/pdf/2609.15702v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free terminal-conditioned inversion with frozen score-SDE prior",
+      "llm_evidence_cn": "冻结分数 SDE 先验的免训练终端条件反演",
+      "llm_evidence": "冻结分数 SDE 先验的免训练终端条件反演",
+      "canonical_evidence": "冻结分数 SDE 先验的免训练终端条件反演",
+      "llm_tldr_en": "Proposes terminal-conditioned inversion for frozen score-based SDE priors, constructing a backward SDE to enforce physics consistency at inference without task-specific retraining, with existence and uniqueness guarantees.",
+      "llm_tldr_cn": "该文针对逆问题中物理或测量一致性常依赖启发式引导、且推理末端难以保证可行性的问题，提出面向分数 SDE 先验的终端条件反演方法。方法在冻结的预训练先验上构造后向随机微分方程，将终端可行性要求映射回噪声层级的先验状态，并在正则条件下证明解的存在唯一性。该免训练推理框架为受约束扩散生成提供了有理论保证的优化途径。",
+      "llm_tldr": "该文针对逆问题中物理或测量一致性常依赖启发式引导、且推理末端难以保证可行性的问题，提出面向分数 SDE 先验的终端条件反演方法。方法在冻结的预训练先验上构造后向随机微分方程，将终端可行性要求映射回噪声层级的先验状态，并在正则条件下证明解的存在唯一性。该免训练推理框架为受约束扩散生成提供了有理论保证的优化途径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.15239v1",
+      "source": "arxiv",
+      "title": "ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation",
+      "abstract": "Discrete diffusion models are a prominent family for graph generation, but standard class-conditional mechanisms embed the class signal in the denoiser during training, tying the conditioning mechanism to the trained model. Classifier guidance avoids this coupling in continuous domains by steering a frozen model with a classifier's gradient, but discrete graph diffusion samples discrete edge states, so gradients cannot propagate through the sampled graph. We introduce ProtoGuide, a post-hoc, backbone-agnostic framework that recovers an analogous mechanism. At each reverse step the denoiser's per-edge output is relaxed into a differentiable soft adjacency, embedded by a frozen Siamese graph neural network, and scored against a target-class prototype and its nearest competitor; the resulting per-edge gradient, damped by a cosine schedule, is injected back into the denoiser output. All components stay frozen, so guidance is retargeted by supplying a different prototype. On five classes of real-world networks and two architecturally different backbones, EDGE and DiGress, ProtoGuide raises macro classification accuracy from 50.7% to 73.5% and from 73.6% to 83.8%, and outperforms DiGress's built-in conditional training under our configuration. Gains are largest where the unguided models are weakest, and are not uniform across classes. Per-graph coverage remains high in most settings, while distributional effects are class-dependent. A Best-of-N selection baseline matches this accuracy given enough oversampling, but at a substantial cost in graph diversity. An independently initialized classifier, a directionality test, and a few-shot analysis support target-directed steering and robustness to very small support sets.",
+      "authors": [
+        "Salvatore Romano",
+        "Marco Grassia",
+        "Pietro Liò",
+        "Giuseppe Mangioni"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "physics.soc-ph"
+      ],
+      "published": "2026-09-14T08:57:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.15239v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "post-hoc training-free guidance framework for frozen discrete diffusion models",
+      "llm_evidence_cn": "面向冻结离散扩散模型的事后免训练引导框架",
+      "llm_evidence": "面向冻结离散扩散模型的事后免训练引导框架",
+      "canonical_evidence": "面向冻结离散扩散模型的事后免训练引导框架",
+      "llm_tldr_en": "Class-conditional discrete graph diffusion ties conditioning to the trained denoiser, unlike classifier guidance in continuous domains. ProtoGuide is a post-hoc, backbone-agnostic framework that steers a frozen model via soft adjacency and prototype scoring.",
+      "llm_tldr_cn": "离散扩散模型的类条件机制在训练时把类别信号嵌入去噪器，无法像连续域分类器引导那样事后调控冻结模型，且离散边状态使梯度难以传播。论文提出ProtoGuide，一种后处理、骨干无关的免训练框架：在每个反向步骤将去噪器逐边输出松弛为可微软邻接，用冻结Siamese图神经网络嵌入并与目标类原型打分以实现引导。该方法无需重训练即可为离散图扩散提供类似分类器引导的机制，提升类条件图生成的可控性。",
+      "llm_tldr": "离散扩散模型的类条件机制在训练时把类别信号嵌入去噪器，无法像连续域分类器引导那样事后调控冻结模型，且离散边状态使梯度难以传播。论文提出ProtoGuide，一种后处理、骨干无关的免训练框架：在每个反向步骤将去噪器逐边输出松弛为可微软邻接，用冻结Siamese图神经网络嵌入并与目标类原型打分以实现引导。该方法无需重训练即可为离散图扩散提供类似分类器引导的机制，提升类条件图生成的可控性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.15863v1",
+      "source": "arxiv",
+      "title": "LynnReal-Omni: Native multi-modal Video Generation for Agentic Visual Workflows",
+      "abstract": "Video diffusion models are stochastic and hard to control: precise content often requires repeated sampling without guaranteed success, and long-horizon scenes drift in appearance, interactions, and temporal coherence. Agentic visual creation provides explicit references, editable 3D scenes, or executable game states for stable control, but does not by itself guarantee high object or character fidelity. Combining the two can enable stable, high-quality generation. To realize this combination, we present LynnReal-Omni, a native multimodal video generation framework built on a 32B shared multimodal diffusion transformer that unifies text-to-video, image-conditioned generation, reference-guided generation, structural control, editing, degraded video restoration, and long-video generation. It accepts heterogeneous visual inputs, including appearance references, editable 3D renders, and game recordings, allowing agents to compose visual conditions within a unified model. We also train a dedicated 27B Flash shared multimodal diffusion transformer for real-time rendering. We build a systematic data pipeline for video cleaning, subject association, multimodal annotation, and aligned control construction, yielding a curated corpus of multi-shot audiovisual segments, and introduce MSAVP, a 100-prompt, 20-metric evaluation design that separates instruction following, generating plausibility, visual quality, temporal behavior, and audio coordination. LynnReal-Omni-Flash further reduces inference cost through model and decoding acceleration, including a lightweight VAE decoder; on one H100, warm generation and decoding of a 22-frame 540p video take 843 ms with LynnReal-Omni and 377 ms with Flash. These results provide a foundation for real-time streaming video generation, making LynnReal-Omni a unified, controllable, and efficient basis for agentic visual creation.",
+      "authors": [
+        "Xiaofeng Mao",
+        "Peijia Lin",
+        "Shaohao Rui",
+        "Yibo Zhang",
+        "Haibin Wan",
+        "Weijie Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-14T16:55:25+00:00",
+      "link": "https://arxiv.org/pdf/2609.15863v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video diffusion generation framework with control",
+      "llm_evidence_cn": "可控的视频扩散生成框架",
+      "llm_evidence": "可控的视频扩散生成框架",
+      "canonical_evidence": "可控的视频扩散生成框架",
+      "llm_tldr_en": "LynnReal-Omni builds a 32B shared multimodal diffusion transformer unifying text-to-video, image-conditioned and reference-guided generation for stable agentic visual workflows.",
+      "llm_tldr_cn": "视频扩散模型随机且难以控制，长时程场景易出现外观与时间一致性漂移。论文提出LynnReal-Omni，基于32B共享多模态扩散Transformer构建原生多模态视频生成框架，统一文本到视频、图像条件、参考引导、结构控制与编辑等任务。该框架结合智能体视觉创作中的显式参考与可编辑场景，以提升生成的稳定性与保真度。整体面向稳定高质量视频生成。",
+      "llm_tldr": "视频扩散模型随机且难以控制，长时程场景易出现外观与时间一致性漂移。论文提出LynnReal-Omni，基于32B共享多模态扩散Transformer构建原生多模态视频生成框架，统一文本到视频、图像条件、参考引导、结构控制与编辑等任务。该框架结合智能体视觉创作中的显式参考与可编辑场景，以提升生成的稳定性与保真度。整体面向稳定高质量视频生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

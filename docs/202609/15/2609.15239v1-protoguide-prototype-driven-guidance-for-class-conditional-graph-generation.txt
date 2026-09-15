@@ -1,0 +1,1401 @@
+Title: ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation
+
+URL Source: https://arxiv.org/pdf/2609.15239v1
+
+Published Time: Tue, 15 Sep 2026 02:09:40 GMT
+
+Number of Pages: 35
+
+Markdown Content:
+# PROTO GUIDE : P ROTOTYPE -D RIVEN GUIDANCE FOR 
+
+# CLASS -C ONDITIONAL GRAPH GENERATION 
+
+PREPRINT 
+
+Salvatore Romano 1,2,3, Marco Grassia 1, Pietro Liò 2, Giuseppe Mangioni 1,*, 
+
+> 1
+
+Department of Electrical, Electronic and Computer Engineering, University of Catania, Italy 
+
+> 2
+
+Department of Computer Science and Technology, University of Cambridge, UK 
+
+> 3
+
+University Campus Bio-Medico of Rome, Italy 
+
+*Corresponding author: giuseppe.mangioni@unict.it 
+
+# ABSTRACT 
+
+Discrete diffusion models are a prominent family for graph generation, but standard class-conditional mechanisms embed the class signal in the denoiser during training, tying the conditioning mechanism to the trained model. Classifier guidance avoids this coupling in continuous domains by steering a frozen model with a classifier’s gradient, but discrete graph diffusion samples discrete edge states, so gradients cannot propagate through the sampled graph. We introduce ProtoGuide, a post-hoc, backbone-agnostic framework that recovers an analogous mechanism. At each reverse step the denoiser’s per-edge output is relaxed into a differentiable soft adjacency, embedded by a frozen Siamese graph neural network, and scored against a target-class prototype and its nearest competitor; the resulting per-edge gradient, damped by a cosine schedule, is injected back into the denoiser output. All components stay frozen, so guidance is retargeted by supplying a different prototype. On five classes of real-world networks and two architecturally different backbones, EDGE and DiGress, ProtoGuide raises macro classification accuracy from 50.7% to 73.5% and from 73.6% to 83.8%, and outperforms DiGress’s built-in conditional training under our configuration. Gains are largest where the unguided models are weakest, and are not uniform across classes. Per-graph coverage remains high in most settings, while distributional effects are class-dependent. A Best-of-N
+
+selection baseline matches this accuracy given enough oversampling, but at a substantial cost in graph diversity. An independently initialized classifier, a directionality test, and a few-shot analysis support target-directed steering and robustness to very small support sets. 
+
+Keywords Graph generation · Diffusion models · Classifier guidance · Metric learning · Graph neural networks ·
+
+Class-conditional generation 
+
+# 1 Introduction 
+
+Complex systems across scientific and technological domains are commonly represented as networks of interacting entities, making network-based modeling a common language for studying systems ranging from technological in-frastructures to the brain and biological organization. Their topology is not incidental: different classes of real-world networks exhibit distinct combinations of degree heterogeneity, clustering, connectivity, and mesoscopic organization, which shape the processes taking place on them. Generating realistic synthetic instances of such networks is therefore a broad problem across disciplines that study complex systems, with applications ranging from benchmarking algo-rithms [1] and studying robustness and cascading failures [2, 3] to modeling network structure in connectomics [4] and systems biology [5]. Yet, this task is challenging because realism requires reproducing combinations of structural properties rather than isolated statistics. Throughout this work, we use network when referring to the empirical system and graph for its mathematical representation and generative model. Recent progress in graph generation has increasingly relied on diffusion models. Much of this progress, however, targets molecular datasets: relatively small graphs with constrained vocabularies of node and edge types. Real-world arXiv:2609.15239v1 [cs.LG] 14 Sep 2026 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+complex networks pose a different generative problem: their structure is primarily encoded in topology and can exhibit broad heterogeneity in size, degree distributions, clustering, and mesoscopic organization. Discrete denoising diffusion models, which operate directly on discrete edge variables, provide a flexible data-driven approach to modeling such graph distributions [6–8]. Alongside structural fidelity, many applications additionally require controllability: one may need realistic samples from a specific network class, or may wish to change the desired target or conditioning objective after the generative model has been trained. A standard solution is conditional diffusion [6,9], where the class signal is incorporated into the denoiser during training. This makes the conditioning mechanism part of the trained generative model, so introducing a target class or conditioning objective not represented during training generally requires adapting or retraining the model. In image synthesis, classifier guidance [10] provides a different route: rather than incorporating the conditioning signal into the denoiser during training, it steers a frozen diffusion model at sampling time using gradients from an external classifier evaluated on the current noisy state. This decouples the conditioning objective from the generative model and allows the target to be changed without retraining the denoiser. Transferring this mechanism to discrete graph diffusion, however, is not straightforward. Models such as EDGE [7] and DiGress [6] sample discrete edge states, so gradients cannot propagate through the sampled graph. Recent guidance mechanisms for discrete diffusion [11–13] instead modify discrete transition probabilities, but are not designed around the permutation-invariant topology and graph-level class structure that characterize complex networks. This paper introduces ProtoGuide , a post-hoc guidance framework that closes this gap. ProtoGuide steers a frozen discrete graph diffusion model toward a target class at sampling time, without retraining any component. The key idea is a differentiable soft adjacency matrix that relaxes the denoiser’s discrete per-edge output into a continuous representation, restoring the gradient that classifier guidance requires. This relaxed graph is embedded by a frozen Siamese network [14], a weight-sharing architecture trained so that graphs of the same class map to nearby points in an embedding space [15], and scored against precomputed class prototypes via a contrastive objective that pulls the current graph toward the target class while pushing it away from competing ones. The resulting per-edge gradient is modulated by a cosine annealing schedule and injected back into the denoiser output. The framework is agnostic to the diffusion backbone; only the injection point is model-specific, and we instantiate it for two architecturally different models, EDGE and DiGress (Section 4.2). Because class prototypes are simple mean embeddings computed after training, the guidance target can be respecified at sampling time without retraining the denoiser or the Siamese encoder. Our few-shot analysis (Appendix H.5) shows that, for the classes considered here, useful prototype targets can be instantiated from very small support sets, while the directionality test (Appendix H.4) shows that the guidance effect depends on the identity of the target prototype rather than on a generic perturbation of the denoising process. Our contributions are as follows: • A differentiable soft adjacency relaxation of the denoiser’s per-edge output that makes gradient-based classifier guidance well defined for discrete graph diffusion, including differentiable relaxations of structural node features (degree, χ-degree, local clustering coefficient) and a stop-gradient treatment of the non-differentiable k-core. • A contrastive prototype objective that replaces the noisy classifier of standard classifier guidance in image settings with a frozen Siamese GNN and class prototypes, enabling post-hoc target specification and allowing target prototypes to be instantiated from small support sets without retraining the generative backbone or Siamese encoder. • Backbone-agnostic guidance injection , instantiated and analyzed on two structurally different discrete diffusion models: direct reverse-step guidance for EDGE and clean-data prediction guidance for DiGress, with model-specific injection points consistent with each backbone’s native reverse-process parametrization. • An extensive evaluation protocol on five classes of real-world networks, combining controllability (dual 
+
+k-nearest-neighbor protocols; Section 5.3), structural fidelity (Maximum Mean Discrepancy (MMD) [16] (Appendix G.3), a bootstrap-calibrated Kolmogorov–Smirnov goodness-of-fit test, coverage of the real distribution, and pairwise diversity ratio; Section 5.3.3), validation by an architecturally independent classifier, a synthetic-to-real transfer test, and ablations of guidance scale, annealing schedule, contrastive design, prototype directionality, few-shot prototypes, and a Best-of-N selection baseline (Appendix I). Empirically, on five classes of real-world networks, ProtoGuide raises macro classification accuracy from 50 .7% 
+
+to 73 .5% on EDGE and from 73 .6% to 83 .8% on DiGress (dynamic k-nearest-neighbor [17]; Section 5.3), with the largest per-class gain on Connectome under EDGE ( 11 .6% → 85 .0% ). Per-graph coverage remains high in most settings, while distributional effects vary across classes and backbones. An architecturally independent classifier corroborates the macro-level improvements, and a classifier trained only on guided samples achieves 79 .2% macro 2ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+accuracy on real networks excluded from that classifier’s own training, providing evidence that class-discriminative structure transfers from generated to real graphs. 
+
+# 2 Related Work 
+
+2.1 Graph Generation 
+
+A first family of graph generation methods consists of classical parametric and mechanistic random-graph models, which generate network structure according to predefined stochastic rules rather than learning a generative distribution directly from data. The Erd˝ os–Rényi [18] model generates graphs randomly by adding each possible edge independently with a fixed probability p, yielding a binomial degree distribution and no explicit mechanism for community structure. The preferential attachment model of Barabási–Albert [19] proposed a “rich-get-richer” mechanism of graph creation, producing heterogeneous, heavy-tailed degree distributions but without explicitly controlling higher-order properties such as community structure, clustering, or motifs. The Stochastic Block Model (SBM) [20] captures mesoscopic organization by assigning nodes to groups and specifying different connection probabilities within and between them. More advanced generative models, like the Lancichinetti-Fortunato-Radicchi (LFR) model [1], take into account heavy-tailed degree and community-size distributions through an adjustable mixing parameter, whereas the nonuniform Popularity-Similarity-Optimization (nPSO) model [21] places vertices in the hyperbolic plane with a non-uniform angular distribution to jointly model community structure and clustering. These models can reproduce increasingly rich combinations of network properties, but their generative mechanisms and target structural characteristics are specified a priori rather than learned as a general empirical graph distribution. The first deep-learning based methods adopted auto-regressive formulations, i.e., generating graphs sequentially by predicting one node at a time (or in small blocks) and their connections to previously generated nodes. For instance, GraphRNN [22] generates graphs by sequentially predicting nodes and their edges using a Recurrent Neural Network (RNN), decomposing the adjacency matrix into a sequence of edge decisions. GRAN [23] improves scalability by replacing this fully sequential construction with an attention-based Graph Neural Network (GNN) [24] that generates blocks of adjacency-matrix rows in parallel. Despite these advances, autoregressive graph generation remains inherently sequential and generally requires choosing a node ordering, which can affect both computational efficiency and the representation being learned. Variational Autoencoders (VAEs) [25, 26] offered an alternative by learning a continuous latent space from which graphs can be decoded in a single pass. GraphVAE encodes the input graph into a continuous latent distribution and decodes sampled latent representations into probabilistic graph structures, using graph matching to address node-permutation ambiguity. More recently, diffusion models have become a prominent approach to graph generation, adapting iterative denoising to distributions over graph structure. EDP-GNN [27] applied score-based diffusion to graph adjacency matrices in continuous space. GDSS [28] extended this approach by jointly diffusing node features and adjacency matrices through a system of stochastic differential equations. DiGress [6], on the other hand, introduced a fully discrete diffusion process that operates directly on categorical node and edge types, building on discrete denoising diffusion in discrete state space [29]; a Graph Transformer [30] predicts clean node and edge states from which the reverse transition is derived. EDGE [7] proposed a degree-guided discrete diffusion model that leverages degree sequence information and restricts denoising to active nodes to improve the efficiency of graph generation. Unlike EDP-GNN and GDSS, which diffuse a continuous relaxation of the adjacency matrix, DiGress and EDGE operate directly on discrete edge states, avoiding the final discretization step required by continuous graph-diffusion approaches; this direct treatment of discrete state spaces has been shown to benefit graph diffusion empirically [8]. 
+
+2.2 Guided and Conditional Diffusion 
+
+Sohl-Dickstein et al. [31] first framed generative modeling as learning to reverse a fixed noising process; Ho et al. [32] and Song et al. [33] later formalized this, respectively, as denoising diffusion probabilistic models and continuous score-based generative models. In both formulations, a forward process progressively corrupts a clean sample x0 over 
+
+T steps, while a learned reverse process generates data by iteratively denoising from xT back toward x0. At each reverse step, the model estimates the information required to construct or approximate the distribution of xt−1 given xt.In the image setting, classifier guidance [10] steers this reverse process toward a target class y, while leaving the diffusion model unchanged, by augmenting the score estimate with the gradient of a classifier pψ (y | xt) trained on noisy images and kept frozen during sampling, where xt denotes the current noisy sample: 
+
+ˆϵθ (xt, t ) ← ˆϵθ (xt, t ) − √1 − ¯αt λ ∇xt log pψ (y | xt), (1) 3ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+where λ controls the guidance scale. Increasing λ induces a familiar controllability–fidelity trade-off: stronger guidance can improve alignment with the target condition, but excessive guidance may reduce sample diversity or move samples away from the unguided data distribution [10]. Classifier-free guidance [34] avoids the need for an additional classifier by training the diffusion model both with and without the conditioning signal and interpolating between the two at generation time; it is widely used in conditional image generation, where the conditioning signal is available during training. Unlike classifier guidance, however, the conditioning mechanism is built into the generative model during training; changing that mechanism or introducing conditioning information not represented during training generally requires adapting or retraining the model. Extending gradient-based guidance to graph diffusion raises problems that do not arise in the continuous image setting. Continuous graph-diffusion approaches such as EDP-GNN and GDSS maintain real-valued intermediate states, providing a differentiable representation through which guidance gradients can in principle be propagated. Discrete approaches such as DiGress and EDGE instead define reverse diffusion processes over finite, discrete edge-state spaces. Sampling these edge states breaks the differentiable path through the generated graph on which standard classifier guidance relies. Guidance for discrete diffusion has therefore been formulated directly in terms of the discrete reverse process. Nisonoff et al. [11] derive guided reverse transitions by modifying the process’s transition probabilities, while Schiff et al. [12] develop a related mechanism that acts directly on discrete transition kernels. Such methods provide general mechanisms for steering discrete diffusion, but they are not specifically designed around permutation-invariant graph topology or graph-level class structure, nor do they directly provide a differentiable graph representation on which a structural class-discriminative objective can be evaluated. In the graph domain, conditional generation has been explored primarily via conditioning mechanisms incorporated into the generative model during training. DiGress, for instance, supports class-conditional generation by concatenating one-hot class labels to the input, so the class-conditioning mechanism must be specified during training; GDSS incorporates molecular property conditioning into its score network; and Huang et al. [9] condition molecular-graph diffusion on graph-structure information. These approaches are effective when the conditioning information is known during training, but offer less flexibility when the desired conditioning objective changes after the generative model has been trained. Classifier guidance is attractive in this setting precisely because it decouples the guidance objective from the denoiser, provided that an appropriate gradient can be constructed for the discrete graph representation. Several recent methods pursue more flexible inference-time control of graph diffusion. FreeGress [35] extends DiGress with classifier-free guidance for molecular properties, requiring the corresponding conditioning mechanism to be incorporated during training through label dropout. PRODIGY [36] steers molecular graph diffusion toward target chemical properties and structural hard constraints through projection-based guidance. GGDiff [37] formulates guidance as stochastic optimal control and unifies gradient-based and gradient-free strategies, but operates on GDSS, a continuous SDE-based diffusion backbone, and targets constraint satisfaction such as motifs, fairness, and link prediction rather than class-conditional generation. Recently, GILC [13] proposed a training-free logit-correction scheme for discrete diffusion that handles differentiable and non-differentiable rewards; it is applied to molecular graphs, DNA/protein sequences, and images. Together, these works demonstrate growing interest in flexible guidance for graph and discrete diffusion, but class-level post-hoc control of purely topological real-world network generation remains comparatively unexplored. Classifier guidance ordinarily requires training a classifier on noisy intermediates xt at every diffusion timestep, since a classifier trained only on clean data degrades far from t = 0 . ProtoGuide takes a different route: at each reverse step, it constructs a differentiable soft graph representation from the denoiser output and evaluates its class structure using a model trained on clean graphs. This allows the guidance signal to be defined in a learned graph-embedding space rather than by a timestep-specific noisy-state classifier. We obtain this class-discriminative representation through metric learning, which we review next. 
+
+2.3 Metric Learning and Graph Classification 
+
+Metric Learning [38] focuses on building a feature space such that semantically related inputs should be close to each other, while unrelated inputs should be as far from each other as possible. Contrastive objectives [39] learn such spaces by reducing distances between similar pairs while separating dissimilar ones. Triplet loss [40] instead enforces a margin between an anchor–positive distance and the corresponding anchor–negative distance. Siamese Networks [14] implement this principle through weight-sharing encoders that map different inputs into a common embedding space in which their similarity can be evaluated directly. A closely related idea underlies Prototypical Networks [41]: each class is represented by the mean embedding of its labeled support samples, and new observations are classified according to their distance from these class prototypes. This representation is particularly attractive in low-data settings because 4ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+a prototype can be estimated from a small support set and updated without retraining the embedding model, provided that the learned embedding generalizes to the target class. In the graph domain, applying these metric-learning objectives requires an encoder that maps a graph to a fixed-size embedding, and Graph Neural Networks (GNNs) [24] are widely used for this purpose. GNN architectures such as the Graph Convolutional Network (GCN) [42], Graph Attention Network (GAT) [43], Graph Isomorphism Network (GIN) [44], and GraphSAGE [45] compute node-level embeddings through iterative message passing, which are then aggregated into a graph-level representation via a pooling operator. Feeding these representations into a Siamese framework [15] extends metric learning to graph classification and similarity tasks. For the present setting, this combination provides both ingredients required for prototype-based guidance: a differ-entiable graph-level representation and an embedding space in which proximity to a target network class can be quantified. 
+
+# 3 Background: Discrete Graph Diffusion Backbones 
+
+Related Work positions EDGE and DiGress among alternative graph-generative paradigms; this section instead fixes the notation and mechanics of their forward and reverse processes on which the guidance framework of Section 4.2 builds. 
+
+3.1 EDGE: Efficient and Degree-Guided Graph Generation 
+
+Let G = ( V, E) be an undirected graph with N = |V| nodes. We represent G by the vector of its upper-triangular edge states x0 ∈ { 0, 1}M , with M = N (N −1) /2. EDGE [7] defines a forward diffusion process that progressively removes edges, driving the graph toward the empty state as t → T ; the corruption factorizes over edges: 
+
+q(xt | x0) = Y
+
+> (i,j )
+
+q
+
+
+
+xij t | xij 
+
+> 0
+
+
+
+, (2) where xij t ∈ { 0, 1} is the state of edge (i, j ) at time t and the per-edge marginal interpolates between the clean state and the empty graph. Generation consequently starts from an empty graph endowed with a target degree sequence sampled from the empirical distribution of the training data. The reverse process is parameterized by a GNN denoiser pθ , which also factorizes over edges: 
+
+pθ (xt−1 | xt) = Y
+
+> (i,j )
+
+pθ
+
+
+
+xij t−1 | xt
+
+
+
+. (3) For each candidate edge (i, j ) the network outputs a two-dimensional log-probability vector: 
+
+ℓij (t) = ℓ(0)  
+
+> ij
+
+(t), ℓ (1)  
+
+> ij
+
+(t) ∈ R2, ℓ(e) 
+
+> ij
+
+(t) = log pθ
+
+
+
+xij t−1 = e | xt
+
+
+
+. (4) At each reverse step EDGE denoises only a subset of active nodes, drawn from a degree-based posterior, and samples edge states only for pairs whose endpoints are both active; every remaining pair keeps its current state. For an active pair, the next state is obtained by converting the log-probabilities into a Bernoulli probability via the softmax: 
+
+xij t−1 ∼ Bernoulli  softmax (ℓij (t)) 1
+
+, (5) where softmax (ℓij (t)) 1 is the probability assigned to the edge being present ( e = 1 ). The explicit degree conditioning and the active-node restriction are both properties that ProtoGuide must respect when injecting guidance; we return to them in Section 4.3. 
+
+3.2 DiGress: Discrete denoising diffusion for graph generation 
+
+DiGress [6] represents the graph in dense form: a node-type matrix X ∈ { 0, 1}N ×dX and an edge-type tensor 
+
+E ∈ { 0, 1}N ×N ×dE , where dX and dE are the number of node and edge classes, respectively. For plain graphs without node or edge attributes, dX = 1 and dE = 2 (edge absent or present). All graphs in a batch are zero-padded to a common maximum number of nodes, with a boolean node mask m ∈ { 0, 1}N indicating valid nodes. The forward 
+
+process independently corrupts each node and edge type via a discrete Markov chain governed by transition matrices: 
+
+q(Xt, Et | X0, E0) = Y
+
+> i
+
+q(Xit | Xi
+
+> 0
+
+) Y
+
+> i<j
+
+q(Eij t | Eij  
+
+> 0
+
+), (6) 5ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+where each per-element marginal is defined by a transition matrix ¯Qt that interpolates between the identity and a limiting noise distribution (at t = 0 and t = T , respectively). DiGress uses a cosine noise schedule to control the rate of corruption. The reverse process is parameterized by a Graph Transformer denoiser pθ . DiGress predicts the clean data distribution: 
+
+ˆpθ (X0, E0 | Xt, Et) = Y
+
+> i
+
+ˆpθ (Xi 
+
+> 0
+
+| Xt, Et) Y
+
+> i<j
+
+ˆpθ (Eij  
+
+> 0
+
+| Xt, Et) (7) For each edge (i, j ) the network outputs a two-dimensional probability vector over edge types: 
+
+ˆpij (t) = ˆp(0)  
+
+> ij
+
+(t), ˆp(1)  
+
+> ij
+
+(t) ∈ [0 , 1] 2, ˆp(e) 
+
+> ij
+
+(t) = ˆ pθ
+
+
+
+Eij  
+
+> 0
+
+= e | Xt, Et
+
+
+
+. (8) The one-step reverse distribution pθ (Et−1 | Et) is then obtained via Bayes’ rule using the forward transition matrices: 
+
+pθ (Eij t−1 = e | Et) ∝ X
+
+> e0
+
+ˆp(e0) 
+
+> ij
+
+(t) q(Eij t−1 = e | Eij  
+
+> 0
+
+= e0, E ij t ) (9) where the posterior q(Eij t−1 | Eij  
+
+> 0
+
+, E ij t ) is computed in closed form from the noise schedule transition matrices Qt and 
+
+¯Qs (with s = t−1). The next edge state is then sampled from this distribution at each reverse step. 
+
+# 4 Method Frozen Graph Diffusion Soft-Adjacency Relaxation Prototype Guidance Guided Sampling                        
+
+> noisy graph xt
+> pθ
+> per-edge output oij (t)
+> xTxtx0
+> reverse time
+> discrete edge logits edge probabilities ˜ aij ∈[0 ,1]
+> 10
+> soft adjacency ˜A∈[0 ,1] N×N
+> differentiable features ˜H
+> degree, χ-degree, clustering,
+> k-core †
+> Siamese GNN fϕ
+> (˜H,˜A)fϕz∈RD
+> one pass / step graph embedding
+> π1
+> π2π3
+> π4
+> πy∗
+> z
+> attract repel Contrastive Siamese Score
+
+S(G) = cos (z, πy∗
+
+)
+
+− max c̸=y∗ cos (z, πc
+
+)       
+
+> guidance schedule
+> 00.5101
+> ρt= 1 −t/T α(ρt)
+> guided samples toward y∗
+> unguided guided (social) guided reverse step
+
+˜oij = oij + λ α (ρt) ˆ gij           
+
+> ˆgij ∝ ∇ ˜AS
+> via backprop through ˜A
+> ∇˜AS
+> repeat for t=T, . . . , 1
+> = frozen ( pθ,fϕ,{πc}): no retraining; {πc}precomputed once
+
+Figure 1: ProtoGuide pipeline. At each step t of the reverse diffusion process (running from t = T , pure noise, down to 
+
+t = 1 ), the frozen denoiser pθ produces per-edge outputs oij (t) (Panel 1). These are converted into a differentiable soft adjacency matrix eA ∈ [0 , 1] N ×N , together with structural node features (Panel 2). A frozen Siamese GNN fϕ embeds this relaxed graph into z ∈ RD and computes a contrastive Siamese score S(G), which pulls z toward the target-class prototype πy∗ and pushes it away from the competing class prototype (Panel 3). Backpropagating the contrastive score through the soft adjacency construction yields per-edge gradients gij = ∂S/∂ oij (t), which are ℓ2-normalized per-edge to obtain ˆgij , scaled by a guidance scale λ and a cosine annealing schedule α(ρt), and injected into the denoiser output to steer generation toward the target class (Panel 4; the Social class is shown here as an illustrative example). The annealing schedule suppresses guidance early in generation (large t, high noise) and strengthens it later. Denoiser, Siamese GNN, and class prototypes all remain frozen throughout: no component is retrained. † The k-core feature is non-differentiable; it is computed on the hard-thresholded graph and treated as a constant (stop-gradient) during backpropagation. 6ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Our goal is to steer a frozen, already-trained discrete diffusion model toward a target class y∗ at every reverse step, without modifying or retraining the denoiser. In the continuous (i.e., image) setting, classifier guidance achieves this by adding the gradient ∇xt log pψ (y | xt) to the score estimate (Eq. 1). Adapting this mechanism to discrete graph diffusion faces a structural obstacle: the reverse process samples discrete edge states, which break the differentiable path through the sampled graph required to compute the guidance gradient. ProtoGuide addresses this obstacle with three core components. (i) Class prototypes , computed once from a frozen Siamese GNN, define the guidance target. Once the Siamese encoder is trained, each prototype is estimated solely from embeddings of its own class, so prototype construction itself does not depend on the relative frequencies of the other classes. Prototypes are also cheap to recompute and allow the guidance target to be respecified at sampling time without retraining either the denoiser or the encoder. (ii) A differentiable soft adjacency matrix , built from the per-edge output of the denoiser, provides a continuous approximation of the discrete graph through which gradient can flow. (iii) A cosine annealing schedule that suppresses guidance during the early noisy timesteps, where the soft adjacency carries little structural signal, and gradually increases it as the graph structure consolidates. The soft adjacency provides the continuous path through which guidance is differentiated: degree, χ-degree, and clustering are constructed as differentiable functions of it, while the non-differentiable k-core feature is held fixed during the backward pass. Every component described in this section is shared identically across both diffusion models, EDGE and DiGress; the only model-specific element is the injection point, i.e., which internal quantity of the denoiser receives the gradient update (Section 4.3). The ProtoGuide pipeline is summarized in Figure 1 and Algorithm 1 in Appendix A. 
+
+4.1 Siamese Encoder 
+
+The class-discriminative signal used throughout this section comes from a frozen Siamese network fϕ: two identical, weight-sharing branches that embed a graph into a fixed-size vector, trained so that graphs of the same class land close together and graphs of different classes land far apart. In our experiments this encoder is instantiated as a Graph Attention Network (GAT) [43], selected via a grid search over architecture and hyperparameters (Section 5.2, Supplementary Information C). 
+
+Architecture we employ an L-layer GAT encoder with multi-head attention. Each intermediate layer uses H attention heads and hidden dimension dh; the final layer uses a single head with output dimension do. A Jumping Knowledge [46] concatenation scheme aggregates representations across all depths: the outputs of every GAT layer, together with the raw input, are concatenated per node: 
+
+ri = o(0)  
+
+> i
+
+∥ o(1)  
+
+> i
+
+∥ · · · ∥ o(L)
+
+> i
+
+ ∈ RD , D = F + ( L−1) dhH + do, (10) where ∥ denotes concatenation, o(0)  
+
+> i
+
+∈ RF is the input node-feature vector (the F = 4 topological descriptors defined in Section 4.2), and o(ℓ) 
+
+> i
+
+for ℓ = 1 , . . . , L are the GAT layer outputs. An attentional aggregation module with a two-layer gate MLP pools the node representations into a single graph-level vector: 
+
+z = u
+
+∥u∥2
+
+, u =
+
+> N
+
+X
+
+> i=1
+
+σ g(ri) ri ∈ RD , (11) where g : RD → R is the gate network and σ the sigmoid. The final ℓ2 normalization ensures ∥fϕ(G)∥2 = 1 for every graph G, so that cosine similarity reduces to a dot product (Eq. 13). Because Eqs. 10–11 are differentiable functions of the node features eH, applying fϕ to the relaxed features computed from the soft adjacency during guidance requires no change to the architecture. 
+
+Training fϕ is trained once on real graphs with triplet margin loss [40] and then frozen; exact hyperparameters (layers, heads, dimensions, margin, learning rate) are reported in Section 5.2. 
+
+4.2 ProtoGuide Generation Framework Class Prototypes before generation, we embed all training graphs with the frozen encoder and compute an ℓ2-normalized prototype for each class. For class c with training graphs Dc = {Gc
+
+> 1
+
+, . . . , G cNc }:
+
+πc = ¯zc
+
+∥¯zc∥2
+
+, ¯zc = 1
+
+NcNcX
+
+> i=1
+
+fϕ(Gci ). (12) Since each fϕ(Gci ) has unit norm, the normalized mean prototype also has unit norm. We denote the target prototype 
+
+πy∗ and the set of negative prototypes {πc : c̸ = y∗}. All prototypes are computed once and held fixed during generation. 7ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Retargeting guidance to another available class only requires selecting its stored prototype, while defining a target from a new support set requires computing its mean embedding. We perform two sanity checks on this prototype-based formulation: wrong/random-prototype and few-shot-prototype analyses, reported in Appendix H.4–H.5. 
+
+Guidance Objective given a target class y∗, we define a contrastive Siamese score: 
+
+S(G) = cos  fϕ(G), πy∗
+
+| {z }
+
+> attract to target
+
+− max    
+
+> c̸=y∗
+
+cos  fϕ(G), πc
+
+| {z }
+
+> repel from nearest competitor
+
+, (13) where cos( u, v) = u⊤v/(∥u∥2 ∥v∥2) is the cosine similarity. The positive term drives the embedding toward the target prototype, while the negative term penalizes similarity to the nearest competing prototype and thereby encourages inter-class separation. We ablate this design choice against an attraction-only variant in Appendix H.3, where its contribution is class-dependent. 
+
+Soft Adjacency from Edge Probabilities the score S(G) is a function of a discrete graph, but to obtain a gradient we need it to depend on a continuous quantity. We therefore construct a differentiable relaxation of the denoiser output using its current edge-presence probabilities. At each reverse step t, the denoiser produces a per-edge output from which we extract the probability that edge (i, j ) is present, ˜aij (t) ∈ [0 , 1] . The exact derivation of ˜aij from the denoiser output differs between models (Section 4.3); in all cases it is a differentiable function of that output. From these probabilities we build a symmetric matrix eA ∈ [0 , 1] N ×N with eAij = eAji = ˜ aij . This relaxed adjacency provides the continuous representation through which gradient-based guidance can be applied to the contrastive Siamese score; its precise interpretation depends on the backbone and is detailed in Section 4.3. 
+
+Node Features to evaluate the contrastive Siamese score on the soft adjacency, we first need per-node features. The Siamese encoder characterizes each node by four topological descriptors: degree, χ-degree, local clustering coefficient, and k-core number. Degree, clustering, and k-core are normalized to [0 , 1] on binary graphs; the χ-degree is a dispersion statistic and is not bounded above. Together, these metrics cover structural properties at complementary scales: degree measures local connectivity, χ-degree indicates how much a vertex differs from the mean degree (for instance, highlighting hubs), clustering coefficient measures local cohesion, and k-core number represents meso-level cohesion. On a discrete graph G they are defined as: 
+
+h(0)  
+
+> i
+
+= deg( i)max j deg( j) , (14) 
+
+h(1)  
+
+> i
+
+=
+
+
+
+h(0)  
+
+> i
+
+− ¯d
+
+2
+
+¯d , ¯d = 1
+
+N
+
+> N
+
+X
+
+> j=1
+
+h(0)  
+
+> j
+
+,h(2)  
+
+> i
+
+= 2 |{{ j, k } ⊂ N (i) : {j, k } ∈ E}| 
+
+deg( i) deg( i) − 1 , (15) 
+
+h(3)  
+
+> i
+
+= core( i)max j core( j) ,
+
+where core( i) is the degeneracy index: the largest k such that node i belongs to a subgraph in which every node has degree ≥ k.
+
+Differentiable Features the node features above are defined on discrete graphs; during guided generation, the guidance gradient ∇eAS is obtained by back-propagating through the entire ProtoGuide pipeline eA → h → GAT → S,so the feature construction must provide a differentiable path from eA to the score. Three of the four node features admit closed-form differentiable relaxations; the k-core feature is instead treated as a constant during backpropagation. 
+
+˜di =
+
+> N
+
+X
+
+> j=1
+
+eAij , h(0)  
+
+> i
+
+= ˜di
+
+max j ˜dj
+
+(16) 
+
+¯d = 1
+
+N
+
+> N
+
+X
+
+> j=1
+
+h(0)  
+
+> j
+
+, h(1)  
+
+> i
+
+=
+
+
+
+h(0)  
+
+> i
+
+− ¯d
+
+2
+
+¯d + ϵ (17) 8ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+h(2)  
+
+> i
+
+=
+
+> N
+
+X
+
+> j=1
+
+  eA2 
+
+> ij
+
+eAij 
+
+˜di ( ˜di − 1) + ϵ , (18) where eA2 = eA eA is the matrix product and ϵ is a small constant for numerical stability. The numerator counts soft triangles: P 
+
+> j,k
+
+eAik eAkj eAij sums the product of edge probabilities around every triangle involving node i, counting each triangle twice. The denominator ˜di( ˜di − 1) is the direct algebraic extension of the binary term di(di − 1) and recovers the standard clustering coefficient when the adjacency is binary, which is the regime in which the encoder was trained. For fractional adjacencies, this algebraic relaxation is a surrogate rather than a bounded clustering coefficient and need not remain in [0 , 1] , in particular when ˜di < 1. It nevertheless recovers the training-time feature exactly when the adjacency is binary. The per-edge normalization of Section 4.3 ensures that the ℓ2 norm of the injected update remains bounded by λ α (ρt), irrespective of the magnitude of the resulting feature gradient. For the non-differentiable k-core feature, we compute it exactly on the hard graph obtained by thresholding the soft adjacency at 0.5:
+
+ˆAij = 1[ eAij > 0.5] , h(3)  
+
+> i
+
+= core( i)max j core( j) (19) In the backward pass, h(3)  
+
+> i
+
+is treated as a constant with zero gradients, so only the three differentiable features carry the gradient signal. The four features are stacked row-wise into the node-feature matrix eH ∈ RN ×4, whose i-th row is 
+
+eHi, : = h⊤ 
+
+> i
+
+= h(0)  
+
+> i
+
+, h (1)  
+
+> i
+
+, h (2)  
+
+> i
+
+, h (3) 
+
+> i
+
+.
+
+Message Passing on the Hard Graph while node features are computed from the soft adjacency, we retain a discrete topology for GNN message passing to remain compatible with the frozen Siamese encoder, which was trained on ordinary binary graphs. We obtain the edge index by thresholding the soft adjacency: Ehard = {(i, j ) : ˜ aij > 0.5}.The role of eA is twofold: it provides continuous values for feature computation (where gradients are needed) and a discrete topology for message passing (where they are not). Because thresholding is a non-differentiable operation, the message-passing topology is fixed in the backward pass. Importantly, gradients do flow through the full soft adjacency matrix eA via the node features: the gradient ∂S/∂ oij captures how changing each edge probability reshapes the degree, clustering, and χ-degree distributions of the graph, which in turn shift the Siamese embedding toward or away from the target prototype. The guidance therefore steers the edge probability distribution toward class-discriminative structural patterns, even though the message-passing index used for the GNN forward pass is frozen during backpropagation. 
+
+Per-Edge Gradient Guidance with features eH and edge index Ehard , we forward the graph through the frozen Siamese encoder to obtain the embedding z = fϕ( eH, Ehard ) ∈ RD. We compute the contrastive Siamese score S(G)
+
+(Eq. 13) and backpropagate through the differentiable soft adjacency path to obtain per-edge gradients with respect to the model-specific denoiser output oij (t) for edge (i, j ) at reverse step t:
+
+gij = ∂S ∂oij (t) ∈ RdE (20) To make the guidance scale λ interpretable and consistent across different graph sizes and timesteps, we ℓ2-normalize each per-edge gradient vector: 
+
+ˆgij = gij 
+
+∥gij ∥2 + ϵ (21) In both backbones, let oij (t) =  o(0)  
+
+> ij
+
+(t), o (1)  
+
+> ij
+
+(t) denote the logits for edge absence and presence, respectively, with 
+
+˜aij = softmax( oij (t)) 1. Neglecting the numerical-stability term ϵ, the chain rule gives 
+
+∂S ∂oij (t) = S′(˜ aij ) ˜ aij (1 − ˜aij ) ( −1, 1) (22) where (−1, 1) is the binary-softmax direction corresponding to decreasing the edge-absence logit and increasing the edge-presence logit. Per-edge normalization removes the magnitude contributed by both S′(˜ aij ) and the softmax Jacobian, retaining only the two-logit direction 
+
+sign  S′(˜ aij ) (−1, 1) 
+
+√2 . (23) 9ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+The magnitude of the class-discriminative signal is therefore discarded in favor of bounded edge-wise steering. For each edge, the resulting two-logit update has ℓ2 norm approximately λ α (ρt), and is further attenuated in DiGress when the two orientations of a pair disagree (Section 4.3). This makes λ the primary control of the update magnitude independently of the raw gradient magnitude and score scale, while its timestep dependence is controlled explicitly by 
+
+α(ρt).
+
+Cosine Guidance Schedule we modulate the guidance strength over the reverse process according to the reliability of the current soft adjacency. At early reverse steps, the graph is still mostly noise, so the soft adjacency carries little structural information and the resulting gradients are unreliable. As generation progresses and the graph structure solidifies, the soft adjacency becomes increasingly informative and guidance can steer the topology more effectively. We define the generation progress as ρt = 1 − t/T ∈ [0 , 1 − 1/T ] for t = T, . . . , 1 (0 = the initial noisy state, with ρt
+
+approaching 1 near the final reverse step) and apply a cosine annealing factor to the guidance scale: 
+
+α(ρt) = 1 − cos( π ρ t)2 (24) This function equals 0 at ρt = 0 (no guidance at pure noise), rises slowly through the early noisy steps and approaches its maximum strength near the final sample. Additionally, guidance is skipped entirely for the first 5% of reverse steps (i.e., ρt < 0.05 ), where the soft adjacency is dominated by noise and gradient signals are unreliable. The cosine shape, combined with this early-step cutoff, suppresses guidance when the edge probabilities carry little structural information and gradually increases it as they become reliable. We ablate this choice against constant and linear schedules in Appendix H.2. 
+
+4.3 Model-Specific Guidance Injection 
+
+The framework above is agnostic to the diffusion model: given a denoiser output, it constructs a soft adjacency, computes a contrastive score, and returns normalized per-edge gradients. The injection point (the quantity that receives the gradient update) must, however, match the model’s parametrization. We describe the two instantiations for both EDGE and DiGress below. 
+
+4.3.1 EDGE: Reverse-Step Distribution Injection 
+
+guidance is injected directly into the one-step reverse distribution pθ (xij t−1 | xt), which EDGE parametrizes via log-probabilities ℓij ∈ R2 (Eq. 4). The soft adjacency is obtained by extracting the edge-presence probability: 
+
+˜aij (t) = softmax  ℓij (t) 
+
+> 1
+
+= exp  ℓ(1)  
+
+> ij
+
+(t)
+
+exp  ℓ(0)  
+
+> ij
+
+(t) + exp  ℓ(1)  
+
+> ij
+
+(t) (25) The denoiser output for the gradient computation is oij (t) = ℓij (t), so the guided log-probabilities are: 
+
+eoij (t) = oij (t) + λ α (ρt) ˆ gij , (26) followed by renormalization to obtain a valid distribution for sampling xij t−1. Because the update acts on the reverse-step distribution directly, each sampling step produces an edge state that is immediately influenced by the guidance signal. Two details are specific to EDGE’s active-node mechanism. First, the denoiser emits log-probabilities only for active pairs, so the soft adjacency is assembled by writing those predictions into the current edge state: active pairs contribute relaxed probabilities ˜aij (t), while all remaining pairs contribute their present binary value. The Siamese score is therefore evaluated on the whole graph, but the update of Eq. (26) is applied only to active-pair logits; non-active pairs are left untouched at that step. Second, active-node selection at step t is performed by EDGE’s degree-based posterior before guidance is computed, so ProtoGuide never changes which nodes are active at that step. The two mechanisms are nonetheless coupled across timesteps: the edges sampled under guidance alter the degree sequence that conditions active-node selection at subsequent steps, so the interaction is sequential through the sampled state rather than analytic within a single update. 
+
+4.3.2 DiGress: Clean-Data Prediction Injection 
+
+guidance is instead injected into the clean-data prediction ˆpij (t) ∈ [0 , 1] dE (Eq. 8), before the reverse-step distribution is derived via Bayes’ rule (Eq. 9). The reverse-step posterior is obtained from the clean-data prediction through the forward transition matrices Qt and ¯Qt−1 (Eq. 9); perturbing it directly could produce a reverse-step distribution that no longer corresponds to any clean-data prediction under this construction. Perturbing the clean-data prediction instead 10 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+lets the posterior propagate the guidance through the same Bayesian mechanism used in unguided sampling. The soft adjacency is derived from the predicted edge-presence probability: 
+
+˜aij (t) = ˆ p(1)  
+
+> ij
+
+(t), (27) and the predicted probabilities are converted to log-space for the gradient computation: oij (t) = log ˆ pij (t), mirroring the EDGE formulation (Eq. 26). The guided log-prediction is: 
+
+eoij (t) = log ˆ pij (t) + λ α (ρt) ˆ gij , (28) followed by softmax renormalization eˆpij (t) = softmax  eoij (t) to recover a valid probability vector. The posterior distribution pθ (Eij t−1 | Eij t ) is then computed from the modified prediction eˆpij (t) via Eq. (9), preserving the noise-schedule constraints. Because DiGress operates in dense matrix format ( E ∈ RN ×N ×dE ), the raw gradient tensor may not respect the symmetry gij = gji required for undirected graphs. We therefore symmetrize the normalized gradient by averaging the two orientations before applying the update ( ˆgij ← 12 (ˆ gij + ˆ gji )). This averaging preserves the full guidance magnitude λ α (ρt) when the two orientations point in the same direction and attenuates the update when they disagree. 
+
+4.4 Relation to Classifier Guidance 
+
+ProtoGuide follows the central principle of classifier guidance (steering a frozen denoiser at sampling time through the gradient of a target-dependent objective) but differs from its standard probabilistic formulation in two respects. In standard classifier guidance, the update is derived from ∇x log pψ (y | x), whereas ProtoGuide uses a contrastive cosine-similarity score defined in the Siamese embedding space. In addition, ProtoGuide ℓ2-normalizes each per-edge gradient, controlling the update magnitude through λ α (ρt) rather than retaining the raw gradient magnitude. Both EDGE and DiGress apply this update in log-space (for DiGress, predicted probabilities are first converted to log-space; cf. Eq. 28). Despite these differences, the operational mechanism remains the same: a class-discriminative gradient modifies the denoiser output during sampling, and the directionality experiment in Appendix H.4 supports that the resulting steering depends on the selected target prototype. 
+
+4.5 Computational Cost of ProtoGuide 
+
+We separate the cost of ProtoGuide’s framework-level operations from that of the specific node features used by our Siamese encoder (Section 4.2). For a graph with N nodes ( M =  N
+
+> 2
+
+ candidate edges) and a Siamese GNN with L layers and hidden dimension d,each reverse diffusion step adds three main operations: (i) soft adjacency construction, which costs O(N 2); (ii) a forward–backward pass through the Siamese GNN, whose GAT message-passing layers cost O(L|E hard |d); and (iii) per-edge gradient normalization and injection, which costs O(N 2). The GNN term becomes O(LN 2d) in the dense case and O(LN d ) when the thresholded graph has bounded average degree. Automatic differentiation yields all per-edge gradients in a single forward–backward pass, avoiding the O(N 2) separate model evaluations that a naive finite-difference implementation would require. Excluding feature construction, the resulting per-step overhead is therefore O(N 2 + L|E hard |d).The node features used by our Siamese encoder (degree, χ-degree, clustering coefficient, and k-core) are specific to the classifier adopted in our experiments rather than requirements of the ProtoGuide framework itself. Alternative differentiable feature sets could in principle be used with a suitably trained classifier, although their effect on guidance quality is not evaluated here. With the current features, degree and χ-degree cost O(N 2). The differentiable clustering coefficient (Eq. 18) involves a dense matrix product eA2 and costs O(N 3), while k-core is computed on the hard-thresholded graph in O(N + |E| ) without gradient. The clustering feature is therefore the sole asymptotic bottleneck in the current guidance feature set. Over T reverse steps, the resulting guidance cost is O(T N 3), added on top of the denoiser’s generation cost. This overhead is incurred only at sampling time; no retraining of either the denoiser or the Siamese GNN is required. Appendix A.1 reports the corresponding wall-clock measurements. 
+
+4.6 Evaluation Protocol 
+
+We assess the quality of generated graphs in terms of both controllability (does the generator produce graphs of the requested class?) and structural fidelity (are those graphs structurally realistic?). Our per-class corpora are small: after 11 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Nmax filtering, some DiGress classes retain as few as 52 training graphs (Table 7; Appendix B). For this reason, the 
+
+k-NN, coverage, Kolmogorov–Smirnov, and MMD evaluations compare generated graphs against the full training reference set rather than a held-out split, since holding out even a modest fraction would leave some classes with too few reference graphs to estimate distances or distributions meaningfully. We complement these reference-set evaluations with the synthetic-to-real transfer test in Appendix F, where a classifier trained exclusively on ProtoGuide-generated graphs is evaluated on real graphs held out from that classifier’s training. These real graphs are not disjoint from the generators’ training data or from prototype computation, so the experiment measures transfer of class structure from generated to real graphs rather than generalization to unseen networks. 
+
+4.6.1 k-NN Classification 
+
+each generated graph ˆG is embedded by the frozen Siamese GNN and classified via k-NN against the real training set in the learned embedding space. We use two protocols: global k-NN ( k = ⌈√ ¯N ⌉, majority vote over all classes) and dynamic k-NN [17], which assigns each class its own kc = ⌈√Nc⌉ and predicts ˆy = arg min c μc( ˆG), where: 
+
+μc( ˆG) = 1
+
+kckcX
+
+> j=1
+
+dσc(j), (29) is the mean ℓ2 distance to the kc nearest same-class anchors ( di = ˆz − fϕ(Gtrain  
+
+> i
+
+) 2). The dynamic variant is especially informative under our class imbalance ( 529 vs. 97 graphs). For both protocols, we report the fraction of generated graphs classified as the target class y∗.
+
+4.6.2 Independent and Structural Evaluation 
+
+since the same Siamese GNN is used for both guidance and evaluation, the k-NN accuracy confirms that the guidance operates as intended in the embedding space used to define the target, but does not provide an independent assessment of the generated graphs. We therefore complement it with four evaluations: (i) two external-classifier experiments addressing circularity with the guidance encoder (an independent Siamese GNN trained only on real graphs, and a synthetic-to-real transfer test; Section 5.3.2, Appendices E and F); (ii) Structural Coverage at the 95th percentile (Coverage@95) and Pairwise Diversity Ratio (PW-Ratio), which assess per-graph structural plausibility and relative dispersion in descriptor space; (iii) a Calibrated Kolmogorov–Smirnov test [47] (KS-Cal@95), which compares generated and real marginal distributions against a bootstrap-calibrated real-vs-real threshold; and (iv) Maximum Mean Discrepancy (MMD) [16] (Appendix G.3) on five kernel-based graph statistics (degree, clustering, orbits, spectral, NSPDK [48]). Full definitions of Coverage@95, KS-Cal@95, and PW-Ratio are given in Section 5.3.3. This multi-evaluation protocol is motivated by known limitations of MMD as a standalone metric for graph generative models [49]; combining classifier-based, per-graph, distributional, and diversity assessments reduces reliance on any single evaluation criterion. 
+
+# 5 Experimental Setup and Results 
+
+5.1 Dataset 
+
+We evaluate ProtoGuide on five classes of real-world networks. Four classes are drawn from the ATLAS benchmark [3, 50] and include: Connectome (brain networks), Infrastructure (international-trade and transport topologies), Internet (autonomous-system graphs), and Social (online and offline social networks). The fifth class, Biological, combines 
+
+30 ATLAS biological networks with 118 additional ecological and molecular interaction networks from the corpus of Ghasemian et al. [51]. All graphs are undirected and unweighted. The dataset in Table 1 is used to pre-train the Siamese GNN, with a maximum of 3 000 nodes per graph. During generation with both graph generative models, we cap the graph size at a lower number of nodes, because both denoisers (EDGE and DiGress) operate on O(N 2) candidate edges, making memory and runtime scale quadratically with the node count. 
+
+5.2 Experimental Setup Siamese Encoder it uses L=4 Graph Attention network (GAT [43]) layers, H=4 attention heads, hidden dimension 
+
+dh=8 , output dimension do=16 , yielding an embedding dimension D=116 and approximately 30 K parameters. The model was selected via grid search (Appendix C) over 192 configurations (encoder architecture, number of layers, hidden dimension, learning rate, margin) and trained with triplet margin loss ( m=1 .0, lr =10 −3) on the original dataset of Table 1. Its weights are frozen throughout generation and evaluation, and the prototypes {πc} are computed once before sampling begins. 12 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 1: Dataset statistics.                                
+
+> Class #graphs #nodes #edges Min Max Min Max Biological 148 18 2 989 60 157 472 Connectome 529 19 1 771 74 179 982 Infrastructure 299 16 2 906 34 75 894 Internet 97 282 2 888 2 060 24 562 Social 111 17 2 971 72 225 970
+
+Graph Generative Model Training we train one model per class for both EDGE and DiGress, each for 2 000 epochs. EDGE uses the architecture and hyperparameters of the original paper, with a reduced batch size; DiGress follows its original configuration with a reduced model dimension, both for computational efficiency. Each model is used for both unguided (baseline, λ=0 ) and ProtoGuide generation, so the only difference between the two conditions is the Siamese GAT guidance signal at sampling time. Per-class configurations for both EDGE and DiGress, including training set sizes, maximum node counts, and selected guidance scales, are reported in Appendix B (Tables 6 and 7). A key difference between the two models is the maximum graph size ( Nmax up to 3 000 for EDGE vs. 1 000 for DiGress), which results in different reference set sizes per class. 
+
+DiGress Conditional Baseline DiGress natively supports class-conditional generation by concatenating a one-hot class label to the global context vector y fed into the denoising transform. To compare this built-in mechanism against ProtoGuide directly, we train a single conditional model jointly on all five classes for 2 000 epochs, matching the training budget of the per-class models, and sample 64 graphs per class by setting the target label at generation time. We cap this model at Nmax = 500 nodes: because the conditional model must fit all five classes in each training batch and the edge tensor scales as O(N 2), Nmax = 1 000 was infeasible under our GPU memory budget. This choice matches the per-class cap for Biological, Connectome, and Infrastructure (Table 7), but it is lower than the Nmax = 1 000 used by the per-class Internet and Social models; the resulting truncation of larger graphs in these two classes may contribute to the conditional model’s poor performance on them. To isolate this confound, we compare the conditional model against ProtoGuide on Biological, where both operate at Nmax =500 : the conditional model still drops to 23 .9% versus ProtoGuide’s 48 .6% (Section 5.3), showing that truncation alone cannot explain the performance gap. This represents a standard approach to class-conditional graph diffusion: the class signal is available during training, and the model must learn to partition its capacity across classes. 
+
+Guidance Scale Selection the guidance scale λ controls how strongly the Siamese gradient steers the denoising trajectory. Because the effective guidance range differs across class–model pairs in our experiments, we select 
+
+λ independently for each pair. A full search over a wide range of values is computationally expensive, as each candidate requires an additional generation and evaluation step. We therefore perform a coarse grid search over 
+
+λ ∈ { 0.1, 0.2, 0.25 , 0.5, 1, 2, 3, 3.5, 5} on a validation generation run and select the value that maximizes k-NN classification accuracy. The selected values are reported in Tables 6 and 7. The ablation in Appendix H.1 illustrates this class dependence on Connectome and Biological, which respond very differently as λ increases. This motivates class-specific scale selection rather than a single global value. 
+
+5.3 Results 
+
+All results are computed over 10 independent generation seeds, each producing 64 graphs per class, unless stated otherwise. Each model is compared against its own training set (Tables 6-7), so reference sizes differ across models; cross-model comparison should be interpreted with this caveat. 
+
+5.3.1 Class Controllability via k-NN 
+
+Table 2 summarizes the per-class classification accuracy (the diagonal of the confusion matrix) for both denoising models under baseline ( λ=0 ), ProtoGuide, and DiGress built-in conditional mechanism. Full 5×5 confusion matrices and global k-NN results are provided in Appendix D. ProtoGuide improves macro classification accuracy on both backbones: EDGE rises from 50 .7% to 73 .5% and DiGress from 73 .6% to 83 .8% . Observing macro-level gains with two architecturally different denoisers shows that the guidance mechanism can improve class alignment under different discrete reverse-process parametrizations, although the effect is not uniform across classes. 13 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 2: Per-class classification accuracy (%) — Dynamic k-NN . Mean ± std over 10 generation seeds ( 64 graphs each). Bold = best per class across conditions within each backbone, † best macro across conditions within each backbone.                                                                                                    
+
+> Target Class Model Condition Biological Connectome Infrastructure Internet Social Macro EDGE Baseline 62 .5±5.511 .6±3.839 .2±10 .788 .3±5.152 .0±6.050 .7±3.0
+> ProtoGuide 61 .4±6.385 .0±3.734 .4±6.794 .8±2.792 .0±2.8†73 .5±1.5
+> DiGress Baseline 41 .4±9.790 .0±4.990 .0±5.895 .8±3.050 .6±4.573 .6±3.0
+> ProtoGuide 48 .6±6.591 .6±3.889 .1±4.797 .7±1.691 .9±4.0†83 .8±1.6
+> Conditional 23 .9±3.361 .1±5.887 .8±3.07.0±2.827 .3±4.341 .4±2.1
+
+The two graph generative models exhibit complementary per-class strengths. DiGress achieves strong accuracy on the Internet ( 95 .8 → 97 .7% ) and Infrastructure ( 90 .0 → 89 .1% ), where EDGE reaches at best 94 .8% and 39 .2% under ProtoGuide, respectively. By contrast, EDGE obtains the highest accuracy on Biological networks ( 62 .5% ). Social benefits strongly from guidance under both models, rising from 52 .0% to 92 .0% (EDGE) and from 50 .6% to 91 .9% 
+
+(DiGress). The largest absolute improvement appears for Connectome under EDGE, where accuracy jumps from 11 .6% to 85 .0% ;the baseline model misclassified nearly all Connectome graphs as Social ( 84 .4% , Table 13), and ProtoGuide corrects this systematic confusion. Infrastructure under EDGE is, together with Biological ( 62 .5% vs. 61 .4% ), one of two classes where guidance does not improve accuracy ( 39 .2% vs. 34 .4% ). It remains a difficult case for EDGE under both baseline and guided sampling. DiGress Conditional achieves only 41 .4% macro accuracy, substantially below both the unconditional DiGress baseline ( 73 .6% ) and ProtoGuide ( 83 .8% ). It struggles most on Internet ( 7.0% ) and Social (27 .3% ), where it confuses Internet primarily with Infrastructure and Social primarily with Connectome (Table 18). Under our training configuration, the jointly trained conditional model therefore develops a pronounced class bias, with Infrastructure the only class on which it retains high accuracy ( 87 .8% ). Because this baseline is a single jointly trained model whereas ProtoGuide is applied to class-specific generators, the comparison characterizes the two conditioning strategies under our experimental setup rather than isolating a single cause of the performance gap. We describe the observed behavior as class bias rather than generative mode collapse, since the confusion matrix alone does not establish collapse of the generated distribution. 
+
+5.3.2 Independent Classifier Evaluation 
+
+to validate class controllability with an embedding model that is not used by ProtoGuide during guidance, we train an architecturally distinct Siamese GCN (3 layers, 32 hidden dimension, Jumping Knowledge concatenation, attentional pooling) exclusively on real graphs, with Nmax matching Table 1 ( 80% train, 20% validation). We use this model to classify generated graphs via k-NN against the real training embeddings. The classifier is independently initialized, architecturally distinct from the guidance GAT, and never sees generated graphs during training. We evaluate all five conditions (EDGE baseline, EDGE + ProtoGuide, DiGress baseline, DiGress conditional, DiGress + ProtoGuide) across 10 classifier seeds and report mean ±std in Table 3. Table 3: Independent classifier validation. Macro accuracy (%) over 10 classifier seeds ( 3,200 graphs per condition). Parenthesized: improvement over baseline. Bold = best per backbone.                      
+
+> EDGE DiGress Baseline +ProtoGuide Baseline +ProtoGuide Conditional Global k-NN 63 .1±3.671 .1±2.1(+8 .0)69 .4±1.578 .4±0.9(+9 .0)41 .7±0.6
+> Dynamic k-NN 63 .2±4.473 .4±2.1(+10 .2)71 .5±1.279 .2±1.1(+7 .7)42 .6±0.7
+
+Table 3 corroborates the macro-level improvements observed with ProtoGuide using an architecturally distinct evaluation model. The independent GCN assigns ProtoGuide-generated graphs to their target class more accurately in aggregate than the corresponding unguided samples: +10 .2 pp for EDGE and +7 .7 pp for DiGress under dynamic k-NN. The per-class breakdown (Appendix E) shows that these gains are not uniform: Social benefits strongly from guidance (EDGE: 54 .5 → 89 .0% ; DiGress: 52 .3 → 91 .2% ), while Connectome and Infrastructure already achieve > 84% in all ProtoGuide conditions. 14 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+A notable exception is EDGE ProtoGuide on Internet class, where, as shown in Supplementary Material Table 21, the independent Siamese GCN reports a drop from 92 .6% to 76 .0% under ProtoGuide; the independent classifier disagrees with Table 2 where the Siamese GAT evaluation for Internet increases from 88 .3% to 94 .8% . This divergence is accompanied by zero Coverage@95 for EDGE Internet both with and without guidance (Table 4). EDGE’s generated Internet graphs frequently contain disconnected components, indicating a pre-existing structural limitation of the backbone on this class; ProtoGuide improves alignment in the guidance embedding but does not resolve that limitation, and the independent classifier in fact assigns the guided samples to Internet less often. DiGress does not show the same disagreement on Internet ( 98 .5% → 99 .1% under the independent classifier). DiGress Conditional falls below the unconditional baseline ( 42 .6% vs. 71 .5% ) by nearly 29 pp and trails ProtoGuide by 36 .6 pp. Its Internet accuracy drops to 8.5% , showing that, under this external evaluation, the built-in conditional model fails to produce Internet graphs recognized as class-representative. ProtoGuide does not exhibit this failure on DiGress, reaching 99 .1% on the same class. Overall, the macro-level guidance gains are also detected by an independently initialized and architecturally distinct model trained on real graphs (Appendix E). A synthetic-to-real transfer test (Appendix F) points the same way: a Siamese GIN trained only on graphs generated by ProtoGuide reaches 79 .2% macro accuracy on real networks held out from the GIN’s own training, indicating that the generated graphs carry class-structural regularities recognizable on real data. 
+
+5.3.3 Structural Fidelity 
+
+we evaluate structural fidelity from three complementary perspectives: multivariate descriptor-space coverage and diversity, marginal distributional calibration through KS, and kernel-based comparison through MMD (Appendix G.3). 
+
+Coverage, calibrated KS, and diversity Table 4 reports three complementary structural metrics computed from nine graph-level descriptors: number of nodes ( log N ), density, assortativity, average k-core, transitivity, average clustering, number of connected components, LCC fraction, and inverse average path length. Coverage@95 measures per-graph structural plausibility in the jointly IQR-standardized descriptor space. For each generated graph, we compute its k-NN distance to the real reference set and compare it with the 95th percentile of the corresponding real-to-real distances. Coverage@95 is the fraction of generated graphs that fall within this threshold. KS-Cal@95 measures marginal distributional agreement for each descriptor. The two-sample Kolmogorov–Smirnov (KS) distance [47] is the maximum difference between the empirical cumulative distribution functions of the generated and real samples, with smaller values indicating closer marginal distributions. Rather than aggregating raw KS distances directly, we calibrate each class–descriptor pair against its empirical real-vs-real variability. Specifically, we bootstrap 
+
+1 000 real-vs-real splits matched in size to the generated set and use the 95th percentile of their KS distances as a calibration threshold. A generated seed passes for a descriptor when its KS distance to the real set falls below this threshold. KS-Cal@95 is the fraction of descriptor–seed comparisons that pass, so higher values indicate that more generated marginals fall within the empirically calibrated real-vs-real variability. PW-Ratio measures relative dispersion in the same standardized descriptor space. It is the ratio between the mean pairwise Euclidean distance among generated graphs and that among real graphs. Values near 1 indicate comparable dispersion, values below 1 indicate under-dispersion, and values above 1 indicate over-dispersion relative to the real graphs. Table 4 shows that the structural effect of guidance differs between the two backbones. On EDGE, ProtoGuide is neutral to positive on several measures: coverage is maintained or slightly improved on four of five classes, and macro KS-Cal@95 rises from 32 .4% to 39 .8% , with the largest gains on Connectome and Social. On DiGress, the picture is more mixed: coverage remains above 91% on four classes, but decreases on Social ( 98 .3% → 93 .4% ) and Infrastructure ( 93 .4% → 91 .7% ), while KS-Cal@95 decreases notably on Connectome ( 47 .8% → 26 .7% ) and Social (48 .9% → 28 .9% ). Importantly, controllability and fidelity do not move in lockstep: Social combines a large accuracy gain with lower KS calibration, whereas Connectome shows only a small accuracy increase under DiGress despite a substantial KS-Cal@95 decrease. The structural effect of guidance is therefore both backbone- and class-dependent and cannot be inferred directly from the magnitude of the controllability gain. PW-Ratio under ProtoGuide lies between 
+
+0.56 and 1.08 for all classes except EDGE Internet ( 1.85 ), indicating varying degrees of under- or over-dispersion rather than, by itself, mode collapse. DiGress Conditional is much more over-dispersed on Connectome ( 2.82 ) and especially Internet ( 9.63 ) relative to the real reference graphs. Internet coverage is zero for EDGE both with and without guidance, so this failure cannot be attributed to ProtoGuide. The reference Internet graphs are connected, whereas EDGE frequently generates samples with multiple disconnected components, causing them to fail the multivariate coverage criterion in both conditions. Detailed per-metric KS results and per-k coverage breakdowns are provided in Appendix G. 15 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 4: Structural fidelity and diversity (mean ± std over 10 seeds). Bold = best per class within each backbone.                                                                                         
+
+> Condition Class Coverage@95 (%) ↑KS-Cal@95 (%) ↑PW-Ratio ≈1
+> EDGE Baseline Biological 98 .9±0.746 .7±4.40.72 ±0.04
+> Connectome 94 .8±2.438 .9±12 .40.99 ±0.19
+> Infrastructure 96 .2±2.720 .0±4.40.85 ±0.37
+> Internet 0.0±0.022 .2±0.00.97 ±0.08
+> Social 98 .9±1.634 .4±14 .40.75 ±0.05
+> EDGE+ProtoGuide Biological 98 .1±0.946 .7±4.40.73 ±0.06
+> Connectome 98 .0±1.758 .9±14 .91.05 ±0.14
+> Infrastructure 97 .0±2.418 .9±5.10.65 ±0.21
+> Internet 0.0±0.016 .7±7.51.85 ±0.19
+> Social 99 .2±0.857 .8±6.70.81 ±0.02
+> DiGress Baseline Biological 97 .2±5.323 .3±9.20.68 ±0.24
+> Connectome 96 .7±0.847 .8±13 .20.93 ±0.09
+> Infrastructure 93 .4±7.117 .8±7.40.53 ±0.37
+> Internet 70 .3±5.841 .1±7.11.10 ±0.09
+> Social 98 .3±1.848 .9±5.40.73 ±0.06
+> DiGress+ProtoGuide Biological 99 .8±0.524 .4±4.40.56 ±0.06
+> Connectome 97 .3±1.426 .7±15 .91.03 ±0.18
+> Infrastructure 91 .7±7.222 .2±14 .90.63 ±0.43
+> Internet 71 .9±5.044 .4±0.01.08 ±0.07
+> Social 93 .4±2.528 .9±13 .30.95 ±0.08
+> DiGress Conditional Biological 87 .7±3.813 .3±8.31.14 ±0.06
+> Connectome 77 .0±5.58.9±10 .92.82 ±0.36
+> Infrastructure 91 .2±7.316 .7±7.51.07 ±0.64
+> Internet 0.0±0.02.2±6.79.63 ±0.48
+> Social 99 .2±1.034 .4±10 .50.66 ±0.05
+
+# 6 Discussion and Conclusion 
+
+ProtoGuide shows how a classifier-guidance-like mechanism can be instantiated for discrete graph diffusion without retraining the generative model. Relaxing the denoiser’s per-edge output into a soft adjacency provides a differentiable path for graph-level guidance, while the frozen Siamese embedding and class prototypes define the target signal without requiring a classifier trained on noisy diffusion states. Across two architecturally different backbones and five classes of real-world networks, ProtoGuide raises macro classification accuracy substantially (EDGE: 50 .7% → 73 .5% ; DiGress: 
+
+73 .6% → 83 .8% ). Structural evaluation shows that these controllability gains coexist with high per-graph coverage in most settings, while distributional effects remain class- and backbone-dependent (Section 5.3). The experiments also show that controllability and structural fidelity do not vary in lockstep. Guidance can improve both, as for EDGE Connectome, or produce strong class-alignment gains alongside shifts in some structural distributions, as observed for DiGress Social. Conversely, some distributional shifts occur even when the corresponding controllability gain is small. The directionality experiment further shows that steering depends on the selected prototype: replacing the correct target with wrong or random directions substantially changes the resulting class alignment. The few-shot analysis shows a complementary form of robustness, with prototype targets estimated from very small support sets producing performance close to those estimated from larger sets. 
+
+Limitations and future work ProtoGuide does not uniformly correct structural deficiencies of the underlying generative backbone. For example, EDGE achieves zero Internet Coverage@95 even without guidance (Table 4), and guidance does not remove this pre-existing limitation. More importantly, our protocol trains one unconditional backbone per class and steers each model toward the class it already represents. The present experiments therefore establish post-hoc class steering within the distribution learned by each backbone, rather than generation of a class absent from its training distribution. Testing a single pooled unconditional backbone steered toward multiple class prototypes is a natural extension of this work. The same distinction applies to the few-shot experiment: it demonstrates robustness of prototype construction when only a small support set is used after both the generative backbone and Siamese encoder have been trained, rather than few-shot learning of an unseen class. The single-prototype formulation also summarizes each class by one centroid; classes with multi-modal structural organization may benefit from mixture or hierarchical prototypes. Finally, the 16 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+differentiable clustering feature used here is an algebraic relaxation of the binary clustering coefficient and can leave the [0 , 1] range for fractional adjacencies with soft degree below one. Evaluating alternative differentiable relaxations and feature sets is left to future work. 
+
+Conclusion Real-world complex networks provide an important setting for graph generation beyond molecular applications, and post-hoc control offers a way to decouple class steering from generative-model training. ProtoGuide implements this idea for discrete graph diffusion through a differentiable soft adjacency relaxation and frozen prototype-based guidance. On EDGE and DiGress, it substantially improves class controllability without retraining either backbone, with structural effects that vary across classes and models. These results position prototype-driven guidance as a complementary alternative to training conditioning directly into discrete graph generative models. 
+
+# 7 Data and Code Availability 
+
+Code will be released upon acceptance. Data are available from the original sources. 
+
+# References 
+
+[1] A. Lancichinetti, S. Fortunato, and F. Radicchi, “Benchmark graphs for testing community detection algorithms,” 
+
+Physical Review E , vol. 78, no. 4, Oct. 2008. [Online]. Available: http://dx.doi.org/10.1103/PhysRevE.78.046110 [2] O. Artime, M. Grassia, M. De Domenico, J. P. Gleeson, H. A. Makse, G. Mangioni, M. Perc, and F. Radicchi, “Robustness and resilience of complex networks,” Nature Reviews Physics , vol. 6, no. 2, pp. 114–131, 2024. [Online]. Available: https://doi.org/10.1038/s42254-023-00676-y [3] T. Adler, M. Grassia, Z. Liao, G. Mangioni, and C. V. Cannistraci, “Latent geometry-driven network automata for complex network dismantling,” in The Fourteenth International Conference on Learning Representations , 2026. [Online]. Available: https://openreview.net/forum?id=yz29QCGVzC [4] M. Grassia, V. d’Andrea, K. Finc, M. De Domenico, and G. Mangioni, “Machine-enhanced reconstruction of functional connectomes unravels discriminative brain sub-systems in health and disease,” Scientific Reports ,vol. 16, no. 1, p. 16173, 2026. [Online]. Available: https://doi.org/10.1038/s41598-026-47391-z [5] A.-L. Barabasi and Z. N. Oltvai, “Network biology: understanding the cell’s functional organization,” Nat Rev Genet , vol. 5, no. 2, pp. 101–113, Feb. 2004. [Online]. Available: http://dx.doi.org/10.1038/nrg1272 [6] C. Vignac, I. Krawczuk, A. Siraudin, B. Wang, V. Cevher, and P. Frossard, “Digress: Discrete denoising diffusion for graph generation,” in The Eleventh International Conference on Learning Representations, ICLR 2023, Kigali, Rwanda, May 1-5, 2023 . OpenReview.net, 2023. [Online]. Available: https://openreview.net/forum?id=UaAD-Nu86WX [7] X. Chen, J. He, X. Han, and L.-P. Liu, “Efficient and degree-guided graph generation via discrete diffusion modeling,” in Proceedings of the 40th International Conference on Machine Learning , ser. ICML’23. JMLR.org, 2023. [8] K. K. Haefeli, K. Martinkus, N. Perraudin, and R. Wattenhofer, “Diffusion models for graphs benefit from discrete state spaces,” 2023. [Online]. Available: https://arxiv.org/abs/2210.01549 [9] H. Huang, L. Sun, B. Du, and W. Lv, “Conditional diffusion based on discrete graph structures for molecular graph generation,” in Proceedings of the Thirty-Seventh AAAI Conference on Artificial Intelligence and Thirty-Fifth Conference on Innovative Applications of Artificial Intelligence and Thirteenth Symposium on Educational Advances in Artificial Intelligence , ser. AAAI’23/IAAI’23/EAAI’23. AAAI Press, 2023. [Online]. Available: https://doi.org/10.1609/aaai.v37i4.25549 [10] P. Dhariwal and A. Nichol, “Diffusion models beat gans on image synthesis,” in Proceedings of the 35th International Conference on Neural Information Processing Systems , ser. NIPS ’21. Red Hook, NY, USA: Curran Associates Inc., 2021. [11] H. Nisonoff, J. Xiong, S. Allenspach, and J. Listgarten, “Unlocking guidance for discrete state-space diffusion and flow models,” in International Conference on Learning Representations , Y. Yue, A. Garg, N. Peng, F. Sha, and R. Yu, Eds., vol. 2025, 2025, pp. 36 052–36 106. [Online]. Available: https: //proceedings.iclr.cc/paper_files/paper/2025/file/597254dc45be8c166d3ccf0ba2d56325-Paper-Conference.pdf [12] Y. Schiff, S. S. Sahoo, H. Phung, G. Wang, S. Boshar, H. Dalla torre, B. P. de Almeida, A. Rush, T. Pierrot, and V. Kuleshov, “Simple guidance mechanisms for discrete diffusion models.” CoRR , vol. abs/2412.10193, 2024. [Online]. Available: http://dblp.uni-trier.de/db/journals/corr/corr2412.html#abs-2412-10193 17 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+[13] H. Dou, Z. Chen, F. Li, H. Li, and Y. Deng, “Plug-and-play guidance for discrete diffusion models via gradient-informed logit correction,” in Forty-third International Conference on Machine Learning , 2026. [Online]. Available: https://openreview.net/forum?id=IXsOS3hF8Y [14] J. Bromley, J. Bentz, L. Bottou, I. Guyon, Y. Lecun, C. Moore, E. Sackinger, and R. Shah, “Signature verification using a siamese time delay neural network,” International Journal of Pattern Recognition and Artificial Intelligence ,vol. 7, no. 4, Aug. 1993. [15] S. Romano, M. Grassia, and G. Mangioni, “Beyond mmd: Evaluating graph generative models with geometric deep learning,” 2026. [Online]. Available: https://arxiv.org/abs/2512.14241 [16] A. Gretton, K. M. Borgwardt, M. J. Rasch, B. Schölkopf, and A. Smola, “A kernel two-sample test,” Journal of Machine Learning Research , vol. 13, no. 25, pp. 723–773, 2012. [Online]. Available: http://jmlr.org/papers/v13/gretton12a.html [17] A. B. Hassanat, M. A. Abbadi, G. A. Altarawneh, and A. A. Alhasanat, “Solving the problem of the K parameter in the KNN classifier using an ensemble learning approach,” CoRR , vol. abs/1409.0919, 2014. [Online]. Available: http://arxiv.org/abs/1409.0919 [18] P. Erdös and A. Rényi, “On random graphs i,” Publicationes Mathematicae Debrecen , vol. 6, p. 290, 1959. [19] A.-L. Barabási and R. Albert, “Emergence of scaling in random networks,” Science , vol. 286, no. 5439, p. 509–512, Oct. 1999. [Online]. Available: http://dx.doi.org/10.1126/science.286.5439.509 [20] P. W. Holland, K. B. Laskey, and S. Leinhardt, “Stochastic blockmodels: First steps,” Social Networks , vol. 5, no. 2, pp. 109–137, 1983. [Online]. Available: https://www.sciencedirect.com/science/article/pii/0378873383900217 [21] A. Muscoloni and C. V. Cannistraci, “A nonuniform popularity-similarity optimization (npso) model to efficiently generate realistic complex networks with communities,” New Journal of Physics , vol. 20, no. 5, p. 052002, may 2018. [Online]. Available: https://dx.doi.org/10.1088/1367-2630/aac06f [22] J. You, R. Ying, X. Ren, W. L. Hamilton, and J. Leskovec, “Graphrnn: Generating realistic graphs with deep auto-regressive models.” in ICML , ser. Proceedings of Machine Learning Research, J. G. Dy and A. Krause, Eds., vol. 80. PMLR, 2018, pp. 5694–5703. [Online]. Available: http://dblp.uni-trier.de/db/conf/icml/icml2018.html#YouYRHL18 [23] R. Liao, Y. Li, Y. Song, S. Wang, W. L. Hamilton, D. Duvenaud, R. Urtasun, and R. Zemel, Efficient graph generation with graph recurrent attention networks . Red Hook, NY, USA: Curran Associates Inc., 2019. [24] F. Scarselli, M. Gori, A. C. Tsoi, M. Hagenbuchner, and G. Monfardini, “The graph neural network model,” IEEE Transactions on Neural Networks , vol. 20, no. 1, pp. 61–80, 2009. [25] T. N. Kipf and M. Welling, “Variational graph auto-encoders,” 2016. [Online]. Available: https: //arxiv.org/abs/1611.07308 [26] M. Simonovsky and N. Komodakis, “Graphvae: Towards generation of small graphs using variational autoencoders,” 2018. [Online]. Available: https://arxiv.org/abs/1802.03480 [27] C. Niu, Y. Song, J. Song, S. Zhao, A. Grover, and S. Ermon, “Permutation invariant graph generation via score-based generative modeling,” in Proceedings of the Twenty Third International Conference on Artificial Intelligence and Statistics , ser. Proceedings of Machine Learning Research, S. Chiappa and R. Calandra, Eds., vol. 108. PMLR, 26–28 Aug 2020, pp. 4474–4484. [Online]. Available: https://proceedings.mlr.press/v108/niu20a.html [28] J. Jo, S. Lee, and S. J. Hwang, “Score-based generative modeling of graphs via the system of stochastic differential equations,” in International Conference on Machine Learning , 2022. [Online]. Available: https://api.semanticscholar.org/CorpusID:246634850 [29] J. Austin, D. D. Johnson, J. Ho, D. Tarlow, and R. van den Berg, “Structured denoising diffusion models in discrete state-spaces,” in Proceedings of the 35th International Conference on Neural Information Processing Systems , ser. NIPS ’21. Red Hook, NY, USA: Curran Associates Inc., 2021. [30] S. Yun, M. Jeong, R. Kim, J. Kang, and H. J. Kim, Graph transformer networks . Red Hook, NY, USA: Curran Associates Inc., 2019. [31] J. Sohl-Dickstein, E. Weiss, N. Maheswaranathan, and S. Ganguli, “Deep unsupervised learning using nonequilibrium thermodynamics,” in Proceedings of the 32nd International Conference on Machine Learning , ser. Proceedings of Machine Learning Research, F. Bach and D. Blei, Eds., vol. 37. Lille, France: PMLR, 07–09 Jul 2015, pp. 2256–2265. [Online]. Available: https://proceedings.mlr.press/v37/sohl-dickstein15.html [32] J. Ho, A. Jain, and P. Abbeel, “Denoising diffusion probabilistic models,” in Proceedings of the 34th International Conference on Neural Information Processing Systems , ser. NIPS ’20. Red Hook, NY, USA: Curran Associates Inc., 2020. 18 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+[33] Y. Song, J. Sohl-Dickstein, D. P. Kingma, A. Kumar, S. Ermon, and B. Poole, “Score-based generative modeling through stochastic differential equations,” in 9th International Conference on Learning Representations, ICLR 2021, Virtual Event, Austria, May 3-7, 2021 . OpenReview.net, 2021. [Online]. Available: https://openreview.net/forum?id=PxTIG12RRHS [34] J. Ho and T. Salimans, “Classifier-free diffusion guidance,” 2022. [Online]. Available: https: //arxiv.org/abs/2207.12598 [35] M. Ninniri, M. Podda, and D. Bacciu, “Classifier-free graph diffusion for molecular property targeting,” in 
+
+Machine Learning and Knowledge Discovery in Databases. Research Track , A. Bifet, J. Davis, T. Krilaviˇ cius, M. Kull, E. Ntoutsi, and I. Žliobait˙ e, Eds. Cham: Springer Nature Switzerland, 2024, pp. 318–335. [36] K. Sharma, S. Kumar, and R. Trivedi, “Diffuse, sample, project: Plug-and-play controllable graph generation,” in Forty-first International Conference on Machine Learning , 2024. [Online]. Available: https://openreview.net/forum?id=ia0Z8d1DbY [37] V. M. Tenorio, N. Zilberstein, S. Segarra, and A. G. Marques, “Graph guided diffusion: Unified guidance for conditional graph generation,” 2025. [Online]. Available: https://arxiv.org/abs/2505.19685 [38] E. Xing, M. Jordan, S. J. Russell, and A. Ng, “Distance metric learning with application to clustering with side-information,” in Advances in Neural Information Processing Systems , S. Becker, S. Thrun, and K. Obermayer, Eds., vol. 15. MIT Press, 2002. [Online]. Available: https: //proceedings.neurips.cc/paper_files/paper/2002/file/c3e4035af2a1cde9f21e1ae1951ac80b-Paper.pdf [39] R. Hadsell, S. Chopra, and Y. LeCun, “Dimensionality reduction by learning an invariant mapping,” in 2006 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR’06) , vol. 2, 2006, pp. 1735–1742. [40] F. Schroff, D. Kalenichenko, and J. Philbin, “Facenet: A unified embedding for face recognition and clustering,” in 2015 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) . IEEE, June 2015, p. 815–823. [Online]. Available: http://dx.doi.org/10.1109/CVPR.2015.7298682 [41] J. Snell, K. Swersky, and R. Zemel, “Prototypical networks for few-shot learning,” in Proceedings of the 31st International Conference on Neural Information Processing Systems , ser. NIPS’17. Red Hook, NY, USA: Curran Associates Inc., 2017, p. 4080–4090. [42] T. N. Kipf and M. Welling, “Semi-supervised classification with graph convolutional networks,” 2017. [Online]. Available: https://arxiv.org/abs/1609.02907 [43] P. Veliˇ ckovi´ c, G. Cucurull, A. Casanova, A. Romero, P. Liò, and Y. Bengio, “Graph attention networks,” 2018. [Online]. Available: https://arxiv.org/abs/1710.10903 [44] K. Xu, W. Hu, J. Leskovec, and S. Jegelka, “How powerful are graph neural networks?” in 7th International Conference on Learning Representations, ICLR 2019, New Orleans, LA, USA, May 6-9, 2019 . OpenReview.net, 2019. [Online]. Available: https://openreview.net/forum?id=ryGs6iA5Km [45] W. L. Hamilton, R. Ying, and J. Leskovec, “Inductive representation learning on large graphs,” in Proceedings of the 31st International Conference on Neural Information Processing Systems , ser. NIPS’17. Red Hook, NY, USA: Curran Associates Inc., 2017, p. 1025–1035. [46] K. Xu, C. Li, Y. Tian, T. Sonobe, K.-i. Kawarabayashi, and S. Jegelka, “Representation learning on graphs with jumping knowledge networks,” in Proceedings of the 35th International Conference on Machine Learning , ser. Proceedings of Machine Learning Research, J. Dy and A. Krause, Eds., vol. 80. PMLR, 10–15 Jul 2018, pp. 5453–5462. [Online]. Available: https://proceedings.mlr.press/v80/xu18c.html [47] F. J. Massey, “The Kolmogorov-Smirnov test for goodness of fit,” Journal of the American Statistical Association ,vol. 46, no. 253, pp. 68–78, 1951. [48] F. Costa and K. D. Grave, “Fast neighborhood subgraph pairwise distance kernel,” in Proceedings of the 27th International Conference on International Conference on Machine Learning , ser. ICML’10. Madison, WI, USA: Omnipress, 2010, p. 255–262. [49] L. O’Bray, M. Horn, B. Rieck, and K. Borgwardt, “Evaluation metrics for graph generative models: Problems, pitfalls, and practical solutions,” in International Conference on Learning Representations , 2022. [Online]. Available: https://openreview.net/forum?id=tBtoZYKd9n [50] J. Zhao, A. Muscoloni, U. Michieli, Y. Zhang, and C. V. Cannistraci, “Adaptive cannistraci-hebb network automata modelling of complex networks for path-based link prediction,” in The Thirty-ninth Annual Conference on Neural Information Processing Systems , 2025. [Online]. Available: https://openreview.net/forum?id=fxxMReBRhi 19 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+[51] A. Ghasemian, H. Hosseinmardi, A. Galstyan, E. M. Airoldi, and A. Clauset, “Stacking models for nearly optimal link prediction in complex networks,” Proceedings of the National Academy of Sciences , vol. 117, no. 38, pp. 23 393–23 400, 2020. [Online]. Available: https://www.pnas.org/doi/abs/10.1073/pnas.1914950117 20 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+# A ProtoGuide Algorithm and Runtime 
+
+Algorithm 1 summarizes the guided reverse sampling procedure described in Section 4.2. 
+
+Algorithm 1 ProtoGuide: Guided Reverse Sampling 
+
+Require: Frozen denoiser pθ , frozen Siamese GNN fϕ, target class y∗, guidance scale λ, diffusion steps T
+
+Ensure: Generated graph G
+
+1: Offline: Compute class prototypes πc = zc/∥zc∥2 for all c (Eq. 12) 2: Sample initial state xT ∼ q(xT )
+
+3: for t = T, T −1, . . . , 1 do 
+
+4: Predict denoiser output oij (t) from pθ
+
+5: ρt ← 1 − t/T {generation progress} 6: if ρt < 0.05 then 
+
+7: Sample xt−1 ∼ pθ (xt−1 | xt); continue {skip early noisy steps} 8: end if 
+
+9: α ← 12
+
+ 1 − cos( π ρ t) (Eq. 24) 10: Build soft adjacency ˜aij (t) from oij (t) (Eq. 25 or 27) 11: Hard edge index Ehard = {(i, j ) : ˜ aij > 0.5}
+
+12: Compute hybrid node features eH ∈ RN ×4: degree, χ-degree, clustering from eA (differentiable); 
+
+k-core from Ehard (detached) (Eqs. 14–18) 13: Embed: z = fϕ( eH, Ehard )
+
+14: Contrastive score: S = cos( z, πy∗ ) − max c̸=y∗ cos( z, πc) (Eq. 13) 15: gij ← ∂S/∂ oij (t) {autograd} 16: ˆgij ← gij /(∥gij ∥2 + ϵ) {per-edge normalization} 17: eoij (t) ← oij (t) + λ α ˆgij (Eq. 26 or 28) 18: Renormalize eoij (t); sample xt−1
+
+19: end for 
+
+20: return G = x0
+
+A.1 Wall-Clock Runtime 
+
+Table 5 reports the wall-clock time to generate a batch of 64 graphs ( T =128 diffusion steps) on a single NVIDIA H200 GPU, averaged over 5 runs. ProtoGuide’s per-step overhead is dominated by the Siamese GNN forward–backward pass and the differentiable clustering feature (Section 4.5), so its absolute cost scales with graph size rather than with the backbone. For EDGE Baseline, whose unguided sampling takes approximately 1.0–5.4 s per batch, guidance adds 
+
+22 –29 × relative overhead. For DiGress, whose Graph Transformer denoiser is the computational bottleneck, the same guidance mechanism adds 1.1–1.7×.Table 5: Wall-clock runtime (seconds, mean ± std over 5 runs) for generating 64 graphs ( T =128 ) on a single NVIDIA H200 GPU. Ratio = ProtoGuide / Baseline. 
+
+Model Class Baseline (s) ProtoGuide (s) Ratio EDGE Biological 1.5±0.2 35 .0±4.7 23 .5×
+
+Connectome 1.3±0.1 37 .8±4.2 28 .9×
+
+Infrastructure 1.0±0.2 23 .6±3.6 23 .2×
+
+Internet 5.4±0.6 121 .0±15 .3 22 .4×
+
+Social 1.4±0.3 35 .9±5.4 25 .9×
+
+DiGress Biological 142 .5±18 .2 170 .7±17 .4 1.2×
+
+Connectome 78 .9±32 .4 135 .0±42 .9 1.7×
+
+Infrastructure 99 .0±32 .5 129 .5±31 .4 1.3×
+
+Internet 1,038 .4±48 .4 1,108 .8±49 .1 1.1×
+
+Social 415 .7±113 .9 468 .9±111 .0 1.1×
+
+# B Model Configurations 
+
+This appendix reports the exact per-class configuration used for EDGE (Table 6) and DiGress (Table 7): the number of training graphs, the maximum node count Nmax , and the guidance scale λ selected as described in Section 5.2 (paragraph “Guidance Scale selection”). The training-graph counts are smaller than the class totals in Table 1 because each model 21 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+discards, per class, the graphs that exceed its own Nmax ; DiGress’s smaller Nmax on Biological, Connectome, and Infrastructure ( 500 , versus 1,000 –3,000 for EDGE) is why its training sets for these classes are correspondingly smaller. Table 6: Per-class EDGE configuration.                    
+
+> Class Training Graphs Max Nodes Guidance Scale λ
+> Biological 135 2 000 0.25 Connectome 527 1 000 5.0 Infrastructure 296 2 000 1.0 Internet 97 3 000 3.0 Social 85 1 000 2.0
+
+Table 7: Per-class DiGress configuration.                    
+
+> Class Training Graphs Max Nodes Guidance Scale λ
+> Biological 97 500 0.50 Connectome 418 500 3.0 Infrastructure 226 500 2.0 Internet 52 1 000 0.2 Social 68 1 000 3.5
+
+# C Siamese Encoder Selection 
+
+The Siamese encoder was selected by an exhaustive grid search over 192 configurations: architecture (GAT, GIN), depth 
+
+L ∈ { 2, 3, 4, 5}, hidden dimension dh ∈ { 8, 16 , 32 , 64 }, learning rate ∈ { 10 −3, 3·10 −4, 10 −4}, and triplet margin 
+
+∈ { 0.5, 1.0}. The output dimension ( do=16 ) and the number of attention heads ( H=4 , GAT only) were held fixed. Each configuration was trained with triplet margin loss for at most 40 epochs with early stopping (patience 10 ), and scored by validation balanced accuracy under the same k-NN protocol used at evaluation time. Table 8: Encoder architecture comparison. Validation balanced accuracy (%) over 96 configurations per architecture.             
+
+> Architecture Configurations Best Mean Median GAT 96 88 .81 78.89 78.54 GIN 96 84.00 81 .44 81 .39
+
+Table 9: Best validation balanced accuracy (%) by architecture and depth. GAT attains the higher value at every depth.             
+
+> Architecture L=2 L=3 L=4 L=5
+> GAT 86 .27 87 .56 88 .53 88 .81
+> GIN 82.53 83.13 83.73 84.00
+
+GAT reaches the higher ceiling at every depth (Table 9), whereas GIN attains the higher mean and median across the grid (Table 8): the GAT encoder is more sensitive to its hyperparameters but achieves better optima when well configured. The two best configurations overall are both GAT: L=5 , dh=64 (88 .81% , 2.39 M parameters) and L=4 ,
+
+dh=8 (88 .53% , 30 K parameters). We adopt the latter, trading 0.28 pp of validation accuracy for a 78 × reduction in parameter count. 
+
+# D Full Confusion Matrices 
+
+Table 10 reports per-class classification accuracy for both denoising models under baseline ( λ = 0 ), ProtoGuide, and DiGress built-in conditional mechanism. Tables 11–20 report the full 5×5 confusion matrices for all experimental conditions (Siamese GAT evaluation of generated graphs). Rows correspond to the intended target class; columns to the predicted class. Values are percentages of the row total; diagonal entries (correct classifications) are bolded .22 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 10: Per-class classification accuracy (%) — Global k-NN . Mean ± std over 10 generation seeds ( 64 graphs each). Bold = best per class across conditions within each backbone. † best macro across conditions within each backbone. 
+
+Target Class Model Condition Biological Connectome Infrastructure Internet Social Macro EDGE Baseline 47 .7 ± 6.9 14 .7 ± 3.6 46 .9 ± 9.8 88 .1 ± 5.2 47 .3 ± 6.8 48 .9 ± 3.1
+
+ProtoGuide 45 .9 ± 6.7 86 .7 ± 3.4 44 .1 ± 6.4 94 .4 ± 3.0 90 .8 ± 3.0 †72 .4 ± 2.0
+
+DiGress Baseline 30 .0 ± 9.2 91 .1 ± 3.5 92 .2 ± 5.6 95 .6 ± 3.2 43 .1 ± 4.3 70 .4 ± 2.3
+
+ProtoGuide 35 .5 ± 6.3 93 .0 ± 3.2 91 .1 ± 5.0 97 .7 ± 1.6 87 .3 ± 4.7 †80 .9 ± 1.7
+
+Conditional 12 .7 ± 2.7 68 .3 ± 4.9 89 .5 ± 2.5 7.0 ± 2.8 24 .5 ± 3.7 40 .4 ± 1.6
+
+Table 11: Global k-NN confusion — EDGE Baseline ( λ=0 ). Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 47.7 ±6.9 7.7 ±1.8 33.9 ±6.7 1.7 ±1.1 9.1 ±3.5 Connectome 0.9 ±1.0 14.7 ±3.6 2.0 ±1.6 0.2 ±0.5 82.2 ±3.8 Infrastructure 35.3 ±7.5 6.6 ±2.1 46.9 ±9.8 3.4 ±2.2 7.8 ±3.4 Internet 8.0 ±3.9 0.0 ±0.0 3.9 ±2.3 88.1 ±5.2 0.0 ±0.0 Social 15.8 ±3.0 20.5 ±4.8 14.5 ±3.9 1.9 ±1.5 47.3 ±6.8 
+
+Table 12: Global k-NN confusion — EDGE+ProtoGuide . Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 45.9 ±6.7 12.3 ±3.5 27.8 ±4.4 1.9 ±1.8 12.0 ±5.0 Connectome 0.2 ±0.5 86.7 ±3.4 0.5 ±1.0 0.0 ±0.0 12.7 ±3.0 Infrastructure 37.7 ±5.2 6.2 ±2.8 44.1 ±6.4 4.2 ±2.6 7.8 ±2.3 Internet 0.9 ±1.0 1.2 ±0.9 0.2 ±0.5 94.4 ±3.0 3.3 ±2.9 Social 4.5 ±2.7 2.0 ±1.7 1.9 ±1.7 0.8 ±1.4 90.8 ±3.0 
+
+Table 13: Dynamic k-NN confusion — EDGE Baseline ( λ=0 ). Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 62.5 ±5.5 0.3 ±0.6 24.2 ±6.3 1.7 ±1.1 11.2 ±3.6 Connectome 2.5 ±1.2 11.6 ±3.8 1.4 ±1.1 0.2 ±0.5 84.4 ±3.7 Infrastructure 46.4 ±8.8 0.2 ±0.5 39.2 ±10.7 3.4 ±2.2 10.8 ±3.9 Internet 9.2 ±5.3 0.0 ±0.0 2.5 ±1.9 88.3 ±5.1 0.0 ±0.0 Social 33.0 ±6.9 3.9 ±1.7 9.2 ±2.5 1.9 ±1.5 52.0 ±6.0 
+
+Table 14: Dynamic k-NN confusion — EDGE+ProtoGuide . Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 61.4 ±6.3 0.5 ±0.7 19.8 ±3.0 1.9 ±1.8 16.4 ±6.4 Connectome 0.8 ±0.8 85.0 ±3.7 0.3 ±0.6 0.0 ±0.0 13.9 ±3.4 Infrastructure 50.2 ±5.6 0.2 ±0.5 34.4 ±6.7 4.5 ±2.6 10.8 ±2.5 Internet 1.1 ±1.0 0.0 ±0.0 0.0 ±0.0 94.8 ±2.7 4.1 ±3.0 Social 6.2 ±2.5 0.0 ±0.0 0.9 ±1.4 0.8 ±1.4 92.0 ±2.8 
+
+# E Independent Classifier — Per-Class Breakdown 
+
+Table 21 reports the per-class dynamic k-NN accuracy of the independent Siamese GCN (trained on real graphs only) when classifying generated graphs from each condition (mean ± std over 10 classifier seeds). This classifier is architecturally distinct from the guidance encoder and independently initialized, but it is trained on the same real corpus, so the two are not independent in training data. The standard deviations reported here and in Table 3 are computed over classifier-initialization seeds with all generation seeds pooled, and therefore measure classifier stability rather than variability across generation runs. 23 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 15: Global k-NN confusion — DiGress Conditional (built-in) . Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 12.7 ±2.7 21.2 ±2.9 51.6 ±5.4 2.8 ±1.8 11.7 ±2.2 Connectome 4.1 ±1.9 68.3 ±4.9 7.2 ±2.2 2.0 ±1.2 18.4 ±3.2 Infrastructure 6.1 ±3.7 0.8 ±0.8 89.5 ±2.5 1.4 ±1.6 2.2 ±1.0 Internet 17.0 ±4.8 10.5 ±2.9 56.2 ±3.8 7.0 ±2.8 9.2 ±2.4 Social 5.2 ±3.3 65.5 ±5.2 4.8 ±2.1 0.0 ±0.0 24.5 ±3.7 
+
+Table 16: Global k-NN confusion — DiGress Baseline ( λ=0 ). Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 30.0 ±9.2 8.9 ±7.6 53.6 ±4.7 1.1 ±2.4 6.4 ±3.3 Connectome 1.6 ±1.0 91.1 ±3.5 0.8 ±1.3 0.2 ±0.5 6.4 ±4.0 Infrastructure 6.1 ±4.8 0.8 ±1.3 92.2 ±5.6 0.5 ±1.4 0.5 ±1.0 Internet 2.2 ±2.0 0.0 ±0.0 2.2 ±1.7 95.6 ±3.2 0.0 ±0.0 Social 12.8 ±4.5 21.7 ±6.7 22.3 ±6.4 0.0 ±0.0 43.1 ±4.3 
+
+Table 17: Global k-NN confusion — DiGress+ProtoGuide . Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 35.5 ±6.3 3.6 ±2.6 56.1 ±5.3 0.0 ±0.0 4.8 ±2.8 Connectome 0.6 ±0.8 93.0 ±3.2 0.9 ±0.8 0.2 ±0.5 5.3 ±3.1 Infrastructure 7.0 ±4.6 0.3 ±0.6 91.1 ±5.0 0.3 ±0.9 1.2 ±1.2 Internet 0.9 ±1.2 0.0 ±0.0 1.4 ±1.1 97.7 ±1.6 0.0 ±0.0 Social 5.6 ±2.8 5.8 ±2.7 1.2 ±1.2 0.0 ±0.0 87.3 ±4.7 
+
+Table 18: Dynamic k-NN confusion — DiGress Conditional (built-in) . Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 23.9 ±3.3 14.7 ±4.9 44.1 ±6.6 2.8 ±1.8 14.5 ±2.9 Connectome 9.7 ±3.1 61.1 ±5.8 5.3 ±2.4 2.0 ±1.2 21.9 ±3.2 Infrastructure 8.3 ±4.1 0.0 ±0.0 87.8 ±3.0 1.6 ±1.6 2.3 ±1.3 Internet 31.9 ±3.3 2.7 ±1.6 46.7 ±3.9 7.0 ±2.8 11.7 ±2.9 Social 9.5 ±3.2 60.5 ±5.6 2.7 ±2.1 0.0 ±0.0 27.3 ±4.3 
+
+Table 19: Dynamic k-NN confusion — DiGress Baseline ( λ=0 ). Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 41.4 ±9.7 3.9 ±7.9 45.0 ±5.4 1.1 ±2.4 8.6 ±3.3 Connectome 2.2 ±1.0 90.0 ±4.9 0.6 ±1.0 0.2 ±0.5 7.0 ±5.0 Infrastructure 8.9 ±5.2 0.0 ±0.0 90.0 ±5.8 0.5 ±1.4 0.6 ±1.0 Internet 2.5 ±2.1 0.0 ±0.0 1.7 ±1.5 95.8 ±3.0 0.0 ±0.0 Social 29.8 ±3.4 5.0 ±3.2 14.5 ±3.4 0.0 ±0.0 50.6 ±4.5 
+
+Table 20: Dynamic k-NN confusion — DiGress+ProtoGuide . Mean ± std (%) over 10 seeds. 
+
+Biological Connectome Infrastructure Internet Social Biological 48.6 ±6.5 0.3 ±0.6 45.5 ±4.8 0.0 ±0.0 5.6 ±3.0 Connectome 1.6 ±1.4 91.6 ±3.8 0.8 ±0.8 0.2 ±0.5 5.9 ±3.6 Infrastructure 8.9 ±4.0 0.0 ±0.0 89.1 ±4.7 0.5 ±1.0 1.6 ±1.4 Internet 1.2 ±1.5 0.0 ±0.0 1.1 ±1.0 97.7 ±1.6 0.0 ±0.0 Social 7.0 ±3.6 0.0 ±0.0 1.1 ±1.0 0.0 ±0.0 91.9 ±4.0 
+
+ProtoGuide’s largest per-class gains appear on Social (EDGE: 54 .5 → 89 .0% ; DiGress: 52 .3 → 91 .2% ) and Connectome under EDGE ( 53 .7 → 93 .2% ), mirroring the patterns observed with the Siamese GAT evaluation (Table 2). Biological remains the hardest class under this independent evaluator, with per-class accuracy between 14% and 29% across 24 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 21: Independent classifier — per-class dynamic k-NN accuracy (%) . A Siamese GCN trained only on real graphs classifies generated graphs. Mean ± std over 10 seeds. Bold = best per class across condition within each backbone. † best macro across condition within each backbone.                                     
+
+> Condition Biological Connectome Infrastructure Internet Social Macro EDGE Baseline 29 .0±5.353 .7±20 .986 .2±4.092 .6±5.354 .5±5.663 .2±4.4
+> EDGE+ProtoGuide 24 .4±6.393 .2±1.284 .4±5.576 .0±10 .889 .0±4.2†73 .4±2.1
+> DiGress Baseline 16 .8±6.095 .2±0.594 .8±1.898 .5±1.352 .3±3.671 .5±1.2
+> DiGress+ProtoGuide 14 .6±6.496 .5±0.594 .7±1.899 .1±0.891 .2±0.8†79 .2±1.1
+> DiGress Conditional 24 .0±3.367 .6±1.392 .9±2.48.5±1.520 .1±1.842 .6±0.7
+
+Table 22: Synthetic-to-real generalization. Macro and per-class accuracy (%, mean ± std over 10 seeds) on 122 
+
+held-out real graphs for a Siamese GIN trained only on ProtoGuide-generated graphs. Bold = best per class; † = best macro.                     
+
+> k-NN protocol Macro Biological Connectome Infrastructure Internet Social Global k-NN †79 .2±4.967 .1±5.793 .7±1.272 .9±12 .298 .2±3.664 .2±13 .5
+> Dynamic k-NN 78 .4±5.557 .1±12 .894 .1±1.471 .0±13 .6100 .0±0.070 .0±10 .0
+
+Table 23: Global k-NN confusion matrix — Synthetic-to-Real (GIN, generated-only training) . Mean ± std (%) over 10 seeds. Rows = true class, columns = predicted class.                                                                                
+
+> Biological Connectome Infrastructure Internet Social Biological 67 .1±5.70.7±2.119 .3±4.60.0±0.012 .9±5.3
+> Connectome 2.4±1.493 .7±1.20.9±1.20.2±0.62.8±1.2
+> Infrastructure 21 .3±11 .82.6±1.372 .9±12 .21.0±1.52.3±1.5
+> Internet 0.9±2.70.0±0.00.0±0.098 .2±3.60.9±2.7
+> Social 13 .3±5.515 .0±6.25.0±4.12.5±3.864 .2±13 .5
+
+conditions. The DiGress Conditional model also performs poorly on Internet ( 8.5% ) and Social ( 20 .1% ) under the independent classifier, consistent with the class-bias pattern observed in the main evaluation. 
+
+# F Synthetic-to-Real Generalization 
+
+To further examine the behavior of the generated graphs, and to avoid any circularity with the Siamese GAT used inside ProtoGuide, we train an independent Siamese GIN, selected via grid search over 24 configurations (architecture, depth, hidden dimension), only on ProtoGuide-generated graphs ( 5,120 training, 1,280 validation). The best configuration is a GIN with 4 layers, hidden dimension 32 , and attentional pooling ( 90 .4% validation macro accuracy). At test time, the frozen GIN embeds 122 real graphs held out from its own training (Biological 14 , Connectome 54 , Infrastructure 31 ,Internet 11 , Social 12 ; a per-class 80 /10 /10 split of the real corpus) and classifies them via k-NN against the generated training set. This split is drawn independently of the generators’ own train/test splits and of prototype computation, which uses every graph of a class below the model’s node cap. The majority of these 122 graphs therefore did contribute to denoiser training and to prototype construction, and the experiment measures transfer of class structure from generated to real graphs rather than generalization to unseen networks. Table 22 reports the results. A Siamese GIN trained only on ProtoGuide-generated graphs achieves 79 .2% macro accuracy (global k-NN) on real networks. Connectome and Internet are classified nearly perfectly ( 93 .7% and 98 .2% ), while Biological ( 67 .1% ), Social ( 64 .2% ), and Infrastructure ( 72 .9% ) are lower and show larger uncertainty on some classes. This indicates that ProtoGuide-generated graphs carry class-structural regularities that transfer to real networks. Tables 23 and 24 report the full confusion matrices. Diagonal entries (correct classification) are bolded .25 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 24: Dynamic k-NN confusion matrix — Synthetic-to-Real (GIN, generated-only training) . Per-class 
+
+kc = ⌈√Nc⌉. Mean ± std (%) over 10 seeds. Rows = true class, columns = predicted class.                                                                                
+
+> Biological Connectome Infrastructure Internet Social Biological 57 .1±12 .80.7±2.125 .0±10 .20.7±2.116 .4±3.3
+> Connectome 2.4±0.894 .1±1.40.6±0.80.4±0.72.6±0.9
+> Infrastructure 22 .6±13 .63.2±0.071 .0±13 .61.3±1.61.9±1.6
+> Internet 0.0±0.00.0±0.00.0±0.0100 .0±0.00.0±0.0
+> Social 14 .2±7.510 .8±3.82.5±3.82.5±3.870 .0±10 .0
+
+# G Evaluation 
+
+G.1 Kolmogorov–Smirnov Test 
+
+For each seed and each of the nine structural descriptors listed in Section 5.3, we run a two-sample Kolmogorov– Smirnov test comparing the metric distribution of the 64 generated graphs against the training graphs of the respective model. Table 25 omits the connected-components row: a graph is connected if and only if its LCC fraction equals one, and both descriptors are dominated by this atom in our corpora, so in every comparison the KS supremum is attained exactly at the connected/disconnected boundary and the two descriptors return identical KS distances (verified on all 
+
+250 per-seed comparisons). We therefore report only the LCC fraction, while KS-Cal@95 aggregates over all nine descriptors. Table 25 reports the mean KS statistic D±σ over 10 seeds; bold entries indicate that D is not statistically significant ( p > 0.05 ) in at least 50% of seeds. The KS-Cal@95 metric in Table 4 is derived from the same per-seed KS distance but uses a calibrated threshold: for each class and descriptor, we bootstrap 1 000 real-vs-real splits and take the 95th percentile of the resulting KS distances as the acceptance threshold, so that pass rates are comparable across descriptors with different intrinsic scales. The KS analysis reveals several patterns. For log N , the KS test is non-significant in at least half of the seeds for EDGE, DiGress, and ProtoGuide across all five classes, whereas DiGress Conditional fails this criterion on every class and most strongly on Internet ( D = 0 .947 ). EDGE also matches density comparatively well, passing on four of five classes, while DiGress baseline shows significant density differences on Biological, Connectome, and Infrastructure. Assortativity, transitivity, and average clustering are among the more difficult descriptors across conditions. ProtoGuide can either improve or worsen individual marginals depending on the class and descriptor. For example, EDGE Connectome transitivity decreases from D = 0 .813 (significant in all seeds) to D = 0 .180 (non-significant in more than half of the seeds) under ProtoGuide. DiGress Conditional shows a different pattern: its LCC-fraction test is non-significant in at least half of the seeds, while log N and density on Internet have near-maximal KS distances ( D > 0.94 ), indicating a severe mismatch in graph size and density. 
+
+G.2 Structural k-NN Coverage 
+
+To complement the per-metric KS analysis with a multivariate assessment, we compute a structural k-NN Coverage@95 metric. For each seed, we standardize all nine metrics using the IQR (Interquartile Range) of the real distribution (dropping any metric with zero IQR, i.e. constant across all real graphs), compute leave-one-out k-NN distances among real graphs to establish a 95th-percentile threshold τ95 , and report the fraction of generated graphs whose k-NN distance to the real set falls within τ95 . We evaluate in two ways: a fixed kglobal =5 and a per-class kdyn =⌊√nreal ⌋. Table 26 reports mean ± std over 10 seeds. Coverage@95 remains high under ProtoGuide for most class–backbone pairs in Table 26. For EDGE, guidance maintains or improves coverage on most classes, most notably Connectome, which rises from 83 .9% to 95 .3% under 
+
+kglob . Biological changes only marginally, while Internet remains at the coverage floor under both conditions. For DiGress, guidance improves coverage on Biological and Internet, while Infrastructure and Social decrease by at most 
+
+5 pp under both k choices. Connectome decreases under kglob (96 .6% → 92 .3% ) but is essentially unchanged under 
+
+kdyn (96 .7% → 97 .3% ), making this result sensitive to the choice of k. EDGE achieves 0.0% Internet coverage under both baseline and guidance, indicating a clear gap between generated and real Internet graphs in the descriptor space used by Coverage@95. DiGress Conditional also achieves 0.0% on Internet, alongside the severe log N mismatch reported by the KS analysis. Results on the remaining classes are broadly similar across the two k choices. 26 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 25: Two-sample Kolmogorov–Smirnov test ( D ± σ over 10 seeds). Each condition is tested against its own model’s training set. Bold indicates D is not significant at α = 0 .05 in ≥50% of seeds (pass-rate ≥50%). Class Metric EDGE EDGE+ProtoGuide DiGress DiGress+ProtoGuide DiGress-Conditional Biological log N 0.110 ±0.029 0.120 ±0.040 0.190 ±0.079 0.120 ±0.015 0.319 ±0.030 
+
+Density 0.125 ±0.032 0.120 ±0.035 0.509 ±0.064 0.513 ±0.028 0.418 ±0.052 
+
+Assort. 0.268 ±0.046 0.270 ±0.052 0.144 ±0.067 0.123 ±0.021 0.188 ±0.060 
+
+Avg k-core 0.167 ±0.031 0.154 ±0.023 0.666 ±0.146 0.742 ±0.031 0.354 ±0.034 
+
+Transit. 0.400 ±0.044 0.460 ±0.040 0.333 ±0.061 0.288 ±0.032 0.368 ±0.039 
+
+Avg Clust. 0.388 ±0.047 0.459 ±0.047 0.358 ±0.051 0.346 ±0.032 0.379 ±0.043 
+
+LCC frac. 0.422 ±0.077 0.366 ±0.044 0.467 ±0.231 0.581 ±0.052 0.027 ±0.014 
+
+Glob. Eff. 0.167 ±0.020 0.176 ±0.022 0.576 ±0.054 0.592 ±0.048 0.536 ±0.042 
+
+Connectome log N 0.031 ±0.009 0.030 ±0.007 0.033 ±0.006 0.078 ±0.039 0.297 ±0.057 
+
+Density 0.137 ±0.044 0.167 ±0.035 0.194 ±0.044 0.376 ±0.059 0.345 ±0.041 
+
+Assort. 0.405 ±0.052 0.262 ±0.023 0.159 ±0.055 0.492 ±0.048 0.496 ±0.049 
+
+Avg k-core 0.135 ±0.040 0.126 ±0.029 0.167 ±0.053 0.707 ±0.054 0.369 ±0.045 
+
+Transit. 0.813 ±0.032 0.180 ±0.054 0.216 ±0.050 0.902 ±0.020 0.302 ±0.061 
+
+Avg Clust. 0.942 ±0.005 0.558 ±0.051 0.526 ±0.032 0.776 ±0.034 0.529 ±0.054 
+
+LCC frac. 0.008 ±0.008 0.003 ±0.006 0.003 ±0.006 0.011 ±0.016 0.011 ±0.010 
+
+Glob. Eff. 0.497 ±0.041 0.168 ±0.051 0.261 ±0.048 0.133 ±0.038 0.381 ±0.045 
+
+Infrastructure log N 0.109 ±0.033 0.124 ±0.024 0.239 ±0.204 0.247 ±0.184 0.358 ±0.202 
+
+Density 0.167 ±0.036 0.183 ±0.072 0.235 ±0.097 0.219 ±0.116 0.203 ±0.126 
+
+Assort. 0.588 ±0.037 0.615 ±0.054 0.343 ±0.078 0.353 ±0.140 0.273 ±0.053 
+
+Avg k-core 0.254 ±0.043 0.272 ±0.056 0.394 ±0.124 0.379 ±0.174 0.469 ±0.121 
+
+Transit. 0.521 ±0.034 0.601 ±0.044 0.369 ±0.097 0.346 ±0.101 0.315 ±0.118 
+
+Avg Clust. 0.497 ±0.052 0.531 ±0.031 0.368 ±0.062 0.339 ±0.096 0.353 ±0.066 
+
+LCC frac. 0.402 ±0.076 0.472 ±0.066 0.134 ±0.047 0.134 ±0.067 0.113 ±0.076 
+
+Glob. Eff. 0.304 ±0.072 0.290 ±0.068 0.287 ±0.140 0.308 ±0.141 0.399 ±0.121 
+
+Internet log N 0.106 ±0.027 0.117 ±0.032 0.127 ±0.044 0.106 ±0.029 0.947 ±0.019 
+
+Density 0.141 ±0.045 0.295 ±0.040 0.150 ±0.055 0.163 ±0.036 0.953 ±0.020 
+
+Assort. 0.669 ±0.054 0.638 ±0.045 0.560 ±0.038 0.562 ±0.043 0.687 ±0.053 
+
+Avg k-core 0.683 ±0.044 0.959 ±0.012 0.216 ±0.067 0.235 ±0.042 0.469 ±0.026 
+
+Transit. 0.538 ±0.056 0.552 ±0.042 0.631 ±0.057 0.654 ±0.069 0.617 ±0.050 
+
+Avg Clust. 0.974 ±0.013 0.302 ±0.049 0.800 ±0.065 0.835 ±0.042 0.643 ±0.041 
+
+LCC frac. 0.761 ±0.054 0.522 ±0.044 0.620 ±0.076 0.605 ±0.048 0.037 ±0.022 
+
+Glob. Eff. 0.426 ±0.051 0.855 ±0.021 0.284 ±0.052 0.286 ±0.030 0.875 ±0.036 
+
+Social log N 0.110 ±0.026 0.093 ±0.016 0.090 ±0.018 0.101 ±0.023 0.316 ±0.060 
+
+Density 0.273 ±0.053 0.108 ±0.028 0.162 ±0.023 0.398 ±0.040 0.501 ±0.061 
+
+Assort. 0.297 ±0.040 0.209 ±0.052 0.334 ±0.047 0.301 ±0.046 0.249 ±0.038 
+
+Avg k-core 0.230 ±0.050 0.165 ±0.036 0.247 ±0.034 0.542 ±0.059 0.413 ±0.050 
+
+Transit. 0.513 ±0.056 0.387 ±0.024 0.386 ±0.064 0.294 ±0.032 0.347 ±0.066 
+
+Avg Clust. 0.616 ±0.052 0.475 ±0.026 0.474 ±0.043 0.362 ±0.048 0.284 ±0.040 
+
+LCC frac. 0.186 ±0.038 0.072 ±0.034 0.097 ±0.036 0.048 ±0.032 0.027 ±0.021 
+
+Glob. Eff. 0.238 ±0.056 0.169 ±0.037 0.184 ±0.015 0.515 ±0.046 0.540 ±0.063 
+
+G.3 MMD Assessment 
+
+Table 27 reports five MMD metrics: degree, clustering, orbits, spectral, and NSPDK [48]. In this way, we capture distributional fidelity at different structural scales. ProtoGuide has a mixed and strongly class-dependent effect on MMD (Table 27). In some cases guidance improves distributional agreement: for EDGE Connectome, clustering MMD decreases from 0.878 to 0.0896 and spectral MMD from 1.094 to 0.235 . Other metrics move in the opposite direction; for example, EDGE Internet degree MMD increases from 0.214 to 0.466 . The clearest distributional shift occurs for DiGress Connectome, where degree MMD rises from 
+
+0.0380 to 0.269 , clustering from 0.0780 to 0.279 , and spectral and NSPDK MMD increase as well, despite only a modest change in classification accuracy ( 90 .0% → 91 .6% ). This reinforces that class controllability and distributional fidelity capture distinct properties of the generated graphs and should be evaluated separately. DiGress Conditional also shows large MMD values on Internet (degree 0.585 , clustering 0.800 ) and elevated values on several other statistics, consistent with the poor structural fidelity observed for this condition in the complementary KS and coverage evaluations. 27 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 26: Structural k-NN Coverage@95 (mean ± std over 10 seeds). Each method is evaluated against its own model’s training set; kglobal = 5 ; kdyn = ⌊√nreal ⌋ per class (actual kdyn values range from 7 to 22 depending on model and class). Higher is better. Bold = best per class between Baseline, ProtoGuide, and Conditional across both k.Condition k Biological Connectome Infrastructure Internet Social EDGE-Baseline kglob 98 .3±1.1 83 .9±5.2 96 .2±2.7 0.0±0.0 99 .2±1.0
+
+## kdyn 98 .9±0.7 94 .8±2.4 96 .2±2.7 0.0±0.0 98 .9±1.6
+
+## EDGE+ProtoGuide kglob 98 .1±1.4 95 .3±1.8 97 .0±2.1 0.0±0.0 99 .5±0.7
+
+## kdyn 98 .1±0.9 98 .0±1.7 97 .0±2.4 0.0±0.0 99 .2±0.8
+
+## DiGress-Baseline kglob 97 .8±4.0 96 .6±1.2 94 .7±5.6 71 .7±6.3 98 .0±1.7
+
+## kdyn 97 .2±5.3 96 .7±0.8 93 .4±7.1 70 .3±5.8 98 .3±1.8
+
+## DiGress+ProtoGuide kglob 99 .8±0.5 92 .3±3.6 92 .8±5.7 73 .3±4.5 93 .3±2.5
+
+## kdyn 99 .8±0.5 97 .3±1.4 91 .7±7.2 71 .9±5.0 93 .4±2.5
+
+## DiGress-Conditional kglob 88 .8±3.0 70 .2±5.0 93 .0±5.9 0.0±0.0 99 .2±0.8
+
+## kdyn 87 .7±3.8 77 .0±5.5 91 .2±7.3 0.0±0.0 99 .2±1.0
+
+Table 27: MMD per class and condition (mean ± std over 10 generation seeds). Each cell reports the Maximum Mean Discrepancy between 64 generated graphs and the class-specific reference set. Lower is better. Bold = best per class across conditions within each backbone. Condition Class Degree ↓ Clustering ↓ Orbits ↓ Spectral ↓ NSPDK ↓
+
+EDGE Baseline Biological 0.0452 ±0.0100 0.162 ±0.028 0.0313 ±0.0056 0.0301 ±0.0020 0.0255 ±0.0017 
+
+Connectome 0.0232 ±0.0065 0.878 ±0.045 0.0177 ±0.0001 1.094 ±0.042 0.0189 ±0.0005 
+
+Infrastructure 0.0575 ±0.0091 0.311 ±0.071 0.0329 ±0.0062 0.0263 ±0.0012 0.0290 ±0.0025 
+
+Internet 0.214 ±0.015 0.778 ±0.048 0.0269 ±0.0001 0.314 ±0.014 0.0287 ±0.0008 
+
+Social 0.0332 ±0.0077 0.264 ±0.050 0.0381 ±0.0043 0.0366 ±0.0018 0.0298 ±0.0025 
+
+EDGE +ProtoGuide Biological 0.0396 ±0.0112 0.227 ±0.042 0.0285 ±0.0065 0.0305 ±0.0024 0.0255 ±0.0014 
+
+Connectome 0.0366 ±0.0065 0.0896 ±0.0198 0.0175 ±0.0000 0.235 ±0.032 0.0170 ±0.0005 
+
+Infrastructure 0.0699 ±0.0195 0.351 ±0.065 0.0323 ±0.0061 0.0253 ±0.0006 0.0288 ±0.0032 
+
+Internet 0.466 ±0.025 0.477 ±0.027 0.0268 ±0.0000 0.320 ±0.017 0.0301 ±0.0017 
+
+Social 0.0426 ±0.0071 0.178 ±0.018 0.0399 ±0.0051 0.0345 ±0.0031 0.0269 ±0.0013 
+
+DiGress Baseline Biological 0.374 ±0.152 0.108 ±0.048 0.226 ±0.104 0.0366 ±0.0032 0.0764 ±0.0151 
+
+Connectome 0.0380 ±0.0075 0.0780 ±0.0133 0.0180 ±0.0001 0.549 ±0.034 0.0253 ±0.0005 
+
+Infrastructure 0.131 ±0.080 0.102 ±0.049 0.0412 ±0.0285 0.0341 ±0.0134 0.0385 ±0.0055 
+
+Internet 0.105 ±0.017 0.339 ±0.030 0.0366 ±0.0002 0.162 ±0.020 0.0420 ±0.0019 
+
+Social 0.0408 ±0.0071 0.177 ±0.035 0.0298 ±0.0032 0.0417 ±0.0012 0.0371 ±0.0019 
+
+DiGress +ProtoGuide Biological 0.444 ±0.030 0.0857 ±0.0095 0.294 ±0.055 0.0332 ±0.0018 0.0820 ±0.0060 
+
+Connectome 0.269 ±0.018 0.279 ±0.033 0.0181 ±0.0000 0.888 ±0.039 0.0766 ±0.0030 
+
+Infrastructure 0.128 ±0.080 0.0884 ±0.0553 0.0454 ±0.0257 0.0331 ±0.0123 0.0379 ±0.0050 
+
+Internet 0.102 ±0.019 0.367 ±0.025 0.0366 ±0.0001 0.161 ±0.018 0.0416 ±0.0022 
+
+Social 0.0919 ±0.0121 0.265 ±0.027 0.0546 ±0.0039 0.0962 ±0.0139 0.0737 ±0.0089 
+
+DiGress Conditional Biological 0.0773 ±0.0129 0.137 ±0.038 0.0363 ±0.0032 0.0365 ±0.0029 0.0475 ±0.0026 
+
+Connectome 0.125 ±0.009 0.142 ±0.039 0.0228 ±0.0032 0.588 ±0.022 0.0426 ±0.0053 
+
+Infrastructure 0.182 ±0.077 0.104 ±0.043 0.0631 ±0.0351 0.0420 ±0.0143 0.0408 ±0.0047 
+
+Internet 0.585 ±0.024 0.800 ±0.066 0.0486 ±0.0055 0.269 ±0.004 0.110 ±0.003 
+
+Social 0.0681 ±0.0083 0.263 ±0.041 0.0547 ±0.0036 0.140 ±0.034 0.0672 ±0.0091 
+
+# H Ablation 
+
+H.1 Effect of Guidance Scale 
+
+To understand how the guidance scale λ interacts with class-specific generative difficulty, we sweep λ ∈{0, 0.1, 0.25 , 0.5, 1, 2, 3, 5, 7, 10 } on two contrasting classes (Connectome and Biological) using EDGE with dynamic 
+
+k-NN evaluation (10 seeds, 64 graphs each). Figure 2 reveals markedly different sensitivity to the guidance scale across the two classes. For Connectome, where the EDGE baseline achieves only 11 .6% accuracy, the response is threshold-like: accuracy remains low up to λ = 2 , rises 28 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 0 2 4 6 8 10 Guidance scale 
+
+> 020 40 60 80 100 Classification accuracy (%)
+> Connectome Biological
+
+Figure 2: Guidance scale ablation (EDGE, dynamic k-NN). Connectome accuracy is close to zero without guidance and exhibits a sharp transition at λ ≈ 5, saturating at ∼ 87% . Biological accuracy starts at ∼ 60% without guidance and degrades monotonically for λ > 1, collapsing below 15% at high scales. Shaded bands show ±1 std over 10 seeds. from 24 .8% at λ = 3 to 85 .2% at λ = 5 , and then saturates around 87% . Thus, for this class, weak guidance has little measurable effect on class alignment, whereas stronger updates substantially alter the generated samples. Biological shows the opposite behavior. Its baseline accuracy is already 62 .5% , and the sweep reaches a similar value at 
+
+λ = 0 .25 (63 .1% ; the small offset from the 61 .4% main-experiment value reflects the independent generation seeds used in this sweep) before degrading as λ increases, reaching 11 .3% at λ = 5 . Together, the two curves show that guidance strength must be calibrated to the class: increasing λ can be essential when the baseline is poorly aligned, but excessive guidance can substantially reduce accuracy when stronger steering is not beneficial. 
+
+H.2 Annealing Schedule 
+
+ProtoGuide modulates the guidance scale λ with a cosine annealing factor (Eq. 24) that suppresses the gradient during early noisy timesteps and increases it as the graph structure builds. To validate this design choice, we compare three schedules: constant ( α=1 at every step), linear ( α=ρt), and cosine ( α= 12 (1 − cos πρ t)), across all five classes for EDGE under ProtoGuide, 10 seeds, and 64 graphs per seed. The cosine row reproduces the results reported for the main experiment in Tables 2 and 4. Table 28 shows that no single schedule dominates across all classes and metrics. The largest difference appears on Internet, where the constant schedule reaches only 77 .3% accuracy and a PW-Ratio of 2.80 , compared with 95 .0% /1.81 
+
+for linear and 94 .8% /1.85 for cosine. Because the constant schedule applies the full guidance scale at every active timestep, this result indicates that delaying strong guidance is beneficial for this class. The remaining classes show a more mixed pattern. On Connectome, constant guidance attains the highest accuracy (87 .3% ), whereas cosine obtains a substantially higher KS-Cal@95 ( 58 .9% versus 22 .2% for constant and 17 .8% for linear). On Social, constant again gives slightly higher accuracy ( 93 .8% versus 92 .0% ), while cosine yields the highest Coverage@95, KS-Cal@95, and PW-Ratio. Infrastructure favors the linear schedule in both accuracy and KS-Cal@95, whereas Biological shows only small accuracy differences across schedules. We therefore retain the cosine schedule as a default overall compromise rather than because it dominates every class: it provides competitive controllability, avoids the strongest degradation observed with constant guidance on Internet, and achieves favorable structural-fidelity results on several classes. 
+
+H.3 Contrastive vs Attraction-only 
+
+ProtoGuide uses a contrastive objective that both attracts generated graphs toward the target prototype and repels them from the nearest competing class prototype (see Eq. 13). To test whether the repulsion term is necessary, we ablate it by 29 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 28: Annealing schedule ablation (EDGE, mean ± std over 10 seeds). Dyn. Acc = dynamic k-NN accuracy; Cov@95 = structural coverage; KS-Cal@95 = calibrated KS pass rate; PW-Ratio = pairwise diversity ratio (gen/real, 
+
+≈ 1 is ideal). Bold = best schedule per class per metric.                                                                            
+
+> Class Schedule Dyn. Acc (%) ↑Cov@95 (%) ↑KS-Cal@95 (%) ↑PW-Ratio ≈1
+> Biological Constant 63 .3±6.397 .7±1.944 .4±5.00.71 ±0.06
+> Linear 63 .1±6.498 .1±1.845 .6±3.30.72 ±0.06
+> Cosine 61 .4±6.398 .1±0.946 .7±4.40.73 ±0.06
+> Connectome Constant 87 .3±3.598 .0±1.222 .2±7.00.96 ±0.13
+> Linear 81 .9±3.697 .7±1.417 .8±8.91.01 ±0.10
+> Cosine 85 .0±3.798 .0±1.758 .9±14 .91.05 ±0.14
+> Infrastructure Constant 40 .6±3.894 .2±3.025 .6±5.10.89 ±0.40
+> Linear 43 .8±6.496 .1±1.426 .7±5.40.79 ±0.31
+> Cosine 34 .4±6.797 .0±2.418 .9±5.10.65 ±0.21
+> Internet Constant 77 .3±6.10.0±0.011 .1±0.02.80 ±0.54
+> Linear 95 .0±3.50.0±0.020 .0±4.41.81 ±0.29
+> Cosine 94 .8±2.70.0±0.016 .7±7.51.85 ±0.19
+> Social Constant 93 .8±2.599 .1±1.654 .4±3.30.77 ±0.05
+> Linear 88 .3±2.498 .8±1.254 .4±3.30.79 ±0.05
+> Cosine 92 .0±2.899 .2±0.857 .8±6.70.81 ±0.02
+
+removing negative prototypes and compare against the full method and the unguided baseline across all five EDGE classes (10 seeds, 64 graphs each, dynamic k-NN). Specifically, the contrastive score is now defined as: 
+
+S(G) = cos  fϕ(G), πy∗
+
+| {z }
+
+> attract to target
+
+(30) Table 29: Ablation: contrastive vs. attraction-only (EDGE, dynamic k-NN, mean ± std over 10 seeds). Dyn. Acc: dynamic k-NN accuracy; Cov@95: structural coverage; KS-Cal@95: calibrated KS goodness-of-fit; PW-Ratio: pairwise diversity ratio (gen/real). Bold = best per class per metric across all conditions 
+
+Class Condition Dyn. Acc (%) ↑ Cov@95 (%) ↑ KS-Cal@95 (%) ↑ PW-Ratio Biological Baseline 62 .5 ± 5.5 98 .9 ± 0.7 46 .7 ± 4.4 0.72 ± 0.04 
+
+Attraction-only 63 .4 ± 5.9 98 .6 ± 1.3 45 .6 ± 3.3 0.71 ± 0.05 
+
+ProtoGuide 61 .4 ± 6.3 98 .1 ± 0.9 46 .7 ± 4.4 0.73 ± 0.06 
+
+Connectome Baseline 11 .6 ± 3.8 94 .8 ± 2.4 38 .9 ± 12 .4 0.99 ± 0.19 
+
+Attraction-only 92 .5 ± 3.1 95 .8 ± 2.0 15 .6 ± 7.4 0.81 ± 0.12 
+
+ProtoGuide 85 .0 ± 3.7 98 .0 ± 1.7 58 .9 ± 14 .9 1.05 ± 0.14 
+
+Infrastructure Baseline 39 .2 ± 10 .7 96 .2 ± 2.7 20 .0 ± 4.4 0.85 ± 0.37 
+
+Attraction-only 28 .1 ± 5.8 94 .7 ± 3.1 23 .3 ± 6.0 0.77 ± 0.29 
+
+ProtoGuide 34 .4 ± 6.7 97 .0 ± 2.4 18 .9 ± 5.1 0.65 ± 0.21 
+
+Internet Baseline 88 .3 ± 5.1 0.0 ± 0.0 22 .2 ± 0.0 0.97 ± 0.08 
+
+Attraction-only 88 .6 ± 3.9 0.0 ± 0.0 12 .2 ± 3.3 2.29 ± 0.47 
+
+ProtoGuide 94 .8 ± 2.7 0.0 ± 0.0 16 .7 ± 7.5 1.85 ± 0.19 
+
+Social Baseline 52 .0 ± 6.0 98 .9 ± 1.6 34 .4 ± 14 .4 0.75 ± 0.05 
+
+Attraction-only 91 .6 ± 2.0 98 .8 ± 0.9 55 .6 ± 0.0 0.77 ± 0.04 
+
+ProtoGuide 92 .0 ± 2.8 99 .2 ± 0.8 57 .8 ± 6.7 0.81 ± 0.02 
+
+Table 29 shows that the contribution of the repulsive term is class-dependent. Attraction-only guidance performs particularly well on Connectome ( 92 .5% versus 85 .0% for the full objective), whereas on Internet it provides essentially no accuracy gain over baseline ( 88 .6% versus 88 .3% ) and the full contrastive objective reaches 94 .8% . Social is nearly unchanged between the two guided variants, while Infrastructure remains difficult under both. Across the five classes, attraction-only reaches 72 .8% macro accuracy and the full contrastive objective 73 .5% . We therefore retain the 30 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+contrastive formulation as the default because it provides slightly stronger aggregate performance and benefits some classes, not because the repulsive term is universally advantageous. 
+
+H.4 Wrong & Random Prototypes: a Guidance Directionality Test 
+
+Here we test whether ProtoGuide’s effect depends on the identity and direction of the target prototype, rather than on the mere presence of an additional gradient signal. We replace the correct target prototype with two alternatives and measure how the generated class distribution changes: • Wrong-class prototype. For each target class c, we select the farthest competitor in cosine similarity: 
+
+cwrong = arg min  
+
+> c′̸=c
+
+cos( πc, πc′ ) (31) This choice maximizes separation from the target in prototype space, providing a stringent test of whether guidance follows the selected class direction. A closer incorrect prototype would make the comparison less distinct because the two prototype directions are more similar. • Random prototype. We sample a random unit vector r ∈ RD (∥r∥ = 1 ) uniformly over all directions and use it as the target prototype, with all real-class prototypes as negatives. This creates a class-agnostic guidance direction with the same dimensionality and norm as a valid prototype. If arbitrary gradient steering were sufficient, random directions would be expected to produce comparable improvements; degradation instead supports a dependence on the class-specific prototype geometry. The diffusion model and all hyperparameters remain identical to the corresponding ProtoGuide condition except for the target prototype. One exception is DiGress Internet: its selected guidance scale λ=0 .2 produces little visible response under wrong/random targets, so those two runs use λ=3 .0. We therefore treat the DiGress Internet rows as an elevated-strength stress test rather than a matched directional comparison and do not use them to establish the directionality claim. The EDGE Connectome, EDGE Internet, and DiGress Connectome comparisons retain the same λ
+
+across correct, wrong, and random targets and provide the matched evidence. We evaluate Connectome and Internet with both EDGE and DiGress (5 seeds, 64 graphs each), reporting dynamic k-NN classification accuracy, structural Coverage@95, KS-Cal@95, and PW-Ratio. Table 30: Guidance directionality test (mean ± std; wrong/random: 5 seeds, Baseline/ProtoGuide: 10 seeds from main experiment). Target Acc: fraction classified as the intended class; Wrong Acc: fraction classified as cwrong ;Cov@95: structural plausibility; KS-Cal@95: calibrated KS goodness-of-fit; PW-Ratio: diversity ratio (gen/real). 
+
+Bold = best value per metric across condition.                                                                                                                                                                                                                                                          
+
+> Condition Class Target Acc (%) ↑Wrong Acc (%) Cov@95 (%) ↑KS-Cal@95 (%) ↑PW-Ratio EDGE Baseline ( λ=0 )Connectome 11 .6±3.8—94 .8±2.438 .9±12 .40.99 ±0.19
+> EDGE ProtoGuide ( λ=5 )Connectome 85 .0±3.7—98 .0±1.758 .9±14 .91.05 ±0.14
+> Wrong-class ( λ=5 )Connectome 11 .2±1.50.0±0.091 .9±3.613 .3±8.31.11 ±0.15
+> Random ( λ=5 )Connectome 8.2±4.00.0±0.096 .7±2.58.9±4.41.02 ±0.23
+> EDGE Baseline ( λ=0 )Internet 88 .3±5.1—0.0±0.022 .2±0.00.97 ±0.08
+> EDGE ProtoGuide ( λ=3 )Internet 94 .8±2.7—0.0±0.016 .7±7.51.85 ±0.19
+> Wrong-class ( λ=3 )Internet 51 .9±4.62.8±2.30.0±0.011 .1±0.02.41 ±1.11
+> Random ( λ=3 )Internet 60 .3±8.44.9±3.90.0±0.011 .1±0.02.49 ±0.70
+> DiGress Baseline ( λ=0 )Connectome 90 .0±4.9—96 .7±0.847 .8±13 .20.93 ±0.09
+> DiGress ProtoGuide ( λ=3 )Connectome 91 .6±3.8—97 .3±1.426 .7±15 .91.03 ±0.18
+> Wrong-class ( λ=3 )Connectome 10 .6±2.70.0±0.098 .4±1.415 .6±8.91.79 ±0.23
+> Random ( λ=3 )Connectome 8.5±4.71.4±2.193 .9±4.225 .2±6.41.89 ±0.24
+> DiGress Baseline ( λ=0 )Internet 95 .8±3.0—70 .3±5.841 .1±7.11.10 ±0.09
+> DiGress ProtoGuide ( λ=0 .2)Internet 97 .7±1.6—71 .9±5.044 .4±0.01.08 ±0.07
+> Wrong-class ( λ=3 )Internet 14 .7±2.551 .9±6.30.0±0.011 .1±0.05.04 ±0.43
+> Random ( λ=3 )Internet 8.3±12 .232 .3±5.30.1±0.411 .1±0.05.52 ±2.47
+
+Table 30 supports that the guidance effect depends on the direction defined by the target prototype rather than on the mere presence of an additional gradient. In the matched Connectome experiments, replacing the correct prototype with either a wrong-class or random target reduces target accuracy sharply for both EDGE and DiGress. The same pattern appears for EDGE Internet: target accuracy falls from 94 .8% with the correct prototype to 51 .9% with the wrong prototype and 60 .3% with a random direction. The unmatched DiGress Internet runs show that high-strength wrong or random guidance can strongly redirect the generated class distribution, but, because λ differs from the main ProtoGuide condition, these rows are interpreted only as a stress test. 31 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Changing the prototype can also alter the structural distribution of the generated graphs. For example, on DiGress Connectome the PW-Ratio increases from 1.03 with the correct prototype to 1.79 and 1.89 under wrong and random guidance, respectively. Taken together, the matched experiments show that ProtoGuide is target-directed: its effect depends on which prototype defines the guidance objective, rather than acting as a generic gradient regularizer. 
+
+H.5 Few-Shot Prototype Analysis 
+
+The main experiments build each class prototype as the centroid of all training embeddings (Eq. 12). We use this analysis to assess how many labeled support graphs are needed to estimate a useful prototype. We evaluate EDGE across all five classes by constructing the prototype from m ∈ { 1, 5, 10 , 25 , 50 } randomly sampled training graphs and measuring target accuracy, structural coverage, KS calibration, and pairwise diversity. For m ≤ 10 we repeat the random draw multiple times: 5 draws for m=1 , and 3 draws for m=5 , 10 , to capture prototype variance; each draw is evaluated over 5 generation seeds. Table 31: Few-shot prototype ablation (EDGE+ProtoGuide, mean ± std over draws and seeds). Target Acc: dynamic 
+
+k-NN accuracy; Cov@95: structural coverage; KS-Cal@95: calibrated KS goodness-of-fit; PW-Ratio: pairwise diversity ratio (gen/real), ≈ 1 is ideal. Bold = best per class per metric.                                                                                                                                                                                                                                                                                                                        
+
+> Class mTarget Acc (%) Cov@95 (%) KS-Cal@95 (%) ↑PW-Ratio Biological 163 .2±4.598 .7±1.048 .9±5.40.71 ±0.04
+> 563 .1±4.898 .5±1.148 .1±6.60.70 ±0.03
+> 10 61 .4±5.298 .8±0.646 .7±4.40.70 ±0.03
+> 25 60 .9±5.098 .8±0.646 .7±4.40.71 ±0.04
+> 50 60 .3±5.599 .1±0.848 .9±5.40.70 ±0.04
+> Connectome 186 .6±3.296 .5±1.920 .0±7.00.92 ±0.12
+> 582 .0±4.795 .9±2.014 .8±6.60.98 ±0.12
+> 10 85 .0±4.196 .4±1.919 .3±8.60.94 ±0.12
+> 25 82 .8±4.394 .4±2.115 .6±8.90.98 ±0.17
+> 50 86 .9±3.895 .9±2.322 .2±7.00.94 ±0.15
+> Infrastructure 147 .1±5.895 .5±2.423 .1±3.00.76 ±0.19
+> 549 .5±7.795 .7±2.424 .4±6.00.76 ±0.20
+> 10 47 .0±7.095 .4±2.023 .7±3.80.77 ±0.21
+> 25 43 .1±7.694 .7±1.222 .2±0.00.78 ±0.19
+> 50 44 .7±5.395 .6±2.324 .4±4.40.74 ±0.18
+> Internet 195 .4±3.40.0±0.013 .3±4.41.76 ±0.21
+> 593 .4±3.50.0±0.014 .1±6.41.98 ±0.32
+> 10 95 .7±2.20.0±0.016 .3±6.91.88 ±0.28
+> 25 97 .5±2.50.0±0.015 .6±5.41.95 ±0.23
+> 50 93 .8±4.90.0±0.011 .1±0.02.01 ±0.34
+> Social 187 .8±3.399 .4±1.055 .1±2.20.78 ±0.03
+> 591 .2±2.199 .4±1.055 .6±0.00.77 ±0.02
+> 10 88 .6±4.299 .1±1.155 .6±0.00.78 ±0.03
+> 25 90 .6±1.799 .1±0.853 .3±4.40.78 ±0.03
+> 50 88 .1±2.399 .1±1.255 .6±0.00.78 ±0.03
+
+Table 31 shows that prototype-based guidance is robust to the support-set size over the tested range. Target accuracy, structural coverage, KS calibration, and pairwise diversity remain broadly stable across m ∈ { 1, 5, 10 , 25 , 50 }. In particular, the largest difference in target accuracy between m=1 and m=50 is only 2.9 pp, observed on Biological (63 .2% versus 60 .3% ). We therefore retain full-training-set prototypes in the main experiments to remove prototype-sampling variance, while these results show that a usable guidance target can be estimated from very small support sets for the classes considered here. Importantly, this experiment varies only prototype construction after both the generative backbone and Siamese encoder have been trained; it therefore demonstrates few-shot prototype specification rather than few-shot learning of a previously unseen class. 32 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+# I Best-of-N Selection 
+
+We evaluate Best-of-N selection as a sampling-time alternative and complement to ProtoGuide. We generate a pool of N graphs, score each graph with the frozen Siamese GAT using the same contrastive prototype score employed by ProtoGuide, and retain the top K=64 samples. We consider two variants: unconditional Best-of-N , where the candidate pool is generated without guidance, and ProtoGuide Best-of-N , where ProtoGuide is first used to generate the pool and the same score is then used for selection. The former tests how far post-hoc selection alone can improve class alignment without altering the reverse process, while the latter tests whether guidance and selection provide complementary gains. We evaluate N ∈ { 128 , 256 }, corresponding to 2× and 4× oversampling, on both EDGE and DiGress across all five classes and 10 seeds. Table 32: Best-of-N and ProtoGuide Best-of-N vs. ProtoGuide — EDGE (mean ± std over 10 seeds). Best-of-N
+
+generates N unconditional graphs and keeps the top-64 by contrastive Siamese score; ProtoGuide Best-of-N generates the pool with ProtoGuide before selection. Bold = best per class per metric across each condition; † = PW-Ratio < 0.5
+
+(strong under-dispersion).                                                                                                                                         
+
+> Condition Class Dyn. Acc (%) ↑Cov@95 (%) ↑KS-Cal@95 (%) ↑PW-Ratio ≈1
+> Baseline Biological 62 .5±5.598 .9±0.746 .7±4.40.72 ±0.04
+> Connectome 11 .6±3.894 .8±2.438 .9±12 .40.99 ±0.19
+> Infrastructure 39 .2±10 .796 .2±2.720 .0±4.40.85 ±0.37
+> Internet 88 .3±5.10.0±0.022 .2±0.00.97 ±0.08
+> Social 52 .0±6.098 .9±1.634 .4±14 .40.75 ±0.05
+> Best-of-128 Biological 67 .5±4.199 .2±0.846 .7±6.70.58 ±0.03
+> Connectome 23 .3±4.1100 .0±0.033 .3±0.00.42 ±0.03 †
+> Infrastructure 60 .6±9.999 .2±0.87.8±5.10.38 ±0.04 †
+> Internet 100 .0±0.00.0±0.022 .2±7.00.74 ±0.04
+> Social 99 .5±1.098 .9±1.061 .1±5.60.79 ±0.05
+> Best-of-256 Biological 55 .2±2.898 .9±1.017 .8±11 .30.57 ±0.04
+> Connectome 49 .5±5.9100 .0±0.033 .3±0.00.38 ±0.02 †
+> Infrastructure 88 .8±3.499 .7±0.64.4±5.40.39 ±0.03 †
+> Internet 100 .0±0.00.0±0.012 .2±9.20.66 ±0.03
+> Social 100 .0±0.099 .7±0.657 .8±4.40.75 ±0.06
+> ProtoGuide Biological 61 .4±6.398 .1±0.946 .7±4.40.73 ±0.06
+> Connectome 85 .0±3.798 .0±1.758 .9±14 .91.05 ±0.14
+> Infrastructure 34 .4±6.797 .0±2.418 .9±5.10.65 ±0.21
+> Internet 94 .8±2.70.0±0.016 .7±7.51.85 ±0.19
+> Social 92 .0±2.899 .2±0.857 .8±6.70.81 ±0.02
+> ProtoGuide Best-of-128 Biological 69 .5±6.0100 .0±0.045 .6±10 .50.53 ±0.02
+> Connectome 100 .0±0.0100 .0±0.063 .3±5.10.62 ±0.03
+> Infrastructure 51 .6±8.298 .9±1.43.3±5.10.38 ±0.04 †
+> Internet 100 .0±0.00.0±0.020 .0±4.41.59 ±0.13
+> Social 100 .0±0.099 .7±0.655 .6±0.00.68 ±0.07
+> ProtoGuide Best-of-256 Biological 56 .7±6.299 .7±0.624 .4±13 .90.53 ±0.05
+> Connectome 100 .0±0.099 .8±0.552 .2±13 .20.61 ±0.05
+> Infrastructure 86 .7±5.597 .8±1.72.2±4.40.40 ±0.03 †
+> Internet 100 .0±0.00.0±0.011 .1±5.01.43 ±0.18
+> Social 100 .0±0.0100 .0±0.041 .1±10 .00.54 ±0.06
+
+Table 32 shows a clear accuracy–diversity trade-off. At 2× oversampling, unconditional Best-of-128 reaches 70 .2% 
+
+macro accuracy, below ProtoGuide’s 73 .5% ; at 4× oversampling, Best-of-256 reaches 78 .7% and therefore exceeds ProtoGuide, with particularly large gains on Infrastructure ( 88 .8% versus 34 .4% ) and Social ( 100 .0% versus 92 .0% ). The higher accuracy is accompanied by strong distributional concentration on some classes: PW-Ratio falls to 0.38 –0.42 
+
+on Connectome and Infrastructure, indicating substantially lower dispersion than in the corresponding real graph sets. Best-of-N accuracy is also non-monotonic in pool size for Biological, decreasing from 67 .5% at N =128 to 55 .2% at 
+
+N =256 .Combining ProtoGuide with selection yields the highest macro accuracy on EDGE: 84 .2% at N =128 and 88 .7% at 
+
+N =256 , compared with 73 .5% for ProtoGuide alone and 78 .7% for unconditional Best-of-256. Under EDGE, the two mechanisms are therefore complementary in terms of class accuracy: guidance shifts the candidate distribution before 33 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+Table 33: Best-of-N and ProtoGuide Best-of-N vs. ProtoGuide — DiGress (mean ± std over 10 seeds). Same protocol as Table 32. Bold = best per class per metric across each condition; † = PW-Ratio < 0.5 (strong under-dispersion).                                                                                                                                         
+
+> Condition Class Dyn. Acc (%) ↑Cov@95 (%) ↑KS-Cal@95 (%) ↑PW-Ratio ≈1
+> Baseline Biological 41 .4±9.797 .2±5.323 .3±9.20.68 ±0.24
+> Connectome 90 .0±4.996 .7±0.847 .8±13 .20.93 ±0.09
+> Infrastructure 90 .0±5.893 .4±7.117 .8±7.40.53 ±0.37
+> Internet 95 .8±3.070 .3±5.841 .1±7.11.10 ±0.09
+> Social 50 .6±4.598 .3±1.848 .9±5.40.73 ±0.06
+> Best-of-128 Biological 62 .8±4.6100 .0±0.030 .0±7.10.51 ±0.03
+> Connectome 100 .0±0.0100 .0±0.045 .6±11 .60.39 ±0.02 †
+> Infrastructure 99 .2±1.4100 .0±0.014 .4±5.10.33 ±0.02 †
+> Internet 100 .0±0.046 .9±3.80.0±0.00.90 ±0.04
+> Social 100 .0±0.094 .8±3.488 .9±0.00.95 ±0.10
+> Best-of-256 Biological 67 .3±7.3100 .0±0.042 .2±6.70.47 ±0.03 †
+> Connectome 100 .0±0.0100 .0±0.040 .0±7.40.37 ±0.02 †
+> Infrastructure 100 .0±0.0100 .0±0.021 .1±7.80.33 ±0.03 †
+> Internet 100 .0±0.053 .6±6.60.0±0.00.77 ±0.06
+> Social 100 .0±0.094 .7±2.891 .1±8.31.02 ±0.10
+> ProtoGuide Biological 48 .6±6.599 .8±0.524 .4±4.40.56 ±0.06
+> Connectome 91 .6±3.897 .3±1.426 .7±15 .91.03 ±0.18
+> Infrastructure 89 .1±4.791 .7±7.222 .2±14 .90.63 ±0.43
+> Internet 97 .7±1.671 .9±5.044 .4±0.01.08 ±0.07
+> Social 91 .9±4.093 .4±2.528 .9±13 .30.95 ±0.08
+> ProtoGuide Best-of-128 Biological 66 .9±8.3100 .0±0.030 .0±7.10.52 ±0.02
+> Connectome 100 .0±0.099 .7±0.611 .1±8.60.68 ±0.06
+> Infrastructure 97 .2±1.887 .3±4.320 .0±8.30.49 ±0.09 †
+> Internet 100 .0±0.036 .2±4.20.0±0.00.92 ±0.05
+> Social 100 .0±0.066 .1±5.145 .6±3.30.91 ±0.07
+> ProtoGuide Best-of-256 Biological 67 .3±6.1100 .0±0.040 .0±8.90.43 ±0.03 †
+> Connectome 100 .0±0.099 .8±0.511 .1±0.00.73 ±0.05
+> Infrastructure 97 .7±1.975 .2±5.76.7±8.90.64 ±0.07
+> Internet 100 .0±0.041 .9±5.00.0±0.00.82 ±0.05
+> Social 100 .0±0.057 .7±4.442 .2±6.70.94 ±0.06
+
+selection, while reranking further concentrates the retained samples. This combination also has the highest sampling cost, since the ProtoGuide gradient overhead is incurred for every candidate in the oversampled pool before N − K
+
+graphs are discarded. The distributional effect remains class-dependent under selection. Infrastructure exhibits strong under-dispersion, whereas Internet remains over-dispersed, showing that increasing selection pressure does not uniformly move generated distributions toward the real reference set. For DiGress (Table 33), unconditional Best-of-N is particularly effective at increasing class accuracy. Best-of-256 reaches 93 .5% macro accuracy compared with 83 .8% for ProtoGuide, with gains especially on Biological ( 67 .3% 
+
+versus 48 .6% ) and Infrastructure ( 100 .0% versus 89 .1% ). As for EDGE, however, several classes become substantially under-dispersed: PW-Ratio falls to 0.33 –0.39 on Connectome and Infrastructure under unconditional Best-of-128/256. Combining guidance with selection yields 92 .8% macro accuracy at N =128 and 93 .0% at N =256 , essentially matching unconditional Best-of-256 ( 93 .5% ) rather than improving on it. The guided pools also show lower coverage on some classes; for example, Social decreases from 94 .8% under Best-of-128 to 66 .1% under ProtoGuide Best-of-128, and Infrastructure from 100 .0% to 87 .3% . Thus, unlike EDGE, DiGress does not show an additional macro-accuracy benefit from applying ProtoGuide before Best-of-N selection under this protocol. Across both backbones, Best-of-N selection can match or exceed ProtoGuide in classification accuracy when a sufficiently large candidate pool is available, but requires 2×–4× oversampling and can substantially reduce dispersion in descriptor space. ProtoGuide instead modifies the reverse trajectory directly and does not require discarding generated samples, although its own fidelity effects remain class-dependent. Combining guidance and selection is beneficial for 34 ProtoGuide: Prototype-Driven Guidance for Class-Conditional Graph Generation PREPRINT 
+
+EDGE accuracy, whereas for DiGress unconditional selection already reaches the same macro-accuracy range as the combined procedure. 35
