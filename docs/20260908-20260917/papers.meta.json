@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-08 ~ 2026-09-17",
+  "date": "2026-09-08 ~ 2026-09-17",
+  "generated_at": "2026-09-17T12:15:26",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "20260908-20260917/2609.12513v1-a-splitting-method-for-sde-terminal-law-estimation",
+      "section": "quick",
+      "title_en": "A Splitting Method for SDE Terminal-Law Estimation",
+      "authors": "Rushil Gupta, Sandeep Juneja",
+      "date": "2026-09-11",
+      "pdf": "https://arxiv.org/pdf/2609.12513v1",
+      "score": "7.0",
+      "evidence": "面向扩散生成的免训练高效采样",
+      "tldr": "在扩散生成等涉及随机微分方程的场景中，常需从终端分布采样，传统做法是生成独立同分布扩散路径。固定模拟预算下，本文提出对部分路径进行分裂以构造路径树，并系统分析其引入的相关性。以Kolmogorov-Smirnov距离衡量精度，推导经验分布极限误差，并刻画渐近最优分裂策略；实现分初始估计与最终推断两阶段。实验显示平均误差较独立采样降低10-25%，CIFAR-10上MMD减少8-13%。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "In many settings involving stochastic differential equations, including in diffusion based generative AI, our aim is to accurately generate samples from a terminal distribution. Typically, this is done by generating i.i.d. samples of diffusion paths. Given a fixed simulation budget, a reasonable way to gain efficiency may be to instead generate a tree of paths through appropriately split partial paths. This suggests improved performance, but one worries about the injected dependence. In this paper, we study this issue comprehensively. With Kolmogorov-Smirnov distance as a measure of accuracy, we identify the limiting errors of the associated empirical distributions as the simulation budget increases to infinity. We characterize a splitting strategy motivated by a corresponding asymptotic optimization problem. The theoretical results bring out the elegant underlying structure in the problem. Practical implementation involves two phases, an initial estimation phase and a final inference phase. Overall, we observe a 10-25% improvement in mean error over i.i.d. samples in many settings. In an exploratory CIFAR-10 study, our method reduces the maximum mean discrepancy by 8-13%.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

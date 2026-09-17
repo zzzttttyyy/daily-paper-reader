@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-08 ~ 2026-09-17 <!--dpr-date:20260908-20260917-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/20260908-20260917/2609.12513v1-a-splitting-method-for-sde-terminal-law-estimation" data-sidebar-item="{&quot;title&quot;: &quot;A Splitting Method for SDE Terminal-Law Estimation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.12513v1-a-splitting-method-for-sde-terminal-law-estimation&quot;, &quot;score&quot;: &quot;7.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;面向扩散生成的免训练高效采样&quot;}">A Splitting Method for SDE Terminal-Law Estimation</a>
   * 2026-09-15 <!--dpr-date:20260915-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/15/2609.14377v1-rethinking-camouflage-image-generation-towards-a-training-free-paradigm" data-sidebar-item="{&quot;title&quot;: &quot;Rethinking Camouflage Image Generation towards a Training-Free Paradigm&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.14377v1-rethinking-camouflage-image-generation-towards-a-training-free-paradigm&quot;, &quot;score&quot;: &quot;8.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;无需任务特定训练的免训练伪装图像生成范式&quot;}">Rethinking Camouflage Image Generation towards a Training-Free Paradigm</a>

@@ -1,0 +1,3755 @@
+Title: A Splitting Method for SDE Terminal-Law Estimation
+
+URL Source: https://arxiv.org/pdf/2609.12513v1
+
+Published Time: Mon, 14 Sep 2026 00:39:28 GMT
+
+Number of Pages: 44
+
+Markdown Content:
+# A Splitting Method for SDE Terminal-Law Estimation 
+
+Rushil Gupta 1 Sandeep Juneja 1
+
+> 1
+
+Safexpress Centre for Data, Learning and Decision Sciences Ashoka University 
+
+## Abstract 
+
+In many settings involving stochastic differential equations, including in diffusion based generative AI, our aim is to accurately generate samples from a terminal distribution. Typically, this is done by generating i.i.d. samples of diffusion paths. Given a fixed simulation budget, a reasonable way to gain efficiency may be to instead generate a tree of paths through appropriately split partial paths. This suggests improved performance, but one worries about the injected dependence. In this paper, we study this issue comprehensively. With Kolmogorov-Smirnov distance as a measure of accuracy, we identify the limiting errors of the associated empirical distributions as the simulation budget increases to infinity. We characterize a splitting strategy motivated by a corresponding asymptotic optimization problem. The theoretical results bring out the elegant underlying structure in the problem. Practical implementation involves two phases, an initial estimation phase and a final inference phase. Overall, we observe a 10-25% improvement in mean error over i.i.d. samples in many settings. In an exploratory CIFAR-10 study, our method reduces the maximum mean discrepancy by 8-13%. 1
+
+## 1 Introduction 
+
+Many applications require samples from a terminal distribution of a stochastic differential equation (SDE). In diffusion-based generative AI, e.g., in DDPMs [Ho et al., 2020] and in EDMs [Karras et al., 2022], the trained model runs an SDE, and samples from its terminal distribution are of interest. A popular application is a diffusion model called GenCast that generates samples of weather forecasts, which are used to estimate important performance measures such as likelihood of extreme weather and uncertainty in wind power [Price et al., 2025]. SDEs are also standard for modeling the evolution of financial quantities such as stock and com-modity prices and interest rates. Here, the underlying SDE parameters are typically learned from data and one may be interested in ascertaining the probability distribution at the terminal time. Recently, diffusion models have also been used to generate financial time series [Huang et al., 2024]. In practice, one may be interested in a variety of functionals of the SDE terminal distribution, such as expectations of functions of the terminal output or tail risk measures. However, in this paper, we focus on the fundamental question of accurately estimating the underlying distribution given a fixed simulation budget. This is often computationally expensive. We ask whether a well-optimized branching process that splits paths at intermediate times can estimate the terminal distribution with less computational effort than i.i.d. sampling. Our theoretical results reveal the elegant dependence structure of the branching process that is completely captured by the covariance of the SDE across time segments. This leads to an allocation problem where the amount of splitting in the branching process is chosen to minimize the limiting  
+
+> 1Code is available at https://github.com/RushilGupta4/splitting .Preprint. arXiv:2609.12513v1 [stat.ML] 11 Sep 2026
+
+error. We solve a relaxed optimization problem, and approximate the solution with a finite mixture of dyadic trees with a provable approximation guarantee. We implement a two-phase procedure that first learns the variance contributions and then spends the remaining budget according to the learned allocation. We focus on the Kolmogorov-Smirnov (KS) distance, since it measures the worst error in the distribution function and is closely related to weak convergence. Our method is readily extensible to most metrics that are continuous under the uniform norm. Experiments spanning SDEs and diffusion models show consistent improvements over independent full-path simulation. The paper is structured as follows. Section 2 reviews the closest work. Section 3 develops the-ory for a finite-budget and fixed-threshold setting and identifies the optimal allocation in that setting. Section 4 develops limit theorems by modeling the empirical process. Section 5 studies the Kolmogorov-Smirnov error and the corresponding relaxed allocation problem. Section 6 con-verts the relaxed allocation into a mixture of exact dyadic trees. Finally, Section 7 presents the experiments. 
+
+## 2 Related Work 
+
+Splitting and branching methods reduce Monte Carlo error by reusing part of a simulated path. In classical multilevel splitting, paths are copied when they reach intermediate levels leading to a rare event. Glasserman et al. [1999] study this method through branching-process arguments and show how the number of copies affects both variance and computational cost. Their analysis supports keeping the expected particle population roughly stable across levels. This line of work is mainly concerned with estimating a rare-event probability rather than a complete terminal distribution. Related allocation questions also appear outside rare-event simulation. Melas [1993] studies branch-ing estimators for functionals of Markov chains and allows the branching rate to depend on the current state. More simulation effort is assigned where the future contribution to the estimator is more uncertain, while total cost is controlled. This gives an early cost-variance view of branching, but the target remains a scalar Markov-chain functional. Later work extends the scope and theory of splitting. Botev and Kroese [2012] introduce generalized splitting based on nested score sets and Markov-chain moves, allowing the method to be used even when the original problem has no natural time evolution. Cérou and Guyader [2016] study adaptive multilevel splitting, where intermediate levels are learned from the current particle population, and establish consistency and central limit results. These methods cover a broad range of rare-event and integral-estimation problems, while their main focus remains individual probabilities or functionals rather than the full terminal CDF generated by one time-branching tree. Distributional estimation is considered more directly by Anderson and Ehlert [2022]. They estimate the terminal probability mass function of a stochastic reaction network by simulating paths to one intermediate time and then generating several independent continuations from each partial path. They choose the split time and the number of continuations by balancing distributional error against simulation cost. However, their construction uses a discrete state space and a single split. For discretized SDEs, Giles and Haji-Ali [2024] use repeated path branching for a digital payoff within multilevel Monte Carlo. Their analysis studies the dependence created by shared histories and gives rules for placing repeated binary split times near maturity. The target is one payoff correction, and the main design variable is the timing of the splits rather than a general allocation of particle counts across the path. 
+
+## 3 Discretization and Splitting Estimator 
+
+Let 𝑋 = (𝑋 𝑡 )0≤𝑡≤𝑇 be a solution to 
+
+𝑑𝑋 𝑡 = 𝑏(𝑡, 𝑋 𝑡 ) 𝑑𝑡 + 𝜎(𝑡, 𝑋 𝑡 ) 𝑑𝑊 𝑡 , 𝑋 0 ∼ 𝜇 0, 𝑋 0 ⟂ 𝑊 . 
+
+We aim to estimate its terminal distribution function 𝐹 (𝑥) = ℙ(𝑋 𝑇 ≤ 𝑥) for all 𝑥 ∈ ℝ 𝑑 . For each budget 𝐵 , choose a time partition and the corresponding partition size 
+
+0 = 𝑡 0,𝐵 < 𝑡 1,𝐵 < ⋯ < 𝑡 𝐾 𝐵 ,𝐵 = 𝑇 , ℎ𝐵 = max 
+
+> 0≤𝑖<𝐾 𝐵
+
+(𝑡 𝑖+1,𝐵 − 𝑡 𝑖,𝐵 ). 
+
+2Figure 1: Illustration of splitting from a single root. At time 𝑡 𝑖,𝐵 , every particle is split into 𝑁 𝑖,𝐵 copies. 
+
+We assume throughout that ℎ𝐵 → 0 as 𝐵 → ∞ . Let 𝑋 𝐵 0 , 𝑋 𝐵 1 , … , 𝑋 𝐵 𝐾 𝐵 be a Markov-chain discretization of the SDE along this partition, with 𝑋 𝐵 0 ∼ 𝜇 0. Its terminal distribution function is 
+
+𝐹 𝐵 (𝑥) = ℙ (𝑋 𝐵 𝐾 𝐵 ≤ 𝑥) . 
+
+There are 𝐾 𝐵 transitions. Transition 𝑖 propagates particles from 𝑡 𝑖,𝐵 to 𝑡 𝑖+1,𝐵 . At 𝑡 0,𝐵 , there are 
+
+𝑁 0,𝐵 independent root particles. For 1 ≤ 𝑖 ≤ 𝐾 𝐵 − 1 , split 𝑖 occurs after particles arrive at 𝑡 𝑖,𝐵 and before transition 𝑖 . Each arriving particle is copied 𝑁 𝑖,𝐵 ≥ 1 times, and the copies are propagated independently through transition 𝑖 . An illustration is shown in Figure 1. Define 
+
+𝑅 0,𝐵 = 1, 𝑅 𝑖,𝐵 =
+
+> 𝑖
+
+∏
+
+> 𝑗=1
+
+𝑁 𝑗,𝐵 , 1 ≤ 𝑖 ≤ 𝐾 𝐵 − 1. 
+
+At the terminal time, there are 𝑅 𝐾 𝐵 −1,𝐵 descendants per root. If 𝑍 (𝓁) 𝐵,𝑗 denotes terminal descendant 𝓁 
+
+from root 𝑗 , the splitting estimator is ̂𝐹 𝐵 (𝑥) = 1𝑁 0,𝐵 𝑅 𝐾 𝐵 −1,𝐵 𝑁 0,𝐵 
+
+∑
+
+> 𝑗=1 𝑅 𝐾 𝐵 −1,𝐵
+
+∑
+
+> 𝓁=1
+
+𝟏(𝑍 (𝓁) 𝐵,𝑗 ≤ 𝑥) , 𝑥 ∈ ℝ 𝑑 .
+
+It is unbiased for 𝐹 𝐵 (𝑥) . For simplicity, we assume that each transition has the same unit cost. However, this can be relaxed, and our results extend to settings where each transition has a different cost. Refer to Appendix A.17 for more details. In the unit cost setting, a fully used budget satisfies 
+
+𝐵 = 𝑁 0,𝐵 𝐾 𝐵 −1 
+
+∑
+
+> 𝑖=0
+
+𝑅 𝑖,𝐵 .
+
+For 𝑖 = 0, … , 𝐾 𝐵 , define the discrete conditional probability value 
+
+𝑢 𝐵 𝑖,𝑥 (𝑧) = 𝔼[𝟏(𝑋 𝐵 𝐾 𝐵 ≤ 𝑥) ∣ 𝑋 𝐵 𝑖 = 𝑧]. 
+
+Particles that share a root remain dependent through their common history. Once they split, their transitions are conditionally independent. The next result shows exactly how this structure changes the covariance of the empirical CDF. 
+
+Lemma 1 (Splitting covariance) . For every 𝑥, 𝑦 ∈ ℝ 𝑑 ,
+
+Cov(̂𝐹 𝐵 (𝑥),̂ 𝐹 𝐵 (𝑦)) = 1𝑁 0,𝐵 [Γ0,𝐵 (𝑥, 𝑦) +  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝑣 𝑖,𝐵 (𝑥, 𝑦) 𝑅 𝑖,𝐵 ] ,
+
+where 
+
+Γ0,𝐵 (𝑥, 𝑦) = Cov(𝑢 𝐵 0,𝑥 (𝑋 𝐵 0 ), 𝑢 𝐵 0,𝑦 (𝑋 𝐵 0 )) , 𝑣 𝑖,𝐵 (𝑥, 𝑦) = 𝔼[Cov(𝑢 𝐵 𝑖+1,𝑥 (𝑋 𝐵 𝑖+1 ), 𝑢 𝐵 𝑖+1,𝑦 (𝑋 𝐵 𝑖+1 ) ∣ 𝑋 𝐵 𝑖 )] . 
+
+3The proof is given in Appendix A.2. The formula separates uncertainty inherited from the initial state from uncertainty revealed later. The term 𝑣 𝑖,𝐵 is the new covariance while crossing transition 
+
+𝑖 , and its contribution is divided by the population propagated through that transition. Increasing the population before one transition therefore reduces uncertainty created there and later. To get insight into the optimal allocation, we first consider the problem of minimizing the variance at one threshold 𝑥 . Write ̃𝑣 𝑘 = 𝑣 𝑘,𝐵 (𝑥, 𝑥) + 𝟏 {𝑘=0} Γ0,𝐵 (𝑥, 𝑥), 𝑛 𝑘 = 𝑁 0,𝐵 𝑅 𝑘,𝐵 .
+
+Here, 𝑛 𝑘 is the number of particles propagated through transition 𝑘 . We consider a relaxation where the 𝑛 𝑘 can be positive reals. The fixed-budget variance minimization problem is then 
+
+min  
+
+> 𝑛∈ℝ 𝐾 𝐵 >0
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑘=0
+
+̃𝑣 𝑘 
+
+𝑛 𝑘 
+
+s.t.  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑘=0
+
+𝑛 𝑘 = 𝐵, 𝑛 0 ≤ 𝑛 1 ≤ ⋯ ≤ 𝑛 𝐾 𝐵 −1 .
+
+The monotonicity constraint is handled by using Pool-Adjacent-Violators Algorithm (PAVA) [Robert-son et al., 1988, Chapter 1]. See Appendix A.1 for a detailed discussion and construction of PAVA. 
+
+Lemma 2 (Variance Optimization with Monotone Allocation) . Fix 𝑥 ∈ ℝ 𝑑 , and assume ̃𝑣 𝑘 > 0 for all 𝑘 . The unique minimizer is 
+
+𝑛 ∗𝑘 = 𝐵 √̂ 𝑣 𝑘 
+
+∑𝐾 𝐵 −1 𝑗=0 
+
+√̂ 𝑣 𝑗 
+
+,̂ 𝑣 = PAVA(̃ 𝑣). 
+
+The proof is given in Appendix A.3. The key idea here is that 𝑛 𝑘 follow a Neyman allocation with respect to the variances, after accounting for the monotonicity constraint. This solves the problem for one threshold, whereas a terminal-law estimator has to account for all thresholds, and a single allocation must control the entire CDF together. We develop theory for this in the next section. 
+
+## 4 Asymptotic Analysis 
+
+This section develops the asymptotic theory of the splitting estimator in three steps: a continuous-time covariance limit, a functional central limit theorem, and a bias-variance tradeoff. 
+
+4.1 Covariance Convergence 
+
+In this subsection, our goal is to replace the covariance formula from Lemma 1 with a continuous-time counterpart. Under suitable assumptions, we identify the continuous-time limit of 𝑣 𝑖 . We then provide an expression analogous to Lemma 1. For 𝑥 ∈ ℝ 𝑑 , write 𝑎 𝑥 (𝑧) = 𝟏(𝑧 ≤ 𝑥) and let 
+
+F𝑡 = 𝜎(𝑋 0) ∨ 𝜎(𝑊 𝑠 ∶ 0 ≤ 𝑠 ≤ 𝑡), 0 ≤ 𝑡 ≤ 𝑇 , 
+
+be the natural filtration of the SDE. Define the cumulative splitting function 
+
+𝑟 𝐵 (𝑡) = 𝑅 𝑖,𝐵 , 𝑡 ∈ [𝑡 𝑖,𝐵 , 𝑡 𝑖+1,𝐵 ). 
+
+Assumption 1 (Coupled Markov approximation) . The discretized process 𝑋 𝐵 and the SDE solution 
+
+𝑋 are defined on the same filtered probability space and 𝑋 𝐵 0 = 𝑋 0 almost surely. For each 𝐵 and 
+
+0 ≤ 𝑖 ≤ 𝐾 𝐵 , 𝑋 𝐵 𝑖 is F𝑡 𝑖,𝐵 -measurable and 
+
+𝔼[𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) ∣ F𝑡 𝑖,𝐵 ] = 𝔼[𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) ∣ 𝑋 𝐵 𝑖 ], 𝔼[𝑎 𝑥 (𝑋 𝑇 ) ∣ F𝑡 ] = 𝔼[𝑎 𝑥 (𝑋 𝑇 ) ∣ 𝑋 𝑡 ], 𝑥 ∈ ℝ 𝑑 .
+
+Moreover, ‖‖𝑋 𝐵 𝐾 𝐵 − 𝑋 𝑇 ‖‖𝐿 2 → 0. 
+
+Assumption 1 ensures consistency of the discretization scheme and assumes the Markov property for 𝑋 at the terminal time. It will be used to compare the discrete and continuous processes. It is satisfied by the Euler-Maruyama scheme under global Lipschitz and linear-growth conditions on the drift and diffusion coefficients; see Kloeden and Platen [1992, Theorem 10.2.2]. 4Assumption 2 (Splitting-function limit) . The splitting functions satisfy 𝑟 𝐵 (0+) = 1 , and each 𝑟 𝐵 is nondecreasing. Moreover, 
+
+𝑟 𝐵 ⟶ 𝑟 in 𝐿 1([0, 𝑇 ]), 𝑟(0+) = 1. 
+
+Since the splitting function is a design choice, many irregular and feasible splitting functions can be constructed. Assumption 2 is a regularity condition which restricts the class of functions permitted. 
+
+Assumption 3 (Continuous terminal CDF) . The terminal CDF 𝐹 (𝑥) = ℙ(𝑋 𝑇 ≤ 𝑥) is continuous. We begin by identifying the continuous-time limit of the covariance structure induced by the splitting estimator. As we saw in the discrete case, 𝑢 𝐵 𝑖,𝑥 was central to our arguments, and the continuous-time analog of it is 
+
+𝑢 𝑥 (𝑡, 𝑧) = 𝔼 [𝑎 𝑥 (𝑋 𝑇 ) ∣ 𝑋 𝑡 = 𝑧] , 𝑢 𝑥 (𝑡, 𝑋 𝑡 ) = 𝔼 [𝑎 𝑥 (𝑋 𝑇 ) ∣ F𝑡 ] . 
+
+Since 𝑎 𝑥 (𝑋 𝑇 ) is bounded, 𝑢 𝑥 (𝑡, 𝑋 𝑡 ) is a bounded square-integrable martingale. Applying martingale representation conditionally on 𝑋 0, there is a predictable process 𝐻 𝑥 such that 
+
+𝑢 𝑥 (𝑡, 𝑋 𝑡 ) = 𝑢 𝑥 (0, 𝑋 0) + ∫
+
+> 𝑡 0
+
+𝐻 𝑥 (𝜏) ⊤𝑑𝑊 𝜏 , 0 ≤ 𝑡 ≤ 𝑇 . 
+
+The following lemma shows that the entire covariance structure of the SDE is captured by the predictable process 𝐻 𝑥 and identifies the continuous-time analog of the one-step covariances 𝑣 𝑖,𝐵 .
+
+Lemma 3. For 𝑥, 𝑦 ∈ ℝ 𝑑 , define, for almost every 𝑡 ∈ [0, 𝑇 ] ,
+
+𝑔 𝑥,𝑦 (𝑡) ∶= 𝔼 [𝐻 𝑥 (𝑡) ⊤𝐻 𝑦 (𝑡)] . 
+
+Fix 𝐵 and 0 ≤ 𝑖 ≤ 𝐾 𝐵 − 1 , and set 𝑠 = 𝑡 𝑖,𝐵 and 𝑡 = 𝑡 𝑖+1,𝐵 . Then the true SDE’s covariance contribution over the interval [𝑠, 𝑡] is equal to the integral of 𝑔 𝑥,𝑦 over that interval, i.e., 
+
+𝑣 SDE 𝑖,𝐵 (𝑥, 𝑦) ∶= 𝔼 [Cov(𝑢 𝑥 (𝑡, 𝑋 𝑡 ), 𝑢 𝑦 (𝑡, 𝑋 𝑡 ) ∣ F𝑠 )] = ∫
+
+> 𝑡 𝑠
+
+𝑔 𝑥,𝑦 (𝜏) 𝑑𝜏. 
+
+Moreover, 𝑔 𝑥,𝑦 ∈ 𝐿 1([0, 𝑇 ]) .The proof is given in Appendix A.5. Here, 𝑔 𝑥,𝑦 (𝑡) is interpreted as the covariance density at time 
+
+𝑡 for the SDE, and represents the rate at which covariance is being changed at time 𝑡 . As in the discrete case, let the initial variance be 
+
+Γ0(𝑥, 𝑦) ∶= Cov(𝑢 𝑥 (0, 𝑋 0), 𝑢 𝑦 (0, 𝑋 0)) . 
+
+The martingale representation separates these two orthogonal sources of randomness, giving 
+
+Cov(𝑎 𝑥 (𝑋 𝑇 ), 𝑎 𝑦 (𝑋 𝑇 )) = Γ 0(𝑥, 𝑦) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑦 (𝑡) 𝑑𝑡. 
+
+Remark 1. If, in addition, 𝑢 𝑥 ∈ 𝐶 1,2 , and hence sufficiently smooth for Itô’s formula to apply, then 
+
+𝐻 𝑥 (𝑡) = 𝜎(𝑡, 𝑋 𝑡 )⊤∇𝑢 𝑥 (𝑡, 𝑋 𝑡 ), 
+
+and therefore we can identify 
+
+𝑔 𝑥,𝑦 (𝑡) = 𝔼 [∇𝑢 𝑥 (𝑡, 𝑋 𝑡 )⊤𝜎(𝑡, 𝑋 𝑡 )𝜎(𝑡, 𝑋 𝑡 )⊤∇𝑢 𝑦 (𝑡, 𝑋 𝑡 )] . 
+
+Having identified the covariance density, we now show that the discrete one-step covariances converge to it. Using the splitting function defined above, define the scaled covariance kernel 
+
+Γ𝐵 (𝑥, 𝑦) ∶= 𝑁 0,𝐵 Cov(̂𝐹 𝐵 (𝑥),̂ 𝐹 𝐵 (𝑦)) = Γ 0,𝐵 (𝑥, 𝑦) +  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝑣 𝑖,𝐵 (𝑥, 𝑦) 𝑅 𝑖,𝐵 
+
+.
+
+Proposition 1. Suppose Assumptions 1 and 3 hold. Then, for every 𝑥, 𝑦 ∈ ℝ 𝑑 ,
+
+Γ0,𝐵 (𝑥, 𝑦) → Γ 0(𝑥, 𝑦), and  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+||𝑣 𝑖,𝐵 (𝑥, 𝑦) − 𝑣 SDE 𝑖,𝐵 (𝑥, 𝑦) || → 0. 
+
+5The proof is given in Appendix A.6. This shows that each one-step covariance converges to its continuous-time analog, and the initial variance also converges. These convergences alone, however, do not establish a covariance limit for the splitting estimator. 
+
+Proposition 2 (Covariance limit) . Suppose Assumptions 1, 2, and 3 hold. Then, for every 𝑥, 𝑦 ∈ ℝ 𝑑 ,
+
+Γ𝐵 (𝑥, 𝑦) → Γ(𝑥, 𝑦) = Γ 0(𝑥, 𝑦) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑦 (𝑡) 𝑟(𝑡) 𝑑𝑡. 
+
+Moreover, Γ is positive semidefinite and 
+
+𝑑 Γ(𝑥, 𝑦) 2 ∶= Γ(𝑥, 𝑥) + Γ(𝑦, 𝑦) − 2Γ(𝑥, 𝑦) ≤ ‖‖𝑎 𝑥 (𝑋 𝑇 ) − 𝑎 𝑦 (𝑋 𝑇 )‖‖2𝐿 2 .
+
+The proof is given in Appendix A.7. This is the continuous-time analog of Lemma 1 and shows that the covariance of the splitting estimator converges to a natural limit. 
+
+4.2 Splitting Central Limit Theorem 
+
+This subsection shows that the splitting estimator obeys a central limit theorem. In particular, we have a triangular-array empirical process, where the entire simulation depends on 𝐵 . Note that at budget 𝐵 , there are 𝑁 0,𝐵 independent root particles, and each root generates many dependent samples. Hence, the natural scaling occurs with √𝑁 0,𝐵 . Let 
+
+ = {𝑎 𝑥 ∶ 𝑥 ∈ ℝ 𝑑 }
+
+be the lower-orthant class. Define 
+
+𝜌(𝑎 𝑥 , 𝑎 𝑦 ) ∶= ‖‖𝑎 𝑥 (𝑋 𝑇 ) − 𝑎 𝑦 (𝑋 𝑇 )‖‖𝐿 2 , 𝑎 𝑥 , 𝑎 𝑦 ∈ .
+
+For notational convenience, let 𝑚 𝐵 = 𝑅 𝐾 𝐵 −1,𝐵 be the number of terminal descendants generated by one root, and let 
+
+𝐸 𝐵 = (ℝ 𝑑 )𝑚 𝐵 , 𝑍 𝐵 = (𝑍 (1) 𝐵 , … , 𝑍 (𝑚 𝐵 )𝐵 ) ∈ 𝐸 𝐵 ,
+
+where, 𝐸 𝐵 is the sample space of the terminal descendants from one root, and 𝑍 𝐵 is the corresponding random vector. For 𝑧 ∈ 𝐸 𝐵 , define 
+
+𝑓 𝐵,𝑥 (𝑧) = 1𝑚 𝐵 𝑚 𝐵 
+
+∑
+
+> 𝓁=1
+
+𝑎 𝑥 (𝑧 (𝓁) ), 𝐵 = {𝑓 𝐵,𝑥 ∶ 𝑥 ∈ ℝ 𝑑 } .
+
+For each fixed 𝐵 , the empirical process is naturally computed on 𝐵 over the sample space 𝐸 𝐵 .Although 𝐸 𝐵 and 𝐵 change with 𝐵 , we label the coordinate corresponding to 𝑓 𝐵,𝑥 by 𝑎 𝑥 and regard the process as indexed by the fixed class . We are now ready to state the central limit theorem. 
+
+Theorem 1 (Splitting CLT) . Under Assumptions 1, 2, and 3, for 𝑎 𝑥 ∈ , define 
+
+𝔾 𝐵 (𝑎 𝑥 ) = √𝑁 0,𝐵 (̂ 𝐹 𝐵 (𝑥) − 𝐹 𝐵 (𝑥) ) .
+
+If 𝑁 0,𝐵 → ∞ , then 
+
+𝔾 𝐵 ⇒ 𝔾 in 𝓁 ∞(), Cov(𝔾(𝑎 𝑥 ), 𝔾(𝑎 𝑦 )) = Γ(𝑥, 𝑦). 
+
+Here, 𝔾 is a centered Gaussian process indexed by  with covariance Γ defined in Proposition 2. The proof is given in Appendix A.9. This shows us that the covariance of the Gaussian process is dependent on the splitting function 𝑟 . Hence, we can control the limiting distribution by choosing the splitting function appropriately. 
+
+4.3 Bias-Variance Tradeoff 
+
+The CLT above describes only the simulation noise around 𝐹 𝐵 . To obtain the error around 𝐹 , we need to account for the bias introduced due to discretization. We follow the approach of Duffie 6and Glynn [1995] to balance the bias and variance, where the variance and bias are modeled as functions of the budget 𝐵 . For a given 𝐵 , 𝑁 0,𝐵 depends on the cost of one root tree as follows 
+
+𝐶 𝐵 = 𝐵/𝑁 0,𝐵 = 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝑅 𝑖,𝐵 .
+
+Consider an asymptotically uniform time partition, in the sense that 
+
+max 
+
+> 0≤𝑖<𝐾 𝐵
+
+||||𝑡 𝑖+1,𝐵 − 𝑡 𝑖,𝐵 
+
+ℎ𝐵 
+
+− 1 |||| ⟶ 0. 
+
+By Assumption 2, 
+
+ℎ𝐵 𝐶 𝐵 = 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+ℎ𝐵 𝑅 𝑖,𝐵 ⟶ ∫
+
+> 𝑇 0
+
+𝑟(𝑡) 𝑑𝑡 =∶ 𝛾 . 
+
+Here, 𝛾 is finite by Assumption 2 and is interpreted as the limiting cost of one root tree. Hence 
+
+𝐵 𝑁 0,𝐵 
+
+= 𝛾 ℎ𝐵 
+
++ 𝑜(ℎ −1 𝐵 ). 
+
+The functional CLT concerns ̂ 𝐹 𝐵 − 𝐹 𝐵 . To recover the error relative to 𝐹 , write ̂𝐹 𝐵 − 𝐹 = (̂𝐹 𝐵 − 𝐹 𝐵 ) + (𝐹 𝐵 − 𝐹 ). 
+
+Since 𝑁 0,𝐵 ∼ 𝐵ℎ 𝐵 /𝛾 , the CLT identifies 
+
+(𝛾 𝐵ℎ 𝐵 )
+
+> 1/2
+
+as the natural scale of the centered simulation error. For the discretization error 𝐹 𝐵 − 𝐹 , we assume only the following polynomial bound to provide a rate for the total error. 
+
+Assumption 4 (Weak discretization error) . There is 𝑝 > 0 such that 
+
+‖𝐹 𝐵 − 𝐹 ‖ ∞ = 𝑂(ℎ 𝑝 𝐵 ). 
+
+For the Euler scheme, Bally and Talay [1996] prove weak error of order one for a broad class of test functions, including indicator functions, under suitable regularity conditions. This motivates the important case 𝑝 = 1 .
+
+Corollary 1. Suppose the assumptions of Theorem 1 hold, together with Assumption 4. Assume also that 𝑁 0,𝐵 → ∞ and that the time partition is asymptotically uniform. Put 
+
+𝜆 𝐵 = ℎ 𝐵 𝐵 1/(1+2𝑝) .
+
+If 𝜆 𝐵 → 𝜆 ∈ (0, ∞) , then 
+
+𝐵 𝑝/(1+2𝑝) (̂𝐹 𝐵 − 𝐹 𝐵 ) ⇒ (𝛾 𝜆 )
+
+> 1/2
+
+𝔾 in 𝓁 ∞(). 
+
+Moreover, 
+
+𝐵 𝑝/(1+2𝑝) ‖̂𝐹 𝐵 − 𝐹 ‖ ∞
+
+is bounded in probability. The proof is given in Appendix A.10. Assumption 4 controls only the magnitude of 𝐹 𝐵 − 𝐹 , and only gives a rate for the total error rather than a weak limit. For the remainder of the paper, we consider the non-degenerate regime 𝜆 𝐵 → 𝜆 ∈ (0, ∞) , which happens when ℎ𝐵 ∝ 𝐵 −1/(1+2𝑝) .
+
+Remark 2. We retain the asymptotic uniform time-partition requirement in the main text for simplicity. More generally, a nonuniform discretization can be handled by assigning different costs to different transitions. Appendix A.17 shows that this results in a limiting cost density 𝜔 , and that the corollary above then holds with 𝛾 replaced by the cost-weighted 𝛾 𝜔 .75 KS Statistic and Minimax Allocation 
+
+The Kolmogorov-Smirnov (KS) distance from the target law is 
+
+KS(̂𝐹 𝐵 , 𝐹 ) = sup 
+
+> 𝑥∈ℝ 𝑑
+
+|̂𝐹 𝐵 (𝑥) − 𝐹 (𝑥)|. 
+
+Since 𝐹 𝐵 − 𝐹 is independent of the splitting function 𝑟 , the allocation can affect only ̂ 𝐹 𝐵 − 𝐹 𝐵 . We therefore use the limiting KS loss of the centered simulation error as the allocation criterion. By the continuous mapping theorem, 
+
+𝐵 𝑝/(1+2𝑝) KS(̂𝐹 𝐵 , 𝐹 𝐵 ) ⇒ (𝛾 𝜆 )
+
+> 1/2
+
+sup 
+
+> 𝑥∈ℝ 𝑑
+
+|𝔾(𝑎 𝑥 )|. 
+
+We are interested in minimizing this quantity. However, this is generally intractable. Fortunately, we can upper and lower bound its expected value by bounds that differ up to a logarithmic factor. These bounds then motivate a tractable allocation problem. 
+
+Proposition 3 (Expected Limiting Centered KS Bounds) . Let 
+
+Γ∗ = sup 
+
+> 𝑥∈ℝ 𝑑
+
+√Γ(𝑥, 𝑥). 
+
+If Γ∗ > 0 , then there exists a constant 𝐶 < ∞ , depending only on 𝑑 , such that 
+
+√ 2𝜋 (𝛾 𝜆 )
+
+> 1/2
+
+Γ∗ ≤ (𝛾 𝜆 )
+
+> 1/2
+
+𝔼 [sup 
+
+> 𝑥∈ℝ 𝑑
+
+|𝔾(𝑎 𝑥 )| ] ≤ 𝐶 (𝛾 𝜆 )
+
+> 1/2
+
+Γ∗√1 − log(Γ ∗). 
+
+The proof is given in Appendix A.11. This proposition shows that for a fixed 𝜆 , the bias term does not depend on the splitting design, and we can limit our attention to the variance term. Notice that the bounds agree up to a logarithmic factor. Dropping this factor gives the surrogate 
+
+𝛾 (𝑟) 1/2 Γ∗.
+
+Since the surrogate is nonnegative, minimizing its square gives the proxy objective 
+
+inf  
+
+> 𝑟∈ 
+
+𝛾 (𝑟) sup  
+
+> 𝑥∈ℝ 𝑑
+
+[Γ0(𝑥, 𝑥) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑥 (𝑡) 𝑟(𝑡) 𝑑𝑡 ] ,
+
+where  is the set of nondecreasing functions 𝑟 ∈ 𝐿 1([0, 𝑇 ]) with 𝑟(0+) = 1 . This problem has an elegant interpretation: we are minimising the worst-case variance of the Gaussian process over all thresholds 𝑥 by choosing the splitting function 𝑟 . To solve this optimization problem, let 
+
+ = [−∞, ∞] 𝑑 
+
+have the product topology. By Lemma 6, 𝑥 ↦ Γ 0(𝑥, 𝑥) is continuous on , and 𝑥 ↦ 𝑔 𝑥,𝑥 is continuous from  into 𝐿 1([0, 𝑇 ]) . For fixed 𝑟 ∈ , we have 1/𝑟 ≤ 1 . Thus 
+
+𝑥 ⟼ Γ 0(𝑥, 𝑥) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑥 (𝑡) 𝑟(𝑡) 𝑑𝑡 
+
+is continuous on . Since ℝ𝑑 is dense in , compactification does not change the supremum. Inspired by Lemma 2, we first describe the continuous-time analog of PAVA. For any integrable function 𝑓 ∶ [0, 𝑇 ] → ℝ , let 𝐶[𝑓 ] be the greatest continuous convex function such that 
+
+𝐶[𝑓 ](𝑡) ≤ ∫
+
+> 𝑡 0
+
+𝑓 (𝑠) 𝑑𝑠, 0 ≤ 𝑡 ≤ 𝑇 . 
+
+Then, the continuous-time PAVA of 𝑓 is defined as the right derivative of 𝐶[𝑓 ] , PAVA(𝑓 ) = 𝐶[𝑓 ] ′+.Before stating our main result, we note that the threshold with the largest loss can depend on the allocation. This can be thought of as a game between the designer and an adversary, where the adversary chooses weights on the thresholds to maximize the loss. We therefore introduce mixtures over thresholds. For 𝜋 ∈ (), define 
+
+Γ𝜋 0 = ∫
+
+Γ0(𝑥, 𝑥) 𝜋(𝑑𝑥), 𝑔 𝜋 = ∫
+
+𝑔 𝑥,𝑥 𝜋(𝑑𝑥) in 𝐿 1([0, 𝑇 ]). 
+
+8These integrals are well defined by Lemma 6. The PAVA construction above can be extended to include an atom Γ𝜋 0 at 𝑡 = 0 . See Appendix A.1 for the complete construction. Applying this to the pair (Γ 𝜋 0 , 𝑔 𝜋 ), we get 
+
+ℎ𝜋 = PAVA(Γ 𝜋 0 , 𝑔 𝜋 ). 
+
+We solve this problem by replacing the supremum over 𝑥 with a maximization over probability distributions 𝜋 on , which leaves its value unchanged. For 𝑟 ∈ , set 𝑛 = 𝑟/𝛾 (𝑟) . The objective is convex in 𝑛 and affine in 𝜋 . Under a suitable topology, () is compact. We then use Sion’s minimax theorem and the PAVA construction above to conclude. Appendix A.13 gives the details. 
+
+Theorem 2 (Minimax Allocation) . Suppose Assumption 3 holds. Then 
+
+inf  
+
+> 𝑟∈ 
+
+𝛾 (𝑟) sup  
+
+> 𝑥∈ℝ 𝑑
+
+[Γ0(𝑥, 𝑥) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑥 (𝑡) 𝑟(𝑡) 𝑑𝑡 ] = max  
+
+> 𝜋∈ ()
+
+(∫
+
+> 𝑇 0
+
+√ℎ𝜋 (𝑡) 𝑑𝑡 )
+
+> 2
+
+.
+
+The maximum on the right is attained. For any maximizer 𝜋 ∗, the infimum on the left is attained if and only if ℎ𝜋 ∗ (0+) > 0 . In that case, 
+
+𝑟 ∗(𝑡) = √ ℎ𝜋 ∗ (𝑡) ℎ𝜋 ∗ (0+) , 0 ≤ 𝑡 < 𝑇 , 
+
+defines a minimizer. The proof is given in Appendix A.13. Notably, the optimal allocation still follows Neyman allocation, but now with respect to the PAVA projection of a mixture of covariance densities. Since simulation is performed with a finite budget, we also provide a finite-budget counterpart to Theorem 2, which uses the same argument for the minimax version of Lemma 2. Put 𝑚 = 𝐾 𝐵 and ̃𝑣 𝑖 (𝑥) = 𝑣 𝑖,𝐵 (𝑥, 𝑥) + 𝟏 {𝑖=0} Γ0,𝐵 (𝑥, 𝑥), 0 ≤ 𝑖 < 𝑚. 
+
+With 𝑛 𝑖 = 𝑁 0𝑅 𝑖 , define the feasible allocation set 
+
+ ={𝑛 ∈ ℝ 𝑚 >0 ∶ 𝑛 0 ≤ ⋯ ≤ 𝑛 𝑚−1 ,
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+𝑛 𝑖 = 𝐵 }.
+
+To account for the coupling across thresholds, consider the closed convex hull of the variances ̃𝑉 (𝑥) = (̃ 𝑣 0(𝑥), … ,̃ 𝑣 𝑚−1 (𝑥)),  = conv {̃ 𝑉 (𝑥) ∶ 𝑥 ∈ ℝ 𝑑 } ⊂ ℝ 𝑚 + .
+
+Corollary 2 (Finite-Budget Minimax Allocation) . Assume that there exists 𝑥 0 ∈ ℝ 𝑑 such that ̃𝑣 𝑖 (𝑥 0) > 0 for every 𝑖 . For 𝑎 ∈ , let ̂𝑎 = PAVA(𝑎) . Then the minimum below is attained, and 
+
+min 
+
+> 𝑛∈ 
+
+sup 
+
+> 𝑥∈ℝ 𝑑
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+̃𝑣 𝑖 (𝑥) 𝑛 𝑖 
+
+= 1𝐵 max  
+
+> 𝑎∈ 
+
+(
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+√̂ 𝑎 𝑖 )
+
+> 2
+
+.
+
+Moreover, if 𝑎 ∗ maximizes the right-hand side and ℎ∗ = PAVA(𝑎 ∗), then ℎ∗𝑖 > 0 for every 𝑖 , and every minimizing allocation satisfies 
+
+𝑛 ∗𝑖 = 𝐵 √ℎ∗𝑖 
+
+∑𝑚−1 𝑗=0 
+
+√ℎ∗𝑗 
+
+, 0 ≤ 𝑖 ≤ 𝑚 − 1. 
+
+The proof is given in Appendix A.14. We emphasize that the uniform cost and time partition assumptions are made here to present the results in a simple form. Under a single regularity condition on the costs, both results extend by measuring time in cost rather than in elapsed time. Appendix A.17 gives the cost-weighted forms of Theorem 2 and Corollary 2. 96 Rounding 
+
+The finite-budget optimum need not define a valid tree because its particle counts can be noninteger. Hence, we approximate it with a mixture of trees which only split by powers of two. Fix 𝐵 , put 
+
+𝑚 = 𝐾 𝐵 , and let 𝑛 ∗ be a minimizing allocation from Corollary 2. Normalize this allocation by setting 
+
+𝑟 ∗𝑖 = 𝑛 ∗𝑖 
+
+𝑛 ∗0
+
+, 0 ≤ 𝑖 < 𝑚. 
+
+Using the notation ̃𝑣 𝑖 (𝑥) from that corollary, define the scale-free relaxed value 
+
+𝑉 ∗ = (
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+𝑟 ∗𝑖 ) sup 
+
+> 𝑥∈ℝ 𝑑
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+̃𝑣 𝑖 (𝑥) 𝑟 ∗𝑖 
+
+.
+
+6.1 Constructing Dyadic Trees 
+
+Given 𝑟 ∗, we first construct a finite set of dyadic trees. We will later mix these trees to approximate the relaxed allocation. Let 𝑈 ∼ Unif[0, 1) . For each realized value of 𝑈 , associate a tree with profile 
+
+𝑅 𝑖 (𝑈 ) = 2 ⌊log 2 𝑟 ∗𝑖 +𝑈 ⌋ , 0 ≤ 𝑖 < 𝑚. 
+
+This logarithmic rounding follows the construction of Roundy [1989, Section 2]. Since 𝑟 ∗ is nonde-creasing, the exponents are also nondecreasing, so every ratio 
+
+𝑅 𝑖 (𝑈 ) 𝑅 𝑖−1 (𝑈 ) , 1 ≤ 𝑖 < 𝑚, 
+
+is a nonnegative power of two and every 𝑅(𝑈 ) defines a valid tree. As 𝑈 varies over [0, 1) , each coordinate can change at most once. Hence, at most 𝑚 distinct trees occur, which are our candidates. 
+
+6.2 Mixing the Candidate Trees 
+
+We now discuss how to mix the candidate trees to approximate the relaxed allocation. Let 𝑅 (1) , … , 𝑅 (𝑆) 
+
+be the distinct profiles, where 𝑆 ≤ 𝑚 . For each type 𝑠 , the cost of one tree is 𝐶 𝑠 = ∑ 𝑚−1 𝑖=0 𝑅 (𝑠) 𝑖 . Suppose we generate 𝑀 𝑠 independent trees of type 𝑠 . For weights 𝜆 𝑠 ≥ 0 with ∑𝑠 𝜆 𝑠 = 1 , define 
+
+𝐹 𝜆 𝐵 =
+
+> 𝑆
+
+∑
+
+> 𝑠=1
+
+𝜆 𝑠 ̂ 𝐹 𝐵,𝑠 ,
+
+to be a weighted mixture of the empirical CDFs ̂ 𝐹 𝐵,𝑠 . From Lemma 1, we have for every 𝑥, 𝑦 ∈ ℝ 𝑑 ,
+
+𝔼[𝐹 𝜆 𝐵 (𝑥)] = 𝐹 𝐵 (𝑥), Cov(𝐹 𝜆 𝐵 (𝑥), 𝐹 𝜆 𝐵 (𝑦)) = 
+
+> 𝑆
+
+∑
+
+> 𝑠=1
+
+𝜆 2𝑠 
+
+𝑀 𝑠 [Γ0,𝐵 (𝑥, 𝑦) + 
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+𝑣 𝑖,𝐵 (𝑥, 𝑦) 𝑅 (𝑠) 𝑖 ] .
+
+Here, 𝜆 𝑠 is the budget share assigned to type 𝑠 , giving the ideal root count 𝑀 𝑠 = 𝜆 𝑠 𝐵/𝐶 𝑠 . We choose these weights to minimize the worst-case variance. The next proposition shows that the resulting mixture approximates the relaxed optimum up to a small constant factor. 
+
+Proposition 4 (Dyadic Mixture Approximation) . If the candidate types are generated from 𝑟 ∗, then 
+
+𝑉 ∗ ≤ min    
+
+> 𝜆 𝑠 ≥0 ∑𝑠 𝜆 𝑠 =1
+
+sup 
+
+> 𝑥∈ℝ 𝑑
+> 𝑆
+
+∑
+
+> 𝑠=1
+
+𝜆 𝑠 𝐶 𝑠 𝑚−1 
+
+∑
+
+> 𝑖=0
+
+̃𝑣 𝑖 (𝑥) 𝑅 (𝑠) 𝑖 
+
+≤ 2𝑒 log 2 𝑉 ∗.
+
+The proof is given in Appendix A.15. We next show that the earlier asymptotic analysis extends to the resulting mixture. Write 𝐶 𝑠,𝐵 = ∑ 𝐾 𝐵 −1 𝑖=0 𝑅 (𝑠) 𝑖,𝐵 . For each 𝐵 , let 𝜆 𝐵 = (𝜆 1,𝐵 , … , 𝜆 𝑆 𝐵 ,𝐵 ) be an optimizer of the problem in Proposition 4. The optimizer need not be unique, and the number of candidate types 𝑆 𝐵 can grow with 𝐵 . Instead, we analyse the normalized mixture cost, which is defined as 
+
+𝛾 𝐵 = ℎ 𝐵 𝑆 𝐵 
+
+∑
+
+> 𝑠=1
+
+𝜆 𝑠,𝐵 𝐶 𝑠,𝐵 ,
+
+10 and, for 𝑡 ∈ [𝑡 𝑖,𝐵 , 𝑡 𝑖+1,𝐵 ), define the effective splitting function 
+
+𝑟 𝐵 (𝑡) = ∑𝑆 𝐵  
+
+> 𝑠=1
+
+𝜆 𝑠,𝐵 𝐶 𝑠,𝐵 
+
+∑𝑆 𝐵  
+
+> 𝑠=1
+
+𝜆 𝑠,𝐵 𝐶 𝑠,𝐵 /𝑅 (𝑠) 𝑖,𝐵 
+
+.
+
+The function 𝑟 𝐵 is nondecreasing and satisfies 𝑟 𝐵 (0+) = 1 . To obtain integer root counts, set 
+
+𝑀 𝑠,𝐵 = ⌊𝐵𝜆 𝑠,𝐵 
+
+𝐶 𝑠,𝐵 ⌋
+
+For type 𝑠 , let ̂ 𝐹 𝐵,𝑠 be the empirical CDF formed from its 𝑀 𝑠,𝐵 root. The mixture estimator is then ̂𝐹 mix 𝐵 = ∑𝑆 𝐵  
+
+> 𝑠=1
+
+𝑀 𝑠,𝐵 𝐶 𝑠,𝐵 ̂ 𝐹 𝐵,𝑠 
+
+∑𝑆 𝐵  
+
+> 𝑠=1
+
+𝑀 𝑠,𝐵 𝐶 𝑠,𝐵 
+
+.
+
+The candidate profiles and weights are fixed before simulation, and all roots are simulated indepen-dently within and across candidate types. 
+
+Proposition 5 (Mixture Functional Limit) . Suppose Assumptions 1 and 3 hold, the time partitions are asymptotically uniform, and for some 𝛾 ∈ (0, ∞) and 𝑟 ∈ ,
+
+𝐵ℎ 2𝐵 ⟶ ∞, 𝛾 𝐵 ⟶ 𝛾 , 𝑟 𝐵 ⟶ 𝑟 in 𝐿 1([0, 𝑇 ]). 
+
+Then √𝐵ℎ 𝐵 (̂ 𝐹 mix 𝐵 − 𝐹 𝐵 ) ⇒ √𝛾 𝔾 in 𝓁 ∞(), 
+
+where 𝔾 is a centered Gaussian process with covariance 
+
+Cov(𝔾(𝑎 𝑥 ), 𝔾(𝑎 𝑦 )) = Γ 0(𝑥, 𝑦) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑦 (𝑡) 𝑟(𝑡) 𝑑𝑡. 
+
+Moreover, √𝐵ℎ 𝐵 KS (̂ 𝐹 mix 𝐵 , 𝐹 𝐵 ) ⇒ √𝛾 sup 
+
+> 𝑥∈ℝ 𝑑
+
+|𝔾(𝑎 𝑥 )| . 
+
+The proof is given in Appendix A.16. The condition 𝐵ℎ 2𝐵 → ∞ makes the budget lost to flooring negligible. Under the nondegenerate scaling ℎ𝐵 ∝ 𝐵 −1/(1+2𝑝) , this holds whenever 𝑝 > 1/2 , including the usual Euler case 𝑝 = 1 .The individual optimized weights need not converge, and a candidate type need not receive a growing number of roots. The earlier covariance, functional CLT, and KS limits centered at 𝐹 𝐵 carry over with (𝛾 , 𝑟) replaced by (𝛾 , 𝑟) . Under Assumption 4, the bias-variance analysis carries over as well. Hence, the relaxed allocation can be approximated by a mixture of valid dyadic trees while retaining the same form of the asymptotic limit theory. 
+
+## 7 Numerical Experiments 
+
+The optimal allocation is determined by the variance contributions 𝑣 𝑖 (𝑥, 𝑥) and Γ0,𝐵 (𝑥, 𝑥) . In practice they are not known. We propose a two-phase procedure, where Phase 1 spends 𝐵 1 = 𝑜(𝐵) budget to estimate the parameters which are used to solve the allocation problem. The remaining budget is then used to sample using the splitting scheme. 
+
+7.1 Two-Phase Algorithm 
+
+Before the simulation begins, we choose a small set of split times 
+
+0 = 𝑡 0 < 𝑡 1 < ⋯ < 𝑡 𝐿−1 < 𝑡 𝐿 = 𝑇 , 
+
+where 𝑡 1, … , 𝑡 𝐿−1 are the times at which splitting may occur. Particles follow the original dynamics inside a segment. Phase 1 of the algorithm uses 𝐵 1 ∝ 𝐵 𝛼 budget with 𝛼 < 1 to simulate complete paths without splitting. From these Phase 1 paths we fit small MLPs that learn ̂𝑢 𝑥 (𝑡, 𝑋 𝑡 ) ≈ 𝑢 𝑥 (𝑡, 𝑋 𝑡 ) = ℙ(𝑋 𝑇 ≤ 𝑥 ∣ 𝑋 𝑡 ). 
+
+11 We convert these predictions into estimates of ̃𝑣 𝑖 through the second moments 
+
+𝑄 𝑖 (𝑥) = 𝔼[𝑢 𝑥 (𝑡 𝑖 , 𝑋 𝑡 𝑖 )2]. 
+
+Then, since 𝑢 𝑥 (𝑡 𝑖 , 𝑋 𝑡 𝑖 ) is a martingale, we have the following expression for ̃𝑣 𝑖 ̃𝑣 0(𝑥) = 𝑄 1(𝑥) − 𝐹 (𝑥) 2,̃ 𝑣 𝑖 (𝑥) = 𝑄 𝑖+1 (𝑥) − 𝑄 𝑖 (𝑥) (𝑖 ≥ 1). 
+
+We use these estimates in the allocation problem in Corollary 2, where the supremum over all thresholds is approximated by a maximum over a finite set. The resulting allocation is used to construct candidate dyadic trees, and the weights of the mixture are determined by solving a linear program, as detailed in Section 6. Phase 2 uses the remaining budget to run the selected trees. The final estimate combines the Phase 1 terminal samples with the weighted empirical CDFs of the Phase 2 trees. Appendix B.3 gives the full procedure. 
+
+7.2 Experimental Setup 
+
+We study four examples: (i) a two-dimensional Ornstein-Uhlenbeck (OU) process, (ii) two-dimensional overdamped Langevin dynamics, (iii) a stochastic EDM model trained on a two-dimensional Gaussian mixture, and (iv) the pretrained google/ddpm-cifar10-32 model. For every example, we consider schedules with 9, 19 and 39 split times. Complete details of the models, their corresponding SDEs, and configurations are given in Appendix C. At each budget, we compare learned splitting with independent full-path simulation and the Uniform-𝑐 and Learned-𝑐 baselines, where we split by a factor of 𝑐 each time. Refer to Appendix C.3 for both baseline procedures. Due to compute constraints, we only test CIFAR-10 on Learned-𝑐 . For the two-dimensional examples, we compute the exact KS distance of the empirical CDF to a fixed reference CDF. Due to computational constraints, we use MMD for CIFAR-10. Appendix B.4 gives the reference samples and metric definitions. 
+
+7.3 Results 
+
+Figure 2 shows the percentage reduction in the mean error metric relative to independent full-path simulation, budget by budget. Figure 3 shows the learned cumulative allocation profiles at the largest tested budget for each model. Refer to Appendix E for complete numerical results.      
+
+> Figure 2: Percentage reduction in the relevant metric relative to independent full-path simulation for the learned allocation, Uniform-𝑐 , and Learned-𝑐 . For Uniform-𝑐 , the best-performing 𝑐 is shown. The first three panels show mean KS over 2,500 repetitions, and the CIFAR-10 panel shows mean MMD over 50 repetitions. Shading shows 90% normal intervals.
+
+12 Figure 3: Allocation profiles 𝑅 𝑖 for the learned allocation at each model’s largest tested budget. 
+
+Splitting lowers mean error at every tested budget and schedule across all four examples, with reductions of up to 25% . The learned allocation profiles vary across models. For the EDM model, the learned allocation only splits near the midpoint. This agrees with the intuition that most denoising, and hence higher variance, occurs in the middle of the trajectory. The uniform baseline, where 𝑐 is chosen before running does well, and sometimes does better than the learned allocation. However, it requires a choice of 𝑐 that is not known in advance, and some choices of 𝑐 perform worse than independent full-path simulation. The baseline where 𝑐 is learned using a two-phase procedure consistently beats independent full-path simulation, and is also often close to the learned allocation. The constant splitting baselines are good when the optimal 𝑟 is close to geometric, and suboptimal when the profile is far from geometric, as evident in the OU and Langevin examples. Refer to Figure 2 for the comparison, and Appendix E for complete results. The variance contributions of the OU process can be computed analytically, so we can compare the learned allocation with the optimal allocations. Figure 4 shows that the learned allocation closely matches the oracle allocation. At 𝐵 = 5 × 10 6, the reduction from the learned allocation ranges from 
+
+82.6% to 100.7% of the reduction from the oracle across the three schedules. Appendix D gives the construction and results. 
+
+## 8 Conclusion 
+
+We studied how to spend a fixed simulation budget when the target is the full terminal distribution of a discretized SDE. We derived the covariance created by shared path histories and proved a functional central limit theorem. Bounds on the expected Kolmogorov-Smirnov error led to a related minimax allocation problem. We solved that problem in continuous and finite time. We then converted the relaxed finite allocation into a mixture of exact dyadic trees. Before integer root counts are imposed, the mixture is within a factor 2/(𝑒 log 2) of the relaxed worst-threshold variance. We also provided a practical two-phase procedure and extensive empirical evaluations. Our approach has several limitations. The upper and lower bounds on expected Kolmogorov-Smirnov error differ by a logarithmic factor. The design criterion ignores this gap. The finite query set and estimated variance values remain outside the theory, which does not account for these errors. 13 References 
+
+David F. Anderson and Kurt W. Ehlert. Conditional Monte Carlo for reaction networks. SIAM Journal on Scientific Computing , 44(2):A993–A1019, 2022. doi: 10.1137/21M144267X. Vlad Bally and Denis Talay. The law of the euler scheme for stochastic differential equations: I. convergence rate of the distribution function. Probability Theory and Related Fields , 104:43–60, 1996. Zdravko I. Botev and Dirk P. Kroese. Efficient Monte Carlo simulation via the generalized splitting method. 
+
+Statistics and Computing , 22(1):1–16, 2012. doi: 10.1007/s11222-010-9201-4. Frédéric Cérou and Arnaud Guyader. Fluctuation analysis of adaptive multilevel splitting. The Annals of Applied Probability , 26(6):3319–3380, 2016. doi: 10.1214/16-AAP1177. Darrell Duffie and Peter Glynn. Efficient monte carlo simulation of security prices. The Annals of Applied Probability , 5(4):897–905, 1995. Michael B. Giles and Abdul-Lateef Haji-Ali. Multilevel path branching for digital options. The Annals of Applied Probability , 34(5):4836–4862, 2024. doi: 10.1214/24-AAP2083. Paul Glasserman, Philip Heidelberger, Perwez Shahabuddin, and Tim Zajic. Multilevel splitting for estimating rare event probabilities. Operations Research , 47(4):585–600, 1999. doi: 10.1287/opre.47.4.585. Arthur Gretton, Karsten M. Borgwardt, Malte J. Rasch, Bernhard Schölkopf, and Alexander Smola. A kernel two-sample test. Journal of Machine Learning Research , 13(25):723–773, 2012. URL https://www.jmlr. org/papers/v13/gretton12a.html .Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusion probabilistic models. CoRR , abs/2006.11239, 2020. URL https://arxiv.org/abs/2006.11239 .Hongbin Huang, Minghua Chen, and Xiao Qiao. Generative learning for financial time series with irregular and scale-invariant patterns. In International Conference on Learning Representations , 2024. Tero Karras, Miika Aittala, Timo Aila, and Samuli Laine. Elucidating the design space of diffusion-based generative models. In Proc. NeurIPS , 2022. Peter E. Kloeden and Eckhard Platen. Numerical Solution of Stochastic Differential Equations . Springer, 1992. V. B. Melas. Optimal simulation design by branching technique. In Werner G. Müller, Henry P. Wynn, and Anatoly A. Zhigljavsky, editors, Model-Oriented Data Analysis , pages 113–126. Physica-Verlag, Heidelberg, 1993. URL https://pure.iiasa.ac.at/id/eprint/3705/ .Ilan Price, Alvaro Sanchez-Gonzalez, Ferran Alet, Tom R. Andersson, Andrew El-Kadi, Dominic Masters, Timo Ewalds, Jacklynn Stott, Shakir Mohamed, Peter Battaglia, Remi Lam, and Matthew Willson. Probabilistic weather forecasting with machine learning. Nature , 637:84–90, 2025. doi: 10.1038/s41586-024-08252-9. Tim Robertson, Farroll T. Wright, and Richard L. Dykstra. Order Restricted Statistical Inference . Wiley, Chichester, 1988. ISBN 9780471917878. Robin Roundy. Rounding off to powers of two in continuous relaxations of capacitated lot sizing problems. 
+
+Management Science , 35(12):1433–1442, 1989. doi: 10.1287/mnsc.35.12.1433. A. W. van der Vaart. Asymptotic Statistics . Cambridge Series in Statistical and Probabilistic Mathematics. Cambridge University Press, 1998. A. W. van der Vaart and Jon A. Wellner. Weak convergence and empirical processes . Springer Series in Statistics. Springer International Publishing, Cham, 2023. Ji Zhao and Deyu Meng. FastMMD: Ensemble of circular discrepancy for efficient two-sample test. Neural Computation , 27(6):1345–1372, 2015. 
+
+14 Appendix Contents 
+
+A Proofs and Auxiliary Results 15 
+
+A.1 PAVA and convex minorants . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 A.2 Proof of Lemma 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18 A.3 Proof of Lemma 2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18 A.4 Splitting-function convergence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19 A.5 Proof of Lemma 3 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 A.6 Proof of Proposition 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 A.7 Proof of Proposition 2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22 A.8 Finite Donsker Entropy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22 A.9 Proof of Theorem 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23 A.10 Proof of Corollary 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25 A.11 Proof of Proposition 3 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25 A.12 Continuity in the Threshold . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25 A.13 Proof of Theorem 2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26 A.14 Proof of Corollary 2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29 A.15 Proof of Proposition 4 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29 A.16 Proof of Proposition 5 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30 A.17 Cost-weighted extensions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32 
+
+B Two-Phase Procedure and Evaluation 34 
+
+B.1 Phase 1: Simulation, Query Generation, and Estimation . . . . . . . . . . . . . . . . . . . . . 34 B.2 Optimization . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36 B.3 Final Algorithm . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36 B.4 Metrics and Evaluations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 37 
+
+C Benchmark Models and Simulation Settings 38 
+
+C.1 Models . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38 C.2 Simulation settings . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38 C.3 Uniform and Learned 𝑐 Baselines . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39 
+
+D OU Finite-Query Minimax Benchmark 40 
+
+D.1 Oracle allocation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40 D.2 Simulated KS Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40 
+
+E Complete Numerical Results 41 
+
+## A Proofs and Auxiliary Results 
+
+A.1 PAVA and convex minorants 
+
+This subsection defines the discrete and continuous PAVA constructions used in Lemma 2 and Theorem 2. In both settings, PAVA replaces a nonnegative variance profile by a nondecreasing effective profile. We first describe the discrete construction and then define its continuous-time 15 analogue. For 𝑧 = (𝑧 0, … , 𝑧 𝑚−1 ) ∈ [0, ∞) 𝑚 , define the equal-weight nondecreasing PAVA fit by ̂𝑧 = PAVA(𝑧) ∶= arg min 
+
+> 𝜃 0≤⋯≤𝜃 𝑚−1
+> 𝑚−1
+
+∑
+
+> 𝑘=0
+
+(𝑧 𝑘 − 𝜃 𝑘 )2.
+
+The fit can be computed by starting with the singleton blocks {0}, … , {𝑚 − 1} . For a consecutive block 𝐼 , write 
+
+𝑧 𝐼 = 1|𝐼 | ∑
+
+> 𝑘∈𝐼
+
+𝑧 𝑘 .
+
+Whenever two adjacent blocks 𝐼 and 𝐽 satisfy 𝑧 𝐼 > 𝑧 𝐽 , merge them and assign the combined block its average. Continue until the block averages are nondecreasing. If 𝐼 1, … , 𝐼 𝐿 are the final PAVA blocks, then ̂𝑧 𝑘 = 𝑧 𝐼 𝓁 , 𝑘 ∈ 𝐼 𝓁 , 1 ≤ 𝓁 ≤ 𝐿. 
+
+The resulting fit is unique and does not depend on the order in which violations are pooled. This is the standard equal-weight PAVA construction [Robertson et al., 1988, Chapter 1]. The same fit is obtained from a convex minorant. Define 
+
+𝑆 0 = 0, 𝑆 𝑗 =
+
+> 𝑗−1
+
+∑
+
+> 𝑖=0
+
+𝑧 𝑖 , 1 ≤ 𝑗 ≤ 𝑚, 
+
+and let 𝐶 𝑧 be the greatest convex minorant of the polygonal line through 
+
+(0, 𝑆 0), (1, 𝑆 1), … , (𝑚, 𝑆 𝑚 ). 
+
+Then ̂𝑧 𝑖 = 𝐶 𝑧 (𝑖 + 1) − 𝐶 𝑧 (𝑖), 0 ≤ 𝑖 < 𝑚. 
+
+Thus the final PAVA blocks are the intervals on which the convex minorant has constant slope. Moreover, 𝐶 𝑧 (𝑚) = 𝑆 𝑚 , and hence 𝑚−1 
+
+∑
+
+> 𝑖=0
+
+̂𝑧 𝑖 =
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+𝑧 𝑖 .
+
+To see how this construction enters the discrete allocation problem, fix 𝑥 and 𝐵 , and put 𝑚 = 𝐾 𝐵 .Define ̃𝑣 𝑘 = 𝑣 𝑘,𝐵 (𝑥, 𝑥) + 𝟏 {𝑘=0} Γ0,𝐵 (𝑥, 𝑥), 𝑛 𝑘 = 𝑁 0,𝐵 𝑅 𝑘,𝐵 .
+
+Since 𝑅 0,𝐵 = 1 , both Γ0,𝐵 (𝑥, 𝑥) and 𝑣 0,𝐵 (𝑥, 𝑥) are divided by the initial population 𝑛 0 = 𝑁 0,𝐵 . This is why the initial-state variance is included in the first coordinate of the variance-contribution profile. The variance is 𝑚−1 
+
+∑
+
+> 𝑘=0
+
+̃𝑣 𝑘 
+
+𝑛 𝑘 
+
+,
+
+while the relaxed particle counts must satisfy 
+
+0 < 𝑛 0 ≤ 𝑛 1 ≤ ⋯ ≤ 𝑛 𝑚−1 .
+
+Write ̃𝑣 = (̃ 𝑣 0, … ,̃ 𝑣 𝑚−1 ). 
+
+Under the positivity condition in Lemma 2, let ̂𝑣 = PAVA(̃ 𝑣). 
+
+That lemma shows that the optimal relaxed allocation is 
+
+𝑛 ∗𝑘 = 𝐵 √̂ 𝑣 𝑘 𝑚−1 
+
+∑
+
+> 𝑗=0
+
+√̂ 𝑣 𝑗 
+
+, 0 ≤ 𝑘 < 𝑚. 
+
+Thus PAVA pools adjacent variance contributions that conflict with the monotonicity constraint, after which the allocation follows the usual square-root rule. 16 We next define the continuous analogue, including an atom at time zero. Let 𝑎 0 ≥ 0 , and let 
+
+𝑎 ∈ 𝐿 1([0, 𝑇 ]) be nonnegative almost everywhere. Define the cumulative variance profile 𝐴[𝑎 0, 𝑎] 
+
+by 
+
+𝐴[𝑎 0, 𝑎](0) = 0, 𝐴[𝑎 0, 𝑎](𝑡) = 𝑎 0 + ∫
+
+> 𝑡 0
+
+𝑎(𝑠) 𝑑𝑠, 0 < 𝑡 ≤ 𝑇 . 
+
+The jump at zero records the initial variance atom. Let 𝐶[𝑎 0, 𝑎] be the greatest continuous convex function 𝐶 on [0, 𝑇 ] satisfying 
+
+𝐶(0) = 0, 𝐶(𝑡) ≤ 𝐴[𝑎 0, 𝑎](𝑡), 0 < 𝑡 ≤ 𝑇 . 
+
+We define the continuous PAVA profile by 
+
+ℎ(𝑡) = PAVA(𝑎 0, 𝑎)(𝑡) ∶= 𝑑 +
+
+𝑑𝑡 𝐶[𝑎 0, 𝑎](𝑡), 0 ≤ 𝑡 < 𝑇 . 
+
+The function ℎ is nonnegative, nondecreasing, right-continuous, and integrable. The greatest convex minorant meets the cumulative profile at the terminal time, so 
+
+𝐶[𝑎 0, 𝑎](𝑇 ) = 𝐴[𝑎 0, 𝑎](𝑇 ) = 𝑎 0 + ∫
+
+> 𝑇 0
+
+𝑎(𝑡) 𝑑𝑡. 
+
+Consequently, 
+
+𝐶[𝑎 0, 𝑎](𝑡) = ∫
+
+> 𝑡 0
+
+ℎ(𝑠) 𝑑𝑠, ∫
+
+> 𝑇 0
+
+ℎ(𝑡) 𝑑𝑡 = 𝑎 0 + ∫
+
+> 𝑇 0
+
+𝑎(𝑡) 𝑑𝑡. 
+
+The gap 
+
+𝐺(𝑡) = 𝐴[𝑎 0, 𝑎](𝑡) − 𝐶[𝑎 0, 𝑎](𝑡) 
+
+is nonnegative, satisfies 𝐺(𝑇 ) = 0 , and the convex minorant is affine on every connected component of {𝑡 ∶ 𝐺(𝑡) > 0} . Therefore ℎ is constant on every interval over which the continuous construc-tion pools variance. For any bounded, nonnegative, nonincreasing, right-continuous function 𝑞 ,integration by parts gives 
+
+𝑎 0𝑞(0+) + ∫
+
+> 𝑇 0
+
+𝑎(𝑡)𝑞(𝑡) 𝑑𝑡 = ∫
+
+> 𝑇 0
+
+ℎ(𝑡)𝑞(𝑡) 𝑑𝑡 − ∫(0,𝑇 ) 
+
+𝐺(𝑡) 𝑑𝑞(𝑡) ≥ ∫
+
+> 𝑇 0
+
+ℎ(𝑡)𝑞(𝑡) 𝑑𝑡. 
+
+This is the continuous counterpart of the PAVA block inequality used in Lemma 2. The discrete and continuous constructions agree on a fixed grid. Let Δ = 𝑇 /𝑚 and define 
+
+𝑑 0 = 𝑎 0 + ∫
+
+> Δ0
+
+𝑎(𝑠) 𝑑𝑠, 𝑑 𝑖 = ∫
+
+> (𝑖+1)Δ 𝑖Δ
+
+𝑎(𝑠) 𝑑𝑠, 1 ≤ 𝑖 < 𝑚. 
+
+Set 
+
+𝐷 0 = 0, 𝐷 𝑗 =
+
+> 𝑗−1
+
+∑
+
+> 𝑖=0
+
+𝑑 𝑖 , 1 ≤ 𝑗 ≤ 𝑚. 
+
+Then 𝐷 𝑗 = 𝐴[𝑎 0, 𝑎](𝑗Δ) for 𝑗 ≥ 1 . The slopes of the greatest convex minorant through 
+
+(0, 𝐷 0), (Δ, 𝐷 1), … , (𝑚Δ, 𝐷 𝑚 )
+
+are PAVA(𝑑) 𝑖 
+
+Δ , 0 ≤ 𝑖 < 𝑚. 
+
+Thus the initial atom enters the first grid cell and may be pooled with later intervals whenever monotonicity requires it. In Theorem 2, the inputs are 
+
+𝑎 0 = Γ 𝜋 0 , 𝑎 = 𝑔 𝜋 .
+
+The notation used there is therefore 
+
+ℎ𝜋 = PAVA(Γ 𝜋 0 , 𝑔 𝜋 ). 
+
+The discrete construction in this subsection is equal-weight. The cost-weighted version PAVA 𝑐 , in which cumulative cost replaces the index on the horizontal axis and block averages use transition costs as weights, is defined in Appendix A.17. 17 A.2 Proof of Lemma 1 
+
+Proof. Let F−1 = {∅, Ω} . For 0 ≤ 𝑖 < 𝐾 𝐵 , let F𝑖 be the 𝜎 -algebra generated by the particle system immediately before transition 𝑖 . Thus, F0 contains the initial root particles. For 𝑖 ≥ 1 , F𝑖 includes split 𝑖 . Let F𝐾 𝐵 contain the terminal particle system. For 𝑥 ∈ ℝ 𝑑 , define 
+
+𝑈 𝑖 (𝑥) = 𝔼[̂𝐹 𝐵 (𝑥) ∣ F𝑖 ], 𝑖 = −1, 0, … , 𝐾 𝐵 .
+
+Then 𝑈 𝑖 (𝑥) is a martingale with 𝑈 𝐾 𝐵 (𝑥) =̂ 𝐹 𝐵 (𝑥) and 𝑈 −1 (𝑥) = 𝐹 𝐵 (𝑥) .
+
+Δ𝑥 𝑖 = 𝑈 𝑖+1 (𝑥) − 𝑈 𝑖 (𝑥), 𝑖 = −1, 0, … , 𝐾 𝐵 − 1. 
+
+The martingale differences are orthogonal, hence ̂𝐹 𝐵 (𝑥) − 𝐹 𝐵 (𝑥) =  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=−1
+
+Δ𝑥 𝑖 , Cov(̂𝐹 𝐵 (𝑥),̂ 𝐹 𝐵 (𝑦)) =  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=−1
+
+𝔼[Δ 𝑥 𝑖 Δ𝑦 𝑖 ]. 
+
+Independence of the root initial states gives 
+
+𝔼[Δ 𝑥 −1 Δ𝑦 −1 ] = 1𝑁 0,𝐵 
+
+Γ0,𝐵 (𝑥, 𝑦) 
+
+Moreover, we also have 
+
+𝔼[Δ 𝑥 𝑖 Δ𝑦 𝑖 ∣ F𝑖 ] = Cov(𝑈 𝑖+1 (𝑥), 𝑈 𝑖+1 (𝑦) ∣ F𝑖 ), 0 ≤ 𝑖 ≤ 𝐾 𝐵 − 1. 
+
+For 0 ≤ 𝑖 < 𝐾 𝐵 , let 𝐼 𝑖 be the set of particle labels immediately before transition 𝑖 . Then |𝐼 𝑖 | = 𝑁 0,𝐵 𝑅 𝑖,𝐵 .For 𝛼 ∈ 𝐼 𝑖 , let 𝑋 𝛼 𝑖 be the state of particle 𝛼 . Conditional on F𝑖 , transition 𝑖 independently produces 
+
+𝑋 𝛼 𝑖+1 from each 𝑋 𝛼 𝑖 . When 𝑖 < 𝐾 𝐵 − 1 , split 𝑖 + 1 repeats each arriving state 𝑁 𝑖+1,𝐵 times. Repeating every state the same number of times does not change the particle average. Therefore, 
+
+𝑈 𝑖+1 (𝑥) = 1𝑁 0,𝐵 𝑅 𝑖,𝐵 
+
+∑
+
+> 𝛼∈𝐼 𝑖
+
+𝑢 𝐵 𝑖+1,𝑥 (𝑋 𝛼 𝑖+1 ) . 
+
+Since the 𝑋 𝛼 𝑖+1 are conditionally independent given F𝑖 ,
+
+Cov(𝑈 𝑖+1 (𝑥), 𝑈 𝑖+1 (𝑦) ∣ F𝑖 )= 1(𝑁 0,𝐵 𝑅 𝑖,𝐵 )2 ∑
+
+> 𝛼∈𝐼 𝑖
+
+Cov(𝑢 𝐵 𝑖+1,𝑥 (𝑋 𝛼 𝑖+1 ), 𝑢 𝐵 𝑖+1,𝑦 (𝑋 𝛼 𝑖+1 ) ∣ F𝑖 ) . 
+
+The covariance in each summand depends on F𝑖 only through 𝑋 𝛼 𝑖 . Taking expectations, and using that each 𝑋 𝛼 𝑖 has the same law, we obtain 
+
+𝔼 [Cov(𝑈 𝑖+1 (𝑥), 𝑈 𝑖+1 (𝑦) ∣ F𝑖 )] = 𝑣 𝑖,𝐵 (𝑥, 𝑦) 𝑁 0,𝐵 𝑅 𝑖,𝐵 
+
+.
+
+Therefore 
+
+Cov(̂𝐹 𝐵 (𝑥),̂ 𝐹 𝐵 (𝑦)) = 1𝑁 0,𝐵 [Γ0,𝐵 (𝑥, 𝑦) +  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝑣 𝑖,𝐵 (𝑥, 𝑦) 𝑅 𝑖,𝐵 ] .
+
+A.3 Proof of Lemma 2 
+
+Proof. Put 𝑚 = 𝐾 𝐵 . Since ̃𝑣 𝑘 > 0 , the objective 
+
+𝑛 ↦ 
+
+> 𝑚−1
+
+∑
+
+> 𝑘=0
+
+̃𝑣 𝑘 
+
+𝑛 𝑘 
+
+is strictly convex and the feasible set is convex and hence, if a minimizer exists, it is unique. Let ̂𝑣 = PAVA(̃ 𝑣) , and let 𝐼 1, … , 𝐼 𝐿 be the final PAVA blocks. For a block 𝐼 = [𝑎, 𝑏] ,̂𝑣 is constant on 𝐼 ,with value ̂𝑣 𝑘 =̄𝑣 𝐼 = 1|𝐼 | ∑
+
+> 𝑗∈𝐼
+
+̃𝑣 𝑗 , 𝑘 ∈ 𝐼 . 
+
+18 By the standard min-max characterization of isotonic regression [Robertson et al., 1988, Chapter 1], if 𝐼 = [𝑎, 𝑏] is a final block, then every initial segment [𝑎, 𝓁] , 𝓁 < 𝑏 , has average at least the average of 𝐼 . Thus, 𝓁 
+
+∑
+
+> 𝑘=𝑎
+
+(̃ 𝑣 𝑘 −̂ 𝑣 𝑘 ) ≥ 0 for 𝑎 ≤ 𝓁 < 𝑏, 
+
+> 𝑏
+
+∑
+
+> 𝑘=𝑎
+
+(̃ 𝑣 𝑘 −̂ 𝑣 𝑘 ) = 0. 
+
+Now let 𝑛 be any feasible monotone allocation. Since 𝑛 𝑎 ≤ 𝑛 𝑎+1 ≤ ⋯ ≤ 𝑛 𝑏 , we have 
+
+1𝑛 𝑎 
+
+≥ 1𝑛 𝑎+1 
+
+≥ ⋯ ≥ 1𝑛 𝑏 
+
+.
+
+For a final PAVA block 𝐼 = [𝑎, 𝑏] , observe that 
+
+> 𝑏
+
+∑
+
+> 𝑘=𝑎
+
+̃𝑣 𝑘 −̂ 𝑣 𝑘 
+
+𝑛 𝑘 
+
+=
+
+> 𝑏
+
+∑
+
+> 𝑘=𝑎
+
+(̃ 𝑣 𝑘 −̂ 𝑣 𝑘 ) (1𝑛 𝑘 
+
+− 1𝑛 𝑏 )=
+
+> 𝑏−1
+
+∑
+
+> 𝑘=𝑎
+
+(̃ 𝑣 𝑘 −̂ 𝑣 𝑘 )
+
+> 𝑏−1
+
+∑ 
+
+> 𝓁=𝑘
+
+(1𝑛 𝓁 
+
+− 1𝑛 𝓁+1 )=
+
+> 𝑏−1
+
+∑ 
+
+> 𝓁=𝑎
+
+(
+
+> 𝓁
+
+∑
+
+> 𝑘=𝑎
+
+(̃ 𝑣 𝑘 −̂ 𝑣 𝑘 )) ( 1𝑛 𝓁 
+
+− 1𝑛 𝓁+1 ) ≥ 0. 
+
+The last inequality follows because both factors are nonnegative. Summing over all PAVA blocks yields 𝑚−1 
+
+∑
+
+> 𝑘=0
+
+̂𝑣 𝑘 
+
+𝑛 𝑘 
+
+≤
+
+> 𝑚−1
+
+∑
+
+> 𝑘=0
+
+̃𝑣 𝑘 
+
+𝑛 𝑘 
+
+.
+
+Thus, for every feasible monotone allocation 𝑛 , the objective is bounded below by the same problem with ̃𝑣 replaced by its PAVA projection ̂𝑣 . We now minimize this lower bound and then verify that the resulting allocation makes the bound sharp. By Cauchy-Schwarz, 
+
+> 𝑚−1
+
+∑
+
+> 𝑘=0
+
+√̂ 𝑣 𝑘 =
+
+> 𝑚−1
+
+∑
+
+> 𝑘=0
+
+√̂ 𝑣 𝑘 
+
+√𝑛 𝑘 
+
+√𝑛 𝑘 ≤ (
+
+> 𝑚−1
+
+∑
+
+> 𝑘=0
+
+̂𝑣 𝑘 
+
+𝑛 𝑘 )
+
+> 1/2
+
+(
+
+> 𝑚−1
+
+∑
+
+> 𝑘=0
+
+𝑛 𝑘 )
+
+> 1/2
+
+.
+
+Since every feasible allocation satisfies ∑𝑘 𝑛 𝑘 = 𝐵 , we have the lower bound 
+
+> 𝑚−1
+
+∑
+
+> 𝑘=0
+
+̃𝑣 𝑘 
+
+𝑛 𝑘 
+
+≥ (∑𝑚−1 𝑘=0 
+
+√̂ 𝑣 𝑘 )
+
+> 2
+
+𝐵 .
+
+Equality holds in the Cauchy-Schwarz step if and only if 𝑛 𝑘 ∝ √̂ 𝑣 𝑘 . The constant is determined by the budget constraint. Denote this allocation by 𝑛 ∗. Since ̂𝑣 is nondecreasing, 𝑛 ∗ is nondecreasing. Equality also holds in the PAVA-block inequality because 𝑛 ∗ is constant on each final PAVA block. Therefore 𝑛 ∗ attains the lower bound and is optimal. 
+
+A.4 Splitting-function convergence Lemma 4. Under Assumption 2, 𝑟 has a nondecreasing representative on [0, 𝑇 ) satisfying 𝑟(0+) = 1 ,
+
+1 ≤ 𝑟 < ∞ a.e., and 1𝑟 𝐵 
+
+⟶ 1𝑟 in 𝐿 1([0, 𝑇 ]). 
+
+Proof. Since each 𝑟 𝐵 is nondecreasing and 𝑟 𝐵 (0+) = 1 , we have 𝑟 𝐵 ≥ 1 . The 𝐿 1([0, 𝑇 ]) -convergence gives a subsequence converging to 𝑟 almost everywhere, so 𝑟 ≥ 1 almost everywhere. Moreover, 
+
+𝑟 < ∞ almost everywhere because 𝑟 ∈ 𝐿 1([0, 𝑇 ]) . The nondecreasing representative satisfying 
+
+𝑟(0+) = 1 is specified in Assumption 2. Finally, ||||1𝑟 𝐵 
+
+− 1𝑟 |||| = |𝑟 𝐵 − 𝑟| 𝑟 𝐵 𝑟 ≤ |𝑟 𝐵 − 𝑟| a.e. ,
+
+so the claimed 𝐿 1-convergence follows. 19 A.5 Proof of Lemma 3 
+
+Proof. Since 𝑢 𝑥 (𝑡, 𝑋 𝑡 ) and 𝑢 𝑦 (𝑡, 𝑋 𝑡 ) are martingales, we write the conditional covariance as 
+
+𝑣 SDE 𝑖,𝐵 (𝑥, 𝑦) = 𝔼 [Cov(𝑢 𝑥 (𝑡, 𝑋 𝑡 ), 𝑢 𝑦 (𝑡, 𝑋 𝑡 ) ∣ F𝑠 )] = 𝔼 [𝔼 [(𝑢 𝑥 (𝑡, 𝑋 𝑡 ) − 𝑢 𝑥 (𝑠, 𝑋 𝑠 )) (𝑢 𝑦 (𝑡, 𝑋 𝑡 ) − 𝑢 𝑦 (𝑠, 𝑋 𝑠 )) ∣ F𝑠 ]] = 𝔼 [(𝑢 𝑥 (𝑡, 𝑋 𝑡 ) − 𝑢 𝑥 (𝑠, 𝑋 𝑠 )) (𝑢 𝑦 (𝑡, 𝑋 𝑡 ) − 𝑢 𝑦 (𝑠, 𝑋 𝑠 ))] = 𝔼 [𝑢 𝑥 (𝑡, 𝑋 𝑡 )𝑢 𝑦 (𝑡, 𝑋 𝑡 )] − 𝔼 [𝑢 𝑦 (𝑠, 𝑋 𝑠 )𝔼 [𝑢 𝑥 (𝑡, 𝑋 𝑡 ) ∣ 𝑠 ]] − 𝔼 [𝑢 𝑥 (𝑠, 𝑋 𝑠 )𝔼 [𝑢 𝑦 (𝑡, 𝑋 𝑡 ) ∣ 𝑠 ]] + 𝔼 [𝑢 𝑥 (𝑠, 𝑋 𝑠 )𝑢 𝑦 (𝑠, 𝑋 𝑠 )] = 𝔼 [𝑢 𝑥 (𝑡, 𝑋 𝑡 )𝑢 𝑦 (𝑡, 𝑋 𝑡 ) − 𝑢 𝑥 (𝑠, 𝑋 𝑠 )𝑢 𝑦 (𝑠, 𝑋 𝑠 )] . 
+
+Using the martingale representations, 
+
+𝑑𝑢 𝑥 (𝑡, 𝑋 𝑡 ) = 𝐻 𝑥 (𝑡) ⊤𝑑𝑊 𝑡 , 𝑑𝑢 𝑦 (𝑡, 𝑋 𝑡 ) = 𝐻 𝑦 (𝑡) ⊤𝑑𝑊 𝑡 ,
+
+we get 
+
+𝑑 ⟨𝑢 𝑥 (⋅, 𝑋 ⋅), 𝑢 𝑦 (⋅, 𝑋 ⋅)⟩ 𝑡 = 𝐻 𝑥 (𝑡) ⊤𝐻 𝑦 (𝑡) 𝑑𝑡. 
+
+Since 𝑢 𝑥 (𝑡, 𝑋 𝑡 )𝑢 𝑦 (𝑡, 𝑋 𝑡 ) − ⟨𝑢 𝑥 (⋅, 𝑋 ⋅), 𝑢 𝑦 (⋅, 𝑋 ⋅)⟩ 𝑡 is a martingale, we have 
+
+𝑣 SDE 𝑖,𝐵 (𝑥, 𝑦) = 𝔼 [∫
+
+> 𝑡 𝑠
+
+𝐻 𝑥 (𝜏) ⊤𝐻 𝑦 (𝜏) 𝑑𝜏 ] = ∫
+
+> 𝑡 𝑠
+
+𝑔 𝑥,𝑦 (𝜏) 𝑑𝜏. 
+
+It remains to establish integrability. By Itô’s isometry, 
+
+𝔼 [∫
+
+> 𝑇 0
+
+‖𝐻 𝑥 (𝜏)‖ 22 𝑑𝜏 ] = 𝔼 [( ∫
+
+> 𝑇 0
+
+𝐻 𝑥 (𝜏) ⊤𝑑𝑊 𝜏 )
+
+> 2
+
+]= 𝔼 [(𝑢 𝑥 (𝑇 , 𝑋 𝑇 ) − 𝑢 𝑥 (0, 𝑋 0)) 2]= 𝔼 [Var(𝑎 𝑥 (𝑋 𝑇 ) ∣ 𝑋 0)] ≤ Var(𝑎 𝑥 (𝑋 𝑇 )) ≤ 14 .
+
+Therefore, by Cauchy-Schwarz, 
+
+∫
+
+> 𝑇 0
+
+|𝑔 𝑥,𝑦 (𝜏)| 𝑑𝜏 ≤ 𝔼 [∫
+
+> 𝑇 0
+
+‖𝐻 𝑥 (𝜏)‖ 2‖𝐻 𝑦 (𝜏)‖ 2 𝑑𝜏 ]≤ 𝔼 [∫
+
+> 𝑇 0
+
+‖𝐻 𝑥 (𝜏)‖ 22 𝑑𝜏 ]
+
+> 1/2
+
+𝔼 [∫
+
+> 𝑇 0
+
+‖𝐻 𝑦 (𝜏)‖ 22 𝑑𝜏 ]
+
+> 1/2
+
+≤ 14 .
+
+A.6 Proof of Proposition 1 
+
+Proof. Since 𝑋 𝐵 𝐾 𝐵 → 𝑋 𝑇 in 𝐿 2, we also have 𝑋 𝐵 𝐾 𝐵 → 𝑋 𝑇 in probability. Continuity of 𝐹 implies that, for any 𝑥 ∈ ℝ 𝑑 ,
+
+ℙ (𝑋 𝑇 ∈ 𝜕(−∞, 𝑥]) = 0. 
+
+Hence 
+
+𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) ℙ
+
+−→ 𝑎 𝑥 (𝑋 𝑇 ). 
+
+Since these random variables are bounded by 1, the convergence also holds in 𝐿 2. Recall that 
+
+𝑢 𝐵 𝑖,𝑥 (𝑧) = 𝔼[𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) ∣ 𝑋 𝐵 𝑖 = 𝑧], 𝑢 𝑥 (𝑡, 𝑧) = 𝔼[𝑎 𝑥 (𝑋 𝑇 ) ∣ 𝑋 𝑡 = 𝑧]. 
+
+For the remaining part of the proof, we suppress the arguments and write 
+
+𝑢 𝐵 𝑖,𝑥 ∶= 𝑢 𝐵 𝑖,𝑥 (𝑋 𝐵 𝑖 ), 𝑢 𝑡,𝑥 ∶= 𝑢 𝑥 (𝑡, 𝑋 𝑡 ). 
+
+20 We first prove Γ0,𝐵 (𝑥, 𝑦) → Γ 0(𝑥, 𝑦) . For any 𝑥 ∈ ℝ 𝑑 ,
+
+𝑢 𝐵 0,𝑥 − 𝑢 0,𝑥 = 𝔼 [𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) − 𝑎 𝑥 (𝑋 𝑇 ) ∣ F0] . 
+
+By the 𝐿 2-contraction property of conditional expectation, 
+
+‖‖𝑢 𝐵 0,𝑥 − 𝑢 0,𝑥 ‖‖𝐿 2 ≤ ‖‖𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) − 𝑎 𝑥 (𝑋 𝑇 )‖‖𝐿 2 → 0, ∀𝑥 ∈ ℝ 𝑑 .
+
+Thus, for all 𝑥, 𝑦 ∈ ℝ 𝑑 , 𝑢 𝐵 0,𝑥 → 𝑢 0,𝑥 and 𝑢 𝐵 0,𝑦 → 𝑢 0,𝑦 in 𝐿 2. Then, by triangle inequality and then Cauchy-Schwarz, we get 
+
+|||Cov(𝑢 𝐵 0,𝑥 , 𝑢 𝐵 0,𝑦 ) − Cov(𝑢 0,𝑥 , 𝑢 0,𝑦 )|||= |||Cov(𝑢 𝐵 0,𝑥 − 𝑢 0,𝑥 , 𝑢 𝐵 0,𝑦 ) + Cov(𝑢 0,𝑥 , 𝑢 𝐵 0,𝑦 − 𝑢 0,𝑦 )|||≤ |||Cov(𝑢 𝐵 0,𝑥 − 𝑢 0,𝑥 , 𝑢 𝐵 0,𝑦 )||| + |||Cov(𝑢 0,𝑥 , 𝑢 𝐵 0,𝑦 − 𝑢 0,𝑦 )|||≤ ‖𝑢 𝐵 0,𝑥 − 𝑢 0,𝑥 ‖𝐿 2 ‖𝑢 𝐵 0,𝑦 ‖𝐿 2 + ‖𝑢 0,𝑥 ‖𝐿 2 ‖𝑢 𝐵 0,𝑦 − 𝑢 0,𝑦 ‖𝐿 2
+
+≤ ‖𝑢 𝐵 0,𝑥 − 𝑢 0,𝑥 ‖𝐿 2 + ‖𝑢 𝐵 0,𝑦 − 𝑢 0,𝑦 ‖𝐿 2 → 0. 
+
+Hence, 
+
+Γ0,𝐵 (𝑥, 𝑦) = Cov(𝑢 𝐵 0,𝑥 , 𝑢 𝐵 0,𝑦 ) → Cov(𝑢 0,𝑥 , 𝑢 0,𝑦 ) = Γ 0(𝑥, 𝑦). 
+
+It remains to prove the one-step covariance convergence. Write 
+
+Δ𝐵,𝑧 𝑖 ∶= 𝑢 𝐵 𝑖+1,𝑧 − 𝑢 𝐵 𝑖,𝑧 , Δ𝑧 𝑖 ∶= 𝑢 𝑡 𝑖+1,𝐵 ,𝑧 − 𝑢 𝑡 𝑖,𝐵 ,𝑧 .
+
+Then 
+
+𝑣 𝑖,𝐵 (𝑥, 𝑦) = 𝔼 [Δ 𝐵,𝑥 𝑖 Δ𝐵,𝑦 𝑖 ] , 𝑣 SDE 𝑖,𝐵 (𝑥, 𝑦) = 𝔼 [Δ 𝑥 𝑖 Δ𝑦 𝑖 ] . 
+
+For every 𝑧 ∈ ℝ 𝑑 , 𝑢 𝐵 𝑖,𝑧 , 𝑢 𝑡 𝑖,𝐵 ,𝑧 , and 𝑢 𝐵 𝑖,𝑧 − 𝑢 𝑡 𝑖,𝐵 ,𝑧 are square-integrable martingales. In particular, their increments are centered. Hence, using 𝑎𝑏 − 𝑐𝑑 = (𝑎 − 𝑐)𝑏 + 𝑐(𝑏 − 𝑑) , the triangle inequality, and Cauchy-Schwarz,  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+||𝑣 𝑖,𝐵 (𝑥, 𝑦) − 𝑣 SDE 𝑖,𝐵 (𝑥, 𝑦) ||= 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+|||𝔼 [Δ 𝐵,𝑥 𝑖 Δ𝐵,𝑦 𝑖 − Δ 𝑥 𝑖 Δ𝑦 𝑖 ]|||≤ 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+|||𝔼 [(Δ 𝐵,𝑥 𝑖 − Δ 𝑥 𝑖 )Δ 𝐵,𝑦 𝑖 ]||| + 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+|||𝔼 [Δ 𝑥 𝑖 (Δ 𝐵,𝑦 𝑖 − Δ 𝑦 𝑖 )] |||≤ ( 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝔼 [||Δ𝐵,𝑥 𝑖 − Δ 𝑥 𝑖 ||2
+
+])
+
+> 1/2
+
+( 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝔼 [|||Δ𝐵,𝑦 𝑖 
+
+|||
+
+> 2
+
+]) 
+
+> 1/2
+
++ ( 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝔼 [|Δ 𝑥 𝑖 |2])
+
+> 1/2
+
+( 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝔼 [|||Δ𝐵,𝑦 𝑖 − Δ 𝑦 𝑖 
+
+|||
+
+> 2
+
+]) 
+
+> 1/2
+
+.
+
+Therefore, by orthogonality of martingale increments, for all 𝑥 ∈ ℝ 𝑑 , 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝔼 [||Δ𝐵,𝑥 𝑖 − Δ 𝑥 𝑖 ||2
+
+] ≤ 𝔼 [||𝑢 𝐵 𝐾 𝐵 ,𝑥 − 𝑢 𝑇 ,𝑥 ||2
+
+] = 𝔼 [||𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) − 𝑎 𝑥 (𝑋 𝑇 )||2
+
+] → 0, 
+
+and, 𝐾 𝐵 −1 
+
+∑
+
+> 𝑖=0
+
+𝔼 [||Δ𝐵,𝑥 𝑖 ||2
+
+] ≤ 𝔼 [||𝑢 𝐵 𝐾 𝐵 ,𝑥 ||2
+
+] ≤ 1,  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝔼 [|Δ 𝑥 𝑖 |2] ≤ 𝔼 [|𝑢 𝑇 ,𝑥 |2] ≤ 1. 
+
+Substituting them into the preceding Cauchy-Schwarz bound gives  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+||𝑣 𝑖,𝐵 (𝑥, 𝑦) − 𝑣 SDE 𝑖,𝐵 (𝑥, 𝑦) || → 0. 
+
+21 A.7 Proof of Proposition 2 
+
+Proof. By Lemma 1 and the definition of Γ𝐵 ,
+
+Γ𝐵 (𝑥, 𝑦) = Γ 0,𝐵 (𝑥, 𝑦) +  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝑣 𝑖,𝐵 (𝑥, 𝑦) 𝑅 𝑖,𝐵 
+
+.
+
+By the second statement of Proposition 1, we have 
+
+Γ𝐵 (𝑥, 𝑦) = Γ 0,𝐵 (𝑥, 𝑦) +  
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝑣 SDE 𝑖,𝐵 (𝑥, 𝑦) 𝑅 𝑖,𝐵 
+
++ 𝑜(1). 
+
+By Lemma 3, 
+
+𝑣 SDE 𝑖,𝐵 (𝑥, 𝑦) = ∫
+
+> 𝑡 𝑖+1,𝐵
+> 𝑡 𝑖,𝐵
+
+𝑔 𝑥,𝑦 (𝑡) 𝑑𝑡, 
+
+Therefore, 
+
+Γ𝐵 (𝑥, 𝑦) = Γ 0,𝐵 (𝑥, 𝑦) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑦 (𝑡) 𝑟 𝐵 (𝑡) 𝑑𝑡 + 𝑜(1). 
+
+By Lemma 4, 1 ≤ 𝑟 < ∞ almost everywhere and ‖1/𝑟 𝐵 − 1/𝑟‖ 𝐿 1([0,𝑇 ]) → 0 . Fix 𝑀 > 0 . Since 
+
+|1/𝑟 𝐵 − 1/𝑟| ≤ 2 ,
+
+∫
+
+> 𝑇 0
+
+||||1𝑟 𝐵 (𝑡) − 1𝑟(𝑡) |||| |𝑔 𝑥,𝑦 (𝑡)| 𝑑𝑡 ≤ 𝑀 ‖‖‖‖1𝑟 𝐵 
+
+− 1𝑟 ‖‖‖‖𝐿 1([0,𝑇 ]) 
+
++ 2 ∫
+
+> 𝑇 0
+
+|𝑔 𝑥,𝑦 (𝑡)|𝟏(|𝑔 𝑥,𝑦 (𝑡)| > 𝑀) 𝑑𝑡. 
+
+Letting 𝐵 → ∞ and then 𝑀 → ∞ , and using 𝑔 𝑥,𝑦 ∈ 𝐿 1([0, 𝑇 ]) , gives 
+
+∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑦 (𝑡) 𝑟 𝐵 (𝑡) 𝑑𝑡 → ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑦 (𝑡) 𝑟(𝑡) 𝑑𝑡. 
+
+The first statement of Proposition 1 then proves Γ𝐵 (𝑥, 𝑦) → Γ(𝑥, 𝑦) . Since each Γ𝐵 is a covariance kernel, its pointwise limit Γ is positive semidefinite. It remains to prove the bound on 𝑑 Γ. By definition, 
+
+𝑑 Γ(𝑥, 𝑦) 2 = Γ(𝑥, 𝑥) + Γ(𝑦, 𝑦) − 2Γ(𝑥, 𝑦) = Var(𝑢 𝑥 (0, 𝑋 0) − 𝑢 𝑦 (0, 𝑋 0)) + ∫
+
+> 𝑇 0
+
+1𝑟(𝑡) [𝑔 𝑥,𝑥 (𝑡) + 𝑔 𝑦,𝑦 (𝑡) − 2𝑔 𝑥,𝑦 (𝑡)] 𝑑𝑡. 
+
+Since 
+
+𝑔 𝑥,𝑥 (𝑡) + 𝑔 𝑦,𝑦 (𝑡) − 2𝑔 𝑥,𝑦 (𝑡) = 𝔼 [‖‖𝐻 𝑥 (𝑡) − 𝐻 𝑦 (𝑡) ‖‖22] ,
+
+and 1/𝑟 ≤ 1 , we get 
+
+𝑑 Γ(𝑥, 𝑦) 2 ≤ Var(𝑢 𝑥 (0, 𝑋 0) − 𝑢 𝑦 (0, 𝑋 0)) + 𝔼 [∫
+
+> 𝑇 0
+
+‖‖𝐻 𝑥 (𝑡) − 𝐻 𝑦 (𝑡) ‖‖22 𝑑𝑡 ]= Var(𝑎 𝑥 (𝑋 𝑇 ) − 𝑎 𝑦 (𝑋 𝑇 )) ≤ 𝔼 [(𝑎 𝑥 (𝑋 𝑇 ) − 𝑎 𝑦 (𝑋 𝑇 )) 2] = ‖‖𝑎 𝑥 (𝑋 𝑇 ) − 𝑎 𝑦 (𝑋 𝑇 )‖‖2𝐿 2 .
+
+A.8 Finite Donsker Entropy Lemma 5 (Finite Donsker Entropy) . There are constants 𝐴 < ∞ , 𝑣 < ∞ , 𝐴 ′ < ∞ , and 𝑣 ′ < ∞ ,depending only on 𝑑 , such that, for 0 < 𝜀 < 1 ,
+
+sup 
+
+> 𝜇
+
+𝑁 (𝜀, , 𝐿 2(𝜇)) ≤ 𝐴𝜀 −𝑣 , sup 
+
+> 𝐵,𝜈
+
+𝑁 (𝜀, 𝐵 , 𝐿 2(𝜈)) ≤ 𝐴𝜀 −𝑣 .
+
+If 
+
+𝐵,𝛿 = {𝑓 𝐵,𝑥 − 𝑓 𝐵,𝑦 ∶ 𝑥, 𝑦 ∈ ℝ 𝑑 , 𝜌(𝑎 𝑥 , 𝑎 𝑦 ) < 𝛿}, 
+
+then 
+
+sup 
+
+> 𝐵,𝛿,𝜈
+
+𝑁 (𝜀, 𝐵,𝛿 , 𝐿 2(𝜈)) ≤ 𝐴 ′𝜀 −𝑣 ′
+
+.
+
+22 Consequently, (, 𝜌) is totally bounded and the uniform entropy integrals for  and 𝐵,𝛿 with respect to 𝐿 2(𝜇) and 𝐿 2(𝜈) , respectively, are finite for all measures 𝜇 and 𝜈 , i.e., 
+
+sup  
+
+> 𝜇
+
+∫
+
+> 10
+
+√log 𝑁 (𝜀, , 𝐿 2(𝜇)) 𝑑𝜀 < ∞, sup  
+
+> 𝐵,𝛿,𝜈
+
+∫
+
+> 10
+
+√log 𝑁 (𝜀, 𝐵,𝛿 , 𝐿 2(𝜈)) 𝑑𝜀 < ∞. 
+
+Proof. The class  has VC dimension 𝑑 , so by van der Vaart and Wellner [2023, Theorem 2.6.4] there are constants 𝐴 < ∞ and 𝑣 < ∞ , depending only on 𝑑 , such that 
+
+𝑁 (𝜀, , 𝐿 2(𝜇)) ≤ 𝐴𝜀 −𝑣 
+
+for every probability measure 𝜇 on ℝ𝑑 . To transfer the same bound to 𝐵 , let 𝜈 be any probability measure on (ℝ 𝑑 )𝑚 𝐵 , and let 𝜈 1, … , 𝜈 𝑚 𝐵 be its coordinate marginals. Set 
+
+𝜈 = 1𝑚 𝐵 𝑚 𝐵 
+
+∑
+
+> 𝓁=1
+
+𝜈 𝓁 .
+
+Let  be an 𝜀 -cover of  in 𝐿 2(𝜈) . For 𝑔 ∈ , define ̃𝑔(𝑧) = 1𝑚 𝐵 𝑚 𝐵 
+
+∑
+
+> 𝓁=1
+
+𝑔(𝑧 (𝓁) ). 
+
+If 𝑔 is within 𝜀 of 𝑎 𝑥 in 𝐿 2(𝜈) , then Jensen’s inequality gives 
+
+‖𝑓 𝐵,𝑥 −̃ 𝑔‖ 2𝐿 2(𝜈) = ∫ [1𝑚 𝐵 𝑚 𝐵 
+
+∑
+
+> 𝓁=1
+
+{𝑎 𝑥 (𝑧 (𝓁) ) − 𝑔(𝑧 (𝓁) )} ]
+
+> 2
+
+𝑑𝜈(𝑧) ≤ 1𝑚 𝐵 𝑚 𝐵 
+
+∑
+
+> 𝓁=1
+
+∫ {𝑎 𝑥 (𝑧 (𝓁) ) − 𝑔(𝑧 (𝓁) )} 2𝑑𝜈(𝑧) = ‖𝑎 𝑥 − 𝑔‖ 2𝐿 2(𝜈) ≤ 𝜀 2.
+
+Thus the same covering number bound transfers from  to 𝐵 . Now fix 𝛿 > 0 . Let 𝐵 be an 
+
+𝜀/2 -cover of 𝐵 in 𝐿 2(𝜈) . For any 𝑓 𝐵,𝑥 − 𝑓 𝐵,𝑦 ∈ 𝐵,𝛿 , choose 𝑔 𝑥 , 𝑔 𝑦 ∈ 𝐵 such that 
+
+‖𝑓 𝐵,𝑥 − 𝑔 𝑥 ‖𝐿 2(𝜈) ≤ 𝜀/2, ‖𝑓 𝐵,𝑦 − 𝑔 𝑦 ‖𝐿 2(𝜈) ≤ 𝜀/2. 
+
+Then the triangle inequality gives 
+
+‖(𝑓 𝐵,𝑥 − 𝑓 𝐵,𝑦 ) − (𝑔 𝑥 − 𝑔 𝑦 )‖ 𝐿 2(𝜈) ≤ 𝜀. 
+
+Hence 
+
+𝑁 (𝜀, 𝐵,𝛿 , 𝐿 2(𝜈)) ≤ 𝑁 (𝜀/2, 𝐵 , 𝐿 2(𝜈)) 2 ≤ 𝐴 222𝑣 𝜀 −2𝑣 .
+
+Taking 𝐴 ′ = 𝐴 222𝑣 and 𝑣 ′ = 2𝑣 proves the claim. To get the finite entropy bound, use the uniform bound on the covering numbers and observe that the integral is finite. 
+
+A.9 Proof of Theorem 1 
+
+Proof. Let 𝑃 𝐵 = (𝑍 𝐵 ) and 𝑛 𝐵 = 𝑁 0,𝐵 . For each 𝐵 , 𝑍 𝐵,1 , … , 𝑍 𝐵,𝑛 𝐵 are i.i.d. with law 𝑃 𝐵 , while 𝐸 𝐵 , 𝑃 𝐵 ,and 𝐵 may depend on 𝐵 . We regard the row-wise empirical process as indexed by , with the coordinate labeled by 𝑎 𝑥 given by 
+
+𝔾 𝐵 (𝑎 𝑥 ) = 1√𝑛 𝐵 𝑛 𝐵 
+
+∑
+
+> 𝑗=1
+
+(𝑓 𝐵,𝑥 (𝑍 𝐵,𝑗 ) − 𝔼 [𝑓 𝐵,𝑥 (𝑍 𝐵 )]) . 
+
+Indeed, 𝑛 −1 𝐵 ∑𝑛 𝐵  
+
+> 𝑗=1
+
+𝑓 𝐵,𝑥 (𝑍 𝐵,𝑗 ) =̂ 𝐹 𝐵 (𝑥) and 𝔼[𝑓 𝐵,𝑥 (𝑍 𝐵 )] = 𝐹 𝐵 (𝑥) . To show weak convergence in 𝓁 ∞(), it suffices to prove finite-dimensional convergence and asymptotic 𝜌 -equicontinuity on , with a tight Gaussian limit. We first show that all finite-dimensional distributions converge. Fix 𝑎 𝑥 1 , … , 𝑎 𝑥 𝐽 ∈ .The summands are centered, i.i.d. within each row, and uniformly bounded. Their covariance matrix is (Γ 𝐵 (𝑥 𝓁 , 𝑥 𝑚 )) 𝓁,𝑚 , which converges to (Γ(𝑥 𝓁 , 𝑥 𝑚 )) 𝓁,𝑚 by Proposition 2. By the multivariate Lindeberg-Feller theorem, the finite-dimensional distributions converge. 23 We now construct the limiting object as a tight Borel element of 𝓁 ∞(). Proposition 2 shows that Γ
+
+is positive semidefinite, so Kolmogorov’s extension theorem gives a centered Gaussian process 𝔾 
+
+with covariance Γ. Define the canonical semimetric 
+
+𝑑 Γ(𝑎 𝑥 , 𝑎 𝑦 )2 = Var(𝔾(𝑎 𝑥 ) − 𝔾(𝑎 𝑦 )) = Γ(𝑥, 𝑥) + Γ(𝑦, 𝑦) − 2Γ(𝑥, 𝑦). 
+
+Proposition 2 gives 𝑑 Γ ≤ 𝜌 . By Lemma 5, (, 𝜌) is totally bounded and has finite entropy integral, and therefore 
+
+∫
+
+> ∞0
+
+√log 𝑁 (𝜀, , 𝑑 Γ) 𝑑𝜀 < ∞. 
+
+By Dudley’s entropy theorem [van der Vaart and Wellner, 2023, Corollary 2.2.9], there is a separable version 𝔾 of this Gaussian process with bounded and uniformly 𝑑 Γ-continuous paths. Since 𝑑 Γ ≤ 𝜌 ,these paths are also uniformly 𝜌 -continuous. Hence, this version is a tight Borel element of 𝓁 ∞().It remains to show asymptotic equicontinuity of 𝔾 𝐵 , that is, for every 𝜂 > 0 ,
+
+lim  
+
+> 𝛿↓0
+
+lim sup 
+
+> 𝐵→∞
+
+ℙ∗
+
+( sup   
+
+> 𝜌(𝑎 𝑥 ,𝑎 𝑦 )<𝛿
+
+|𝔾 𝐵 (𝑎 𝑥 ) − 𝔾 𝐵 (𝑎 𝑦 )| > 𝜂 ) = 0. 
+
+By Jensen’s inequality and the fact that every terminal descendant has marginal law 𝑋 𝐵 𝐾 𝐵 ,
+
+𝔼[(𝑓 𝐵,𝑥 (𝑍 𝐵 ) − 𝑓 𝐵,𝑦 (𝑍 𝐵 )) 2] ≤ 𝔼[(𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) − 𝑎 𝑦 (𝑋 𝐵 𝐾 𝐵 )) 2]. 
+
+Then, observe that 
+
+𝔼[(𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) − 𝑎 𝑦 (𝑋 𝐵 𝐾 𝐵 )) 2] = 𝐹 𝐵 (𝑥) + 𝐹 𝐵 (𝑦) − 2𝐹 𝐵 (𝑥 ∧ 𝑦), 𝜌(𝑎 𝑥 , 𝑎 𝑦 )2 = 𝐹 (𝑥) + 𝐹 (𝑦) − 2𝐹 (𝑥 ∧ 𝑦). 
+
+Therefore, 
+
+𝔼[(𝑓 𝐵,𝑥 (𝑍 𝐵 ) − 𝑓 𝐵,𝑦 (𝑍 𝐵 )) 2] ≤ 𝜌(𝑎 𝑥 , 𝑎 𝑦 )2 + 4‖𝐹 𝐵 − 𝐹 ‖ ∞.
+
+For 𝛿 > 0 , let 𝐵,𝛿 be the class defined in Lemma 5. Put 
+
+𝛼 2𝐵,𝛿 = sup 
+
+> ℎ∈ 𝐵,𝛿
+
+𝔼[ℎ(𝑍 𝐵 )2] = sup   
+
+> 𝜌(𝑎 𝑥 ,𝑎 𝑦 )<𝛿
+
+𝔼[(𝑓 𝐵,𝑥 (𝑍 𝐵 ) − 𝑓 𝐵,𝑦 (𝑍 𝐵 )) 2]. 
+
+By Assumptions 1 and 3, 𝐹 𝐵 (𝑥) → 𝐹 (𝑥) for every 𝑥 ∈ ℝ 𝑑 . The multivariate Pólya theorem [van der Vaart, 1998, Lemma 2.11] therefore gives ‖𝐹 𝐵 − 𝐹 ‖ ∞ → 0 . Hence 
+
+lim  
+
+> 𝛿↓0
+
+lim sup 
+
+> 𝐵→∞
+
+𝛼 𝐵,𝛿 = 0. 
+
+Fix 𝑡 ∈ (0, 1) . Choose 𝛿 𝑡 > 0 such that 
+
+lim sup 
+
+> 𝐵→∞
+
+𝛼 𝐵,𝛿 𝑡 ≤ 𝑡/2. 
+
+Then, for every 𝛿 ≤ 𝛿 𝑡 , we have 𝛼 𝐵,𝛿 < 𝑡 for all sufficiently large 𝐵 . Since |ℎ| ≤ 1 for ℎ ∈ 𝐵,𝛿 , the class 𝐵,𝛿 has envelope 𝐻 ≡ 1 , and van der Vaart and Wellner [2023, Theorem 2.14.2] applied to the 𝐵 -th row at variance level 𝑡 gives a constant 𝐶 , independent of 𝐵 and 𝛿 , with 
+
+lim sup 
+
+> 𝐵→∞
+
+𝔼 ∗
+
+[ sup   
+
+> 𝜌(𝑎 𝑥 ,𝑎 𝑦 )<𝛿
+
+|𝔾 𝐵 (𝑎 𝑥 ) − 𝔾 𝐵 (𝑎 𝑦 )| ] ≤ lim sup 
+
+> 𝐵→∞
+
+𝐶𝐼 (𝑡) (1 + 𝐼 (𝑡) 𝑡 2√𝑁 0,𝐵 ) = 𝐶𝐼 (𝑡), 
+
+where 
+
+𝐼 (𝑡) = sup  
+
+> 𝐵,𝛿,𝜈
+
+∫
+
+> 𝑡 0
+
+√1 + log 𝑁 (𝜀, 𝐵,𝛿 , 𝐿 2(𝜈)) 𝑑𝜀, 
+
+the last equality holding because 𝐼 (𝑡) < ∞ and 𝑁 0,𝐵 → ∞ . By Lemma 5, 𝐼 (𝑡) → 0 as 𝑡 ↓ 0 . Therefore 
+
+lim  
+
+> 𝛿↓0
+
+lim sup 
+
+> 𝐵→∞
+
+𝔼 ∗
+
+[ sup   
+
+> 𝜌(𝑎 𝑥 ,𝑎 𝑦 )<𝛿
+
+|𝔾 𝐵 (𝑎 𝑥 ) − 𝔾 𝐵 (𝑎 𝑦 )| ] = 0. 
+
+Then, by Markov’s inequality, 𝔾 𝐵 is asymptotically 𝜌 -equicontinuous on . Hence, 
+
+𝔾 𝐵 ⇒ 𝔾 in 𝓁 ∞(). 
+
+24 A.10 Proof of Corollary 1 
+
+Proof. Since 𝐶 𝐵 = 𝐵/𝑁 0,𝐵 ,
+
+𝐵 𝑝/(1+2𝑝) 𝑁 −1/2 0,𝐵 = (ℎ𝐵 𝐶 𝐵 
+
+𝜆 𝐵 )
+
+> 1/2
+
+⟶ (𝛾 𝜆 )
+
+> 1/2
+
+.
+
+Theorem 1 and Slutsky’s theorem therefore give 
+
+𝐵 𝑝/(1+2𝑝) (̂𝐹 𝐵 − 𝐹 𝐵 ) ⇒ (𝛾 𝜆 )
+
+> 1/2
+
+𝔾 in 𝓁 ∞(). 
+
+Moreover, Assumption 4 gives 
+
+𝐵 𝑝/(1+2𝑝) ‖𝐹 𝐵 − 𝐹 ‖ ∞ = 𝑂(𝐵 𝑝/(1+2𝑝) ℎ𝑝 𝐵 )= 𝑂(𝜆 𝑝 𝐵 ) = 𝑂(1). 
+
+Weak convergence in 𝓁 ∞() implies that 
+
+𝐵 𝑝/(1+2𝑝) ‖̂𝐹 𝐵 − 𝐹 𝐵 ‖∞
+
+is bounded in probability. The preceding bias bound and the triangle inequality applied to ̂𝐹 𝐵 − 𝐹 = (̂𝐹 𝐵 − 𝐹 𝐵 ) + (𝐹 𝐵 − 𝐹 ) 
+
+complete the proof. 
+
+A.11 Proof of Proposition 3 
+
+Proof. It suffices to bound 
+
+𝔼 [sup 
+
+> 𝑥∈ℝ 𝑑
+
+|𝔾(𝑎 𝑥 )| ] ,
+
+since (𝛾 /𝜆) 1/2 is deterministic. By Proposition 2, 0 ≤ Γ ∗ ≤ 1/2 and 𝑑 Γ ≤ 𝜌 . It follows that the 
+
+𝑑 Γ-diameter of ℝ𝑑 is at most 2Γ ∗. By van der Vaart and Wellner [2023, Corollary 2.2.9], there is a universal constant 𝐶 0 < ∞ such that 
+
+𝔼 [sup 
+
+> 𝑦∈ℝ 𝑑
+
+|𝔾(𝑎 𝑦 )| ] ≤ 𝔼[|𝔾(𝑎 𝑥 )|] + 𝐶 0 ∫
+
+> 2Γ ∗
+> 0
+
+√log 𝑁 (𝜀, ℝ 𝑑 , 𝑑 Γ) 𝑑𝜀, ∀𝑥 ∈ ℝ 𝑑 .
+
+The first term in the upper bound can be taken to zero by taking 𝑥 to infinity in all coordinates. For the second term, the covering number is bounded from Lemma 5 involving a constant that only depends on 𝑑 . Therefore, for constants 𝐶, 𝐶 ′ < ∞ depending only on 𝑑 ,
+
+𝔼 [sup 
+
+> 𝑥∈ℝ 𝑑
+
+|𝔾(𝑎 𝑥 )| ] ≤ 𝐶 ∫
+
+> 2Γ ∗
+> 0
+
+√log 𝐴 + 𝑣 log(1/𝜀) 𝑑𝜀 ≤ 𝐶 ′Γ∗√1 − log(Γ ∗). 
+
+The last inequality follows by the change of variables 𝜀 = 𝑒 −𝑢 , with constants absorbed into 𝐶 ′. For the lower bound, 
+
+𝔼 [sup 
+
+> 𝑥∈ℝ 𝑑
+
+|𝔾(𝑎 𝑥 )| ] ≥ sup 
+
+> 𝑥∈ℝ 𝑑
+
+𝔼[|𝔾(𝑎 𝑥 )|] = √ 2𝜋 Γ∗.
+
+Restoring the factor (𝛾 /𝜆) 1/2 yields the stated inequalities. 
+
+A.12 Continuity in the Threshold Lemma 6 (Continuity in the threshold) . Let  = [−∞, ∞] 𝑑 have the product topology. For 𝑥 ∈ ,define 
+
+𝑎 𝑥 (𝑧) = 𝟏(𝑧 ≤ 𝑥), 𝑢 𝑥 (𝑡, 𝑋 𝑡 ) = 𝔼[𝑎 𝑥 (𝑋 𝑇 ) ∣ F𝑡 ]. 
+
+using the extended coordinate order. Write 
+
+𝑢 𝑥 (𝑡, 𝑋 𝑡 ) = 𝑢 𝑥 (0, 𝑋 0) + ∫
+
+> 𝑡 0
+
+𝐻 𝑥 (𝑠) ⊤𝑑𝑊 𝑠 .
+
+25 and set 
+
+Γ0(𝑥, 𝑥) = Var(𝑢 𝑥 (0, 𝑋 0)), 𝑔 𝑥,𝑥 (𝑡) = 𝔼[‖𝐻 𝑥 (𝑡)‖ 22]. 
+
+Under Assumption 3, 
+
+𝑥 ⟼ Γ 0(𝑥, 𝑥) 
+
+is continuous on , and 
+
+𝑥 ⟼ 𝑔 𝑥,𝑥 
+
+is continuous from  into 𝐿 1([0, 𝑇 ]) .
+
+Proof. Continuity of 𝐹 implies that every marginal of 𝑋 𝑇 is atomless. Let 𝑥 𝑚 → 𝑥 in . The atomless-marginal property gives 
+
+𝑎 𝑥 𝑚 (𝑋 𝑇 ) ⟶ 𝑎 𝑥 (𝑋 𝑇 ) almost surely .
+
+This also covers coordinates equal to +∞ or −∞ . Since the indicators are bounded, 
+
+𝛿 𝑚 ∶= ‖𝑎 𝑥 𝑚 (𝑋 𝑇 ) − 𝑎 𝑥 (𝑋 𝑇 )‖ 𝐿 2 ⟶ 0. 
+
+Conditional expectation is an 𝐿 2-contraction. Hence 
+
+‖𝑢 𝑥 𝑚 (0, 𝑋 0) − 𝑢 𝑥 (0, 𝑋 0)‖ 𝐿 2 ≤ 𝛿 𝑚 .
+
+It follows that 
+
+Γ0(𝑥 𝑚 , 𝑥 𝑚 ) ⟶ Γ 0(𝑥, 𝑥). 
+
+Subtracting the martingale representations and applying Itô’s isometry gives 
+
+𝔼 ∫
+
+> 𝑇 0
+
+‖𝐻 𝑥 𝑚 (𝑡) − 𝐻 𝑥 (𝑡)‖ 22 𝑑𝑡 = 𝔼 [Var (𝑎 𝑥 𝑚 (𝑋 𝑇 ) − 𝑎 𝑥 (𝑋 𝑇 ) ∣ 𝑋 0)] ≤ 𝛿 2𝑚 .
+
+The same isometry gives, for every 𝑧 ∈ ,
+
+(𝔼 ∫
+
+> 𝑇 0
+
+‖𝐻 𝑧 (𝑡)‖ 22 𝑑𝑡 )
+
+> 1/2
+
+≤ 12 .
+
+Therefore, by Cauchy-Schwarz, 
+
+‖𝑔 𝑥 𝑚 ,𝑥 𝑚 − 𝑔 𝑥,𝑥 ‖𝐿 1 ≤ (𝔼 ∫
+
+> 𝑇 0
+
+‖𝐻 𝑥 𝑚 (𝑡) − 𝐻 𝑥 (𝑡)‖ 22 𝑑𝑡 )
+
+> 1/2
+
+× [( 𝔼 ∫
+
+> 𝑇 0
+
+‖𝐻 𝑥 𝑚 (𝑡)‖ 22 𝑑𝑡 )
+
+> 1/2
+
++ (𝔼 ∫
+
+> 𝑇 0
+
+‖𝐻 𝑥 (𝑡)‖ 22 𝑑𝑡 )
+
+> 1/2
+
+]≤ 𝛿 𝑚 ⟶ 0. 
+
+A.13 Proof of Theorem 2 
+
+Proof. Let 
+
+∞ =⎧⎪⎪⎨⎪⎪⎩𝑛 ∶ [0, 𝑇 ) → (0, ∞) ∶ 𝑛 is nondecreasing and right-continuous ,∫
+
+> 𝑇 0
+
+𝑛(𝑡) 𝑑𝑡 = 1, 𝑛(0+) > 0 ⎫⎪⎪⎬⎪⎪⎭.
+
+For 𝑟 ∈ , set 𝑛 = 𝑟/𝛾 (𝑟) . Conversely, 𝑟 = 𝑛/𝑛(0+) and 𝛾 (𝑟) = 1/𝑛(0+) . For 𝑛 ∈ ∞ and 
+
+𝜋 ∈ (), define 
+
+𝐿(𝑛, 𝜋) = Γ𝜋 0
+
+𝑛(0+) + ∫
+
+> 𝑇 0
+
+𝑔 𝜋 (𝑡) 𝑛(𝑡) 𝑑𝑡. 
+
+For fixed 𝑛 ∈ ∞, let 
+
+𝓁 𝑛 (𝑥) = Γ0(𝑥, 𝑥) 𝑛(0+) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑥 (𝑡) 𝑛(𝑡) 𝑑𝑡. 
+
+26 Since 𝑛(𝑡) ≥ 𝑛(0+) > 0 , Lemma 6 shows that 𝓁 𝑛 is continuous on . Moreover, 
+
+𝐿(𝑛, 𝜋) = ∫
+
+𝓁 𝑛 (𝑥) 𝜋(𝑑𝑥). 
+
+It follows that 
+
+sup 
+
+> 𝜋∈ ()
+
+𝐿(𝑛, 𝜋) = max  
+
+> 𝑥∈ 
+
+𝓁 𝑛 (𝑥) = sup 
+
+> 𝑥∈ℝ 𝑑
+
+𝓁 𝑛 (𝑥). 
+
+The criterion therefore becomes 
+
+inf 
+
+> 𝑛∈ ∞
+
+sup 
+
+> 𝜋∈ ()
+
+𝐿(𝑛, 𝜋). 
+
+Fix 𝜋 , write ℎ = ℎ 𝜋 , and let 
+
+𝐻 (𝜋) = (∫
+
+> 𝑇 0
+
+√ℎ(𝑡) 𝑑𝑡 )
+
+> 2
+
+.
+
+Let 𝑞 = 1/𝑛 , let 𝐶 = 𝐶[Γ 𝜋 0 , 𝑔 𝜋 ], and set 
+
+Δ(𝑡) = Γ 𝜋 0 + ∫
+
+> 𝑡 0
+
+𝑔 𝜋 (𝑠) 𝑑𝑠 − 𝐶(𝑡). 
+
+The greatest convex minorant meets its upper bound at 𝑇 . Since Δ ≥ 0 and 𝑞 is nonincreasing, integration by parts and Cauchy-Schwarz give 
+
+𝐿(𝑛, 𝜋) = ∫
+
+> 𝑇 0
+
+ℎ(𝑡) 𝑛(𝑡) 𝑑𝑡 − ∫(0,𝑇 ) 
+
+Δ(𝑡) 𝑑𝑞(𝑡) ≥ ∫
+
+> 𝑇 0
+
+ℎ(𝑡) 𝑛(𝑡) 𝑑𝑡 ≥ 𝐻 (𝜋). 
+
+For 𝜀 > 0 , define 
+
+𝑛 𝜀 (𝑡) = √ℎ(𝑡) + 𝜀 ∫
+
+> 𝑇 0
+
+√ℎ(𝑠) + 𝜀 𝑑𝑠 , 𝑞 𝜀 = 1𝑛 𝜀 
+
+.
+
+Since ℎ is nondecreasing, 𝑛 𝜀 ∈ ∞. The function 𝐶 is affine on every interval where Δ > 0 . Thus ℎ
+
+and 𝑞 𝜀 are constant on those intervals. Elsewhere Δ = 0 . Hence 
+
+∫(0,𝑇 ) 
+
+Δ(𝑡) 𝑑𝑞 𝜀 (𝑡) = 0. 
+
+It follows that 
+
+𝐿(𝑛 𝜀 , 𝜋) = (∫
+
+> 𝑇 0
+
+√ℎ(𝑡) + 𝜀 𝑑𝑡 ) ∫
+
+> 𝑇 0
+
+ℎ(𝑡) √ℎ(𝑡) + 𝜀 𝑑𝑡 ⟶ 𝐻 (𝜋). 
+
+Therefore 
+
+inf 
+
+> 𝑛∈ ∞
+
+𝐿(𝑛, 𝜋) = 𝐻 (𝜋). 
+
+When 𝐻 (𝜋) > 0 , equality in Cauchy-Schwarz forces 𝑛 to be proportional to √ℎ. For this choice, 
+
+𝑞 is constant wherever Δ > 0 , so the first inequality is also an equality. It belongs to ∞ exactly when ℎ(0+) > 0 . In that case, the unique minimizer for this mixture is 
+
+𝑛 𝜋 (𝑡) = √ℎ𝜋 (𝑡) ∫
+
+> 𝑇 0
+
+√ℎ𝜋 (𝑠) 𝑑𝑠 .
+
+Give () the weak topology. Regard ∞ as a convex subset of ℝ × 𝐿 1([0, 𝑇 ]) through the map 
+
+𝑛 ⟼ (𝑛(0+), 𝑛). 
+
+For fixed 𝑛 , the representation above shows that 𝐿(𝑛, ⋅) is continuous and affine. We next check continuity in 𝑛 . Suppose 
+
+(𝑛 𝑘 (0+), 𝑛 𝑘 ) ⟶ (𝑛(0+), 𝑛) in ℝ × 𝐿 1([0, 𝑇 ]). 
+
+27 Choose 𝑐 > 0 so that, for all large 𝑘 ,
+
+𝑛 𝑘 (𝑡) ≥ 𝑐, 𝑛(𝑡) ≥ 𝑐 
+
+for almost every 𝑡 . Then ‖‖‖‖1𝑛 𝑘 
+
+− 1𝑛 ‖‖‖‖𝐿 1
+
+≤ 1𝑐 2 ‖𝑛 𝑘 − 𝑛‖ 𝐿 1 ⟶ 0. 
+
+Since 𝑔 𝜋 ≥ 0 , for 𝐴 > 0 ,
+
+∫
+
+> 𝑇 0
+
+𝑔 𝜋 (𝑡) ||||1𝑛 𝑘 (𝑡) − 1𝑛(𝑡) |||| 𝑑𝑡 ≤ 𝐴 ‖‖‖‖1𝑛 𝑘 
+
+− 1𝑛 ‖‖‖‖𝐿 1
+
++ 2𝑐 ∫
+
+> 𝑇 0
+
+𝑔 𝜋 (𝑡)𝟏(𝑔 𝜋 (𝑡) > 𝐴) 𝑑𝑡. 
+
+Letting 𝑘 → ∞ and then 𝐴 → ∞ proves convergence of the integral term in 𝐿(𝑛 𝑘 , 𝜋) . The first term also converges because 𝑛 𝑘 (0+) → 𝑛(0+) > 0 . Thus 
+
+𝐿(𝑛 𝑘 , 𝜋) ⟶ 𝐿(𝑛, 𝜋). 
+
+Thus 𝐿(⋅, 𝜋) is continuous. It is convex because Γ𝜋 0 ≥ 0 , 𝑔 𝜋 ≥ 0 , and 𝑧 ↦ 1/𝑧 is convex. The set 
+
+() is compact and convex. The set ∞ is convex. Sion’s theorem therefore gives 
+
+inf 
+
+> 𝑛∈ ∞
+
+sup 
+
+> 𝜋∈ ()
+
+𝐿(𝑛, 𝜋) = sup 
+
+> 𝜋∈ ()
+
+inf 
+
+> 𝑛∈ ∞
+
+𝐿(𝑛, 𝜋) = sup 
+
+> 𝜋∈ ()
+
+𝐻 (𝜋). 
+
+Because 𝐻 (𝜋) = inf 𝑛 𝐿(𝑛, 𝜋) , it is upper semicontinuous. Compactness of () therefore gives a maximizer. Denote the maximum by 𝑉 . Choose 𝑥 with 0 < 𝐹 (𝑥) < 1 . The greatest convex minorant meets the cumulative variance at 𝑇 , so the covariance decomposition gives 
+
+∫
+
+> 𝑇 0
+
+ℎ𝛿 𝑥 (𝑡) 𝑑𝑡 = Γ 0(𝑥, 𝑥) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑥 (𝑡) 𝑑𝑡 = 𝐹 (𝑥)(1 − 𝐹 (𝑥)) > 0. 
+
+Hence 𝑉 ≥ 𝐻 (𝛿 𝑥 ) > 0 . Fix a maximizer 𝜋 ∗ and write ℎ∗ = ℎ 𝜋 ∗ . Suppose first that ℎ∗(0+) > 0 . The fixed-mixture result gives 
+
+𝑛 ∗(𝑡) = √ℎ∗(𝑡) √𝑉 .
+
+Choose (𝑛 𝑘 ) ⊂ ∞ such that 
+
+sup 
+
+> 𝜋
+
+𝐿(𝑛 𝑘 , 𝜋) ⟶ 𝑉 . 
+
+Since 𝐻 (𝜋 ∗) = 𝑉 ,
+
+𝑉 ≤ ∫
+
+> 𝑇 0
+
+ℎ∗(𝑡) 𝑛 𝑘 (𝑡) 𝑑𝑡 ≤ 𝐿(𝑛 𝑘 , 𝜋 ∗) ≤ sup 
+
+> 𝜋
+
+𝐿(𝑛 𝑘 , 𝜋) ⟶ 𝑉 . 
+
+Since both 𝑛 𝑘 and 𝑛 ∗ integrate to one, Cauchy-Schwarz gives 
+
+‖𝑛 𝑘 − 𝑛 ∗‖21 ≤ ∫
+
+> 𝑇 0
+
+(𝑛 𝑘 (𝑡) − 𝑛 ∗(𝑡)) 2
+
+𝑛 𝑘 (𝑡) 𝑑𝑡 = 1𝑉 ∫
+
+> 𝑇 0
+
+ℎ∗(𝑡) 𝑛 𝑘 (𝑡) 𝑑𝑡 − 1 ⟶ 0. 
+
+Thus 𝑛 𝑘 → 𝑛 ∗ in 𝐿 1([0, 𝑇 ]) . After passing to an almost-everywhere convergent subsequence, monotonicity and right-continuity give 
+
+lim sup 
+
+> 𝑘
+
+𝑛 𝑘 (0+) ≤ 𝑛 ∗(0+). 
+
+Fatou’s lemma now gives, for every 𝜋 ,
+
+𝐿(𝑛 ∗, 𝜋) ≤ lim inf  
+
+> 𝑘
+
+𝐿(𝑛 𝑘 , 𝜋) ≤ 𝑉 . 
+
+Since 𝐿(𝑛 ∗, 𝜋 ∗) = 𝑉 , we have 
+
+sup 
+
+> 𝜋
+
+𝐿(𝑛 ∗, 𝜋) = 𝑉 . 
+
+Thus 𝑛 ∗ is optimal. Returning to 𝑟 gives the formula in the theorem. If instead ℎ∗(0+) = 0 , a minimizer 𝑛 would satisfy 
+
+𝑉 = inf  
+
+> 𝑛
+
+𝐿(𝑛, 𝜋 ∗) ≤ 𝐿(𝑛, 𝜋 ∗) ≤ sup 
+
+> 𝜋
+
+𝐿(𝑛, 𝜋) = 𝑉 . 
+
+It would therefore attain the fixed-mixture infimum, which is impossible when ℎ∗(0+) = 0 . Hence the infimum is not attained. 28 A.14 Proof of Corollary 2 
+
+Proof. Set 𝐿(𝑛, 𝑎) = ∑ 𝑖 𝑎 𝑖 /𝑛 𝑖 . The minimax identity follows from the Sion argument in the proof of Theorem 2 and the fixed-profile calculation in the proof of Lemma 2, with sums in place of integrals. For zero coordinates, apply the calculation to 𝑎 + 𝜀𝟏 and let 𝜀 ↓ 0 . Compactness of  and continuity of PAVA give the maximum. Let 𝑐 = min 𝑖 ̃𝑣 𝑖 (𝑥 0) > 0 . Since sup 𝑥 𝐿(𝑛,̃ 𝑉 (𝑥)) ≥ 𝑐 ∑ 𝑖 𝑛 −1 𝑖 , every minimizing sequence stays away from zero coordinates. Compactness of  then gives the minimum. For any maximizer 𝑎 ∗ and minimizer 𝑛 ∗, the minimax identity gives 
+
+inf  
+
+> 𝑛
+
+𝐿(𝑛, 𝑎 ∗) = 𝐿(𝑛 ∗, 𝑎 ∗) = max  
+
+> 𝑎
+
+𝐿(𝑛 ∗, 𝑎). 
+
+This value is positive by the preceding bound. Thus 𝑛 ∗ attains the fixed-profile infimum. The equality case in the proof of Lemma 2 forces every coordinate of PAVA(𝑎 ∗) to be positive and gives the stated formula. 
+
+A.15 Proof of Proposition 4 
+
+Proof. Let 
+
+𝑚 = {𝑟 ∈ ℝ 𝑚 >0 ∶ 1 = 𝑟 0 ≤ ⋯ ≤ 𝑟 𝑚−1 
+
+} .
+
+Every 𝑟 ∈ 𝑚 corresponds to the feasible allocation 𝑛 𝑖 = 𝐵𝑟 𝑖 / ∑ 𝑗 𝑟 𝑗 . Corollary 2 and the definition of 𝑟 ∗ therefore give 
+
+𝑉 ∗ = inf  
+
+> 𝑟∈ 𝑚
+
+(∑
+
+> 𝑖
+
+𝑟 𝑖 ) sup 
+
+> 𝑥∈ℝ 𝑑
+
+∑
+
+> 𝑖
+
+̃𝑣 𝑖 (𝑥) 𝑟 𝑖 
+
+.
+
+We first prove the lower bound. Fix any feasible weights 𝜆 , and define 
+
+𝑧 (𝑠) 𝑖 = 𝑅 (𝑠) 𝑖 
+
+𝐶 𝑠 
+
+, 𝑧 𝑖 = ∑ 
+
+> 𝑠
+
+𝜆 𝑠 𝑧 (𝑠) 𝑖 .
+
+Since 𝐶 𝑠 = ∑ 𝑖 𝑅 (𝑠) 𝑖 , we have ∑𝑖 𝑧 (𝑠) 𝑖 = 1 and ∑𝑖 𝑧 𝑖 = 1 . Each 𝑧 (𝑠) is positive and nondecreasing. Hence, 𝑧 is also positive and nondecreasing. Convexity of 𝑧 ↦ 1/𝑧 gives 
+
+∑
+
+> 𝑖
+
+̃𝑣 𝑖 (𝑥) 𝑧 𝑖 
+
+≤ ∑ 
+
+> 𝑠
+
+𝜆 𝑠 𝐶 𝑠 ∑
+
+> 𝑖
+
+̃𝑣 𝑖 (𝑥) 𝑅 (𝑠) 𝑖 
+
+.
+
+Set 
+
+𝑟 𝑖 = 𝑧 𝑖 
+
+𝑧 0
+
+.
+
+Then 𝑟 ∈ 𝑚 . Since ∑𝑖 𝑧 𝑖 = 1 ,
+
+(∑
+
+> 𝑖
+
+𝑟 𝑖 ) ( ∑
+
+> 𝑖
+
+̃𝑣 𝑖 (𝑥) 𝑟 𝑖 ) = ∑ 
+
+> 𝑖
+
+̃𝑣 𝑖 (𝑥) 𝑧 𝑖 
+
+.
+
+Therefore, 
+
+𝑉 ∗ ≤ (∑
+
+> 𝑖
+
+𝑟 𝑖 ) sup 
+
+> 𝑥∈ℝ 𝑑
+
+∑
+
+> 𝑖
+
+̃𝑣 𝑖 (𝑥) 𝑟 𝑖 
+
+≤ sup 
+
+> 𝑥∈ℝ 𝑑
+
+∑
+
+> 𝑠
+
+𝜆 𝑠 𝐶 𝑠 ∑
+
+> 𝑖
+
+̃𝑣 𝑖 (𝑥) 𝑅 (𝑠) 𝑖 
+
+.
+
+This holds for every feasible 𝜆 . Taking the minimum over 𝜆 proves the lower bound. We now prove the upper bound. Let 𝑈 ∼ Unif[0, 1) . For each candidate profile 𝑅 (𝑠) , define 
+
+𝐼 𝑠 = {𝑢 ∈ [0, 1) ∶ 𝑅(𝑢) = 𝑅 (𝑠) }, 𝑤 𝑠 = ℙ(𝑈 ∈ 𝐼 𝑠 ). 
+
+The sets 𝐼 𝑠 partition [0, 1) , and 𝑤 𝑠 is their length. Thus 𝑤 𝑠 ≥ 0 and ∑𝑠 𝑤 𝑠 = 1 , so 𝑤 is a feasible choice of mixture weights. Fix 𝑖, 𝑗 and write 
+
+log 2(𝑟 ∗𝑖 
+
+𝑟 ∗𝑗 ) = 𝑘 + 𝑓 , 𝑘 ∈ ℤ, 0 ≤ 𝑓 < 1. 
+
+29 The fractional part of log 2 𝑟 ∗𝑗 + 𝑈 is uniform on [0, 1) . Hence, the rounded exponent difference equals 𝑘 with probability 1 − 𝑓 and 𝑘 + 1 with probability 𝑓 . Therefore, 
+
+𝔼 𝑈 [𝑅 𝑖 (𝑈 ) 𝑅 𝑗 (𝑈 ) ] = (1 − 𝑓 )2 𝑘 + 𝑓 2 𝑘+1 = 𝑟 ∗𝑖 
+
+𝑟 ∗𝑗 
+
+(1 + 𝑓 )2 −𝑓 .
+
+The last factor satisfies 
+
+max 
+
+> 0≤𝑓 <1
+
+(1 + 𝑓 )2 −𝑓 = 2𝑒 log 2 .
+
+For every 𝑥 ∈ ℝ 𝑑 ,
+
+∑
+
+> 𝑠
+
+𝑤 𝑠 𝐶 𝑠 ∑
+
+> 𝑗
+
+̃𝑣 𝑗 (𝑥) 𝑅 (𝑠) 𝑗 
+
+= 𝔼 𝑈 [( ∑
+
+> 𝑖
+
+𝑅 𝑖 (𝑈 ) ) ( ∑
+
+> 𝑗
+
+̃𝑣 𝑗 (𝑥) 𝑅 𝑗 (𝑈 ) )] .
+
+The ratio bound therefore gives 
+
+∑
+
+> 𝑠
+
+𝑤 𝑠 𝐶 𝑠 ∑
+
+> 𝑗
+
+̃𝑣 𝑗 (𝑥) 𝑅 (𝑠) 𝑗 
+
+≤ 2𝑒 log 2 ( ∑
+
+> 𝑖
+
+𝑟 ∗𝑖 ) ( ∑
+
+> 𝑗
+
+̃𝑣 𝑗 (𝑥) 𝑟 ∗𝑗 ) .
+
+Taking the supremum over 𝑥 and using the definition of 𝑉 ∗ gives 
+
+min    
+
+> 𝜆 𝑠 ≥0 ∑𝑠 𝜆 𝑠 =1
+
+sup 
+
+> 𝑥∈ℝ 𝑑
+
+∑
+
+> 𝑠
+
+𝜆 𝑠 𝐶 𝑠 ∑
+
+> 𝑗
+
+̃𝑣 𝑗 (𝑥) 𝑅 (𝑠) 𝑗 
+
+≤ sup 
+
+> 𝑥∈ℝ 𝑑
+
+∑
+
+> 𝑠
+
+𝑤 𝑠 𝐶 𝑠 ∑
+
+> 𝑗
+
+̃𝑣 𝑗 (𝑥) 𝑅 (𝑠) 𝑗 
+
+≤ 2𝑒 log 2 𝑉 ∗.
+
+This proves the upper bound. 
+
+A.16 Proof of Proposition 5 
+
+Proof. For any two candidate types 𝑠 and 𝑡 , logarithmic rounding gives 𝑅 (𝑠) 𝑖,𝐵 /𝑅 (𝑡) 𝑖,𝐵 ∈ [1/2, 2] , and hence 𝐶 𝑠,𝐵 ≤ 2𝐶 𝑡,𝐵 . Therefore, 
+
+max  
+
+> 𝑠
+
+𝐶 𝑠,𝐵 ≤ 2𝛾 𝐵 
+
+ℎ𝐵 
+
+= 𝑂(ℎ −1 𝐵 ), ∑
+
+> 𝑠
+
+𝐶 𝑠,𝐵 = 𝑂(ℎ −2 𝐵 ) = 𝑜(𝐵), 
+
+where the first bound follows by averaging 𝐶 𝑠,𝐵 ≤ 2𝐶 𝑡,𝐵 with respect to 𝜆 𝑡,𝐵 , and the last uses 
+
+𝑆 𝐵 ≤ 𝐾 𝐵 = 𝑂(ℎ −1 𝐵 ) and 𝐵ℎ 2𝐵 → ∞ . Let 
+
+𝐷 𝐵 = ∑ 
+
+> 𝑠
+
+𝑀 𝑠,𝐵 𝐶 𝑠,𝐵 , 𝑤 𝑠,𝐵 = 𝑀 𝑠,𝐵 𝐶 𝑠,𝐵 
+
+𝐷 𝐵 
+
+,
+
+be the realized budget and mixture weights after flooring. Then 
+
+0 ≤ 𝐵 − 𝐷 𝐵 < ∑ 
+
+> 𝑠
+
+𝐶 𝑠,𝐵 = 𝑜(𝐵), 𝐷 𝐵 
+
+𝐵 ⟶ 1, ‖𝑤 𝐵 − 𝜆 𝐵 ‖1 ≤ 2(𝐵 − 𝐷 𝐵 )𝐷 𝐵 
+
+⟶ 0. 
+
+In particular, 
+
+ℎ𝐵 ∑
+
+> 𝑠
+
+|𝑤 𝑠,𝐵 − 𝜆 𝑠,𝐵 |𝐶 𝑠,𝐵 ≤ (max  
+
+> 𝑠
+
+ℎ𝐵 𝐶 𝑠,𝐵 ) ‖𝑤 𝐵 − 𝜆 𝐵 ‖1 ⟶ 0. 
+
+Let 𝑍 𝑠,𝐵,𝑗 be the vector of terminal descendants from root 𝑗 of type 𝑠 , and let 𝑓 𝑠,𝐵,𝑥 (𝑍 𝑠,𝐵,𝑗 ) be their empirical CDF at 𝑥 . Then 
+
+𝔾 mix 𝐵 (𝑎 𝑥 ) ∶= √𝐵ℎ 𝐵 (̂ 𝐹 mix 𝐵 (𝑥) − 𝐹 𝐵 (𝑥) ) = ∑ 
+
+> 𝑠,𝑗
+
+𝑎 𝑠,𝐵 [𝑓 𝑠,𝐵,𝑥 (𝑍 𝑠,𝐵,𝑗 ) − 𝐹 𝐵 (𝑥)] , 𝑎 𝑠,𝐵 = 𝐶 𝑠,𝐵 
+
+√𝐵ℎ 𝐵 
+
+𝐷 𝐵 
+
+.
+
+Moreover, 
+
+max  
+
+> 𝑠
+
+𝑎 𝑠,𝐵 = 𝑂((𝐵ℎ 𝐵 )−1/2 ) ⟶ 0, 𝑄 𝐵 ∶= ∑ 
+
+> 𝑠
+
+𝑀 𝑠,𝐵 𝑎 2𝑠,𝐵 = 𝐵 𝐷 𝐵 
+
+ℎ𝐵 ∑
+
+> 𝑠
+
+𝑤 𝑠,𝐵 𝐶 𝑠,𝐵 ⟶ 𝛾 , 
+
+30 where the last limit follows from the preceding bound and the definition of 𝛾 𝐵 . Thus, no individual root dominates, while the total squared coefficient converges to 𝛾 . We next identify the limiting covariance. For one root of type 𝑠 , write 
+
+Γ(𝑠) 𝐵 (𝑥, 𝑦) = Γ 0,𝐵 (𝑥, 𝑦) + ∑ 
+
+> 𝑖
+
+𝑣 𝑖,𝐵 (𝑥, 𝑦) 𝑅 (𝑠) 𝑖,𝐵 
+
+.
+
+Independence of the roots and the definition of 𝑟 𝐵 give 
+
+Cov(𝔾 mix 𝐵 (𝑎 𝑥 ), 𝔾 mix 𝐵 (𝑎 𝑦 )) = 𝐵 𝐷 𝐵 
+
+ℎ𝐵 ∑
+
+> 𝑠
+
+𝑤 𝑠,𝐵 𝐶 𝑠,𝐵 Γ(𝑠) 𝐵 (𝑥, 𝑦), ℎ𝐵 ∑
+
+> 𝑠
+
+𝜆 𝑠,𝐵 𝐶 𝑠,𝐵 Γ(𝑠) 𝐵 (𝑥, 𝑦) = 𝛾 𝐵 [Γ0,𝐵 (𝑥, 𝑦) + ∑ 
+
+> 𝑖
+
+𝑣 𝑖,𝐵 (𝑥, 𝑦) 𝑟 𝑖,𝐵 ] .
+
+Since |Γ (𝑠) 𝐵 (𝑥, 𝑦)| ≤ 1/4 , the preceding weight bound allows 𝑤 𝐵 to be replaced by 𝜆 𝐵 at a cost of 𝑜(1) .Proposition 1 and the proof of Proposition 2, with 𝑟 𝐵 in place of 𝑟 𝐵 , therefore give 
+
+Cov(𝔾 mix 𝐵 (𝑎 𝑥 ), 𝔾 mix 𝐵 (𝑎 𝑦 )) ⟶ 𝛾 [Γ0(𝑥, 𝑦) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑦 (𝑡) 𝑟(𝑡) 𝑑𝑡 ] .
+
+Since the centered root averages are bounded by one, for every 𝜂 > 0 ,
+
+∑
+
+> 𝑠,𝑗
+
+𝔼[‖𝑎 𝑠,𝐵 (𝑓 𝑠,𝐵,⋅ − 𝐹 𝐵 )‖ 2 
+
+> 
+
+𝟏 {‖𝑎 𝑠,𝐵 (𝑓 𝑠,𝐵,⋅ − 𝐹 𝐵 )‖  > 𝜂 }] ≤ 𝑄 𝐵 𝟏{max  
+
+> 𝑠
+
+𝑎 𝑠,𝐵 > 𝜂} ⟶ 0. 
+
+Thus, the envelope Lindeberg condition holds, and the covariance limit and the multivariate Lindeberg-Feller theorem give the finite-dimensional limits. To upgrade this to process convergence, it remains to prove asymptotic 𝜌 -equicontinuity. For every root type, Jensen’s inequality gives 
+
+𝔼 [(𝑓 𝑠,𝐵,𝑥 (𝑍 𝑠,𝐵,𝑗 ) − 𝑓 𝑠,𝐵,𝑦 (𝑍 𝑠,𝐵,𝑗 )) 2
+
+] ≤ 𝔼 [(𝑎 𝑥 (𝑋 𝐵 𝐾 𝐵 ) − 𝑎 𝑦 (𝑋 𝐵 𝐾 𝐵 )) 2
+
+] ≤ 𝜌(𝑎 𝑥 , 𝑎 𝑦 )2 + 4‖𝐹 𝐵 − 𝐹 ‖ ∞.
+
+The proof of Theorem 1 shows that ‖𝐹 𝐵 − 𝐹 ‖ ∞ → 0 . Hence, for every 𝛿 𝐵 ↓ 0 ,
+
+sup   
+
+> 𝜌(𝑎 𝑥 ,𝑎 𝑦 )<𝛿 𝐵
+
+∑
+
+> 𝑠,𝑗
+
+𝑎 2𝑠,𝐵 𝔼 [(𝑓 𝑠,𝐵,𝑥 (𝑍 𝑠,𝐵,𝑗 ) − 𝑓 𝑠,𝐵,𝑦 (𝑍 𝑠,𝐵,𝑗 )) 2
+
+] ≤ 𝑄 𝐵 (𝛿 2𝐵 + 4‖𝐹 𝐵 − 𝐹 ‖ ∞) ⟶ 0. 
+
+For the entropy condition, define 
+
+𝑑 𝐵 (𝑎 𝑥 , 𝑎 𝑦 )2 = ∑ 
+
+> 𝑠,𝑗
+
+𝑎 2𝑠,𝐵 (𝑓 𝑠,𝐵,𝑥 (𝑍 𝑠,𝐵,𝑗 ) − 𝑓 𝑠,𝐵,𝑦 (𝑍 𝑠,𝐵,𝑗 )) 2 .
+
+Let 𝜈 𝐵 be the probability measure 
+
+𝜈 𝐵 = 1𝑄 𝐵 
+
+∑
+
+> 𝑠,𝑗
+
+𝑎 2𝑠,𝐵 
+
+𝑅 (𝑠) 𝐾 𝐵 −1,𝐵 𝑅 (𝑠) 𝐾 𝐵 −1,𝐵 
+
+∑
+
+> 𝓁=1
+
+𝛿 𝑍 (𝓁) 𝑠,𝐵,𝑗 
+
+.
+
+Jensen’s inequality gives 
+
+𝑑 𝐵 (𝑎 𝑥 , 𝑎 𝑦 ) ≤ √𝑄 𝐵 ‖𝑎 𝑥 − 𝑎 𝑦 ‖𝐿 2(𝜈 𝐵 ).
+
+The first entropy bound in Lemma 5 therefore gives, uniformly over realizations, 
+
+𝑁 (𝜀, , 𝑑 𝐵 ) ≤ 𝐴 (1 + √𝑄 𝐵 
+
+𝜀 )
+
+> 𝑣
+
+.
+
+Consequently, for every 𝜂 𝐵 ↓ 0 ,
+
+∫
+
+> 𝜂 𝐵
+> 0
+
+√log 𝑁 (𝜀, , 𝑑 𝐵 ) 𝑑𝜀 ≲ 𝜂 𝐵 
+
+√log(1 + 𝜂 −1 𝐵 ) ⟶ 0. 
+
+The class  is pointwise measurable and (, 𝜌) is totally bounded by Lemma 5. The envelope, incre-ment, and entropy bounds above therefore imply asymptotic 𝜌 -equicontinuity by the independent-array equicontinuity theorem [van der Vaart and Wellner, 2023, Theorem 2.11.1]. 31 The limiting covariance kernel is positive semidefinite, and Proposition 2 bounds its canonical semimetric by √𝛾 𝜌 . Lemma 5 and Dudley’s entropy theorem therefore give a tight Gaussian process with the covariance in the statement. Together with the finite-dimensional convergence and asymptotic equicontinuity, 
+
+𝔾 mix 𝐵 ⇒ √𝛾 𝔾 in 𝓁 ∞(). 
+
+The KS limit follows from the continuous mapping theorem. 
+
+A.17 Cost-weighted extensions 
+
+The main text assigns unit cost to every transition and uses an asymptotically uniform time partition. Neither restriction is essential, and neither holds in our experiments: the Heun sampler of Appendix C spends two network evaluations on every step but the last, and the diffusion samplers use graded time grids. This subsection removes both. The budget is spent on cost rather than on elapsed time, so we measure time in cost. Each result below is then the corresponding unit-cost result in this variable. Let 𝑐 𝑖,𝐵 > 0 be the cost of propagating one particle through transition 𝑖 . One root tree costs 
+
+𝐶 𝐵 = 
+
+> 𝐾 𝐵 −1
+
+∑
+
+> 𝑖=0
+
+𝑐 𝑖,𝐵 𝑅 𝑖,𝐵 , 𝑁 0,𝐵 = 𝐵/𝐶 𝐵 .
+
+For 𝑡 ∈ [𝑡 𝑖,𝐵 , 𝑡 𝑖+1,𝐵 ), define the cost density 
+
+𝜔 𝐵 (𝑡) = ℎ𝐵 𝑐 𝑖,𝐵 
+
+𝑡 𝑖+1,𝐵 − 𝑡 𝑖,𝐵 
+
+.
+
+Here 𝜔 𝐵 is interpreted as computational cost per unit of physical time, measured on the scale ℎ𝐵 .Summing over transitions gives the exact identity 
+
+ℎ𝐵 𝐶 𝐵 = ∫
+
+> 𝑇 0
+
+𝜔 𝐵 (𝑡)𝑟 𝐵 (𝑡) 𝑑𝑡. 
+
+Thus the normalized cost of a root tree is the area under the splitting function when time is weighted by cost. Unit costs on an asymptotically uniform partition give 𝜔 𝐵 → 1 uniformly, and the right side then converges to 𝛾 , recovering the normalization of Section 4.3. Only one hypothesis is needed. It asks that the cost densities have a limit, and that this limit pairs with the splitting functions in the obvious way. 
+
+Assumption 5. There is a measurable 𝜔 ∶ [0, 𝑇 ] → (0, ∞) , bounded above and bounded away from zero, such that 
+
+∫
+
+> 𝑇 0
+
+𝜔 𝐵 (𝑡)𝑟 𝐵 (𝑡) 𝑑𝑡 ⟶ 𝛾 𝜔 (𝑟) ∶= ∫
+
+> 𝑇 0
+
+𝜔(𝑡)𝑟(𝑡) 𝑑𝑡 
+
+whenever 𝑟 𝐵 → 𝑟 as in Assumption 2. Uniform convergence 𝜔 𝐵 → 𝜔 is sufficient, since the 𝑟 𝐵 are bounded in 𝐿 1([0, 𝑇 ]) . Here 𝛾 𝜔 (𝑟) is interpreted as the limiting cost of one root tree. It reduces to 𝛾 (𝑟) when 𝜔 ≡ 1 , and takes its place throughout. Retain the remaining hypotheses of Corollary 1, and replace unit costs and the asymptotically uniform partition by Assumption 5. If 𝜆 𝐵 → 𝜆 ∈ (0, ∞) , then 
+
+𝐵 𝑝/(1+2𝑝) (̂𝐹 𝐵 − 𝐹 𝐵 ) ⇒ (𝛾 𝜔 (𝑟) 𝜆 )
+
+> 1/2
+
+𝔾 in 𝓁 ∞(), 
+
+and 𝐵 𝑝/(1+2𝑝) ‖̂𝐹 𝐵 − 𝐹 ‖ ∞ is bounded in probability. The costs and the partition enter Corollary 1 only through the limit of ℎ𝐵 𝐶 𝐵 , which the identity above and Assumption 5 now supply. Theorem 1 uses neither, so the rest of that proof is unchanged. 32 Cost therefore enters the limit through 𝛾 𝜔 (𝑟) and nowhere else. Proposition 3 applies with 𝛾 (𝑟) 
+
+replaced by 𝛾 𝜔 (𝑟) , and dropping the same logarithmic factor gives the surrogate 𝛾 𝜔 (𝑟) 1/2 Γ∗. Mini-mizing its square gives the cost-weighted proxy objective 
+
+inf  
+
+> 𝑟∈ 
+
+𝛾 𝜔 (𝑟) sup  
+
+> 𝑥∈ℝ 𝑑
+
+[Γ0(𝑥, 𝑥) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑥 (𝑡) 𝑟(𝑡) 𝑑𝑡 ] .
+
+We now measure time in cost. Define the cumulative cost and the total cost 
+
+Ω(𝑡) = ∫
+
+> 𝑡 0
+
+𝜔(𝑢) 𝑑𝑢, Ω𝑇 = Ω(𝑇 ). 
+
+Since 𝜔 > 0 , the map Ω is strictly increasing, so 𝑠 = Ω(𝑡) is a change of variables from [0, 𝑇 ] onto 
+
+[0, Ω 𝑇 ]. Writing 𝑟(𝑠) = 𝑟(Ω −1 (𝑠)) gives 
+
+𝛾 𝜔 (𝑟) = ∫
+
+> Ω𝑇
+> 0
+
+𝑟(𝑠) 𝑑𝑠, ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑥 (𝑡) 𝑟(𝑡) 𝑑𝑡 = ∫
+
+> Ω𝑇
+> 0
+
+𝑔 𝑥,𝑥 (𝑠) 𝑟(𝑠) 𝑑𝑠, 𝑔 𝑥,𝑥 (𝑠) = 𝑔 𝑥,𝑥 (Ω −1 (𝑠)) 𝜔(Ω −1 (𝑠)) .
+
+Since Ω is increasing, 𝑟 is again nondecreasing with 𝑟(0+) = 1 , so 𝑟 ↦ 𝑟 matches  with the same class on [0, Ω 𝑇 ]. The cost-weighted objective is thus the unit-cost objective in the variable 𝑠 .Accordingly, for 𝜋 ∈ (), set 
+
+𝑔 𝜋 (𝑠) = 𝑔 𝜋 (Ω −1 (𝑠)) 𝜔(Ω −1 (𝑠)) , ℎ𝜋 = PAVA(Γ 𝜋 0 , 𝑔 𝜋 ), 0 ≤ 𝑠 < Ω 𝑇 .
+
+Under Assumption 3, 
+
+inf  
+
+> 𝑟∈ 
+
+𝛾 𝜔 (𝑟) sup  
+
+> 𝑥∈ℝ 𝑑
+
+[Γ0(𝑥, 𝑥) + ∫
+
+> 𝑇 0
+
+𝑔 𝑥,𝑥 (𝑡) 𝑟(𝑡) 𝑑𝑡 ] = max  
+
+> 𝜋∈ ()
+
+(∫
+
+> Ω𝑇
+> 0
+
+√ℎ𝜋 (𝑠) 𝑑𝑠 )
+
+> 2
+
+.
+
+For any maximizer 𝜋 ∗, the infimum is attained if and only if ℎ𝜋 ∗ (0+) > 0 , in which case 
+
+𝑟 ∗(𝑡) = √ℎ𝜋 ∗ (Ω(𝑡)) ℎ𝜋 ∗ (0+) , 0 ≤ 𝑡 < 𝑇 , 
+
+defines a minimizer. Both claims are Theorem 2 applied on [0, Ω 𝑇 ] with inputs (Γ 𝜋 0 , 𝑔 𝜋 ), read back through Ω.Geometrically, ℎ𝜋 is obtained by plotting cumulative variance against cumulative cost, with Γ𝜋 0 as an initial atom at cost zero, and taking the slopes of the greatest convex minorant. In the main text every transition costs the same, so cumulative cost is the index and this is the equal-weight construction of Appendix A.1. Here the horizontal axis is stretched by 𝜔 . Equivalently, in physical time PAVA acts on 𝑔 𝜋 (𝑡)/𝜔(𝑡) with weights 𝜔(𝑡) 𝑑𝑡 .The finite-budget construction is the same, with finitely many points, and defines the cost-weighted fit referred to in Appendix A.1. Fix 𝐵 , put 𝑚 = 𝐾 𝐵 , and write 𝑐 𝑖 = 𝑐 𝑖,𝐵 . For 𝑧 ∈ [0, ∞) 𝑚 , let PAVA 𝑐 (𝑧) 𝑖 
+
+be the slope of the greatest convex minorant of the polygonal line through 
+
+(∑
+
+> 𝑗<𝑘
+
+𝑐 𝑗 , ∑ 
+
+> 𝑗<𝑘
+
+𝑧 𝑗 ) , 0 ≤ 𝑘 ≤ 𝑚. 
+
+As in Appendix A.1, these slopes are constant on the final blocks, so that 
+
+PAVA 𝑐 (𝑧) 𝑖 = ∑𝑗∈𝐼 𝑧 𝑗 
+
+∑𝑗∈𝐼 𝑐 𝑗 
+
+, 𝑖 ∈ 𝐼 . 
+
+Cumulative cost has replaced the index on the horizontal axis, and the block average has become a cost-weighted average. For 𝑐 ≡ 1 this is the equal-weight fit PAVA .Replace the feasible set  of Corollary 2 by 
+
+𝑐 ={𝑛 ∈ ℝ 𝑚 >0 ∶ 𝑛 0 ≤ ⋯ ≤ 𝑛 𝑚−1 ,
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+𝑐 𝑖 𝑛 𝑖 = 𝐵 },
+
+33 and retain ̃𝑣 𝑖 and  as defined there. Under the assumptions of Corollary 2, the minimum below is attained, and 
+
+min 
+
+> 𝑛∈ 𝑐
+
+sup 
+
+> 𝑥∈ℝ 𝑑
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+̃𝑣 𝑖 (𝑥) 𝑛 𝑖 
+
+= 1𝐵 max  
+
+> 𝑎∈ 
+
+(
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+𝑐 𝑖 
+
+√PAVA 𝑐 (𝑎) 𝑖 )
+
+> 2
+
+.
+
+If 𝑎 ∗ is a maximizer and ℎ∗ = PAVA 𝑐 (𝑎 ∗), then ℎ∗𝑖 > 0 for every 𝑖 , and every minimizing allocation satisfies 
+
+𝑛 ∗𝑖 = 𝐵 √ℎ∗𝑖 
+
+∑𝑚−1 𝑗=0 𝑐 𝑗 
+
+√ℎ∗𝑗 
+
+, 0 ≤ 𝑖 < 𝑚. 
+
+The argument of Corollary 2 goes through with two substitutions. The PAVA block inequality becomes ∑𝑖 𝑎 𝑖 𝑞 𝑖 ≥ ∑ 𝑖 𝑐 𝑖 ℎ𝑖 𝑞 𝑖 for nonincreasing 𝑞 , which is again summation by parts against a minorant gap that is nonnegative and vanishes at both ends. Cauchy-Schwarz is then applied as 
+
+(
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+𝑐 𝑖 ℎ𝑖 
+
+𝑛 𝑖 ) ( 
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+𝑐 𝑖 𝑛 𝑖 ) ≥ (
+
+> 𝑚−1
+
+∑
+
+> 𝑖=0
+
+𝑐 𝑖 
+
+√ℎ𝑖 )
+
+> 2
+
+,
+
+with equality when 𝑛 ∝ √ℎ, which is nondecreasing and hence feasible. The Sion argument and the positivity of ℎ∗ are unchanged. This is the allocation problem solved in the experiments. Appendix B.2 gives the Frank-Wolfe scheme used to compute a maximizing 𝑎 ∗, and Appendix D uses it for the oracle benchmark. 
+
+## B Two-Phase Procedure and Evaluation 
+
+This appendix gives the full two-phase procedure. Phase 1 uses complete paths to estimate the variance added by each path segment. We then solve a cost-weighted allocation problem. Phase 2 converts the relaxed allocation into a finite mixture of exact dyadic trees. The final subsection defines the reference samples and evaluation metrics. 
+
+B.1 Phase 1: Simulation, Query Generation, and Estimation 
+
+The allowed split times 
+
+0 = 𝑡 0 < 𝑡 1 < ⋯ < 𝑡 𝐿−1 < 𝑡 𝐿 = 𝑇 
+
+divide each path into 𝐿 segments. Let 𝑐 𝑖 > 0 be the cost of propagating one particle through segment 
+
+𝑖 . One complete path costs 
+
+𝐶 full =
+
+> 𝐿−1
+
+∑
+
+> 𝑖=0
+
+𝑐 𝑖 .
+
+Phase 1 receives budget 𝐵 1. It simulates 
+
+𝐽 = ⌊𝐵 1
+
+𝐶 full ⌋
+
+independent complete paths without splitting. Each path is recorded at 𝑡 0, … , 𝑡 𝐿 . The remaining Phase 2 budget is 
+
+𝐵 2 = 𝐵 − 𝐽 𝐶 full .
+
+Define the Phase 1 empirical CDF and its realized budget share by ̂𝐹 1(𝑥) = 1𝐽 
+
+> 𝐽
+
+∑
+
+> 𝑗=1
+
+𝟏 (𝑋 (𝑗) 𝑇 ≤ 𝑥 ) , 𝛽 P = 𝐽 𝐶 full 
+
+𝐵 .
+
+We retain these terminal samples for the final estimate, where 𝛽 P is the fraction of the total budget actually spent on the complete Phase 1 paths. Given these paths, we want to estimate the quantities 
+
+𝑣 𝑖 (𝑥) for all 𝑥 ∈ ℝ 𝑑 . We replace this with a finite-query approximation using 𝑄 queries. Further, to avoid sparse queries, we restrict the number of active coordinates in each query to be at most 𝑑 max .We use 𝑑 max = 2 for the two-dimensional models and 𝑑 max = 512 for CIFAR-10. Each repetition draws its own set of queries. 34 For query 𝑞 , draw 
+
+𝑘 𝑞 ∼ Unif{1, … , 𝑑 max }. 
+
+Select 𝑘 𝑞 coordinates uniformly without replacement. Set 
+
+𝜇 𝑞 = 0.05 + (𝑞 − 12 ) 0.90 𝑄 , 1 ≤ 𝑞 ≤ 𝑄. 
+
+These levels are evenly spaced between 0.05 and 0.95 . For each query, draw 
+
+(𝑠 𝑞,1 , … , 𝑠 𝑞,𝑘 𝑞 ) ∼ Dirichlet(1, … , 1). 
+
+For each selected coordinate 𝑎 , set 𝑥 𝑞,𝑎 to its Phase 1 empirical quantile at level 𝜇 𝑠 𝑞,𝑎  
+
+> 𝑞
+
+. Set every unselected coordinate to +∞ . Those coordinates then impose no restriction on the event. Given these queries, we now estimate the variance contributions. For each query 𝑞 , let 𝑥 𝑞 be the corresponding threshold vector. Define 
+
+𝑌 (𝑗) 𝑞 = 𝟏 (𝑋 (𝑗) 𝑇 ≤ 𝑥 𝑞 ) ,̂ 𝐹 𝑞 = 1𝐽 
+
+> 𝐽
+
+∑
+
+> 𝑗=1
+
+𝑌 (𝑗) 𝑞 .
+
+Let 𝐹 𝐵 denote the terminal CDF on the discretization used at budget 𝐵 . For each query, define 
+
+𝑢 𝑞 (𝑡 𝑖 , 𝑧) = ℙ(𝑋 𝑇 ≤ 𝑥 𝑞 ∣ 𝑋 𝑡 𝑖 = 𝑧) 
+
+and 
+
+𝑄 𝑖 (𝑥 𝑞 ) = 𝔼[𝑢 𝑞 (𝑡 𝑖 , 𝑋 𝑡 𝑖 )2] . 
+
+We estimate 𝑢 𝑞 (𝑡 𝑖 , ⋅) by regressing 𝑌 (𝑗) 𝑞 on the path state at 𝑡 𝑖 and the query 𝑥 𝑞 . We assign the pilot paths cyclically to 𝐾 folds. For each fold, we train one MLP on the other folds and predict the held-out paths. The networks have hidden widths 128 and 64 , SiLU activations, and a sigmoid output. One MLP is shared across all recorded times and queries within a fold. Its input consists of the active-coordinate margins, time, the fraction of active coordinates, and the logit of the query mass. Each input is standardized before fitting. The label is 𝑌 (𝑗) 𝑞 .We train for five epochs with squared-error loss. Let 𝑝 (𝑗) 𝑖𝑞 be the held-out prediction for path 𝑗 , time 
+
+𝑡 𝑖 , and query 𝑞 . For a fixed prediction rule 𝑝 ,
+
+𝔼[2𝑝(𝑋 𝑡 𝑖 )𝑌 𝑞 − 𝑝(𝑋 𝑡 𝑖 )2] = 𝑄 𝑖 (𝑥 𝑞 ) − 𝔼 [(𝑝(𝑋 𝑡 𝑖 ) − 𝑢 𝑞 (𝑡 𝑖 , 𝑋 𝑡 𝑖 )) 2
+
+] .
+
+This identity motivates ̂𝑄 raw 𝑖 (𝑥 𝑞 ) = 1𝐽 
+
+> 𝐽
+
+∑ 
+
+> 𝑗=1
+
+[2𝑝 (𝑗) 𝑖𝑞 𝑌 (𝑗) 𝑞 − (𝑝 (𝑗) 𝑖𝑞 )2
+
+] , 0 ≤ 𝑖 < 𝐿. 
+
+We set ̂𝑄 raw 𝐿 (𝑥 𝑞 ) =̂ 𝐹 𝑞 .
+
+We note that our estimator is not unbiased. Each 𝑝 (𝑗) 𝑖𝑞 comes from an MLP trained without path 
+
+𝑗 , but the query thresholds and ̂ 𝐹 𝑞 still use the full Phase 1 sample. Now, see that the true second moments satisfy 
+
+𝐹 𝐵 (𝑥 𝑞 )2 ≤ 𝑄 0(𝑥 𝑞 ) ≤ ⋯ ≤ 𝑄 𝐿 (𝑥 𝑞 ) = 𝐹 𝐵 (𝑥 𝑞 ). 
+
+Sampling error can violate this order. We first clip the raw estimates to [̂𝐹 2𝑞 ,̂ 𝐹 𝑞 ]. We then apply nondecreasing PAVA to the full sequence while holding the terminal value fixed at ̂ 𝐹 𝑞 . Write ̂ 𝑄 𝑖 (𝑥 𝑞 )
+
+for the projected values. The root population controls both the initial-state variance and the variance added in the first segment. The estimated contributions used by the optimizer are ̂𝑣 0(𝑥 𝑞 ) =̂ 𝑄 1(𝑥 𝑞 ) −̂ 𝐹 2𝑞 
+
+and ̂𝑣 𝑖 (𝑥 𝑞 ) =̂ 𝑄 𝑖+1 (𝑥 𝑞 ) −̂ 𝑄 𝑖 (𝑥 𝑞 ), 1 ≤ 𝑖 < 𝐿. 
+
+35 B.2 Optimization 
+
+Let 𝑛 𝑖 > 0 be the relaxed total number of particles propagated through segment 𝑖 . For query 𝑞 ,define 
+
+𝓁 𝑞 (𝑛) = 
+
+> 𝐿−1
+
+∑
+
+> 𝑖=0
+
+̂𝑣 𝑖 (𝑥 𝑞 )𝑛 𝑖 
+
+.
+
+We solve 
+
+min  
+
+> 𝑛
+
+max  
+
+> 1≤𝑞≤𝑄
+
+𝓁 𝑞 (𝑛) 
+
+subject to 𝐿−1 
+
+∑
+
+> 𝑖=0
+
+𝑐 𝑖 𝑛 𝑖 = 𝐵 2, 0 < 𝑛 0 ≤ ⋯ ≤ 𝑛 𝐿−1 .
+
+We solve the query-mixture dual with Frank-Wolfe. Let 𝜋 𝑞 ≥ 0 be the current query weights, with 
+
+> 𝑄
+
+∑
+
+> 𝑞=1
+
+𝜋 𝑞 = 1. 
+
+Form 
+
+𝑝 𝑖 =
+
+> 𝑄
+
+∑
+
+> 𝑞=1
+
+𝜋 𝑞 ̂𝑣 𝑖 (𝑥 𝑞 ). 
+
+Apply the cost-weighted fit of Appendix A.17 to obtain ℎ = PAVA 𝑐 (𝑝) . The resulting relaxed allocation is 
+
+𝑛 𝑖 = 𝐵 2
+
+√ℎ𝑖 
+
+∑𝐿−1 𝑟=0 𝑐 𝑟 
+
+√ℎ𝑟 
+
+, 0 ≤ 𝑖 < 𝐿. 
+
+At each Frank-Wolfe step, we recompute the allocation and choose 
+
+𝑞 ⋆ ∈ arg max  
+
+> 1≤𝑞≤𝑄
+
+𝓁 𝑞 (𝑛). 
+
+A line search chooses 𝜂 ∈ [0, 1] . We then update 
+
+𝜋 ← (1 − 𝜂)𝜋 + 𝜂𝑒 𝑞 ⋆ .
+
+Here, 𝑒 𝑞 ⋆ is the unit vector for query 𝑞 ⋆. The final Frank-Wolfe iterate gives the relaxed particle counts 𝑛 0, … , 𝑛 𝐿−1 .
+
+B.3 Final Algorithm 
+
+Algorithm 1 summarizes the complete procedure. Phase 1 learns the allocation and supplies a full-path component. Phase 2 uses fresh paths to construct the splitting component. 
+
+Algorithm 1 Final two-phase algorithm 
+
+Require: Budget 𝐵 , pilot budget 𝐵 1, split times, segment costs 𝑐 0, … , 𝑐 𝐿−1 , and queries 𝑥 1, … , 𝑥 𝑄  
+
+> 1:
+
+Use budget 𝐵 1 to estimate the variance contributions and retain ̂ 𝐹 1 as in Subsection B.1  
+
+> 2:
+
+Use the remaining budget 𝐵 2 to solve the relaxed allocation problem in Subsection B.2  
+
+> 3:
+
+Normalize the solution by setting 𝑟 𝑖 = 𝑛 𝑖 /𝑛 0 
+
+> 4:
+
+Construct the candidate dyadic profiles 𝑅 (1) , … , 𝑅 (𝑆) from 𝑟 as in Section 6.1  
+
+> 5:
+
+Solve the mixture problem in Proposition 4 to obtain 𝜆  
+
+> 6:
+
+For each type 𝑠 , set 𝐶 𝑠 = ∑ 𝑖 𝑐 𝑖 𝑅 (𝑠) 𝑖 , set 𝑀 𝑠 = ⌊𝜆 𝑠 𝐵 2/𝐶 𝑠 ⌋, and simulate 𝑀 𝑠 fresh trees  
+
+> 7:
+
+Set 𝐵 ′2 = ∑ 𝑆 𝑠=1 𝑀 𝑠 𝐶 𝑠 and, for 𝑥 ∈ ℝ 𝑑 ,̂𝐹 2(𝑥) = 
+
+> 𝑆
+
+∑
+
+> 𝑠=1 𝑀 𝑠
+
+∑
+
+> 𝑗=1 𝑅 (𝑠) 𝐿−1
+
+∑
+
+> 𝓁=1
+
+𝐶 𝑠 
+
+𝐵 ′2𝑅 (𝑠) 𝐿−1 
+
+𝟏(𝑍 (𝓁) 𝑠,𝑗 ≤ 𝑥)  
+
+> 8:
+
+Set 𝛽 P = 𝐽 𝐶 full /𝐵  
+
+> 9:
+
+return ̂ 𝐹 reuse 𝐵 = 𝛽 P̂ 𝐹 1 + (1 − 𝛽 P)̂𝐹 2
+
+36 Each Phase 1 terminal sample receives weight 𝛽 P/𝐽 , and each Phase 2 leaf of type 𝑠 receives weight 
+
+(1 − 𝛽 P)𝐶 𝑠 
+
+𝐵 ′2𝑅 (𝑠) 𝐿−1 
+
+.
+
+Conditional on Phase 1, 
+
+𝔼 [̂ 𝐹 reuse 𝐵 (𝑥) ∣ Phase 1 ] = 𝛽 P̂ 𝐹 1(𝑥) + (1 − 𝛽 P)𝐹 𝐵 (𝑥), 
+
+so the reused estimator is generally not conditionally unbiased. It is exactly unconditionally unbiased because 𝔼[̂𝐹 1(𝑥)] = 𝐹 𝐵 (𝑥) . Moreover, 𝐵 1 = 𝑜(𝐵) implies 𝛽 P → 0 , so the conditional discrepancy introduced by reuse vanishes asymptotically. 
+
+B.4 Metrics and Evaluations 
+
+Appendix C defines the models and simulation settings. To evaluate each model, we compute a metric between the estimated CDF and a reference CDF. For each model, the reference CDF is generated once and fixed, and the same sample is used for every method, budget, split schedule, and repetition. For the OU-process and overdamped Langevin models, the reference CDF is the empirical distribution of a large number of samples obtained by simulating a finely discretized SDE. For the EDM model, the reference CDF is the empirical distribution of a large number of samples drawn directly from the Gaussian mixture. For CIFAR-10, the reference CDF is the empirical distribution of a large number of samples generated by the full DDPM sampler. Table 1 gives the source and size of each sample.                 
+
+> Model Reference source Samples
+> OU process Euler-Maruyama with 20,000 steps 2,500,000
+> Overdamped Langevin Euler-Maruyama with 20,000 steps 2,500,000
+> EDM Direct draws from the Gaussian mixture 5,000,000
+> CIFAR-10 DDPM Full 1,000 -step DDPM sampler 20,000
+> Table 1: Reference samples used to evaluate the generated samples.
+
+For any function 𝑓 on the terminal state space, define the generated and reference empirical operators by ̂𝑃 𝐺 𝑓 = 𝛽 P
+
+𝐽 
+
+> 𝐽
+
+∑
+
+> 𝑗=1
+
+𝑓 (𝑋 (𝑗) 𝑇 ) + (1 − 𝛽 P)
+
+> 𝑆
+
+∑
+
+> 𝑠=1 𝑀 𝑠
+
+∑
+
+> 𝑗=1 𝑅 (𝑠) 𝐿−1
+
+∑
+
+> 𝓁=1
+
+𝐶 𝑠 
+
+𝐵 ′2𝑅 (𝑠) 𝐿−1 
+
+𝑓 (𝑍 (𝓁) 𝑠,𝑗 ) ,̂ 𝑃 𝑅 𝑓 = 1|𝑅| ∑
+
+> 𝑧∈𝑅
+
+𝑓 (𝑧). 
+
+Thus every Phase 1 output receives weight 𝛽 P/𝐽 , every Phase 2 leaf of type 𝑠 receives weight (1 − 𝛽 P)𝐶 𝑠 /(𝐵 ′2𝑅 (𝑠) 𝐿−1 ), and the fixed reference sample remains uniformly weighted. The OU, overdamped Langevin, and EDM examples are two-dimensional. For 𝑎 𝑥 (𝑧) = 𝟏(𝑧 ≤ 𝑥) , compare the generated output 𝐺 with the fixed reference sample 𝑅 using the two-sample lower-orthant KS distance 
+
+𝐷 KS (𝐺, 𝑅) = sup 
+
+> 𝑥∈ℝ 2
+
+|||̂ 𝑃 𝐺 𝑎 𝑥 −̂ 𝑃 𝑅 𝑎 𝑥 ||| .
+
+Both empirical CDFs change only at observed coordinate values. We evaluate that grid and compute the weighted supremum exactly. The same grid calculation is not practical for CIFAR-10, where each image has 3,072 coordinates. Hence, we use the maximum mean discrepancy [Gretton et al., 2012]. We compute it with the random Fourier feature approximation of Zhao and Meng [2015], using a fixed map drawn once and reused for every comparison. Images are quantized to eight bits. Each pixel coordinate is standardized using the mean and standard deviation of the fixed reference sample. Let 𝜂 be the median Euclidean distance over sampled pairs of standardized reference images. We use the eight scales 
+
+𝜂 2 −4 , … , 𝜂 2 3.
+
+37 We draw 1,024 orthogonal random frequencies and divide them equally across these scales. Each frequency contributes one sine coordinate and one cosine coordinate. The coordinates are scaled so that squared feature distances are averaged over the frequencies. Let 𝜙 denote the resulting feature map. For generated output 𝐺 and reference sample 𝑅 , define ̂MMD 𝜙 (𝐺, 𝑅) = ‖‖‖̂ 𝑃 𝐺 𝜙 −̂ 𝑃 𝑅 𝜙 ‖‖‖2 .
+
+Each learned-splitting repetition reruns Phase 1, optimization, dyadic-mixture construction, and Phase 2, and reuses its Phase 1 terminal samples with weight 𝛽 P. All methods have the same total budget 𝐵 . We use 2,500 repetitions for each two-dimensional setting and 50 repetitions for each CIFAR-10 setting. We report the mean empirical-reference error. For a splitting method with mean error 𝐷 split and an independent-path baseline with mean error 
+
+𝐷 ind , the reported percentage reduction is 
+
+100 (1 − 𝐷 split 
+
+𝐷 ind ) .
+
+## C Benchmark Models and Simulation Settings 
+
+C.1 Models                                       
+
+> Model Dynamics Settings OU Process
+> 𝑑𝑋 𝑡,𝑗 = [1.35(−0.2 − 𝑋 𝑡,𝑗 ) + 0.25(̄𝑋 𝑡 − 𝑋 𝑡,𝑗 )]𝑑𝑡 + 0.65 𝑑𝑊 𝑡,𝑗 ,̄ 𝑋 𝑡 = (𝑋 𝑡,1 + 𝑋 𝑡,2 )/2 𝑗 = 1, 2, 𝑋 0,𝑗 iid
+> ∼(0, 1), 𝑇 = 1
+> Overdamped Langevin
+> 𝑈 (𝑥 1, 𝑥 2) = (𝑥 21− 1) 2+ (𝑥 22− 1) 2+12(𝑥 2− 𝑥 1)2,𝑑𝑋 𝑡 = −∇𝑈 (𝑋 𝑡 ) 𝑑𝑡 + √2 𝑑𝑊 𝑡
+> 𝑗 = 1, 2, 𝑋 0,𝑗 iid
+> ∼(−1, 0.05), 𝑇 = 2
+> EDM
+> 𝑑𝑋 𝜎
+> 𝑑𝜎 = 𝑋 𝜎 − 𝐷 𝜃 (𝑋 𝜎 , 𝜎) 𝜎 = −𝜎𝑠 𝜃 (𝑋 𝜎 , 𝜎), 𝑠 𝜃 (𝑥, 𝜎) = 𝐷 𝜃 (𝑥, 𝜎) − 𝑥 𝜎 2
+> 𝑋 𝜎 max ∼(0, 𝜎 2max 𝐼 2), 𝜎 max = 80, 𝜎 min = 0.002
+> Neural denoiser: 𝐷 𝜃
+> CIFAR-10 DDPM
+> google/ddpm-cifar10-32 Bundled DDPM scheduler, with step counts in Table 3
+
+Table 2: Benchmark models. The EDM denoiser is trained and sampled in standardized coordinates, so its prior is stated in that scale. 
+
+The EDM row of Table 2 shows the probability-flow ODE used by the sampler. Following Karras et al. [2022], we trained the neural denoiser 𝐷 𝜃 on samples from the equally weighted Gaussian mixture 12  ([ −1 1 ] , [0.20 0.05 0.05 0.30]) + 12  ([ 1−1] , [0.30 −0.08 −0.08 0.15 ]) .
+
+We use the stochastic EDM sampler with time-step exponent 3, in the parameterization of Karras et al. [2022]. At each step, stochastic churn is applied before a second-order Heun update of the probability-flow ODE. The churn parameters are (𝑆 churn , 𝑆 min , 𝑆 max , 𝑆 noise ) = (40, 0, 80, 1) . Direct samples from the mixture are used only for the reference distribution. 
+
+C.2 Simulation settings 
+
+The nine-split schedule splits every 10% from 10% through 90% . The nineteen-split schedule splits every 5% from 5% through 95% . The thirty-nine-split schedule splits every 2.5% from 2.5% through 38 97.5% . For learned splitting, we use 𝐾 = 5 folds. We use 𝑄 = 1,024 queries for the two-dimensional models and 𝑄 = 4,096 queries for CIFAR-10. We take 𝐵 1 = ⌊5𝐵 0.66 ⌋ for OU and overdamped Langevin, 𝐵 1 = ⌊10𝐵 0.66 ⌋ for EDM, and 𝐵 1 = ⌊10𝐵 0.66 ⌋ for CIFAR-10. All methods use the same time grid across budgets, with the number of steps per budget given in Table 3. OU and overdamped Langevin are solved with Euler-Maruyama, EDM uses the second-order Heun solver of Karras et al. [2022], and DDPM uses the DDPM sampler. Table 3 gives the step counts and EDM network-evaluation counts. 
+
+𝐵 Euler steps EDM steps EDM NFE DDPM steps 50k - - - 200 100k 130 40 79 252 200k 160 46 91 317 500k 220 55 109 430 1M 280 63 125 542 2M 350 73 145 -5M 475 87 173 -
+
+Table 3: Numerical schedules by budget. Euler steps apply to OU and overdamped Langevin. EDM NFE is the number of network evaluations per sample. 
+
+The step and network-evaluation counts in Table 3 determine the segment costs 𝑐 𝑖 . Cost is mea-sured in numerical steps for the OU, overdamped Langevin, and DDPM samplers, and in network evaluations for EDM. The final EDM step omits the corrector and costs one evaluation, so 𝐾 solver steps use 2𝐾 − 1 network evaluations. 
+
+C.3 Uniform and Learned 𝑐 Baselines 
+
+Both baselines restrict the normalized relaxed profile to 
+
+𝑟 𝑖 (𝑐) = 𝑐 𝑖 , 0 ≤ 𝑖 < 𝐿. 
+
+To distinguish the split factor 𝑐 from the segment costs 𝑐 𝑖 above, write those costs as 𝜅 𝑖 in this subsection. Uniform-𝑐 uses no pilot phase and fixes 𝑐 before simulation. We construct the exact dyadic candidate trees by the logarithmic rounding in Section 6.1. Since this baseline has no variance estimates, we assign each candidate the length of the set of shifts 𝑢 ∈ [0, 1) that produces it, floor the resulting root counts, and use the realized budget shares in the estimator. For OU, overdamped Langevin, and EDM, we use 𝑐 ∈ {1.1, 1.15, 1.25, 1.5} with nine splits, 𝑐 ∈ {1.1, 1.15, 1.2} with nineteen splits, and 𝑐 ∈ {1.05, 1.1} with thirty-nine splits. Learned-𝑐 uses the same Phase 1 estimates ̂𝑣 𝑖 (𝑥 𝑞 ), pilot budget, and remaining budget 𝐵 2 as the learned allocation, but restricts the optimization to the one-parameter family above. It selects ̂𝑐 ∈ argmin  
+
+> 𝑐≥1
+
+(
+
+> 𝐿−1
+
+∑
+
+> 𝑖=0
+
+𝜅 𝑖 𝑐 𝑖 
+
+) max  
+
+> 1≤𝑞≤𝑄
+
+(
+
+> 𝐿−1
+
+∑
+
+> 𝑖=0
+
+̂𝑣 𝑖 (𝑥 𝑞 )𝑐 −𝑖 
+
+) .
+
+After constructing the dyadic candidates 𝑅 (1) , … , 𝑅 (𝑆) from 𝑟(̂ 𝑐) , define 
+
+𝐶 𝑠 =
+
+> 𝐿−1
+
+∑
+
+> 𝑖=0
+
+𝜅 𝑖 𝑅 (𝑠) 𝑖 , 𝐸 𝑠𝑞 = 𝐶 𝑠 𝐿−1 
+
+∑
+
+> 𝑖=0
+
+̂𝑣 𝑖 (𝑥 𝑞 )𝑅 (𝑠) 𝑖 
+
+.
+
+The Phase 2 budget shares solve the linear program 
+
+min  
+
+> 𝜆,𝑡
+
+𝑡 
+
+subject to 
+
+> 𝑆
+
+∑
+
+> 𝑠=1
+
+𝜆 𝑠 𝐸 𝑠𝑞 ≤ 𝑡, 1 ≤ 𝑞 ≤ 𝑄, 
+
+> 𝑆
+
+∑
+
+> 𝑠=1
+
+𝜆 𝑠 = 1, 𝜆 𝑠 ≥ 0. 
+
+39 We initially assign 𝑀 𝑠 = ⌊𝜆 𝑠 𝐵 2/𝐶 𝑠 ⌋ roots. Candidate types receiving no roots are removed and the program is re-solved. As in Algorithm 1, the Phase 1 terminal samples are retained with their realized budget share and the Phase 2 weights are scaled by the remaining share. 
+
+## D OU Finite-Query Minimax Benchmark 
+
+For the linear-Gaussian OU process, the Euler chain gives the variance contributions without Phase 1 estimation. We use them to solve a finite-query version of the minimax problem in Corollary 2. We call the result the oracle allocation. 
+
+D.1 Oracle allocation 
+
+For a lower-orthant event 𝐴 𝑥 = {𝑋 𝐾 ≤ 𝑥} , define 
+
+𝑀 𝑘 (𝑥) = ℙ(𝐴 𝑥 ∣ 𝑋 𝑘 ), 𝑄 𝑥 (𝑘) = 𝔼[𝑀 𝑘 (𝑥) 2]. 
+
+The quantity 𝑄 𝑥 (𝑘) is the probability that two terminal descendants both lie in 𝐴 𝑥 when they share the state at step 𝑘 and use independent noise afterward. Because the process is linear and Gaussian, we evaluate 𝐹 (𝑥) and 𝑄 𝑥 (𝑘) from the Euler-chain covariances and numerical Gaussian CDFs. If 
+
+𝑘 1, … , 𝑘 𝐿−1 are the split steps, their successive differences give the segmentwise variance vector 
+
+𝑣 0(𝑥) = 𝑄 𝑥 (𝑘 1) − 𝐹 (𝑥) 2,𝑣 𝑖 (𝑥) = 𝑄 𝑥 (𝑘 𝑖+1 ) − 𝑄 𝑥 (𝑘 𝑖 ), 1 ≤ 𝑖 < 𝐿 − 1, 𝑣 𝐿−1 (𝑥) = 𝐹 (𝑥) − 𝑄 𝑥 (𝑘 𝐿−1 ). 
+
+We evaluate these vectors on a fixed set of 10,200 lower-orthant queries. A Frank-Wolfe solver optimizes over their convex hull using the cost-weighted finite minimax allocation of Appendix A.17. Thus the allocation comes from the finite minimax problem rather than one representative query. Normalize the relaxed oracle counts by their root count and generate the corresponding exact tree candidates. Since the exact variance table is available, solve the cost-weighted tree-mixture linear program with that table. Floor the root counts and use realized budget-share weights. 
+
+D.2 Simulated KS Evaluation 
+
+At 𝐵 = 5 × 10 6, the Euler chain has 𝐾 = 475 steps. We compute the oracle allocation once for each split schedule. Figure 4 compares this allocation with the learned mean allocation over 2,500 
+
+complete experiment repetitions. Here 𝑅 𝑖 is the number of particles per initial root after split 𝑖 . A value of one means that no branching is needed.      
+
+> Figure 4: Finite-query minimax and learned mean cumulative OU allocations for schedules with 9, 19, and 39 splits of the 475 -step Euler process at 𝐵 = 5 × 10 6. Learned values are means over 2,500 runs.
+
+We fix the oracle factors and run the same budgeted splitting simulator used for the learned allocation. For each of 10,000 independent repetitions, we compute the exact two-sample lower-orthant KS distance to the fixed reference sample described in Subsection B.4. The distance for one repetition is computable, but its expectation under the branching scheme is not available in closed form. Table 4 40 therefore reports the simulated reduction in mean KS relative to the shared independent-path baseline. 
+
+Split times Oracle reduction Learned reduction Oracle captured 9 13.9 ±0.7% 14.0 ±0.9% 100.7% 
+
+19 22.8 ±0.6% 18.8 ±0.9% 82.6% 
+
+39 22.4 ±0.6% 21.8 ±0.9% 97.2% 
+
+Table 4: Reduction in measured mean OU KS at 𝐵 = 5 × 10 6 for the finite-query minimax and learned allocations relative to the shared independent-path baseline. Oracle means use 10,000 repetitions. Learned and independent-path means use 2,500 . The final column is the learned reduction as a percentage of the minimax-allocation reduction. 
+
+## E Complete Numerical Results 
+
+Figure 5 reports the absolute error behind the percentage reductions in the main text. It also shows how the mean error changes with the computational budget. 
+
+Figure 5: Absolute mean error versus budget for independent full-path simulation, the learned allocation, Uniform-𝑐 , and Learned-𝑐 . The first three panels show KS over 2,500 repetitions, and the CIFAR-10 panel shows MMD over 50 repetitions. Both axes are logarithmic. 
+
+Tables 5-8 report the percentage reduction in mean error relative to independent full-path simulation. Each cell gives the estimated reduction plus or minus the half-width of its two-sided 90% normal confidence interval, computed by the delta method for the ratio of two independent sample means. In each budget column, the method with the lowest mean error is bold. 41 Split points Allocation 100k 200k 500k 1M 2M 5M 9 Learned 13.1 ±0.9% 13.6 ±0.9% 14.1 ±0.9% 13.4 ±0.9% 14.4 ±0.9% 14.0 ±0.9% 
+
+Learned 𝑐 12.9 ±0.9% 12.1 ±0.9% 12.9 ±0.9% 12.5 ±0.9% 13.4 ±0.9% 13.3 ±0.9% 
+
+Uniform ( 𝑐 = 1.1 ) 9.5 ±1.0% 8.6 ±1.0% 8.7 ±1.0% 8.6 ±0.9% 8.4 ±1.0% 8.8 ±0.9% 
+
+Uniform ( 𝑐 = 1.15 ) 11.5 ±1.0% 12.0 ±1.0% 10.2 ±1.0% 9.8 ±1.0% 10.8 ±0.9% 10.5 ±1.0% 
+
+Uniform ( 𝑐 = 1.25 ) 11.6 ±1.0% 11.2 ±1.0% 11.8 ±1.0% 9.9 ±1.0% 11.0 ±1.0% 11.2 ±1.0% 
+
+Uniform ( 𝑐 = 1.5 ) -12.1 ±1.5% -12.6 ±1.5% -11.4 ±1.5% -13.8 ±1.5% -11.3 ±1.5% -11.0 ±1.5% 
+
+19 Learned 16.4 ±0.9% 17.1 ±0.9% 17.3 ±0.9% 16.7 ±0.9% 18.4 ±0.9% 18.8 ±0.9% 
+
+Learned 𝑐 12.1 ±0.9% 12.4 ±0.9% 12.6 ±0.9% 13.0 ±0.9% 13.5 ±0.9% 13.7 ±0.9% 
+
+Uniform ( 𝑐 = 1.1 ) 11.8 ±1.0% 11.3 ±1.0% 11.7 ±1.0% 10.5 ±1.0% 11.1 ±1.0% 11.2 ±1.0% 
+
+Uniform ( 𝑐 = 1.15 ) 7.3 ±1.1% 8.3 ±1.1% 6.9 ±1.2% 6.6 ±1.1% 7.6 ±1.1% 6.6 ±1.1% 
+
+Uniform ( 𝑐 = 1.2 ) -4.0 ±1.4% -5.9 ±1.4% -5.4 ±1.4% -4.9 ±1.4% -5.0 ±1.4% -5.2 ±1.4% 
+
+39 Learned 18.7 ±𝟎.𝟗% 19.1 ±𝟎.𝟗% 20.0 ±𝟎.𝟗% 21.0 ±𝟎.𝟖% 21.1 ±𝟎.𝟗% 21.8 ±𝟎.𝟗% 
+
+Learned 𝑐 12.1 ±0.9% 12.0 ±0.9% 13.1 ±0.9% 12.4 ±0.9% 13.7 ±0.9% 13.2 ±0.9% 
+
+Uniform ( 𝑐 = 1.05 ) 12.3 ±1.0% 10.9 ±1.0% 12.2 ±1.0% 10.8 ±1.0% 11.0 ±1.0% 11.4 ±1.0% 
+
+Uniform ( 𝑐 = 1.1 ) -9.9 ±1.5% -8.9 ±1.5% -8.8 ±1.5% -9.7 ±1.5% -9.5 ±1.5% -9.5 ±1.5% 
+
+Table 5: OU process: percentage reduction in mean KS with two-sided 90% normal confidence intervals, at each budget, for the learned allocation, Uniform-𝑐 , and Learned-𝑐 .
+
+Split points Allocation 100k 200k 500k 1M 2M 5M 9 Learned 17.3 ±1.0% 18.2 ±1.0% 19.9 ±1.0% 20.0 ±0.9% 18.5 ±1.0% 21.2 ±0.9% 
+
+Learned 𝑐 16.1 ±1.0% 18.0 ±1.0% 20.0 ±1.0% 18.9 ±1.0% 18.4 ±1.0% 20.5 ±0.9% 
+
+Uniform ( 𝑐 = 1.1 ) 10.6 ±1.0% 10.9 ±1.0% 11.5 ±1.0% 10.9 ±1.0% 11.0 ±1.0% 12.1 ±1.0% 
+
+Uniform ( 𝑐 = 1.15 ) 13.9 ±1.0% 14.2 ±1.0% 16.2 ±1.0% 15.5 ±1.0% 14.7 ±1.0% 15.0 ±1.0% 
+
+Uniform ( 𝑐 = 1.25 ) 19.6 ±1.0% 19.5 ±1.0% 20.7 ±1.0% 20.8 ±0.9% 20.7 ±0.9% 20.7 ±1.0% 
+
+Uniform ( 𝑐 = 1.5 ) 24.9 ±1.0% 25.0 ±1.0% 25.3 ±1.0% 24.0 ±1.0% 23.5 ±1.0% 25.1 ±1.0% 
+
+19 Learned 19.4 ±1.0% 20.3 ±0.9% 22.0 ±1.0% 21.6 ±1.0% 22.2 ±0.9% 22.3 ±0.9% 
+
+Learned 𝑐 17.1 ±1.0% 18.1 ±1.0% 19.2 ±1.0% 19.1 ±1.0% 19.2 ±1.0% 21.0 ±0.9% 
+
+Uniform ( 𝑐 = 1.1 ) 18.2 ±1.0% 18.7 ±1.0% 19.7 ±1.0% 18.5 ±1.0% 19.0 ±1.0% 20.1 ±0.9% 
+
+Uniform ( 𝑐 = 1.15 ) 24.0 ±0.9% 23.0 ±0.9% 24.5 ±0.9% 23.7 ±0.9% 23.5 ±0.9% 24.0 ±0.9% 
+
+Uniform ( 𝑐 = 1.2 ) 25.0 ±0.9% 25.6 ±0.9% 26.9 ±0.9% 25.0 ±0.9% 24.7 ±1.0% 26.1 ±0.9% 
+
+39 Learned 20.9 ±1.0% 23.0 ±0.9% 24.6 ±1.0% 23.6 ±0.9% 23.8 ±0.9% 26.2 ±0.9% 
+
+Learned 𝑐 16.2 ±1.0% 17.6 ±1.0% 19.7 ±1.0% 20.3 ±1.0% 19.2 ±1.0% 21.0 ±0.9% 
+
+Uniform ( 𝑐 = 1.05 ) 19.3 ±1.0% 19.7 ±0.9% 20.5 ±1.0% 20.3 ±1.0% 19.6 ±0.9% 21.1 ±0.9% 
+
+Uniform ( 𝑐 = 1.1 ) 25.4 ±𝟏.𝟎% 26.2 ±𝟎.𝟗% 27.1 ±𝟏.𝟎% 26.2 ±𝟏.𝟎% 26.2 ±𝟎.𝟗% 26.5 ±𝟎.𝟗% 
+
+Table 6: Overdamped Langevin: percentage reduction in mean KS with two-sided 90% normal confidence intervals, at each budget, for the learned allocation, Uniform-𝑐 , and Learned-𝑐 .
+
+42 Split points Allocation 100k 200k 500k 1M 2M 5M 9 Learned 12.5 ±0.9% 18.0 ±0.8% 19.0 ±0.7% 19.3 ±0.7% 19.2 ±0.6% 18.0 ±0.6% 
+
+Learned 𝑐 16.7 ±0.8% 18.2 ±0.8% 18.4 ±0.7% 19.4 ±0.7% 18.8 ±0.6% 17.5 ±0.6% 
+
+Uniform ( 𝑐 = 1.1 ) 8.3 ±0.9% 8.5 ±0.9% 8.7 ±0.8% 8.0 ±0.8% 7.2 ±0.7% 6.6 ±0.7% 
+
+Uniform ( 𝑐 = 1.15 ) 12.0 ±0.8% 12.1 ±0.8% 10.8 ±0.8% 11.2 ±0.8% 10.4 ±0.7% 9.4 ±0.7% 
+
+Uniform ( 𝑐 = 1.25 ) 16.9 ±0.8% 16.9 ±0.8% 15.6 ±0.7% 15.7 ±0.7% 14.5 ±0.7% 13.3 ±0.6% 
+
+Uniform ( 𝑐 = 1.5 ) 22.8 ±𝟎.𝟕% 22.2 ±0.7% 20.3 ±0.7% 20.3 ±𝟎.𝟕% 19.4 ±0.6% 17.5 ±0.6% 
+
+19 Learned 17.9 ±0.8% 18.5 ±0.7% 19.6 ±0.7% 19.7 ±0.7% 19.4 ±0.6% 18.6 ±0.6% 
+
+Learned 𝑐 16.2 ±0.8% 17.2 ±0.8% 17.8 ±0.7% 18.8 ±0.7% 17.3 ±0.6% 17.0 ±0.6% 
+
+Uniform ( 𝑐 = 1.1 ) 14.6 ±0.8% 15.5 ±0.8% 14.4 ±0.7% 13.8 ±0.7% 13.3 ±0.7% 11.8 ±0.7% 
+
+Uniform ( 𝑐 = 1.15 ) 19.0 ±0.8% 18.4 ±0.8% 18.1 ±0.7% 17.6 ±0.7% 16.7 ±0.7% 15.0 ±0.6% 
+
+Uniform ( 𝑐 = 1.2 ) 21.8 ±0.7% 21.1 ±0.7% 20.3 ±0.7% 19.6 ±0.7% 18.8 ±0.6% 17.1 ±0.6% 
+
+39 Learned 18.0 ±0.8% 19.5 ±0.7% 19.6 ±0.7% 20.3 ±0.7% 19.6 ±0.6% 18.8 ±𝟎.𝟔% 
+
+Learned 𝑐 15.9 ±0.8% 17.4 ±0.8% 18.5 ±0.7% 19.2 ±0.7% 18.3 ±0.6% 17.8 ±0.6% 
+
+Uniform ( 𝑐 = 1.05 ) 15.1 ±0.8% 15.4 ±0.8% 14.8 ±0.7% 14.1 ±0.7% 13.6 ±0.7% 12.4 ±0.6% 
+
+Uniform ( 𝑐 = 1.1 ) 21.5 ±0.7% 22.4 ±𝟎.𝟕% 21.1 ±𝟎.𝟕% 20.2 ±0.7% 19.7 ±𝟎.𝟔% 17.3 ±0.6% 
+
+Table 7: EDM Gaussian mixture: percentage reduction in mean KS with two-sided 90% normal confidence intervals, at each budget, for the learned allocation, Uniform-𝑐 , and Learned-𝑐 .
+
+43 Split points Allocation 50k 100k 200k 500k 1M 9 Learned 10.0 ±𝟏.𝟏% 10.5 ±𝟏.𝟏% 10.7 ±1.5% 12.8 ±𝟏.𝟒% 9.7 ±1.5% 
+
+Learned 𝑐 9.1 ±1.3% 10.0 ±1.6% 10.7 ±1.6% 11.6 ±1.3% 10.6 ±1.5% 
+
+19 Learned 10.0 ±1.2% 10.5 ±1.3% 11.8 ±𝟏.𝟐% 10.7 ±1.3% 11.2 ±1.5% 
+
+Learned 𝑐 8.3 ±1.3% 8.8 ±1.3% 11.1 ±1.4% 11.0 ±1.3% 11.3 ±𝟏.𝟑% 
+
+39 Learned 7.8 ±1.2% 8.1 ±1.5% 10.2 ±1.3% 9.4 ±1.4% 10.0 ±1.2% 
+
+Learned 𝑐 5.6 ±1.2% 8.3 ±1.2% 9.9 ±1.2% 10.0 ±1.5% 10.0 ±1.2% 
+
+Table 8: CIFAR-10 DDPM: percentage reduction in mean MMD with two-sided 90% normal confidence intervals, at each budget, for the learned allocation and Learned-𝑐 .
+
+44

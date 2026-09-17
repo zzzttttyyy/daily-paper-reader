@@ -1,0 +1,54 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-17T12:13:34.273622+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.12513v1",
+      "source": "arxiv",
+      "title": "A Splitting Method for SDE Terminal-Law Estimation",
+      "abstract": "In many settings involving stochastic differential equations, including in diffusion based generative AI, our aim is to accurately generate samples from a terminal distribution. Typically, this is done by generating i.i.d. samples of diffusion paths. Given a fixed simulation budget, a reasonable way to gain efficiency may be to instead generate a tree of paths through appropriately split partial paths. This suggests improved performance, but one worries about the injected dependence. In this paper, we study this issue comprehensively. With Kolmogorov-Smirnov distance as a measure of accuracy, we identify the limiting errors of the associated empirical distributions as the simulation budget increases to infinity. We characterize a splitting strategy motivated by a corresponding asymptotic optimization problem. The theoretical results bring out the elegant underlying structure in the problem. Practical implementation involves two phases, an initial estimation phase and a final inference phase. Overall, we observe a 10-25% improvement in mean error over i.i.d. samples in many settings. In an exploratory CIFAR-10 study, our method reduces the maximum mean discrepancy by 8-13%.",
+      "authors": [
+        "Rushil Gupta",
+        "Sandeep Juneja"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-09-11T07:20:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.12513v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free efficient sampling for diffusion generative models",
+      "llm_evidence_cn": "面向扩散生成的免训练高效采样",
+      "llm_evidence": "面向扩散生成的免训练高效采样",
+      "canonical_evidence": "面向扩散生成的免训练高效采样",
+      "llm_tldr_en": "A splitting method is proposed for SDE terminal-law estimation in diffusion generative AI: instead of i.i.d. path sampling, trees of split partial paths are generated, with limiting errors characterized via Kolmogorov-Smirnov distance and a principled splitting strategy derived.",
+      "llm_tldr_cn": "扩散生成模型常需从随机微分方程的终端分布中采样，传统做法在固定模拟预算下生成独立同分布路径，效率有限。本文提出对部分路径进行分裂以形成路径树，从而在相同预算下获得更高精度，并以Kolmogorov-Smirnov距离刻画经验分布的极限误差，分析了分裂引入的相关性影响。研究给出了一种有理论依据的分裂策略，为免训练的扩散采样效率优化提供了新思路。",
+      "llm_tldr": "扩散生成模型常需从随机微分方程的终端分布中采样，传统做法在固定模拟预算下生成独立同分布路径，效率有限。本文提出对部分路径进行分裂以形成路径树，从而在相同预算下获得更高精度，并以Kolmogorov-Smirnov距离刻画经验分布的极限误差，分析了分裂引入的相关性影响。研究给出了一种有理论依据的分裂策略，为免训练的扩散采样效率优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
