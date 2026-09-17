@@ -6,24 +6,40 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-08 ~ 2026-09-17
-- 运行时间：2026-09-17 12:15:23 UTC
+- 最新运行日期：2026-09-17
+- 运行时间：2026-09-17 22:27:22 UTC
 - 运行状态：成功
-- 本次总论文数：1
-- 精读区：0
-- 速读区：1
+- 本次总论文数：6
+- 精读区：4
+- 速读区：2
 
 ### 今日简报（AI）
-2026-09-08至09-17日报：本期仅速读1篇，精读0篇，聚焦SDE终端律估计的拆分方法。最值得看的是《A Splitting Method for SDE Terminal-Law Estimation》（7.0/10），它用拆分思路处理随机微分方程的终端分布估计，适合关注SDE数值方法的读者。若你只想快速了解，建议先读这篇的摘要与方法框架，确认是否与自己的随机模拟或密度估计需求相关。
-- 详情：[/20260908-20260917/README](/20260908-20260917/README)
+1) 今日6篇精选、4精读2速读，9分双雄领跑扩散模型效率与噪声控制。
+2) 最值得看《Efficient Text-to-Image Generation》的自适应步调度，以及《Spatially Adaptive Noise Injection》的空间自适应噪声注入。
+3) 普通读者可先读这两篇9分精读，理解扩散模型如何更省步数、更精准生成，再速
+- 详情：[/202609/17/README](/202609/17/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [Efficient Text-to-Image Generation: An Adaptive Step Schedule Controller for Diffusion Models](/202609/17/2609.16572v1-efficient-text-to-image-generation-an-adaptive-step-schedule-controller-for-diffusion-models)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：无需额外训练的文本到图像自适应步数调度
+2. [Spatially Adaptive Noise Injection](/202609/17/2609.18466v1-spatially-adaptive-noise-injection)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练空间自适应噪声注入采样
+3. [Accelerating Diffusion Sampling via Speculative Draft Trees](/202609/17/2609.17691v1-accelerating-diffusion-sampling-via-speculative-draft-trees)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：通过推测草稿树加速扩散采样并减少目标评估
+4. [Copy What Is Seen, Generate What Is Not: Training-Free Anomaly-Aware Video Restoration](/202609/17/2609.18836v1-copy-what-is-seen-generate-what-is-not-training-free-anomaly-aware-video-restoration)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：基于冻结预训练扩散模型的免训练视频修复
 
 ### 速读区论文标签
-1. [A Splitting Method for SDE Terminal-Law Estimation](/20260908-20260917/2609.12513v1-a-splitting-method-for-sde-terminal-law-estimation)  
-   标签：评分：7.0/10、query:tfree-diff
-   evidence：面向扩散生成的免训练高效采样
+1. [Interpreting Object-Dependent Concept Brittleness in Text-to-Image Diffusion Models](/202609/17/2609.09909v1-interpreting-object-dependent-concept-brittleness-in-text-to-image-diffusion-models)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：文生图扩散模型失败模式分析与纠正
+2. [SlotDiT: Object-Centric Representations for Diffusion Transformers](/202609/17/2609.17414v1-slotdit-object-centric-representations-for-diffusion-transformers)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：用于视频生成的扩散Transformer
 
 
 <div class="dpr-home-promo-card">

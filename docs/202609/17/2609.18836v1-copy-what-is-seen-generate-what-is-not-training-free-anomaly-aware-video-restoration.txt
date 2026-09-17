@@ -1,0 +1,445 @@
+Title: Copy What Is Seen, Generate What Is Not: Training-Free Anomaly-Aware Video Restoration
+
+URL Source: https://arxiv.org/pdf/2609.18836v1
+
+Published Time: Thu, 17 Sep 2026 01:24:01 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# Copy What Is Seen, Generate What Is Not: Training-Free Anomaly-Aware Video Restoration 
+
+## Zhida Qu 1 Shengchao Chen 2,*
+
+> 1
+
+Department of Computer Science and Engineering, Tandon School of Engineering, New York University 
+
+> 2
+
+Australian AI Institute, University of Technology Sydney  
+
+> zq2195@nyu.edu shengchao.chen.uts@gmail.com
+
+## Abstract 
+
+A surveillance system that detects an anomaly often has to repair the footage as well, yet the two tasks are studied in isolation: training-free anomaly detectors stop at a score or a label, while training-free video editing answers to a user prompt rather than to a detector. This paper proposes AVR (Anomaly-aware Video Restoration), which closes that gap with frozen pretrained models alone and generates con-tent only where the clip offers no evidence to copy. Motion evidence first gates open-vocabulary proposals into spatio-temporal masks. A background prior computed from the clip then fills every pixel the anomaly ever uncovers, leaving diffusion to synthesize only what no frame showed, and a frozen verifier decides per clip whether to trust a classical, a prior-anchored, or a background-conditioned restorer. Ex-tensive experiments on three surveillance datasets, under both full-reference anomaly injection and real anomalies, show that AVR leads full-frame fidelity under oracle masks, matches three trained video inpainters inside the edited re-gion, and outperforms a detect-then-generate pipeline on the masks it produces itself, while suppressing both the residual anomaly and the flicker of free diffusion. 
+
+## 1. Introduction 
+
+Video anomaly detection (VAD) is a core component of intelligent surveillance, elderly-care, and industrial-safety systems [19, 23]. Over the past decade it has progressed from reconstruction- and prediction-based deep models [2, 4] to, most recently, paradigms built on vision–language and multimodal large language models [1, 42]. In paral-lel, diffusion-based video generation and inpainting have reached a quality level at which detected anomalous content can, in principle, be removed and plausibly restored rather than merely flagged [16, 21]. A system that both detects and repairs anomalies must bring the two together. 
+
+> *Corresponding author.
+
+Each capability already exists on its own, and only the interface between them is missing. Detection has become training-free through language-model reasoning [42, 44] or embedding geometry [14], and recent pipelines localize anomalies down to pixel level [7, 15], yet the output ends at a score or a mask while the anomaly stays in the video (Fig. 1a). Editing is training-free as well, from per-video tuning [41] to inference without any optimization [16], but every edit is steered by a prompt or a reference, so a person still decides what to change and where (Fig. 1b). Video in-painting [22, 45] is closest, since flow-guided propagation already exploits frames where the background is visible, yet it starts from a mask that some other system must supply, and it treats every pixel as equally unknown. Chaining the two components, however, fails in three ways (Fig. 1c). First, a detector reports a score or a box rather than a region a generator can act on, so given the whole frame it rewrites parts that were never anomalous. Second, even with the right region, the generator has no reason to reproduce the background it occludes, and no con-straint links what it invents in one frame to the next. Third, any repair that requires collecting footage and fine-tuning a model for the scene is unavailable in exactly the setting that motivates the task, where anomalies are rare. All three share one cause: the information that would resolve them is already present in the clip, yet each stage of the existing chain discards it before the next stage can use it. To address these challenges, this paper proposes AVR (Anomaly-aware Video Restoration), a training-free frame-work that connects anomaly detection to anomaly-guided restoration using only frozen pretrained models, and that falls back on generation only where the clip provides no ev-idence to copy (Fig. 1d). Specifically, an anomaly-aware localization module gates open-vocabulary grounding by motion evidence, so proposals survive only where the video supports them. A conditional restoration module then fills the masked regions from a temporal-median background prior and mask-conditioned diffusion, and a frozen veri-1arXiv:2609.18836v1 [cs.CV] 16 Sep 2026 (a) Detect only 
+
+> Training-free Anomaly Detection time t
+
+⋮
+
+> time t+T Detector Predicted Anomaly Mask
+
+⋯
+
+> Anomaly is localized. The localization is never used
+
+(b) Edit on Request 
+
+> Training-free Video Editing
+> time t
+
+⋮
+
+> time t+T
+> "remove the object"
+> Generative Editing Model
+> Edited Video (Per Frame)
+> The region comes from a person, not from the video
+
+(c) Detect, then Generate 
+
+> Detector Chained to Unconstrained Diffusion time t
+
+⋮
+
+> Available, NOT Consulted
+> Generative Prior Generated (Per Frame) Content is invented per frame, So it changes across the clip
+
+(d) Detect, then Restore from Evidence (Ours, this paper) 
+
+> time t
+
+⋮    
+
+> time t+T Seen in other frames →Copied from clip
+> Never Seen
+> →
+> Generated
+> Evidence from Other Frames
+> Generative Prior Restored (Per frame)
+> The generation is confined to what the clip never observed
+> Evidence Read off This Clip Content Produced by Generation Information Available but Discarded
+> Anomaly Score
+
+⋯
+
+> Detector Detector
+> Human Instruction
+
+Figure 1. Comparison with existing paradigms. (a) Detection localizes and stops, (b) editing needs a person to supply the region, and (c) chaining the two fills from a generative prior alone. (d) AVR copies every pixel seen elsewhere and generates only what no frame observed. 
+
+fier selects per clip among classical, prior-anchored and background-conditioned restorers. The two modules form an end-to-end detect-and-restore pipeline with no dataset-specific training or fine-tuning. Our contributions are: • We propose AVR, which turns detected anomalies di-rectly into restored video at inference time, with every component of it a frozen public checkpoint. • We design an anomaly-aware localization module that gates open-vocabulary proposals by motion evidence, with a fallback that keeps static anomalies detectable. • We design a conditional restoration module that anchors diffusion to a background prior and selects per clip among classical, prior-anchored and background-conditioned re-storers with a single frozen, reference-free verifier. • Experiments on three surveillance benchmarks and real anomalies validate AVR against trained video inpainters and detect-then-generate pipelines, under both oracle masks and the detected masks AVR itself produces. 
+
+## 2. Related Work 
+
+Training-Free Video Anomaly Detection. Classical VAD trains reconstruction- or prediction-based models on normal data [1], from autoencoders that learn temporal reg-ularity [13] and memory modules that refuse to reconstruct unseen patterns [10] to predictors scored by forecast er-ror [25], and ranks snippets under multiple-instance su-pervision where only video-level labels exist [37]. Re-cent work instead reuses frozen foundation models [3, 5]: LAVAD [42] chains a captioner and a large language model to score anomalies without target-dataset train-ing, AnomalyAgent [44] brings agentic reasoning to zero-/few-shot detection beyond video, and SphereVAD [14] performs geodesic inference on hypersphere embeddings, while resource-aware variants target edge deployment [19, 20]. Two recent pipelines push past scoring to pixel-level output, TAO [15] by recasting detection as SAM2 track-ing of anomalous objects and LAVIDA [7] by training a SAM-initialized mask decoder on pseudo-anomalies so that no anomaly data is needed. Localization without target-domain labels is therefore within reach, through a tracker, a trained decoder or frozen checkpoints alone. Every one of these systems stops at finding the anomaly, however, and none of them repairs the footage it has flagged. 
+
+Training-Free Video Editing. Video editing has shifted from per-video optimization [41] to tuning-free inference: Text2Video-Zero [16] turns image diffusion models into zero-shot video generators, FateZero [31] and Token-Flow [9] carry attention maps and diffusion features across frames, and AnyV2V [18] generalizes it to broad video-to-video tasks. All are steered by a prompt or a reference edit, so what to change, and where, still rests with a person. 
+
+Video Inpainting. Given a mask, video inpainting fills it coherently across time. Before learned models, region filling copied exemplar patches under a confidence-driven ordering [6], extended to space-time patches so that miss-ing content was borrowed rather than invented [40]. Flow-guided propagation now dominates: E2FGVI [22] makes flow completion, feature propagation and content halluci-nation end-to-end trainable, and ProPainter [45] strength-ens propagation with dual-domain features and a mask-guided sparse transformer. Diffusion has since reached the same task, either by resampling a frozen denoiser inside the 2Table 1. Comparison of method families along the two inputs a detect-and-restore system requires. Content follows the colour code of Fig. 1: Y pixels copied from other frames of the same clip, # pixels produced by a generative prior rather than observed.                                                  
+
+> Method Region Content Train Temporal model
+> Detect  LAVAD [42] ÛDetector —✗—SphereVAD [14] ÛDetector —✗—
+> Edit  T2V-Zero [16] User #✗Attention TokenFlow [9] User #✗Feature prop.
+> Inpaint  E2FGVI [22] §Given Y # ✓Learned prop. ProPainter [45] §Given Y # ✓Learned prop. DiffuEraser [21] §Given Y # ✓Learned prop. OmnimatteZero [35] §Given #✗Layer decomp.
+> AVR (Ours) ÛDetector Y→#✗Noise +flow blend
+
+mask [27] or by training for it: DiffuEraser [21] injects a propagated prior into a video diffusion model, FloED [12] adds a flow branch and a flow-attention cache to cut the cost of doing so, and OmnimatteZero [35] removes objects training-free by reusing a pretrained one, at a compute cost that is itself an active concern [36]. Inference-time guidance keeps the weights frozen and instead steers the sampling trajectory, as GradPaint [11] does by backpropagating a co-herence loss against the known region at every denoising step. Table 1 places these methods alongside the two fam-ilies above, where no prior entry both finds its own region and distinguishes the content it puts there: those that pro-duce content receive the region from elsewhere, and those that find a region produce none. AVR does both, deriving its region from motion-gated detection and then dividing that region by evidence rather than filling it uniformly. 
+
+## 3. Methodology 
+
+Problem Formulation. Given a video X = {x1, . . . , x n}
+
+with frames xi ∈ RH×W ×3, we seek a training-free map-ping from the observed video to its restored counterpart, 
+
+X′ = G X, D(X), (1) where the anomaly-aware localization module D outputs a spatio-temporal mask M = {m1, . . . , m n}, mi ∈{0, 1}H×W , and the conditional restoration module G re-places the masked content while preserving unmasked pix-els. Both reuse frozen pretrained parameters. Two proper-ties shape what G can be. It must operate without a refer-ence , since at inference the clean video behind the anomaly does not exist, and the region it edits is not homogeneous: writing U = {p : ∃ i, mi(p) = 1 } for the pixels the anomaly ever occupies, part of U is visible in some other frame of the clip and the rest is not: 
+
+Uobs = {p ∈ U : ∃ i, m i(p) = 0 }, Ugen = U \ Uobs .
+
+(2) Only Ugen has to be invented, since Uobs can be recovered from observation. Restorers that propagate across frames exploit part of Uobs implicitly, but none makes the split ex-plicit or conditions the choice of restorer on it. The split is the exact boundary of what observation determines. 
+
+Proposition 1. Fix the masks, let U̸ = ∅, and let the un-masked observations on U agree with a background that is constant in time, with each channel in [0 , r ]. Among all esti-mators that read only unmasked pixels, the smallest worst-case mean squared error on U , summed over the three chan-nels, equals 34 r2 |Ugen |/|U |, and it is attained by copying each pixel of Uobs from a frame where it is unmasked and returning the midpoint of the range on Ugen .Proof. The estimator is exact on Uobs , since every un-masked frame reports the same background there, and on 
+
+Ugen each channel lies in [0 , r ], so the midpoint is off by at most r/ 2 and the squared error per pixel is at most 34 r2. For the lower bound, fix any estimator and let the backgrounds 
+
+b(0) and b(1) agree with the observation on Uobs while taking the values 0 and r on every channel of Ugen . Both induce the same observation, so the estimator returns a single ˆb for the two, and t2 + ( t − r)2 ≥ r2/2 gives 
+
+R(ˆb, b (0) ) + R(ˆb, b (1) ) ≥ 32 r2 |Ugen |/|U |,
+
+so the worse of the two matches the upper bound. Both degenerate cases follow at once, since one of the two sums over U is then empty and the argument is unchanged. A copy is therefore provably exact on Uobs , whereas on 
+
+Ugen a prior is all that remains, and the ratio itself is fixed by the anomaly rather than by any choice of restorer. 
+
+Corollary 1. Enlarging the set of frames leaves |Ugen |/|U |
+
+non-increasing, so the bound of Prop. 1 never worsens with a longer clip. If an object occludes the same pixels through-out the window, however, the ratio stays at one for every sub-window, and a longer clip changes nothing. 
+
+Any frame that leaves a pixel unmasked moves it from 
+
+Ugen to Uobs and never back, so the ratio can only fall, whereas an object that is never once uncovered leaves Uobs 
+
+empty for every sub-window of the given clip. 
+
+Overview. Fig. 2 shows the workflow. Stage one grounds an anomaly prompt on every frame and keeps only the pro-posals that motion evidence supports, which turns a detector output into the spatio-temporal mask M . Stage two com-putes a background prior from the clip itself, fills M from that prior wherever the clip ever exposed the pixel and from diffusion on the remainder that Prop. 1 shows no estima-tor can recover, blends each restored frame against its flow-warped predecessor, and lets a frozen verifier choose among 3Step 1 Motion-Gated Localization 
+
+Input Video X 
+
+> …
+> (clip)
+
+Grounding DINO ❄  
+
+> Prompt: "an unusual object…" conf ≥ τ
+> …
+> Detected Boxes
+> No Motion in Clip →Ungated
+
+Motion gate τₘ 
+
+> ≥ τ ₘ
+> keep box if motion overlap ≥ τ
+> ₘSurviving Boxes
+
+SAM ❄
+
+> Converts Boxes to Mask
+> …
+
+Mask M   
+
+> …
+> (Dilated Union Mask)
+> Temporal-median motion mask
+> |x ₜ−median ₜ(x)| > 3 σ
+
+Step 2· Verifier-Selected Restoration 
+
+Mask M 
+
+> …
+> (From Step 1)
+
+Video X 
+
+> …
+> (Original Clip)
+
++        
+
+> More Evidence More Generation
+> Flow Field Flow-guided Propagation
+> Classical (Flow-guided Fill)
+> Flow Field Classical Fill Partial Noise (Strength s)
+> Prior-anchored ❄
+> classical fill, then diffusion at strength s < 1
+> Background Median Never-observed Region
+> Diffusion in Never-observed region
+> BG-Diffusion ❄
+> Frozen Verifier ❄
+> w∈[0, 1] balances the two criteria
+> winner (argmin)
+
+Restored video X ′     
+
+> …
+> Unmasked Pixels Preserved Exactly
+> Background prior
+> per-pixel temporal median over frames where the pixel is unmasked
+> Frozen Pretrained Model Evidence Read Off this Clip Our decision logic Data flow Optional / fallback
+> Per-clip Computation
+> Warp Error CLIP Residual
+> w * Warp Error +(1 - w) * CLIP Residual Argmin
+
+Figure 2. The AVR pipeline. Step 1 turns a detection into the mask M , keeping open-vocabulary boxes only where motion measured on the clip corroborates them. Step 2 turns M back into video, running three restorers ordered from copying observed pixels to synthesising never-observed ones and letting a frozen verifier pick one per clip. Pixels outside M are untouched, and no component is trained. 
+
+the candidates. Neither stage fits a parameter to the target scene, so the only quantity that changes from clip to clip is the evidence that is contained in the clip itself. 
+
+Anomaly-Aware Localization. Anomalies are open-ended by definition, so the detector cannot be a closed-set classifier. For each frame xi, an open-vocabulary de-tector (Grounding DINO [24]) grounds a fixed anomaly prompt P and keeps boxes above a confidence threshold 
+
+τ , Bi = {b : conf( b) ≥ τ }. A promptable segmenter (SAM [17]) converts the boxes into pixel masks, whose union, after dilation ρδ , forms the frame mask 
+
+mi = ρδ
+
+ S
+
+b∈B i SAM( xi, b )
+
+
+
+, (3) with mi = 0 when no box survives. Open-vocabulary grounding alone is noisy on surveillance footage, firing on benign scene structure. We therefore gate proposals by motion evidence : a temporal-median background subtrac-tion marks every pixel whose deviation exceeds the frame’s mean deviation by κ standard deviations, and a box is kept only if at least a fraction τm of its area is covered by that motion mask. A clip with no motion evidence anywhere falls back to ungated detection, so gating can shrink a mask but never empty one. Gating keeps the promptable, open-world interface of grounding intact, while discarding each proposal that the video itself does not support. 
+
+Background-Conditioned Restoration. The clip itself provides a strong prior for what the occluded background should look like. We form a background image ¯B by tak-ing, at every pixel, the temporal median over the frames where that pixel is not masked. Writing u for the indicator of Ugen in Eq. (2), the pixels observed in no frame at all, the restoration composites three sources: 
+
+ˆxi = (1 − mi) ⊙ xi + mi ⊙ (1 − u) ⊙ ¯B + u ⊙ G diff (ci, u ),
+
+(4) where ci = (1 − mi) ⊙ xi + mi ⊙ ¯B is the frame with the prior already composited into the mask and Gdiff is a frozen inpainting diffusion model (Stable Diffusion inpaint-ing, built on latent diffusion [34]) run under a neutral back-ground prompt. Every pixel the clip ever exposes is copied from ¯B, and open-ended generation is invoked only on the set where, by Prop. 1, no estimator could do better. 
+
+Prior-Anchored Refinement. Copying alone fails when the exposed background is only partly observed, and free generation ignores what was observed. A third restorer sits between the extremes: we fill the mask with a flow-guided classical operator in the spirit of exemplar-based comple-tion [6], then run diffusion on that fill at strength s < 1, so sampling starts from a partially noised classical fill rather than pure noise [30]. Diffusion then refines an existing es-timate instead of inventing one. DiffuEraser [21] learns the 4Table 2. Restoration under oracle masks. PSNR reg is measured inside the anomaly region, bold for best and underlined for second best.                                                                                                                  
+
+> CUHK Avenue UCSD Ped2 ShanghaiTech Method PSNR ↑PSNR reg ↑LPIPS ↓FVD ↓PSNR ↑PSNR reg ↑LPIPS ↓FVD ↓PSNR ↑PSNR reg ↑LPIPS ↓FVD ↓
+> Classical (Spatial) 39.76 18.79 0.008 5.86 48.84 27.96 0.004 2.78 52.09 31.22 0.004 1.97 Classical (Flow) 40.36 19.50 0.007 6.12 49.31 28.61 0.004 2.51 51.88 31.26 0.004 2.30 ProPainter [45] 43.73 25.34 0.004 0.64 50.56 32.08 0.004 0.49 53.88 35.21 0.003 0.64 E2FGVI [22] 45.97 27.34 0.004 0.57 51.90 33.33 0.004 0.53 55.26 36.41 0.004 0.67 FloED [12] 45.39 26.19 0.005 0.77 51.00 32.47 0.004 0.51 54.35 35.95 0.004 0.76 DiffuEraser [21] 31.98 12.40 0.037 8.98 34.28 14.01 0.056 15.64 36.22 16.91 0.084 20.22 OmnimatteZero [35] 31.74 11.31 0.038 12.18 32.24 12.13 0.050 15.95 35.23 15.72 0.051 18.62 AVR (Ours) 47.27 27.17 0.004 0.55 52.63 32.61 0.003 0.45 56.98 37.83 0.002 0.56
+
+same anchoring, whereas frozen weights leave this one can-didate among several rather than the fixed answer. 
+
+Verifier-Guided Selection. No single restorer wins on every clip: the classical operator is safest under clean mo-tion, the background prior when the scene is mostly static, and diffusion where no observation exists. Rather than fix-ing this choice at design time, we run all three candidates and let a frozen verifier pick one per clip. We refer to the three as Classical (the flow-guided fill alone), Prior-anchored (that fill refined by diffusion) and BG-diffusion (the background-conditioned fill of Eq. (4)). The veri-fier is reference-free, selecting over the pool with two no-reference signals scored inside the mask: 
+
+k⋆ = arg min  
+
+> k
+
+w eE(k)warp + (1 − w) eR(k)CLIP , (5) where k indexes the pool, w ∈ [0 , 1] balances flow warp-ing error against the mean CLIP [32] anomaly residual in-side the mask, and e· denotes min–max normalization across the pool. The cost is paid at inference rather than in train-ing [28], and neither the candidates nor the verifier has any parameter that is fitted on the target data at any stage. 
+
+Temporal Consistency. Restoring each frame on its own leaves the mask free to change content between neighbours, which reads as flicker. Two mechanisms enforce coherence. First, all frames share a common diffusion noise seed, a lightweight analogue of the correlated noise used in zero-shot video generation [16]. Second, each restored frame is blended, inside the mask, with its predecessor warped for-ward by dense optical flow Wi−1→i (Farneb¨ ack): 
+
+x′ 
+
+> i
+
+= mi ⊙ λ ˆxi + (1 − λ) Wi−1→i(x′
+
+> i−1
+
+) + (1 − mi) ⊙ xi,
+
+(6) for i ≥ 2, with x′ 
+
+> 1
+
+= ˆ x1. The blend weight λ trades spatial fidelity to the current restoration against temporal fidelity to the propagated history, and setting λ=1 removes the blend altogether and restores every frame independently. 
+
+## 4. Experiments and Results 
+
+Implementation Details. We adopt public checkpoints throughout and keep every one of them frozen. Localiza-tion runs Grounding DINO-tiny [24] under the fixed prompt “an unusual object. an anomaly. a foreign object. ” followed by SAM ViT-B [17] or SAM2-hiera-large [33], and restora-tion runs Stable Diffusion v1.5 inpainting [34] at 512 2 with 25 denoising steps and guidance 7.5. A single Farneb¨ ack estimator [8] supplies all optical flow, serving the temporal blend, the warping error and the flow-guided fill alike, while the verifier scores candidates with CLIP ViT-B/32 [32]. We fix τ =0 .25 , τm=0 .35 , κ=3 , s=0 .7, w=0 .5 and λ=0 .5,dilate masks by δ=5 pixels after detection and 7 before inpainting, and implement everything in PyTorch on two NVIDIA RTX A5500 GPUs each with 24 GB of memory. 
+
+Benchmarks and Metrics. Real anomalies come with no clean reference, so we build anomaly-injection bench-marks from the normal portions of CUHK Avenue [26], UCSD Ped2 [29] and ShanghaiTech [25], each holding 60 non-overlapping clips (16 frames, 256 2) split evenly over a static object, a moving object and a local appearance flicker, with the pre-injection clip as reference. Fidelity :full-frame PSNR, SSIM and LPIPS [43], plus PSNR reg in-side the ground-truth region, which covers only ∼0.5–1.2% 
+
+of the frame. Temporal behaviour , which framewise fidelity misses [38]: tLP, Farneb¨ ack warping error, and FVD [39] on R3D-18 Kinetics features, shared by every FVD num-ber here and so not comparable to published I3D values. 
+
+Anomaly removal : Mask IoU, and residual drop (RD), which uses no text prompt and no cropping. Each video supplies its own temporal-median reference, both it and ev-ery frame are cut into a 4×4 grid and embedded with frozen CLIP ViT-B/32 [32], and a cell scores one minus the cosine similarity. With a(V ) the mean of that map inside the re-gion, RD is the relative reduction  a(X) − a(X′)/a (X).Rescoring with DINO preserves every ranking and sign, so RD does not rest on the verifier’s backbone. We also run 20 anomalous ShanghaiTech test clips, which injection cannot cover, under the no-reference measures alone. 5Table 3. End-to-end comparison. The base row chains a per-frame detector with unconstrained inpainting, while ProPainter, E2FGVI and FloED restore the same motion-gated masks as AVR, hence identical Mask IoU. Best per column in bold , second best underlined. 
+
+Benchmark Method PSNR ↑ PSNR reg ↑ SSIM ↑ LPIPS ↓ tLP ↓ FVD ↓ Warp ↓ RD ↑ IoU ↑
+
+CUHK Avenue Grounded-SD (base) 29.00 15.78 0.972 0.048 0.036 46.13 1.93 −1.202 0.097 ProPainter (SAM2 masks) 28.63 13.38 0.974 0.057 0.017 51.32 1.18 −0.117 0.095 ProPainter (gated masks) 32.52 14.63 0.986 0.035 0.012 28.33 1.09 −0.201 0.205 
+
+E2FGVI (gated masks) 33.34 15.05 0.987 0.033 0.014 28.16 1.13 −0.238 0.205 
+
+FloED (gated masks) 32.72 14.89 0.986 0.038 0.016 29.97 1.15 −0.271 0.205 
+
+AVR (Ours) 33.79 15.00 0.988 0.031 0.013 27.07 1.10 +0.123 0.205 
+
+UCSD Ped2 Grounded-SD (base) 33.25 21.53 0.984 0.022 0.043 22.38 1.64 −6.796 0.288 ProPainter (SAM2 masks) 36.54 21.60 0.960 0.075 0.025 30.80 1.14 −1.256 0.299 ProPainter (gated masks) 41.80 25.45 0.995 0.015 0.020 6.04 1.04 −0.685 0.375 
+
+E2FGVI (gated masks) 43.52 26.73 0.995 0.016 0.023 6.70 1.08 −0.763 0.375 
+
+FloED (gated masks) 41.96 25.81 0.995 0.018 0.026 6.34 1.11 −0.806 0.375 
+
+AVR (Ours) 44.00 25.89 0.996 0.013 0.021 5.86 1.03 −0.970 0.375 
+
+ShanghaiTech Grounded-SD (base) 22.23 19.32 0.715 0.381 0.401 134.09 23.36 −14.383 0.119 ProPainter (SAM2 masks) 25.50 16.48 0.831 0.320 0.031 104.61 2.17 −0.648 0.135 ProPainter (gated masks) 38.53 20.88 0.993 0.036 0.013 17.14 0.47 −0.271 0.343 
+
+E2FGVI (gated masks) 39.06 21.94 0.993 0.037 0.015 18.26 0.51 −0.122 0.343 
+
+FloED (gated masks) 38.62 21.70 0.993 0.040 0.016 18.41 0.49 −0.297 0.343 
+
+AVR (Ours) 40.08 22.91 0.994 0.036 0.013 17.37 0.47 +0.255 0.343 Restoration Quality. Table 2 compares restorers under oracle masks, so the trained inpainters ProPainter, E2FGVI and FloED [12] differ from AVR only in how they fill the hole. AVR attains the best full-frame PSNR and FVD on all three benchmarks, and inside the region it leads on Shang-haiTech and stays within a decibel of the strongest trained inpainter elsewhere. Anchoring the fill to the clip’s own observed background therefore matches dedicated training on the pixels it edits. DiffuEraser and OmnimatteZero trail on every metric, exhibiting exactly the content hallucination that this evaluation protocol is built to expose. CUHK Avenue moving object       
+
+> Input Mask Classical ProPainter E2FGVI AVR (ours) Clean ref.
+> UCSD Ped2 moving object
+> UCSD Ped2 static object
+> ShanghaiTech moving object
+> ShanghaiTech appearance
+
+Figure 3. End-to-end restoration under detected masks. All restor-ers share the same motion-gated masks, one median clip per row. 
+
+End-to-End Comparison. Table 3 evaluates the full pipeline with detection included, and Fig. 3 shows the same masks and restorers clip by clip. AVR gains 17.9 dB over the Grounded-Stable-Diffusion (Grounded-SD) base on ShanghaiTech, turns the residual drop positive, and leads ProPainter, E2FGVI and FloED on PSNR and SSIM on every benchmark while alone producing the masks it is scored on. The two ProPainter rows attribute that gain, since motion-gated masks by themselves lift its ShanghaiTech PSNR by 13 dB. Restoration quality therefore follows the evidence that a given mask exposes rather than the raw ca-pacity of whichever restorer happens to fill it. 
+
+Table 4. Ablation study. The SAM2 rows predate the background prior, so their pool holds two restorers instead of three. Bold : the best result, and underlined: the second best.                                      
+
+> CUHK Avenue UCSD Ped2 ShanghaiTech Detector Restorer PSNR ↑RD ↑PSNR ↑RD ↑PSNR ↑RD ↑
+> SAM2 Prior-anchored 27.84 −0.255 34.86 −2.550 23.90 −1.413 SAM2 Selection (2 cand.) 28.59 −0.071 37.25 −1.220 24.79 −0.870 Motion-gated BG-diffusion 33.19 +0.145 43.23 −4.282 39.74 −0.072 Motion-gated Selection (3 cand.) 33.79 +0.123 44.00 −0.970 40.08 +0.255
+
++ Temporal + BG prior + Verifier    
+
+> 024
+> PSNR (dB)
+> +1.4 +4.3 -0.5 +2.6 +3.4 +3.7 +1.5 +4.4 +0.4
+> CUHK Avenue UCSD Ped2 ShanghaiTech
+
+Figure 4. PSNR that each mechanism adds to the preceding stage under oracle masks, from per-frame diffusion onward. 
+
+60.20 0.35 0.50 0.65 0.80  
+
+> blend λ
+> 0.5 0.6 0.7
+> FVD
+
+(a) Blend Weight     
+
+> 0.62 0.52 0.55 0.61 0.68
+> 0.20 0.25 0.30 0.35
+> threshold τ
+> 24 27 30 33
+
+(b) Detector Threshold    
+
+> 24.30 27.07 29.60 31.80
+> 15 25 35 50
+> diffusion steps
+> 0.5 0.6 0.7
+
+(c) Diffusion Steps 
+
+> 0.62 0.55 0.59 0.64
+
+Figure 5. FVD sensitivity on Avenue to blend λ, detector threshold τ and diffusion steps. Panel (b) is measured end to end while (a) and (c) use oracle masks, which puts its FVD an order of magnitude higher. 
+
+Ablations. Table 4 traces the end-to-end gains to their two sources. Motion gating carries fidelity, raising PSNR by 5.2–15.3 dB over the SAM2 detector, while verifier se-lection acts on removal, turning ShanghaiTech RD positive at nearly unchanged PSNR. The two are therefore comple-mentary rather than redundant. Under oracle masks, Fig. 4 separates the restorer’s stages, and the background prior is the largest contributor on every benchmark. 
+
+Detector and Hyperparameters. Table 5 varies the de-tector with the restorer held fixed, including TAO [15], which tracks anomalous objects into a mask. Motion gat-ing leads every alternative on every metric on both bench-marks, so demanding independent motion evidence behind each semantic proposal beats open-vocabulary grounding and tracking alike. Fig. 5 sweeps λ, τ and the diffusion steps, where FVD is minimized near λ ≈ 0.35 while the τ
+
+trend reverses across the three benchmarks, so we keep one shared setting across every run and benchmark. 
+
+Table 5. Detector study with the restoration module held fixed at BG-diffusion. Best per column in bold , second best underlined.                                                  
+
+> CUHK Avenue ShanghaiTech Detector PSNR ↑LPIPS ↓FVD ↓IoU ↑PSNR ↑LPIPS ↓FVD ↓IoU ↑
+> Heuristic 31.07 0.035 20.67 0.177 32.86 0.058 34.63 0.334 Grounded-SAM 30.60 0.045 24.79 0.097 29.15 0.251 95.35 0.119 Grounded-SAM2 30.14 0.050 45.36 0.095 26.84 0.326 121.62 0.128 TAO [15] 32.12 0.038 23.78 0.117 35.59 0.103 25.23 0.257 Motion-gated (ours) 33.19 0.032 20.17 0.205 39.74 0.047 20.47 0.343
+
+Selection Analysis. Fig. 6 shows how the verifier dis-tributes its choices, and the split tracks mask quality rather than dataset. Under oracle masks it picks Classical or Prior-anchored on 35–56% of clips, while under detected masks, which may cover clean background, it retreats to BG-diffusion on 87–93%. The pool is therefore not redun-dant, and the verifier turns conservative exactly when lo-calization is unreliable. Against a per-clip oracle it recovers most of the remaining headroom on Ped2, where it beats ev-ery fixed candidate, and a smaller share on ShanghaiTech, while on Avenue one candidate dominates nearly every clip and leaves little to select. The last row of Fig. 3 shows the residual failure mode, where the classical candidate clears an appearance change that the verifier declines. 0 25 50 75 100   
+
+> Share of clips (%)
+> CUHK Avenue UCSD Ped2 ShanghaiTech
+> 27 33 13 15 23 22 58 43 65
+> Classical Prior-anchored BG-diffusion
+
+Figure 6. Restorer chosen by the frozen verifier, as a share of the 60 oracle-mask clips available in each benchmark. 
+
+Efficiency. Table 6 reports inference cost per 16-frame clip and per frame, with the pipeline split into stages and totals under the same masks. The two diffusion candidates dominate, the verifier adds under four seconds, and AVR runs at roughly 2.4 times its single-restorer variant, while ProPainter is about eight times faster. This is the price of selection, paid at inference rather than training. 
+
+Table 6. Inference cost on CUHK Avenue per 16-frame clip on an RTX A5500, under the same motion-gated masks. Clip medians, warm-up excluded, peak memory in GB.                             
+
+> Sec/clip Sec/frame Peak mem. Detection (Grounding DINO +SAM) 6.81 0.43 9.2 Motion gate 0.05 <0.01 Classical 0.21 0.01 Prior-anchored 19.11 1.19 BG-diffusion 20.74 1.30 Verifier 3.72 0.23 Grounded-SD (base) 25.48 1.59 4.6 ProPainter (gated masks) 7.54 0.47 2.7 AVR (single restorer) 25.84 1.62 4.6 AVR (full) 62.52 3.91 9.2
+
+7Table 7. 20 real ShanghaiTech test anomalies, evaluated without a reference. Flicker is measured inside each pipeline’s own detected region, and “impr.” counts clips whose flicker decreased. 
+
+Flicker ↓ Warp Err. ↓
+
+Pipeline before after before after RD ↑ impr. Grounded-SD (base) 12.77 27.71 0.95 3.22 −0.513 7/20 AVR (Ours) 21.12 3.32 0.95 0.84 +0.721 20/20 
+
+Real Anomalies. Table 7 leaves the injection protocol en-tirely. On 20 genuine ShanghaiTech anomalies AVR cuts flicker in the removed region more than six-fold, brings warping error below the input video’s own, and reaches a positive residual drop, while the base degrades on all three counts. An evidence-anchored fill therefore generalizes to anomalies the protocol never synthesized. Re-running the detector over the restored clips agrees, with the fraction of frames still firing dropping from 1.00 to 0.42. 
+
+Failure Analysis. Fig. 7 splits RD by anomaly type and locates every negative number in the paper. Moving objects and local appearance changes are removed cleanly on all benchmarks, while static objects are negative everywhere. The cause is structural: a static object occludes the same pixels in every frame, so Ugen grows to fill U in Eq. (2) and Eq. (4) degenerates to unconstrained generation, which is Prop. 1 at |Ugen |/|U | = 1 . Detection shows the same asymmetry, since most clips with no surviving proposal are static objects, which supply neither the motion evidence that admits them nor the observations to repair them. Moving object Local appearance Static object   
+
+> 1.0
+> 0.5
+> 0.0 0.5 1.0
+> Residual drop  0.55 0.13 -0.31 0.61 0.26 -3.78 0.86 0.32 -0.41
+> CUHK Avenue UCSD Ped2 ShanghaiTech
+
+Figure 7. Residual drop by anomaly type, end to end on all three benchmarks, with the axis truncated at −1.15 .
+
+Case Study. Fig. 8 places AVR beside ProPainter on iden-tical detected masks with a clean reference. A moving ob-ject exposes its background in other frames and the prior recovers it outright, an appearance change is only partly re-versed by either restorer, and a static object by neither, since half of it falls outside the mask and none is ever uncovered. Fig. 9 turns to real anomalies, where per-frame diffusion re-moves a cyclist but invents a pedestrian in one frame and a potted plant twelve later, while AVR keeps the walkway stable. Each hallucination is locally plausible, the failure full-frame metrics miss and region scoring catches. UCSD Ped2 moving object     
+
+> Input Mask ProPainter
+> 34.5
+> AVR (Ours)
+> 55.2
+> Clean ref.
+> CUHK Avenue local appearance
+> 16.7 19.0
+> CUHK Avenue static object
+> 8.5 8.0
+
+Figure 8. Case study on injected anomalies, with ProPainter and AVR restoring identical detected masks. Numbers give the region PSNR in decibels obtained on that one particular clip. Input (real anomaly) Per-frame diffusion AVR (ours)       
+
+> 1510 15
+> Frame
+> 020 40
+> Flicker (L1)  Per-frame Temporal BG+temporal AVR (ours)
+
+Figure 9. Real anomalies under detected masks. Rows 1–2 show a cyclist with its flicker curve, and row 3 a parked car. 
+
+## 5. Conclusion 
+
+This paper proposes AVR, a training-free framework that couples anomaly detection to restoration and generates con-tent only where the clip offers no evidence to copy. A local-ization module gates open-vocabulary proposals by motion evidence, and a restoration module fills the mask from a 8background prior, leaving a frozen verifier to decide how much remains to be generated. Extensive results on three surveillance benchmarks and on real anomalies demonstrate both the effectiveness and the superiority of AVR. 
+
+## References 
+
+[1] Moshira Abdalla, Sajid Javed, Muaz Al Radi, Anwaar Ulhaq, and Naoufel Werghi. Video anomaly detection in 10 years: A survey and outlook. Neural Computing and Applications ,37(32):26321–26364, 2025. 1, 2 [2] Shengchao Chen, Ting Shu, Huan Zhao, Qilin Wan, Jincan Huang, and Cailing Li. Dynamic multiscale fusion genera-tive adversarial network for radar image extrapolation. IEEE Transactions on Geoscience and Remote Sensing , 60:1–11, 2022. 1 [3] Shengchao Chen, Guodong Long, Tao Shen, and Jing Jiang. Prompt federated learning for weather forecasting: Toward foundation models on meteorological data. arXiv preprint arXiv:2301.09152 , 2023. 2 [4] Shengchao Chen, Ting Shu, Huan Zhao, Guo Zhong, and Xunlai Chen. Tempee: Temporal–spatial parallel trans-former for radar echo extrapolation beyond autoregression. 
+
+IEEE Transactions on Geoscience and Remote Sensing , 61: 1–14, 2023. 1 [5] Shengchao Chen, Guodong Long, Michael Blumenstein, and Jing Jiang. Fedal: Federated dataset learning for general time series foundation models. In International Conference on Learning Representations , pages 98850–98885, 2026. 2 [6] Antonio Criminisi, Patrick P´ erez, and Kentaro Toyama. Re-gion filling and object removal by exemplar-based image in-painting. IEEE Transactions on Image Processing , 13(9): 1200–1212, 2004. 2, 4 [7] Zunkai Dai, Ke Li, Jiajia Liu, Jie Yang, and Yuanyuan Qiao. No need for real anomaly: MLLM empowered zero-shot video anomaly detection. arXiv preprint arXiv:2602.19248 ,2026. 1, 2 [8] Gunnar Farneb¨ ack. Two-frame motion estimation based on polynomial expansion. In Image Analysis, Scandinavian Conference on Image Analysis , pages 363–370. Springer, 2003. 5 [9] Michal Geyer, Omer Bar Tal, Shai Bagon, and Tali Dekel. TokenFlow: Consistent diffusion features for consistent video editing. In International Conference on Learning Rep-resentations , pages 1608–1620, 2024. 2, 3 [10] Dong Gong, Lingqiao Liu, Vuong Le, Budhaditya Saha, Moussa Reda Mansour, Svetha Venkatesh, and Anton van den Hengel. Memorizing normality to detect anomaly: Memory-augmented deep autoencoder for unsupervised anomaly detection. In Proceedings of the IEEE/CVF Inter-national Conference on Computer Vision , pages 1705–1714, 2019. 2 [11] Asya Grechka, Guillaume Couairon, and Matthieu Cord. GradPaint: Gradient-guided inpainting with diffusion mod-els. Computer Vision and Image Understanding , 240: 103928, 2024. 3 [12] Bohai Gu, Hao Luo, Song Guo, Peiran Dong, and Qihua Zhou. Coherent video inpainting using optical flow-guided efficient diffusion. arXiv preprint arXiv:2412.00857 , 2024. 3, 5, 6 [13] Mahmudul Hasan, Jonghyun Choi, Jan Neumann, Amit K. Roy-Chowdhury, and Larry S. Davis. Learning temporal reg-ularity in video sequences. In Proceedings of the IEEE Con-ference on Computer Vision and Pattern Recognition , pages 733–742, 2016. 2 [14] Chao Huang, Penfei Wei, Wei Wang, Jie Wen, Zhi-hua Wang, Li Shen, Wenqi Ren, and Xiaochun Cao. SphereVAD: Training-free video anomaly detection via geodesic inference on the unit hypersphere. arXiv preprint arXiv:2605.08003 , 2026. 1, 2, 3 [15] Yuzhi Huang, Chenxin Li, Haitao Zhang, Zixu Lin, Yunlong Lin, Hengyu Liu, Wuyang Li, Xinyu Liu, Jiechao Gao, Yue Huang, Xinghao Ding, and Yixuan Yuan. Track any anoma-lous object: A granular video anomaly detection pipeline. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vi-sion and Pattern Recognition , pages 8689–8699, 2025. 1, 2, 7[16] Levon Khachatryan, Andranik Movsisyan, Vahram Tade-vosyan, Roberto Henschel, Zhangyang Wang, Shant Navasardyan, and Humphrey Shi. Text2Video-Zero: Text-to-image diffusion models are zero-shot video generators. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 15908–15918, 2023. 1, 2, 3, 5 [17] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer White-head, Alexander C. Berg, Wan-Yen Lo, Piotr Doll´ ar, and Ross Girshick. Segment anything. In Proceedings of the IEEE/CVF International Conference on Computer Vision ,pages 3992–4003, 2023. 4, 5 [18] Max Ku, Cong Wei, Weiming Ren, Harry Yang, and Wenhu Chen. AnyV2V: A tuning-free framework for any video-to-video editing tasks. Transactions on Machine Learning Research , 2024. 2 [19] Hoangcong Le, Cheng-Kai Lu, and Chen-Chien Hsu. Video anomaly detection for edge-based IoT systems: A survey of input modalities and real-time applications. Intelligent Sys-tems with Applications , page 200635, 2026. 1, 2 [20] Guo Li, Jiandian Zeng, Yang Li, Zihao Peng, Ke Chen, and Tian Wang. MemoVAD: Resource-efficient video anomaly detection via dynamic semantic memory in edge computing scenarios. arXiv preprint arXiv:2606.07669 , 2026. 2 [21] Xiaowen Li, Haolan Xue, Peiran Ren, and Liefeng Bo. Dif-fuEraser: A diffusion model for video inpainting. arXiv preprint arXiv:2501.10018 , 2025. 1, 3, 4, 5 [22] Zhen Li, Cheng-Ze Lu, Jianhua Qin, Chun-Le Guo, and Ming-Ming Cheng. Towards an end-to-end framework for flow-guided video inpainting. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 17541–17550, 2022. 1, 2, 3, 5 [23] Jing Liu, Yang Liu, Jieyu Lin, Jielin Li, Liang Cao, Peng Sun, Bo Hu, Liang Song, Azzedine Boukerche, and Victor C. M. Leung. Networking systems for video anomaly de-tection: A tutorial and survey. ACM Computing Surveys , 57 (10):1–37, 2025. 1 [24] Shilong Liu, Zhaoyang Zeng, Tianhe Ren, Feng Li, Hao Zhang, Jie Yang, Chunyuan Li, Jianwei Yang, Hang Su, Jun 
+
+9Zhu, and Lei Zhang. Grounding DINO: Marrying DINO with grounded pre-training for open-set object detection. In 
+
+Proceedings of the European Conference on Computer Vi-sion , pages 38–55, 2024. 4, 5 [25] Wen Liu, Weixin Luo, Dongze Lian, and Shenghua Gao. Fu-ture frame prediction for anomaly detection — a new base-line. In Proceedings of the IEEE/CVF Conference on Com-puter Vision and Pattern Recognition , pages 6536–6545, 2018. 2, 5 [26] Cewu Lu, Jianping Shi, and Jiaya Jia. Abnormal event de-tection at 150 fps in MATLAB. In Proceedings of the IEEE International Conference on Computer Vision , pages 2720– 2727, 2013. 5 [27] Andreas Lugmayr, Martin Danelljan, Andres Romero, Fisher Yu, Radu Timofte, and Luc Van Gool. RePaint: Inpainting using denoising diffusion probabilistic models. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 11451–11461, 2022. 3 [28] Nanye Ma, Shangyuan Tong, Haolin Jia, Hexiang Hu, Yu-Chuan Su, Mingda Zhang, Xuan Yang, Yandong Li, Tommi Jaakkola, Xuhui Jia, and Saining Xie. Inference-time scaling for diffusion models beyond scaling denoising steps. arXiv preprint arXiv:2501.09732 , 2025. 5 [29] Vijay Mahadevan, Weixin Li, Viral Bhalodia, and Nuno Vas-concelos. Anomaly detection in crowded scenes. In Pro-ceedings of the IEEE Conference on Computer Vision and Pattern Recognition , pages 1975–1981, 2010. 5 [30] Chenlin Meng, Yutong He, Yang Song, Jiaming Song, Jiajun Wu, Jun-Yan Zhu, and Stefano Ermon. SDEdit: Guided im-age synthesis and editing with stochastic differential equa-tions. In Proceedings of the International Conference on Learning Representations , 2022. 4 [31] Chenyang Qi, Xiaodong Cun, Yong Zhang, Chenyang Lei, Xintao Wang, Ying Shan, and Qifeng Chen. FateZero: Fus-ing attentions for zero-shot text-based video editing. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 15886–15896, 2023. 2 [32] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, and Ilya Sutskever. Learning transferable visual models from natural language supervision. In Proceedings of the International Conference on Machine Learning , pages 8748–8763, 2021. 5 [33] Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu, Ronghang Hu, Chaitanya Ryali, Tengyu Ma, Haitham Khedr, Roman R¨ adle, Chloe Rolland, Laura Gustafson, Eric Mintun, Junt-ing Pan, Kalyan Vasudev Alwala, Nicolas Carion, Chao-Yuan Wu, Ross Girshick, Piotr Doll´ ar, and Christoph Feicht-enhofer. SAM 2: Segment anything in images and videos. In International Conference on Learning Representations ,pages 28085–28128, 2025. 5 [34] Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Bj¨ orn Ommer. High-resolution image synthesis with latent diffusion models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 10674–10685, 2022. 4, 5 [35] Dvir Samuel, Matan Levy, Nir Darshan, Gal Chechik, and Rami Ben-Ari. OmnimatteZero: Fast training-free omni-matte with pre-trained video diffusion models. In Proceed-ings of the SIGGRAPH Asia 2025 Conference Papers , pages 1–11, 2025. 3, 5 [36] Shitong Shao, Lichen Bai, Pengfei Wan, James Kwok, and Zeke Xie. Efficient video diffusion models: Advancements and challenges. arXiv preprint arXiv:2604.15911 , 2026. 3 [37] Waqas Sultani, Chen Chen, and Mubarak Shah. Real-world anomaly detection in surveillance videos. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition , pages 6479–6488, 2018. 2 [38] Ryan Szeto and Jason J. Corso. The DEVIL is in the details: A diagnostic evaluation benchmark for video inpainting. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vi-sion and Pattern Recognition , pages 21022–21031, 2022. 5 [39] Thomas Unterthiner, Sjoerd Van Steenkiste, Karol Kurach, Raphael Marinier, Marcin Michalski, and Sylvain Gelly. To-wards accurate generative models of video: A new metric & challenges. arXiv preprint arXiv:1812.01717 , 2018. 5 [40] Yonatan Wexler, Eli Shechtman, and Michal Irani. Space-time completion of video. IEEE Transactions on Pattern Analysis and Machine Intelligence , 29(3):463–476, 2007. 2 [41] Jay Zhangjie Wu, Yixiao Ge, Xintao Wang, Stan Weixian Lei, Yuchao Gu, Yufei Shi, Wynne Hsu, Ying Shan, Xiaohu Qie, and Mike Zheng Shou. Tune-A-Video: One-shot tuning of image diffusion models for text-to-video generation. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 7589–7599, 2023. 1, 2 [42] Luca Zanella, Willi Menapace, Massimiliano Mancini, Yim-ing Wang, and Elisa Ricci. Harnessing large language mod-els for training-free video anomaly detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pat-tern Recognition , pages 18527–18536, 2024. 1, 2, 3 [43] Richard Zhang, Phillip Isola, Alexei A. Efros, Eli Shecht-man, and Oliver Wang. The unreasonable effectiveness of deep features as a perceptual metric. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 586–595, 2018. 5 [44] Yi Zhang, Jiawen Zhu, Lele Fu, and Guansong Pang. AnomalyAgent: Training-free agentic models for zero-/few-shot anomaly detection. arXiv preprint arXiv:2605.30140 ,2026. 1, 2 [45] Shangchen Zhou, Chongyi Li, Kelvin C. K. Chan, and Chen Change Loy. ProPainter: Improving propagation and transformer for video inpainting. In Proceedings of the IEEE/CVF International Conference on Computer Vision ,pages 10477–10486, 2023. 1, 2, 3, 5 
+
+10
