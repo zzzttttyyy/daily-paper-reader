@@ -6,40 +6,41 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-17
-- 运行时间：2026-09-17 22:27:22 UTC
+- 最新运行日期：2026-09-18
+- 运行时间：2026-09-18 22:09:31 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：4
-- 速读区：2
+- 本次总论文数：7
+- 精读区：3
+- 速读区：4
 
 ### 今日简报（AI）
-1) 今日6篇精选、4精读2速读，9分双雄领跑扩散模型效率与噪声控制。
-2) 最值得看《Efficient Text-to-Image Generation》的自适应步调度，以及《Spatially Adaptive Noise Injection》的空间自适应噪声注入。
-3) 普通读者可先读这两篇9分精读，理解扩散模型如何更省步数、更精准生成，再速
-- 详情：[/202609/17/README](/202609/17/README)
+今日精读3篇、速读4篇扩散模型前沿论文，焦点集中在LoRA复用、高效采样与医学生成。最值得关注的是9.0分的DART（少步视频扩散模型的免训练LoRA复用）与8.0分的FASA（扩散VLA模型高效采样）。普通读者可先读这两篇精读，速读部分按医学影像或眼动追踪等个人兴趣择一了解即可。
+- 详情：[/202609/18/README](/202609/18/README)
 
 ### 精读区论文标签
-1. [Efficient Text-to-Image Generation: An Adaptive Step Schedule Controller for Diffusion Models](/202609/17/2609.16572v1-efficient-text-to-image-generation-an-adaptive-step-schedule-controller-for-diffusion-models)  
+1. [DART: Distillation-Aware Reparameterization for Training-Free LoRA Reuse in Few-Step Video Diffusion Models](/202609/18/2609.20051v1-dart-distillation-aware-reparameterization-for-training-free-lora-reuse-in-few-step-video-diffusion-models)  
    标签：评分：9.0/10、query:tfree-diff
-   evidence：无需额外训练的文本到图像自适应步数调度
-2. [Spatially Adaptive Noise Injection](/202609/17/2609.18466v1-spatially-adaptive-noise-injection)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：免训练空间自适应噪声注入采样
-3. [Accelerating Diffusion Sampling via Speculative Draft Trees](/202609/17/2609.17691v1-accelerating-diffusion-sampling-via-speculative-draft-trees)  
+   evidence：面向少步视频扩散模型的免训练LoRA复用
+2. [FASA: Feedback-Aware Sampling Adaptation for Efficient Diffusion-Based VLA Models](/202609/18/2609.19475v1-fasa-feedback-aware-sampling-adaptation-for-efficient-diffusion-based-vla-models)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：通过推测草稿树加速扩散采样并减少目标评估
-4. [Copy What Is Seen, Generate What Is Not: Training-Free Anomaly-Aware Video Restoration](/202609/17/2609.18836v1-copy-what-is-seen-generate-what-is-not-training-free-anomaly-aware-video-restoration)  
+   evidence：面向扩散模型的免训练运行时采样自适应框架
+3. [Refinement Is Inherently Editable: Training-Free Prompt-to-Prompt Image Editing with Generative Refinement Network](/202609/18/2609.20633v1-refinement-is-inherently-editable-training-free-prompt-to-prompt-image-editing-with-generative-refinement-network)  
    标签：评分：8.0/10、query:tfree-diff
-   evidence：基于冻结预训练扩散模型的免训练视频修复
+   evidence：免训练的扩散图像编辑框架
 
 ### 速读区论文标签
-1. [Interpreting Object-Dependent Concept Brittleness in Text-to-Image Diffusion Models](/202609/17/2609.09909v1-interpreting-object-dependent-concept-brittleness-in-text-to-image-diffusion-models)  
+1. [MedDiME: Efficient Latent Diffusion with Adaptive Masking for Medical Counterfactual Generation](/202609/18/2609.15647v1-meddime-efficient-latent-diffusion-with-adaptive-masking-for-medical-counterfactual-generation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：文生图扩散模型失败模式分析与纠正
-2. [SlotDiT: Object-Centric Representations for Diffusion Transformers](/202609/17/2609.17414v1-slotdit-object-centric-representations-for-diffusion-transformers)  
+   evidence：高效潜空间扩散医学图像生成
+2. [GazeDiT: Gaze-Accurate Diffusion Image Generation for Eye Tracking via Spatial Conditioning](/202609/18/2609.17814v1-gazedit-gaze-accurate-diffusion-image-generation-for-eye-tracking-via-spatial-conditioning)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：用于视频生成的扩散Transformer
+   evidence：扩散模型生成图像并精确控制标签
+3. [Recency Forcing: Bridging the Long-Horizon Gap in Autoregressive Video Generation](/202609/18/2609.19729v1-recency-forcing-bridging-the-long-horizon-gap-in-autoregressive-video-generation)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：推理阶段免训练改进视频生成
+4. [Video DeltaNet: A Video-Native Hybrid Attention for Livestream Video Generation](/202609/18/2609.20744v1-video-deltanet-a-video-native-hybrid-attention-for-livestream-video-generation)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：面向视频生成的高效扩散注意力架构
 
 
 <div class="dpr-home-promo-card">
