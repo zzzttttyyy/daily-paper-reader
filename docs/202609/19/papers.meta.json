@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-19",
+  "date": "2026-09-19",
+  "generated_at": "2026-09-19T21:05:51",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/19/2609.18393v1-msr-multiple-subject-reference-for-video-generation",
+      "section": "quick",
+      "title_en": "MSR: Multiple Subject Reference for Video Generation",
+      "authors": "Guannan Li, Jiaji Chen, Jingyuan Liao, Yu Geng, Baolan Qiu",
+      "date": "2026-09-16",
+      "pdf": "https://arxiv.org/pdf/2609.18393v1",
+      "score": "6.0",
+      "evidence": "面向视频生成的槽位感知条件方案",
+      "tldr": "多图条件视频生成需在保持外观的同时让每张参考图对应正确角色。MSR 面向 LTX 视频生成提出槽位感知条件方案，将每张参考图独立编码为静态片段和独立潜在 token 组。它用傅里叶特征 MLP 注入槽位嵌入，并用槽位相关时间偏移调整旋转坐标，再把参考组前置到噪声目标 token 作为干净上下文训练。作者以 LoRA 实现并发布权重与推理流程，定性结果显示参考混淆较连续参考基线减少，但相似服装、复杂衣物和视角变化仍具挑战。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Conditioning a video generator on multiple images requires preserving appearance while associating each reference with its intended role. We present MSR (Multiple Subject Reference), a slot-aware conditioning scheme for LTX-based video generation. Each reference image is independently encoded as a static clip and represented by a separate latent-token group. A compact Fourier-feature multilayer perceptron adds a numeric slot embedding, while slot-dependent temporal offsets modify the group's rotary coordinates. The reference groups are prepended to noisy target tokens and serve as clean context during target-only flow-matching training. We implement this scheme through low-rank adaptation and release the resulting weights and inference workflows. Qualitative examples demonstrate compositions containing distinct characters and referenced environments in realistic and stylized scenes. Development observations suggest reduced reference confusion relative to an earlier continuous-reference baseline, while similar clothing, complex garments, and viewpoint changes remain challenging. We describe the conditioning mechanism, the retained training configuration, and the observed strengths and limitations of the released system. A supplementary audio-reference experiment adds voice conditioning while keeping the visual parameters frozen.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

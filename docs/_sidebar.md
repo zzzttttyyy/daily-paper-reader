@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-19 <!--dpr-date:20260919-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/19/2609.18393v1-msr-multiple-subject-reference-for-video-generation" data-sidebar-item="{&quot;title&quot;: &quot;MSR: Multiple Subject Reference for Video Generation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.18393v1-msr-multiple-subject-reference-for-video-generation&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;面向视频生成的槽位感知条件方案&quot;}">MSR: Multiple Subject Reference for Video Generation</a>
   * 2026-09-18 <!--dpr-date:20260918-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/18/2609.20051v1-dart-distillation-aware-reparameterization-for-training-free-lora-reuse-in-few-step-video-diffusion-models" data-sidebar-item="{&quot;title&quot;: &quot;DART: Distillation-Aware Reparameterization for Training-Free LoRA Reuse in Few-Step Video Diffusion Models&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.20051v1-dart-distillation-aware-reparameterization-for-training-free-lora-reuse-in-few-step-video-diffusion-models&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;面向少步视频扩散模型的免训练LoRA复用&quot;}">DART: Distillation-Aware Reparameterization for Training-Free LoRA Reuse in Few-Step Video Diffusion Models</a>
