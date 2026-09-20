@@ -6,28 +6,24 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-19
-- 运行时间：2026-09-19 21:05:45 UTC
+- 最新运行日期：2026-09-20
+- 运行时间：2026-09-20 21:48:51 UTC
 - 运行状态：成功
 - 本次总论文数：1
 - 精读区：0
 - 速读区：1
 
 ### 今日简报（AI）
-今天速读 1 篇、精读 0 篇，唯一入选的是视频生成方向新作《MSR: Multiple Subject Reference for Video Generation》。
-
-这篇聚焦「多主体参考」的视频生成，评分 6.0/10，属于可看但不算突出的水平——若你关心视频里同时控制多个人/物的生成，它值得一读。
-
-普通读者建议先花几分钟看它的摘要与效果示例即可，不必投入精读，等后续更高分或引用它的工作出来再深入。
-- 详情：[/202609/19/README](/202609/19/README)
+今日速读1篇扩散模型光场重建论文，聚焦结构感知的测试时自适应方法。值得关注STAR如何利用结构信息提升扩散式光场重建质量（速读7.0/10）。普通读者可先看其结构先验设计思路，判断是否适配自己的重建任务再深入。
+- 详情：[/202609/20/README](/202609/20/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [MSR: Multiple Subject Reference for Video Generation](/202609/19/2609.18393v1-msr-multiple-subject-reference-for-video-generation)  
-   标签：评分：6.0/10、query:tfree-diff
-   evidence：面向视频生成的槽位感知条件方案
+1. [STAR: Structure-aware Test-time Adaptation for diffusion-based light field Reconstruction](/202609/20/2609.19747v1-star-structure-aware-test-time-adaptation-for-diffusion-based-light-field-reconstruction)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：冻结预训练扩散先验的测试时自适应
 
 
 <div class="dpr-home-promo-card">

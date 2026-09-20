@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-20 <!--dpr-date:20260920-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/20/2609.19747v1-star-structure-aware-test-time-adaptation-for-diffusion-based-light-field-reconstruction" data-sidebar-item="{&quot;title&quot;: &quot;STAR: Structure-aware Test-time Adaptation for diffusion-based light field Reconstruction&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.19747v1-star-structure-aware-test-time-adaptation-for-diffusion-based-light-field-reconstruction&quot;, &quot;score&quot;: &quot;7.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;冻结预训练扩散先验的测试时自适应&quot;}">STAR: Structure-aware Test-time Adaptation for diffusion-based light field Reconstruction</a>
   * 2026-09-19 <!--dpr-date:20260919-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/19/2609.18393v1-msr-multiple-subject-reference-for-video-generation" data-sidebar-item="{&quot;title&quot;: &quot;MSR: Multiple Subject Reference for Video Generation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.18393v1-msr-multiple-subject-reference-for-video-generation&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;面向视频生成的槽位感知条件方案&quot;}">MSR: Multiple Subject Reference for Video Generation</a>

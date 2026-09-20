@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-20",
+  "date": "2026-09-20",
+  "generated_at": "2026-09-20T21:48:56",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/20/2609.19747v1-star-structure-aware-test-time-adaptation-for-diffusion-based-light-field-reconstruction",
+      "section": "quick",
+      "title_en": "STAR: Structure-aware Test-time Adaptation for diffusion-based light field Reconstruction",
+      "authors": "Wontae Choi, Ki Ryum Moon, Jae Young Lee, Hyung Sup Yun, Il Yong Chun",
+      "date": "2026-09-17",
+      "pdf": "https://arxiv.org/pdf/2609.19747v1",
+      "score": "7.0",
+      "evidence": "冻结预训练扩散先验的测试时自适应",
+      "tldr": "从有限且含噪的焦栈重建光场是高度病态的逆问题，固定成像几何下光场的空间-角度结构仍随场景变化。因此，单一预训练扩散先验难以最优适配每个测试光场。STAR首次提出面向该任务的测试时自适应框架：冻结预训练扩散先验，并仅针对观测焦栈拟合三个轻量适配器，以联合调整视图内空间细节、跨视角角度依赖和视差。在二焦面与三焦面设置中，STAR均超越现有最优方法，且推理时间短于需测试时更新参数的方法。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Light field (LF) reconstruction from limited and noisy focal stack (FS) measurements is a highly ill-posed inverse problem. Although the LF-to-FS imaging geometry is fixed for a given optical setup, LF spatial-angular structure---including within-view spatial details, cross-view angular dependencies, and disparity across views---varies across scenes. Consequently, a fixed pre-trained prior may not optimally capture the spatial-angular structure of each test LF. We propose Structure-aware Test-time Adaptation for diffusion-based light field Reconstruction (STAR), the first test-time adaptation framework for reconstructing an LF from FS. For each test LF, STAR freezes a pre-trained diffusion prior and fits three lightweight adapters to the observed FS to jointly adapt the three components of the LF's spatial-angular structure. STAR outperforms existing state-of-the-art methods in both two- and three-focal-sheet settings, with shorter inference times than those with test-time parameter updates.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

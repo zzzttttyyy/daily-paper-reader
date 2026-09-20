@@ -1,0 +1,56 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-20T21:48:27.479524+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.19747v1",
+      "source": "arxiv",
+      "title": "STAR: Structure-aware Test-time Adaptation for diffusion-based light field Reconstruction",
+      "abstract": "Light field (LF) reconstruction from limited and noisy focal stack (FS) measurements is a highly ill-posed inverse problem. Although the LF-to-FS imaging geometry is fixed for a given optical setup, LF spatial-angular structure---including within-view spatial details, cross-view angular dependencies, and disparity across views---varies across scenes. Consequently, a fixed pre-trained prior may not optimally capture the spatial-angular structure of each test LF. We propose Structure-aware Test-time Adaptation for diffusion-based light field Reconstruction (STAR), the first test-time adaptation framework for reconstructing an LF from FS. For each test LF, STAR freezes a pre-trained diffusion prior and fits three lightweight adapters to the observed FS to jointly adapt the three components of the LF's spatial-angular structure. STAR outperforms existing state-of-the-art methods in both two- and three-focal-sheet settings, with shorter inference times than those with test-time parameter updates.",
+      "authors": [
+        "Wontae Choi",
+        "Ki Ryum Moon",
+        "Jae Young Lee",
+        "Hyung Sup Yun",
+        "Il Yong Chun"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-17T06:18:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.19747v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "test-time adaptation freezing a pretrained diffusion prior",
+      "llm_evidence_cn": "冻结预训练扩散先验的测试时自适应",
+      "llm_evidence": "冻结预训练扩散先验的测试时自适应",
+      "canonical_evidence": "冻结预训练扩散先验的测试时自适应",
+      "llm_tldr_en": "A fixed pretrained diffusion prior may not fit each test light field. STAR freezes the diffusion prior and fits lightweight adapters at test time, achieving training-free per-scene adaptation for light field reconstruction.",
+      "llm_tldr_cn": "针对固定预训练扩散先验无法适配每个测试光场空间角结构、而重训练代价高昂的问题，本文提出结构感知测试时自适应框架STAR。该方法冻结预训练扩散先验，仅为每个测试光场拟合三个轻量适配器，实现无需再训练的场景级自适应。实验表明其在有限且含噪焦栈测量下的光场重建优于固定先验方案。该工作展示了免训练扩散优化在逆问题重建中的可行性，与免训练扩散主题相关。",
+      "llm_tldr": "针对固定预训练扩散先验无法适配每个测试光场空间角结构、而重训练代价高昂的问题，本文提出结构感知测试时自适应框架STAR。该方法冻结预训练扩散先验，仅为每个测试光场拟合三个轻量适配器，实现无需再训练的场景级自适应。实验表明其在有限且含噪焦栈测量下的光场重建优于固定先验方案。该工作展示了免训练扩散优化在逆问题重建中的可行性，与免训练扩散主题相关。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
