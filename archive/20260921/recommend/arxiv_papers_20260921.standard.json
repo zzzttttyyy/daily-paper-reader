@@ -1,0 +1,370 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-21T22:23:45.489721+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2609.21242v1",
+      "source": "arxiv",
+      "title": "SafeStyle: Calibrated Style Residual Injection for Controllable Style-Leakage Trade-off in Diffusion Stylization",
+      "abstract": "Reference-guided diffusion stylization aims to transfer visual style from a reference image while preserving the semantics specified by a text prompt. However, image conditioning often entangles transferable style cues with reference-specific content, leading to an inherent trade-off: stronger conditioning improves style fidelity but increases content leakage, whereas aggressive suppression reduces leakage at the cost of style expression. This challenge is further complicated by the distinct spatial organization of texture- and geometry-dominant styles. To address these issues, we propose SafeStyle, a training-free framework for calibrated style residual injection in frozen diffusion models. SafeStyle first estimates style-supported and content-associated subspaces from compact calibration sets, preserving their informative overlap while suppressing useless content variations. It then transports the purified style evidence over adaptive spatial granularity and constrains its effective influence through an explicit residual-norm budget. Experiments across texture- and geometry-dominant styles show that SafeStyle achieves a DINO style similarity of 0.432 while maintaining competitive text alignment. On a semantically disjoint leakage-stress benchmark, it further achieves a DINO style similarity of 0.474 with only 0.8\\% semantic leakage, demonstrating an effective balance between style fidelity and reference-content suppression.",
+      "authors": [
+        "Zhangping Yang",
+        "Min Li",
+        "Song Yan",
+        "Rong Gao",
+        "Xinliang Bi",
+        "Guanye Xiong",
+        "Yujie He"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-18T02:34:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.21242v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free framework for calibrated style residual injection in frozen diffusion models",
+      "llm_evidence_cn": "面向冻结扩散模型的免训练风格残差注入框架",
+      "llm_evidence": "面向冻结扩散模型的免训练风格残差注入框架",
+      "canonical_evidence": "面向冻结扩散模型的免训练风格残差注入框架",
+      "llm_tldr_en": "SafeStyle is a training-free framework that injects calibrated style residuals into frozen diffusion models, resolving the trade-off between style fidelity and content leakage in reference-guided stylization.",
+      "llm_tldr_cn": "参考引导的扩散风格化需要在迁移风格的同时保持文本语义，但图像条件会把风格与参考内容纠缠，造成风格保真与内容泄漏的权衡，且纹理型与几何型风格空间组织不同使问题更复杂。作者提出 SafeStyle，一种面向冻结扩散模型的免训练框架，通过校准的风格残差注入来调节这一权衡。方法在无需额外训练的情况下控制条件强度，从而在提升风格表达的同时抑制内容泄漏。该工作为免训练的可控扩散风格化提供了实用方案。",
+      "llm_tldr": "参考引导的扩散风格化需要在迁移风格的同时保持文本语义，但图像条件会把风格与参考内容纠缠，造成风格保真与内容泄漏的权衡，且纹理型与几何型风格空间组织不同使问题更复杂。作者提出 SafeStyle，一种面向冻结扩散模型的免训练框架，通过校准的风格残差注入来调节这一权衡。方法在无需额外训练的情况下控制条件强度，从而在提升风格表达的同时抑制内容泄漏。该工作为免训练的可控扩散风格化提供了实用方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.21251v1",
+      "source": "arxiv",
+      "title": "Geometry-Aware Diffusion Guidance via Curvature-Adaptive Tubular Correction",
+      "abstract": "Gradient-guided diffusion samplers provide flexible priors for inverse problems and conditional generation, but strong guidance can move the sampling trajectory into regions where the learned score is poorly supported. Existing tangent-projection strategies limit first-order departure from an iso-density surface, yet discard potentially useful normal motion and overlook the second-order departure induced by tangent motion on a curved surface. We introduce curvature-adaptive tubular correction (CAT), a training-free plugin that regulates both effects within a shared, noise-dependent geometric budget. CAT decomposes the guidance gradient into normal and tangent components, charges normal displacement at first order and tangent displacement according to directional curvature, and obtains their jointly optimal magnitudes from a one-dimensional dual equation. Armijo backtracking calibrates the resulting finite step against the actual guidance objective, while matrix-free directional derivatives avoid constructing the full score Jacobian. We establish local guarantees for the tubular approximation, uniqueness of the correction, and sufficient objective decrease. Across seven inverse problems on FFHQ and ImageNet, CAT improves the evaluated pixel- and latent-space host samplers, with particularly consistent gains in perceptual metrics. It also improves black hole reconstruction on InverseBench and yields the lowest FID among the compared methods at every tested classifier-free guidance scale, while maintaining stable saturation and contrast. These results support curvature-aware tubular control as a reusable mechanism for stabilizing diffusion guidance.",
+      "authors": [
+        "Enze Jiang",
+        "Jinwei He",
+        "Zheng Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-18T02:54:46+00:00",
+      "link": "https://arxiv.org/pdf/2609.21251v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free plugin regulating guided diffusion sampling geometry",
+      "llm_evidence_cn": "免训练插件，约束引导扩散采样轨迹",
+      "llm_evidence": "免训练插件，约束引导扩散采样轨迹",
+      "canonical_evidence": "免训练插件，约束引导扩散采样轨迹",
+      "llm_tldr_en": "Proposes CAT, a training-free plugin that decomposes the guidance gradient into normal and tangent parts and regulates curvature-induced departure, stabilizing guided diffusion sampling for inverse problems and conditional generation.",
+      "llm_tldr_cn": "梯度引导扩散采样在强引导下会将轨迹推入得分支撑不足的区域，现有切向投影策略只限制一阶偏离，忽略了法向运动与曲率带来的二阶偏离。本文提出曲率自适应管状校正（CAT），一种免训练插件，将引导梯度分解为法向与切向分量，并在共享的噪声相关几何预算内同时约束两类偏离。该方法在逆问题与条件生成任务上提升了采样稳定性与生成质量。其贡献在于为免训练扩散采样提供了一种通用的几何校正机制。",
+      "llm_tldr": "梯度引导扩散采样在强引导下会将轨迹推入得分支撑不足的区域，现有切向投影策略只限制一阶偏离，忽略了法向运动与曲率带来的二阶偏离。本文提出曲率自适应管状校正（CAT），一种免训练插件，将引导梯度分解为法向与切向分量，并在共享的噪声相关几何预算内同时约束两类偏离。该方法在逆问题与条件生成任务上提升了采样稳定性与生成质量。其贡献在于为免训练扩散采样提供了一种通用的几何校正机制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.21268v1",
+      "source": "arxiv",
+      "title": "Edit-VAR: Taming Visual Autoregressive Model for Precise Video Editing",
+      "abstract": "Text-guided video editing modifies target content while preserving the appearance and temporal coherence of unedited regions. Training-based approaches provide strong control but demand substantial data and computation. Training-free methods fall into inversion-free and inversion-based paradigms. Inversion-free approaches avoid trajectory recovery, but their source-preserving guidance can limit editing strength and leave semantic changes incomplete. Inversion-based approaches recover a latent trajectory before regeneration, where approximation errors can accumulate and cause source-content drift and temporal inconsistency. We introduce Edit-VAR, the first training-free and inversion-free framework for text-guided video editing with a pretrained visual autoregressive video model. Edit-VAR directly encodes the source video into multi-scale discrete tokens and performs probability-guided conditional token replacement for source preservation. Attention-guided token-wise and scale-aware modulation selectively relaxes source constraints over edit-relevant positions and generation stages. Scale-Decoupled Generation, implemented as late-scale constraint release, regenerates motion-consistent details and reduces texture fragmentation. Residual-guided token pruning further exploits redundancy at the final two high-resolution scales to reduce inference cost. Extensive experiments and a blind user study demonstrate that Edit-VAR outperforms existing training-free video editing methods overall in editing fidelity, source preservation, temporal coherence, and inference efficiency.",
+      "authors": [
+        "Chongbo Zhao",
+        "Jiangming Wang",
+        "Xilai Wang",
+        "Xinyu Wang",
+        "Jingyi Tang",
+        "Chunjie Hao",
+        "Pengjie Song",
+        "Yue Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-18T03:26:19+00:00",
+      "link": "https://arxiv.org/pdf/2609.21268v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free inversion-free video editing framework",
+      "llm_evidence_cn": "免训练免反转的视频编辑框架",
+      "llm_evidence": "免训练免反转的视频编辑框架",
+      "canonical_evidence": "免训练免反转的视频编辑框架",
+      "llm_tldr_en": "Introduces Edit-VAR, the first training-free and inversion-free framework for text-guided video editing with a pretrained visual autoregressive model, improving edit precision while preserving source and temporal consistency.",
+      "llm_tldr_cn": "文本引导视频编辑需在修改目标内容的同时保持未编辑区域的外观与时间一致性，训练式方法控制强但数据与算力开销大，免训练方法又存在编辑强度不足或轨迹漂移的问题。本文提出Edit-VAR，首个免训练且免反转的文本引导视频编辑框架，基于预训练视觉自回归模型。实验表明该方法在提升编辑精度的同时保持了源内容与时间一致性，为免训练视频编辑提供了新范式。",
+      "llm_tldr": "文本引导视频编辑需在修改目标内容的同时保持未编辑区域的外观与时间一致性，训练式方法控制强但数据与算力开销大，免训练方法又存在编辑强度不足或轨迹漂移的问题。本文提出Edit-VAR，首个免训练且免反转的文本引导视频编辑框架，基于预训练视觉自回归模型。实验表明该方法在提升编辑精度的同时保持了源内容与时间一致性，为免训练视频编辑提供了新范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.21407v1",
+      "source": "arxiv",
+      "title": "Quantization-Aware Kalman Estimation for Diffusion Sampling",
+      "abstract": "Quantization offers a practical path to deploying diffusion models with reduced memory and computation, but aggressive compression can cause quantized outputs to deviate substantially from their full-precision counterparts. Sampling-stage correction methods seek to compensate for such deviations during sampling, but existing approaches rely primarily on local information and underexploit trajectory history, limiting their ability to correct errors that propagate across timesteps. In this work, we formulate sampling with a quantized denoiser as an online estimation problem, using the history of quantized denoiser outputs to recover the underlying full-precision outputs required by the sampler. We propose QuAKE, a Quantization-Aware Kalman Estimator that combines a smooth trajectory prior with a conditional Gaussian observation model. At each sampling step, QuAKE recursively updates the posterior over the output window in closed form and feeds its posterior mean to the sampler. QuAKE is a lightweight plug-and-play corrector that requires no modification to the quantized network and naturally supports arbitrary high-order multistep ODE samplers. Experiments across W4A4-quantized text-to-image diffusion models show that QuAKE consistently outperforms existing methods in reducing the distributional discrepancy from full-precision sampling.",
+      "authors": [
+        "Qitan Shi",
+        "Cheng Jin",
+        "Jiawei Zhang",
+        "Yuantao Gu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-18T07:18:50+00:00",
+      "link": "https://arxiv.org/pdf/2609.21407v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free sampling-stage correction for quantized diffusion",
+      "llm_evidence_cn": "量化扩散的免训练采样阶段校正",
+      "llm_evidence": "量化扩散的免训练采样阶段校正",
+      "canonical_evidence": "量化扩散的免训练采样阶段校正",
+      "llm_tldr_en": "QuAKE formulates sampling with a quantized denoiser as online estimation, using history of quantized outputs to recover full-precision outputs and correct errors propagating across timesteps without retraining.",
+      "llm_tldr_cn": "量化扩散模型在压缩后采样输出会明显偏离全精度结果，而现有采样阶段校正方法只利用局部信息、忽视轨迹历史，难以修正跨时间步传播的误差。本文把量化去噪器采样建模为在线估计问题，提出量化感知卡尔曼估计器QuAKE，利用历史去噪输出恢复采样器所需的全精度输出。研究表明该方法能更有效地修正跨步误差，为低比特扩散模型的部署提供了无需重新训练的采样校正方案。",
+      "llm_tldr": "量化扩散模型在压缩后采样输出会明显偏离全精度结果，而现有采样阶段校正方法只利用局部信息、忽视轨迹历史，难以修正跨时间步传播的误差。本文把量化去噪器采样建模为在线估计问题，提出量化感知卡尔曼估计器QuAKE，利用历史去噪输出恢复采样器所需的全精度输出。研究表明该方法能更有效地修正跨步误差，为低比特扩散模型的部署提供了无需重新训练的采样校正方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.19356v1",
+      "source": "arxiv",
+      "title": "How to Guide Your Language Flow",
+      "abstract": "We introduce a new method to guide flow matching models. Our approach, which we call probe guidance, uses the frozen internal states of an existing diffusion model to construct a guidance signal. This works using a similar principle as autoguidance, but eliminates the need for an additional forward pass at inference time and provides a reliable path to ensure that the weak and strong model share similar dynamics. We apply and benchmark this method on continuous diffusion language models, where probe guidance sets a new state-of-the-art performance on unconditional generation. When applied to a 1.7B diffusion language model, probe guidance consistently improves on multiple choice question answering benchmarks. Using our probes, we study the traditional autoguidance setting where the strong model is a weak checkpoint, and find that the weak model must come from a low-entropy region of training. These findings both provide a practical way to improve diffusion language models and shed light on the actual mechanism behind autoguidance, which is currently poorly understood.",
+      "authors": [
+        "Rohit Dilip",
+        "Tianrong Chen",
+        "Yuyang Wang",
+        "David Van Valen",
+        "Joshua Susskind",
+        "Miguel Angel Bautista"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-16T19:29:07+00:00",
+      "link": "https://arxiv.org/pdf/2609.19356v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free guidance signal from frozen diffusion states, no extra inference pass",
+      "llm_evidence_cn": "利用冻结扩散模型内部状态构建免训练引导信号",
+      "llm_evidence": "利用冻结扩散模型内部状态构建免训练引导信号",
+      "canonical_evidence": "利用冻结扩散模型内部状态构建免训练引导信号",
+      "llm_tldr_en": "Probe guidance constructs a guidance signal from frozen internal states of a diffusion model, removing the need for an extra forward pass at inference and improving unconditional generation of diffusion language models.",
+      "llm_tldr_cn": "该文针对现有引导方法在推理时需额外前向计算、弱强模型动态不一致的问题，提出探针引导（probe guidance）。方法利用已有扩散模型的冻结内部状态构造引导信号，原理类似自引导但省去推理时的额外前向传播，并保证弱模型与强模型动态相近。在连续扩散语言模型上，该方法在无条件生成上取得新的最优表现，并在17亿参数模型的多项选择问答基准上稳定提升。其价值在于提供了一种无需额外训练的扩散引导优化范式。",
+      "llm_tldr": "该文针对现有引导方法在推理时需额外前向计算、弱强模型动态不一致的问题，提出探针引导（probe guidance）。方法利用已有扩散模型的冻结内部状态构造引导信号，原理类似自引导但省去推理时的额外前向传播，并保证弱模型与强模型动态相近。在连续扩散语言模型上，该方法在无条件生成上取得新的最优表现，并在17亿参数模型的多项选择问答基准上稳定提升。其价值在于提供了一种无需额外训练的扩散引导优化范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.21455v1",
+      "source": "arxiv",
+      "title": "CompAdapt: Adaptable Composite Motion Modeling for Physics-Consistent Text-to-Video Generation",
+      "abstract": "While diffusion-based text-to-video (T2V) models have demonstrated impressive capability in generating realistic and temporally coherent videos, they often fail to respect fundamental physical dynamics. Although recent physics-constrained methods incorporate explicit dynamics priors to improve physical plausibility, they remain limited to simple single-type motions, depend on manually specified parameters, and struggle to generalize to unseen physical laws. In this work, we propose CompAdapt, a physics-consistent T2V framework for adaptable generation across complex real-world scenarios. It extends neural dynamics modeling beyond single-type motions to encompass composite physical behaviors, including coupled motions, multi-stage transitions, and multi-object collisions. Furthermore, CompAdapt translates natural language prompts into structured physical semantics, enabling end-to-end specification of motion types, temporal relations, and initial physical parameters. To generalize to novel physical environments, CompAdapt introduces dynamics-aware prior matching, achieving one-shot adaptation without retraining the core dynamics module. In addition, a physics-aware latent feature fusion module improves visual fidelity under fast and complex motion. Experiments on physics-focused T2V benchmarks demonstrate that CompAdapt improves physical consistency over both general T2V models and physics-constrained baselines, while preserving high visual quality and adaptability to unseen dynamics. The project page is available at https://makapic.github.io/CompAdapt/ .",
+      "authors": [
+        "Haoran Qin",
+        "Renlong Wu",
+        "Tianyu Huang",
+        "Yukang Ding",
+        "Hui Li",
+        "Wangmeng Zuo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-18T08:04:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.21455v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "physics-consistent text-to-video generation with diffusion models",
+      "llm_evidence_cn": "基于扩散模型的物理一致文本到视频生成",
+      "llm_evidence": "基于扩散模型的物理一致文本到视频生成",
+      "canonical_evidence": "基于扩散模型的物理一致文本到视频生成",
+      "llm_tldr_en": "CompAdapt is a physics-consistent text-to-video framework that extends neural dynamics modeling beyond single-type motions to composite physical behaviors, improving physical plausibility of diffusion-based video generation.",
+      "llm_tldr_cn": "该文针对扩散文本到视频模型虽能生成逼真连贯视频、却常违背基本物理动力学的问题展开研究。现有物理约束方法局限于单一运动类型、依赖手工参数且难以泛化到未见物理规律。作者提出CompAdapt框架，将神经常微分动力学建模扩展到耦合运动、多阶段等复合物理行为，实现跨复杂场景的自适应生成。该工作提升了扩散视频生成的物理一致性，为物理可信的文本到视频生成提供了新思路。",
+      "llm_tldr": "该文针对扩散文本到视频模型虽能生成逼真连贯视频、却常违背基本物理动力学的问题展开研究。现有物理约束方法局限于单一运动类型、依赖手工参数且难以泛化到未见物理规律。作者提出CompAdapt框架，将神经常微分动力学建模扩展到耦合运动、多阶段等复合物理行为，实现跨复杂场景的自适应生成。该工作提升了扩散视频生成的物理一致性，为物理可信的文本到视频生成提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.21054v1",
+      "source": "arxiv",
+      "title": "Physically Based Rendering in the Latent Space",
+      "abstract": "Image diffusion models have shown impressive image generation capabilities but are often hard to control, in contrast to classical computer graphics pipelines such as physically based rendering. However, we observe that there is a bridge between light transport phenomena and the distribution of latent space values produced by such models. Thus, we introduce physically based rendering in the feature space learned by the variational autoencoders in generative models, enabling light transport simulation in the latent space. This allows us to leverage physically based rendering techniques to output latent maps for physically guided content generation. We propose modifications to the rendering equation, which, when paired with a differentiable renderer, can yield an optimal set of scene parameters that require only minimal refinement to accurately render into the pretrained latent space. We train our method on a single rendered image, and then demonstrate the generalization of the method to scene geometry changes, lighting changes, and camera view changes.",
+      "authors": [
+        "Vuk Radovanovic",
+        "Vishesh Gupta",
+        "Adrien Gruson",
+        "Binh-Son Hua"
+      ],
+      "primary_category": "cs.GR",
+      "categories": [
+        "cs.GR",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-17T20:14:41+00:00",
+      "link": "https://arxiv.org/pdf/2609.21054v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "image diffusion models controllable generation via latent-space physically based rendering",
+      "llm_evidence_cn": "图像扩散模型通过潜空间物理渲染实现可控生成",
+      "llm_evidence": "图像扩散模型通过潜空间物理渲染实现可控生成",
+      "canonical_evidence": "图像扩散模型通过潜空间物理渲染实现可控生成",
+      "llm_tldr_en": "It bridges light transport and latent distributions, enabling physically based rendering inside diffusion latent space for controllable image generation.",
+      "llm_tldr_cn": "针对图像扩散模型生成能力强但难以像经典图形管线那样精确控制的问题，本文观察到光传输现象与扩散潜空间数值分布之间存在对应关系。作者在变分自编码器学习到的特征空间中引入基于物理的渲染，并修改渲染方程，配合可微渲染器得到可控的潜图。该工作为扩散图像生成提供了物理引导的内容控制手段，拓展了扩散模型在可控生成方面的能力。",
+      "llm_tldr": "针对图像扩散模型生成能力强但难以像经典图形管线那样精确控制的问题，本文观察到光传输现象与扩散潜空间数值分布之间存在对应关系。作者在变分自编码器学习到的特征空间中引入基于物理的渲染，并修改渲染方程，配合可微渲染器得到可控的潜图。该工作为扩散图像生成提供了物理引导的内容控制手段，拓展了扩散模型在可控生成方面的能力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.21960v1",
+      "source": "arxiv",
+      "title": "Schedule optimization for tau-leaping in masked discrete diffusion",
+      "abstract": "Masked discrete diffusion models are commonly accelerated using the so-called tau-leaping discretization method, which reveals several coordinates in parallel at each sampling step. The sampler replaces the joint conditional law of each revealed block by a product distribution, incurring a factorization error $\\varepsilon_\\text{fact}$ present even with perfectly learned predictors. We analyze the standard sampler on $N$ coordinates with $K$ sampling steps, whose random block sizes depend on a denoising schedule. Our analysis uses an exact integral representation of $\\varepsilon_\\text{fact}$ in terms of a distribution-dependent dependence density $ρ$, which records how conditional dependence evolves as the revealed fraction of coordinates grows. We develop estimators for this profile and quantify how estimation errors affect schedule selection. We derive recursive stationarity equations for the finite-$K$ optimization problem and, under a monotonicity condition, characterize its unique optimizer. In the joint limit $N,K\\to\\infty$, we obtain an explicit characterization of the optimal limiting smooth schedule and quantify the cost of random block sizes relative to a deterministic planner. When $ρ_N$ converges uniformly to a strictly positive continuous profile, optimizing over fixed smooth schedules can improve the leading constant but not the $N/K$ scaling of $\\varepsilon_\\text{fact}$. By contrast, if $ρ_N$ degenerates, suitable schedules can improve the asymptotic order relative to the uniform schedule. Examples based on stationary processes and exchangeable mixtures illustrate these two regimes.",
+      "authors": [
+        "Cecilia Secchi",
+        "Giacomo Zanella"
+      ],
+      "primary_category": "math.ST",
+      "categories": [
+        "math.ST",
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-09-18T16:18:26+00:00",
+      "link": "https://arxiv.org/pdf/2609.21960v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free schedule optimization for discrete diffusion sampling",
+      "llm_evidence_cn": "离散扩散采样的免训练调度优化",
+      "llm_evidence": "离散扩散采样的免训练调度优化",
+      "canonical_evidence": "离散扩散采样的免训练调度优化",
+      "llm_tldr_en": "This paper analyzes the factorization error of tau-leaping samplers in masked discrete diffusion via a dependence density, then develops schedule optimization that reduces error without retraining the model.",
+      "llm_tldr_cn": "掩码离散扩散常用tau-leaping并行揭示多个坐标以加速采样，但用乘积分布近似块内联合条件律会引入分解误差，即使预测器完美也存在。本文分析N个坐标、K步采样下块大小随调度随机的标准采样器，用分布相关的依赖密度给出分解误差的精确积分表示，刻画条件依赖随揭示比例增长的演化，并据此开发调度优化方法。该研究为离散扩散的免训练采样调度优化提供了理论与实用工具。",
+      "llm_tldr": "掩码离散扩散常用tau-leaping并行揭示多个坐标以加速采样，但用乘积分布近似块内联合条件律会引入分解误差，即使预测器完美也存在。本文分析N个坐标、K步采样下块大小随调度随机的标准采样器，用分布相关的依赖密度给出分解误差的精确积分表示，刻画条件依赖随揭示比例增长的演化，并据此开发调度优化方法。该研究为离散扩散的免训练采样调度优化提供了理论与实用工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.21379v1",
+      "source": "arxiv",
+      "title": "JEPA Guided Diffusion: Predictive Vision-Language Conditioning for Generative Traffic Forecasting",
+      "abstract": "Accurate traffic forecasting requires both understanding scene dynamics and synthesizing realistic future observations. Recent diffusion-based video generation models produce visually plausible predictions but require expensive end-to-end training and often entangle scene understanding with image synthesis. In this work, we propose a decoupled forecasting framework that separates future representation learning from video generation. A frozen V-JEPA encoder first extracts predictive latent representations from the observed traffic videos, capturing the underlying scene dynamics in a semantic latent space. A lightweight latent alignment module then projects these representations into the conditioning space of a frozen Cosmos diffusion module, enabling future video synthesis without retraining the large generative model. By freezing all foundation models and training only the lightweight alignment module, the proposed framework substantially reduces optimization complexity while preserving forecasting capability. Experimental results on the AI City Challenge 2026 Track 5 benchmark demonstrate that the proposed method achieved a score of 75.1297, ranking third in the competition. These results suggest that predictive world representations learned by V-JEPA can effectively guide downstream video generation, providing a practical and efficient alternative to end-to-end diffusion-based forecasting.",
+      "authors": [
+        "Trinh Tra Giang Nguyen",
+        "Thanh Nguyen Vo",
+        "Nguyen Hoai Thuong Bui",
+        "Ha Duc Bui"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-18T06:45:37+00:00",
+      "link": "https://arxiv.org/pdf/2609.21379v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "frozen diffusion video generation with lightweight latent alignment",
+      "llm_evidence_cn": "冻结扩散视频生成加轻量潜对齐",
+      "llm_evidence": "冻结扩散视频生成加轻量潜对齐",
+      "canonical_evidence": "冻结扩散视频生成加轻量潜对齐",
+      "llm_tldr_en": "A decoupled traffic forecasting framework uses a frozen V-JEPA encoder and a lightweight alignment module to condition a frozen Cosmos diffusion video generator, avoiding expensive end-to-end training.",
+      "llm_tldr_cn": "该文针对扩散视频生成用于交通预测时需昂贵端到端训练、且将场景理解与图像合成纠缠在一起的问题。作者提出解耦的预测框架，先由冻结的V-JEPA编码器从观测视频中提取预测性潜表示，再用轻量潜对齐模块将其投影到冻结Cosmos扩散模型的条件下，从而在不训练扩散主干的情况下生成未来观测。该设计避免了昂贵的端到端训练，展示了冻结扩散模型配合轻量模块进行视频生成改进的可行路径。",
+      "llm_tldr": "该文针对扩散视频生成用于交通预测时需昂贵端到端训练、且将场景理解与图像合成纠缠在一起的问题。作者提出解耦的预测框架，先由冻结的V-JEPA编码器从观测视频中提取预测性潜表示，再用轻量潜对齐模块将其投影到冻结Cosmos扩散模型的条件下，从而在不训练扩散主干的情况下生成未来观测。该设计避免了昂贵的端到端训练，展示了冻结扩散模型配合轻量模块进行视频生成改进的可行路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
