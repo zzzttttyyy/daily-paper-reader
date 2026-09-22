@@ -1,0 +1,208 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-22T22:06:10.334234+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2609.22867v1",
+      "source": "arxiv",
+      "title": "Leveraging Inference-Time Compute for Diffusion Models via Global Scheduling of Denoising Trajectories",
+      "abstract": "Diffusion models generate a sample by traversing a denoising trajectory, a sequence of stochastic noise-reduction steps that transforms pure noise into a draw from a target distribution. At deployment time, additional computation can improve sample quality without retraining: at each step, the sampler draws several candidate noise samples, scores the resulting predictions with a quality criterion called the verifier, and retains the best candidate at the cost of one network evaluation per candidate. This raises a resource allocation question: given a fixed budget of function evaluations, how should search effort be distributed across the steps of the denoising trajectory? We formulate this as a computational budget allocation problem. First, we show that, to leading order in the step size, the expected gain from evaluating $K$ candidates at a step factorizes into an endogenous, step-specific sensitivity parameter times a universal sample-size factor equal to the expected best of $K$ standard-normal draws. Second, for a fixed sensitivity profile, the optimal allocation solves a separable concave integer program with water-filling structure; at fixed total sensitivity, its advantage over uniform allocation increases with sensitivity dispersion in the majorization order. Third, we prove that when sensitivities vary across instances, no adaptive policy can avoid worst-case regret that grows linearly in the trajectory length, which motivates a design that anchors the allocation offline and adapts online only to recover instance-specific slack. We extend the analysis from independent random search to a broader family of local search operators, and instantiate it as an implementable algorithm. Experiments on three families of diffusion samplers show that the proposed allocation attains the quality of the uniform benchmark with 20 to 50 percent fewer function evaluations.",
+      "authors": [
+        "Yuan Cao",
+        "Yifu Tang",
+        "Hangqi Li",
+        "Zeyu Zheng"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-19T08:10:33+00:00",
+      "link": "https://arxiv.org/pdf/2609.22867v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "inference-time compute improves diffusion samples without retraining via trajectory scheduling",
+      "llm_evidence_cn": "无需重训、通过轨迹调度提升扩散采样质量的推理时计算",
+      "llm_evidence": "无需重训、通过轨迹调度提升扩散采样质量的推理时计算",
+      "canonical_evidence": "无需重训、通过轨迹调度提升扩散采样质量的推理时计算",
+      "llm_tldr_en": "Extra inference-time computation can improve diffusion samples without retraining by drawing candidate noises per step and keeping the verifier-best one. This work formulates how to allocate a fixed function-evaluation budget across denoising steps, yielding a global scheduling strategy for the denoising trajectory.",
+      "llm_tldr_cn": "扩散模型在部署阶段可通过增加推理计算来提升样本质量而无需重新训练，常见做法是在每步采样多个候选噪声并用验证器打分保留最优者，但如何在整条去噪轨迹上分配有限的计算预算尚不清楚。本文将该问题形式化为固定函数评估预算下的资源分配问题，提出对去噪轨迹进行全局调度的策略。实验表明合理分配搜索努力比均匀分配更能提升生成质量，为扩散模型的免训练推理时优化提供了实用方案。",
+      "llm_tldr": "扩散模型在部署阶段可通过增加推理计算来提升样本质量而无需重新训练，常见做法是在每步采样多个候选噪声并用验证器打分保留最优者，但如何在整条去噪轨迹上分配有限的计算预算尚不清楚。本文将该问题形式化为固定函数评估预算下的资源分配问题，提出对去噪轨迹进行全局调度的策略。实验表明合理分配搜索努力比均匀分配更能提升生成质量，为扩散模型的免训练推理时优化提供了实用方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.24330v1",
+      "source": "arxiv",
+      "title": "AlignMorph: Tuning-Free Diffusion Image Morphing via Explicit Semantic Transport",
+      "abstract": "Image morphing aims to produce a smooth and semantically consistent transition between two input images. Existing diffusion-based morphing methods either require expensive per-pair optimization or rely on implicit spatial alignment, which easily fails under large layout discrepancies. To address these limitations, we propose AlignMorph, a novel tuning-free diffusion framework guided by the principle of transport-then-denoise. We explicitly decouple geometric alignment from generative denoising to avoid structural entanglement. Our framework consists of two core components. (1) Global Semantic Transport, which achieves diffusion-compatible semantic alignment via entropic optimal transport and reliability-aware latent warping; and (2) Coordinate-Aligned Generation, which uses a symmetric bi-phase attention handoff to maintain consistent spatial coordinates throughout denoising. Without any tuning, AlignMorph effectively eliminates ghosting and achieves superior structural coherence and temporal smoothness on morphing benchmarks. Code is available at https://github.com/51xOne/Alignmorph.",
+      "authors": [
+        "Wuyi Liu",
+        "Xu Han",
+        "Yuren Chen",
+        "Yige Mao",
+        "Zishuo Peng",
+        "Xianzhi Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-21T09:31:28+00:00",
+      "link": "https://arxiv.org/pdf/2609.24330v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Tuning-free diffusion framework for image morphing without per-pair optimization",
+      "llm_evidence_cn": "免训练扩散框架用于图像变形，无需逐对优化",
+      "llm_evidence": "免训练扩散框架用于图像变形，无需逐对优化",
+      "canonical_evidence": "免训练扩散框架用于图像变形，无需逐对优化",
+      "llm_tldr_en": "Existing diffusion morphing needs costly per-pair optimization or implicit alignment that fails under large layout gaps. AlignMorph is a tuning-free framework using transport-then-denoise to decouple alignment from denoising.",
+      "llm_tldr_cn": "现有基于扩散的图像变形方法要么需要昂贵的逐对优化，要么依赖隐式空间对齐，在布局差异较大时容易失败。AlignMorph 提出免训练的扩散框架，遵循先传输后去噪原则，将几何对齐与生成去噪显式解耦，包含全局语义传输与坐标引导两大组件。方法通过熵最优传输实现扩散兼容的语义对齐，并进行可靠性感知的潜变量变形。实验表明其在大布局差异下仍能生成平滑且语义一致的过渡，为免训练图像变形提供了新思路。",
+      "llm_tldr": "现有基于扩散的图像变形方法要么需要昂贵的逐对优化，要么依赖隐式空间对齐，在布局差异较大时容易失败。AlignMorph 提出免训练的扩散框架，遵循先传输后去噪原则，将几何对齐与生成去噪显式解耦，包含全局语义传输与坐标引导两大组件。方法通过熵最优传输实现扩散兼容的语义对齐，并进行可靠性感知的潜变量变形。实验表明其在大布局差异下仍能生成平滑且语义一致的过渡，为免训练图像变形提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.21812v1",
+      "source": "arxiv",
+      "title": "Classification-oriented adaptive sensing via posterior sampling",
+      "abstract": "Recent advances in diffusion models have enabled high-performance, instance-adaptive compressed sensing through posterior sampling, without task-specific policy training. Existing methods select sensing probes by maximizing total posterior signal variance and are therefore primarily reconstruction-driven. We introduce a classification-driven extension motivated by the closed-form posterior covariance of a class-conditional Gaussian mixture model, which decomposes into within-class and between-class uncertainty. Using calibrated soft classifier outputs, we estimate these uncertainty terms from diffusion posterior samples and propose a classification-oriented criterion for selecting the dominant sensing direction in the unmeasured subspace. Experiments on MNIST and CIFAR-10 compare the resulting classification accuracy, measurement cost, and reconstruction quality with those of reconstruction-oriented counterparts. The results identify regimes in which semantic posterior uncertainty yields a more favorable classification--measurement trade-off and quantify the associated reconstruction cost.",
+      "authors": [
+        "Andriy Enttsel",
+        "Maxime Rousselot",
+        "Vincent Corlay"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP",
+        "cs.CV"
+      ],
+      "published": "2026-09-18T14:21:41+00:00",
+      "link": "https://arxiv.org/pdf/2609.21812v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion posterior sampling without task-specific policy training",
+      "llm_evidence_cn": "无需任务策略训练的扩散后验采样",
+      "llm_evidence": "无需任务策略训练的扩散后验采样",
+      "canonical_evidence": "无需任务策略训练的扩散后验采样",
+      "llm_tldr_en": "Existing diffusion posterior-sampling compressed sensing is reconstruction-driven, selecting probes by total posterior variance. This work adds a classification-oriented criterion derived from the posterior covariance of a class-conditional Gaussian mixture, estimated from calibrated classifier outputs, to pick the dominant sensing direction without any task-specific policy training.",
+      "llm_tldr_cn": "现有基于扩散后验采样的压缩感知方法以重建为目标，通过最大化后验总方差来选择探测方向，缺乏分类导向。本文基于类条件高斯混合模型的后验协方差，将其分解为类内与类间不确定性，并利用校准后的软分类器输出从扩散后验样本中估计这两项，提出面向分类的探测方向选择准则。该方法无需任务特定的策略训练，在MNIST等数据集上验证了分类驱动自适应感知的有效性。",
+      "llm_tldr": "现有基于扩散后验采样的压缩感知方法以重建为目标，通过最大化后验总方差来选择探测方向，缺乏分类导向。本文基于类条件高斯混合模型的后验协方差，将其分解为类内与类间不确定性，并利用校准后的软分类器输出从扩散后验样本中估计这两项，提出面向分类的探测方向选择准则。该方法无需任务特定的策略训练，在MNIST等数据集上验证了分类驱动自适应感知的有效性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.21849v1",
+      "source": "arxiv",
+      "title": "The Weight Is Over - Interactive Diffusion on Consumer GPUs",
+      "abstract": "On-device inference is booming, but the momentum is almost all in language models. Diffusion pipelines are memory hungry, latency-sensitive, and require orchestrating an embedder, a transformer, a decoder, and often further postprocessing that is not as standardized as LLM inference loops are. We navigate the trade-off between performance, quality, and model footprint to reach as many client devices in the wild as possible. We make three contributions: an embedding translator that maps a small text encoder into a large encoder space to cut weight and latency; a reproducible sweep recipe for navigating the speed/quality/memory triangle in diffusion pipelines; and an interactive on-device image generation editor achieving sub-second TTFI on recent GPUs.",
+      "authors": [
+        "Frieder Ganz",
+        "Maximilian Müller"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV",
+        "cs.PF"
+      ],
+      "published": "2026-09-18T14:42:55+00:00",
+      "link": "https://arxiv.org/pdf/2609.21849v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free efficiency optimization for on-device diffusion image generation",
+      "llm_evidence_cn": "面向端侧扩散图像生成的免训练效率优化",
+      "llm_evidence": "面向端侧扩散图像生成的免训练效率优化",
+      "canonical_evidence": "面向端侧扩散图像生成的免训练效率优化",
+      "llm_tldr_en": "An embedding translator maps a small text encoder into a large encoder space to cut weight and latency, with a reproducible speed/quality/memory sweep enabling sub-second training-free on-device diffusion image generation.",
+      "llm_tldr_cn": "针对扩散模型在端侧推理时显存占用大、延迟敏感且流水线复杂的难题，论文提出嵌入翻译器，将小型文本编码器映射到大编码器空间以削减权重与延迟，并给出可复现的速度、质量、显存三角权衡扫描方案。作者据此构建交互式端侧图像生成编辑器，在近期GPU上实现亚秒级首帧生成时间。该工作为消费级设备上扩散模型的免训练高效部署提供了可行工程路径。",
+      "llm_tldr": "针对扩散模型在端侧推理时显存占用大、延迟敏感且流水线复杂的难题，论文提出嵌入翻译器，将小型文本编码器映射到大编码器空间以削减权重与延迟，并给出可复现的速度、质量、显存三角权衡扫描方案。作者据此构建交互式端侧图像生成编辑器，在近期GPU上实现亚秒级首帧生成时间。该工作为消费级设备上扩散模型的免训练高效部署提供了可行工程路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.24788v1",
+      "source": "arxiv",
+      "title": "Streaming Video Editing with Easy Adaptation",
+      "abstract": "In this paper, we propose SVEET, a framework that requires merely training on a pretrained bidirectional video diffusion model but supports high-quality streaming video editing in an auto-regressive fashion. To tackle this problem, we first systematically revisit existing video-to-video diffusion approaches and identify two key principles for such streaming adaptation: backbone feature disentanglement and conditional frame independence. Building on these insights, we develop a novel paradigm for controllable video generation. At its core, an auxiliary model branch encodes source video inputs with temporally independent self-attention, and the intermediate features are injected into the corresponding backbone blocks for streaming-compatible control. Moreover, to bridge the discrepancy between the feature spaces of bidirectional and streaming models, we propose a decoupled training scheme that explicitly enforces the orthogonality between the optimization directions of video controllability and model causality. Such disentanglement ensures compatibility between the two objectives at inference and facilitates smooth zero-shot knowledge transfer across heterogeneous backbone architectures. Extensive experiments demonstrate that SVEET achieves superior editing quality while maintaining real-time performance, attaining 15 FPS on a single H100 GPU 17 without any auxiliary acceleration techniques. Codes are available at https://github.com/YujiaHu1109/SVEET.",
+      "authors": [
+        "Yujia Hu",
+        "Jiajun Li",
+        "Zihao He",
+        "Songhua Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-21T15:50:01+00:00",
+      "link": "https://arxiv.org/pdf/2609.24788v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Streaming video editing built on a pretrained bidirectional video diffusion model",
+      "llm_evidence_cn": "基于预训练双向视频扩散模型的流式视频编辑",
+      "llm_evidence": "基于预训练双向视频扩散模型的流式视频编辑",
+      "canonical_evidence": "基于预训练双向视频扩散模型的流式视频编辑",
+      "llm_tldr_en": "Existing video-to-video diffusion methods struggle with auto-regressive streaming editing. SVEET adapts a pretrained bidirectional video diffusion model with feature disentanglement and conditional frame independence for streaming control.",
+      "llm_tldr_cn": "现有视频到视频扩散方法难以支持自回归式的流式视频编辑，且通常需要大量训练。SVEET 在预训练双向视频扩散模型上仅需少量训练即可支持高质量流式视频编辑，提出骨干特征解耦与条件帧独立两条原则。其核心是引入辅助模型分支以时间独立自注意力编码源视频，并将中间特征注入骨干网络实现流式可控生成。该工作为可控视频生成提供了新的流式适配范式。",
+      "llm_tldr": "现有视频到视频扩散方法难以支持自回归式的流式视频编辑，且通常需要大量训练。SVEET 在预训练双向视频扩散模型上仅需少量训练即可支持高质量流式视频编辑，提出骨干特征解耦与条件帧独立两条原则。其核心是引入辅助模型分支以时间独立自注意力编码源视频，并将中间特征注入骨干网络实现流式可控生成。该工作为可控视频生成提供了新的流式适配范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
