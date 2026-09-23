@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-23 <!--dpr-date:20260923-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/23/2609.20744v2-video-deltanet-a-video-native-hybrid-attention-for-livestream-video-generation" data-sidebar-item="{&quot;title&quot;: &quot;Video DeltaNet: A Video-Native Hybrid Attention for Livestream Video Generation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.20744v2-video-deltanet-a-video-native-hybrid-attention-for-livestream-video-generation&quot;, &quot;score&quot;: &quot;7.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;面向视频扩散生成的混合注意力架构&quot;}">Video DeltaNet: A Video-Native Hybrid Attention for Livestream Video Generation</a>
   * 2026-09-22 <!--dpr-date:20260922-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/22/2609.22867v1-leveraging-inference-time-compute-for-diffusion-models-via-global-scheduling-of-denoising-trajectories" data-sidebar-item="{&quot;title&quot;: &quot;Leveraging Inference-Time Compute for Diffusion Models via Global Scheduling of Denoising Trajectories&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.22867v1-leveraging-inference-time-compute-for-diffusion-models-via-global-scheduling-of-denoising-trajectories&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;无需重训、通过轨迹调度提升扩散采样质量的推理时计算&quot;}">Leveraging Inference-Time Compute for Diffusion Models via Global Scheduling of Denoising Trajectories</a>

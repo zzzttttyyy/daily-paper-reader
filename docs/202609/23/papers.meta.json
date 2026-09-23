@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-23",
+  "date": "2026-09-23",
+  "generated_at": "2026-09-23T22:20:34",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/23/2609.20744v2-video-deltanet-a-video-native-hybrid-attention-for-livestream-video-generation",
+      "section": "quick",
+      "title_en": "Video DeltaNet: A Video-Native Hybrid Attention for Livestream Video Generation",
+      "authors": "Haocheng Xi, Yiming Xie, Hexu Zhao, Yiwen Zhang, Michael Liu, Thomas Creavin, Kurt Keutzer, Xiuyu Li, Zhaoyang Lv, Chenfeng Xu, Haiwen Feng",
+      "date": "2026-09-17",
+      "pdf": "https://arxiv.org/pdf/2609.20744v2",
+      "score": "7.0",
+      "evidence": "面向视频扩散生成的混合注意力架构",
+      "tldr": "视频扩散模型去噪时反复处理长时空 token，注意力成为主要计算瓶颈，而直接套用线性注意力又难以保留高质量生成所需的细粒度交互。VDN 提出视频原生混合注意力，将局部 Softmax 注意力与双向线性记忆结合，线性分支以 Video Delta Attention 按帧联合空间 token 更新记忆，并用独立输出投影、可学习门控和分阶段教师对齐接入预训练模型。在 MiniMax H3 上实例化后，14.3 秒 768p 视频的 DiT 去噪在 8 张 B200 上仅需 6.70 秒，比 50 步稠密基线快 14.5 倍。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Video diffusion models repeatedly process long spatiotemporal token sequences during denoising, making attention a major computational bottleneck. Linear attention offers an appealing alternative and has been widely adopted in recent large language models, but directly applying it to video models often fails to preserve the fine-grained interactions required for high-quality generation. We present Video DeltaNet (VDN), which combines local Softmax attention with bidirectional linear memory for long-range video context. Its linear branch introduces Video Delta Attention (VDA), which updates memory once per frame by jointly incorporating its spatial tokens. Separate output projections and learnable gates calibrate the two branches, while a staged teacher-alignment recipe progressively introduces the new pathway into pretrained models. We instantiate VDN on MiniMax H3, applying the hybrid to video-to-video interactions while retaining Softmax for interactions involving text or audio. With eight-step distillation and an optimized SGLang serving stack, VDN-H3 completes DiT denoising for a 14.3-second, 768p video in 6.70 seconds on eight NVIDIA B200 GPUs, corresponding to a 14.5x speedup over the 50-step dense H3 baseline on the same GPU count. GitHub code available at: https://github.com/OpenVDN/vdn-minimax-h3. Weights available at: https://huggingface.co/OpenVDN/vdn-minimax-h3",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

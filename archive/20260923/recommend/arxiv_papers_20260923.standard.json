@@ -1,0 +1,62 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-23T22:19:26.413377+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.20744v2",
+      "source": "arxiv",
+      "title": "Video DeltaNet: A Video-Native Hybrid Attention for Livestream Video Generation",
+      "abstract": "Video diffusion models repeatedly process long spatiotemporal token sequences during denoising, making attention a major computational bottleneck. Linear attention offers an appealing alternative and has been widely adopted in recent large language models, but directly applying it to video models often fails to preserve the fine-grained interactions required for high-quality generation. We present Video DeltaNet (VDN), which combines local Softmax attention with bidirectional linear memory for long-range video context. Its linear branch introduces Video Delta Attention (VDA), which updates memory once per frame by jointly incorporating its spatial tokens. Separate output projections and learnable gates calibrate the two branches, while a staged teacher-alignment recipe progressively introduces the new pathway into pretrained models. We instantiate VDN on MiniMax H3, applying the hybrid to video-to-video interactions while retaining Softmax for interactions involving text or audio. With eight-step distillation and an optimized SGLang serving stack, VDN-H3 completes DiT denoising for a 14.3-second, 768p video in 6.70 seconds on eight NVIDIA B200 GPUs, corresponding to a 14.5x speedup over the 50-step dense H3 baseline on the same GPU count. GitHub code available at: https://github.com/OpenVDN/vdn-minimax-h3. Weights available at: https://huggingface.co/OpenVDN/vdn-minimax-h3",
+      "authors": [
+        "Haocheng Xi",
+        "Yiming Xie",
+        "Hexu Zhao",
+        "Yiwen Zhang",
+        "Michael Liu",
+        "Thomas Creavin",
+        "Kurt Keutzer",
+        "Xiuyu Li",
+        "Zhaoyang Lv",
+        "Chenfeng Xu",
+        "Haiwen Feng"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-17T17:33:15+00:00",
+      "link": "https://arxiv.org/pdf/2609.20744v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "hybrid attention architecture for video diffusion generation",
+      "llm_evidence_cn": "面向视频扩散生成的混合注意力架构",
+      "llm_evidence": "面向视频扩散生成的混合注意力架构",
+      "canonical_evidence": "面向视频扩散生成的混合注意力架构",
+      "llm_tldr_en": "Video DeltaNet tackles attention bottlenecks in video diffusion models by combining local Softmax attention with bidirectional linear memory, enabling efficient long-range video generation for livestream content.",
+      "llm_tldr_cn": "视频扩散模型在去噪过程中需反复处理长时空 token 序列，注意力成为主要计算瓶颈，而直接采用线性注意力又难以保留高质量生成所需的细粒度交互。本文提出 Video DeltaNet（VDN），将局部 Softmax 注意力与双向线性记忆结合，其线性分支引入 Video Delta 注意力，每帧联合空间 token 更新一次记忆。模型通过独立输出投影与可学习门控校准两条支路，在维持视频生成质量的同时提升效率，为视频扩散生成提供了新的高效注意力架构。",
+      "llm_tldr": "视频扩散模型在去噪过程中需反复处理长时空 token 序列，注意力成为主要计算瓶颈，而直接采用线性注意力又难以保留高质量生成所需的细粒度交互。本文提出 Video DeltaNet（VDN），将局部 Softmax 注意力与双向线性记忆结合，其线性分支引入 Video Delta 注意力，每帧联合空间 token 更新一次记忆。模型通过独立输出投影与可学习门控校准两条支路，在维持视频生成质量的同时提升效率，为视频扩散生成提供了新的高效注意力架构。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
