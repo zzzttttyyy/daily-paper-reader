@@ -1,0 +1,133 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-24T21:56:53.874359+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2609.28342v1",
+      "source": "arxiv",
+      "title": "Zero-Shot Object Removal via Attention Masking, Latent Anchoring, and Refinement",
+      "abstract": "Removing an object from a real image requires more than synthesizing plausible content within a mask: the method must suppress residual object features, preserve the unedited scene, and generate replacement content that is consistent with the surrounding background. This paper approaches object removal from a stage-based perspective and proposes a zero-shot framework for constrained latent inpainting with a frozen pretrained Stable Diffusion model, requiring no task-specific training or model fine-tuning. The method integrates SAM-based mask construction, BLIP image-caption conditioning, DDIM inversion, background-weighted masked null-text optimization, decoder self-attention masking, hard outside-mask latent anchoring, and localized renoise--denoise refinement into a unified pipeline. The method is evaluated through qualitative examples, quantitative local-consistency metrics, and ablation studies. The results demonstrate effective object removal and context-consistent replacement content. The ablations indicate that background-weighted masked NTI is particularly beneficial for structurally complex backgrounds, whereas the no-NTI variant is sufficient in other evaluated examples. Repeated refinement further reduces object remnants and boundary artifacts remaining after the primary editing pass.",
+      "authors": [
+        "Arman Taghizadeh",
+        "Ulf Krumnack",
+        "Kai-Uwe Kühnberger"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-23T16:19:31+00:00",
+      "link": "https://arxiv.org/pdf/2609.28342v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free zero-shot object removal with frozen pretrained Stable Diffusion",
+      "llm_evidence_cn": "基于冻结预训练Stable Diffusion的免训练零样本物体移除",
+      "llm_evidence": "基于冻结预训练Stable Diffusion的免训练零样本物体移除",
+      "canonical_evidence": "基于冻结预训练Stable Diffusion的免训练零样本物体移除",
+      "llm_tldr_en": "This paper proposes a zero-shot framework for object removal using a frozen pretrained Stable Diffusion, requiring no task-specific training or fine-tuning, combining attention masking, latent anchoring and refinement.",
+      "llm_tldr_cn": "从真实图像中移除物体不仅要在掩码内合成合理内容，还需抑制残留物体特征、保持未编辑区域并让替换内容与背景一致。本文提出一个零样本、免训练框架，在冻结的预训练Stable Diffusion上进行受约束的潜在修复，集成SAM掩码构建、BLIP标题条件、DDIM反演、背景加权掩码空文本优化、解码器自注意力掩码与硬性掩码外锚定等。该流程无需任务特定训练或微调即可实现高质量物体移除，展示了免训练扩散编辑的潜力。",
+      "llm_tldr": "从真实图像中移除物体不仅要在掩码内合成合理内容，还需抑制残留物体特征、保持未编辑区域并让替换内容与背景一致。本文提出一个零样本、免训练框架，在冻结的预训练Stable Diffusion上进行受约束的潜在修复，集成SAM掩码构建、BLIP标题条件、DDIM反演、背景加权掩码空文本优化、解码器自注意力掩码与硬性掩码外锚定等。该流程无需任务特定训练或微调即可实现高质量物体移除，展示了免训练扩散编辑的潜力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.21455v2",
+      "source": "arxiv",
+      "title": "CompAdapt: Adaptable Composite Motion Modeling for Physics-Consistent Text-to-Video Generation",
+      "abstract": "While diffusion-based text-to-video (T2V) models have demonstrated impressive capability in generating realistic and temporally coherent videos, they often fail to respect fundamental physical dynamics. Although recent physics-constrained methods incorporate explicit dynamics priors to improve physical plausibility, they remain limited to simple single-type motions, depend on manually specified parameters, and struggle to generalize to unseen physical laws. In this work, we propose CompAdapt, a physics-consistent T2V framework for adaptable generation across complex real-world scenarios. It extends neural dynamics modeling beyond single-type motions to encompass composite physical behaviors, including coupled motions, multi-stage transitions, and multi-object collisions. Furthermore, CompAdapt translates natural language prompts into structured physical semantics, enabling end-to-end specification of motion types, temporal relations, and initial physical parameters. To generalize to novel physical environments, CompAdapt introduces dynamics-aware prior matching, achieving one-shot adaptation without retraining the core dynamics module. In addition, a physics-aware latent feature fusion module improves visual fidelity under fast and complex motion. Experiments on physics-focused T2V benchmarks demonstrate that CompAdapt improves physical consistency over both general T2V models and physics-constrained baselines, while preserving high visual quality and adaptability to unseen dynamics. The project page is available at https://makapic.github.io/CompAdapt/ .",
+      "authors": [
+        "Haoran Qin",
+        "Renlong Wu",
+        "Tianyu Huang",
+        "Yukang Ding",
+        "Hui Li",
+        "Wangmeng Zuo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-18T08:04:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.21455v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion-based text-to-video generation with physics-consistent modeling",
+      "llm_evidence_cn": "基于扩散的文本到视频生成并保持物理一致",
+      "llm_evidence": "基于扩散的文本到视频生成并保持物理一致",
+      "canonical_evidence": "基于扩散的文本到视频生成并保持物理一致",
+      "llm_tldr_en": "CompAdapt addresses diffusion text-to-video models that violate physical dynamics by extending neural dynamics modeling from single-type to composite motions, enabling adaptable physics-consistent video generation.",
+      "llm_tldr_cn": "针对扩散式文本到视频模型难以遵守基本物理动力学、且现有物理约束方法仅限单一运动类型的问题，本文提出CompAdapt框架，把神经动力学建模从单一运动扩展到包含耦合运动与多阶段的复合物理行为。该框架能在复杂真实场景中实现可适配的物理一致视频生成，并可泛化到未见过的物理规律。实验表明其在物理合理性上优于既有方法，为可控扩散视频生成提供了可扩展的新思路。",
+      "llm_tldr": "针对扩散式文本到视频模型难以遵守基本物理动力学、且现有物理约束方法仅限单一运动类型的问题，本文提出CompAdapt框架，把神经动力学建模从单一运动扩展到包含耦合运动与多阶段的复合物理行为。该框架能在复杂真实场景中实现可适配的物理一致视频生成，并可泛化到未见过的物理规律。实验表明其在物理合理性上优于既有方法，为可控扩散视频生成提供了可扩展的新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.24919v1",
+      "source": "arxiv",
+      "title": "PixelDiT2: Representation-Grounded Pixel Diffusion Transformers",
+      "abstract": "Recent advances in pixel-space diffusion models have narrowed the image quality gap with latent-space diffusion, but still converge more slowly and lag behind in final image quality. We argue that a key reason is the lack of an explicit representation prior: unlike latent diffusion, which usually denoises in a compact and structured latent space, pixel diffusion needs to learn denoising-friendly representations and pixel generation simultaneously from raw RGB space. To address this problem, we propose PixelDiT2, an end-to-end pixel-space diffusion model designed to decouple representation learning from pixel generation without introducing an autoencoder or latent reconstruction bottleneck. We propose representation grounding that uses a frozen pretrained vision foundation model to provide explicit per-patch representation guidance throughout denoising, allowing the pixel diffusion transformer to focus more on pixel generation. On ImageNet-256x256, PixelDiT2 achieves an FID of 1.46 after 600 epochs; at 512x512 resolution, PixelDiT2 achieves an FID of 1.48 after 680 epochs.",
+      "authors": [
+        "Yongsheng Yu",
+        "Wei Xiong",
+        "Yichen Sheng",
+        "Shiqiu Liu",
+        "Jiebo Luo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-21T17:17:39+00:00",
+      "link": "https://arxiv.org/pdf/2609.24919v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "pixel-space diffusion model for image generation",
+      "llm_evidence_cn": "用于图像生成的像素空间扩散模型",
+      "llm_evidence": "用于图像生成的像素空间扩散模型",
+      "canonical_evidence": "用于图像生成的像素空间扩散模型",
+      "llm_tldr_en": "Pixel-space diffusion lags latent diffusion in quality and convergence; PixelDiT2 grounds pixel diffusion transformers on frozen pretrained visual representations to decouple representation learning from generation.",
+      "llm_tldr_cn": "像素空间扩散模型虽缩小了与潜空间扩散的图像质量差距，但收敛更慢且质量仍落后，原因在于缺乏显式表示先验。作者提出PixelDiT2，一种端到端像素扩散模型，通过表示接地利用冻结预训练视觉编码器解耦表示学习与像素生成，无需自编码器或潜空间重建瓶颈。实验表明该方法能改善像素扩散的收敛与生成质量，为像素空间生成提供了新思路。",
+      "llm_tldr": "像素空间扩散模型虽缩小了与潜空间扩散的图像质量差距，但收敛更慢且质量仍落后，原因在于缺乏显式表示先验。作者提出PixelDiT2，一种端到端像素扩散模型，通过表示接地利用冻结预训练视觉编码器解耦表示学习与像素生成，无需自编码器或潜空间重建瓶颈。实验表明该方法能改善像素扩散的收敛与生成质量，为像素空间生成提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
