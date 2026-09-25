@@ -1,0 +1,54 @@
+{
+  "label": "2026-09-25",
+  "date": "2026-09-25",
+  "generated_at": "2026-09-25T22:20:57",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202609/25/2609.30096v1-accelerating-video-diffusion-via-training-free-trajectory-routing",
+      "section": "deep",
+      "title_en": "Accelerating Video Diffusion via Training-Free Trajectory Routing",
+      "authors": "Mustafa Munir, Huy Vu, Shreyas Misra, Rohit Jena, Sajad Norouzi, Ali Taghibakhshi, Anis Ahmad, Anjul Patney, Pavlo Molchanov, Nima Tajbakhsh",
+      "date": "2026-09-24",
+      "pdf": "https://arxiv.org/pdf/2609.30096v1",
+      "score": "9.0",
+      "evidence": "面向视频扩散生成的免训练轨迹路由加速",
+      "tldr": "视频扩散推理成本高昂，因为需要多步去噪，且每一步都要执行大模型评估，即使经过步蒸馏仍然昂贵。TRACK提出无需训练的轨迹感知容量路由，通过校准比较大小模型在同输入下的预测分歧，得到逐步切换策略。质量敏感步继续用大模型，低分歧步改走小模型，每步只执行被选中的模型。它在多个视频扩散模型上取得约1.95至2.73倍加速，质量相当且多样性保持，证明自动无训练模型切换是可行的加速范式。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Video diffusion is computationally expensive, as it requires executing a large model across many denoising steps. Even with step-distillation, inference remains expensive because every distilled step still requires a costly model evaluation. We present TRACK: TRajectory-Aware Capacity routing via top-K selection, a heterogeneous denoising strategy that switches between compatible large and small models at selected steps, reducing the average cost per denoising evaluation. The switching steps are determined using a calibration process. TRACK first rolls out a reference trajectory with the large model. Then at each step, the small model's prediction is also collected and compared against the large model's prediction to obtain a relative disagreement score. Both models receive the same latent, timestep, conditioning, and guidance inputs. Aggregating this signal over a calibration set produces a disagreement score map across diffusion steps, which determines a switching policy for an efficient inference process: quality-sensitive steps keep using the large model, while steps with low disagreement scores are routed to the small model. Inference executes only the selected model at each step, requiring no retraining, architecture or scheduler changes, or online dual-model evaluation. Across Wan 2.1, Cosmos 3, TurboDiffusion, and FastVideo, TRACK yields $1.95\\times$, $2.04\\times$-$2.73\\times$, $2.69\\times$, and $2.17\\times$ speedups, respectively, with comparable aggregate quality and high diversity retention. TRACK thereby establishes automated, training-free model switching as a practical acceleration paradigm for video diffusion.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/25/2609.28561v1-care-condition-aware-representation-regularization-for-diffusion-models",
+      "section": "quick",
+      "title_en": "CARE: Condition-Aware Representation Regularization for Diffusion Models",
+      "authors": "Fengjia Guo, Zhuoyi Yang, Jie Tang",
+      "date": "2026-09-23",
+      "pdf": "https://arxiv.org/pdf/2609.28561v1",
+      "score": "6.0",
+      "evidence": "面向扩散模型生成的条件感知正则化",
+      "tldr": "扩散模型的表示正则化能提升样本质量与训练效率，但常用方法忽略了决定生成目标的固有条件（标签或文本）。本文提出 CARE——一种轻量即插即用的条件感知表示正则化框架，依据条件相似度动态调制特征分布，使相似条件形成更紧致的特征簇，无需显式对齐损失或外部监督。在 ImageNet 上 400k 步训练 FID 降低 19.08%，提速 3.5 倍；文本到图像任务 200k 次迭代 FID 降低 16.61%，并改善语义对齐。CARE 还能与现有正则化方法无缝结合，带来额外增益。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Recent advances in diffusion models highlight the importance of representation regularization for improving sample quality and training efficiency. However, commonly used regularization methods often overlook the built-in conditions (such as labels or texts) which directly determine the generation target. In this work, we demonstrate how conditioning signals affect the feature distribution and introduce the CARE (Condition-Aware REpresentation regularization). CARE is a lightweight plug-and-play regularization framework that dynamically modulates feature distribution based on condition similarity. CARE leverages built-in conditioning signals to judiciously guide the representation space, promoting tighter feature clusters for similar conditions without relying on explicit alignment losses or external supervision. Empirically, CARE consistently improves both visual fidelity and convergence stability across both class-to-image and text-to-image tasks. On ImageNet, CARE achieves a 19.08\\% reduction in FID in 400k training steps, leading to a 3.5$\\times$ speed-up. When applied to text-to-image generation, CARE lowers FID by 16.61\\% in 200k iterations and improves semantic alignment between generated samples and text prompts. Moreover, CARE can be seamlessly integrated with existing regularization methods, yielding additional performance gains.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/25/2609.28923v1-virdm-taming-representation-distribution-matching-for-few-step-causal-video-generation",
+      "section": "quick",
+      "title_en": "ViRDM: Taming Representation Distribution Matching for Few-Step Causal Video Generation",
+      "authors": "Zichong Meng, Chongjian Ge, Chun-Hao P. Huang, Yang Zhou, Huaizu Jiang",
+      "date": "2026-09-24",
+      "pdf": "https://arxiv.org/pdf/2609.28923v1",
+      "score": "6.0",
+      "evidence": "无需教师-评论家的少步因果视频生成",
+      "tldr": "少步自回归视频扩散可实现低延迟流式生成，但现有后训练方法依赖分布匹配蒸馏，需大型教师模型与在线评论家估计分布差异，资源开销大。本文研究能否仅针对预计算目标分布后训练生成器以消除教师-评论家堆栈，将表征分布匹配从单步图像生成迁移到少步因果视频生成，并识别出内存不可行梯度路径等三大障碍。该工作降低了视频生成优化的训练依赖。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Few-step autoregressive (AR) video diffusion enables low-latency streaming generation, but existing post-training methods predominantly rely on Distribution Matching Distillation (DMD), requiring both a large pretrained teacher and an online critic to estimate distributional discrepancies through diffusion scores. In this work, we ask whether this resource-intensive teacher--critic stack can be eliminated by post-training only the generator against a precomputed target distribution. Drawing inspiration from representation distribution matching (RDM) for one-step image generation, we systematically study its transfer to few-step causal video generation and identify three key barriers: a memory-intractable gradient path, a distinct video optimization regime, and representation distributions that underconstrain temporal dynamics. We introduce ViRDM, a teacher- and critic-free video post-training recipe that addresses these barriers sequentially. By coupling RDM with stochastically truncated clean-exit supervision, a lightweight VAE decoder, and staged vector--Jacobian products, ViRDM makes representation distribution matching memory-feasible for multi-step causal video rollouts. We further establish effective generated-population and initialization regimes for video RDM, and introduce lightweight dynamics regularization to compensate for the underconstrained temporal dynamics. ViRDM turns three-network distillation into generator-only post-training, reducing GPU memory use and training time while improving video quality. With only 20 generator updates, the recipe reaches 84.87 on the official VBench evaluation, outperforming the previous best few-step causal baseline by 0.36, while requiring 16 A100 GPU-hours. We additionally report exploratory results demonstrating the potential of the same recipe for lower causal sampling budget and for one-, two-, and four-step bidirectional generation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
