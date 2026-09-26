@@ -1,0 +1,54 @@
+{
+  "label": "2026-09-26",
+  "date": "2026-09-26",
+  "generated_at": "2026-09-26T22:09:20",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202609/26/2609.22916v1-planning-and-rendering-in-concert-deepfusion-of-autoregressive-layouts-and-diffusion-for-visual-text-generation",
+      "section": "quick",
+      "title_en": "Planning and Rendering in Concert: DeepFusion of Autoregressive Layouts and Diffusion for Visual Text Generation",
+      "authors": "Guanqiao Chen, Jingru Tan, Dongxing Mao, Catherine Chen, Zijian Du, Libo Qin, Hu Jian Guo, Alex Jinpeng Wang",
+      "date": "2026-09-19",
+      "pdf": "https://arxiv.org/pdf/2609.22916v1",
+      "score": "6.0",
+      "evidence": "自回归规划与扩散渲染联合的文本图像生成",
+      "tldr": "从提示生成含文字图像需文本保真且文字自然融入画面。现有基于布局的AR-diffusion系统常分离优化规划与渲染，规划表示难与图像合成联合适配。DuetGen通过DeepFusion联合学习自回归规划与连续扩散渲染，以规划器隐藏状态条件化DiT，并引入联合目标和Phase-Aware Attention Modulation。仅2B规划器加4B单流DiT，在CVTG-2K达0.8293词准确率，LongText-Bench达0.938，接近更大Qwen-Image，证明联合规划表示与区域渲染的价值。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Generating text-rich images from prompts requires both textual fidelity and the coherent integration of text into the surrounding image. An explicit layout can provide structured guidance about what text should appear and where, but a well-formed plan alone does not guarantee that the renderer will realize it faithfully. Existing layout-based AR-diffusion systems typically optimize planning and rendering separately, preventing the planner's representations from being adapted jointly with image synthesis. We introduce DuetGen, an autonomous visual text generator built on DeepFusion, which jointly learns autoregressive planning and continuous diffusion rendering. DeepFusion conditions a diffusion transformer on the planner's prompt and bbox-content hidden states, allowing rendering supervision to shape the representations connecting textual plans with visual outputs. Its joint objective combines autoregressive plan supervision, text-region-weighted diffusion learning, and auxiliary coordinate supervision to maintain structured planning, emphasize text-bearing regions, and improve the spatial precision of planner representations. During inference, Phase-Aware Attention Modulation strengthens the correspondence between image regions and their matched coordinate and content states, facilitating region-specific execution of the generated plan. With a 2B planner and a 4B single-stream DiT, DuetGen achieves 0.8293 word accuracy on CVTG-2K and 0.938 accuracy on LongText-Bench, closely matching the substantially larger Qwen-Image on both benchmarks. These results demonstrate the value of jointly learned planning representations and region-specific rendering for autonomous visual text generation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/26/2609.29116v1-spectral-amplitude-purification-in-distribution-matching-for-diffusion-distillation",
+      "section": "quick",
+      "title_en": "Spectral Amplitude Purification in Distribution Matching for Diffusion Distillation",
+      "authors": "Zhenyu Zhou, Can Wang, Chun Chen, Zeyu Zheng, Defang Chen",
+      "date": "2026-09-24",
+      "pdf": "https://arxiv.org/pdf/2609.29116v1",
+      "score": "6.0",
+      "evidence": "即插即用频谱调制改进少步扩散采样",
+      "tldr": "分布匹配蒸馏（DMD）能以极少步数高质量采样，但其优化动态被粗粒度低频信号主导，细粒度细节恢复缓慢。作者发现DMD方向误差的频谱幅度显著集中在低频，弱中高频被压制。为此提出即插即用的SAP-DMD，自适应调制DMD方向场幅度谱，抑制低频主导。在PixArt-α、SD3和SD3.5上，2步与4步采样均加速收敛并提升生成质量。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Distribution Matching Distillation (DMD) enables high-quality diffusion sampling in only a few steps, but its optimization dynamics remain dominated by coarse, low-frequency signals, delaying the recovery of fine-grained details. We identify a pronounced concentration of spectral amplitudes at low frequencies in the DMD directional error, where dominant low-frequency components overwhelm weaker mid- and high-frequency signals. To address this issue, we propose Spectral Amplitude Purification for Distribution Matching Distillation (SAP-DMD), a plug-and-play approach that adaptively modulates the amplitude spectrum of the DMD directional field. By suppressing the dominant tail of the amplitude spectrum, SAP-DMD reduces low-frequency dominance and promotes more effective recovery of fine structures and textures. Experiments on PixArt-$α$, SD3, and SD3.5 demonstrate that SAP-DMD accelerates training convergence and improves generation quality under both 2-step and 4-step sampling.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/26/2609.29216v1-fb-gdm-fully-bayesian-guided-diffusion-models-for-high-dimensional-linear-inverse-problems-via-unsupervised-variational-inference",
+      "section": "quick",
+      "title_en": "FB-GDM: Fully-Bayesian Guided Diffusion Models for High-Dimensional Linear Inverse Problems via Unsupervised Variational Inference",
+      "authors": "Gatien Séguy, Thomas Rodet",
+      "date": "2026-09-24",
+      "pdf": "https://arxiv.org/pdf/2609.29216v1",
+      "score": "6.0",
+      "evidence": "通过变分推断去除逐任务超参校准的引导扩散",
+      "tldr": "扩散模型可作为线性逆问题的强先验，但 DPS 与 ΠGDM 等引导方法依赖逐任务调校的标量超参，通常还需借助真值标定。FB-GDM 从 ΠGDM 的高斯近似出发推导闭式条件分数，将两个精度参数视为隐变量，在每个反向步用变分推断估计。在 CelebA-HQ 逆问题上，它仅凭观测即超越标称 ΠGDM 最多 14 dB，并与真值标定 oracle 相差 0.1 dB 以内。同时对算子、噪声与图像分布变化保持稳健，无需真值，避免了 DPS 的幻觉。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion models are powerful priors for linear inverse problems, but the reference guidance methods, Diffusion Posterior Sampling (DPS) and Pseudoinverse-Guided Diffusion Models ($Π$GDM), rely on scalar hyperparameters tuned per task, usually against the ground truth. We introduce FB-GDM, a fully-Bayesian guided diffusion method that removes this calibration step. Starting from the Gaussian approximation of $Π$GDM, we derive a closed-form conditional score that depends on two precision parameters (inverse variances), one associated with the denoising approximation and one with the observation likelihood, and treat them as latent variables inferred by variational inference at each reverse step. A separable factorization makes each update scale linearly with the number of pixels, so the inference stays tractable at full image resolution, at a cost comparable to one $Π$GDM run. FB-GDM requires neither the noise level nor the ground truth: its only inputs are the observation and the forward operator. Experiments on CelebA-HQ inverse problems establish two results. (i) The precision parameters, inferred from the observation alone, allow FB-GDM to outperform $Π$GDM at its nominal setting, even when the latter is given the true noise level, by up to 14 dB depending on the operator, and to match the ground-truth-calibrated $Π$GDM oracle within 0.1 dB. (ii) FB-GDM is robust when the forward operator, the noise level, or the image distribution changes: it stays close to a per-problem $Π$GDM oracle throughout and does not exhibit the hallucinations observed with DPS, whereas DPS substantially degrades at a fixed scale and $Π$GDM stays competitive only if it is re-tuned against the ground truth for each new problem. When the prior is applied to images outside its training set, this re-balancing between data and prior keeps FB-GDM faithful where a fixed face-prior guidance can otherwise hallucinate.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

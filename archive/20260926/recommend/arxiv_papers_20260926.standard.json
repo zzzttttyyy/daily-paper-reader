@@ -1,0 +1,136 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-26T22:07:43.949755+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.22916v1",
+      "source": "arxiv",
+      "title": "Planning and Rendering in Concert: DeepFusion of Autoregressive Layouts and Diffusion for Visual Text Generation",
+      "abstract": "Generating text-rich images from prompts requires both textual fidelity and the coherent integration of text into the surrounding image. An explicit layout can provide structured guidance about what text should appear and where, but a well-formed plan alone does not guarantee that the renderer will realize it faithfully. Existing layout-based AR-diffusion systems typically optimize planning and rendering separately, preventing the planner's representations from being adapted jointly with image synthesis. We introduce DuetGen, an autonomous visual text generator built on DeepFusion, which jointly learns autoregressive planning and continuous diffusion rendering. DeepFusion conditions a diffusion transformer on the planner's prompt and bbox-content hidden states, allowing rendering supervision to shape the representations connecting textual plans with visual outputs. Its joint objective combines autoregressive plan supervision, text-region-weighted diffusion learning, and auxiliary coordinate supervision to maintain structured planning, emphasize text-bearing regions, and improve the spatial precision of planner representations. During inference, Phase-Aware Attention Modulation strengthens the correspondence between image regions and their matched coordinate and content states, facilitating region-specific execution of the generated plan. With a 2B planner and a 4B single-stream DiT, DuetGen achieves 0.8293 word accuracy on CVTG-2K and 0.938 accuracy on LongText-Bench, closely matching the substantially larger Qwen-Image on both benchmarks. These results demonstrate the value of jointly learned planning representations and region-specific rendering for autonomous visual text generation.",
+      "authors": [
+        "Guanqiao Chen",
+        "Jingru Tan",
+        "Dongxing Mao",
+        "Catherine Chen",
+        "Zijian Du",
+        "Libo Qin",
+        "Hu Jian Guo",
+        "Alex Jinpeng Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-19T09:49:02+00:00",
+      "link": "https://arxiv.org/pdf/2609.22916v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "joint autoregressive planning and diffusion rendering for text-rich image generation",
+      "llm_evidence_cn": "自回归规划与扩散渲染联合的文本图像生成",
+      "llm_evidence": "自回归规划与扩散渲染联合的文本图像生成",
+      "canonical_evidence": "自回归规划与扩散渲染联合的文本图像生成",
+      "llm_tldr_en": "DuetGen fuses autoregressive layout planning with continuous diffusion rendering via DeepFusion, jointly adapting the planner to image synthesis for faithful text-rich image generation.",
+      "llm_tldr_cn": "针对文本丰富图像生成中布局规划与渲染彼此割裂、规划表示无法与图像合成联合适配的问题，本文提出 DuetGen，一种基于 DeepFusion 的自主视觉文本生成器，将自回归规划与连续扩散渲染联合学习。方法用扩散 Transformer 对规划进行条件化，使布局与渲染在同一框架内协同优化。该工作提升了文本保真度与文本在图像中的自然融合，为扩散图像生成提供了规划与渲染协同的新思路。",
+      "llm_tldr": "针对文本丰富图像生成中布局规划与渲染彼此割裂、规划表示无法与图像合成联合适配的问题，本文提出 DuetGen，一种基于 DeepFusion 的自主视觉文本生成器，将自回归规划与连续扩散渲染联合学习。方法用扩散 Transformer 对规划进行条件化，使布局与渲染在同一框架内协同优化。该工作提升了文本保真度与文本在图像中的自然融合，为扩散图像生成提供了规划与渲染协同的新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29116v1",
+      "source": "arxiv",
+      "title": "Spectral Amplitude Purification in Distribution Matching for Diffusion Distillation",
+      "abstract": "Distribution Matching Distillation (DMD) enables high-quality diffusion sampling in only a few steps, but its optimization dynamics remain dominated by coarse, low-frequency signals, delaying the recovery of fine-grained details. We identify a pronounced concentration of spectral amplitudes at low frequencies in the DMD directional error, where dominant low-frequency components overwhelm weaker mid- and high-frequency signals. To address this issue, we propose Spectral Amplitude Purification for Distribution Matching Distillation (SAP-DMD), a plug-and-play approach that adaptively modulates the amplitude spectrum of the DMD directional field. By suppressing the dominant tail of the amplitude spectrum, SAP-DMD reduces low-frequency dominance and promotes more effective recovery of fine structures and textures. Experiments on PixArt-$α$, SD3, and SD3.5 demonstrate that SAP-DMD accelerates training convergence and improves generation quality under both 2-step and 4-step sampling.",
+      "authors": [
+        "Zhenyu Zhou",
+        "Can Wang",
+        "Chun Chen",
+        "Zeyu Zheng",
+        "Defang Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-24T06:49:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.29116v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "plug-and-play spectral modulation improving few-step diffusion sampling",
+      "llm_evidence_cn": "即插即用频谱调制改进少步扩散采样",
+      "llm_evidence": "即插即用频谱调制改进少步扩散采样",
+      "canonical_evidence": "即插即用频谱调制改进少步扩散采样",
+      "llm_tldr_en": "SAP-DMD identifies that Distribution Matching Distillation optimization is dominated by low-frequency signals and proposes a plug-and-play spectral amplitude purification that modulates the amplitude spectrum to recover fine details in few-step diffusion sampling.",
+      "llm_tldr_cn": "分布匹配蒸馏能在少步采样中生成高质量图像，但其优化动态被低频信号主导，导致细节恢复延迟。论文提出SAP-DMD，一种即插即用的频谱幅度净化方法，自适应调制蒸馏方向场的幅度谱。通过抑制低频主导成分，方法加速了中高频细节的恢复。该工作为免训练地改进少步扩散采样提供了有效手段。",
+      "llm_tldr": "分布匹配蒸馏能在少步采样中生成高质量图像，但其优化动态被低频信号主导，导致细节恢复延迟。论文提出SAP-DMD，一种即插即用的频谱幅度净化方法，自适应调制蒸馏方向场的幅度谱。通过抑制低频主导成分，方法加速了中高频细节的恢复。该工作为免训练地改进少步扩散采样提供了有效手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29216v1",
+      "source": "arxiv",
+      "title": "FB-GDM: Fully-Bayesian Guided Diffusion Models for High-Dimensional Linear Inverse Problems via Unsupervised Variational Inference",
+      "abstract": "Diffusion models are powerful priors for linear inverse problems, but the reference guidance methods, Diffusion Posterior Sampling (DPS) and Pseudoinverse-Guided Diffusion Models ($Π$GDM), rely on scalar hyperparameters tuned per task, usually against the ground truth. We introduce FB-GDM, a fully-Bayesian guided diffusion method that removes this calibration step. Starting from the Gaussian approximation of $Π$GDM, we derive a closed-form conditional score that depends on two precision parameters (inverse variances), one associated with the denoising approximation and one with the observation likelihood, and treat them as latent variables inferred by variational inference at each reverse step. A separable factorization makes each update scale linearly with the number of pixels, so the inference stays tractable at full image resolution, at a cost comparable to one $Π$GDM run. FB-GDM requires neither the noise level nor the ground truth: its only inputs are the observation and the forward operator. Experiments on CelebA-HQ inverse problems establish two results. (i) The precision parameters, inferred from the observation alone, allow FB-GDM to outperform $Π$GDM at its nominal setting, even when the latter is given the true noise level, by up to 14 dB depending on the operator, and to match the ground-truth-calibrated $Π$GDM oracle within 0.1 dB. (ii) FB-GDM is robust when the forward operator, the noise level, or the image distribution changes: it stays close to a per-problem $Π$GDM oracle throughout and does not exhibit the hallucinations observed with DPS, whereas DPS substantially degrades at a fixed scale and $Π$GDM stays competitive only if it is re-tuned against the ground truth for each new problem. When the prior is applied to images outside its training set, this re-balancing between data and prior keeps FB-GDM faithful where a fixed face-prior guidance can otherwise hallucinate.",
+      "authors": [
+        "Gatien Séguy",
+        "Thomas Rodet"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "stat.ML"
+      ],
+      "published": "2026-09-24T08:24:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.29216v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "guided diffusion that removes per-task hyperparameter calibration via variational inference",
+      "llm_evidence_cn": "通过变分推断去除逐任务超参校准的引导扩散",
+      "llm_evidence": "通过变分推断去除逐任务超参校准的引导扩散",
+      "canonical_evidence": "通过变分推断去除逐任务超参校准的引导扩散",
+      "llm_tldr_en": "FB-GDM replaces per-task hyperparameter tuning in guided diffusion with a fully-Bayesian formulation, inferring precision parameters via variational inference at each reverse step.",
+      "llm_tldr_cn": "针对扩散模型用于线性逆问题时，DPS 与 ΠGDM 等引导方法依赖逐任务调参且常需真值校准的问题，本文提出 FB-GDM 全贝叶斯引导扩散方法。方法从 ΠGDM 的高斯近似出发，推导出仅依赖两个精度参数的闭式条件分数，并将其视为潜变量在每步逆向过程中用变分推断估计，从而免去校准步骤。该工作为扩散模型的无调参、免训练式引导采样提供了概率化方案。",
+      "llm_tldr": "针对扩散模型用于线性逆问题时，DPS 与 ΠGDM 等引导方法依赖逐任务调参且常需真值校准的问题，本文提出 FB-GDM 全贝叶斯引导扩散方法。方法从 ΠGDM 的高斯近似出发，推导出仅依赖两个精度参数的闭式条件分数，并将其视为潜变量在每步逆向过程中用变分推断估计，从而免去校准步骤。该工作为扩散模型的无调参、免训练式引导采样提供了概率化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

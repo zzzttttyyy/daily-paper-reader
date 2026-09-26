@@ -6,30 +6,30 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-25
-- 运行时间：2026-09-25 22:20:51 UTC
+- 最新运行日期：2026-09-26
+- 运行时间：2026-09-26 22:09:18 UTC
 - 运行状态：成功
 - 本次总论文数：3
-- 精读区：1
-- 速读区：2
+- 精读区：0
+- 速读区：3
 
 ### 今日简报（AI）
-1) 今日3篇扩散生成论文速递：1篇9.0精读主攻免训练轨迹路由加速视频扩散，2篇6.0速读聚焦条件感知正则与少步因果视频生成。
-2) 最值得看的是9.0的《Accelerating Video Diffusion via Training-Free Tra
-- 详情：[/202609/25/README](/202609/25/README)
+今日速读 3 篇扩散模型相关工作，聚焦视觉文本生成、扩散蒸馏与高维逆问题求解。最值得关注的是布局自回归与扩散融合提升视觉文本生成，以及频谱幅度净化优化蒸馏质量。普通读者可优先了解扩散模型在生成与压缩中的新思路，再按兴趣跟进贝叶斯逆问题应用。
+- 详情：[/202609/26/README](/202609/26/README)
 
 ### 精读区论文标签
-1. [Accelerating Video Diffusion via Training-Free Trajectory Routing](/202609/25/2609.30096v1-accelerating-video-diffusion-via-training-free-trajectory-routing)  
-   标签：评分：9.0/10、query:tfree-diff
-   evidence：面向视频扩散生成的免训练轨迹路由加速
+- 本次无精读推荐。
 
 ### 速读区论文标签
-1. [CARE: Condition-Aware Representation Regularization for Diffusion Models](/202609/25/2609.28561v1-care-condition-aware-representation-regularization-for-diffusion-models)  
+1. [Planning and Rendering in Concert: DeepFusion of Autoregressive Layouts and Diffusion for Visual Text Generation](/202609/26/2609.22916v1-planning-and-rendering-in-concert-deepfusion-of-autoregressive-layouts-and-diffusion-for-visual-text-generation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向扩散模型生成的条件感知正则化
-2. [ViRDM: Taming Representation Distribution Matching for Few-Step Causal Video Generation](/202609/25/2609.28923v1-virdm-taming-representation-distribution-matching-for-few-step-causal-video-generation)  
+   evidence：自回归规划与扩散渲染联合的文本图像生成
+2. [Spectral Amplitude Purification in Distribution Matching for Diffusion Distillation](/202609/26/2609.29116v1-spectral-amplitude-purification-in-distribution-matching-for-diffusion-distillation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：无需教师-评论家的少步因果视频生成
+   evidence：即插即用频谱调制改进少步扩散采样
+3. [FB-GDM: Fully-Bayesian Guided Diffusion Models for High-Dimensional Linear Inverse Problems via Unsupervised Variational Inference](/202609/26/2609.29216v1-fb-gdm-fully-bayesian-guided-diffusion-models-for-high-dimensional-linear-inverse-problems-via-unsupervised-variational-inference)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：通过变分推断去除逐任务超参校准的引导扩散
 
 
 <div class="dpr-home-promo-card">
