@@ -1,0 +1,348 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-28T23:53:55.780232+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 8,
+    "quick_skim_target": 11,
+    "quick_selected": 8
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.31050v1",
+      "source": "arxiv",
+      "title": "Where Compute Matters: Heterogeneous Attention for Efficient Video Diffusion",
+      "abstract": "Efficient video generation requires reducing the quadratic cost of self-attention over long spatio-temporal token sequences. Existing efficient-attention methods typically apply the same computation pattern to every token, even though denoising difficulty varies substantially across video regions and evolves throughout the generation process. We introduce HetA-DiT, a heterogeneous attention mechanism that adaptively allocates computation according to token difficulty. A lightweight uncertainty branch predicts a token-wise estimate of denoising difficulty, which is used to route uncertain tokens through dense global attention while processing more reliable tokens with efficient local attention. The resulting routing is content- and timestep-adaptive, retains global context where it matters most, and provides a single parameter for controlling the quality-efficiency trade-off. HetA-DiT is compatible with few-step distribution-matching distillation and introduces no additional Transformer evaluation at inference time by reusing uncertainty estimates from the preceding denoising step. We evaluate the method on DMD-distilled Wan2.2-5B and Wan2.1-1.3B models. Across VBench, VBench-2.0, and human preference evaluation, HetA-DiT maintains competitive generation quality while routing only approximately 20% of tokens through dense attention.",
+      "authors": [
+        "Olga Zatsarynna",
+        "Denis Korzhenkov",
+        "Juergen Gall",
+        "Amir Habibian",
+        "Mohsen Ghafoorian"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-25T09:43:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.31050v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "efficient video diffusion with adaptive inference-time attention",
+      "llm_evidence_cn": "面向高效视频扩散的自适应推理期注意力",
+      "llm_evidence": "面向高效视频扩散的自适应推理期注意力",
+      "canonical_evidence": "面向高效视频扩散的自适应推理期注意力",
+      "llm_tldr_en": "This paper introduces HetA-DiT, a heterogeneous attention mechanism that adaptively allocates computation per token during video diffusion denoising to cut the quadratic attention cost.",
+      "llm_tldr_cn": "视频扩散生成中自注意力随时空token数量呈二次增长，而现有高效注意力对所有token采用相同计算模式，忽略了去噪难度的时空差异。本文提出HetA-DiT异构注意力机制，用轻量不确定性分支预测token级去噪难度，将高不确定token路由到稠密全局注意力、可靠token交由高效局部注意力处理。该路由随内容与时间步自适应变化，在降低计算开销的同时保持生成质量，为视频扩散推理加速提供了免重训练的优化思路。",
+      "llm_tldr": "视频扩散生成中自注意力随时空token数量呈二次增长，而现有高效注意力对所有token采用相同计算模式，忽略了去噪难度的时空差异。本文提出HetA-DiT异构注意力机制，用轻量不确定性分支预测token级去噪难度，将高不确定token路由到稠密全局注意力、可靠token交由高效局部注意力处理。该路由随内容与时间步自适应变化，在降低计算开销的同时保持生成质量，为视频扩散推理加速提供了免重训练的优化思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.25444v1",
+      "source": "arxiv",
+      "title": "Mean Velocity Matching: Rethinking Generative Dynamics in Diffusion Models",
+      "abstract": "This work studies prediction parameterization for stochastic generative dynamics in diffusion models. Existing velocity-based generative models provide the simplicity of learning a single transport field, but their standard formulation is deterministic, whereas stochastic extensions generally require additional score information or an intermediate velocity-to-score reconstruction. To retain single-field prediction while directly supporting stochastic reverse dynamics, this paper introduces Mean Velocity Matching (MVM). MVM constructs a Gaussian perturbation process for which the conditional expectation of a restoration-oriented velocity, $(x_0-x_t)/t$, directly forms the reverse-SDE drift. Consequently, a single learned field is sufficient to parameterize the stochastic reverse process without separately estimating or reconstructing the score. Because direct regression of this velocity becomes unbounded near $t=0$, MVM further introduces a $\\sqrt{t}$-scaled parameterization that preserves the reverse dynamics while yielding a bounded training target. The same learned field also induces a deterministic probability-flow ODE, enabling stochastic and deterministic sampling to be studied within a unified formulation. Experiments with Transformer-based generative models achieve an FID of $\\MVMImageNetThirtyTwoFID$ at \\MVMImageNetThirtyTwoNFE\\ NFE on ImageNet $32\\times32$ and $\\MVMImageNetTwoFiftySixFID$ at \\MVMImageNetTwoFiftySixNFE\\ NFE on ImageNet $256\\times256$. Controlled SDE--ODE comparisons further show that the ODE performs better under very low NFE, whereas the stochastic reverse process achieves lower FID when sufficient function evaluations are available. These results demonstrate that MVM provides a direct single-field parameterization of stochastic reverse dynamics while maintaining competitive generation quality.",
+      "authors": [
+        "Yunhong Zhang",
+        "Changjie Cao",
+        "Zhihua Zhang",
+        "Bingli Liu",
+        "Zongjie Cao",
+        "Zongyong Cui",
+        "Ying Yang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "published": "2026-09-21T21:54:51+00:00",
+      "link": "https://arxiv.org/pdf/2609.25444v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion model generative dynamics and sampling parameterization",
+      "llm_evidence_cn": "扩散模型生成动态与采样参数化",
+      "llm_evidence": "扩散模型生成动态与采样参数化",
+      "canonical_evidence": "扩散模型生成动态与采样参数化",
+      "llm_tldr_en": "Mean Velocity Matching reparameterizes stochastic diffusion dynamics so that a single learned velocity field directly forms the reverse-SDE drift, enabling stochastic generation without extra score information or reconstruction.",
+      "llm_tldr_cn": "扩散模型的随机生成动态通常需要额外分数信息或中间的速度到分数重构，而基于速度的模型虽简洁却多为确定性。本文提出平均速度匹配MVM，构造一个高斯扰动过程，使恢复导向速度的条件期望直接构成反向SDE的漂移项，从而仅用单一学习场即可支持随机反向动态。该参数化在保持单场预测简洁性的同时直接支持随机生成，简化了扩散模型的建模与采样。其贡献在于重新思考扩散生成动态的参数化方式，为高效随机采样提供新思路。",
+      "llm_tldr": "扩散模型的随机生成动态通常需要额外分数信息或中间的速度到分数重构，而基于速度的模型虽简洁却多为确定性。本文提出平均速度匹配MVM，构造一个高斯扰动过程，使恢复导向速度的条件期望直接构成反向SDE的漂移项，从而仅用单一学习场即可支持随机反向动态。该参数化在保持单场预测简洁性的同时直接支持随机生成，简化了扩散模型的建模与采样。其贡献在于重新思考扩散生成动态的参数化方式，为高效随机采样提供新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "diffusion models for generative tasks",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.27901v1",
+      "source": "arxiv",
+      "title": "All modalities are equal, but video is more equal: Closing the Cross-Attention Gap in Joint Video Generation",
+      "abstract": "Video is a rich representation of a physical event, capturing appearance, geometry, motion, and temporal evolution. Other modalities, such as 3D body motion or audio, encode narrower aspects of the same event. We find that joint multimodal diffusion transformers exhibit a corresponding asymmetry in cross-modal correspondence: companion modalities develop strong correspondences to video, but the reciprocal correspondences through which they constrain video remain substantially weaker. We express both directions as comparable correspondence distributions over video tokens and define their disagreement as the reciprocal correspondence gap. We introduce RecCAR, standing for Reciprocal Cross-modal Attention Regularization, a KL regularizer that uses the well-established video-to-modality correspondence as a fixed reference and aligns the weaker modality-to-video correspondence toward it. Across joint video-motion and video-audio generation, RecCAR improves the Human Anatomy score from 0.69 to 0.75 and reduces audio-video desynchronization from 0.804 to 0.752, while improving overall generation",
+      "authors": [
+        "Ohad Rahamim",
+        "Dvir Samuel",
+        "Idan Schwartz",
+        "Gal Chechik"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-23T12:02:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.27901v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "joint video generation with diffusion transformers",
+      "llm_evidence_cn": "扩散Transformer联合视频生成",
+      "llm_evidence": "扩散Transformer联合视频生成",
+      "canonical_evidence": "扩散Transformer联合视频生成",
+      "llm_tldr_en": "The paper identifies a reciprocal correspondence gap in joint multimodal diffusion transformers where companion modalities constrain video weakly, and proposes RecCAR attention regularization to close it.",
+      "llm_tldr_cn": "视频能丰富刻画物理事件的外观、几何与运动，而其他模态只编码其中部分方面。本文发现联合多模态扩散Transformer存在跨模态对应不对称：伴随模态对视频的对应强，而反向约束视频的对应明显较弱。作者将双向对应表示为可比分布并定义互惠对应差距，提出RecCAR互惠交叉模态注意力正则化。实验表明该方法缩小了差距并提升了联合视频生成质量。",
+      "llm_tldr": "视频能丰富刻画物理事件的外观、几何与运动，而其他模态只编码其中部分方面。本文发现联合多模态扩散Transformer存在跨模态对应不对称：伴随模态对视频的对应强，而反向约束视频的对应明显较弱。作者将双向对应表示为可比分布并定义互惠对应差距，提出RecCAR互惠交叉模态注意力正则化。实验表明该方法缩小了差距并提升了联合视频生成质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.28473v1",
+      "source": "arxiv",
+      "title": "On the Diffusibility of High-Dimensional Latents",
+      "abstract": "Representation Autoencoders (RAEs) enable diffusion models to operate in the feature spaces of pretrained visual encoders. However, many off-the-shelf encoders are not optimized for faithful reconstruction, discarding fine-grained visual details. As expected, finetuning these encoders for image reconstruction recovers such details. However, perhaps counterintuitively, this procedure reduces the effective dimensionality of the resulting representation, and the altered geometry has downstream effects on generation. Specifically, we show that using the standard velocity prediction in flow matching in this high-dimensional space requires the model to fit orthogonal noise directions outside the low-dimensional signal manifold, making optimization inefficient. This motivates using the clean data parameterization ($\\boldsymbol{x}_{0}$-prediction) instead, which focuses learning on the underlying signal manifold. Across experiments with multiple strong-reconstruction encoders, we show that $\\boldsymbol{x}_{0}$-prediction consistently improves text-to-image generation performance.",
+      "authors": [
+        "Chao Feng",
+        "Zhiyang Xu",
+        "Bowei Chen",
+        "Yuanjun Xiong",
+        "Xiyao Wang",
+        "Jui-Hsien Wang",
+        "Richard Zhang",
+        "Zhe Lin",
+        "Andrew Owens",
+        "Yijun Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-23T17:59:56+00:00",
+      "link": "https://arxiv.org/pdf/2609.28473v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion models for image generation, optimization efficiency in high-dimensional latents",
+      "llm_evidence_cn": "扩散模型图像生成，高维潜空间优化效率",
+      "llm_evidence": "扩散模型图像生成，高维潜空间优化效率",
+      "canonical_evidence": "扩散模型图像生成，高维潜空间优化效率",
+      "llm_tldr_en": "This paper analyzes why standard velocity prediction in flow matching becomes inefficient in high-dimensional latent spaces of representation autoencoders, showing that models must fit noise directions outside the low-dimensional signal manifold.",
+      "llm_tldr_cn": "表示自编码器使扩散模型能在预训练视觉编码器的特征空间中运行，但现成编码器重建细节不足，而微调编码器虽恢复细节，却会降低表示的有效维度并改变几何，进而影响生成。本文指出在高维潜空间使用标准流匹配速度预测时，模型需拟合信号低维流形之外的正交噪声方向，导致优化效率低下。基于该分析，作者提出改进思路以提升高维潜空间中的扩散建模效率。该工作揭示了潜空间几何与扩散图像生成优化之间的深层联系。",
+      "llm_tldr": "表示自编码器使扩散模型能在预训练视觉编码器的特征空间中运行，但现成编码器重建细节不足，而微调编码器虽恢复细节，却会降低表示的有效维度并改变几何，进而影响生成。本文指出在高维潜空间使用标准流匹配速度预测时，模型需拟合信号低维流形之外的正交噪声方向，导致优化效率低下。基于该分析，作者提出改进思路以提升高维潜空间中的扩散建模效率。该工作揭示了潜空间几何与扩散图像生成优化之间的深层联系。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.30456v1",
+      "source": "arxiv",
+      "title": "Spectral Feedback for Test-Time Alignment of Protein Diffusion Models",
+      "abstract": "Reward maximization alignment methods for discrete diffusion models have primarily focused on steering the reverse process, either by influencing token logits or by selecting favorable sequences at intermediate steps. These approaches largely treat inference as a unidirectional process, lacking mechanisms for revisiting undesirable token selections. We introduce Spectral Feedback, an algorithm that selects edit-positions in a feedback loop, allowing the model to iteratively correct its own generations. This approach leverages the mask structure of discrete diffusion models by re-masking and re-sampling tokens, analogous to image editing methods that reintroduce noisy latents and re-run the reverse process. While prior alignment methods focus on what token labels to assign to maximize a target reward, we instead treat which tokens to revisit as the central alignment problem. Selecting edit-positions is challenging because edit effects are interdependent: the impact of modifying one token depends on which others are edited simultaneously. We define an edit-set as a set of token positions to re-mask and re-sample. Motivated by prior work on sparse interactions in biological systems, we find empirically that edit-set value functions for protein inverse folding admit sparse Fourier representations. This structure enables Spectral Feedback to efficiently learn and optimize the value functions for edit-position selection. Spectral Feedback is model-agnostic and can be applied to pretrained, test-time aligned, and fine-tuned diffusion models. For all of these models, the algorithm improves alignment performance without modifying the underlying generative process. Applied to inverse folding with a protein stability reward oracle, it achieves a 32.3% increase in stable proteins for a pretrained model, 24.8% for Best-of-10, and 5.8% for a state-of-the-art RL fine-tuned diffusion model.",
+      "authors": [
+        "Shai Dickman",
+        "Mert Cemri",
+        "Landon Butler",
+        "Kannan Ramchandran"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-24T18:49:51+00:00",
+      "link": "https://arxiv.org/pdf/2609.30456v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free test-time alignment of diffusion models via feedback loop",
+      "llm_evidence_cn": "通过反馈循环实现扩散模型免训练测试时对齐",
+      "llm_evidence": "通过反馈循环实现扩散模型免训练测试时对齐",
+      "canonical_evidence": "通过反馈循环实现扩散模型免训练测试时对齐",
+      "llm_tldr_en": "Discrete diffusion alignment steers inference unidirectionally and cannot revisit bad tokens. Spectral Feedback picks edit positions in a feedback loop, re-masking and re-sampling tokens to iteratively correct generations, offering a training-free test-time alignment method for diffusion models.",
+      "llm_tldr_cn": "该论文针对离散扩散模型对齐方法只能单向引导推理、无法回溯并纠正错误token选择的问题，提出Spectral Feedback算法。该方法在反馈循环中选择编辑位置，通过重新加掩码并重采样token，使模型迭代修正自身生成结果，属于免训练的测试时对齐。其思路借鉴图像编辑中重新引入噪声潜变量并重跑逆过程的做法，为图像与视频扩散模型的免训练优化提供了可迁移的范式。",
+      "llm_tldr": "该论文针对离散扩散模型对齐方法只能单向引导推理、无法回溯并纠正错误token选择的问题，提出Spectral Feedback算法。该方法在反馈循环中选择编辑位置，通过重新加掩码并重采样token，使模型迭代修正自身生成结果，属于免训练的测试时对齐。其思路借鉴图像编辑中重新引入噪声潜变量并重跑逆过程的做法，为图像与视频扩散模型的免训练优化提供了可迁移的范式。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.30963v1",
+      "source": "arxiv",
+      "title": "Where and When to Force: Routed Forcing for Streaming Avatars",
+      "abstract": "Audio-driven streaming avatar generation requires real-time synthesis of speech-synchronized videos with dynamic and diverse motion. Self Forcing uses Distribution Matching Distillation (DMD) to distill bidirectional video diffusion models into causal, few-step generators for real-time streaming. However, DMD minimizes a reverse KL divergence, which is inherently mode-seeking: it causes the student to discard high-dynamic modes and collapse onto static outputs, compressing both dynamics and diversity of generated videos. We find that this collapse is region-heterogeneous: person regions involving pose and gesture variations suffer the largest diversity loss, the audio-driven mouth region shows a small loss, and the background remains nearly stable. Based on this observation, we propose Routed Forcing, which routes the distillation objective by semantic region and noise stage to improve dynamics and diversity while preserving visual quality. Specifically, (1) Where to Force: Semantic-Region Routing applies Data-Forcing Distillation (DFD), which supervises the student with real videos, to the person region where diversity collapse is most severe, while retaining DMD for the mouth and background to preserve lip synchronization and scene stability. (2) When to Force: Noise-Stage Routing activates DFD at high noise stages, where real video serves as effective supervision to inject diverse and dynamic motion patterns. At low noise stages, DMD is used to refine details, avoiding blur and artifacts from spatial differences between real video and student-generated video. Experiments show that Routed Forcing improves dynamics by up to 45% and diversity by 7-25% over Self Forcing, while preserving video quality and lip synchronization.",
+      "authors": [
+        "Zihan Su",
+        "Siwen Lu",
+        "Junhao Zhuang",
+        "Zeyue Xue",
+        "Haoyang Huang",
+        "Guanghao Li",
+        "Xiaofeng Tan",
+        "Chun Yuan",
+        "Nan Duan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-25T08:15:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.30963v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video diffusion models distilled into few-step streaming video generation",
+      "llm_evidence_cn": "视频扩散模型蒸馏为少步流式视频生成",
+      "llm_evidence": "视频扩散模型蒸馏为少步流式视频生成",
+      "canonical_evidence": "视频扩散模型蒸馏为少步流式视频生成",
+      "llm_tldr_en": "Routed Forcing addresses the mode-seeking collapse of DMD-based distillation for streaming avatar video diffusion, applying region- and time-specific forcing to preserve motion dynamics and diversity in few-step causal video generation.",
+      "llm_tldr_cn": "音频驱动流式数字人生成需要实时合成语音同步且动作多样的视频，自强制利用分布匹配蒸馏DMD把双向视频扩散模型蒸馏为因果少步生成器。然而DMD最小化反向KL散度，具有模式寻求特性，会使学生模型丢弃高动态模式并塌缩为静态输出，压缩视频的动态与多样性。作者发现这种崩塌在区域上异质：涉及姿态手势的人体区域多样性损失最大，口型区域较小，背景几乎稳定。据此提出路由强制，在合适区域与时刻施加强制以保留运动与多样性，为流式视频扩散的少步蒸馏提供更精细策略。",
+      "llm_tldr": "音频驱动流式数字人生成需要实时合成语音同步且动作多样的视频，自强制利用分布匹配蒸馏DMD把双向视频扩散模型蒸馏为因果少步生成器。然而DMD最小化反向KL散度，具有模式寻求特性，会使学生模型丢弃高动态模式并塌缩为静态输出，压缩视频的动态与多样性。作者发现这种崩塌在区域上异质：涉及姿态手势的人体区域多样性损失最大，口型区域较小，背景几乎稳定。据此提出路由强制，在合适区域与时刻施加强制以保留运动与多样性，为流式视频扩散的少步蒸馏提供更精细策略。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.30988v1",
+      "source": "arxiv",
+      "title": "PhoenixSR: Generative Heterogeneous Distillation Unleashes Efficient Models for Real-World Super-Resolution",
+      "abstract": "Real-world image super-resolution (SR) requires recovering perceptually realistic high-resolution images from complex low-resolution observations while preserving faithful content. Diffusion-based SR benefits from strong generative priors but incurs substantial computational overhead, whereas feed-forward CNN and Transformer SR models are efficient yet often struggle to recover realistic high-frequency details. This motivates a natural question: can diffusion priors be transferred to existing diffusion-free SR networks without introducing diffusion components at inference time? To this end, we propose PhoenixSR, a generative heterogeneous distillation framework that transfers diffusion priors to independently designed feed-forward SR networks through score-based distribution matching. Rather than aligning heterogeneous features or imitating sampled diffusion outputs, PhoenixSR uses the pretrained diffusion model as distribution-level supervision, while paired SR supervision preserves reconstruction fidelity. To make distribution matching effective for fidelity-sensitive SR, we introduce Heterogeneous Distribution Adaptation, which adapts the target score to the SR domain, improves tracking of the evolving student distribution, and anchors training with paired supervision. We further employ Directional Reliability Weighting, a lightweight residual-consistency-based reweighting strategy that reduces unstable distributional guidance. All diffusion-related components are removed after training, leaving the original student architecture and inference cost unchanged. Experiments on three SR benchmarks and six feed-forward backbones, including SwinIR, HAT, Real-ESRGAN, and SeeMoRe, show consistent perceptual improvements with largely preserved reconstruction fidelity.",
+      "authors": [
+        "Xin Di",
+        "Mingyu Shi",
+        "Yuanfei Bao",
+        "Long Peng",
+        "Yue Zhao",
+        "Jiaming Guo",
+        "Renjing Pei",
+        "Xueyang Fu",
+        "Yang Cao",
+        "Zheng-Jun Zha"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-25T08:34:32+00:00",
+      "link": "https://arxiv.org/pdf/2609.30988v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "transfers diffusion priors to diffusion-free SR networks without diffusion at inference",
+      "llm_evidence_cn": "将扩散先验迁移到无扩散超分网络，推理免扩散",
+      "llm_evidence": "将扩散先验迁移到无扩散超分网络，推理免扩散",
+      "canonical_evidence": "将扩散先验迁移到无扩散超分网络，推理免扩散",
+      "llm_tldr_en": "Diffusion super-resolution is strong but costly, while feed-forward SR is efficient but lacks high-frequency realism. PhoenixSR distills diffusion priors into diffusion-free SR networks so inference needs no diffusion components.",
+      "llm_tldr_cn": "真实世界图像超分需兼顾感知真实感与内容保真。扩散模型虽具强生成先验，却带来高昂计算开销；前馈超分网络高效但难以恢复高频细节。为此提出PhoenixSR，一种生成式异构蒸馏框架，将扩散先验迁移到独立设计的无扩散超分网络中，使推理阶段无需引入扩散组件。该工作在不牺牲效率的前提下提升了真实场景超分的生成质量。",
+      "llm_tldr": "真实世界图像超分需兼顾感知真实感与内容保真。扩散模型虽具强生成先验，却带来高昂计算开销；前馈超分网络高效但难以恢复高频细节。为此提出PhoenixSR，一种生成式异构蒸馏框架，将扩散先验迁移到独立设计的无扩散超分网络中，使推理阶段无需引入扩散组件。该工作在不牺牲效率的前提下提升了真实场景超分的生成质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.31349v1",
+      "source": "arxiv",
+      "title": "DyMD: Preserving Interaction Dynamics through Distribution Matching Distillation in Few-Step Video World Models",
+      "abstract": "Large video diffusion models offer expressive priors for embodied prediction and learning, yet their many-step sampling remains costly for interactive downstream use. Distribution Matching Distillation (DMD) enables few-step video generation, but can suppress robot--object motion while preserving visual quality. Examining DMD's teacher and fake-score signals, we find that weak re-noising keeps the teacher posterior concentrated near motion-deficient rollouts, limiting motion-restoring guidance. Meanwhile, stronger-motion rollouts tend to incur larger fake-score fitting errors, which can hinder the generator's learning of interaction dynamics. We propose DyMD, a DMD framework that adapts both teacher supervision and critic fitting to the evolving student. Temporal affinity--conditioned re-noise sampling adapts the timestep distribution to each rollout's current interaction fidelity by mixing the base schedule with a teacher prior motivated by local posterior variation, thereby balancing motion recovery and appearance refinement. To better track stronger-motion rollouts, dynamics-guided fake-score tracking uses a noise-conditioned predictor to estimate noise-relative fitting difficulty from latent temporal dynamics, then upweights predicted-hard rollouts in the critic loss. Using DyMD, we distill a 14B teacher into a four-step 1.3B student with no auxiliary modules at inference. On embodied-video benchmarks, the student improves R-Bench task adherence by $9.6$ percentage points and PAI-Bench-G Domain score by $5.1$ points over Base DMD while maintaining comparable visual quality. As a backbone for downstream action planning, our student achieves 34% mean success across two WorldArena tasks, compared with 16% for Base DMD.",
+      "authors": [
+        "Haojun Xu",
+        "Jie Huang",
+        "Xin Lu",
+        "Mingchen Zhong",
+        "Zihao Fan",
+        "Linjiang Huang",
+        "Si Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-25T14:47:17+00:00",
+      "link": "https://arxiv.org/pdf/2609.31349v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video diffusion models, few-step video generation via distribution matching distillation",
+      "llm_evidence_cn": "视频扩散模型，通过分布匹配蒸馏实现少步视频生成",
+      "llm_evidence": "视频扩散模型，通过分布匹配蒸馏实现少步视频生成",
+      "canonical_evidence": "视频扩散模型，通过分布匹配蒸馏实现少步视频生成",
+      "llm_tldr_en": "DyMD analyzes teacher and fake-score signals in distribution matching distillation to show why few-step video world models lose robot-object motion, and adapts both signals to preserve interaction dynamics while keeping visual quality.",
+      "llm_tldr_cn": "大型视频扩散模型为具身预测提供强先验，但多步采样成本高，难以用于交互式下游任务。分布匹配蒸馏DMD可实现少步视频生成，却会抑制机器人与物体的运动，虽然视觉质量尚可。作者分析DMD的教师与假分数信号，发现弱重噪使教师后验集中于运动不足的rollout，限制恢复运动的引导，而强运动rollout又易产生较大假分数拟合误差，妨碍生成器学习交互动态。据此提出DyMD框架，同时调整教师监督与假分数信号，提升少步视频世界模型对交互动态的保持能力。",
+      "llm_tldr": "大型视频扩散模型为具身预测提供强先验，但多步采样成本高，难以用于交互式下游任务。分布匹配蒸馏DMD可实现少步视频生成，却会抑制机器人与物体的运动，虽然视觉质量尚可。作者分析DMD的教师与假分数信号，发现弱重噪使教师后验集中于运动不足的rollout，限制恢复运动的引导，而强运动rollout又易产生较大假分数拟合误差，妨碍生成器学习交互动态。据此提出DyMD框架，同时调整教师监督与假分数信号，提升少步视频世界模型对交互动态的保持能力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -6,32 +6,45 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-27
-- 运行时间：2026-09-27 22:24:28 UTC
+- 最新运行日期：2026-09-28
+- 运行时间：2026-09-28 23:58:24 UTC
 - 运行状态：成功
-- 本次总论文数：3
+- 本次总论文数：8
 - 精读区：0
-- 速读区：3
+- 速读区：8
 
 ### 今日简报（AI）
-今天速读3篇视觉生成与视频AI论文，全部6.0分，精读0篇。  
-最值得关注的是视觉生成单GPU最高265倍加速的SparkDiffusion，以及揭示视频扩散模型为何违背物理的注意力机制缺陷分析。  
-普通读者可先扫这两篇的摘要与结论，再按需了解复杂场景实时唇同步的ComplexSync。
-- 详情：[/202609/27/README](/202609/27/README)
+今天速读8篇，重点集中在视频扩散与生成建模效率。最值得看的是《Where Compute Matters》提出的异构注意力机制，以及《Mean Velocity Matching》对扩散生成动态的重新思考。若只想跟一个方向，建议先看视频扩散的计算分配优化，再看跨模态注意力如何影响联合视频生成。
+- 详情：[/202609/28/README](/202609/28/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [SparkDiffusion: Mitigating the High-Sparsity Trap --- A Unified Framework for up to $265\times$ Single-GPU Acceleration of Visual Generation](/202609/27/2609.23153v1-sparkdiffusion-mitigating-the-high-sparsity-trap-----a-unified-framework-for-up-to-265times-single-gpu-acceleration-of-visual-generation)  
+1. [Where Compute Matters: Heterogeneous Attention for Efficient Video Diffusion](/202609/28/2609.31050v1-where-compute-matters-heterogeneous-attention-for-efficient-video-diffusion)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：面向高效视频扩散的自适应推理期注意力
+2. [Mean Velocity Matching: Rethinking Generative Dynamics in Diffusion Models](/202609/28/2609.25444v1-mean-velocity-matching-rethinking-generative-dynamics-in-diffusion-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：通过稀疏注意力加速视频扩散Transformer的框架
-2. [Why Do Video Diffusion Models Violate Physics? Unveiling the Flaws in Attention Mechanisms](/202609/27/2609.23658v1-why-do-video-diffusion-models-violate-physics-unveiling-the-flaws-in-attention-mechanisms)  
+   evidence：扩散模型生成动态与采样参数化
+3. [All modalities are equal, but video is more equal: Closing the Cross-Attention Gap in Joint Video Generation](/202609/28/2609.27901v1-all-modalities-are-equal-but-video-is-more-equal-closing-the-cross-attention-gap-in-joint-video-generation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：视频扩散模型运动规划的可解释性研究
-3. [ComplexSync: High-Fidelity and Real-Time Lip Sync in Complex Scenarios](/202609/27/2609.29225v1-complexsync-high-fidelity-and-real-time-lip-sync-in-complex-scenarios)  
+   evidence：扩散Transformer联合视频生成
+4. [On the Diffusibility of High-Dimensional Latents](/202609/28/2609.28473v1-on-the-diffusibility-of-high-dimensional-latents)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：基于扩散的实时唇形同步框架及蒸馏加速
+   evidence：扩散模型图像生成，高维潜空间优化效率
+5. [Spectral Feedback for Test-Time Alignment of Protein Diffusion Models](/202609/28/2609.30456v1-spectral-feedback-for-test-time-alignment-of-protein-diffusion-models)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：通过反馈循环实现扩散模型免训练测试时对齐
+6. [Where and When to Force: Routed Forcing for Streaming Avatars](/202609/28/2609.30963v1-where-and-when-to-force-routed-forcing-for-streaming-avatars)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：视频扩散模型蒸馏为少步流式视频生成
+7. [PhoenixSR: Generative Heterogeneous Distillation Unleashes Efficient Models for Real-World Super-Resolution](/202609/28/2609.30988v1-phoenixsr-generative-heterogeneous-distillation-unleashes-efficient-models-for-real-world-super-resolution)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：将扩散先验迁移到无扩散超分网络，推理免扩散
+8. [DyMD: Preserving Interaction Dynamics through Distribution Matching Distillation in Few-Step Video World Models](/202609/28/2609.31349v1-dymd-preserving-interaction-dynamics-through-distribution-matching-distillation-in-few-step-video-world-models)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：视频扩散模型，通过分布匹配蒸馏实现少步视频生成
 
 
 <div class="dpr-home-promo-card">
