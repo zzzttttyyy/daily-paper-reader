@@ -1,0 +1,499 @@
+Title: Accurate Sampling from Diffusion Models
+
+URL Source: https://arxiv.org/pdf/2609.29902v1
+
+Published Time: Fri, 25 Sep 2026 01:21:40 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# Accurate Sampling from Diffusion Models 
+
+## D´ enes Sexty 11Institute of Physics, NAWI Graz, University of Graz, Universit¨ atsplatz 5, 8010 Graz, Austria 
+
+## September 25, 2026 
+
+Abstract 
+
+A new proposal called DM-SMC (Diffusion Model - Sequential Monte Carlo) is investigated, which samples ensem-bles defined in terms of an action, using diffusion models trained on samples from the ensemble. The SMC setup allows for accurate sampling in spite of an approximate diffusion model and the finite stepsize used in the numerical solution of the stochastic process. Improved update strategies are also investigated. Results are presented for a Z2 symmetric scalar field theory in 2 dimensions near its 2nd order phase transition. 
+
+# 1 Introduction 
+
+Investigating Quantum field theories (QFT), a very useful tool is lattice discretisation. The path integral is then approx-imated by finitely many integrals over the variables on the lattice. Analytical treatment is most likely impossible, but Monte Carlo simulations provide a way to calculate the averages of observables that we are interested in. While Markov Chain Monte Carlo (MCMC) methods are very successful, in some cases they are quite expensive. For example, lattice QCD simulations are computationally demanding, as the cost of generating statistically independent gauge configurations are increasing rapidly as the continuum limit and physical quark masses are approached [1, 2], but critical slowing down is a problem generally, and it affects simulations of lattice theories around a phase transition [3, 4]. The rapid development of machine learning has prompted increasing interest in using deep neural networks to reduce the computational cost of lattice simulations. Generative models in machine learning have become an active area of research across many fields of science [5]. The aim is to sample a distribution using the help of neural networks and machine learning. There are many architectures such as energy-based models, variational autoencoders, generative adversarial networks (GAN), autoregressive models, normalizing flows, etc. [6], for QCD applications, see [7]. In field theories, GANs has been used to generate new samples and to reduce autocorrelation times [8–10]. Flow-based methods have seen more activity, with attractive features such as the gauge equivariance and the cheap evaluation of the Jacobian of the transformation [11–16]. Various modifications of the flow approach such as continuous and stochastic flow have also been explored [17–19]. However, it has also been established that the training costs increase rapidly with the system size [2, 20, 21] and the method can suffer from “mode collapse”, where the model fails to explore separate peaks of the measure [22, 23]. As a promising alternative, in this paper, diffusion models (DM) are used which have attracted much interest over the past decade (For a general review, see [24]). The application of diffusion models for lattice QFTs was first proposed in [25, 26]. Its connection to path integrals was investigated in [27], understanding the process in terms of cumulants was presented in [28]. It has also been used in connection with the Complex Langevin equation [29] and for U(1) gauge theory [30, 31]. Recently, a self-learning variant has been investigated in [32], and it has been applied to general gauge theories [33–35]. In Section 2, a short introduction to diffusion models is given, while Section 3 introduces the Sequential Monte Carlo (SMC) method. In Section 4, the new sampling method using backward diffusion with ideas from SMC is introduced. In Section 5 the details of the setup of the simulations and the numerical procedures are presented, while Section 6 contains the numerical results. Section 7 offers conclusions. 
+
+# 2 Diffusion models 
+
+Diffusion models connect two ensembles, one of which is the target ensemble that we wish to sample, and one which is tractable (e.g. a Gaussian ensemble). The two ensembles are morphed into each other using diffusion processes. In the forward process, configurations from the target ensemble are subjected to noise. For the sake of concreteness, let’s consider a scalar field theory of the fields φ(x). The forward process can then be described by a Langevin equation 
+
+dφ = f (φ, τ )dτ + g(τ )dw (1) 1arXiv:2609.29902v1 [hep-lat] 24 Sep 2026 which describes the evolution of the fields as the Langevin time τ increases, and dw is the increment of a standard Wiener process (or a vector of independent Wiener processes). The drift term, f (φ, τ ) can be chosen arbitrarily, typically it is chosen to either vanish or to be linear in the fields. The amplitude of the noise g(τ ) can be transformed into unity by redefinition of the Langevin time (also rescaling f (φ, τ )), it is kept as a convenient tool to control numerical implementation. The forward process can be described by P (φ, τ ), which is the probability density of the fields dependent on the Langevin time 0 ≤ τ ≤ τmax . Its time evolution is described by the Fokker-Planck equation 
+
+∂P (φ, τ )
+
+∂τ = − ∂∂φ (f (φ, τ )P (φ, τ )) + g(t)2
+
+2
+
+( ∂∂φ 
+
+)2
+
+P (φ, τ ). (2) (Note that the more usual physics convention is to have √2dw in the Langevin equation and consequently no factor 1/2 in the last term of (2).) For vanishing drift, the variance of the fields grows with time and eventually the initial variance (from the target ensemble) will be overwhelmed by the random noise coming from the diffusion process, and the distribution will be well approximated by Gaussians. It turns out that the backward evolution Pb(φ, τ ′) = P (φ, τ max − τ ′) is also a diffusion process, i.e. it is the solution of a Fokker-Planck equation, which corresponds to the backward Langevin equation [36] 
+
+dφ = −f (φ, τ )dτ ′ + g(τ )2∂φ ln P (φ, τ )dτ ′ + g(τ )dw ′. (3) Apart from the sign change of f (φ, τ ), the difference is the appearance of the new term g(τ )2∂φ ln P (φ, τ ) in the drift. (Normally we parametrize the backward diffusion process also with τ , which then evolves from τmax to 0.) Thus, to sample the target distribution, we have to first sample the easy distribution, and let the configurations evolve according to the backward diffusion process. At first sight this is not helpful as the drift term in the backward process requires the knowledge of P (φ, τ ), but the new drift term (aka. the ’score’) can be fitted (by a neural network) if one has access to samples from the target distribution. This fit is performed by following the forward diffusion process and minimizing a loss function [37]. To generate samples from the target distribution we thus sample the easy distribution and solve the diffusion process (3) with the replacement ∂φ ln P (φ, τ ) → sθ(φ, τ ) where sθ (φ, τ ) is called the score, and it is calculated by a neural network, θ representing the parameters of the network. 
+
+# 3 Sequential Monte Carlo and diffusion processes 
+
+In Sequential Monte Carlo (SMC) [38–40], one seeks to obtain averages using a number of probability measures πt(φ)with t = 0 . . . N τ , where φ is an element of some manifold V (one can think of e.g. V = Rn or Gn with some Lie-Group 
+
+G). Typically the initial distribution π0(φ) is easy to sample, for example it is a Gaussian distribution or it can be dealt with efficiently using Markov-chain Monte Carlo methods. One desires to sample the target distribution πN (φ). The average of an observable F (φ) is defined by 
+
+〈F 〉t = 1
+
+Zt
+
+∫
+
+> V
+
+dφπ t(φ)F (φ) (4) with Zt = ∫ 
+
+> V
+
+πt(φ)dφ , and ∫ 
+
+> V
+
+dφ denotes an integral over the whole manifold V .Averages are estimated using a cloud of “particles” φi with 1 ≤ i ≤ M with weights wi. Initializing φi with random samples distributed as π0(φ), and setting wi = 1 /M , we can easily see that 
+
+〈F 〉0 =
+
+∑Mi=1 F (φi)wi
+
+∑Mi=1 wi
+
+(5) indeed gives the average as defined above for the initial distribution π0. To estimate averages for πt(φ) with t > 1, we introduce a new notation φi = φ(0)  
+
+> i
+
+, wi = w(0)  
+
+> i
+
+, and we update φ(t) 
+
+> i
+
+→ φ(t+1)  
+
+> i
+
+as well as w(t) 
+
+> i
+
+→ w(t+1)  
+
+> i
+
+such that 
+
+〈F 〉t =
+
+∑Mi=1 F (φ(t) 
+
+> i
+
+)w(t)
+
+> i
+
+∑Mi=1 w(t)
+
+> i
+
+(6) remains correct for 〈F 〉t. We have several update strategies, the simplest is: 
+
+φ(t+1)  
+
+> i
+
+= φ(t) 
+
+> i
+
+, w(t+1)  
+
+> i
+
+= w(t)
+
+> i
+
+πt+1 
+
+(
+
+φ(t+1) 
+
+> i
+
+)
+
+πt
+
+(
+
+φ(t)
+
+> i
+
+) (7) which keeps the particles fixed and only updates the weights according to the change of the measure. Again it’s easy to prove that this update strategy ensures that (6) is correct, however, this strategy can still be impractical as the magnitude 2of the weights can vary differently, and if the average is dominated by a few i with the largest w(t) 
+
+> i
+
+values, then the estimate for the averages will have huge variance. To monitor this behavior, we introduce the observable called effective sample size (ESS) ESS = 
+
+(∑Mi=1 w(t)
+
+> i
+
+)2
+
+∑Mi=1 (w(t) 
+
+> i
+
+)2 . (8) If all weights are equal then ESS= M , whereas if one wi is vastly larger than the others then ESS ≈ 1. Using this observable the usefulness of an update strategy can be judged by the decrease of the ESS. Below some resampling strategies are mentioned to deal with the ESS decreasing too much. A second general update strategy is to use random updates given by the probability density Kt(φ(t), φ (t+1) ). The update is given by 
+
+φ(t+1)  
+
+> i
+
+= ψi, w(t+1)  
+
+> i
+
+= w(t)
+
+> i
+
+πt+1 (ψi)
+
+πt
+
+(
+
+φ(t)
+
+> i
+
+) Lt(ψi, φ (t) 
+
+> i
+
+)
+
+Kt(φ(t) 
+
+> i
+
+, ψ i) (9) where ψi is a random sample which, for a given φ(t) 
+
+> i
+
+, is chosen according to the probability density Kt(φ(t) 
+
+> i
+
+, ψ ) (called also as the kernel of the update). Lt(ψ, φ ) is a backward kernel, describing a random process which proceeds backward, giving φ for a given ψ. Its kernel, Lt(ψ, φ ), can in principle be chosen arbitrarily, as long as 
+
+∫
+
+> V
+
+dφL t(ψ, φ ) = 1 (10) is satisfied. Irrespective of the actual Lt, the averages (6) remain correct. The optimal Lt(ψ, φ ) to be used in practice is the one that minimizes the variance of weights, or equivalently, maximizes ESS. If the ESS decreases too much during the process (in practice it is less than e.g. 0.5M ), we can regenerate the particle cloud by resampling . We select M random integers 1 ≤ i′ ≤ M according to the current probabilities wi (with replacement), and use φi′ as the new particles. Finally, we update all weights to 1 /M . This construction preserves the averages, and maximizes the ESS observable, however, it introduces correlations in the dataset as one particle can be selected multiple times if its weight is large. To get rid of the correlations, one might use MCMC updates using the current πt(φ) measure before continuing the update (also called as rejuvenation of the sample). See e.g. [39] for advanced resampling strategies (reducing the variance of the estimators of observables) such as “systematic resampling”. Note that, using (6), since the weights are now also random variables, there is an O(1 /M ) bias, as we are calculating 
+
+〈A/B 〉 instead of 〈A〉/〈B〉, where A and B are the numerator and denominator on the right hand side of (6). (This remains true if we are using resampling, see in [41].) This bias is, however, overwhelmed by the statistical errors of size 
+
+O(1 /√M ), when we estimate 〈F 〉 with (6). Finally, let’s discuss SMC as it relates to a diffusion process, given by the time dependent density P (φ, τ ), corresponding to the Langevin process 
+
+dφ = a(φ, τ )dτ + g(τ )dw. (11) A discretised diffusion process gives us the distributions πt(φ) = P (φ, τ max t/N τ ), so we can understand a diffusion process in terms of SMC. For the update of weights, we need to calculate the forward kernel and we have to choose a backward kernel. The forward kernel K(φ, ψ ) is calculated from the update of the discretised version of the Langevin equation (11), see details below. For the backward kernel L(ψ, φ ), the natural choice here is the diffusion update corresponding to the backward diffusion process of the same P (φ, τ ) distribution, as discussed in the previous section. In this case the update will be given by (dropping the particle index i and time index t)
+
+φ → ψ, w → w P (ψ, τ + ∆ τ )
+
+P (φ, τ )
+
+L(ψ, φ )
+
+K(φ, ψ ) (12) The backward diffusion kernel is given by 
+
+L(ψ, φ ) = P (φτ = φ|φτ +∆ τ = ψ) = P (φ, τ )K(φ, ψ )
+
+P (ψ, τ + ∆ τ ) (13) and the weight update becomes w → w, which is obviously the optimal choice, maximizing ESS. To calculate the kernels, we use the first-order discretised update of the Langevin equation (using ∆ τ = τmax /N t), which is the Euler-Maruyama update 
+
+φ(t+1) = φ(t) + a(φ, tτ max /N t)∆ τ + g(τ )η√∆τ . (14) 3This gives 
+
+Kt(φ, ψ ) = exp 
+
+(
+
+− (ψ − φ − a(φ, τ max t/N t)∆ τ )2
+
+2g(τ )2∆τ
+
+)
+
+, (15) where we have dropped irrelevant constants not depending on φ or ψ. Below, we will use SMC for calculating averages during the backward diffusion process, such that the drift term is given by a(φ, τ ) = g2(τ )∂φ ln P (φ, τ ) − f (φ, τ ), where 
+
+f (φ, τ ) is the drift term that was used during the noising process. Now L(ψ, φ ) describes the backward of the backward process, that is the forward, noising process. L(ψ, φ ) is then easily calculated as 
+
+Lt(ψ, φ ) = exp 
+
+(
+
+− (φ − ψ − f (φ, tτ max /N t)∆ τ )2
+
+2g(τ )2∆τ
+
+)
+
+, (16) where we have assumed a linear (or zero) f (φ, τ ). For the discretised system, the weight update will be an exact identity only in the limit ∆ τ → 0. For a finite but low stepsize the weights will drift away from their initial value and the ESS will slowly decrease. These weights, however, keep the averages accurate for any finite stepsize. The forward and backward kernels are particularly easy to calculate above for the Euler-Maruyama update, for improved updates the expression for K(φ, ψ ) can be more complicated, as it typically involves a determinant of some Jacobian, which is numerically expensive, see Section 5 for details. 
+
+# 4 SMC aided Diffusion models 
+
+We seek to investigate theories given by some action S(x) with variables x in some manifold V . The aim of this paper is to provide an algorithm for Monte Carlo estimation of exact averages for expectation values 
+
+〈F 〉 =
+
+∫ 
+
+> V
+
+dφF (φ)e−S(φ)
+
+∫ 
+
+> V
+
+dφe −S(φ) (17) using diffusion models. Using samples from the theory distributed according to the measure e−S(φ) (which we get from some potentially expensive source), we train a neural network to approximate the drift terms (i.e. the score) in the backward diffusion process. We can thus create new configurations of the theory using the backward diffusion process [25, 30]. However, since the neural network only approximately reproduces the score, the distribution of the configurations will only be approximately equal to the desired measure e−S(φ). One therefore has to amend this setup with some kind of extension to make sure the distributions are exact. Here, a new approach is proposed: we use Sequential Monte Carlo to make sure that we are sampling from a sequence of known distributions such that the last one is given by the measure e−S(φ). This sequence is naturally built in to the backward diffusion process, giving the distributions P (φ, τ ) for 0 ≤ τ ≤ τmax . (Using the convention that 0 → τmax gives the forward process and τmax → 0 is the backward process, and τmax = 1 is set in the numerical tests.) First of all, we use an Energy-based representation of the process, such that the neural network learns R(φ, τ ) which is, up to a constant shift, the negative logarithm of the distribution of the fields during the process as τ goes from τmax to 0. For the SMC setup we take (note that we don’t need to normalize the distributions for SMC) 
+
+π0(φ) = G(φ), πt(φ) = e−R(φ, (1 −t/N τ )τmax ) for 1 ≤ t < N τ , πNτ (φ) = e−S(φ) (18) where G(φ) is the idealized initial distribution for the backward diffusion process (Gaussian for non-compact manifolds, uniform distribution for compact ones). If the neural network would learn the distributions perfectly, in the limit of infinite 
+
+τmax , the backward diffusion naturally follows the πt distributions, so all weights in the sequential Monte Carlo method should remain constant. In practical use however, the variance of the weights is increasing (and ESS is decreasing) due to the following effects: first, for finite τmax the initial distribution is typically well approximated by a Gaussian/uniform distribution, but it’s not exactly that. Second, when numerically following the backward diffusion process, we inevitably have some finite-stepsize effects. Third, the distribution learned by the neural network is only an approximation to the backward diffusion process. Following the evolution of the weights in the SMC process eliminates all three sources of errors, but the effects contribute to a decreasing ESS. All effects can be decreased with some effort: first, one needs to make sure that the noised configurations are close to Gaussian (uniformly) distributed, which is easily arranged by choosing a g(τ ) function which increases the total noise amplitude in the forward process. Second, a sufficiently small Langevin stepsize and/or improved updates are to be used in the denoising process, and third, a better neural network architecture and more learning should improve the approximation of the distributions. In practice, if these requirements are not satisfactorily met, then the ESS decreases quickly, and the variance of the results will be larger. We will refer to this setup as DM-SMC (Diffusion Model - Sequential Monte Carlo). The costs of following the evolution of the weights are typically negligible in comparison with the update for the fields, but they let us cancel the 4finite stepsize effects, as well as keep the target distribution exact, in spite of the diffusion model, as being fitted by a neural network, being an inexact approximation of the diffusion process between the two ensembles. Existing setups for generating samples using diffusion models are easily upgraded to DM-SMC, provided they use the energy-based representation of the score: the generation of M configurations has to progress in parallel, the weights must be followed, the ESS must be monitored and a resampling has to take place if the ESS decreases too much. Apart from calculating the ESS and the resampling there is no communication between the parallel threads of the generation. In DM-SMC, the rejuvenation updates can be conveniently used from the Langevin equation 
+
+dφ = 12 g(τ )2∂φP (φ, τ )dτ + g(τ )dw, (19) which is just the backward diffusion process with the drift term halved, and the τ argument of the drift and noise terms kept fixed during the process (and dropping f (φ, τ ) in case it is nonzero). This process has the stationary distribution 
+
+πt(φ) = P (φ, τ ), as can be easily seen. (This is the usual recipe to set up a Langevin equation for the measure exp( −S(φ)): 
+
+dφ = −S′(φ)dτ + √2dw , used here with a rescaled Langevin time). To make sure that the distributions remain exact (in spite of the finite Langevin step), an accept-reject step is performed after each Langevin update (which makes the process a Metropolis-adjusted Langevin Algorithm (MALA) [42]). 
+
+# 5 Simulation setup 
+
+To solve the stochastic differential equation 
+
+dφ = a(φ, τ )dτ + g(τ )dw (20) numerically, one can employ the Euler-Maruyama update 
+
+φ(τ + ∆ τ ) = φ(τ ) + a(φ, τ )∆ τ + ητ g(τ )√∆τ , (21) where ητ is a Gaussian random variable with zero mean and unit variance (or a vector of such independent random numbers). This update is correct to first order in ∆ τ , and has the kernel density ln K(φ, ψ ) = − η2
+
+2 + const. with η = ψ − φ − a(φ, τ )∆ τg(τ )√∆τ (22) A (weak) order 2 update to solve (20), using φ′ = φ(τ + ∆ τ ) is given by 
+
+φ′ = φ(τ ) + a(φ, τ ) + a(φ′, τ + ∆ τ )2 ∆τ + ητ
+
+g(τ ) + g(τ + ∆ τ )2
+
+√∆τ , (23) This equation is implicit, to solve it one can e.g. calculate a first approximation to φ′ using the Euler-Maruyama update, then iterate (23) until convergence (typically 2-4 iterations are enough to reach machine precision). The update kernel is now more complicated as it also involves the Jacobian of the drift term, Da (φ, τ )ln K(φ, ψ ) = − η2
+
+2 + ln 
+
+∣∣∣∣det 
+
+(
+
+1 − ∆τ
+
+2 Da (φ, τ + ∆ τ )
+
+)∣ ∣∣∣ + const. with η = ψ − φ − (a(φ, τ ) + a(ψ, τ + ∆ τ )))∆ τ / 2
+
+√∆τ (g(τ ) + g(τ + ∆ τ )) /2 (24) Calculating the determinant is prohibitively expensive for lattice models (except for small volumes). For small enough ∆τ one can approximate the logarithm of the determinant (which is positive in this case) with ln 
+
+∣∣∣∣det 
+
+(
+
+1 − ∆τ
+
+2 Da (φ, τ + ∆ τ )
+
+)∣ ∣∣∣ = − ∆τ
+
+2 Tr Da (φ, τ + ∆ τ ) + O(∆ τ 2 ) (25) The trace can be efficiently approximated using Nv noise vectors vk, k = 1 . . . N v, which satisfy 〈vk 〉 = 0 and 〈vkv† 
+
+> j
+
+〉 = Iδ jk 
+
+with I the identity matrix: Tr Da (φ, τ ) ≈ 1
+
+Nv
+
+∑
+
+> k
+
+v†
+
+> k
+
+Da (φ, τ )vk . (26) This approximation however reintroduces ∆ t dependence and an extrapolation ∆ t → 0 is needed. Whether the first order update which gives exact weights and no extrapolations are needed or the second order update giving approximate weights and the extrapolation afterwards is cheaper needs to be investigated for the particular application one has. 5To investigate how this proposal performs in practice, following [25], a real scalar field in Euclidean space-time of d
+
+dimensions is considered with the action 
+
+S =
+
+∫
+
+ddx
+
+(
+
+(∂μφ0)2 + 12 m20φ20 + λ0
+
+24 φ20
+
+)
+
+. (27) Simulations of the scalar theory, discretised on a cubic lattice with lattice action 
+
+S = ∑
+
+> x
+
+[
+
+−2κ
+
+> d
+
+∑
+
+> μ=1
+
+φ(x)φ(x + ˆ μ) + (1 − 2λ)φ(x)2 + λφ (x)4
+
+]
+
+, (28) are carried out in d = 2 dimensions, where the scalar field has been rescaled using φ = ad/ 2−1(2 κ)−1/2φ0 with the lattice spacing a, φ(x + ˆ μ) is the neighbor field in positive μ direction, κ is the hopping parameter which is calculated from the bare mass parameter using the formula (am 0)2 = 1 − 2λκ − 2d (29) and λ is calculated as λ = 2 λ0a4−dκ/ 6. The main observables are the action density s = S/ (NxNy) with Nx and Ny, the size of the periodic lattice and the average field (aka. “magnetization”) Φ = 1
+
+NxNy
+
+∑
+
+> x
+
+φ(x). (30) This scalar theory has a second order phase transition for each λ value as κ is increased, corresponding to the spontaneously broken Z2 symmetry of the theory. For simulation the parameters are chosen as κ = 0 .27 and λ = 0 .022, which are close to the critical values, such that the histogram of the magnetization at this point shows a double peak structure. The reason for investigating this point is that a phase transition region is typically the hardest to deal with for MCMC methods as well as for generative methods. In this study, for noising and denoising the variance expanding diffusion processes are used, which means f = 0 and 
+
+g(τ ) = στ , giving Σ2(τ ) = 
+
+∫ τ
+
+> 0
+
+g2(t)dt = σ2τ − 12 ln σ , (31) and thus the total variance that is added to the fields by the diffusion process is Σ 2(1) = ( σ2 −1) /(2 ln σ). Unless otherwise specified, σ = 25 is used below. Finally, some details about the neural networks used in this study: as written above we use the “energy-based” setup (instead of the “score-based”) as for the SMC method a probability measure is needed for 0 ≤ τ ≤ 1 during the denoising process. This is conveniently supplied by the “energy”. We thus need a neural network that has as inputs the field configuration φ(x) as well as τ and it outputs one scalar R(φ, τ ) such that the probability measure of the fields at time τ is exp( −R(φ, τ )). The result of the network should be invariant to translations of the lattice (periodic boundary conditions are used), as well as to rotations/mirrorings that leave the lattice invariant. A natural choice that satisfies these requirements is a convolutional neural network. The network is built out of several (2-4) convolutional layers, each of which is built of a convolutional kernel of 3x3 size, and local mixing layer afterwards. (Each linear layer is followed by an activation layer). After the last convolutional layer a final linear layer calculates a linear combination of all the channels in the last convolution layer and finally a sum over the lattice is performed to calculate the final result. To allow the network to fit the dependence on τ , before the first layer the configuration is extended to a second channel, which is a constant value of the Σ( τ ) = 
+
+√∫ τ 
+
+> 0
+
+g2(t)dt , which is the square root of the variance of the noise that is added to the fields until time τ during the noising process. The inner convolution layers work with up to 4-16 channels. The invariance of the convolution kernels under lattice rotations/mirroring is not enforced in this study. The swish activation function is used. To train the network the loss function is built out of two terms L = αL 1 + (1 − α)L2, where the first term is [25,30,37] 
+
+L1 = ∑ 
+
+> (φ0,τ,η )
+
+|Σ( τ )sθ (φτ , τ ) + η|2 (32) Where sθ(φτ , τ ) = −∂φR(φ, τ ) is the score that the network gives for the configuration φτ at time τ and θ represents the current parameters of the network. The sum is over the triples ( φ0, τ, η ) with a configuration φ0 that is sampled from the target ensemble, τ a random time 0 ≤ τ ≤ τmax , and a Gaussian random vector η with zero mean and unit variance which has the same dimension as φ. φτ is created by using η to noise the configuration φ0 (for time τ ): φτ = φ0 + ηΣ( τ ). 600.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 10 0.2 0.4 0.6 0.8 14x4 lattice      
+
+> κ=0.27
+> λ=0.022 Nτ=800 Nτ=400 Nτ=200 Nτ=100 Nτ=50 Nτ=25 ESS/M 1-τ
+> 00.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 100.2 0.4 0.6 0.8 1Nτ=6400 Nτ=3200 Nτ=1600 Nτ=800 Nτ=400 Nτ=200 Nτ=100 Nτ=50 ESS/M 1-τ
+> 4x4 lattice
+> κ=0.27
+> λ=0.022
+
+Figure 1: The effective sample size over the number of total samples on a 4x4 lattice for κ = 0 .27 and λ = 0 .022 and various Langevin stepsizes, as indicated by the total number of steps. The first order Euler-Maruyama update is used. On the left, the learning of the model was stopped 200 learning steps. On the right, the learning was allowed to converge using ≈ 1000 learning steps, and the parameters of the model were averaged for a further 1200 steps. No resampling was used. This loss function is in principle is enough to let the network fit the noising/denoising process. In addition, to have more control over the learning process, the second term 
+
+L2 = ( S(φ) − R(φ, τ = 0)) 2 (33) is also used, which makes sure that at τ = 0 the “energy” of the denoising process coincides with the action we wish to sample. In the training process typically an α value of 0.5-1.0 is used. 
+
+# 6 Results 
+
+To provide benchmark values, estimation of the averages using Hybrid Monte Carlo simulations [43] are also performed. In some cases, resamplings (using systematic resampling) of the particle cloud are used when the ESS decreases to 0.5 times its initial value. After resampling, Nrejuv = 5 Langevin steps are used with drift terms calculated from the current measure R(x, τ ) to decrease correlations (see in section 4). We use an accept-reject step to ensure exact distributions, (MALA algorithm, see [42]), and the stepsize of this update is set such that the acceptance rate is around ≈ 0.6, which in practice means ∆ trejuv > 0.025. The size of the particle cloud is chosen to be in the range M = (1 − 16) · 10 3 in the simulations below. To investigate the behavior of the effective sample size (ESS), simulations on 4 2 lattices without resampling are performed. In Fig. 1 the ESS is shown for various stepsizes in the backward process. Decreasing the Langevin stepsize increases ESS, however, one notices that decreasing the stepsize can only increase ESS up to a point, which is determined by the quality of the fit of the distributions by the neural net. Note that the very first point of the curve is at 1.0, after which the curve jumps to a smaller value. This is a consequence of setting π0 to the initial Gaussian and not to R(φ, 1). (Also, we have an imperfect fit of the diffusion process by the neural network). The size of the jump indicates that to describe the distribution of the noised configurations, we still need some corrections to the idealized Gaussian distribution. This jump can be improved upon using the σ parameter of the diffusion process, such that a larger σ value means that the total amplitude of the noise added to the field is larger, and thus the Gaussian will be a better approximation. A similar jump is to be observed at the last point of the curve, corresponding to τ = 0, as πNτ = e−S is set by hand. The jump in this case can also be upwards, this is dependent on the particular fit the neural network gives. In the right panel of Fig. 1, we show again the ESS for a model which was fitted much more carefully: the learning process was longer and the parameters of the model are averaged after learning has converged and the model is fluctuating around a minimum of the loss function. One observes that for equal stepsize, the ESS for the better model decreases much more slowly. To obtain a nearly flat ESS curve, however, the stepsize has to be quite small. In Fig. 2 the histogram of the magnetization is shown using the two models in Fig. 1 and denoising without the SMC setup. We see that both models give histograms which are not exact, where the “good” model and an improved update step leads to a better approximation, as expected. In Fig. 3, the histogram of the magnetization as well as the histogram of the action average are shown, using DM-SMC, the SMC aided denoising setup. We see perfect agreement (within statistical errors) with the benchmark values from an 700.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 -3 -2 -1 0 1 2 34x4 lattice 
+
+κ=0.27 
+
+λ=0.022 HMC DM - "bad" model DM - "good" model Histogram of magnetization 
+
+Figure 2: Histogram of the field average Φ for a 4x4 lattice for 2d scalar field theory using κ = 0 .27 and λ = 0 .022. Configurations are sampled using denoising (without SMC setup) with the two models in Fig. 1 and Nτ = 200 steps for the “bad” model and Nτ = 200 steps with improved update steps for the “good” model. Results from an HMC simulation are shown as well.               
+
+> 0.0001 0.001 0.01 0.1 1-3 -2 -1 01234x4 lattice
+> κ=0.27
+> λ=0.022 HMC DM-SMC Histogram of magnetization 0.001 0.01 0.1 1-0.2 00.2 0.4 0.6 0.8 11.2 1.4 4x4 lattice
+> κ=0.27
+> λ=0.022 HMC DM-SMC Histogram of action density
+
+Figure 3: Histogram of the field average Φ (left panel) and histogram for the action density s (right panel) for a 4x4 lattice for 2d scalar field theory using κ = 0 .27 and λ = 0 .022. Measurements using the DM-SMC setup use the model corresponding to the left panel of Fig. 1, Nτ = 200, and one resampling at the end of the denoising process. Results from an HMC simulation are shown as well. 80.5 0.6 0.7 0.8 0.9 10 0.2 0.4 0.6 0.8 14x4 lattice      
+
+> κ=0.27
+> λ=0.022 improved denoising step exact Jacobian Nτ=100 Nτ=50 Nτ=20 Nτ=10 ESS/M 1-τ
+> 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 100.2 0.4 0.6 0.8 14x4 lattice
+> κ=0.27
+> λ=0.022 improved denoising step 4 noise vectors for Jacobian Nτ=1600 Nτ=400 Nτ=100 Nτ=50 Nτ=25 ESS/M 1-τ
+
+Figure 4: The ESS is shown for an improved denoising update for various Langevin stepsizes, as indicated. In the left panel, the determinant of the Jacobian is calculated exactky. In the right panel, the denterminant of the Jacobian is approximated using 4 noise vectors with the formulas in eqs. (25) and (26).          
+
+> 1.35 1.4 1.45 1.5 1.55 1.6 1.65 1.7 1.75 1.8 00.005 0.01 0.015 0.02 0.025 0.03 0.035 0.04 HMC result = 1.7679 ±0.0008 extrapolation result = 1.7671 ±0.0022 4x4 lattice
+> κ=0.27
+> λ=0.022 improved denoising 4 noise vectors for Jacobian DM-SMC linear extrapolation HMC benchmark’
+> 〈φ 2 〉∆t
+
+Figure 5: The average of φ2 is shown for various stepsizes, as calculated from DM-SMC using the 2nd order update and the approximation of the Jacobian with 4 noise vectors. Extrapolation to zero stepsize, using stepsizes ≤ 0.01, and an HMC benchmark value is also shown. HMC simulation, even though the not accurately fitted model is used from the left panel of Fig. 1, with 200 first-order Langevin steps in the denoising process. (Fig. 2 shows how the histogram would look without the SMC setup). Only one final resampling is used at τ = 0, the end of the denoising process, where the ESS/ M average for these parameters is 
+
+.0716 ± .0006 (Note that there is small jump of the ESS upwards in the last update step which is hardly visible in Fig. 1). 
+
+O(10 3) independent runs, each of which uses M = 8192 are averaged to decrease statistical errors. If we use a better fitted model and/or smaller Langevin stepsize, the results remain consistent with the exact results, and statistical errors decrease as the ESS is higher. Next, the improved update is investigated. In the left panel of Fig. 4 we show the ESS for the “good” model and the improved update (23), where the Jacobian of the update is calculated exactly for updating the weights. One observes a much slower decay of the ESS as compared to the first order update, such that already ∆ τ = 0 .1 presents an ESS/ M which is still above 0.5 at the end of the denoising process, therefore only one resampling at the end is necessary. ∆ τ = 0 .02 already saturates the improvement of the ESS decay (which is then determined by the inaccuracy of the diffusion model). For such a small lattice the Jacobian calculation is still feasible. The cost of calculating the determinant grows quickly with the lattice size, and this approach quickly becomes infeasible. Therefore we test an approach which remains usable for larger lattices: in the right panel of Fig. 4, the Jacobian in the weight update is approximated using the expansion of the determinant (25) and 4 noise vectors to estimate the trace in (26). Also for the approximated update the decay remains slow, and here ∆ τ = 0 .0025 = 1 /400, is enough to reach the slowest ESS decay. However, since the weight update is approximated, results have a bias for finite Langevin stepsizes, and the extrapolation to zero stepsize must be carried out, as illustrated in Fig. 5. 90.001 0.01 0.1 1-1.5 -1 -0.5 0 0.5 1 1.5 16x16 lattice         
+
+> κ=0.27
+> λ=0.022 Nτ=1000 resampling limit=0.5 HMC DM-SMC Histogram of magnetization 0.01 0.1 110 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 16x16 lattice
+> κ=0.27
+> λ=0.022 Nτ=1000 resampling limit=0.5 HMC DM-SMC Histogram of action density
+
+Figure 6: Histogram of the field average Φ (left panel) and histogram for the action density s (right panel) for a 16 2
+
+lattice for 2d scalar field theory using κ = 0 .27 and λ = 0 .022. The diffusion process uses σ = 50. Denoising is done using Nτ = 1000, and systematic resampling when the ESS/ M decreases below 0.5. Results from an HMC simulation are shown as well. Finally, the dependence on the system size is considered. The procedure was repeated on a 16 2 lattice. As the system size increases, the decay of the ESS gets faster, therefore we use resamplings during the denoising process, whenever the ESS/ M (with M the number of samples in the particle cloud) decreases below 0.5. In practice, for the model and parameters we use, this corresponds to 10-11 resamplings during the denoising process, depending on the random seed used. In Fig. 6 the histogram of the magnetization as well as the histogram of the action density are shown. 140 independent runs are averaged, each of which uses M = 8192. We see agreement within statistical errors with the benchmark values calculated with the HMC algorithm. 
+
+# 7 Conclusions 
+
+In this paper, a new sampling method called DM-SMC (Diffusion Model - Sequential Monte Carlo) is proposed which samples ensembles defined in terms of an action. We first train a diffusion model using samples from the ensemble (which we have to create using a potentially costly method). The diffusion model can be a good approximation to the exact diffusion process, but it will remain inexact. The SMC setup allows for accurate sampling in spite of an approximate diffusion model and finite stepsizes in the diffusion process. The method is based on following the ensemble using a cloud of “particles”, i.e. configurations of the ensemble, such that their weight is also kept track of, and can change during the denoising process, in the spirit of the Sequential Monte Carlo method. The results are exact up to O(1 /M ) corrections with the number of particles M , but this bias is overwhelmed by statistical errors of O(1 /√M ). This proposal is tested on a scalar field theory which has a 2nd order phase transition, and we tune to a point in the parameter space which is close to the critical point, as this is the region which is usually hardest to reproduce using machine learning methods. The histograms and averages are demonstrated to agree with exact results within statistical errors even in the case where a diffusion model is used which is a relatively bad approximation to the exact diffusion process. The quality of the approximation by the neural net, and its simulation through a discretised solution of an SDE is monitored through the effective sample size (ESS). If the ESS decays too low, resamplings are used to rejuvenate the sample. We also investigate an improved update for the denoising process which is correct up to 2nd order in the stepsize. This allows for much larger stepsizes in the numerical integration of the denoising process, however, for large lattice models an approximation to the weight updates must be used, and an extrapolation to zero stepsizes becomes necessary. In summary, a new method is proposed for sampling using diffusion models. The method incurs relatively low additional costs to the simulations and ensures accurate results in spite of the nonzero stepsize solving the diffusion process and the inexact drift terms (“score”) that the neural network provides. The long term goal of this setup is therefore to enable sampling distributions where the action calculation is relatively cheap, but creating useful proposals in the Markov Chain Monte Carlo setup can be very costly (e.g. QCD). 
+
+## Acknowledgments 
+
+The numerical calculations were done on GSC, the HPC cluster at the University of Graz. 10 References 
+
+[1] ALPHA Collaboration, S. Schaefer, R. Sommer, and F. Virotta, “Critical slowing down and error analysis in lattice QCD simulations,” Nucl. Phys. B 845 (2011) 93–119, arXiv:1009.5228 [hep-lat] .[2] R. Abbott et al., “Aspects of scaling and scalability for flow-based sampling of lattice QCD,” Eur. Phys. J. A 59 no. 11, (2023) 257, 
+
+arXiv:2211.07541 [hep-lat] .[3] U. Wolff, “CRITICAL SLOWING DOWN,” Nucl. Phys. B Proc. Suppl. 17 (1990) 93–102. [4] A. Sokal, “Monte carlo methods in statistical mechanics: foundations and new algorithms,” in Functional integration: Basics and applications, pp. 131–192. Springer, 1997. [5] L. Ruthotto and E. Haber, “An introduction to deep generative modeling,” GAMM-Mitteilungen 44 no. 2, (2021) e202100008, 
+
+https://onlinelibrary.wiley.com/doi/pdf/10.1002/gamm.202100008 .
+
+https://onlinelibrary.wiley.com/doi/abs/10.1002/gamm.202100008 .[6] S. Bond-Taylor, A. Leach, Y. Long, and C. G. Willcocks, “Deep generative modelling: A comparative review of vaes, gans, normalizing flows, energy-based and autoregressive models,” IEEE transactions on pattern analysis and machine intelligence 44 no. 11, (2021) 7327–7347. [7] K. Cranmer, G. Kanwar, S. Racani` ere, D. J. Rezende, and P. E. Shanahan, “Advances in machine-learning-based sampling motivated by lattice quantum chromodynamics,” Nature Rev. Phys. 5 no. 9, (2023) 526–535, arXiv:2309.01156 [hep-lat] .[8] K. Zhou, G. Endr˝ odi, L.-G. Pang, and H. St¨ ocker, “Regressive and generative neural networks for scalar field theory,” Phys. Rev. D 100 no. 1, (2019) 011501, arXiv:1810.12879 [hep-lat] .[9] J. M. Pawlowski and J. M. Urban, “Reducing Autocorrelation Times in Lattice Simulations with Generative Adversarial Networks,” Mach. Learn. Sci. Tech. 1 (2020) 045011, arXiv:1811.03533 [hep-lat] .[10] L. Wang, Y. Jiang, L. He, and K. Zhou, “Continuous-Mixture Autoregressive Networks Learning the Kosterlitz-Thouless Transition,” Chin. Phys. Lett. 39 no. 12, (2022) 120502, arXiv:2005.04857 [cond-mat.dis-nn] .[11] M. S. Albergo, G. Kanwar, and P. E. Shanahan, “Flow-based generative models for Markov chain Monte Carlo in lattice field theory,” Phys. Rev. D 100 no. 3, (2019) 034515, arXiv:1904.12072 [hep-lat] .[12] G. Kanwar, M. S. Albergo, D. Boyda, K. Cranmer, D. C. Hackett, S. Racani` ere, D. J. Rezende, and P. E. Shanahan, “Equivariant flow-based sampling for lattice gauge theory,” Phys. Rev. Lett. 125 no. 12, (2020) 121601, arXiv:2003.06413 [hep-lat] .[13] D. Boyda, G. Kanwar, S. Racani` ere, D. J. Rezende, M. S. Albergo, K. Cranmer, D. C. Hackett, and P. E. Shanahan, “Sampling using 
+
+SU (N ) gauge equivariant flows,” Phys. Rev. D 103 no. 7, (2021) 074504, arXiv:2008.05456 [hep-lat] .[14] M. S. Albergo, D. Boyda, D. C. Hackett, G. Kanwar, K. Cranmer, S. Racani` ere, D. J. Rezende, and P. E. Shanahan, “Introduction to Normalizing Flows for Lattice Field Theory,” arXiv:2101.08176 [hep-lat] .[15] S. Chen, O. Savchuk, S. Zheng, B. Chen, H. Stoecker, L. Wang, and K. Zhou, “Fourier-flow model generating Feynman paths,” Phys. Rev. D 107 no. 5, (2023) 056001, arXiv:2211.03470 [hep-lat] .[16] G. Kanwar, “Flow-based sampling for lattice field theories,” in 40th International Symposium on Lattice Field Theory. 1, 2024. 
+
+arXiv:2401.01297 [hep-lat] .[17] P. de Haan, C. Rainone, M. C. N. Cheng, and R. Bondesan, “Scaling Up Machine Learning For Quantum Field Theory with Equivariant Continuous Flows,” arXiv:2110.02673 [cs.LG] .[18] M. Caselle, E. Cellini, and A. Nada, “Sampling the lattice Nambu-Goto string using Continuous Normalizing Flows,” JHEP 02 (2024) 048, arXiv:2307.01107 [hep-lat] .[19] M. Caselle, E. Cellini, A. Nada, and M. Panero, “Stochastic normalizing flows as non-equilibrium transformations,” JHEP 07 (2022) 015, arXiv:2201.08862 [hep-lat] .[20] L. Del Debbio, J. M. Rossney, and M. Wilson, “Efficient modeling of trivializing maps for lattice φ4 theory using normalizing flows: A first look at scalability,” Phys. Rev. D 104 no. 9, (2021) 094507, arXiv:2105.12481 [hep-lat] .[21] J. Komijani and M. K. Marinkovic, “Generative models for scalar field theories: how to deal with poor scaling?,” PoS LATTICE2022 (2023) 019, arXiv:2301.01504 [hep-lat] .[22] K. A. Nicoli, C. J. Anders, T. Hartung, K. Jansen, P. Kessel, and S. Nakajima, “Detecting and mitigating mode-collapse for flow-based sampling of lattice field theories,” Phys. Rev. D 108 no. 11, (2023) 114501, arXiv:2302.14082 [hep-lat] .[23] V. Kanaujia, M. S. Scheurer, and V. Arora, “AdvNF: Reducing mode collapse in conditional normalising flows using adversarial learning,” SciPost Phys. 16 no. 5, (2024) 132, arXiv:2401.15948 .[24] L. Yang, Z. Zhang, Y. Song, S. Hong, R. Xu, Y. Zhao, W. Zhang, B. Cui, and M.-H. Yang, “Diffusion models: A comprehensive survey of methods and applications,” ACM computing surveys 56 no. 4, (2023) 1–39. [25] L. Wang, G. Aarts, and K. Zhou, “Diffusion models as stochastic quantization in lattice field theory,” JHEP 05 (2024) 060, 
+
+arXiv:2309.17082 [hep-lat] .[26] L. Wang, G. Aarts, and K. Zhou, “Generative Diffusion Models for Lattice Field Theory,” in 37th Conference on Neural Information Processing Systems. 11, 2023. arXiv:2311.03578 [hep-lat] .[27] Y. Hirono, A. Tanaka, and K. Fukushima, “Understanding Diffusion Models by Feynman’s Path Integral,” arXiv:2403.11262 [cs.LG] .[28] G. Aarts, D. E. Habibi, L. Wang, and K. Zhou, “On learning higher-order cumulants in diffusion models,” Mach. Learn. Sci. Tech. 6 no. 2, (2025) 025004, arXiv:2410.21212 [hep-lat] .[29] G. Aarts, D. E. Habibi, L. Wang, and K. Zhou, “Combining complex Langevin dynamics with score-based and energy-based diffusion models,” JHEP 12 (2025) 160, arXiv:2510.01328 [hep-lat] .[30] Q. Zhu, G. Aarts, W. Wang, K. Zhou, and L. Wang, “Physics-conditioned diffusion models for lattice gauge theory,” JHEP 03 (2026) 111, arXiv:2502.05504 [hep-lat] .
+
+11 [31] Q. Zhu, G. Aarts, W. Wang, K. Zhou, and L. Wang, “Diffusion models for lattice gauge field simulations,” in Postponed: Machine Learning and the Physical Sciences: Workshop at NeurIPS 2024. 10, 2024. arXiv:2410.19602 [hep-lat] .[32] A. Tomiya, “Lattice Configuration Generation with a Self-Learning Diffusion Model,” arXiv:2607.12587 [hep-lat] .[33] O. Vega, J. Komijani, A. El-Khadra, and M. Marinkovic, “Group-equivariant diffusion models for lattice field theory,” JHEP 07 (2026) 213, arXiv:2510.26081 [hep-lat] .[34] G. Aarts, D. E. Habibi, A. Ipp, D. I. M¨ uller, T. R. Ranner, L. Wang, W. Wang, and Q. Zhu, “Generalizable Equivariant Diffusion Models for Non-Abelian Lattice Gauge Theory,” arXiv:2601.19552 [hep-lat] .[35] J. Komijani, M. K. Marinkovic, and L. Turgut, “Diffusion model for SU(N) gauge theories,” arXiv:2605.06134 [hep-lat] .[36] B. D. Anderson, “Reverse-time diffusion equation models,” Stochastic Processes and their Applications 12 no. 3, (1982) 313–326. [37] P. Vincent, “A connection between score matching and denoising autoencoders,” Neural computation 23 no. 7, (2011) 1661–1674. [38] A. Doucet, S. Godsill, and C. Andrieu, “On sequential monte carlo sampling methods for bayesian filtering,” Statistics and computing 
+
+10 no. 3, (2000) 197–208. [39] P. Del Moral, A. Doucet, and A. Jasra, “Sequential monte carlo samplers,” Journal of the Royal Statistical Society Series B: Statistical Methodology 68 no. 3, (2006) 411–436. [40] C. Andrieu, A. Doucet, and R. Holenstein, “Particle markov chain monte carlo methods,” Journal of the Royal Statistical Society: Series B (Statistical Methodology) 72 no. 3, (2010) 269–342. [41] P. Moral, Feynman-Kac formulae: genealogical and interacting particle systems with applications . Springer, 2004. [42] G. O. Roberts and J. S. Rosenthal, “Optimal scaling of discrete approximations to langevin diffusions,” Journal of the Royal Statistical Society: Series B (Statistical Methodology) 60 no. 1, (1998) 255–268. [43] S. Duane, A. D. Kennedy, B. J. Pendleton, and D. Roweth, “Hybrid Monte Carlo,” Phys. Lett. B 195 (1987) 216–222. 
+
+12

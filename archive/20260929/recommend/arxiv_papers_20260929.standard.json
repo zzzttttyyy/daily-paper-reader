@@ -1,0 +1,714 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-29T23:06:22.194683+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 7,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 11,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2609.32518v1",
+      "source": "arxiv",
+      "title": "UnStep: Training-Free Acceleration of Causal Video Diffusion with Fewer Steps Than Distillation",
+      "abstract": "Distilling bidirectional multi-step video diffusion transformers into few-step causal models has become a common approach for streaming video generation. While these few-step students are significantly faster than the teachers they are distilled from, they remain slow for real-time generation. In this work we present UnStep, a training-free wrapper that accelerates few-step causal video models at inference by running them with fewer diffusion transformer (DiT) steps than during distillation and limiting the temporal window retained in the attention KV cache. We propose two inference-only mechanisms to recover quality lost by step reduction and attention windowing: renoising the generated latent frames to a near-clean level and reusing the existing clean-cache pass to refine them, and applying truncated SVD to the DiT attention value and output projections. We also accelerate inference with a quality-preserving runtime stack for the DiT and VAE decoder, including more efficient attention calls and KV indexing, fused Triton RoPE with cached coefficients, and VAE decoding with optimized memory layout, precision, and convolution kernels. By reducing computation and optimizing the runtime stack, UnStep sets a new throughput regime for causal video diffusion, by running substantially faster than current methods, reaching 50 FPS on a single H100 without quality loss, and 77 FPS on GB200, all without retraining.",
+      "authors": [
+        "Youssef Mansour",
+        "Enis Simsar",
+        "Fadime Sener",
+        "Markos Georgopoulos",
+        "Albert Pumarola",
+        "Ali Thabet",
+        "Edgar Schoenfeld"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-26T12:02:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.32518v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free acceleration of causal video diffusion at inference",
+      "llm_evidence_cn": "推理阶段免训练加速因果视频扩散",
+      "llm_evidence": "推理阶段免训练加速因果视频扩散",
+      "canonical_evidence": "推理阶段免训练加速因果视频扩散",
+      "llm_tldr_en": "UnStep is a training-free wrapper that accelerates few-step causal video diffusion by using fewer DiT steps and limiting KV-cache temporal window, with renoising to recover quality.",
+      "llm_tldr_cn": "针对少步因果视频扩散模型虽经蒸馏但仍难以实时生成的问题，本文提出UnStep免训练推理包装器。它通过比蒸馏时更少的扩散变换器步数运行模型并限制注意力KV缓存的时间窗口来加速，同时提出重加噪等两种仅推理机制恢复因步数减少和窗口裁剪而损失的质量。该方法无需额外训练即可显著提速，为实时流式视频生成提供实用方案。",
+      "llm_tldr": "针对少步因果视频扩散模型虽经蒸馏但仍难以实时生成的问题，本文提出UnStep免训练推理包装器。它通过比蒸馏时更少的扩散变换器步数运行模型并限制注意力KV缓存的时间窗口来加速，同时提出重加噪等两种仅推理机制恢复因步数减少和窗口裁剪而损失的质量。该方法无需额外训练即可显著提速，为实时流式视频生成提供实用方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.32628v1",
+      "source": "arxiv",
+      "title": "DraftAttention2: Fast Video Diffusion with Low-Resolution-Guided Mixed-Precision Attention",
+      "abstract": "Video generation has broad applications in content creation and entertainment. Diffusion transformers have advanced the quality of generated videos, but attention over spatiotemporal tokens becomes increasingly expensive as video resolution and duration increase. We present DraftAttention2, a training-free framework that uses the low-resolution draft attention map to jointly select attention blocks and assign their numerical precision. Specifically, spatial 2D average- and max-pooled queries and keys capture complementary regional statistics to estimate block importance, and a shared ranking assigns higher precision to important blocks, lower precision to less important retained blocks, and skips the rest under configurable budgets. Our analysis separates sparsification error from attention-weighted quantization error, establishing when recovering skipped interactions with low-bit computation tightens the output-error bound. This analysis motivates retaining more interactions at low precision while reserving higher precision for blocks with larger attention mass. To translate these fine-grained assignments into practical speedups, we further develop fused operand preparation and a single attention kernel with precision-specific phases, sharing data movement, softmax statistics, and output accumulation across precisions. Experiments demonstrate that our method achieves a superior quality-efficiency trade-off over existing efficient video generation methods. Notably, its advantage is particularly pronounced for few-step video diffusion, where jointly combining sparsity with 4- and 8-bit mixed-precision computation substantially improves generation quality while retaining significant acceleration. Code is available at https://github.com/anemoi-project/anemoi",
+      "authors": [
+        "Rui Ding",
+        "Haopeng Li",
+        "Weize Ma",
+        "Yufa Zhou",
+        "Yitong Li",
+        "Xiaoling Zhou",
+        "Jiashuo Cao",
+        "Liyang Li",
+        "Hua Geng",
+        "Jiuxiang Gu",
+        "Jun Lin",
+        "Enze Xie",
+        "Xuan Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-26T13:47:31+00:00",
+      "link": "https://arxiv.org/pdf/2609.32628v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free framework accelerating video diffusion via mixed-precision attention",
+      "llm_evidence_cn": "免训练框架，用混合精度注意力加速视频扩散",
+      "llm_evidence": "免训练框架，用混合精度注意力加速视频扩散",
+      "canonical_evidence": "免训练框架，用混合精度注意力加速视频扩散",
+      "llm_tldr_en": "DraftAttention2 is a training-free framework that uses low-resolution draft attention maps to select attention blocks and assign mixed numerical precision, speeding up video diffusion generation without retraining.",
+      "llm_tldr_cn": "视频生成中扩散变换器性能虽强，但时空令牌上的注意力随分辨率与时长的增长而急剧变贵。本文提出DraftAttention2，一个免训练框架，利用低分辨率草稿注意力图估计块重要性，用空间均值与最大值池化的查询键捕获互补区域统计，再按统一排名为重要块分配高精度、次要块低精度并跳过其余块。实验表明在可配置预算下显著加速视频扩散生成，且无需额外训练，直接契合免训练视频生成优化需求。",
+      "llm_tldr": "视频生成中扩散变换器性能虽强，但时空令牌上的注意力随分辨率与时长的增长而急剧变贵。本文提出DraftAttention2，一个免训练框架，利用低分辨率草稿注意力图估计块重要性，用空间均值与最大值池化的查询键捕获互补区域统计，再按统一排名为重要块分配高精度、次要块低精度并跳过其余块。实验表明在可配置预算下显著加速视频扩散生成，且无需额外训练，直接契合免训练视频生成优化需求。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.33723v1",
+      "source": "arxiv",
+      "title": "GeoShrink: Accelerating Diffusion Transformers with Two Lines of Code",
+      "abstract": "Diffusion transformers incur substantial inference cost through repeated model evaluations along a sampling trajectory. We introduce GeoShrink, a training-free acceleration method that retains the original solver grid while evaluating the model only at a prescribed set of anchors. At skipped stages, GeoShrink predicts the solver-facing output by adding a geometrically retained fraction of the latest observed innovation to the most recent exact output. We derive this rule from chordal tangent transport and round-trip line projection, and establish a geometric anchor-spacing principle that minimizes the largest adjacent gap expansion under fixed coverage and first span. The analysis characterizes the geometric closure and propagation of prediction errors without assuming access to future model outputs. Experiments cover image, video, motion, and audio generation, together with adapted 3D backends. At approximately $5\\times$ acceleration, GeoShrink improves FLUX PSNR by 3.10 dB over the strongest listed baseline. On HunyuanVideo, it achieves a reported $4.99\\times$ speedup and improves ChronoMagic-Bench-150 PSNR by 5.44 dB over the strongest listed fidelity baseline. Comparisons at fixed evaluation budgets further show substantial gains on motion, audio, music, and 3D generation.",
+      "authors": [
+        "Haosen Li",
+        "Wenshuo Chen",
+        "Shaofeng Liang",
+        "Lei Wang",
+        "Bowen Tian",
+        "Yutao Yue"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-27T16:25:30+00:00",
+      "link": "https://arxiv.org/pdf/2609.33723v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free acceleration of diffusion transformers sampling",
+      "llm_evidence_cn": "扩散变换器采样的免训练加速",
+      "llm_evidence": "扩散变换器采样的免训练加速",
+      "canonical_evidence": "扩散变换器采样的免训练加速",
+      "llm_tldr_en": "GeoShrink is a training-free method that accelerates diffusion transformers by evaluating the model only at geometric anchors and predicting skipped outputs.",
+      "llm_tldr_cn": "针对扩散变换器沿采样轨迹反复评估模型导致推理开销巨大的问题，本文提出免训练加速方法GeoShrink。它保留原始求解器网格，仅在预设锚点处评估模型，并在跳过阶段利用几何保留的最新创新量预测求解器输出，其规则源自弦切传输与往返线投影，并给出锚点间距原则。分析刻画了预测误差的几何闭合与传播，仅两行代码即可实现加速。",
+      "llm_tldr": "针对扩散变换器沿采样轨迹反复评估模型导致推理开销巨大的问题，本文提出免训练加速方法GeoShrink。它保留原始求解器网格，仅在预设锚点处评估模型，并在跳过阶段利用几何保留的最新创新量预测求解器输出，其规则源自弦切传输与往返线投影，并给出锚点间距原则。分析刻画了预测误差的几何闭合与传播，仅两行代码即可实现加速。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.32540v1",
+      "source": "arxiv",
+      "title": "In-Flight KV Cache with Clean Anchors for Faster Autoregressive Video Diffusion",
+      "abstract": "Few-step autoregressive video diffusion generates a long video by splitting the video into temporal chunks and generating chunk-by-chunk, each through a short sequence of denoising stages. To memorize chunks that are already generated, previous methods reconstruct a clean or less-noisy key--value (KV) cache by additional forwards to build the cache without advancing an output latent. However, every denoising forward itself already computes the in-flight KV of the current chunk. We introduce FlashForward, which directly reuses this cache to avoid the heavy cache-update-only model forwards. After the current chunk completes one denoising stage, its stage-specific cache is already available for the next chunk. Assigning one GPU to each stage therefore lets different chunks occupy different stages concurrently. This early availability has a quality cost: the resulting stage-matched history is noisy, causing appearance and motion drift among chunks. To complement it, FlashForward produces sparse auxiliary clean anchor latents before the corresponding region is generated so the generation trajectories can be stabilized by this two-sided conditioning. The two memories operate at different temporal scales: sparse clean anchor KV supplies coarse, long-range two-sided structural guidance, while dense stage-matched history preserves fine, recent evolution. With up to four GPUs, FlashForward runs $1.16$--$1.69\\times$ faster than HiAR and $1.42$--$2.92\\times$ faster than Self-Forcing for 16 FPS videos of 20 seconds or longer across 1.3B and 14B backbone scales at 480p and 720p. On VBench, for the 1.3B model at 480p, it achieves higher scores and remains stable at longer durations, demonstrating that FlashForward generates high-quality and temporally consistent videos across durations of 20s, 35s and 65s at a much faster generation speed.",
+      "authors": [
+        "Yikai Wang",
+        "Xiao Han",
+        "Mengmeng Xu",
+        "Juan Camilo Perez",
+        "Yiannis Douratsos",
+        "Sen He",
+        "Zijian Zhou",
+        "Fei Zhang",
+        "Zhaochong An",
+        "Juan-Manuel Perez-Rua",
+        "Chen Change Loy",
+        "Tao Xiang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "cs.MM"
+      ],
+      "published": "2026-09-26T12:19:50+00:00",
+      "link": "https://arxiv.org/pdf/2609.32540v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Training-free KV cache reuse to accelerate autoregressive video diffusion",
+      "llm_evidence_cn": "免训练复用KV缓存加速自回归视频扩散生成",
+      "llm_evidence": "免训练复用KV缓存加速自回归视频扩散生成",
+      "canonical_evidence": "免训练复用KV缓存加速自回归视频扩散生成",
+      "llm_tldr_en": "FlashForward reuses the in-flight KV cache already computed by each denoising forward for autoregressive video diffusion, avoiding extra cache-update-only passes and speeding up long video generation without retraining.",
+      "llm_tldr_cn": "少步自回归视频扩散通过逐块去噪生成长视频，但以往方法为构建干净的键值缓存需要额外的仅缓存前向，开销巨大。本文提出FlashForward，直接复用每次去噪前向中已经产生的飞行中KV缓存，使当前块完成一个去噪阶段后其阶段专属缓存即可供下一块使用，并按阶段分配GPU。该免训练方案显著减少了冗余计算，加速了长视频扩散生成。其意义在于为视频扩散推理提供了实用的缓存复用加速思路。",
+      "llm_tldr": "少步自回归视频扩散通过逐块去噪生成长视频，但以往方法为构建干净的键值缓存需要额外的仅缓存前向，开销巨大。本文提出FlashForward，直接复用每次去噪前向中已经产生的飞行中KV缓存，使当前块完成一个去噪阶段后其阶段专属缓存即可供下一块使用，并按阶段分配GPU。该免训练方案显著减少了冗余计算，加速了长视频扩散生成。其意义在于为视频扩散推理提供了实用的缓存复用加速思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.33384v1",
+      "source": "arxiv",
+      "title": "PulseQuant: Propagation-Guided Subspace Correction for 4-Bit Video Diffusion Transformers",
+      "abstract": "Quantization errors in video diffusion transformers can be amplified or attenuated by subsequent denoising updates, making local reconstruction error an incomplete predictor of final impact. We introduce PulseQuant, a 4-bit post-training quantization method that combines trajectory sensitivity with activation geometry to guide offline calibration. Isolated block--step interventions estimate propagation risk, which prioritizes sensitive trajectory states during row-radius selection. With these radii fixed, response-subspace correction uses neighboring-code edits to reduce residual components along dominant activation directions. Both stages preserve the original 4-bit weight representation. Controlled interventions show that short-horizon propagated error predicts final latent error more reliably than immediate block-output error, supporting calibration beyond local reconstruction objectives. Evaluations on Wan models, Self Forcing, and MiniMax-H3 demonstrate improvements in key consistency and dense-reference metrics while remaining competitive on other attributes across model scales and generation paradigms.",
+      "authors": [
+        "Yutong Wang",
+        "Xingtong Ge",
+        "Enhuai Liu",
+        "Yunke Wang",
+        "Tianfan Xue",
+        "Xinyuan Chen",
+        "Chang Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-27T09:04:51+00:00",
+      "link": "https://arxiv.org/pdf/2609.33384v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "post-training quantization for video diffusion transformers without retraining",
+      "llm_evidence_cn": "面向视频扩散Transformer的训练后量化，无需重训练",
+      "llm_evidence": "面向视频扩散Transformer的训练后量化，无需重训练",
+      "canonical_evidence": "面向视频扩散Transformer的训练后量化，无需重训练",
+      "llm_tldr_en": "PulseQuant is a 4-bit post-training quantization method for video diffusion transformers that combines trajectory sensitivity and activation geometry to guide calibration without retraining.",
+      "llm_tldr_cn": "视频扩散Transformer中的量化误差会被后续去噪更新放大或衰减，使局部重建误差难以预测最终影响。作者提出PulseQuant，一种结合轨迹敏感性与激活几何的4比特训练后量化方法，通过孤立块-步干预估计传播风险，并在主导激活方向上做响应子空间校正。方法保持原始4比特权重表示，实现无需重训练的视频扩散模型压缩。研究为视频扩散模型的高效部署提供了训练无关的量化方案。",
+      "llm_tldr": "视频扩散Transformer中的量化误差会被后续去噪更新放大或衰减，使局部重建误差难以预测最终影响。作者提出PulseQuant，一种结合轨迹敏感性与激活几何的4比特训练后量化方法，通过孤立块-步干预估计传播风险，并在主导激活方向上做响应子空间校正。方法保持原始4比特权重表示，实现无需重训练的视频扩散模型压缩。研究为视频扩散模型的高效部署提供了训练无关的量化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.33906v1",
+      "source": "arxiv",
+      "title": "JIVE: Jacobian-Informed Volume Expansion for Diverse Generative Sampling",
+      "abstract": "Generative models often suffer from mode collapse and limited sample diversity. While prior works attempt to mitigate this by jointly generating a batch of samples and repelling their trajectories, these heuristics do not explicitly maximize the diversity of the resulting endpoints. We introduce JIVE, a training-free framework that enhances generative diversity by injecting velocity perturbations aligned with the leading right singular subspace of the generator's endpoint Jacobian. By leveraging this local geometric structure, JIVE provably maximizes endpoint diversity while preserving sample quality. To maintain practical efficiency, we compute these perturbation directions via matrix-free iterations rooted in classical numerical linear algebra, requiring only a small computational overhead. Across different benchmarks, JIVE boosts both pixel and feature-level diversity in few-step and one-step generation.",
+      "authors": [
+        "Guangxun Zhang",
+        "Brian Cai",
+        "Boxuan Zhang",
+        "Chao Chen",
+        "Ruixiang Tang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-09-27T20:41:25+00:00",
+      "link": "https://arxiv.org/pdf/2609.33906v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free framework enhancing generative diversity via velocity perturbations",
+      "llm_evidence_cn": "免训练框架通过速度扰动提升生成多样性",
+      "llm_evidence": "免训练框架通过速度扰动提升生成多样性",
+      "canonical_evidence": "免训练框架通过速度扰动提升生成多样性",
+      "llm_tldr_en": "JIVE is a training-free framework that injects velocity perturbations aligned with the generator endpoint Jacobian subspace to provably maximize sample diversity while preserving quality.",
+      "llm_tldr_cn": "生成模型常受模式坍缩与样本多样性不足困扰，已有的批次排斥式启发方法并未显式最大化终点多样性。本文提出免训练框架JIVE，沿生成器终点雅可比矩阵的主右奇异子空间注入速度扰动，从局部几何结构出发可证明地最大化终点多样性并保持样本质量。为提升效率，作者用基于经典数值线性代数的无矩阵迭代计算扰动方向。",
+      "llm_tldr": "生成模型常受模式坍缩与样本多样性不足困扰，已有的批次排斥式启发方法并未显式最大化终点多样性。本文提出免训练框架JIVE，沿生成器终点雅可比矩阵的主右奇异子空间注入速度扰动，从局部几何结构出发可证明地最大化终点多样性并保持样本质量。为提升效率，作者用基于经典数值线性代数的无矩阵迭代计算扰动方向。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.34406v1",
+      "source": "arxiv",
+      "title": "Unlocking Few-Step Diffusion for Faithful Previews",
+      "abstract": "Sampling latency compounds in diffusion workflows, where users generate and discard many candidates before keeping one. Surprisingly, the poor outputs of standard few-step samplers do not reflect a lack of reconstruction capacity: by optimizing only the initial noise, frozen 3-4-step samplers can closely reproduce their corresponding full-step outputs. Building on this finding, we learn corrections to the initial noise and denoising updates using endpoint supervision, improving correspondence with full-step outputs generated from the same noise and prompt. The resulting previews allow users to screen candidates cheaply and reserve full-step generation for promising ones. Input correction also transfers across sampling budgets without retraining. Experiments show substantial improvements in reference fidelity, including 53-78% lower reconstruction MSE than retrained LD3 on unconditional benchmarks, alongside improved ranking preservation and candidate selection on SD1.5, SDXL, and FLUX.1-dev.",
+      "authors": [
+        "Jing Jia",
+        "Sifan Liu",
+        "Guanyang Wang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV",
+        "stat.ML"
+      ],
+      "published": "2026-09-28T06:19:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.34406v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "optimizing only initial noise of frozen few-step samplers without retraining",
+      "llm_evidence_cn": "仅优化冻结少步采样器的初始噪声且无需重训练",
+      "llm_evidence": "仅优化冻结少步采样器的初始噪声且无需重训练",
+      "canonical_evidence": "仅优化冻结少步采样器的初始噪声且无需重训练",
+      "llm_tldr_en": "Optimizing only the initial noise lets frozen 3-4-step samplers approximate full-step outputs; learned input corrections yield faithful previews that transfer across budgets without retraining.",
+      "llm_tldr_cn": "针对扩散工作流中采样延迟累积、用户需生成并丢弃大量候选样本的问题，本文发现标准少步采样器输出差并非因重建能力不足：仅优化初始噪声，冻结的3-4步采样器即可逼近对应全步输出。基于此，作者用端点监督学习初始噪声与去噪更新的修正，使预览更贴近同噪声与提示下的全步结果。修正可跨采样预算迁移且无需重训练。该工作使用户能低成本筛选候选，将全步生成留给有希望的样本。",
+      "llm_tldr": "针对扩散工作流中采样延迟累积、用户需生成并丢弃大量候选样本的问题，本文发现标准少步采样器输出差并非因重建能力不足：仅优化初始噪声，冻结的3-4步采样器即可逼近对应全步输出。基于此，作者用端点监督学习初始噪声与去噪更新的修正，使预览更贴近同噪声与提示下的全步结果。修正可跨采样预算迁移且无需重训练。该工作使用户能低成本筛选候选，将全步生成留给有希望的样本。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.32742v1",
+      "source": "arxiv",
+      "title": "LoCoVSR: Local Context Diffusion Posterior Sampling for Video Super-Resolution",
+      "abstract": "Video super-resolution (VSR) is an ill-posed inverse problem that aims to reconstruct a high-resolution (HR) video from a noisy, low-resolution (LR) version of it. We present LoCoVSR, a diffusion-based VSR framework that leverages pixel-space denoising diffusion probabilistic models. LoCoVSR integrates the Diffusion Posterior Sampling technique with spatio-temporal context learning, operating in a moving-average form. A localized window of adjacent LR frames is used for recovering each center frame, while applying a shared noise trajectory across all frames. The localized windowing enables processing of long videos without length limitations, supports parallel inference, and prevents error accumulation that may occur in recursive processing. Unlike prior methods, LoCoVSR offers a simple yet very effective VSR solution, avoiding explicit optical flow estimation, or information loss caused by latent space processing. Trained on the VFHQ face dataset, LoCoVSR achieves accurate, temporally consistent and high-quality upscaling with competitive results against recent diffusion-based VSR approaches.",
+      "authors": [
+        "Matan Ben Chorin",
+        "Michael Elad"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "eess.IV"
+      ],
+      "published": "2026-09-26T16:02:19+00:00",
+      "link": "https://arxiv.org/pdf/2609.32742v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "diffusion posterior sampling for video super-resolution without training",
+      "llm_evidence_cn": "免训练的扩散后验采样视频超分",
+      "llm_evidence": "免训练的扩散后验采样视频超分",
+      "canonical_evidence": "免训练的扩散后验采样视频超分",
+      "llm_tldr_en": "LoCoVSR uses pixel-space diffusion posterior sampling with spatio-temporal local context to super-resolve long videos without length limits or error accumulation.",
+      "llm_tldr_cn": "针对视频超分这一病态逆问题，本文提出基于像素空间扩散模型的LoCoVSR框架。它将扩散后验采样与时空上下文学习结合，以滑动平均形式用相邻低分辨率帧的局部窗口恢复中心帧，并在所有帧间共享噪声轨迹。该局部窗口化支持长视频处理、并行推理并避免递归误差累积，属于免训练采样优化的视频生成类方法。",
+      "llm_tldr": "针对视频超分这一病态逆问题，本文提出基于像素空间扩散模型的LoCoVSR框架。它将扩散后验采样与时空上下文学习结合，以滑动平均形式用相邻低分辨率帧的局部窗口恢复中心帧，并在所有帧间共享噪声轨迹。该局部窗口化支持长视频处理、并行推理并避免递归误差累积，属于免训练采样优化的视频生成类方法。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.29902v1",
+      "source": "arxiv",
+      "title": "Accurate Sampling from Diffusion Models",
+      "abstract": "A new proposal called DM-SMC (Diffusion Model - Sequential Monte Carlo) is investigated, which samples ensembles defined in terms of an action, using diffusion models trained on samples from the ensemble. The SMC setup allows for accurate sampling in spite of an approximate diffusion model and the finite stepsize used in the numerical solution of the stochastic process. Improved update strategies are also investigated. Results are presented for a $Z_2$ symmetric scalar field theory in 2 dimensions near its 2nd order phase transition.",
+      "authors": [
+        "Dénes Sexty"
+      ],
+      "primary_category": "hep-lat",
+      "categories": [
+        "hep-lat",
+        "cond-mat.dis-nn",
+        "cs.LG"
+      ],
+      "published": "2026-09-24T14:45:06+00:00",
+      "link": "https://arxiv.org/pdf/2609.29902v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Sequential Monte Carlo sampling correction for approximate diffusion models without retraining",
+      "llm_evidence_cn": "无需重训，用序贯蒙特卡洛改进扩散模型采样精度",
+      "llm_evidence": "无需重训，用序贯蒙特卡洛改进扩散模型采样精度",
+      "canonical_evidence": "无需重训，用序贯蒙特卡洛改进扩散模型采样精度",
+      "llm_tldr_en": "Proposes DM-SMC, combining diffusion models with sequential Monte Carlo to correct sampling bias from approximate models and finite stepsize, validated on a 2D Z2 scalar field theory near its phase transition.",
+      "llm_tldr_cn": "论文针对扩散模型采样精度不足的问题：当模型本身只是近似、且随机微分方程数值求解步长有限时，直接采样会偏离目标分布。作者提出DM-SMC，将扩散模型与序贯蒙特卡洛框架结合，并改进重采样与更新策略，在无需重新训练模型的前提下获得更准确的样本。在二维Z2对称标量场论二级相变附近的实验显示采样质量得到提升。该工作说明采样层面的免训练修正可有效补偿模型近似误差。",
+      "llm_tldr": "论文针对扩散模型采样精度不足的问题：当模型本身只是近似、且随机微分方程数值求解步长有限时，直接采样会偏离目标分布。作者提出DM-SMC，将扩散模型与序贯蒙特卡洛框架结合，并改进重采样与更新策略，在无需重新训练模型的前提下获得更准确的样本。在二维Z2对称标量场论二级相变附近的实验显示采样质量得到提升。该工作说明采样层面的免训练修正可有效补偿模型近似误差。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.34539v1",
+      "source": "arxiv",
+      "title": "TSGate: Timestep-Aware Gated Attention for Diffusion Transformers",
+      "abstract": "Diffusion Transformers (DiTs) have emerged as the dominant architecture for high-fidelity image and video generation. Recent DiT systems increasingly use structured prompts for training, improving caption quality and prompt adherence. However, their generation quality can degrade severely under out-of-domain (OOD) prompts, including the free-form descriptions supplied by users at inference time. Although LLM-based rewriting can convert these prompts into structured formats, it does not guarantee that the rewritten prompts align with the training distribution. Our analysis links this degradation to attention sinks and reduced early-step image-to-text attention and shows that sink suppression alone is insufficient to restore generation quality. Despite effective sink suppression, models trained with standard gated attention exhibit reduced early-step image-to-text attention and suboptimal generation quality. Based on these insights, we propose Timestep-Aware Gated Attention (TSGate), which injects a timestep-conditioned bias into the gate signal so that gating behavior adapts across denoising steps. Extensive experiments show that TSGate consistently outperforms both the baseline and standard gated attention across multiple benchmarks, improving the raw-prompt DPG score by 9.5% over the baseline.",
+      "authors": [
+        "Boyu Zhang",
+        "Yifan Liu",
+        "Shuxia Lin",
+        "Qingjian Ni",
+        "Yinfei Xu",
+        "Xu Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-28T08:05:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.34539v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "inference-time gated attention to improve DiT image and video generation quality",
+      "llm_evidence_cn": "推理时门控注意力改进DiT图像与视频生成质量",
+      "llm_evidence": "推理时门控注意力改进DiT图像与视频生成质量",
+      "canonical_evidence": "推理时门控注意力改进DiT图像与视频生成质量",
+      "llm_tldr_en": "TSGate tackles degraded DiT image and video generation under out-of-domain prompts via timestep-aware gated attention, an inference-time intervention improving prompt adherence without retraining.",
+      "llm_tldr_cn": "扩散变换器已成为高保真图像与视频生成的主流架构，但在训练分布外的自由文本提示下生成质量严重下降，LLM改写也难保证与训练分布对齐。作者将退化归因于注意力汇聚与早期图像到文本注意力减弱，提出时间步感知门控注意力TSGate，在推理时抑制汇聚并恢复跨模态注意力。实验表明该方法改善OOD提示下的生成质量与提示遵循度，属推理期免训练改进。",
+      "llm_tldr": "扩散变换器已成为高保真图像与视频生成的主流架构，但在训练分布外的自由文本提示下生成质量严重下降，LLM改写也难保证与训练分布对齐。作者将退化归因于注意力汇聚与早期图像到文本注意力减弱，提出时间步感知门控注意力TSGate，在推理时抑制汇聚并恢复跨模态注意力。实验表明该方法改善OOD提示下的生成质量与提示遵循度，属推理期免训练改进。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.32376v1",
+      "source": "arxiv",
+      "title": "An End-to-End Latent-Rollout Approach for Pushing Few-Step ImageNet-$256$ Generation to FID $1.11$ without Fréchet Losses",
+      "abstract": "Iterative generation poses a joint optimization problem across steps, as intermediate predictions shape subsequent computations and ultimately determine the final output distribution. Few-step generators distilled from pretrained diffusion and flow-matching models make such optimization computationally practical end to end. We build on this opportunity with a distill-then-refine approach that uses teacher imitation to establish a strong initialization for a few-step rollout in latent space, then shifts to end-to-end refinement of the complete latent rollout against real data. We introduce FiST (Flow-in-Stage Transformer), an architecture that composes learned latent-state transitions in a few stages using a shared Transformer, with optional cross-stage hidden communication. Distillation applies teacher-forced regression to selected states along teacher trajectories; refinement replaces this supervision with adversarial and auxiliary classification objectives on the final latent output. A trainable discriminator module operates on semantically rich features extracted from clean real and generated latents by a frozen SiT backbone pretrained with REPA. All training takes place in latent space, without image decoding. During refinement, FiST consumes its own intermediate predictions, and endpoint gradients pass through every generation stage. For class-conditional generation on ImageNet at $256\\times256$, our approach achieves FID 1.11 (IS 282) with three stages and FID 1.15 (IS 280) with two. These results demonstrate competitive few-step generation through learned distribution-level supervision, without explicit Fréchet-distance minimization. Ablations characterize how distillation, pretrained checkpoint choices, refinement supervision, and cross-stage hidden communication affect generation quality.",
+      "authors": [
+        "Xiaoran Xu",
+        "Yujing Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-26T08:52:12+00:00",
+      "link": "https://arxiv.org/pdf/2609.32376v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "few-step latent diffusion image generation with end-to-end rollout optimization",
+      "llm_evidence_cn": "端到端展开优化的少步扩散图像生成",
+      "llm_evidence": "端到端展开优化的少步扩散图像生成",
+      "canonical_evidence": "端到端展开优化的少步扩散图像生成",
+      "llm_tldr_en": "A distill-then-refine end-to-end approach optimizes few-step latent rollouts of pretrained diffusion models, reaching FID 1.11 on ImageNet-256 without Frechet losses.",
+      "llm_tldr_cn": "针对迭代生成作为跨步联合优化问题、中间预测影响最终输出分布的问题，本文提出先蒸馏后精炼的端到端方法。该方法先用教师模仿为少步潜空间展开建立强初始化，再针对真实数据对完整潜空间展开进行端到端精炼，并引入FiST架构在少量阶段内组合学习到的潜状态转移。实验在ImageNet-256少步生成上无需Fréchet损失即达到FID 1.11。该工作表明端到端优化能有效提升少步扩散生成质量。",
+      "llm_tldr": "针对迭代生成作为跨步联合优化问题、中间预测影响最终输出分布的问题，本文提出先蒸馏后精炼的端到端方法。该方法先用教师模仿为少步潜空间展开建立强初始化，再针对真实数据对完整潜空间展开进行端到端精炼，并引入FiST架构在少量阶段内组合学习到的潜状态转移。实验在ImageNet-256少步生成上无需Fréchet损失即达到FID 1.11。该工作表明端到端优化能有效提升少步扩散生成质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.35289v1",
+      "source": "arxiv",
+      "title": "Domain-adaptive Zero-Shot Image Enhancement via Locality-Constrained Diffusion Guidance",
+      "abstract": "Denoising Diffusion Probabilistic Models have shown remarkable performance in unconditional image generation. In order to generate images with desired semantics, recent works have restricted the solution space by using guidance constraints in the diffusion sampling process.   However, for image enhancement across different domains, these methods struggle to balance two main requirements: looking realistic in the target domain (photorealistic images) and preserving relevant features of the source domain, e.g., low-quality renderings or art paintings. Here, small local changes can alter the fidelity of the image completely, while large changes in other regions might be insignificant.   We introduce LocDiff, a locality-constrained guidance method for image enhancement, which serves as a zero-shot extension to pre-trained diffusion models, ensuring the preservation of critical features during domain adaptation. In this way, we retain important local features, while allowing less critical regions to remain unconstrained and not interfere with the guidance process for relevant regions. We evaluate our method on two different domain-shift tasks: For art-to-photo translation, we apply the method in a fully zero-shot setting, preserving facial identity from paintings while generating photorealistic details. For enhancing low-quality fetal ultrasound renderings, we demonstrate zero-shot inference with auxiliary prior alignment. Here, the objective is to artificially add high-resolution characteristics and produce photorealistic ultrasound renderings, a target domain for which no ground truth distribution exists. Our experimental results demonstrate that LocDiff achieves favorable realism-faithfulness trade-offs compared to state-of-the-art methods, enabling controllable cross-domain enhancement.",
+      "authors": [
+        "Theresa Neubauer",
+        "Dimitrios Lenis",
+        "Astrid Berg",
+        "Maria Wimmer",
+        "Gaia Romana De Paolis",
+        "Philip Matthias Winter",
+        "David Major",
+        "Johannes Novotny",
+        "Ariharasudhan Muthusami",
+        "Katja Bühler"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-28T14:35:56+00:00",
+      "link": "https://arxiv.org/pdf/2609.35289v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free locality-constrained guidance in diffusion sampling for image enhancement",
+      "llm_evidence_cn": "免训练局部约束扩散采样引导用于图像增强",
+      "llm_evidence": "免训练局部约束扩散采样引导用于图像增强",
+      "canonical_evidence": "免训练局部约束扩散采样引导用于图像增强",
+      "llm_tldr_en": "LocDiff introduces locality-constrained guidance in the diffusion sampling process for domain-adaptive zero-shot image enhancement, balancing target-domain realism with source-domain feature preservation without extra training.",
+      "llm_tldr_cn": "扩散模型在无条件图像生成中表现优异，但跨域图像增强的引导方法难以同时满足目标域真实感与源域特征保真，局部小改动可能严重破坏图像质量。本文提出LocDiff，在扩散采样过程中引入局部性约束引导，实现零样本的域自适应图像增强。实验表明该方法能在不同域之间平衡真实性与特征保持。其贡献在于展示了免训练采样引导在图像生成与增强任务中的实用价值。",
+      "llm_tldr": "扩散模型在无条件图像生成中表现优异，但跨域图像增强的引导方法难以同时满足目标域真实感与源域特征保真，局部小改动可能严重破坏图像质量。本文提出LocDiff，在扩散采样过程中引入局部性约束引导，实现零样本的域自适应图像增强。实验表明该方法能在不同域之间平衡真实性与特征保持。其贡献在于展示了免训练采样引导在图像生成与增强任务中的实用价值。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.32415v1",
+      "source": "arxiv",
+      "title": "RefAdapt-DiT: Adaptive Joint Attention for Reference-Conditioned Diffusion Transformers",
+      "abstract": "Diffusion Transformers (DiTs) have become the standard backbone for high-quality generative modeling, yet deploying them in conditional generation tasks remains computationally prohibitive because bidirectional joint attention repeatedly processes large reference streams. While existing optimization schemes mitigate generic temporal redundancy, they typically rely on coarse-grained static reuse and overlook the distinct dynamics of references and targets. Specifically, we observe that reference representations often evolve slowly along the generation trajectory, while the target often assigns little attention mass to them; reference drift and this target-to-reference exposure jointly shape how strongly stale reference states affect the target. To exploit these patterns, we introduce \\RefAdapt, a training-free framework for adaptive control of joint attention between references and targets. Instead of rigid static strategies, \\RefAdapt combines consecutive target-Q change with previously observed target-to-reference attention mass to control reference computation adaptively at block granularity. Under ultra-few-step settings, \\RefAdapt enables speedups of up to $2.097\\times$ on 4-step MiniMax H3 and $3.54\\times$ on 8-step Qwen Image Edit, while maintaining comparable visual quality.",
+      "authors": [
+        "Jian Tang",
+        "Jiawei Fan",
+        "Qiannan Zhou",
+        "Qingbin Liu",
+        "Jiang Bian",
+        "Zang Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-26T09:44:33+00:00",
+      "link": "https://arxiv.org/pdf/2609.32415v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "adaptive joint attention to reduce redundant computation in diffusion transformers",
+      "llm_evidence_cn": "自适应联合注意力减少扩散Transformer的冗余计算",
+      "llm_evidence": "自适应联合注意力减少扩散Transformer的冗余计算",
+      "canonical_evidence": "自适应联合注意力减少扩散Transformer的冗余计算",
+      "llm_tldr_en": "RefAdapt-DiT introduces adaptive joint attention exploiting the distinct dynamics of reference and target streams to cut redundant computation in conditional DiT generation.",
+      "llm_tldr_cn": "扩散Transformer已成为高质量生成建模的标准骨干，但在条件生成中，双向联合注意力反复处理庞大的参考流，部署成本过高。现有优化多依赖粗粒度静态复用，忽视了参考与目标的动态差异。作者观察到参考表征沿生成轨迹演化缓慢，而目标对其注意力权重较低。基于此提出RefAdapt-DiT，以自适应联合注意力利用这种差异减少冗余计算。",
+      "llm_tldr": "扩散Transformer已成为高质量生成建模的标准骨干，但在条件生成中，双向联合注意力反复处理庞大的参考流，部署成本过高。现有优化多依赖粗粒度静态复用，忽视了参考与目标的动态差异。作者观察到参考表征沿生成轨迹演化缓慢，而目标对其注意力权重较低。基于此提出RefAdapt-DiT，以自适应联合注意力利用这种差异减少冗余计算。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.33947v1",
+      "source": "arxiv",
+      "title": "Simple Diffusion Language Models Are More Effective Few-Step Generators Than Reported",
+      "abstract": "Diffusion language models (DLMs) promise fast parallel generation, yet high-quality samples often require large number of refinement steps, which diminishes their advantage in practice. This has led to massive interest in and rapid development of new methods for effective few-step generation. We show that much of the supposed quality gap at few steps can instead arise from a suboptimally configured sampler. Modest sampler sharpening, without any model retraining, enables a couple years old masked DLM to rival supposedly far improved successors. This differently sampled DLM in fact achieves lower generative perplexity in just 16 steps than what its standard sampler obtains with 1024, while improving both judged quality and semantic diversity. We further show that conventional per-output metrics can fundamentally obscure these gains, since any optimal trade-off between two such metrics can be attained by a generator supported on at most two outputs. We subsequently introduce GroupEval, which separately evaluates quality and across-output semantic diversity, and offers fresh insights including uncovering how 1.5-4.7x perplexity gains of a distilled model yield no corresponding quality gain. Finally, we explain why sharpening helps: parallel unmasking destroys dependencies among simultaneously generated tokens, creating a gap between prediction and generation. We prove that pervasive temperature choice of one is generically suboptimal under parallel sampling even for an exact denoiser, and that worse predictions can yield better samples. Through these results, we argue for a broader evaluation principle of treating the deployed generator as the object of comparison, benchmarking it against tuned baselines, and assessing quality and diversity jointly and with more human-aligned measures.",
+      "authors": [
+        "Hasan Amin",
+        "Ming Yin",
+        "Rajiv Khanna"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-09-27T21:42:33+00:00",
+      "link": "https://arxiv.org/pdf/2609.33947v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "sampler sharpening without model retraining for diffusion few-step generation",
+      "llm_evidence_cn": "无需重训练锐化采样器的扩散少步生成",
+      "llm_evidence": "无需重训练锐化采样器的扩散少步生成",
+      "canonical_evidence": "无需重训练锐化采样器的扩散少步生成",
+      "llm_tldr_en": "Suboptimal sampler configuration, not model capacity, explains much of the few-step quality gap in diffusion language models; modest sampler sharpening without retraining lets an old masked DLM rival newer successors.",
+      "llm_tldr_cn": "针对扩散语言模型少步采样质量不佳、需大量精炼步数的问题，本文指出质量差距很大程度源于采样器配置不当。作者仅对采样器进行适度锐化，无需任何模型重训练，即让数年前的掩码扩散语言模型比肩更新的后继模型。实验显示该采样方式仅用16步就取得标准采样器1024步更低的生成困惑度，并同时提升判断质量与语义多样性。这表明免训练的采样优化能有效释放少步生成潜力。",
+      "llm_tldr": "针对扩散语言模型少步采样质量不佳、需大量精炼步数的问题，本文指出质量差距很大程度源于采样器配置不当。作者仅对采样器进行适度锐化，无需任何模型重训练，即让数年前的掩码扩散语言模型比肩更新的后继模型。实验显示该采样方式仅用16步就取得标准采样器1024步更低的生成困惑度，并同时提升判断质量与语义多样性。这表明免训练的采样优化能有效释放少步生成潜力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.34371v1",
+      "source": "arxiv",
+      "title": "From Static to Dynamic: On-Policy Distillation from Image to Video Diffusion Models",
+      "abstract": "On-policy distillation (OPD) specializes pretrained video diffusion models through teacher supervision along the student's own generation trajectory. Although large video models are natural teachers, developing specialized video experts can require costly video data and training, while querying them incurs substantially higher latency than querying image experts. More readily available and cheaper to query, image experts offer a cost-effective alternative, particularly for largely temporal-agnostic capabilities such as aesthetics and OCR that admit frame-level supervision. However, heterogeneous image and video latent spaces prevent direct supervision of intermediate student states, while image experts lack cross-frame motion supervision, making temporal consistency vulnerable to frame-level improvements. In this paper, we propose MILD, a Motion-Preserving Image-to-Video Latent Distillation framework that transfers specialized image expertise while preserving pretrained video dynamics. MILD uses a learnable linear connector that aligns student latent states and predicted updates with those of image experts, enabling supervision transfer across heterogeneous latent spaces. We further constrain image-guided corrections around the pretrained student's predictions to preserve video dynamics and incorporate an optical-flow-based motion reward to improve motion quality and temporal consistency. Across specialized image experts and multiple video-student backbones, our method consistently outperforms video-teacher OPD baselines, with further studies demonstrating effective transfer across connector designs and heterogeneous architectures. These results establish image-to-video distillation as an effective route to improving video generation by drawing on the diverse and evolving capabilities of the image-generation ecosystem.",
+      "authors": [
+        "Bingqing Jiang",
+        "Li Luo",
+        "Zichao Yu",
+        "Yujin Han",
+        "Zhaolong Su",
+        "Difan Zou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-28T05:46:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.34371v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "improving video diffusion models via distillation from cheaper image experts",
+      "llm_evidence_cn": "借助图像专家蒸馏改进视频扩散模型",
+      "llm_evidence": "借助图像专家蒸馏改进视频扩散模型",
+      "canonical_evidence": "借助图像专家蒸馏改进视频扩散模型",
+      "llm_tldr_en": "On-policy distillation specializes video diffusion models using cheaper image experts for frame-level supervision, addressing heterogeneous latent spaces and missing motion supervision.",
+      "llm_tldr_cn": "在线策略蒸馏可通过教师沿学生生成轨迹监督来专门化预训练视频扩散模型，但视频专家开发需昂贵视频数据与训练，查询延迟也高。作者转而利用更廉价、易获取的图像专家，针对美学、OCR等时间无关能力进行帧级监督。方法解决图像与视频潜空间异质导致无法直接监督中间状态、以及图像专家缺乏跨帧运动监督的难题。该工作为低成本改进视频扩散模型提供了新思路。",
+      "llm_tldr": "在线策略蒸馏可通过教师沿学生生成轨迹监督来专门化预训练视频扩散模型，但视频专家开发需昂贵视频数据与训练，查询延迟也高。作者转而利用更廉价、易获取的图像专家，针对美学、OCR等时间无关能力进行帧级监督。方法解决图像与视频潜空间异质导致无法直接监督中间状态、以及图像专家缺乏跨帧运动监督的难题。该工作为低成本改进视频扩散模型提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.35491v1",
+      "source": "arxiv",
+      "title": "From Scores to Samples: Elastic Forcing for Autoregressive Video Generation",
+      "abstract": "Few-step autoregressive video generation commonly relies on Distribution Matching Distillation (DMD), requiring a bidirectional diffusion teacher and an online fake-score model. We instead learn the rollout distribution directly from reference videos, eliminating both score models during post-training. Our framework minimizes maximum mean discrepancy (MMD) in frozen self-supervised video representation spaces, using a hybrid Nyström--Monte Carlo estimator to balance approximation bias and sampling variance. Memory-efficient replay and gradient subsampling make this objective practical. Using the same architecture and initialization as Self-Forcing, our 1.3B model improves the VBench Total score from 83.80 to 84.64 while retaining 17 FPS. Removing auxiliary score models also enables 14B post-training on eight H200 GPUs. Beyond distillation, learning from reference videos enables the acquisition of new visual styles, semantic concepts, and spatial priors without a target-specific diffusion teacher.",
+      "authors": [
+        "Chi Zhang",
+        "Yueyi Liu",
+        "Haoyang Shi",
+        "Ruichuan An",
+        "Haoyu Li",
+        "Yuhang Wu",
+        "Sen Cui",
+        "Miao Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-28T16:00:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.35491v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "improving few-step autoregressive video generation without score models",
+      "llm_evidence_cn": "无需分数模型改进少步自回归视频生成",
+      "llm_evidence": "无需分数模型改进少步自回归视频生成",
+      "canonical_evidence": "无需分数模型改进少步自回归视频生成",
+      "llm_tldr_en": "Elastic Forcing removes the diffusion teacher and online fake-score model required by DMD for few-step autoregressive video generation. It learns the rollout distribution directly from reference videos by minimizing MMD in frozen self-supervised video representation spaces, improving VBench while keeping 17 FPS.",
+      "llm_tldr_cn": "少步自回归视频生成通常依赖分布匹配蒸馏（DMD），需要双向扩散教师与在线伪分数模型，后训练成本高。本文提出弹性强制（Elastic Forcing），直接从参考视频学习展开分布，省去两个分数模型，并在冻结的自监督视频表示空间中最小化最大均值差异，配合Nyström-蒙特卡洛估计器平衡偏差与方差。实验在相同架构下将VBench总分从83.80提升到84.64并保持17 FPS，为高效视频生成提供更简洁的后训练方案。",
+      "llm_tldr": "少步自回归视频生成通常依赖分布匹配蒸馏（DMD），需要双向扩散教师与在线伪分数模型，后训练成本高。本文提出弹性强制（Elastic Forcing），直接从参考视频学习展开分布，省去两个分数模型，并在冻结的自监督视频表示空间中最小化最大均值差异，配合Nyström-蒙特卡洛估计器平衡偏差与方差。实验在相同架构下将VBench总分从83.80提升到84.64并保持17 FPS，为高效视频生成提供更简洁的后训练方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.35768v1",
+      "source": "arxiv",
+      "title": "PDMD: Projected Distribution Matching Distillation for Video Diffusion Models",
+      "abstract": "Modern video diffusion models require tens of denoising evaluations over long spatiotemporal token sequences. Distribution Matching Distillation (DMD) reduces the number of function evaluations (NFE) to just a few. However, DMD samples can degrade during training, exhibiting progressive oversaturation and artifacts. We trace this instability to critic errors, which enter successive student updates and accumulate over time. We introduce Projected Distribution Matching Distillation (PDMD) to filter critic errors. PDMD projects out the component of the DMD update parallel to the student-critic endpoint residual. At a fixed noisy query, we prove that this residual is an unbiased estimate of the critic's endpoint error. Under high-dimensional assumptions, this projection removes a constant fraction of critic error while discarding only a vanishing fraction of ideal DMD signal. Empirically, the projection stabilizes training and improves sample quality where DMD degrades and develops unnatural textures. PDMD requires only a one-line code change to DMD, with no extra loss, network, data, model pass, or multi-stage training. With Wan2.1, PDMD achieves a VBench total score of 83.73 at 4 NFE, surpassing matched DMD by 1.03 points. On MiniMax-H3 joint video-audio generation, PDMD achieves a VideoGen-Eval visual total score of 83.17, 0.41 points above the strongest distilled baseline. PDMD also achieves the best performance on all six audio metrics among the compared 4-NFE models. Qualitative comparisons and user studies favor PDMD over the distilled baselines in visual quality, motion, and audio quality. Code and models are available at https://pdmd2026.github.io/.",
+      "authors": [
+        "Zimo Wang",
+        "Junkun Yuan",
+        "Angtian Wang",
+        "Haotian Yang",
+        "Canyu Zhang",
+        "Siyuan Yuan",
+        "Xingchang Huang",
+        "Bo Liu",
+        "Yizhi Wang",
+        "Yiding Yang",
+        "Chongyang Ma",
+        "Gordon Guocheng Qian"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-28T17:59:52+00:00",
+      "link": "https://arxiv.org/pdf/2609.35768v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "distribution matching distillation for video diffusion models, reducing NFE",
+      "llm_evidence_cn": "面向视频扩散模型的分布匹配蒸馏，降低采样步数",
+      "llm_evidence": "面向视频扩散模型的分布匹配蒸馏，降低采样步数",
+      "canonical_evidence": "面向视频扩散模型的分布匹配蒸馏，降低采样步数",
+      "llm_tldr_en": "PDMD tackles instability in Distribution Matching Distillation for video diffusion, filtering critic errors to stabilize few-step sampling and improve video generation efficiency.",
+      "llm_tldr_cn": "现代视频扩散模型需数十次去噪，分布匹配蒸馏DMD虽将函数评估次数降至个位数，但训练中样本会出现过饱和与伪影。本文将其归因于评论家误差在学生更新中累积，提出投影分布匹配蒸馏PDMD，把更新中与师生端点残差平行的分量投影剔除，并证明该残差是评论家端点误差的无偏估计。实验表明PDMD稳定了少步视频采样，提升了视频扩散生成效率，但属于蒸馏训练而非免训练优化。",
+      "llm_tldr": "现代视频扩散模型需数十次去噪，分布匹配蒸馏DMD虽将函数评估次数降至个位数，但训练中样本会出现过饱和与伪影。本文将其归因于评论家误差在学生更新中累积，提出投影分布匹配蒸馏PDMD，把更新中与师生端点残差平行的分量投影剔除，并证明该残差是评论家端点误差的无偏估计。实验表明PDMD稳定了少步视频采样，提升了视频扩散生成效率，但属于蒸馏训练而非免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
