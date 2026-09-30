@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-30 <!--dpr-date:20260930-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/30/2609.35924v1-grab-a-coffee-future-aware-guidance-for-discrete-diffusion-with-compiled-objectives" data-sidebar-item="{&quot;title&quot;: &quot;Grab a Coffee: Future-Aware Guidance for Discrete Diffusion with Compiled Objectives&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.35924v1-grab-a-coffee-future-aware-guidance-for-discrete-diffusion-with-compiled-objectives&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;面向离散扩散的即插即用免训练引导&quot;}">Grab a Coffee: Future-Aware Guidance for Discrete Diffusion with Compiled Objectives</a>
   * 2026-09-29 <!--dpr-date:20260929-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/29/2609.32518v1-unstep-training-free-acceleration-of-causal-video-diffusion-with-fewer-steps-than-distillation" data-sidebar-item="{&quot;title&quot;: &quot;UnStep: Training-Free Acceleration of Causal Video Diffusion with Fewer Steps Than Distillation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.32518v1-unstep-training-free-acceleration-of-causal-video-diffusion-with-fewer-steps-than-distillation&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;tfree-diff&quot;}], &quot;evidence&quot;: &quot;推理阶段免训练加速因果视频扩散&quot;}">UnStep: Training-Free Acceleration of Causal Video Diffusion with Fewer Steps Than Distillation</a>
