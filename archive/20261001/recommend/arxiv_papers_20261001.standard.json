@@ -1,0 +1,267 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-01T23:41:03.544343+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.33253v1",
+      "source": "arxiv",
+      "title": "VGGT-Diff: Visual Geometry Meets Diffusion for Sparse-View Novel View Synthesis",
+      "abstract": "We present VGGT-Diff, a geometry-routed multi-view diffusion model for sparse-view novel view synthesis. Existing novel view synthesis (NVS) methods face a fundamental trade-off: reconstruction-based approaches preserve observed geometry but struggle to synthesize unseen regions, while diffusion-based methods provide strong generative priors yet rely on implicit source-to-query correspondence. VGGT-Diff bridges these regimes by routing visual geometry latents from VGGT-Ω into a pretrained video diffusion model. Each visual token is associated with a 3D point and confidence, then transformed into query-aligned latent conditions through a confidence-aware Visual Geometry Router (VGR) that preserves front and back surface evidence. These conditions guide joint target-view denoising, while Point-Track Residual Consistency (PTRC) regularizes predicted-clean residuals along reliable 3D tracks, improving multi-view stability. We further introduce robust geometry conditioning, combining training-time regularization with inference-time guidance for improved robustness. Experiments show competitive or state-of-the-art performance across interpolation and extrapolation under different viewpoint difficulties. Our code is available at https://github.com/chenkangjie1123/VGGT-Diff.",
+      "authors": [
+        "Kangjie Chen",
+        "Xiangyu Li",
+        "Dongbin Zhang",
+        "Chaoda Zheng",
+        "Shijia Chen",
+        "Jinhao Deng",
+        "Hongbin Lin",
+        "Choo Sin Wai",
+        "Minqi Wang",
+        "Minghao Yang",
+        "Dake Zhong",
+        "Guorui Song",
+        "Yu Zhang",
+        "Xianming Liu",
+        "Boyang Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-27T05:57:25+00:00",
+      "link": "https://arxiv.org/pdf/2609.33253v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "routes geometry latents into a pretrained video diffusion model for novel view synthesis",
+      "llm_evidence_cn": "将几何潜变量注入预训练视频扩散模型做新视角合成",
+      "llm_evidence": "将几何潜变量注入预训练视频扩散模型做新视角合成",
+      "canonical_evidence": "将几何潜变量注入预训练视频扩散模型做新视角合成",
+      "llm_tldr_en": "VGGT-Diff routes visual geometry latents from VGGT into a pretrained video diffusion model via a confidence-aware router, bridging reconstruction and generative priors for sparse-view synthesis.",
+      "llm_tldr_cn": "该工作针对稀疏视角新视角合成中重建方法难以生成未见区域、扩散方法依赖隐式对应关系的矛盾，提出VGGT-Diff。它将VGGT提取的视觉几何潜变量通过置信度感知的几何路由器注入预训练视频扩散模型，把每个视觉token关联到3D点和置信度并转换为查询对齐的潜条件。该方法在保留前后表面几何证据的同时利用视频扩散先验，为稀疏视角合成提供了几何与生成相融合的免训练适配方案。",
+      "llm_tldr": "该工作针对稀疏视角新视角合成中重建方法难以生成未见区域、扩散方法依赖隐式对应关系的矛盾，提出VGGT-Diff。它将VGGT提取的视觉几何潜变量通过置信度感知的几何路由器注入预训练视频扩散模型，把每个视觉token关联到3D点和置信度并转换为查询对齐的潜条件。该方法在保留前后表面几何证据的同时利用视频扩散先验，为稀疏视角合成提供了几何与生成相融合的免训练适配方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.31780v1",
+      "source": "arxiv",
+      "title": "Panoptic Scene Program Diffusion Transformer",
+      "abstract": "Modern text-to-image models produce high-fidelity images but still struggle with compositional prompts that require instance identity, attribute ownership, counting, spatial ordering, and role-sensitive relations. We introduce Panoptic Scene Program Diffusion Transformer (PSP-DiT), a diffusion-transformer architecture that treats a panoptic scene program as a first-class latent variable rather than an external control signal or post-hoc parse. PSP-DiT jointly denoises image latents and scene-program latents through coupled transformer streams, while panoptic grounding and cycle-consistency objectives tie object instances, attributes, relations, and counts to visual support in the generated image. Under matched training and inference settings, PSP-DiT improves over a strong flat-text baseline across GenEval 2, SANEval-Simple, PSG-Score, and DetailMaster, with the largest gains on counting, attribute binding, role-sensitive relations, and long structured prompts. The method preserves image quality, adds modest inference overhead, and remains robust to imperfect scene programs.",
+      "authors": [
+        "Chika Maduabuchi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-24T20:05:30+00:00",
+      "link": "https://arxiv.org/pdf/2609.31780v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Diffusion transformer for compositional text-to-image generation",
+      "llm_evidence_cn": "面向组合式文本到图像生成的扩散Transformer",
+      "llm_evidence": "面向组合式文本到图像生成的扩散Transformer",
+      "canonical_evidence": "面向组合式文本到图像生成的扩散Transformer",
+      "llm_tldr_en": "PSP-DiT treats a panoptic scene program as a first-class latent variable, jointly denoising image and scene-program latents through coupled transformer streams with panoptic grounding and cycle-consistency to improve compositional text-to-image generation.",
+      "llm_tldr_cn": "现代文本到图像模型可生成高保真图像，但在需要实例身份、属性归属、计数、空间顺序与角色关系的组合式提示上仍表现不佳。PSP-DiT将全景场景程序作为一等潜变量，通过耦合Transformer流联合去噪图像与场景程序潜变量，并用全景接地与循环一致性约束绑定视觉证据。在匹配设置下该方法优于强基线。其贡献在于把结构化场景程序内化为生成过程的一部分。",
+      "llm_tldr": "现代文本到图像模型可生成高保真图像，但在需要实例身份、属性归属、计数、空间顺序与角色关系的组合式提示上仍表现不佳。PSP-DiT将全景场景程序作为一等潜变量，通过耦合Transformer流联合去噪图像与场景程序潜变量，并用全景接地与循环一致性约束绑定视觉证据。在匹配设置下该方法优于强基线。其贡献在于把结构化场景程序内化为生成过程的一部分。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.33496v1",
+      "source": "arxiv",
+      "title": "Chameleon: Dynamic Format Adapter for Efficient Diffusion",
+      "abstract": "Post-training quantization (PTQ) is the standard way to run modern diffusion models on memory-constrained accelerators, yet every existing diffusion PTQ scheme fixes the $\\mathit{number\\ format}$ in advance and only tunes the scale, zero point, or per-layer bit-width. At a fixed bit-width the best format depends on the distribution being encoded, and that distribution differs across weight channels, across layers, and along the diffusion timestep, where activation distributions slide from heavy-tailed and noise-dominated to tightly clustered and structured. We propose Chameleon, a PTQ framework that holds the bit-width fixed and treats the format itself as a discrete variable, chosen per weight channel and per (layer, timestep bucket) activation tensor. Activation formats come from {INT8, FP8 E4M3, FP8 E5M2, MXFP8, MXINT8}, selected ahead of time from two cheap statistics (empirical kurtosis and the closed-form diffusion SNR) and stored in a lookup table; weight formats come from {INT8, MXINT8} at 8 bits or {INT4, NF4, FP4 E2M1, MXINT4, MXFP4} at 4 bits, selected offline by reconstruction error. An architectural fork adapts the same selection layer to multi-step UNets, single-step distilled models, and Diffusion Transformers. Across SDXL, SDXL-Turbo, and PixArt-$α$ on COCO-2014, Chameleon achieves the best FID in all six backbone $\\times$ bit-width settings, with CLIP within 0.24 of the FP16 reference and the best of all quantized methods at $W_{4}A_{8}$.",
+      "authors": [
+        "Arnab Sanyal",
+        "Sandeep Chinchali"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-09-27T12:04:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.33496v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "post-training quantization for diffusion models without retraining",
+      "llm_evidence_cn": "面向扩散模型的训练后量化，无需重新训练",
+      "llm_evidence": "面向扩散模型的训练后量化，无需重新训练",
+      "canonical_evidence": "面向扩散模型的训练后量化，无需重新训练",
+      "llm_tldr_en": "Existing post-training quantization for diffusion models fixes the number format and only tunes scales or bit-widths. Chameleon instead treats the format as a discrete variable chosen per weight channel and per layer-timestep bucket, improving memory-constrained diffusion inference without retraining.",
+      "llm_tldr_cn": "现有扩散模型训练后量化方案预先固定数值格式，仅调节缩放、零点或逐层位宽，难以适应权重通道、层与时间步间不断变化的激活分布。作者提出 Chameleon，在固定位宽下把数值格式本身当作离散变量，按权重通道以及层与时间步分桶的激活张量自适应选择格式。该框架无需重新训练即可提升量化精度，缓解内存受限加速器上的扩散推理瓶颈。工作表明动态格式选择可作为免训练加速扩散模型的一条有效途径。",
+      "llm_tldr": "现有扩散模型训练后量化方案预先固定数值格式，仅调节缩放、零点或逐层位宽，难以适应权重通道、层与时间步间不断变化的激活分布。作者提出 Chameleon，在固定位宽下把数值格式本身当作离散变量，按权重通道以及层与时间步分桶的激活张量自适应选择格式。该框架无需重新训练即可提升量化精度，缓解内存受限加速器上的扩散推理瓶颈。工作表明动态格式选择可作为免训练加速扩散模型的一条有效途径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.34525v1",
+      "source": "arxiv",
+      "title": "SAGE: Subspace Alignment for Classifier-Free Guidance in Mixture-of-Experts Diffusion Models",
+      "abstract": "Diffusion Transformers with Mixture-of-Experts (MoE) routing are a leading recipe for scaling generative models. Classifier-Free Guidance (CFG) is essential for generation quality, yet excessively high guidance scales trigger collapse. We identify a previously unreported failure mode in their combination: the two CFG branches route independently, so their realized activations occupy different subspaces. The unconditional write then leaves the conditional subspace, and CFG amplifies that residual linearly in the guidance scale. We propose SAGE, a training-time regularizer that aligns unconditional MoE activations to the conditional subspace without restricting routing diversity, at zero inference cost. Toy experiments show that SAGE dramatically suppresses extreme drift by 9.2x. When scaled to a 1B-parameter text-to-image model, SAGE significantly improves generation quality, delivering a 9.3% boost in peak DPG-Bench performance. Extensive experiments demonstrate that SAGE consistently outperforms the baseline.",
+      "authors": [
+        "Boyu Zhang",
+        "Yangming Cheng",
+        "Ning Zhang",
+        "Pengfei Liu",
+        "Weijie Li",
+        "Yifan Gao",
+        "Hangyu Li",
+        "Litong Gong"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-28T07:59:34+00:00",
+      "link": "https://arxiv.org/pdf/2609.34525v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Aligns CFG branches in MoE diffusion models to improve generation quality at zero inference cost",
+      "llm_evidence_cn": "对齐混合专家扩散模型的CFG分支以提升生成质量，推理零开销",
+      "llm_evidence": "对齐混合专家扩散模型的CFG分支以提升生成质量，推理零开销",
+      "canonical_evidence": "对齐混合专家扩散模型的CFG分支以提升生成质量，推理零开销",
+      "llm_tldr_en": "SAGE identifies a failure mode where CFG branches in MoE diffusion models route to different subspaces, amplifying residuals. It proposes a training-time regularizer aligning unconditional activations to the conditional subspace at zero inference cost.",
+      "llm_tldr_cn": "该论文针对混合专家扩散模型与无分类器引导结合时高引导尺度导致生成崩溃的问题，发现条件与无条件分支路由到不同子空间，残差被引导尺度线性放大。作者提出SAGE训练期正则项，将无条件激活对齐到条件子空间而不限制路由多样性，且不增加推理开销。玩具实验验证了该方法的有效性。该工作揭示了CFG与MoE组合的新失效模式，为高保真生成提供稳定引导方案。",
+      "llm_tldr": "该论文针对混合专家扩散模型与无分类器引导结合时高引导尺度导致生成崩溃的问题，发现条件与无条件分支路由到不同子空间，残差被引导尺度线性放大。作者提出SAGE训练期正则项，将无条件激活对齐到条件子空间而不限制路由多样性，且不增加推理开销。玩具实验验证了该方法的有效性。该工作揭示了CFG与MoE组合的新失效模式，为高保真生成提供稳定引导方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.35110v1",
+      "source": "arxiv",
+      "title": "Sol-H3: Recursive Self-Improvement for MiniMax-H3 Inference Acceleration on Sol-Engine across Cloud and Edge",
+      "abstract": "Video diffusion models are rapidly scaling and exhibiting enhanced generation capabilities. Among these recent advancements, MiniMax-H3 stands out as a highly capable, production-level open-source model. However, its 33-billion parameters and multi-step iterative denoising process introduce substantial computational overhead. Consequently, their practical production is hindered by generation latency in the cloud deployment like NVIDIA-GB200, alongside strict memory limits that pose further challenges at the edge device like DGX-Spark. To address these diverse hardware bottlenecks from cloud to edge device, we present a full-stack inference pipeline that integrates efficient algorithmic design with optimized operator implementations. Algorithmically, we introduce a cross-resolution two-stage generation scheduler that exploits the step-wise nature of diffusion: early low-resolution steps rapidly establish the global layout, while later high-resolution steps focus refinements of local and perceptual details. These stages are connected by a learned latent-to-latent mapping module, completely eliminating the computationally expensive VAE decode-reencode cycle for resolution transferring cross different resolutions. For operator implementation, we deploy a Recursive Self-Improvement (RSI) loop that searches kernel fusions and memory layouts, evaluating latency together with numerical agreement. Together, these optimizations deliver up to 30x end-to-end speedup and 20% lower memory: a 5-second 1344x768 video with audio is generated 3.5x faster than real time on an 8xGB200 node, and in under a minute fully memory-resident on a single DGX Spark.",
+      "authors": [
+        "Yitong Li",
+        "Jincheng Yu",
+        "Junsong Chen",
+        "Haopeng Li",
+        "Shuchen Xue",
+        "Haozhe Liu",
+        "Ping Luo",
+        "Song Han",
+        "Enze Xie"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-28T13:15:07+00:00",
+      "link": "https://arxiv.org/pdf/2609.35110v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "full-stack inference acceleration for large video diffusion models without retraining",
+      "llm_evidence_cn": "无需重训的大型视频扩散模型全栈推理加速",
+      "llm_evidence": "无需重训的大型视频扩散模型全栈推理加速",
+      "canonical_evidence": "无需重训的大型视频扩散模型全栈推理加速",
+      "llm_tldr_en": "MiniMax-H3 video diffusion has 33B parameters and multi-step denoising, making cloud and edge serving costly. This work presents a full-stack inference pipeline with algorithmic and operator optimizations to accelerate generation across cloud and edge hardware.",
+      "llm_tldr_cn": "视频扩散模型如 MiniMax-H3 参数高达 330 亿且需多步迭代去噪，导致云端与边缘部署出现严重延迟和显存瓶颈。作者提出一套融合高效算法设计与算子优化的全栈推理流水线，并引入递归自我改进策略来进一步加速。在 GB200 云设备与 DGX-Spark 边缘设备上，该方案有效缓解了生成延迟与内存限制。工作为大规模视频扩散模型在云边协同场景的生产级落地提供了可行路径。",
+      "llm_tldr": "视频扩散模型如 MiniMax-H3 参数高达 330 亿且需多步迭代去噪，导致云端与边缘部署出现严重延迟和显存瓶颈。作者提出一套融合高效算法设计与算子优化的全栈推理流水线，并引入递归自我改进策略来进一步加速。在 GB200 云设备与 DGX-Spark 边缘设备上，该方案有效缓解了生成延迟与内存限制。工作为大规模视频扩散模型在云边协同场景的生产级落地提供了可行路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.34579v1",
+      "source": "arxiv",
+      "title": "GenNVS: Geometry-enhanced Novel View Synthesis via Disentangled 3D Prior",
+      "abstract": "Single-image novel view synthesis remains challenging because the underlying 3D geometry is highly ambiguous. Recent diffusion-based approaches produce plausible results, but they often struggle to preserve the geometric structure and spatial coherence of foreground objects. We present GenNVS, a framework for geometry-enhanced novel view synthesis via a disentangled 3D prior. Specifically, GenNVS models foreground objects and the background with 3D Gaussian Splatting and aligns them through a coarse-to-fine geometric optimization process to form a unified 3D scene. This scene conditions a video diffusion model through the proposed Dual-Stream Masking mechanism, which guides synthesis by jointly exploiting rendered validity masks and geometry-aware warping. Experimental results show that GenNVS performs favorably against recent methods in both visual quality and geometric accuracy, while naturally supporting flexible scene editing.",
+      "authors": [
+        "Yajiao Xiong",
+        "Youyu Luan",
+        "Xiaoyu Zhou",
+        "Yongtao Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-28T08:23:48+00:00",
+      "link": "https://arxiv.org/pdf/2609.34579v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Conditions a video diffusion model with a disentangled 3D prior for novel view synthesis",
+      "llm_evidence_cn": "利用解耦三维先验条件化视频扩散模型实现新视角合成",
+      "llm_evidence": "利用解耦三维先验条件化视频扩散模型实现新视角合成",
+      "canonical_evidence": "利用解耦三维先验条件化视频扩散模型实现新视角合成",
+      "llm_tldr_en": "GenNVS tackles single-image novel view synthesis by modeling foreground and background with 3D Gaussian Splatting, forming a unified scene that conditions a video diffusion model via dual-stream masking to improve geometry and spatial coherence.",
+      "llm_tldr_cn": "单图新视角合成中三维几何高度模糊，扩散方法常难以保持前景几何结构与空间一致性。GenNVS用3D高斯泼溅分别建模前景与背景，经粗到细几何优化形成统一场景，再通过双流掩码条件化视频扩散模型引导合成。该框架提升了生成结果的几何结构与空间连贯性。其贡献在于将解耦三维先验与视频扩散结合，实现几何增强的新视角合成。",
+      "llm_tldr": "单图新视角合成中三维几何高度模糊，扩散方法常难以保持前景几何结构与空间一致性。GenNVS用3D高斯泼溅分别建模前景与背景，经粗到细几何优化形成统一场景，再通过双流掩码条件化视频扩散模型引导合成。该框架提升了生成结果的几何结构与空间连贯性。其贡献在于将解耦三维先验与视频扩散结合，实现几何增强的新视角合成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
