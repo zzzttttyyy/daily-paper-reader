@@ -1,0 +1,624 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-02T23:14:52.023875+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 8,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 9,
+    "quick_skim_target": 11,
+    "quick_selected": 9
+  },
+  "deep_dive": [
+    {
+      "id": "2609.36199v1",
+      "source": "arxiv",
+      "title": "PreviewDiff: Multimodal Critic-Guided Search over Diffusion Latents",
+      "abstract": "Diffusion models can produce striking images and videos, but they still struggle with the compositional details that make a generation faithful to a prompt, such as object counts, attribute binding, spatial relations, and temporally grounded actions. A common way to improve prompt satisfaction is to spend more compute at test time through Best-of-N sampling, but final-sample selection is fixed. Best-of-N can only choose among completed outputs and cannot repair a promising trajectory before it fails. We introduce PreviewDiff, a training-free test-time search method that turns diffusion sampling from scalar search into a multimodal critic-guided search over intermediate latents. At selected denoising checkpoints, PreviewDiff decodes a partial preview, asks a multimodal judge to score and critique it, and uses the resulting natural-language feedback to branch over semantic prompt edits and locally re-noised latent continuations. These branches are then scored and selectively rolled forward, allowing verifier compute to guide generation while the sample is still editable. Across image and video generation benchmarks, PreviewDiff consistently improves over budget-matched Best-of-N selection and strong scalar-search baselines. Ablations show that earlier interventions and increased search width provide the largest gains, while deeper search and additional semantic variants offer complementary improvements. PreviewDiff demonstrates that multimodal feedback is most useful not only as a final verifier, but as an active controller inside the denoising process.",
+      "authors": [
+        "Vighnesh Subramaniam",
+        "Boris Katz",
+        "Brian Cheung",
+        "Chun-Liang Li",
+        "Tomas Pfister",
+        "Yale Song"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-28T20:00:41+00:00",
+      "link": "https://arxiv.org/pdf/2609.36199v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free test-time search over diffusion latents guided by a multimodal critic",
+      "llm_evidence_cn": "免训练的多模态评论家引导扩散隐变量测试时搜索",
+      "llm_evidence": "免训练的多模态评论家引导扩散隐变量测试时搜索",
+      "canonical_evidence": "免训练的多模态评论家引导扩散隐变量测试时搜索",
+      "llm_tldr_en": "Diffusion models struggle with compositional fidelity; PreviewDiff introduces a training-free test-time search that uses a multimodal critic to guide intermediate latent search, repairing trajectories before failure and improving prompt satisfaction.",
+      "llm_tldr_cn": "扩散模型虽能生成惊艳图像与视频，但在物体计数、属性绑定与时空关系等组合细节上仍不忠实。本文提出PreviewDiff，在选定的去噪检查点解码部分预览，借助多模态评论家对中间隐变量做免训练测试时搜索，从而在轨迹失败前进行修正。实验表明该方法能提升提示满足度，把扩散采样由标量搜索升级为评论家引导的隐空间搜索。",
+      "llm_tldr": "扩散模型虽能生成惊艳图像与视频，但在物体计数、属性绑定与时空关系等组合细节上仍不忠实。本文提出PreviewDiff，在选定的去噪检查点解码部分预览，借助多模态评论家对中间隐变量做免训练测试时搜索，从而在轨迹失败前进行修正。实验表明该方法能提升提示满足度，把扩散采样由标量搜索升级为评论家引导的隐空间搜索。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.39096v1",
+      "source": "arxiv",
+      "title": "DeCoPrune: Efficient KV-Cache Pruning for Autoregressive Video Diffusion via Denoising Consistency",
+      "abstract": "Autoregressive video diffusion supports streaming generation and interactive control, but its KV cache grows with the generated history. Existing compression strategies discard history using fixed windows or select tokens through local attention and similarity signals, without directly measuring whether a chunk contributes information beyond the retained context. We introduce DeCoPrune, a training-free method that treats cache compression as a denoising-consistency problem. We find that tokens with larger discrepancies between intermediate clean predictions and final denoised values tend to carry visual evidence less predictable from the retained context. DeCoPrune uses this model-intrinsic signal to retain high-discrepancy tokens in the long-term cache while pruning low-discrepancy tokens. To evaluate information retention, we introduce CMBench, comprising 58 approximately one-minute generated or real-world context episodes and 116 Reappear or Revisit continuation tasks requiring recall of earlier events or objects. Experiments with LingBot World v2 show that DeCoPrune achieves a DINO score of 0.6701 on a 0-1 scale, with an 85.43% reduction in cumulative historical KV token counts and a 4.14-fold continuation-generation speedup over FullKV. Its head-specialized variant reaches 0.6783 at an 86.19% pruning ratio, approaching FullKV's 0.6803 score and exceeding the evaluated compression baselines at similar budgets. These results indicate that denoising consistency can support long-range information retention while reducing autoregressive inference cost. Our project homepage is https://decoprune.github.io. The code is available at https://github.com/DeCoPrune/CMBench, and the benchmark at https://huggingface.co/datasets/Aoraku/CMBench.",
+      "authors": [
+        "Zeqi Xiao",
+        "Qingle Liu",
+        "Kaiwen Zhang",
+        "Yifan Zhou",
+        "Zihan Ding",
+        "Xingang Pan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-30T06:33:16+00:00",
+      "link": "https://arxiv.org/pdf/2609.39096v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free KV-cache pruning for video diffusion",
+      "llm_evidence_cn": "免训练视频扩散KV缓存剪枝",
+      "llm_evidence": "免训练视频扩散KV缓存剪枝",
+      "canonical_evidence": "免训练视频扩散KV缓存剪枝",
+      "llm_tldr_en": "Autoregressive video diffusion suffers from growing KV cache. DeCoPrune is a training-free method treating cache compression as denoising-consistency, retaining high-discrepancy tokens using a model-intrinsic signal.",
+      "llm_tldr_cn": "自回归视频扩散支持流式生成，但其KV缓存随生成历史不断增长，现有压缩策略难以衡量片段是否提供额外信息。本文提出DeCoPrune，一种免训练方法，将缓存压缩视为去噪一致性 problem，利用中间干净预测与最终去噪值差异这一模型内在信号，保留高差异token。实验表明该方法在减少缓存的同时保持生成质量，为视频扩散的高效免训练优化提供了新途径。",
+      "llm_tldr": "自回归视频扩散支持流式生成，但其KV缓存随生成历史不断增长，现有压缩策略难以衡量片段是否提供额外信息。本文提出DeCoPrune，一种免训练方法，将缓存压缩视为去噪一致性 problem，利用中间干净预测与最终去噪值差异这一模型内在信号，保留高差异token。实验表明该方法在减少缓存的同时保持生成质量，为视频扩散的高效免训练优化提供了新途径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.39504v1",
+      "source": "arxiv",
+      "title": "PartiCam: Camera Controlled Video Generation with Reward Guidance",
+      "abstract": "We present PartiCam, a training-free Particle filtering rooted method for improved Camera controlled video generation. Generating videos that follow a precisely specified camera trajectory remains challenging for large video diffusion models. Training-free approaches are backbone-agnostic and avoid the need to construct large camera-annotated datasets by steering pretrained models toward the desired camera motion at test time. This enables the generation of camera-controlled video data that can subsequently be used to train camera-conditioned video diffusion models. Existing sampling-based guidance approaches often suffer from unstable trajectories: they either explore too broadly and fail to respect the target camera motion or collapse early and lose visual diversity over time. We introduce a global-local refinement framework for diffusion reward guidance, enabling accurate and consistent camera control during video generation. Our method builds on Sequential Monte-Carlo (SMC) guidance, but introduces a local refinement stage based on particle filtered resampling. Experiments show large improvements in camera trajectory adherence, reduced drift, and better visual quality, without requiring model retraining.",
+      "authors": [
+        "Amine Ouasfi",
+        "Runjia Li",
+        "Junlin Han",
+        "Eric Marchand",
+        "Philip H. S. Torr",
+        "Adnane Boukhayma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-30T11:05:58+00:00",
+      "link": "https://arxiv.org/pdf/2609.39504v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free method for camera controlled video generation",
+      "llm_evidence_cn": "免训练的相机可控视频生成方法",
+      "llm_evidence": "免训练的相机可控视频生成方法",
+      "canonical_evidence": "免训练的相机可控视频生成方法",
+      "llm_tldr_en": "PartiCam is a training-free particle-filtering method that steers pretrained video diffusion models toward specified camera trajectories without camera-annotated datasets.",
+      "llm_tldr_cn": "让大型视频扩散模型生成严格遵循指定相机轨迹的视频仍很困难。现有免训练采样引导方法常出现轨迹不稳定：要么探索过宽无法遵守目标相机运动，要么过早坍缩丢失视觉质量。本文提出PartiCam，一种基于粒子滤波的免训练方法，在测试时引导预训练模型朝向目标相机运动，且与骨干模型无关，无需构建大规模相机标注数据，还能生成相机可控视频数据用于后续训练。该工作为视频扩散模型的免训练可控生成提供了稳定高效的方案。",
+      "llm_tldr": "让大型视频扩散模型生成严格遵循指定相机轨迹的视频仍很困难。现有免训练采样引导方法常出现轨迹不稳定：要么探索过宽无法遵守目标相机运动，要么过早坍缩丢失视觉质量。本文提出PartiCam，一种基于粒子滤波的免训练方法，在测试时引导预训练模型朝向目标相机运动，且与骨干模型无关，无需构建大规模相机标注数据，还能生成相机可控视频数据用于后续训练。该工作为视频扩散模型的免训练可控生成提供了稳定高效的方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.01933v1",
+      "source": "arxiv",
+      "title": "Error-Corrected Inference-Time Scaling for Imperfect Diffusion Models",
+      "abstract": "Inference-time scaling adapts pretrained diffusion models to new sampling tasks without additional training. Existing methods rely primarily on Monte Carlo sampling with more particles, yet are premised on the pretrained model being exact. In practice, data and training limitations make the model imperfect, and these methods inherit its error. More particles reduce Monte Carlo error but cannot remove the mismatch between the endpoint and the desired target or the error in tracking the prescribed probability path. We introduce the Energy-based Feynman-Kac Corrector (EBFKC), a framework for energy-based diffusion models that corrects these errors on the fly given a reference energy. We first derive Feynman-Kac dynamics that track a prescribed path exactly in the continuous-time population limit even when the model is imperfect, and approximate these dynamics using sequential Monte Carlo with variance-controlling guidance. To remove the endpoint mismatch, we use the pretrained energy as a surrogate along the diffusion path and progressively incorporate the discrepancy between the learned and target terminal energies. Experiments on Gaussian mixture models, particle systems, alanine dipeptide, and alanine tetrapeptide show that our method closely matches target distributions and molecular free-energy profiles under annealing and reward tilting, whereas standard inference-time scaling baselines retain substantial sampling errors.",
+      "authors": [
+        "Zuokai Wen",
+        "Louis Grenioux",
+        "Weinan E",
+        "Jiequn Han"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-10-01T16:05:00+00:00",
+      "link": "https://arxiv.org/pdf/2610.01933v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Inference-time scaling correcting imperfect diffusion models without additional training",
+      "llm_evidence_cn": "免额外训练的推理时扩展以校正不完美扩散模型",
+      "llm_evidence": "免额外训练的推理时扩展以校正不完美扩散模型",
+      "canonical_evidence": "免额外训练的推理时扩展以校正不完美扩散模型",
+      "llm_tldr_en": "Inference-time scaling adapts diffusion models without training, but assumes an exact model; EBFKC derives Feynman-Kac dynamics that track a prescribed path and corrects errors on the fly using a reference energy.",
+      "llm_tldr_cn": "推理时扩展能让预训练扩散模型无需额外训练就适配新采样任务，但现有方法多依赖增加粒子的蒙特卡洛采样，并假设预训练模型精确，因而会继承模型误差。本文提出基于能量的Feynman-Kac校正器EBFKC，先推导能精确跟踪规定路径的Feynman-Kac动力学，再借助参考能量在线校正终点不匹配与路径跟踪误差。该框架在模型不完美时仍能提升采样质量，为免训练推理时扩展提供误差校正方案。",
+      "llm_tldr": "推理时扩展能让预训练扩散模型无需额外训练就适配新采样任务，但现有方法多依赖增加粒子的蒙特卡洛采样，并假设预训练模型精确，因而会继承模型误差。本文提出基于能量的Feynman-Kac校正器EBFKC，先推导能精确跟踪规定路径的Feynman-Kac动力学，再借助参考能量在线校正终点不匹配与路径跟踪误差。该框架在模型不完美时仍能提升采样质量，为免训练推理时扩展提供误差校正方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.38154v1",
+      "source": "arxiv",
+      "title": "LongLive-Plug: Once-for-All Distillation for Video Generation",
+      "abstract": "Video diffusion models are increasingly developed into specialized models for diverse downstream tasks, and this development often includes a distillation stage, for example to accelerate sampling or to improve long-video generation. This stage is typically repeated for every specialized model. We introduce LongLive-Plug, a once-for-all distillation framework that learns reusable capabilities as LoRAs on a base model for training-free, plug-and-play deployment to compatible downstream models. These capabilities include single-pass classifier-free guidance, few-step sampling, and long-context error correction for autoregressive generation. The adapters remain reusable even when downstream models add conditioning branches, expand output channels. Despite training at a fixed guidance scale, our dedicated CFG LoRA provides text guidance control through its inference weight. Combining it with a few-step LoRA simultaneously preserves few-step generation and CFG controllability on downstream tasks. We verify training-free deployment on 54 downstream models across three backbone families and eight task categories, including world modeling, robotics, editing, and multimodal generation. The approach may support additional compatible models. Each capability can thus be distilled once per backbone family and reused without per-target retraining.",
+      "authors": [
+        "Shuai Yang",
+        "Luozhou Wang",
+        "Wei Huang",
+        "ZhiFei Chen",
+        "Bohan Zhang",
+        "Xiao Fu",
+        "Qianli Ma",
+        "Chen-Hsuan Lin",
+        "Weian Mao",
+        "Bryan Chu",
+        "Song Han",
+        "Yukang Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-29T17:58:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.38154v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "once-for-all distillation enabling training-free plug-and-play video generation",
+      "llm_evidence_cn": "一次性蒸馏实现免训练即插即用视频生成",
+      "llm_evidence": "一次性蒸馏实现免训练即插即用视频生成",
+      "canonical_evidence": "一次性蒸馏实现免训练即插即用视频生成",
+      "llm_tldr_en": "LongLive-Plug is a once-for-all distillation framework that learns reusable capabilities as LoRAs on a base model, enabling training-free, plug-and-play deployment for video generation with single-pass CFG, few-step sampling and long-context correction.",
+      "llm_tldr_cn": "视频扩散模型面向下游任务常需重复蒸馏以加速采样或改进长视频生成，成本高昂。本文提出LongLive-Plug一次性蒸馏框架，在基模型上以LoRA学习单次无分类器引导、少步采样与长上下文纠错等可复用能力，实现免训练、即插即用部署，且在下游模型增加条件分支或扩展输出通道后仍可复用。该工作显著降低视频生成模型的适配与部署成本。",
+      "llm_tldr": "视频扩散模型面向下游任务常需重复蒸馏以加速采样或改进长视频生成，成本高昂。本文提出LongLive-Plug一次性蒸馏框架，在基模型上以LoRA学习单次无分类器引导、少步采样与长上下文纠错等可复用能力，实现免训练、即插即用部署，且在下游模型增加条件分支或扩展输出通道后仍可复用。该工作显著降低视频生成模型的适配与部署成本。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.39343v1",
+      "source": "arxiv",
+      "title": "The Golden Path Hypothesis: Reusable Schedules in Diffusion Caching",
+      "abstract": "Diffusion caching accelerates generation by replacing transformer computation with cached or predicted features at selected denoising steps. We introduce the Golden Path Hypothesis (GPH): under fixed inference conditions, prompt-independent cache schedules can achieve final-output quality comparable to the best prompt-specific schedules across prompts. We investigate the GPH across ten caching methods, four image and video models, and three cache ratios. Prompt-adaptive methods repeatedly select a small number of schedules, and reusing their most frequent schedules on new prompts closely matches the quality of prompt-specific choices. Exhaustive evaluation of 1.4 million schedules on four examples further identifies prompt-independent schedules that remain competitive on unseen prompts. To explain this transfer, we analyze denoising trajectories and the accumulation of caching errors. Latent-state trajectories exhibit similar structures across datasets and seeds, while an exact error decomposition shows that accumulated effects of earlier errors predict final latent-state error better than local approximation errors. This motivates searching for end-to-end schedules using final-output quality. With only a small set of examples, the resulting golden paths transfer across prompts and datasets, and can be tuned to the desired quality objective, including reconstruction fidelity or perceptual similarity.",
+      "authors": [
+        "Dong Wang",
+        "Wenwu Tang",
+        "Francesco Corti",
+        "Yun Cheng",
+        "Lothar Thiele",
+        "Olga Saukh"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-30T09:08:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.39343v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Training-free inference acceleration for diffusion image and video generation",
+      "llm_evidence_cn": "扩散图像与视频生成的免训练推理加速",
+      "llm_evidence": "扩散图像与视频生成的免训练推理加速",
+      "canonical_evidence": "扩散图像与视频生成的免训练推理加速",
+      "llm_tldr_en": "The Golden Path Hypothesis shows that prompt-independent cache schedules can match prompt-specific ones across ten caching methods and four image and video models, enabling training-free diffusion acceleration.",
+      "llm_tldr_cn": "扩散缓存通过在选择去噪步复用或预测特征来加速生成，但调度选择往往依赖具体提示且需要反复搜索。本文提出黄金路径假说，检验在固定推理条件下提示无关的缓存调度能否达到与提示专属调度相当的最终输出质量。作者在十种缓存方法、四个图像与视频模型及三种缓存比例上展开研究，发现复用提示自适应方法最频繁的少数调度即可接近提示专属选择，并在140万条调度评估中识别出稳定的提示无关调度。该发现为扩散图像与视频生成提供了免训练、可复用的推理加速依据。",
+      "llm_tldr": "扩散缓存通过在选择去噪步复用或预测特征来加速生成，但调度选择往往依赖具体提示且需要反复搜索。本文提出黄金路径假说，检验在固定推理条件下提示无关的缓存调度能否达到与提示专属调度相当的最终输出质量。作者在十种缓存方法、四个图像与视频模型及三种缓存比例上展开研究，发现复用提示自适应方法最频繁的少数调度即可接近提示专属选择，并在140万条调度评估中识别出稳定的提示无关调度。该发现为扩散图像与视频生成提供了免训练、可复用的推理加速依据。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2610.00359v1",
+      "source": "arxiv",
+      "title": "Diffusion Editing with Soft Mask: Pixel Level Redo of Image and Video with Adjustable Strength",
+      "abstract": "Diffusion models with prompt and reference image-guided editing have seen rapid progress, yet they remain too coarse for pixel-level control. One promising direction is to incorporate a soft mask that specifies spatially varying edit strengths but training such fine-grained control demands expensive pixel-wise annotations, while existing zero-shot methods often yield unsatisfactory results. We introduce SoftPaint, a new zero-shot sampling method that leverages soft masks to enable a continuous spectrum of edits, from fully preserving the original content to completely re-synthesizing the masked region. Going beyond zero-shot inpainting methods, we design a Langevin-iteration-based sampler that respects per-pixel soft mask strengths, which applies universally to image and video diffusion models, enabling tasks such as video editing. The method is gradient-free, memory-efficient, and achieves smooth, pixel-level edits across multiple image and video backbones.",
+      "authors": [
+        "Candi Zheng",
+        "Yuan Lan"
+      ],
+      "primary_category": "cs.GR",
+      "categories": [
+        "cs.GR",
+        "cs.AI",
+        "cs.CV",
+        "cs.MM"
+      ],
+      "published": "2026-09-30T03:26:38+00:00",
+      "link": "https://arxiv.org/pdf/2610.00359v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Zero-shot training-free sampling for image and video diffusion editing.",
+      "llm_evidence_cn": "图像与视频扩散编辑的免训练零样本采样。",
+      "llm_evidence": "图像与视频扩散编辑的免训练零样本采样。",
+      "canonical_evidence": "图像与视频扩散编辑的免训练零样本采样。",
+      "llm_tldr_en": "SoftPaint is a zero-shot sampling method for image and video diffusion editing that uses soft masks and a Langevin-iteration sampler to give continuous pixel-level control over edit strength without training.",
+      "llm_tldr_cn": "针对扩散模型图像与视频编辑缺乏像素级精细控制、训练细粒度控制又需昂贵标注的问题，本文提出零样本采样方法SoftPaint，利用软掩码表示逐像素编辑强度，并设计尊重软掩码的Langevin迭代采样器。实验表明该方法能在完全保留原内容到完全重合成之间连续调节编辑强度，为免训练图像与视频编辑提供了精细的像素级控制手段。",
+      "llm_tldr": "针对扩散模型图像与视频编辑缺乏像素级精细控制、训练细粒度控制又需昂贵标注的问题，本文提出零样本采样方法SoftPaint，利用软掩码表示逐像素编辑强度，并设计尊重软掩码的Langevin迭代采样器。实验表明该方法能在完全保留原内容到完全重合成之间连续调节编辑强度，为免训练图像与视频编辑提供了精细的像素级控制手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.35947v1",
+      "source": "arxiv",
+      "title": "FluxLite: Inference-Time Proposal Control for Discrete Diffusion Models",
+      "abstract": "Many inference-time tasks for pretrained discrete diffusion models and diffusion language models reduce to drawing samples from a tilted version of the pretrained distribution. Feynman-Kac sequential Monte Carlo (SMC) makes this correction exact in principle, but its prescribed weights routinely degenerate when the proposal dynamics are misaligned with the tilt, capping the practical gains from additional particles. We introduce FluxLite, a lightweight, training-free proposal-control framework for discrete diffusion. On the sparse directed graph of pretrained reverse rates, any sparse jump-rate perturbation can be exactly compensated by a $q_t$-weighted graph-divergence term in the Feynman-Kac potential; the target path is therefore preserved while the residual reweighting variance becomes a local convex objective. We instantiate this principle as two practical samplers: a one-hop local reallocation rule (HEU) and a small nonnegative quadratic program over pretrained-rate bases (D-VCG). We further prove population stability under the standard score-entropy training loss, identifying a tilted-path coverage factor that governs robustness to score error, together with finite-particle convergence for a fixed controlled Feynman-Kac recursion. Empirically, FluxLite improves over standard Feynman-Kac SMC baselines by up to two orders of magnitude in terminal KL on an analytically tractable finite-state CTMC benchmark, and reduces row-correlation MSE on 2D Ising sampling by 5-7x in geometric mean and up to 55x at peak.",
+      "authors": [
+        "Yinuo Ren",
+        "Haoxuan Chen",
+        "Grant M. Rotskoff",
+        "Jiequn Han",
+        "Lexing Ying"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.CO",
+        "stat.ML"
+      ],
+      "published": "2026-09-28T17:02:48+00:00",
+      "link": "https://arxiv.org/pdf/2609.35947v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free inference-time proposal control for discrete diffusion",
+      "llm_evidence_cn": "离散扩散的免训练推理期提议控制",
+      "llm_evidence": "离散扩散的免训练推理期提议控制",
+      "canonical_evidence": "离散扩散的免训练推理期提议控制",
+      "llm_tldr_en": "FluxLite is a training-free proposal-control framework for discrete diffusion that exactly compensates sparse jump-rate perturbations with a q_t-weighted graph-divergence term in the Feynman-Kac potential, preserving the target path.",
+      "llm_tldr_cn": "对预训练离散扩散模型的许多推理期任务，等价于从被倾斜的分布中采样，Feynman-Kac序贯蒙特卡洛虽理论上精确，但当提议动力学与倾斜不匹配时权重会退化。本文提出免训练的提议控制框架FluxLite，在预训练反向速率的稀疏图上，用q_t加权的图散度项精确补偿任意稀疏跳跃率扰动，从而保持目标路径。该方法在不重训练的情况下提升了推理期控制的实用增益。",
+      "llm_tldr": "对预训练离散扩散模型的许多推理期任务，等价于从被倾斜的分布中采样，Feynman-Kac序贯蒙特卡洛虽理论上精确，但当提议动力学与倾斜不匹配时权重会退化。本文提出免训练的提议控制框架FluxLite，在预训练反向速率的稀疏图上，用q_t加权的图散度项精确补偿任意稀疏跳跃率扰动，从而保持目标路径。该方法在不重训练的情况下提升了推理期控制的实用增益。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.38114v1",
+      "source": "arxiv",
+      "title": "Self-Aligned Forcing: Streaming Video Diffusion with Differentiable Noisy History",
+      "abstract": "Autoregressive video diffusion enables interactive streaming generation, but suffers from error accumulation over long rollouts. Self-rollout training reduces exposure bias, yet finite rollouts leave long-range drift unresolved. We observe that the noise level of the history key-value (K/V) representations trades visual quality against motion, and that restoring gradients through the history aligns causal training far more closely with bidirectional training. Motivated by these observations, we introduce Self-Aligned Forcing (SAF), a training scheme that aligns the history of each block with the noise level of the block being denoised. Specifically, the history is the K/V produced by preceding blocks at the same denoising stage, so all blocks at a stage can be denoised in a single forward pass under a causal mask. This keeps the noisy history differentiable, allowing future losses to optimize how it is encoded. SAF therefore avoids a separate no-gradient rollout and per-block timestep-zero recaching, training up to 1.8x faster than prior methods with lower memory. At inference, SAF achieves the highest single-GPU throughput among existing methods and keeps one history bank per stage for a multi-GPU pipeline, reaching 49.1 FPS on 4 GPUs. Experiments show superior long-horizon generation with a better balance between visual quality and motion. Project page: https://anonymous.4open.science/w/self-aligned-forcing/.",
+      "authors": [
+        "Weiqiang Wang",
+        "Zhuokun Chen",
+        "Yusheng Dai",
+        "Boying Li",
+        "Yi Zhang",
+        "Hossein Rahmani",
+        "Qiuhong Ke",
+        "Jianfei Cai"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-29T17:49:31+00:00",
+      "link": "https://arxiv.org/pdf/2609.38114v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "autoregressive streaming video diffusion generation",
+      "llm_evidence_cn": "自回归流式视频扩散生成",
+      "llm_evidence": "自回归流式视频扩散生成",
+      "canonical_evidence": "自回归流式视频扩散生成",
+      "llm_tldr_en": "Self-Aligned Forcing is a training scheme for streaming autoregressive video diffusion that aligns each block's history key-value representations with the denoising noise level, reducing error accumulation and long-range drift over long rollouts.",
+      "llm_tldr_cn": "自回归视频扩散支持交互式流式生成，但长时推演中误差不断累积，现有自推演训练仍无法解决长程漂移。本文提出自对齐强制训练方案SAF，把每个块的历史键值表示对齐到其当前去噪阶段的噪声水平，并恢复通过历史的梯度，使因果训练更接近双向训练。该方案改善了长视频生成的质量与运动一致性，为流式视频扩散的稳定训练提供了新思路，但依赖训练而非免训练优化。",
+      "llm_tldr": "自回归视频扩散支持交互式流式生成，但长时推演中误差不断累积，现有自推演训练仍无法解决长程漂移。本文提出自对齐强制训练方案SAF，把每个块的历史键值表示对齐到其当前去噪阶段的噪声水平，并恢复通过历史的梯度，使因果训练更接近双向训练。该方案改善了长视频生成的质量与运动一致性，为流式视频扩散的稳定训练提供了新思路，但依赖训练而非免训练优化。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.00812v1",
+      "source": "arxiv",
+      "title": "Video Generation Models: A Survey of Post-Training and Alignment",
+      "abstract": "Video generation has rapidly progressed from short, low-quality clips to high-resolution, long-duration sequences with complex spatiotemporal dynamics. Despite strong generative priors learned through large-scale pretraining, pretrained video models often fail to reliably follow human intent, maintain temporal coherence, or satisfy physical and safety constraints. Compared with image and text generation, alignment in video generation presents unique challenges, including error accumulation over time, motion-appearance coupling, multi-objective trade-offs, and limited supervision for temporal properties. These challenges motivate systematic post-training strategies that adapt pretrained models without retraining them from scratch. In this survey, we present the first comprehensive review of post-training and alignment in video generation models. We frame post-training as a unifying framework and distinguish between implicit alignment and explicit alignment based on how alignment signals are enforced. From this perspective, we organize existing approaches into four broad categories: supervised fine-tuning methods, self-training and distillation methods, preference- and reward-based methods, and inference-time methods. This taxonomy provides a coherent view of how alignment signals shape model behavior across both training and deployment. Beyond methodological advances, we review commonly used datasets, benchmarks, and evaluation practices, and discuss open challenges such as scalable reward design, long-horizon temporal consistency, stability-expressiveness trade-offs, and safety-aware generation. This survey aims to provide a structured conceptual foundation and practical guidance for advancing controllable and reliable video generation models.",
+      "authors": [
+        "Chaoyu Li",
+        "Xiaoyi Gu",
+        "Yogesh Kulkarni",
+        "Eun Woo Im",
+        "Mohammadmahdi Honarmand",
+        "Zeyu Wang",
+        "Juntong Song",
+        "Fei Du",
+        "Xilin Jiang",
+        "Kexin Zheng",
+        "Tianzhi Li",
+        "Fei Tao",
+        "Pooyan Fazli"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-30T23:13:08+00:00",
+      "link": "https://arxiv.org/pdf/2610.00812v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Survey of adapting pretrained video models without retraining",
+      "llm_evidence_cn": "免重训练适配预训练视频模型的综述",
+      "llm_evidence": "免重训练适配预训练视频模型的综述",
+      "canonical_evidence": "免重训练适配预训练视频模型的综述",
+      "llm_tldr_en": "This survey reviews post-training and alignment strategies for video generation models, systematically covering methods that adapt pretrained models without retraining from scratch.",
+      "llm_tldr_cn": "预训练视频生成模型虽具备强生成先验，却常难以可靠遵循人类意图、维持时序一致或满足物理与安全约束，且视频对齐面临误差累积、运动-外观耦合、多目标权衡与监督有限等独特挑战。本文系统综述了后训练与对齐策略，重点讨论在不从头重训练的前提下适配预训练视频模型的方法。该综述为视频生成免重训练优化与对齐研究提供了结构化框架，是相关方向的重要参考。",
+      "llm_tldr": "预训练视频生成模型虽具备强生成先验，却常难以可靠遵循人类意图、维持时序一致或满足物理与安全约束，且视频对齐面临误差累积、运动-外观耦合、多目标权衡与监督有限等独特挑战。本文系统综述了后训练与对齐策略，重点讨论在不从头重训练的前提下适配预训练视频模型的方法。该综述为视频生成免重训练优化与对齐研究提供了结构化框架，是相关方向的重要参考。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "Survey of training free methods for diffusion models in image and video generation.",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.38689v1",
+      "source": "arxiv",
+      "title": "EPIC: Epipolar-Consistent 360° Immersive Stereo Video Generation",
+      "abstract": "Immersive displays can enable rich and diverse virtual experiences. Manually authoring every possible experience to realize this potential, however, is prohibitively expensive, difficult to scale, and impractical. Generative AI models could remove this bottleneck, but today's models are built for conventional displays and cannot generate the high-resolution, stereoscopic $360^\\circ$ content required for immersive viewing. Further, temporal and stereo inconsistencies that may be tolerable on conventional displays can become highly disruptive when viewed through an immersive headset.   Here, we address this gap with a zero-shot generative pipeline that extends existing video diffusion models into 4K stereoscopic $360^\\circ$ videos. Inspired from binocular vision and depth perception, we develop an epipolar-aware $360^\\circ$ image matching metric that captures the temporal and stereo geometric inconsistencies across views. We then use this metric as a preference signal for direct preference optimization with limited training data. Our work enables $360^\\circ$ stereo video generation and provides a scalable path for bringing generative content to immersive displays, allowing diverse mixed reality experiences on demand.",
+      "authors": [
+        "Debabrata Mandal",
+        "Dongdong Fu",
+        "Jonathon Miller",
+        "William Villareal",
+        "Xi Peng",
+        "Praneeth Chakravarthula"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.HC"
+      ],
+      "published": "2026-09-30T00:17:27+00:00",
+      "link": "https://arxiv.org/pdf/2609.38689v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Zero-shot training-free extension of video diffusion models.",
+      "llm_evidence_cn": "视频扩散模型的免训练零样本扩展。",
+      "llm_evidence": "视频扩散模型的免训练零样本扩展。",
+      "canonical_evidence": "视频扩散模型的免训练零样本扩展。",
+      "llm_tldr_en": "EPIC is a zero-shot pipeline that extends existing video diffusion models to generate 4K stereoscopic 360-degree videos with epipolar consistency, improving immersive viewing without additional training.",
+      "llm_tldr_cn": "沉浸式显示需要高分辨率立体360度视频，但现有生成模型面向常规显示，难以生成此类内容且易出现时间与立体不一致。本文提出零样本生成管线EPIC，受双目视觉启发将现有视频扩散模型扩展为4K立体360度视频，并通过极线一致性约束缓解不一致问题。实验表明该方法无需额外训练即可生成高质量的沉浸式立体视频，拓展了视频扩散模型的免训练应用边界。",
+      "llm_tldr": "沉浸式显示需要高分辨率立体360度视频，但现有生成模型面向常规显示，难以生成此类内容且易出现时间与立体不一致。本文提出零样本生成管线EPIC，受双目视觉启发将现有视频扩散模型扩展为4K立体360度视频，并通过极线一致性约束缓解不一致问题。实验表明该方法无需额外训练即可生成高质量的沉浸式立体视频，拓展了视频扩散模型的免训练应用边界。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.39709v1",
+      "source": "arxiv",
+      "title": "BTC3D: Blended Tile Conditioning for Detail-Enhancing Image-to-3D Generation",
+      "abstract": "Recent diffusion-based pipelines have achieved promising progress in image-to-3D synthesis. However, generating high-fidelity details remains challenging, especially when the input image contains rich details. Existing approaches often rely on globally encoded conditioning features, which compress spatial information and limit the model to reproduce fine-grained details. This common design often leads to a phenomenon we term detail attenuation. Moreover, improving image-to-3D synthesis quality typically requires retraining or fine-tuning large diffusion models, which can be computationally expensive and impractical for complex 3D pipelines. In this work, we present Blended Tile Conditioning for image-to-3D generation (BTC3D), a training-free inference time framework that enhances fine-grained detail preservation in image-to-3D diffusion pipelines. To alleviate detail attenuation, we first examine the image feature additivity in image-to-3D models. Based on this property, we introduce a blended tile embedding that extracts local conditioning signals from split image regional patches, allowing the diffusion model to better preserve fine-grained visual details. To integrate the global and local conditioning guidance stably, we propose a dynamic conditioning schedule that gradually increases the influence of tile-level conditioning during later low-noise stages of diffusion. Our proposed method BTC3D operates entirely at inference time and can be seamlessly integrated into existing image-to-3D diffusion pipelines. Experimental results demonstrate that the proposed approach significantly improves texture quality and visual fidelity of the base model while maintaining global structural consistency in a training-free manner.",
+      "authors": [
+        "Junyu Li",
+        "Qiuyu Chen",
+        "Pengcheng Wang",
+        "Shiqi Yang",
+        "Alexandra Gomez-Villa",
+        "Joost van de Weijer",
+        "Ruilin Li",
+        "Kai Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-30T13:24:33+00:00",
+      "link": "https://arxiv.org/pdf/2609.39709v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Training-free inference method for diffusion-based generation.",
+      "llm_evidence_cn": "免训练的扩散生成推理方法。",
+      "llm_evidence": "免训练的扩散生成推理方法。",
+      "canonical_evidence": "免训练的扩散生成推理方法。",
+      "llm_tldr_en": "BTC3D is a training-free inference method for image-to-3D diffusion generation that uses blended tile conditioning to preserve fine details, avoiding costly retraining of large diffusion models.",
+      "llm_tldr_cn": "针对扩散式图像到3D生成中全局条件压缩空间信息导致细节衰减、提升质量又需昂贵重训练的问题，本文提出混合瓦片条件BTC3D，通过分块条件在推理阶段保留细粒度空间细节。实验表明该方法无需重训练即可显著提升生成细节保真度，为扩散模型免训练优化提供了可迁移思路。",
+      "llm_tldr": "针对扩散式图像到3D生成中全局条件压缩空间信息导致细节衰减、提升质量又需昂贵重训练的问题，本文提出混合瓦片条件BTC3D，通过分块条件在推理阶段保留细粒度空间细节。实验表明该方法无需重训练即可显著提升生成细节保真度，为扩散模型免训练优化提供了可迁移思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.01723v1",
+      "source": "arxiv",
+      "title": "Rethinking Memorization Mitigation in Diffusion Models: Reinforcing Text Conditioning",
+      "abstract": "Text-to-image diffusion models have achieved remarkable progress in image synthesis, yet can exhibit memorization by closely reproducing individual training examples. Effective mitigation must preserve useful prompt information to guide alternative depictions. We introduce a training-free method that redistributes cross-attention with Gaussian smoothing before reinforcing content-token contributions and attenuating padding contributions, without additional denoiser evaluations. With this intervention, stronger content conditioning can improve prompt alignment at comparable training-image similarity. A local analysis identifies when reinforcement preserves shared value information while redistribution reduces localized attention mass. On Stable Diffusion v1.4 and v2.0, all evaluated smoothing widths lie on the empirical Pareto frontiers for training-image similarity versus both prompt alignment and image preference. A configuration selected on Stable Diffusion reduces template reproduction in DeepFloyd IF without further tuning. These findings support jointly controlling conditioning allocation and strength to generate prompt-consistent alternatives.",
+      "authors": [
+        "Hyungjun Joo",
+        "Sehwan Kim",
+        "Hyeonggeun Han",
+        "Sangwoo Hong",
+        "Jungwoo Lee"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-01T13:58:56+00:00",
+      "link": "https://arxiv.org/pdf/2610.01723v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free attention redistribution for text-to-image diffusion",
+      "llm_evidence_cn": "文本到图像扩散的免训练注意力重分配",
+      "llm_evidence": "文本到图像扩散的免训练注意力重分配",
+      "canonical_evidence": "文本到图像扩散的免训练注意力重分配",
+      "llm_tldr_en": "This work introduces a training-free intervention that redistributes cross-attention with Gaussian smoothing, then reinforces content tokens and attenuates padding tokens to mitigate memorization in text-to-image diffusion without extra denoiser evaluations.",
+      "llm_tldr_cn": "文本到图像扩散模型常记忆并复现训练样本，而有效缓解需在保留提示信息与降低训练图像相似度之间权衡。本文提出免训练方法，先对交叉注意力做高斯平滑重分配，再增强内容词元、抑制填充词元的贡献，且不增加额外去噪器评估。实验表明该方法在相近训练图像相似度下提升了提示对齐，为记忆缓解提供了无需训练的高效干预手段。",
+      "llm_tldr": "文本到图像扩散模型常记忆并复现训练样本，而有效缓解需在保留提示信息与降低训练图像相似度之间权衡。本文提出免训练方法，先对交叉注意力做高斯平滑重分配，再增强内容词元、抑制填充词元的贡献，且不增加额外去噪器评估。实验表明该方法在相近训练图像相似度下提升了提示对齐，为记忆缓解提供了无需训练的高效干预手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2610.01815v1",
+      "source": "arxiv",
+      "title": "Debias Anything: Fairness with Diversity without Supervision in Diffusion Models",
+      "abstract": "Although diffusion models produce high-quality images, they also reproduce and amplify demographic imbalances in their training data. Debiasing their generation process post-training w.r.t. some sensitive attribute usually relies on classifier guidance or explicit text extra-conditioning, but this reduces methods' applicability and output diversity. Conversely, methods promoting diversity alone do not ensure fair attribute representation. In this paper, we propose a method tackling fairness and diversity jointly that is generally applicable to any diffusion model and any sensitive attribute. To this end, an adapter connects the frozen diffusion model to a pretrained vision-language embedding space, enabling fairness and diversity guidance without sensitive-attribute annotations. For fairness, pairs of text prompts define attribute directions which guide batch composition towards specific proportions. For diversity, we introduce a score measuring disagreement between the semantic estimates derived from this representation. The formulation supports unconditional and text-conditional diffusion models, while requiring no prior knowledge or data of sensitive attribute. Experiments confirm that our method improves quality and diversity scores at comparable fairness levels.",
+      "authors": [
+        "Théau d'Audiffret",
+        "Mariia Vladimirova",
+        "Jean-Yves Franceschi"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-10-01T14:51:03+00:00",
+      "link": "https://arxiv.org/pdf/2610.01815v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Training-free post-hoc adaptation of diffusion models",
+      "llm_evidence_cn": "扩散模型的免训练后处理适配",
+      "llm_evidence": "扩散模型的免训练后处理适配",
+      "canonical_evidence": "扩散模型的免训练后处理适配",
+      "llm_tldr_en": "Debias Anything jointly tackles fairness and diversity in diffusion models without supervision by connecting a frozen diffusion model to a vision-language embedding space via an adapter.",
+      "llm_tldr_cn": "扩散模型虽能生成高质量图像，却会复制并放大训练数据中的人口统计学偏差，而现有去偏方法常依赖分类器引导或显式文本条件，牺牲了适用性与输出多样性。本文提出一种通用方法，用适配器将冻结的扩散模型连接到预训练视觉语言嵌入空间，从而在保持多样性的同时引导公平的属性表示，适用于任意扩散模型与敏感属性。该工作为扩散模型提供了无需重训练的公平性与多样性联合优化框架。",
+      "llm_tldr": "扩散模型虽能生成高质量图像，却会复制并放大训练数据中的人口统计学偏差，而现有去偏方法常依赖分类器引导或显式文本条件，牺牲了适用性与输出多样性。本文提出一种通用方法，用适配器将冻结的扩散模型连接到预训练视觉语言嵌入空间，从而在保持多样性的同时引导公平的属性表示，适用于任意扩散模型与敏感属性。该工作为扩散模型提供了无需重训练的公平性与多样性联合优化框架。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.01969v1",
+      "source": "arxiv",
+      "title": "RASteer: Retain-Aware Activation Steering for Concept Erasure in Diffusion Models",
+      "abstract": "Concept erasure aims to remove a target concept, such as a copyrighted style, a recognizable character, or unsafe content, from a pretrained text-to-image diffusion model while preserving its ability to generate other content. Existing activation steering methods build an erasure direction mainly from the target concept and adjust model activations along it at inference time. However, target and retained concepts often overlap in the model's representation space, so this direction also contains shared components that retained concepts rely on. Steering directly along this direction can therefore suppress retained concepts and harm the generation of non-target content. To address this issue, we propose Retain-aware Activation Steering (RASteer), a training-free method. RASteer first builds a retain subspace from the concepts to preserve. Retain-Orthogonal Steering (ROS) then removes components aligned with this subspace from the erasure direction, making steering more specific to the target. Since fully removing the shared components can weaken erasure, we further introduce Overlap-Adaptive Calibration (OAC). At each layer and denoising step, OAC uses the overlap between the erasure direction and the retain subspace to control how much of each shared component is removed, balancing target erasure and concept preservation. Experiments on unsafe-content, instance, and artistic-style erasure across multiple backbones and benchmarks show that RASteer matches or outperforms the activation steering and weight editing baselines we evaluate, achieving a better balance between erasure and preservation.",
+      "authors": [
+        "Yongliang Wu",
+        "Haori Lu",
+        "Yulun Wu",
+        "Jinqi Luo",
+        "Xingyu Zhu",
+        "Yaoyao Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-01T16:20:09+00:00",
+      "link": "https://arxiv.org/pdf/2610.01969v1",
+      "tags": [
+        "keyword:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Inference-time activation steering for diffusion models without training.",
+      "llm_evidence_cn": "免训练的扩散模型推理期激活引导。",
+      "llm_evidence": "免训练的扩散模型推理期激活引导。",
+      "canonical_evidence": "免训练的扩散模型推理期激活引导。",
+      "llm_tldr_en": "RASteer addresses concept erasure in diffusion models where activation steering harms retained concepts; it steers activations away from shared components at inference time, preserving non-target generation without retraining.",
+      "llm_tldr_cn": "针对扩散模型概念擦除中现有激活引导会因目标与保留概念表征重叠而误伤非目标内容的问题，本文提出保留感知激活引导RASteer，在推理阶段沿去除共享成分的方向调整模型激活。实验表明该方法在有效擦除目标概念的同时显著保留了其他内容的生成质量，为免训练的概念擦除提供了更精细的推理期控制手段。",
+      "llm_tldr": "针对扩散模型概念擦除中现有激活引导会因目标与保留概念表征重叠而误伤非目标内容的问题，本文提出保留感知激活引导RASteer，在推理阶段沿去除共享成分的方向调整模型激活。实验表明该方法在有效擦除目标概念的同时显著保留了其他内容的生成质量，为免训练的概念擦除提供了更精细的推理期控制手段。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

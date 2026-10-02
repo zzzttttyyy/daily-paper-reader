@@ -6,41 +6,68 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-10-01
-- 运行时间：2026-10-01 23:45:50 UTC
+- 最新运行日期：2026-10-02
+- 运行时间：2026-10-02 23:24:52 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：0
-- 速读区：6
+- 本次总论文数：15
+- 精读区：6
+- 速读区：9
 
 ### 今日简报（AI）
-- 今日共生成 6 篇推荐（精读 0 篇，速读 6 篇）
-- 速读：《VGGT-Diff: Visual Geometry Meets Diffusion for Sparse-View Novel View Synthesis》（7.0/10）, 《Chameleon: Dynamic Format Adapter for Efficient Diffusion》（7.0/10）, 《Sol-H3: Recursive Self-Improvement for MiniMax-H3 Inference Acceleration on Sol-Engine across Cloud and Edge》（7.0/10）
+- 今日共生成 15 篇推荐（精读 6 篇，速读 9 篇）
+- 精读：《PreviewDiff: Multimodal Critic-Guided Search over Diffusion Latents》（9.0/10）, 《DeCoPrune: Efficient KV-Cache Pruning for Autoregressive Video Diffusion via Denoising Consistency》（9.0/10）
+- 速读：《Diffusion Editing with Soft Mask: Pixel Level Redo of Image and Video with Adjustable Strength》（8.0/10）, 《Video Generation Models: A Survey of Post-Training and Alignment》（8.0/10）, 《FluxLite: Inference-Time Proposal Control for Discrete Diffusion Models》（7.0/10）
 - 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
-- 详情：[/202610/01/README](/202610/01/README)
+- 详情：[/202610/02/README](/202610/02/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [PreviewDiff: Multimodal Critic-Guided Search over Diffusion Latents](/202610/02/2609.36199v1-previewdiff-multimodal-critic-guided-search-over-diffusion-latents)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练的多模态评论家引导扩散隐变量测试时搜索
+2. [DeCoPrune: Efficient KV-Cache Pruning for Autoregressive Video Diffusion via Denoising Consistency](/202610/02/2609.39096v1-decoprune-efficient-kv-cache-pruning-for-autoregressive-video-diffusion-via-denoising-consistency)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练视频扩散KV缓存剪枝
+3. [PartiCam: Camera Controlled Video Generation with Reward Guidance](/202610/02/2609.39504v1-particam-camera-controlled-video-generation-with-reward-guidance)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免训练的相机可控视频生成方法
+4. [Error-Corrected Inference-Time Scaling for Imperfect Diffusion Models](/202610/02/2610.01933v1-error-corrected-inference-time-scaling-for-imperfect-diffusion-models)  
+   标签：评分：9.0/10、query:tfree-diff
+   evidence：免额外训练的推理时扩展以校正不完美扩散模型
+5. [LongLive-Plug: Once-for-All Distillation for Video Generation](/202610/02/2609.38154v1-longlive-plug-once-for-all-distillation-for-video-generation)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：一次性蒸馏实现免训练即插即用视频生成
+6. [The Golden Path Hypothesis: Reusable Schedules in Diffusion Caching](/202610/02/2609.39343v1-the-golden-path-hypothesis-reusable-schedules-in-diffusion-caching)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：扩散图像与视频生成的免训练推理加速
 
 ### 速读区论文标签
-1. [VGGT-Diff: Visual Geometry Meets Diffusion for Sparse-View Novel View Synthesis](/202610/01/2609.33253v1-vggt-diff-visual-geometry-meets-diffusion-for-sparse-view-novel-view-synthesis)  
+1. [Diffusion Editing with Soft Mask: Pixel Level Redo of Image and Video with Adjustable Strength](/202610/02/2610.00359v1-diffusion-editing-with-soft-mask-pixel-level-redo-of-image-and-video-with-adjustable-strength)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：图像与视频扩散编辑的免训练零样本采样。
+2. [Video Generation Models: A Survey of Post-Training and Alignment](/202610/02/2610.00812v1-video-generation-models-a-survey-of-post-training-and-alignment)  
+   标签：评分：8.0/10、query:tfree-diff
+   evidence：免重训练适配预训练视频模型的综述
+3. [FluxLite: Inference-Time Proposal Control for Discrete Diffusion Models](/202610/02/2609.35947v1-fluxlite-inference-time-proposal-control-for-discrete-diffusion-models)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：将几何潜变量注入预训练视频扩散模型做新视角合成
-2. [Chameleon: Dynamic Format Adapter for Efficient Diffusion](/202610/01/2609.33496v1-chameleon-dynamic-format-adapter-for-efficient-diffusion)  
+   evidence：离散扩散的免训练推理期提议控制
+4. [EPIC: Epipolar-Consistent 360° Immersive Stereo Video Generation](/202610/02/2609.38689v1-epic-epipolar-consistent-360-immersive-stereo-video-generation)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：面向扩散模型的训练后量化，无需重新训练
-3. [Sol-H3: Recursive Self-Improvement for MiniMax-H3 Inference Acceleration on Sol-Engine across Cloud and Edge](/202610/01/2609.35110v1-sol-h3-recursive-self-improvement-for-minimax-h3-inference-acceleration-on-sol-engine-across-cloud-and-edge)  
+   evidence：视频扩散模型的免训练零样本扩展。
+5. [Rethinking Memorization Mitigation in Diffusion Models: Reinforcing Text Conditioning](/202610/02/2610.01723v1-rethinking-memorization-mitigation-in-diffusion-models-reinforcing-text-conditioning)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：无需重训的大型视频扩散模型全栈推理加速
-4. [Panoptic Scene Program Diffusion Transformer](/202610/01/2609.31780v1-panoptic-scene-program-diffusion-transformer)  
+   evidence：文本到图像扩散的免训练注意力重分配
+6. [Self-Aligned Forcing: Streaming Video Diffusion with Differentiable Noisy History](/202610/02/2609.38114v1-self-aligned-forcing-streaming-video-diffusion-with-differentiable-noisy-history)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：面向组合式文本到图像生成的扩散Transformer
-5. [SAGE: Subspace Alignment for Classifier-Free Guidance in Mixture-of-Experts Diffusion Models](/202610/01/2609.34525v1-sage-subspace-alignment-for-classifier-free-guidance-in-mixture-of-experts-diffusion-models)  
+   evidence：自回归流式视频扩散生成
+7. [BTC3D: Blended Tile Conditioning for Detail-Enhancing Image-to-3D Generation](/202610/02/2609.39709v1-btc3d-blended-tile-conditioning-for-detail-enhancing-image-to-3d-generation)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：对齐混合专家扩散模型的CFG分支以提升生成质量，推理零开销
-6. [GenNVS: Geometry-enhanced Novel View Synthesis via Disentangled 3D Prior](/202610/01/2609.34579v1-gennvs-geometry-enhanced-novel-view-synthesis-via-disentangled-3d-prior)  
+   evidence：免训练的扩散生成推理方法。
+8. [Debias Anything: Fairness with Diversity without Supervision in Diffusion Models](/202610/02/2610.01815v1-debias-anything-fairness-with-diversity-without-supervision-in-diffusion-models)  
    标签：评分：6.0/10、query:tfree-diff
-   evidence：利用解耦三维先验条件化视频扩散模型实现新视角合成
+   evidence：扩散模型的免训练后处理适配
+9. [RASteer: Retain-Aware Activation Steering for Concept Erasure in Diffusion Models](/202610/02/2610.01969v1-rasteer-retain-aware-activation-steering-for-concept-erasure-in-diffusion-models)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：免训练的扩散模型推理期激活引导。
 
 
 <div class="dpr-home-promo-card">
