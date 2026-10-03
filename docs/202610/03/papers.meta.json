@@ -1,0 +1,69 @@
+{
+  "label": "2026-10-03",
+  "date": "2026-10-03",
+  "generated_at": "2026-10-03T22:31:03",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202610/03/2609.36522v1-paraanya-accelerating-parallel-diffusion-sampling-with-plug-and-play-output-caching",
+      "section": "deep",
+      "title_en": "ParaAnya: Accelerating Parallel Diffusion Sampling with Plug-and-Play Output Caching",
+      "authors": "Chee-En Yu, Xiao-Xi Tan, Yi-Cheng Lin, Yun-Shao Tsai, Chee-An Yu, Hung-yi Lee",
+      "date": "2026-09-29",
+      "pdf": "https://arxiv.org/pdf/2609.36522v1",
+      "score": "8.0",
+      "evidence": "即插即用的扩散采样输出缓存，无需重训练",
+      "tldr": "扩散模型生成质量高，但其固有的顺序采样过程带来严重计算瓶颈；并行时间求解器虽可并行化生成，却因滑动窗口重叠而重复评估相同时间步。本文提出ParaAnya，一种与并行采样算法无关的即插即用输出缓存机制，可减少网络函数评估次数。该方法在不重训练的前提下显著加速扩散采样，为免训练采样优化提供了通用工具。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion models have achieved remarkable success in generative tasks, but their inherently sequential sampling process introduces a severe computational bottleneck. Recent Parallel-in-Time (PinT) solvers attempt to mitigate this by parallelizing generation across a sliding window of timesteps, advancing the window only when step-wise changes stabilize. However, this overlapping window mechanism forces the network to repeatedly evaluate the same timesteps. When the input variations between iterations are minimal, these redundant evaluations lead to significant computational waste. To address this inefficiency, we propose ParaAnya, an output cache mechanism agnostic to the parallel sampling algorithm that can reduce the number of function evaluations (NFE). ParaAnya caches input-output pairs of diffusion models and reuses the cached output at overlapping timesteps. By dispatching only cache-miss timesteps to GPU workers, our approach eliminates redundant computation while preserving the structure of the underlying algorithms' update rules. We integrate ParaAnya into four representative parallel sampling algorithms and evaluate its performance on Stable Diffusion v1.5. Across four parallel samplers evaluated with DDIM on eight GPUs, ParaAnya provides $1.30$--$2.43\\times$ speedups over their uncached counterparts and reduces NFE by up to 70.1\\%, reaching up to a $5.62\\times$ speedup over single-GPU serial sampling while maintaining comparable CLIP scores.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202610/03/2609.36826v1-learning-via-self-consistency-for-diffusion-based-video-reasoning",
+      "section": "deep",
+      "title_en": "Learning via Self-Consistency for Diffusion-based Video Reasoning",
+      "authors": "Zhenghao Ni, Weimin Qiu, Meng Tang",
+      "date": "2026-09-29",
+      "pdf": "https://arxiv.org/pdf/2609.36826v1",
+      "score": "8.0",
+      "evidence": "面向扩散视频生成的免训练测试时扩展",
+      "tldr": "扩散视频生成模型虽展现零样本视觉推理潜力，但其随机性与下游确定性任务存在矛盾。本文受大语言模型思维链自洽性启发，提出无需训练的自洽测试时扩展：多次采样并聚合路径、位置或掩码形成共识，同时在去噪早期读取预测以降低开销。进一步用拒绝微调将共识蒸馏进模型，使其单次生成即可受益。在迷宫求解、视觉搜索和指代分割上显著提升，视觉搜索准确率由48.4%升至99.0%，4×4迷宫严格成功率由72.0%升至84.0%。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Video generation models have demonstrated emerging zero-shot capabilities for visual reasoning, perception, and other vision tasks. However, diffusion-based video generation is inherently stochastic, while many downstream vision tasks are deterministic. Motivated by the effectiveness of self-consistency in chain-of-thought reasoning for large language models, we investigate whether self-consistency can similarly improve diffusion-based video reasoning. We first introduce a training-free test-time scaling method that samples multiple video generations and aggregates their predictions through self-consistency. Specifically, we aggregate extracted paths, locations, or masks from multiple rollouts into a consensus prediction. To reduce the inference overhead of multi-rollout generation, we read out predictions early in the denoising trajectory, which preserves consensus quality while reducing denoising steps by more than half. We further propose Rejection Fine-Tuning (RFT) to distill consensus predictions into the video generation model. The resulting model internalizes the benefit of multi-sample consensus and requires only a single generation at inference time, while substantially outperforming the original model. Experiments on three tasks, including maze solving, visual search, and referring segmentation, show that both our self-consistency inference and consensus distillation dramatically improve video-based perception and reasoning, without requiring ground-truth videos or task-specific verification. For visual search, self-consistency raises task accuracy from 48.4% for a single generation to 99.0%. The distilled model retains much of the consensus benefit with a single rollout. For 4-by-4 maze solving, consensus-based training improves the single-generation strict success rate from 72.0% to 84.0% with the same inference latency.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202610/03/2610.00395v1-specificity-aware-diffusion-steering-via-variance-reduced-sequential-monte-carlo",
+      "section": "deep",
+      "title_en": "Specificity-Aware Diffusion Steering via Variance-Reduced Sequential Monte Carlo",
+      "authors": "Luran Wang, Linrui Ma, Hannes Stärk, Regina Barzilay",
+      "date": "2026-09-30",
+      "pdf": "https://arxiv.org/pdf/2610.00395v1",
+      "score": "8.0",
+      "evidence": "无需完整重训练的预训练扩散模型推理时引导",
+      "tldr": "推理时引导可让预训练扩散模型无需重训满足新约束，但特异性生成中排斥负参考分布会侵蚀正分布重叠区。本文将特异性引导建模为目标设计，由重叠目标导出仅在正分布相对占优处保留期望分布的目标，并以似然比解释特异性。方法采用方差最小化局部提议的 SMC 采样，并用期望/不期望 score 场的 Jacobian-vector 乘积做固定噪声优化。实验在合成、类对比、文生图和 p-MHC 结合体上抑制负区域更有效，减少 mode shift，且降低 SMC 权重崩溃、提升稳定性。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Inference-time steering enables pretrained diffusion models to satisfy new constraints without full retraining. However, specificity-aware generation is difficult: repelling samples from a negative reference distribution can also erode the positive distribution where the two overlap. The key challenge is to suppress negative mass while minimally distorting the positive distribution. We address this problem by formulating specificity-aware steering as a target-design problem and deriving a target distribution from an overlap-based objective. The resulting target keeps the desired reference distribution only in regions where it is sufficiently preferred over the undesired reference distribution, giving a likelihood-ratio interpretation of specificity. To sample from the corresponding time-dependent target path, we develop a Sequential Monte Carlo sampler with a variance-minimized local proposal. We further introduce a practical fixed-noise optimization procedure with the Jacobian--vector products with the desired and undesired score fields. Experiments on synthetic task, class-contrastive generation, text-to-image tasks and peptide-MHC (p-MHC) binder show that the proposed method suppresses undesired regions more effectively, reduces mode shift, and improves sampling stability by decreasing the SMC weight collapse compared with negative-guidance baselines. Code is available at: https://github.com/WangLuran/Specificity-Aware-Diffusion-Steering",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202610/03/2609.37925v1-rollout-marginal-distillation-for-long-horizon-autoregressive-video-generation",
+      "section": "quick",
+      "title_en": "Rollout-Marginal Distillation for Long-Horizon Autoregressive Video Generation",
+      "authors": "Chenjian Gao, Zhihao Hu, Jianqi Ma, Jun Zhang, Weidong Zhang, Tianfan Xue",
+      "date": "2026-09-29",
+      "pdf": "https://arxiv.org/pdf/2609.37925v1",
+      "score": "7.0",
+      "evidence": "通过轨迹边缘蒸馏改进自回归视频扩散生成",
+      "tldr": "自回归视频扩散可低延迟流式生成，但长程 rollout 中预测误差会不断累积，且训练依赖自身不完美历史。现有 video-level DMD 联合评分整段 rollout，使单个 chunk 的修正受前后文伪影牵制，视觉质量信号被时间一致性目标稀释。本文提出 Rollout-Marginal Distillation（RMD）：保留生成历史用于自回归预测，却让每个 chunk 独立对照 chunk teacher 评分，再以 video-level DMD 恢复时序连贯。实验表明 RMD 在远超训练时域后仍保持高视觉质量，并优于 video-level DMD 基线，为长时视频生成提供了更清晰的蒸馏路径。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Autoregressive (AR) video diffusion enables low-latency, streamable video generation, but prediction errors often accumulate over long rollouts. Training the generator on its own rollouts exposes it to these imperfect histories. However, existing video-level distribution matching distillation (DMD) scores the whole rollout jointly. Because a chunk is evaluated together with its past and future, its correction can favor matching artifacts in the surrounding context merely to preserve temporal consistency. To provide a clearer visual-quality signal, we introduce Rollout-Marginal Distillation (RMD). RMD retains the generated history for AR prediction but scores each chunk independently against a chunk teacher, ensuring its quality correction is not compromised by an imperfect temporal context. To compensate for the lack of temporal context in independent chunk scoring, RMD subsequently applies video-level DMD to restore temporal coherence. Extensive experiments demonstrate that RMD maintains high visual quality far beyond its training horizon and outperforms video-level DMD baselines. Code and video results are available at https://cjeen.github.io/RMD",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
