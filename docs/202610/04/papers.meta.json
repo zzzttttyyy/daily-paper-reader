@@ -1,0 +1,54 @@
+{
+  "label": "2026-10-04",
+  "date": "2026-10-04",
+  "generated_at": "2026-10-04T21:52:57",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202610/04/2609.33546v1-steer2grasp-inference-time-embodiment-aware-steering-for-diverse-physically-feasible-grasp-diffusion",
+      "section": "quick",
+      "title_en": "Steer2Grasp: Inference-Time Embodiment-Aware Steering for Diverse Physically Feasible Grasp Diffusion",
+      "authors": "Vignesh Vembar, Ayush Kaura, A Padmaprabhan, Siddharth Sinha, Kailash Nagarajan, Keshab Patra, Md Faizal Karim, K Madhava Krishna",
+      "date": "2026-09-27",
+      "pdf": "https://arxiv.org/pdf/2609.33546v1",
+      "score": "7.0",
+      "evidence": "对冻结扩散模型的免训练推理时引导",
+      "tldr": "现有抓取扩散模型虽提供丰富先验，但其以物体为中心的方式常违反机器人本体与环境的运动学及碰撞约束。Steer2Grasp提出免训练、本体无关的推理时抓取引导框架，用部署奖励驱动冻结的笛卡尔抓取扩散模型。方法借助Feynman-Kac粒子重加权与重采样，将种群质量从不可行模式迁移到高奖励模式，无需修改预训练模型或可微约束。在多样物体、机器人本体和受限环境中，显著提升可行抓取生成，同时保持接近底层抓取先验。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Current grasp diffusion models provide rich priors for generation, yet their object-centric approach can violate the kinematic and collision constraints imposed by the embodiment and the environment. Existing embodiment-aware methods primarily perform local corrections around generated grasps through gradient guidance or optimization, making it difficult to recover from fundamentally infeasible modes. We present Steer2Grasp, a training-free, embodiment-agnostic framework for inference-time grasp steering that adapts a frozen Cartesian grasp diffusion model using deployment-specific rewards. Through Feynman-Kac (FK) inspired particle reweighting and resampling, the method reallocates population mass from infeasible to high-reward grasp modes, enabling population-level mode transitions without modifying the pretrained diffusion model or requiring differentiable constraints. The framework enables a unified treatment for single and dual arm grasping through reachability and collision aware rewards, followed by gradient free gripper level local refinement. Across diverse objects, robot embodiments, and constrained environments, our method substantially improves feasible grasp generation while maintaining proximity to the underlying grasp prior.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202610/04/2609.38136v1-clear-a-unified-framework-for-resolving-the-leakage-degradation-dilemma-in-style-transfer",
+      "section": "quick",
+      "title_en": "CLeaR: A Unified Framework for Resolving the Leakage-Degradation Dilemma in Style Transfer",
+      "authors": "Teng Zhou, Yunhao Chen",
+      "date": "2026-09-29",
+      "pdf": "https://arxiv.org/pdf/2609.38136v1",
+      "score": "7.0",
+      "evidence": "免训练扩散风格迁移框架",
+      "tldr": "风格迁移常出现内容泄漏，即风格参考中的物体、布局或语义混入生成结果；现有数据驱动与免训练方法虽可缓解，却陷入泄漏-退化困境：抑制内容会削弱风格保真，保留风格又易引入无关内容。CLeaR提出免训练统一框架，通过正交子空间投影构建内容削减的风格目标，并用集成反演优化共享像素风格锚点，再以能量引导校准扩散采样。在StyleBench上，该方法提升风格对齐、减少内容泄漏，并在LLM-as-Judge评测中优于现有方法。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Style transfer aims to render target content in the style of a reference image, but existing methods often suffer from content leakage, where objects, layouts, or semantics from the style reference appear in the generated output. Although prior data-driven and training-free methods can reduce leakage, they often face a leakage-degradation dilemma: stronger content suppression may weaken style fidelity, while richer style preservation may reintroduce unwanted reference content. We identify this dilemma across the full style-transfer pipeline, including feature separation, feature-space grounding, and diffusion generation. To address these issues, we propose CLeaR, a training-free framework for content-leakage-resistant style transfer. CLeaR first uses Orthogonal Subspace Projection to define content-reduced style targets in each vision foundation model (VFM) feature space. It then performs Ensemble Inversion, which optimizes a shared pixel-space style anchor satisfying style constraints across multiple VFMs. Finally, Energy-Guided Calibration maintains style alignment during diffusion sampling by steering the denoising trajectory toward the ensemble-defined style manifold. We further provide a theoretical analysis showing that the style-anchor estimation error decreases with the number of VFMs. Experiments on StyleBench demonstrate that CLeaR improves style alignment, reduces content leakage, and achieves better LLM-as-Judge evaluation compared with existing methods. The code is available at \\href{https://github.com/0606zt/CLeaR}{https://github.com/0606zt/CLeaR}.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202610/04/2610.01502v1-learned-end-to-end-guidance-schedules-for-diffusion-models",
+      "section": "quick",
+      "title_en": "Learned End-to-End Guidance Schedules for Diffusion Models",
+      "authors": "Aneesh Barthakur, Mathias Niepert, Luiz F. O. Chamon",
+      "date": "2026-10-01",
+      "pdf": "https://arxiv.org/pdf/2610.01502v1",
+      "score": "6.0",
+      "evidence": "推理期引导调度优化以减少扩散采样步数",
+      "tldr": "扩散模型引导生成需在数据质量与条件满足间权衡，固定引导尺度往往迫使小尺度与长采样，计算开销大。LEEGS 用少量样本以 SGD 学习时间相关的引导调度，并通过梯度近似把训练加速约 4 倍。在图像修复、噪声逆问题、Face-ID 生成及 PDE 正逆问题上，50/100 NFE 下优于基线，或以 10% 步数匹配固定引导。表明可端到端学习引导调度，减少采样步数并保持生成质量与条件满足。",
+      "tags": "query:tfree-diff",
+      "abstract_en": "Diffusion models are a powerful generative paradigm used across multimedia and scientific applications. Guided diffusion methods impose requirements on the generation by adding the gradient of a differentiable loss (the guidance function) as a drift term during inference. The weight of this drift (the guidance scale) is critical for the trade-off between data quality and requirement satisfaction. To achieve both of these goals, guided diffusion must resort to small guidance scales and lengthy sampling, incurring high computational costs. This work proposes learned end-to-end guidance schedules (LEEGS) to achieve these objectives with fewer sampling steps. LEEGS trains a time-dependent schedule by minimizing the guidance function over a small set of examples using stochastic gradient descent. Backpropagating through guided sampling is computationally expensive, so LEEGS uses an approximation of the gradient that cuts training time by a factor of 4. We evaluate LEEGS on diverse guidance tasks, including (a) image inpainting, (b) noisy image inverse problems, (c) face-ID-guided generation, and (d) forward and inverse PDE problems, outperforming baselines at equal budget (50 or 100 NFEs), or matching constant guidance with only 10% of the steps.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

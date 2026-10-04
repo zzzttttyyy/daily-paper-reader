@@ -6,34 +6,30 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-10-03
-- 运行时间：2026-10-03 22:30:58 UTC
+- 最新运行日期：2026-10-04
+- 运行时间：2026-10-04 21:52:53 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：3
-- 速读区：1
+- 本次总论文数：3
+- 精读区：0
+- 速读区：3
 
 ### 今日简报（AI）
-今日完成4篇论文筛选，精读3篇、速读1篇，重点聚焦扩散模型采样加速与视频推理。
-最值得看的是两篇8.0分精读：ParaAnya用即插即用输出缓存加速并行扩散采样，Learning via Self-Consistency把自一致性引入扩散视频推理。
-普通读者可先读ParaAnya了解加速思路，再按兴趣跟进视频推理与长时程自回归生成。
-- 详情：[/202610/03/README](/202610/03/README)
+今日速读 3 篇，聚焦机器人抓取扩散模型、风格迁移与扩散模型引导调度。最值得看的是两篇 7 分工作：Steer2Grasp 用推理期具身感知引导提升抓取多样性与物理可行性，CLeaR 统一框架试图破解风格迁移中泄漏与退化的两难。普通读者可优先读这两篇的摘要与方法图，再按需深入 6 分的引导调度一文。
+- 详情：[/202610/04/README](/202610/04/README)
 
 ### 精读区论文标签
-1. [ParaAnya: Accelerating Parallel Diffusion Sampling with Plug-and-Play Output Caching](/202610/03/2609.36522v1-paraanya-accelerating-parallel-diffusion-sampling-with-plug-and-play-output-caching)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：即插即用的扩散采样输出缓存，无需重训练
-2. [Learning via Self-Consistency for Diffusion-based Video Reasoning](/202610/03/2609.36826v1-learning-via-self-consistency-for-diffusion-based-video-reasoning)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：面向扩散视频生成的免训练测试时扩展
-3. [Specificity-Aware Diffusion Steering via Variance-Reduced Sequential Monte Carlo](/202610/03/2610.00395v1-specificity-aware-diffusion-steering-via-variance-reduced-sequential-monte-carlo)  
-   标签：评分：8.0/10、query:tfree-diff
-   evidence：无需完整重训练的预训练扩散模型推理时引导
+- 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Rollout-Marginal Distillation for Long-Horizon Autoregressive Video Generation](/202610/03/2609.37925v1-rollout-marginal-distillation-for-long-horizon-autoregressive-video-generation)  
+1. [Steer2Grasp: Inference-Time Embodiment-Aware Steering for Diverse Physically Feasible Grasp Diffusion](/202610/04/2609.33546v1-steer2grasp-inference-time-embodiment-aware-steering-for-diverse-physically-feasible-grasp-diffusion)  
    标签：评分：7.0/10、query:tfree-diff
-   evidence：通过轨迹边缘蒸馏改进自回归视频扩散生成
+   evidence：对冻结扩散模型的免训练推理时引导
+2. [CLeaR: A Unified Framework for Resolving the Leakage-Degradation Dilemma in Style Transfer](/202610/04/2609.38136v1-clear-a-unified-framework-for-resolving-the-leakage-degradation-dilemma-in-style-transfer)  
+   标签：评分：7.0/10、query:tfree-diff
+   evidence：免训练扩散风格迁移框架
+3. [Learned End-to-End Guidance Schedules for Diffusion Models](/202610/04/2610.01502v1-learned-end-to-end-guidance-schedules-for-diffusion-models)  
+   标签：评分：6.0/10、query:tfree-diff
+   evidence：推理期引导调度优化以减少扩散采样步数
 
 
 <div class="dpr-home-promo-card">
