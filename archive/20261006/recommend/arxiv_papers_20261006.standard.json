@@ -1,0 +1,463 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-06T01:15:29.811287+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2610.02914v1",
+      "source": "arxiv",
+      "title": "Custom Forcing: Training-Free Subject Customization for Autoregressive Video Generation",
+      "abstract": "Autoregressive video models can generate minute-long videos in real time, but they produce generic subjects from text rather than specific subjects from user-provided images. Existing customization methods either require costly per-subject optimization or use pretrained conditioning networks that jointly process all video frames with bidirectional attention. Neither approach is designed for causal streaming. We present Custom Forcing, a training-free method that stores reference-based anchor frames in the persistent KV cache of a frozen autoregressive video model. However, fixed anchors face two limitations: simple conditioning allows identity to drift, and the text prompt continues to favor a generic subject. To address these problems, drift-adaptive value amplification (DVA) scales reference influence with the degree of identity drift, while anchor contrast guidance (ACG) steers generation away from the generic class prior. Over two-minute rollouts, fixed anchors fall from 0.58 to 0.42 in DINO-I, while Custom Forcing keeps it between 0.58 and 0.62 without reducing motion. Custom Forcing also achieves higher subject similarity than bidirectional customization methods and better preserves identity over 30s than causal image-to-video and reference-to-video models, while generating each frame 9.5--28.5 times faster than these long-video baselines.",
+      "authors": [
+        "Yunseung Ok",
+        "Hyunsoo Kim",
+        "Minseo Kim",
+        "Suhyun Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-02T07:04:09+00:00",
+      "link": "https://arxiv.org/pdf/2610.02914v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free subject customization for autoregressive video generation",
+      "llm_evidence_cn": "自回归视频生成的免训练主体定制",
+      "llm_evidence": "自回归视频生成的免训练主体定制",
+      "canonical_evidence": "自回归视频生成的免训练主体定制",
+      "llm_tldr_en": "Custom Forcing is a training-free method that stores reference anchor frames in the persistent KV cache of a frozen autoregressive video model to customize subjects without per-subject optimization.",
+      "llm_tldr_cn": "自回归视频模型能实时生成分钟级视频，但只能依文本生成泛化主体，难以复现用户给定图像中的特定主体。现有定制方法要么需昂贵的逐主体优化，要么依赖双向注意力联合处理全部帧，均不适合因果流式生成。本文提出免训练的 Custom Forcing，将参考锚帧存入冻结自回归视频模型的持久 KV 缓存。针对身份漂移与文本偏向泛化主体的问题，进一步改进锚帧条件，实现无需训练的视频主体定制。",
+      "llm_tldr": "自回归视频模型能实时生成分钟级视频，但只能依文本生成泛化主体，难以复现用户给定图像中的特定主体。现有定制方法要么需昂贵的逐主体优化，要么依赖双向注意力联合处理全部帧，均不适合因果流式生成。本文提出免训练的 Custom Forcing，将参考锚帧存入冻结自回归视频模型的持久 KV 缓存。针对身份漂移与文本偏向泛化主体的问题，进一步改进锚帧条件，实现无需训练的视频主体定制。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.03120v1",
+      "source": "arxiv",
+      "title": "In-Distribution Forcing for Long Video Generation at Test Time",
+      "abstract": "Modern autoregressive (AR) video diffusion models excel at short-horizon video generation, yet generating long videos remains challenging due to drifting, where colors and textures shift, and motion dynamics decay. Existing works primarily rely on KV conditioning, which selects or modifies cached key-value (KV) entries to mitigate drifting. However, we observe that KV conditioning alone is insufficient as it assumes cached KV entries remain in-distribution. This assumption fails beyond the training horizon: nothing constrains the construction of KV entries during rollout, giving rise to the KV-provenance problem where cached entries themselves become out-of-distribution (OOD). To address this, we propose In-Distribution Forcing (ID-Forcing), a test-time framework that aligns both KV caching and KV conditioning with training configurations. Its key mechanism, self-caching, prevents OOD KV entries at their source. Each chunk is cached without attending to prior KV entry, keeping the rolling window exactly in-distribution. Consequently, ID-Forcing seamlessly extends short-horizon models to minute-scale video generation. Extensive evaluations show that our method remains competitive on standard video generation benchmark while substantially outperforming prior work in mitigating drifting, as validated by both our drift metrics and a user study.",
+      "authors": [
+        "Jeongwoo Shin",
+        "Youngyoon Choi",
+        "Sangwoo Jo",
+        "Hyunmog Kim",
+        "Sungjoon Choi",
+        "Joonseok Lee",
+        "Jaewoong Choi",
+        "Jaemoo Choi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-02T10:40:49+00:00",
+      "link": "https://arxiv.org/pdf/2610.03120v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "test-time framework for long video generation",
+      "llm_evidence_cn": "面向长视频生成的测试时框架",
+      "llm_evidence": "面向长视频生成的测试时框架",
+      "canonical_evidence": "面向长视频生成的测试时框架",
+      "llm_tldr_en": "Autoregressive video diffusion models drift in long-horizon generation because cached KV entries become out-of-distribution; this work proposes ID-Forcing, a test-time framework that constrains KV construction to stay in-distribution, improving long video generation without retraining.",
+      "llm_tldr_cn": "自回归视频扩散模型擅长短视频生成，但长视频中颜色纹理漂移、运动动态衰减，现有KV条件方法假设缓存条目仍处分布内，训练视野外该假设失效。本文提出分布内强制ID-Forcing，一种测试时框架，约束 rollout 过程中KV条目的构造使其保持分布内。实验表明该方法缓解漂移问题，在无需额外训练的情况下显著改善长视频生成质量。其贡献在于揭示KV来源问题并提出有效的测试时修复思路。",
+      "llm_tldr": "自回归视频扩散模型擅长短视频生成，但长视频中颜色纹理漂移、运动动态衰减，现有KV条件方法假设缓存条目仍处分布内，训练视野外该假设失效。本文提出分布内强制ID-Forcing，一种测试时框架，约束 rollout 过程中KV条目的构造使其保持分布内。实验表明该方法缓解漂移问题，在无需额外训练的情况下显著改善长视频生成质量。其贡献在于揭示KV来源问题并提出有效的测试时修复思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.03202v1",
+      "source": "arxiv",
+      "title": "Contextual Flow Matching: Adaptive Step Selection in Flow Models for Efficient Visual Generation",
+      "abstract": "Flow Matching enables high-quality visual generation via continuous-time dynamics, but inference remains costly due to multiple sequential function evaluations. Existing acceleration methods reduce the number of function evaluations but often introduce additional training overhead, degrade quality, or fail to account for input-dependent variability. We propose COFLOW, an inference-time method that adaptively selects the step counts each generation based on the prompt features. Our context-aware COFLOW is trained online with an unsupervised reward that balances inference efficiency and generation fidelity. Our method is plug-and-play, requiring no retraining of the underlying generative model. It generalizes to image and video generation, achieving over 2.5x speedup while preserving perceptual and semantic quality. We further provide a theoretical analysis establishing an O(1/K) forward-Euler discretization error bound under standard regularity conditions.",
+      "authors": [
+        "Divya Jyoti Bajpai",
+        "Arun Verma",
+        "Manjesh Kumar Hanawal"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-10-02T12:19:49+00:00",
+      "link": "https://arxiv.org/pdf/2610.03202v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "inference-time adaptive step selection, plug-and-play with no retraining of the generative model",
+      "llm_evidence_cn": "推理时自适应步数选择，即插即用且无需重训练生成模型",
+      "llm_evidence": "推理时自适应步数选择，即插即用且无需重训练生成模型",
+      "canonical_evidence": "推理时自适应步数选择，即插即用且无需重训练生成模型",
+      "llm_tldr_en": "COFLOW is an inference-time, plug-and-play method that adaptively selects step counts per prompt for efficient image and video generation without retraining the model.",
+      "llm_tldr_cn": "针对流匹配视觉生成推理成本高、已有加速方法需额外训练或忽略输入差异的问题，本文提出推理时方法COFLOW。它根据提示特征自适应地为每次生成选择步数，并用平衡效率与保真度的无监督奖励在线训练轻量策略，且即插即用、无需重训练底层生成模型。实验表明其在图像与视频生成上都能高效加速，是典型的免训练采样优化方案。",
+      "llm_tldr": "针对流匹配视觉生成推理成本高、已有加速方法需额外训练或忽略输入差异的问题，本文提出推理时方法COFLOW。它根据提示特征自适应地为每次生成选择步数，并用平衡效率与保真度的无监督奖励在线训练轻量策略，且即插即用、无需重训练底层生成模型。实验表明其在图像与视频生成上都能高效加速，是典型的免训练采样优化方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.03034v1",
+      "source": "arxiv",
+      "title": "Adaptive Second-Order Solvers for Fast Stochastic Diffusion Sampling",
+      "abstract": "Diffusion models rely on numerical solvers requiring time-discretization, which has a large influence on the tradeoff between sampling cost and quality. However, the computational difficulty of the reverse process varies along the sampling trajectory and across data distributions, making the choice of discretization important. We adapt proportional-integral (PI) step-size control to diffusion, using our diffusion noise-normalised error estimator. Unlike existing adaptive methods in diffusion that respond only to the current error, the PI solver also incorporates the previous error, yielding smoother step adaptation. We further show that these per-sample trajectories exhibit shared structure and can be aggregated into a fixed schedule that retains much of the benefit of adaptive sampling. We evaluate both approaches on natural-image and language datasets, in terms of quality, measured by FID at a matched number of neural network evaluations (NFE), comparing them with widely used stochastic solvers and schedules. For images, our fixed discretization outperforms the commonly used EDM schedule in terms of sample quality when used with the stochastic Heun sampler, and with the EDM-churn sampler at low NFE. Additionally, our PI adaptive solver obtains better FID than most stochastic and adaptive baselines, although it does not beat the EDM-churn sampler at low NFE. Moreover, we find our solver outperforms both the EDM and the entropy schedule on language diffusion at low-to-medium NFE in terms of perplexity, with the drawback of lower token entropy. Lastly, we find that the benefit of per-sample adaptivity is problem-dependent. It is highly beneficial in 1D toy examples, while only marginal for image and language data, where the average schedule sometimes even outperforms the PI-adaptive solver. Code is available at https://github.com/ellakemperman/adaptive-second-order-diffusion-solvers",
+      "authors": [
+        "Ella Kemperman",
+        "Luca Ambrogioni"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CL",
+        "cs.CV"
+      ],
+      "published": "2026-10-02T09:17:40+00:00",
+      "link": "https://arxiv.org/pdf/2610.03034v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free adaptive diffusion sampler",
+      "llm_evidence_cn": "免训练的自适应扩散采样器",
+      "llm_evidence": "免训练的自适应扩散采样器",
+      "canonical_evidence": "免训练的自适应扩散采样器",
+      "llm_tldr_en": "Diffusion sampling cost depends heavily on time discretization, but reverse-process difficulty varies along the trajectory; this work adapts proportional-integral step-size control with a noise-normalized error estimator to build adaptive second-order solvers that need no extra training.",
+      "llm_tldr_cn": "扩散模型依赖数值求解器进行时间离散，而逆过程难度沿轨迹与数据分布变化，离散步长选择对采样成本与质量影响很大。本文引入比例积分步长控制，结合扩散噪声归一化误差估计器，使采样器不仅响应当前误差还考虑历史误差，获得更平滑的步长自适应。方法进一步将逐样本轨迹聚合成保留效果的固定调度。其贡献在于免训练地提升扩散采样效率与质量权衡。",
+      "llm_tldr": "扩散模型依赖数值求解器进行时间离散，而逆过程难度沿轨迹与数据分布变化，离散步长选择对采样成本与质量影响很大。本文引入比例积分步长控制，结合扩散噪声归一化误差估计器，使采样器不仅响应当前误差还考虑历史误差，获得更平滑的步长自适应。方法进一步将逐样本轨迹聚合成保留效果的固定调度。其贡献在于免训练地提升扩散采样效率与质量权衡。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2610.02251v1",
+      "source": "arxiv",
+      "title": "Rank-Aware Speculative Sampling for Diffusion Draft Trees",
+      "abstract": "Speculative sampling accelerates diffusion generation by verifying inexpensive draft states in parallel while preserving the target law. Recent tree-based methods allocate the parallel compute budget more effectively than single-chain drafts, as demonstrated by Diffusion Greedy Rejection Sampling (D-GRS). D-GRS generates $K$ conditionally independent candidates per node, and sequentially tests them in their generation order. Yet the sampled candidates admit an informative ranking without additional target-model evaluations. To exploit this, we introduce Rank-Aware Speculative Sampling (RASS), a verification rule for speculative draft trees based on rank-aware list coupling. RASS orders draft candidates along the proposal-target mean displacement and samples a rank with weights optimized to minimize total variation between the selected-proposal and target laws. Finally, the selected candidate is maximally coupled with the target, with residual correction ensuring exact sampling for any choice of rank weights. We evaluate RASS on a Gaussian-mixture target, unconditional pixel-space generation on FFHQ, conditional generation on CIFAR-10, and latent diffusion with Stable Diffusion 3.5 using COCO2014 prompts. Measured by the ratio of standard to speculative sampling's target-model evaluation counts, RASS improves on D-GRS across the evaluated settings, with gains reaching approximately 20% on CIFAR-10 at matched compute budgets.",
+      "authors": [
+        "Marcello Bullo",
+        "Yanxiao Liu",
+        "Öykü Sıla Güner",
+        "Arpan Mukherjee",
+        "Deniz Gündüz"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.CO"
+      ],
+      "published": "2026-09-30T18:59:32+00:00",
+      "link": "https://arxiv.org/pdf/2610.02251v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "speculative sampling accelerates diffusion generation, inference-time",
+      "llm_evidence_cn": "投机采样加速扩散生成，推理阶段",
+      "llm_evidence": "投机采样加速扩散生成，推理阶段",
+      "canonical_evidence": "投机采样加速扩散生成，推理阶段",
+      "llm_tldr_en": "RASS is a training-free verification rule for speculative draft trees in diffusion generation that ranks candidates along proposal-target mean displacement and samples by rank, improving parallel compute use while preserving the target law.",
+      "llm_tldr_cn": "扩散生成推理缓慢，投机采样通过并行验证廉价草稿状态来加速，但现有树式方法未利用候选间可获得的排序信息。本文提出秩感知投机采样RASS，一种基于秩感知列表耦合的草稿树验证规则，沿提议-目标平均位移对候选排序并进行秩采样。该方法在无需额外目标模型评估的情况下提升并行预算利用率，保持目标分布不变。这为扩散图像/视频生成提供了免训练的推理加速方案。",
+      "llm_tldr": "扩散生成推理缓慢，投机采样通过并行验证廉价草稿状态来加速，但现有树式方法未利用候选间可获得的排序信息。本文提出秩感知投机采样RASS，一种基于秩感知列表耦合的草稿树验证规则，沿提议-目标平均位移对候选排序并进行秩采样。该方法在无需额外目标模型评估的情况下提升并行预算利用率，保持目标分布不变。这为扩散图像/视频生成提供了免训练的推理加速方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.40037v1",
+      "source": "arxiv",
+      "title": "Enhancing Autoregressive Video Generation via Representation Adversarial Distillation",
+      "abstract": "Few-step autoregressive video generation enables efficient streaming synthesis, but errors introduced in early temporal blocks are reused as context and can propagate through subsequent rollouts, leading to detail degradation, structural drift, and unstable motion. Existing distribution matching distillation (DMD) primarily aligns student and teacher distributions in diffusion latent space, but provides no direct supervision over the perceptual quality of decoded videos. We introduce Radian, a representation-space adversarial distillation framework that complements on-policy DMD with real-data adversarial supervision in the feature space defined by a frozen visual foundation model (VFM). During training, Radian sparsely decodes frames from autoregressive student rollouts, extracts multi-level visual representations, and applies lightweight discriminator heads to distinguish generated outputs from real video frames. The DMD objective anchors the student to the pretrained teacher, while the representation-space adversarial objective supplies complementary perceptual and semantic gradients that promote high-quality modes. These additional components are discarded after training, leaving the generator architecture and inference-time denoising budget unchanged. Experiments on Wan2.1-1.3B cover four-step chunk-wise, one-step frame-wise, and minute-long autoregressive generation. Our method achieves a VBench Total of 0.8444 and a VideoAlign Total of 0.8033 under four-step generation, and improves VBench-Long from 0.7805 to 0.8041 over Rolling Forcing while using fewer denoising steps. Controlled comparisons across image, video, and diffusion representations further indicate that the choice of representation spaces induces distinct adversarial signals, and external VFM gradients complement DMD more effectively than adversarial supervision derived from diffusion-internal features.",
+      "authors": [
+        "Fangyu Lin",
+        "Xingtong Ge",
+        "Lunjie Zhu",
+        "Yi Zhang",
+        "Zhening Liu",
+        "Tianhang Wang",
+        "Mengfei Li",
+        "Yumeng Zhang",
+        "Guanglu Song",
+        "Yu Liu",
+        "Jun Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-30T16:09:12+00:00",
+      "link": "https://arxiv.org/pdf/2609.40037v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "representation adversarial distillation for autoregressive video generation",
+      "llm_evidence_cn": "面向自回归视频生成的表征对抗蒸馏",
+      "llm_evidence": "面向自回归视频生成的表征对抗蒸馏",
+      "canonical_evidence": "面向自回归视频生成的表征对抗蒸馏",
+      "llm_tldr_en": "Radian complements on-policy distribution matching distillation with real-data adversarial supervision in a frozen visual foundation model feature space to improve perceptual quality of few-step autoregressive video generation.",
+      "llm_tldr_cn": "少步自回归视频生成可实现高效流式合成，但早期时间块引入的误差会被当作上下文复用并向后传播，导致细节退化、结构漂移与运动不稳。现有分布匹配蒸馏仅在扩散潜空间对齐师生分布，缺乏对解码视频感知质量的直接监督。本文提出表征空间对抗蒸馏框架Radian，在冻结视觉基础模型的特征空间引入真实数据对抗监督，并与在线DMD互补，训练中稀疏解码帧。该工作提升了少步视频生成的感知质量与稳定性。",
+      "llm_tldr": "少步自回归视频生成可实现高效流式合成，但早期时间块引入的误差会被当作上下文复用并向后传播，导致细节退化、结构漂移与运动不稳。现有分布匹配蒸馏仅在扩散潜空间对齐师生分布，缺乏对解码视频感知质量的直接监督。本文提出表征空间对抗蒸馏框架Radian，在冻结视觉基础模型的特征空间引入真实数据对抗监督，并与在线DMD互补，训练中稀疏解码帧。该工作提升了少步视频生成的感知质量与稳定性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.02660v1",
+      "source": "arxiv",
+      "title": "SpectralCache: Accelerating Diffusion-Based World Models via Spectral Feature Caching",
+      "abstract": "Diffusion-based world models enable high-quality interactive environment generation but suffer from substantial inference overhead due to repeated Transformer evaluations during denoising. Existing caching methods mainly exploit temporal redundancy at the feature or token level, leaving the underlying mathematical structure of diffusion features largely unexplored. In this work, we reveal that world-model features exhibit highly stable singular subspaces across nearby denoising steps, while their singular values follow predictable evolution patterns. Building on this observation, we propose SpectralCache, a training-free spectral caching framework that reuses stable singular subspaces and estimates only low-dimensional singular values through linear extrapolation. We further exploit the spectral consistency between neighboring full-computation features to skip selected expensive backbone evaluations via singular value scaling. Extensive experiments on representative world models demonstrate that SpectralCache consistently improves inference efficiency while preserving generation quality. On HunyuanWorld-Voyager-13B, SpectralCache achieves 5.22x acceleration while maintaining a WorldScore of 65.90 for static scenes, substantially outperforming existing training-free caching methods in inference efficiency.",
+      "authors": [
+        "Zhendong Mi",
+        "Pu Zhao",
+        "Ziyu Hu",
+        "Xiaodong Yu",
+        "Yanzhi Wang",
+        "Grace Li Zhang",
+        "Shaoyi Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-02T01:28:43+00:00",
+      "link": "https://arxiv.org/pdf/2610.02660v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free spectral caching to accelerate diffusion-based generation",
+      "llm_evidence_cn": "免训练谱缓存加速扩散生成",
+      "llm_evidence": "免训练谱缓存加速扩散生成",
+      "canonical_evidence": "免训练谱缓存加速扩散生成",
+      "llm_tldr_en": "Diffusion world models suffer heavy inference cost from repeated Transformer evaluations. This work shows stable singular subspaces across denoising steps and proposes SpectralCache, a training-free spectral caching framework reusing stable subspaces and estimating low-dimensional singular values.",
+      "llm_tldr_cn": "基于扩散的世界模型在交互式环境生成中因去噪过程反复调用Transformer而推理开销巨大。论文发现世界模型特征在相邻去噪步间具有高度稳定的奇异子空间，且奇异值演化可预测。据此提出SpectralCache免训练谱缓存框架，复用稳定奇异子空间并仅估计低维奇异值。该工作无需重新训练即可显著降低扩散世界模型的推理成本，为免训练加速扩散生成提供了新思路。",
+      "llm_tldr": "基于扩散的世界模型在交互式环境生成中因去噪过程反复调用Transformer而推理开销巨大。论文发现世界模型特征在相邻去噪步间具有高度稳定的奇异子空间，且奇异值演化可预测。据此提出SpectralCache免训练谱缓存框架，复用稳定奇异子空间并仅估计低维奇异值。该工作无需重新训练即可显著降低扩散世界模型的推理成本，为免训练加速扩散生成提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2610.00930v1",
+      "source": "arxiv",
+      "title": "Joint Branch-Space Transform Coding for Diffusion Activation Quantization with Classifier-Free Guidance",
+      "abstract": "Post-training quantization for diffusion models increasingly exploits timestep, feature, and layer structure. While recent work has begun incorporating CFG structure into diffusion quantization, activation quantization still operates independently across conditional and unconditional coordinates, leaving cross-activation structure unexploited. We show that matched CFG activations form a strongly correlated two-dimensional source and that, under a fixed bit budget, the choice of branch coding basis materially affects quantization fidelity. Motivated by this observation, we introduce branch-space transform coding, which rotates matched CFG branches via an offline derived 2x2 orthogonal matrix, requiring minimal modifications to model parameters or the quantization pipeline. We further derive the Guidance-Correlation Branch Transform (GCBT), which jointly incorporates the CFG guidance direction and cross-branch second moments. Under an equal-rate quantization-noise surrogate, GCBT admits a closed-form per-layer solution without gradient optimization or angle search. Applied on top of existing diffusion PTQ methods, GCBT yields statistically significant fidelity gains in most evaluated comparisons with no statistically significant degradation, while leaving the underlying host quantization pipeline unchanged.",
+      "authors": [
+        "Mingrun Jiang",
+        "Yuejia Liu",
+        "Zishan Shao",
+        "Ting Jiang",
+        "Qinsi Wang",
+        "Hancheng Ye",
+        "Yixiao Wang",
+        "Rui-Feng Wang",
+        "Kangning Cui",
+        "Yixuan Chen",
+        "Fan Yang",
+        "Xiang Cheng",
+        "Hai Li",
+        "Yiran Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "stat.ML"
+      ],
+      "published": "2026-10-01T02:05:37+00:00",
+      "link": "https://arxiv.org/pdf/2610.00930v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "post-training quantization for diffusion models",
+      "llm_evidence_cn": "扩散模型的训练后量化",
+      "llm_evidence": "扩散模型的训练后量化",
+      "canonical_evidence": "扩散模型的训练后量化",
+      "llm_tldr_en": "This work exploits classifier-free guidance structure in post-training activation quantization for diffusion models, rotating matched CFG branches with an offline 2x2 orthogonal matrix to improve quantization fidelity.",
+      "llm_tldr_cn": "扩散模型的训练后量化日益利用时间步、特征与层结构，但激活量化仍在条件与无条件坐标上独立进行，未利用跨激活结构。作者发现匹配的CFG激活构成强相关的二维源，在固定比特预算下分支编码基的选择会显著影响量化保真度。据此提出分支空间变换编码，用离线推导的2x2正交矩阵旋转匹配的CFG分支，仅需极小改动。该免训练量化方法在固定比特预算下提升了扩散模型压缩精度，为高效部署提供了新工具。",
+      "llm_tldr": "扩散模型的训练后量化日益利用时间步、特征与层结构，但激活量化仍在条件与无条件坐标上独立进行，未利用跨激活结构。作者发现匹配的CFG激活构成强相关的二维源，在固定比特预算下分支编码基的选择会显著影响量化保真度。据此提出分支空间变换编码，用离线推导的2x2正交矩阵旋转匹配的CFG分支，仅需极小改动。该免训练量化方法在固定比特预算下提升了扩散模型压缩精度，为高效部署提供了新工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.02753v1",
+      "source": "arxiv",
+      "title": "Correcting Guided Diffusion Trajectories with Spectral Alignment",
+      "abstract": "The practical success of conditional image generation hinges on fine-grained differences in condition alignment and visual fidelity. Classifier-free guidance (CFG) is central to this success, but its lack of an explicit criterion makes it difficult to assess whether the guided trajectory is progressing as intended. To address this gap, we show that spectral alignment provides a principled criterion for understanding guidance behavior and improving guided diffusion sampling through adaptive correction. Our analysis identifies the spectra of intermediate states as an indicator of consistency with the expected spectral evolution of the forward process. Based on this observation, we introduce Spectral Correction Guidance, a method that corrects deviations from an analytic reference spectrum during sampling. The proposed method is training-free and applicable across diffusion backbones and conditional generation tasks without modifying the underlying model. Experiments demonstrate consistent gains in preference-based metrics over baseline guidance methods in text-to-image generation and improved generation quality over CFG on ImageNet. These improvements persist across a range of guidance scales and with fewer denoising steps. Our analyses and ablations provide insight into guidance behavior and how the proposed method affects generation quality.",
+      "authors": [
+        "Gihoon Kim",
+        "Taesup Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-10-02T03:30:02+00:00",
+      "link": "https://arxiv.org/pdf/2610.02753v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free correction of guided diffusion sampling",
+      "llm_evidence_cn": "免训练校正引导扩散采样",
+      "llm_evidence": "免训练校正引导扩散采样",
+      "canonical_evidence": "免训练校正引导扩散采样",
+      "llm_tldr_en": "Classifier-free guidance lacks an explicit criterion for assessing guided trajectories. This paper shows spectral alignment provides a principled criterion and introduces Spectral Correction Guidance, adaptively correcting deviations during diffusion sampling.",
+      "llm_tldr_cn": "条件图像生成高度依赖无分类器引导，但缺乏明确准则判断引导轨迹是否按预期推进。论文提出以谱对齐作为分析引导行为的原则性判据，通过中间状态频谱与扩散前向过程预期谱演化的一致性来度量偏离。基于此提出谱校正引导方法，自适应修正偏离的采样轨迹。该工作无需额外训练即可改进引导扩散采样，提升条件对齐与视觉保真度。",
+      "llm_tldr": "条件图像生成高度依赖无分类器引导，但缺乏明确准则判断引导轨迹是否按预期推进。论文提出以谱对齐作为分析引导行为的原则性判据，通过中间状态频谱与扩散前向过程预期谱演化的一致性来度量偏离。基于此提出谱校正引导方法，自适应修正偏离的采样轨迹。该工作无需额外训练即可改进引导扩散采样，提升条件对齐与视觉保真度。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2610.03047v1",
+      "source": "arxiv",
+      "title": "Parasitic Co-Denoising: Unlocking 3D Human Motion Generation in a Frozen Video Diffusion Model",
+      "abstract": "Despite never being supervised on explicit 3D motion, large-scale text-to-video diffusion models synthesize realistic human motion in their generated videos. We ask whether this implicit knowledge can be turned into explicit 3D motion generation, without training a separate motion model. Probing a frozen Wan2.1 reveals that a recoverable motion signal is present in its intermediate states across the entire denoising schedule, not confined to the clean output. Motivated by this, we introduce parasitic co-denoising, a paradigm in which motion is decoded from the host model along its denoising schedule rather than produced by an independent generator. We instantiate it as the Parasitic Motion Decoder (PMD), an efficient flow-matching decoder that shares the host's noise schedule and reads its intermediate features through a $σ$-adaptive multi-layer fusion, leaving the host unmodified. Drawing its coverage from the host rather than from motion data, PMD leads dedicated motion generators on text-motion alignment at a small fraction of their trainable parameters, while producing paired video and motion in a single pass that motion-only baselines cannot match.",
+      "authors": [
+        "Yunjiao Zhou",
+        "Junlang Qian",
+        "Lihua Xie",
+        "Jianfei Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-02T09:28:57+00:00",
+      "link": "https://arxiv.org/pdf/2610.03047v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "decoding motion from a frozen video diffusion model without training a separate model",
+      "llm_evidence_cn": "在冻结视频扩散模型上解码运动，无需训练独立模型",
+      "llm_evidence": "在冻结视频扩散模型上解码运动，无需训练独立模型",
+      "canonical_evidence": "在冻结视频扩散模型上解码运动，无需训练独立模型",
+      "llm_tldr_en": "Parasitic Co-Denoising decodes 3D motion from a frozen video diffusion model along its denoising schedule, avoiding a separate trained model and reflecting training-free reuse of diffusion priors.",
+      "llm_tldr_cn": "针对文本到视频扩散模型隐含三维人体运动知识却难以显式利用的问题，本文提出寄生式协同去噪范式。方法在冻结的Wan2.1上探测发现运动信号贯穿整个去噪过程，并通过寄生运动解码器沿去噪调度解码运动，而非训练独立生成器。该方案无需单独训练运动模型即可生成三维人体运动，体现了对冻结扩散模型的免训练复用，但与图像/视频生成的免训练采样优化不完全一致。",
+      "llm_tldr": "针对文本到视频扩散模型隐含三维人体运动知识却难以显式利用的问题，本文提出寄生式协同去噪范式。方法在冻结的Wan2.1上探测发现运动信号贯穿整个去噪过程，并通过寄生运动解码器沿去噪调度解码运动，而非训练独立生成器。该方案无需单独训练运动模型即可生成三维人体运动，体现了对冻结扩散模型的免训练复用，但与图像/视频生成的免训练采样优化不完全一致。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.03221v1",
+      "source": "arxiv",
+      "title": "VDOT++: Unified Few-Step Video Generation via Unbalanced Optimal Transport Distillation",
+      "abstract": "Video creation spans text-to-video (T2V), image-to-video (I2V), and condition-based generation, yet video diffusion models remain costly because they repeatedly evaluate large backbones during sampling. Distribution matching distillation (DMD) reduces this cost, but its reverse Kullback--Leibler (KL) objective can provide unstable or incomplete guidance when the student and teacher distributions have limited overlap. VDOT addressed this issue by adding optimal transport distillation (OTD), whose explicit coupling supplies geometric directions for condition-based generation. Balanced OTD, however, performs full-mass matching between the spatial tokens of each corresponding student--teacher frame pair. This assumption weakens for T2V and I2V, where one condition admits many valid outputs and spatial content need not align across different realizations. We present VDOT++, a unified distillation framework that applies the same training recipe separately to generators for the three task families. It makes OTD robust to output diversity through an asymmetric unbalanced formulation that allows unreliable student tokens to carry less mass while maintaining coverage of the teacher tokens. An $\\ell_1$ ground cost further replaces mean-based aggregation with a more mode-preserving weighted median that limits the influence of distant transport targets. The two changes respectively determine whom to match and how the selected targets should be aggregated. We additionally combine distribution matching and adversarial refinement through sequential backward passes, and exploit the decoupled score networks for cross-scale distillation, where larger score networks improve a compact generator. Experiments on UVCBench, VBench, VBench-I2V, and the VACE benchmark show that the resulting four-step generators are competitive with many-step teachers and strong few-step baselines across all three task families.",
+      "authors": [
+        "Yutong Wang",
+        "Xingtong Ge",
+        "Enhuai Liu",
+        "Yunke Wang",
+        "Tianfan Xue",
+        "Yu Qiao",
+        "Yaohui Wang",
+        "Xinyuan Chen",
+        "Chang Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-02T12:37:55+00:00",
+      "link": "https://arxiv.org/pdf/2610.03221v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "few-step video generation via optimal transport distillation",
+      "llm_evidence_cn": "基于最优传输蒸馏的少步视频生成",
+      "llm_evidence": "基于最优传输蒸馏的少步视频生成",
+      "canonical_evidence": "基于最优传输蒸馏的少步视频生成",
+      "llm_tldr_en": "VDOT++ unifies few-step text-to-video, image-to-video and condition-based generation using unbalanced optimal transport distillation to stabilize distribution matching distillation for video diffusion models.",
+      "llm_tldr_cn": "视频扩散模型因采样时反复评估大骨干而成本高昂，分布匹配蒸馏虽能减少函数评估次数，但其反向KL目标在师生分布重叠有限时引导不稳定。VDOT引入最优传输蒸馏提供几何方向，而平衡OTD在文本到视频等场景下假设过强。VDOT++提出非平衡最优传输蒸馏，放宽全质量匹配假设，统一支持文生视频、图生视频与条件生成。该工作提升了少步视频生成的稳定性与通用性，为高效视频扩散采样提供了新蒸馏方案。",
+      "llm_tldr": "视频扩散模型因采样时反复评估大骨干而成本高昂，分布匹配蒸馏虽能减少函数评估次数，但其反向KL目标在师生分布重叠有限时引导不稳定。VDOT引入最优传输蒸馏提供几何方向，而平衡OTD在文本到视频等场景下假设过强。VDOT++提出非平衡最优传输蒸馏，放宽全质量匹配假设，统一支持文生视频、图生视频与条件生成。该工作提升了少步视频生成的稳定性与通用性，为高效视频扩散采样提供了新蒸馏方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
