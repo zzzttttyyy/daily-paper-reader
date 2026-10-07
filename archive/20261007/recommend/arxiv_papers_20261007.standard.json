@@ -1,0 +1,185 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-07T23:51:13.878654+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.37147v1",
+      "source": "arxiv",
+      "title": "Improved Distributional Diffusion Models",
+      "abstract": "Distributional Diffusion Models (DDMs) replace the standard mean-prediction denoiser with a \\emph{distributional} denoiser trained via a scoring rule objective, learning a stochastic approximation to $p(x_1 \\mid x_t)$ rather than its conditional mean. However, scaling DDMs to modern image-generation settings faces two obstacles: (i) multi-particle training incurs overhead that scales with the number of particles, (ii) DDMs use globally fixed scoring rule hyperparameters, forcing a single trade-off across sampling budgets. We mitigate these limitations by deferring particle expansion to late transformer layers, and the hyperparameter trade-off by introducing time-dependent scoring rule schedules informed by the dynamical regimes of~\\citet{Biroli2024}. Combined with a DiT-based latent setup, these changes make DDM training practical on class-conditional ImageNet-$256^2$, achieving 4.48 FID at 4 steps and 2.38 at 50 steps with DiT-XL/2, from a single model trained from scratch in one stage, without a teacher, self-distillation or JVPs. The result is a stochastic few-step generator whose FID does not degrade as the sampling budget grows from 4 to 50 NFE, and the same recipe transfers to text-to-image generation. Code and pre-trained models available at https://github.com/CompVis/iDDM.",
+      "authors": [
+        "Tommaso Martorella",
+        "Alexandre Galashov",
+        "Felix Krause",
+        "Stefan Andreas Baumann",
+        "Valentin De Bortoli",
+        "Arthur Gretton",
+        "Björn Ommer"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-29T09:41:56+00:00",
+      "link": "https://arxiv.org/pdf/2609.37147v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "diffusion models scaled to modern image-generation settings",
+      "llm_evidence_cn": "面向现代图像生成的扩散模型扩展",
+      "llm_evidence": "面向现代图像生成的扩散模型扩展",
+      "canonical_evidence": "面向现代图像生成的扩散模型扩展",
+      "llm_tldr_en": "Distributional diffusion models replace mean denoisers with scoring-rule stochastic denoisers but suffer multi-particle overhead and fixed hyperparameters; this work defers particle expansion to late transformer layers and adds time-dependent scoring schedules, improving image-generation efficiency and quality trade-offs.",
+      "llm_tldr_cn": "分布扩散模型用评分规则学习随机去噪分布，但多粒子训练开销大、评分规则超参数全局固定，难以扩展到现代图像生成场景。本文把粒子扩展推迟到后期Transformer层，并引入随时间变化的评分规则调度来缓解上述问题。结合DiT潜空间架构，方法改善了效率与生成质量的权衡。该工作为分布扩散模型的大规模图像生成应用提供了可行路径。",
+      "llm_tldr": "分布扩散模型用评分规则学习随机去噪分布，但多粒子训练开销大、评分规则超参数全局固定，难以扩展到现代图像生成场景。本文把粒子扩展推迟到后期Transformer层，并引入随时间变化的评分规则调度来缓解上述问题。结合DiT潜空间架构，方法改善了效率与生成质量的权衡。该工作为分布扩散模型的大规模图像生成应用提供了可行路径。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.03221v1",
+      "source": "arxiv",
+      "title": "VDOT++: Unified Few-Step Video Generation via Unbalanced Optimal Transport Distillation",
+      "abstract": "Video creation spans text-to-video (T2V), image-to-video (I2V), and condition-based generation, yet video diffusion models remain costly because they repeatedly evaluate large backbones during sampling. Distribution matching distillation (DMD) reduces this cost, but its reverse Kullback--Leibler (KL) objective can provide unstable or incomplete guidance when the student and teacher distributions have limited overlap. VDOT addressed this issue by adding optimal transport distillation (OTD), whose explicit coupling supplies geometric directions for condition-based generation. Balanced OTD, however, performs full-mass matching between the spatial tokens of each corresponding student--teacher frame pair. This assumption weakens for T2V and I2V, where one condition admits many valid outputs and spatial content need not align across different realizations. We present VDOT++, a unified distillation framework that applies the same training recipe separately to generators for the three task families. It makes OTD robust to output diversity through an asymmetric unbalanced formulation that allows unreliable student tokens to carry less mass while maintaining coverage of the teacher tokens. An $\\ell_1$ ground cost further replaces mean-based aggregation with a more mode-preserving weighted median that limits the influence of distant transport targets. The two changes respectively determine whom to match and how the selected targets should be aggregated. We additionally combine distribution matching and adversarial refinement through sequential backward passes, and exploit the decoupled score networks for cross-scale distillation, where larger score networks improve a compact generator. Experiments on UVCBench, VBench, VBench-I2V, and the VACE benchmark show that the resulting four-step generators are competitive with many-step teachers and strong few-step baselines across all three task families.",
+      "authors": [
+        "Yutong Wang",
+        "Xingtong Ge",
+        "Enhuai Liu",
+        "Yunke Wang",
+        "Tianfan Xue",
+        "Yu Qiao",
+        "Yaohui Wang",
+        "Xinyuan Chen",
+        "Chang Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-02T12:37:55+00:00",
+      "link": "https://arxiv.org/pdf/2610.03221v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "few-step video generation via distillation",
+      "llm_evidence_cn": "基于蒸馏的少步视频生成",
+      "llm_evidence": "基于蒸馏的少步视频生成",
+      "canonical_evidence": "基于蒸馏的少步视频生成",
+      "llm_tldr_en": "Video diffusion models are costly due to repeated backbone evaluations. VDOT++ extends optimal transport distillation with unbalanced matching to stabilize few-step video generation across T2V, I2V and conditional settings.",
+      "llm_tldr_cn": "视频生成涵盖文生视频、图生视频与条件生成，但视频扩散模型因采样时反复评估大骨干而代价高昂。分布匹配蒸馏可降低成本，但其逆KL目标在师生分布重叠有限时指导不稳定。VDOT通过引入最优传输蒸馏提供几何方向，本文进一步提出非平衡最优传输蒸馏，改进T2V与条件生成中空间token的匹配假设，实现统一的少步视频生成。",
+      "llm_tldr": "视频生成涵盖文生视频、图生视频与条件生成，但视频扩散模型因采样时反复评估大骨干而代价高昂。分布匹配蒸馏可降低成本，但其逆KL目标在师生分布重叠有限时指导不稳定。VDOT通过引入最优传输蒸馏提供几何方向，本文进一步提出非平衡最优传输蒸馏，改进T2V与条件生成中空间token的匹配假设，实现统一的少步视频生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.05816v1",
+      "source": "arxiv",
+      "title": "Level-of-Token Diffusion",
+      "abstract": "Image and video diffusion models allocate equal computation to every region, even when the intended scene calls for varying levels of detail. The spatial distribution of detail can often be anticipated before generation, indicating where computation can be reduced. We introduce Level-of-Token (LoT) Diffusion, a framework that turns this knowledge into an explicit multiresolution token layout (Level-of-Token layout) for adaptive and efficient generation. Tokens represent rectangular patches of varying sizes and shapes, allocating finer tokens where detail is needed and coarser tokens elsewhere. We adapt pretrained diffusion transformers to LoT layouts through a patch-wise asymmetric flow parametrization and embeddings for multiresolution tokens, preserving full-resolution flow prediction at every denoising step while processing only a reduced token sequence. LoT Diffusion enables layout-adaptive generation while preserving pretrained generative priors. We demonstrate LoT with layouts derived from semantic masks, bounding boxes, texture variance, and depth-of-field cues, as well as agentic plans. Across image and video generation, LoT offers favorable quality-efficiency tradeoffs, with significant speedups determined by the layout's token budget. Our project website is at https://georgenakayama.github.io/lotdiffusion/.",
+      "authors": [
+        "Kiyohiro Nakayama",
+        "Brian Chao",
+        "Jan Ackermann",
+        "Hansheng Chen",
+        "Federico Tombari",
+        "Leonidas Guibas",
+        "Lior Yariv",
+        "Gordon Wetzstein"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-10-05T05:11:12+00:00",
+      "link": "https://arxiv.org/pdf/2610.05816v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "adaptive efficient image and video diffusion generation",
+      "llm_evidence_cn": "自适应高效图像与视频扩散生成",
+      "llm_evidence": "自适应高效图像与视频扩散生成",
+      "canonical_evidence": "自适应高效图像与视频扩散生成",
+      "llm_tldr_en": "Level-of-Token Diffusion adapts pretrained diffusion transformers to a multiresolution token layout, allocating computation where detail is needed for adaptive and efficient image and video generation.",
+      "llm_tldr_cn": "图像与视频扩散模型对每个区域分配相同计算量，即使场景细节分布差异很大。本文提出Level-of-Token扩散框架，将可预知的细节分布转化为多分辨率token布局，用大小形状各异的矩形块表征区域，细节处用细token、其余用粗token。通过逐块非对称流参数化与多分辨率嵌入适配预训练扩散Transformer，在保留全分辨率流预测的同时实现自适应高效生成。",
+      "llm_tldr": "图像与视频扩散模型对每个区域分配相同计算量，即使场景细节分布差异很大。本文提出Level-of-Token扩散框架，将可预知的细节分布转化为多分辨率token布局，用大小形状各异的矩形块表征区域，细节处用细token、其余用粗token。通过逐块非对称流参数化与多分辨率嵌入适配预训练扩散Transformer，在保留全分辨率流预测的同时实现自适应高效生成。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.08070v1",
+      "source": "arxiv",
+      "title": "Two Halves are More than One: Phase-wise Velocity Distillation for Fast and High-Quality Image Generation",
+      "abstract": "Recent diffusion-based image generation backbones have grown substantially in scale, making the network inference cost increase rapidly. While diffusion distillation techniques can reduce the number of inference steps, high-quality image generation within a single full-backbone-forward compute budget remains challenging. Existing one-step methods typically allocate this budget to a single evaluation of a monolithic student. However, approximating the heterogeneous coarse-to-fine transport with a single monolithic mapping is difficult and often leads to over-smoothed outputs. To address this issue, we propose Phase-wise Velocity Distillation (PVD), which partitions the generation timeline into a coarse and a fine phase, and models the transition within each phase via the average velocity. A dedicated half-sized expert is assigned to each phase, decoupling structural composition from detail refinement while keeping the cumulative computation equivalent to one full-backbone forward pass. We show that the use of two half-sized phase-specific experts outperforms a single full-size monolithic student. On class-conditional image generation, PVD achieves an FID of 1.48 on ImageNet 256 x 256. On more complex text-to-image (T2I) tasks, PVD-distilled models (Stable Diffusion 3.5-Medium, FLUX.1-dev, Qwen-Image) produce results competitive with their multi-step teachers, significantly outperforming prior distillation methods. Moreover, across the evaluated T2I backbones, PVD reduces active parameters by 49.10-50.89% and peak VRAM by 45.76-48.36% compared to the corresponding teachers. Source code and distilled models are available at https://github.com/PolyU-VCLab/PVD.",
+      "authors": [
+        "Zhen Guo",
+        "Rongyuan Wu",
+        "Qiaosi Yi",
+        "Chenxi Xie",
+        "Xinyu Wei",
+        "Lei Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-06T10:03:30+00:00",
+      "link": "https://arxiv.org/pdf/2610.08070v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "distillation for fast diffusion image generation",
+      "llm_evidence_cn": "快速扩散图像生成的蒸馏",
+      "llm_evidence": "快速扩散图像生成的蒸馏",
+      "canonical_evidence": "快速扩散图像生成的蒸馏",
+      "llm_tldr_en": "Scaling diffusion image backbones raises inference cost, and single monolithic students oversmooth coarse-to-fine transport. PVD partitions the generation timeline into coarse and fine phases to enable high-quality image generation within one backbone forward.",
+      "llm_tldr_cn": "扩散图像生成骨干规模不断增大，推理成本迅速上升，而现有单步方法把计算预算分配给单一学生模型，难以近似粗到细的异构传输，易产生过平滑输出。论文提出阶段式速度蒸馏PVD，将生成时间线划分为粗与细两个阶段并分别蒸馏。方法在单次全骨干前向的计算预算内实现高质量图像生成，为高效单步图像生成提供了分阶段建模思路。",
+      "llm_tldr": "扩散图像生成骨干规模不断增大，推理成本迅速上升，而现有单步方法把计算预算分配给单一学生模型，难以近似粗到细的异构传输，易产生过平滑输出。论文提出阶段式速度蒸馏PVD，将生成时间线划分为粗与细两个阶段并分别蒸馏。方法在单次全骨干前向的计算预算内实现高质量图像生成，为高效单步图像生成提供了分阶段建模思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
