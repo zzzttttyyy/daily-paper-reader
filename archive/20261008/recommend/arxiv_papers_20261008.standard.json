@@ -1,0 +1,417 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-08T23:36:03.405817+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2610.03120v2",
+      "source": "arxiv",
+      "title": "In-Distribution Forcing for Long Video Generation at Test Time",
+      "abstract": "Modern autoregressive (AR) video diffusion models excel at short-horizon video generation, yet generating long videos remains challenging due to drifting, where colors and textures shift, and motion dynamics decay. Existing works primarily rely on KV conditioning, which selects or modifies cached key-value (KV) entries to mitigate drifting. However, we observe that KV conditioning alone is insufficient as it assumes cached KV entries remain in-distribution. This assumption fails beyond the training horizon: nothing constrains the construction of KV entries during rollout, giving rise to the KV-provenance problem where cached entries themselves become out-of-distribution (OOD). To address this, we propose In-Distribution Forcing (ID-Forcing), a test-time framework that aligns both KV caching and KV conditioning with training configurations. Its key mechanism, self-caching, prevents OOD KV entries at their source. Each chunk is cached without attending to prior KV entry, keeping the rolling window exactly in-distribution. Consequently, ID-Forcing seamlessly extends short-horizon models to minute-scale video generation. Extensive evaluations show that our method remains competitive on standard video generation benchmark while substantially outperforming prior work in mitigating drifting, as validated by both our drift metrics and a user study.",
+      "authors": [
+        "Jeongwoo Shin",
+        "Youngyoon Choi",
+        "Sangwoo Jo",
+        "Hyunmog Kim",
+        "Sungjoon Choi",
+        "Joonseok Lee",
+        "Jaewoong Choi",
+        "Jaemoo Choi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-02T10:40:49+00:00",
+      "link": "https://arxiv.org/pdf/2610.03120v2",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "test-time framework for long video generation without additional training",
+      "llm_evidence_cn": "无需额外训练的测试时长视频生成框架",
+      "llm_evidence": "无需额外训练的测试时长视频生成框架",
+      "canonical_evidence": "无需额外训练的测试时长视频生成框架",
+      "llm_tldr_en": "ID-Forcing is a test-time framework for long video diffusion generation that addresses drifting by keeping cached KV entries in-distribution, improving long-horizon videos without extra training.",
+      "llm_tldr_cn": "自回归视频扩散模型擅长短视频生成，但长视频会出现颜色纹理漂移与运动衰减。现有KV条件方法假设缓存键值仍在分布内，超出训练时长后该假设失效，产生KV来源问题。本文提出分布内强制ID-Forcing，在测试时约束KV构造使其保持分布内。该方法无需额外训练即可缓解漂移，提升长视频生成质量。",
+      "llm_tldr": "自回归视频扩散模型擅长短视频生成，但长视频会出现颜色纹理漂移与运动衰减。现有KV条件方法假设缓存键值仍在分布内，超出训练时长后该假设失效，产生KV来源问题。本文提出分布内强制ID-Forcing，在测试时约束KV构造使其保持分布内。该方法无需额外训练即可缓解漂移，提升长视频生成质量。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.03503v1",
+      "source": "arxiv",
+      "title": "Getting Your Guidance Weights Right in diffusion and flow-matching posterior sampling",
+      "abstract": "Training-free posterior sampling methods, also known as Plug-and-Play methods, leverage pretrained unconditional diffusion or flow-matching models to solve inverse problems. Most existing approaches rely on guidance weights to balance, at each time step, prior information from the unconditional score or velocity network with measurement consistency, yet the tuning of these weights is often not discussed and is largely left to heuristics. We introduce a simple and principled offline strategy for automatically tuning these guidance weights. Our key observation is that, at each time step, the conditional denoising score-matching objective for diffusion models, or the conditional flow-matching objective for flow-matching models, is a least-squares objective. Therefore, when the conditional prediction is expressed as a weighted sum of the unconditional network output and a measurement-guidance term, optimizing over these weights reduces to a two-dimensional linear least-squares problem. The resulting time-dependent guidance weights can be optimized offline for a given measurement operator, noise level and sampler at the cost of a single minibatch of sampling trajectories, without retraining or fine-tuning the pretrained generative model. Instantiated with the standard Tweedie-based measurement-consistency term, our approach improves posterior sampling and achieves state-of-the-art reconstruction performance across diffusion- and flow-matching-based methods. Moreover, the optimized guidance weights enable diffusion samplers to reduce the number of sampling steps from 1000 to 50 with no significant degradation in reconstruction quality. Code will be made available.",
+      "authors": [
+        "Liam Moroy",
+        "Jean-François Giovannelli",
+        "Yoann Altmann",
+        "Steve McLaughlin",
+        "Frédéric Champagnat",
+        "Guillaume Bourmaud"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-10-02T16:01:38+00:00",
+      "link": "https://arxiv.org/pdf/2610.03503v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free posterior sampling and guidance weight tuning",
+      "llm_evidence_cn": "免训练后验采样与引导权重调节",
+      "llm_evidence": "免训练后验采样与引导权重调节",
+      "canonical_evidence": "免训练后验采样与引导权重调节",
+      "llm_tldr_en": "Training-free plug-and-play posterior sampling relies on guidance weights that are usually tuned heuristically. The paper shows the per-step conditional score/flow-matching objective is a least-squares problem and proposes a principled offline strategy to set guidance weights automatically.",
+      "llm_tldr_cn": "免训练后验采样方法利用预训练扩散或流匹配模型求解逆问题，但引导权重的调节长期依赖启发式。论文观察到每步的条件去噪评分匹配目标可视为最小二乘问题，据此提出一种简单且有原则的离线策略来自动调节引导权重。该方法在扩散与流匹配模型上均适用，减少人工调参。结果提升了逆问题求解的稳定性与质量，为免训练采样提供了通用调参方案。",
+      "llm_tldr": "免训练后验采样方法利用预训练扩散或流匹配模型求解逆问题，但引导权重的调节长期依赖启发式。论文观察到每步的条件去噪评分匹配目标可视为最小二乘问题，据此提出一种简单且有原则的离线策略来自动调节引导权重。该方法在扩散与流匹配模型上均适用，减少人工调参。结果提升了逆问题求解的稳定性与质量，为免训练采样提供了通用调参方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "What are training free sampling optimization techniques for diffusion model image generation?",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.10457v1",
+      "source": "arxiv",
+      "title": "MORCA: Offline-to-Online Reinforcement Learning for Adaptive Cache Reuse in Video Diffusion Acceleration",
+      "abstract": "Diffusion Transformers (DiTs) achieve remarkable performance in video synthesis, but their iterative denoising process suffers from high inference latency. To address this, caching has emerged as an effective acceleration strategy by capitalizing on inter-step redundancy during denoising. Existing dynamic caching methods typically estimate the error that cache reuse would introduce at each denoising step (step error) to guide cache decisions, whereas our concern is how much quality loss cache reuse would cause in the final generated video (terminal error). We show that step error does not directly correspond to terminal error and that latent information helps capture their relationship, thereby informing cache decisions. Moreover, existing threshold-based methods cannot provide precise speedup control, making it difficult to meet practical requirements for user-specified acceleration targets. To address these limitations, we introduce MORCA, a cache scheduling framework trained through offline-to-online reinforcement learning to make latent-aware reuse/recompute decisions under user-specified acceleration targets. Extensive experiments on different video generation models across multiple target acceleration ratios demonstrate that MORCA achieves better generation fidelity than state-of-the-art caching methods under comparable computational budgets. Code is available at https://github.com/x10ngyx/MORCA.",
+      "authors": [
+        "Yuxiang Xiong",
+        "Ruiyan Wang",
+        "Wenqiang Wang",
+        "Teng Hu",
+        "Songhang Shen",
+        "Bohao Feng",
+        "Hongqian Deng",
+        "Ran Yi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-07T17:25:35+00:00",
+      "link": "https://arxiv.org/pdf/2610.10457v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free caching acceleration for video diffusion",
+      "llm_evidence_cn": "视频扩散的免训练缓存加速",
+      "llm_evidence": "视频扩散的免训练缓存加速",
+      "canonical_evidence": "视频扩散的免训练缓存加速",
+      "llm_tldr_en": "Video diffusion transformers suffer high inference latency; the paper shows step error poorly predicts terminal error and proposes MORCA, an offline-to-online RL method for adaptive cache reuse, accelerating video diffusion while preserving final video quality.",
+      "llm_tldr_cn": "视频扩散Transformer生成质量出色，但迭代去噪导致推理延迟很高，缓存复用成为常用加速手段。现有动态缓存方法依据单步误差做决策，本文指出单步误差与最终视频的终端误差并不一致，并利用潜在信息刻画二者关系。作者提出MORCA，以离线到在线强化学习自适应地决定缓存复用。该工作在不额外训练扩散模型的前提下降低视频扩散延迟并保持最终视频质量，为免训练推理加速提供了新思路。",
+      "llm_tldr": "视频扩散Transformer生成质量出色，但迭代去噪导致推理延迟很高，缓存复用成为常用加速手段。现有动态缓存方法依据单步误差做决策，本文指出单步误差与最终视频的终端误差并不一致，并利用潜在信息刻画二者关系。作者提出MORCA，以离线到在线强化学习自适应地决定缓存复用。该工作在不额外训练扩散模型的前提下降低视频扩散延迟并保持最终视频质量，为免训练推理加速提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "How to improve diffusion model video generation without additional training?",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2610.10366v1",
+      "source": "arxiv",
+      "title": "Koopman Observers for Diffusion Acceleration: Correcting Feature Forecasts with Shallow Measurements",
+      "abstract": "Feature caching accelerates diffusion sampling by replacing expensive network evaluations with predictions from previously computed activations. However, forecasts based only on past features cannot directly incorporate changes in the current denoising state. We investigate whether inexpensive, freshly computed features can serve as observations for correcting these predictions. We introduce an observation-corrected Koopman framework for accelerating frozen diffusion models. Using calibration trajectories, we identify finite-dimensional, time-dependent Koopman approximations that jointly describe the increments of shallow and deep network features. During accelerated sampling, these operators predict the evolution of expensive deep features, while innovations in the observed shallow features correct the predicted state. Periodic full evaluations refresh the observer, and all generative-model parameters remain unchanged. This formulation enables controlled comparisons of temporal prediction and observation correction. Across three 10,000-image runs per dataset, our method reduces paired Inception-feature MSE by $19.9\\%$ on CIFAR-10 and $11.9\\%$ on a ten-class ImageNet subset relative to channelwise affine prediction under the same four-partial-step schedule. Matched ablations attribute additional reductions of $4.54\\%$ and $4.67\\%$ to observation correction. The observer achieves $1.89\\times$ and $1.85\\times$ measured speedups over DDIM-50, supporting improved reference-sampler fidelity without retraining the denoiser.",
+      "authors": [
+        "Hanru Bai",
+        "Yuanchao Xu",
+        "Fengyi Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.DS",
+        "stat.ML"
+      ],
+      "published": "2026-10-07T16:35:07+00:00",
+      "link": "https://arxiv.org/pdf/2610.10366v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Accelerating frozen diffusion models via observation-corrected feature forecasting",
+      "llm_evidence_cn": "通过观测校正特征预测加速冻结扩散模型",
+      "llm_evidence": "通过观测校正特征预测加速冻结扩散模型",
+      "canonical_evidence": "通过观测校正特征预测加速冻结扩散模型",
+      "llm_tldr_en": "Feature caching speeds up diffusion sampling but forecasts from past features ignore the current denoising state. A Koopman framework uses freshly computed shallow features as observations to correct predictions, accelerating frozen models while preserving quality.",
+      "llm_tldr_cn": "特征缓存通过预测历史特征来加速扩散采样，但仅依赖过去特征无法利用当前去噪状态的变化。本文提出观测校正的Koopman框架，用新计算的浅层特征作为观测，通过标定轨迹学习时变算子来联合预测深浅层特征增量。实验表明能更准确预测特征演化，在保持生成质量的同时加速冻结扩散模型，为免训练采样加速提供了新工具。",
+      "llm_tldr": "特征缓存通过预测历史特征来加速扩散采样，但仅依赖过去特征无法利用当前去噪状态的变化。本文提出观测校正的Koopman框架，用新计算的浅层特征作为观测，通过标定轨迹学习时变算子来联合预测深浅层特征增量。实验表明能更准确预测特征演化，在保持生成质量的同时加速冻结扩散模型，为免训练采样加速提供了新工具。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2610.02372v1",
+      "source": "arxiv",
+      "title": "Traversing the Satisfaction-Diversity Frontier in Text-to-Image Diffusion",
+      "abstract": "Text-to-image generation enables users to explore several images generated from the same prompt. For these generated images to be useful, each one must reflect the user's preferences, measured by a learned reward, and differ visually from the others to maintain diversity. Existing methods are limited: they either address reward and diversity separately or combine them in one aggregate score, enabling high diversity to offset low rewards. In this paper, we address these limitations by formulating generation as satisficing: every image (candidate) must satisfy a reward floor and the batch of images must satisfy a diversity cutoff. The reward floor controls the balance between worst-candidate reward and batch diversity; we show that varying this floor defines a Pareto frontier. To traverse this frontier, we introduce SatisDive, a training-free inference-time method. SatisDive uses a batch-relative reward cutoff to distinguish lower- from higher-reward candidates, emphasizing reward improvement for candidates below the cutoff and diversity among candidates above it. On Pick-a-Pic, at matched DreamSim, SatisDive improves worst-candidate reward over FK steering by up to 0.43 with FLUX.1-dev as the base model and HPSv3 as the reward, and by up to 0.70 with SANA-1.6B as the base model and ImageReward as the reward. More broadly, across their overlapping DreamSim ranges, SatisDive's satisfaction-diversity curve Pareto-dominates FK steering's curve in each setting.",
+      "authors": [
+        "Kevin Zhai",
+        "Siva Rajesh Kasa",
+        "Soumya Roy",
+        "Sumit Negi",
+        "Mubarak Shah"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-10-01T18:50:24+00:00",
+      "link": "https://arxiv.org/pdf/2610.02372v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "text-to-image diffusion generation balancing reward and diversity",
+      "llm_evidence_cn": "文生图扩散生成中平衡奖励与多样性",
+      "llm_evidence": "文生图扩散生成中平衡奖励与多样性",
+      "canonical_evidence": "文生图扩散生成中平衡奖励与多样性",
+      "llm_tldr_en": "Text-to-image diffusion users need images that both match preferences and stay diverse, but existing methods trade off reward and diversity. This paper formulates generation as satisficing with a reward floor and diversity cutoff to control the frontier.",
+      "llm_tldr_cn": "文生图扩散模型常为同一提示生成多张图像，但现有方法要么分别处理奖励与多样性，要么用单一聚合分数导致多样性掩盖低奖励。作者将生成表述为满足性问题：每张候选需满足奖励下限，整批需满足多样性阈值。通过调节奖励下限可控制最差候选与批多样性的平衡，实验展示了对满意度-多样性前沿的有效遍历，提升了图像生成实用性。",
+      "llm_tldr": "文生图扩散模型常为同一提示生成多张图像，但现有方法要么分别处理奖励与多样性，要么用单一聚合分数导致多样性掩盖低奖励。作者将生成表述为满足性问题：每张候选需满足奖励下限，整批需满足多样性阈值。通过调节奖励下限可控制最差候选与批多样性的平衡，实验展示了对满意度-多样性前沿的有效遍历，提升了图像生成实用性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.10400v1",
+      "source": "arxiv",
+      "title": "Self-correction Optimization for Interleaved Multimodal Generation",
+      "abstract": "Multimodal large language models (MLLMs) have made significant progress in visual understanding and generation. However, generating interleaved image--text content remains challenging, as it requires tightly integrated multimodal understanding and generation capabilities. Although existing MLLMs provide promising solutions, most rely on additional training with augmented data, which is computationally expensive and remains limited in preserving visual subjects, temporal consistency, and physical plausibility. In this work, we propose self-correction optimization (SCO), an effective training-free method for consistent interleaved generation. SCO treats the classifier-free guidance update as a reference and performs minimal self-correction under two complementary constraints, including new-event and state-preserving constraints. Specifically, the new-event constraint promotes temporal consistency across image--text sequences, while the state-preserving constraint maintains the coherence of visual subjects throughout subsequent generation steps. Experiments on challenging interleaved multimodal generation benchmarks demonstrate significant improvements in temporal coherence and visual-subject preservation. Furthermore, SCO can be extended to video generation and improves the modeling of physically grounded processes, including robot manipulation and long-horizon handcrafting.",
+      "authors": [
+        "Xin You",
+        "Zhiwei Ning",
+        "Zukai Chen",
+        "Minghui Zhang",
+        "Xuanke Shi",
+        "Hanxiao Zhang",
+        "Jingsong Liu",
+        "Jie Yang",
+        "Quan Wang",
+        "Yun Gu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-07T16:51:02+00:00",
+      "link": "https://arxiv.org/pdf/2610.10400v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free optimization using classifier-free guidance for generation",
+      "llm_evidence_cn": "利用无分类器引导的免训练生成优化",
+      "llm_evidence": "利用无分类器引导的免训练生成优化",
+      "canonical_evidence": "利用无分类器引导的免训练生成优化",
+      "llm_tldr_en": "Interleaved image-text generation is hard and most MLLMs need costly extra training. The paper proposes Self-correction Optimization, a training-free method that uses the classifier-free guidance update as reference for minimal self-correction, improving consistency without additional training.",
+      "llm_tldr_cn": "多模态大模型在生成图文交错内容时仍具挑战，现有方法多依赖额外训练且难以保持视觉主体与时序一致。论文提出自纠正优化 SCO，一种免训练方法，以无分类器引导更新为参考进行最小自纠正。方法无需额外训练即可提升交错生成的一致性。这为免训练扩散生成优化提供了新思路。",
+      "llm_tldr": "多模态大模型在生成图文交错内容时仍具挑战，现有方法多依赖额外训练且难以保持视觉主体与时序一致。论文提出自纠正优化 SCO，一种免训练方法，以无分类器引导更新为参考进行最小自纠正。方法无需额外训练即可提升交错生成的一致性。这为免训练扩散生成优化提供了新思路。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2610.07684v1",
+      "source": "arxiv",
+      "title": "Disentangling Dual Image References in Frequency Aware Diffusion Models for Personalized Generation",
+      "abstract": "Personalized image generation aims to synthesize text-driven images conditioned on reference images, while mainly casting the generation as image customization for foreground and style transfer for background. Previous arts of diffusion models suffers from the text misalignment with background for image customization and foreground for style transfer during the denoising process. Such facts, as we observed, rooted from the entanglement among hybrid frequency bands during the denoising process. To address such salient limitation, in this paper, we study personalized generation based on dual references - customization and color and style reference - and propose a paradigm to disentangle these Dual image references within Frequency-aware Diffusion Models, dubbed Dual-FDM, to simultaneously tackle two crucial personalized image generation tasks: customization style transfer and color style transfer, by disentangling different frequency bands via mask strategy within frequency domain. For customization style transfer, we replace the mid-frequency band of the background in the style reference with that from the foreground of the customized reference. For color style transfer, we substitute the low-frequency band of the background in the style reference with that from both the foreground and background of the color reference. Both the substituted frequency bands are used as the key and value to reconstruct the query foreground and background of the denoised personalized image.Extensive experiments validate the superiority of Dual-FDM over the state-of-the-art diffusion models for personalized image generation. Our code can be accessed from https://github.com/htyjers/Dual-FDM.",
+      "authors": [
+        "Haipeng Liu",
+        "Yang Wang",
+        "Meng Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-10-06T03:18:07+00:00",
+      "link": "https://arxiv.org/pdf/2610.07684v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "frequency-aware diffusion for personalized image generation",
+      "llm_evidence_cn": "面向个性化图像生成的频率感知扩散模型",
+      "llm_evidence": "面向个性化图像生成的频率感知扩散模型",
+      "canonical_evidence": "面向个性化图像生成的频率感知扩散模型",
+      "llm_tldr_en": "Personalized image generation with diffusion models suffers from text misalignment rooted in entangled frequency bands during denoising. This paper disentangles dual image references within a frequency-aware diffusion paradigm for customization and style transfer.",
+      "llm_tldr_cn": "个性化图像生成旨在依据参考图像合成文本驱动图像，但现有扩散方法在去噪过程中存在混合频段纠缠，导致定制时背景、风格迁移时前景与文本不对齐。作者基于定制参考与颜色风格参考的双重参考设定，提出在频率感知扩散中解耦这两种图像参考的范式。该方法缓解了频段纠缠带来的错位问题，提升了个性化图像生成的一致性。",
+      "llm_tldr": "个性化图像生成旨在依据参考图像合成文本驱动图像，但现有扩散方法在去噪过程中存在混合频段纠缠，导致定制时背景、风格迁移时前景与文本不对齐。作者基于定制参考与颜色风格参考的双重参考设定，提出在频率感知扩散中解耦这两种图像参考的范式。该方法缓解了频段纠缠带来的错位问题，提升了个性化图像生成的一致性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "image generation using diffusion models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.09253v1",
+      "source": "arxiv",
+      "title": "PhyDiCT: Plug-and-Play CT Reconstruction from Sparse X-Rays via Differentiable Rendering and Strong Priors",
+      "abstract": "Reconstructing 3D Computed Tomography (CT) images from a few X-ray projections is a highly ill-posed inverse problem due to the loss of volumetric information. We propose PhyDiCT, a training-free framework that integrates a differentiable Physics-based forward model, grounded in the Beer-Lambert law, with a text-conditioned Diffusion as a strong prior to reconstruct 3D lung CT images. We refer to our approach as training-free since the prior model is used without fine-tuning, and our goal is to steer the denoising procedure to generate samples consistent with X-ray observations. We guide the diffusion generation using Split Gibbs sampling to jointly optimize for projection fidelity (reward) and consistency with prior knowledge. Also, we introduce a test-time refinement step that enhances image realism and anatomical coherence. We extensively evaluate our method on publicly available 3D CT datasets using both perceptual and semantic metrics, demonstrating that it surpasses existing plug-and-play diffusion and fully trained reconstruction approaches. Our findings highlight that combining a strong generative prior with the underlying physics of image formation substantially improves reconstruction quality, e.g., 7.5\\% improvement on SSIM compared to full training methods. Code will be released at https://github.com/batmanlab/PhyDiCT.",
+      "authors": [
+        "Weicheng Dai",
+        "Shantanu Ghosh",
+        "Kayhan Batmanghelich"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-07T00:38:54+00:00",
+      "link": "https://arxiv.org/pdf/2610.09253v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free diffusion steering of denoising via Split Gibbs sampling",
+      "llm_evidence_cn": "免训练扩散引导去噪采样",
+      "llm_evidence": "免训练扩散引导去噪采样",
+      "canonical_evidence": "免训练扩散引导去噪采样",
+      "llm_tldr_en": "PhyDiCT is a training-free framework that couples a differentiable X-ray forward model with a frozen text-conditioned diffusion prior, steering denoising via Split Gibbs sampling for sparse-view 3D CT reconstruction.",
+      "llm_tldr_cn": "针对稀疏X射线投影重建三维CT这一高度病态逆问题，现有方法常需重新训练或微调先验模型。本文提出PhyDiCT免训练框架，将基于Beer-Lambert定律的可微物理前向模型与冻结的文本条件扩散先验结合，通过Split Gibbs采样在去噪过程中联合优化投影保真度与先验一致性。该方法无需微调扩散模型即可生成与观测一致的肺部CT，验证了免训练扩散引导在逆问题中的有效性。",
+      "llm_tldr": "针对稀疏X射线投影重建三维CT这一高度病态逆问题，现有方法常需重新训练或微调先验模型。本文提出PhyDiCT免训练框架，将基于Beer-Lambert定律的可微物理前向模型与冻结的文本条件扩散先验结合，通过Split Gibbs采样在去噪过程中联合优化投影保真度与先验一致性。该方法无需微调扩散模型即可生成与观测一致的肺部CT，验证了免训练扩散引导在逆问题中的有效性。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.09407v1",
+      "source": "arxiv",
+      "title": "Noise, Denoise, Correct: MCMC Posterior Sampling with Diffusion Priors in Three Steps",
+      "abstract": "Pretrained diffusion models are powerful priors for inverse problems, but posterior sampling under nonlinear, non-differentiable forward models remain hard. We introduce diffusion waltz, an MCMC method using SDEdit-style noising-denoising as a proposal, corrected via Metropolis-Hastings for exact posterior sampling without prior evaluation. We further propose injecting observations into the proposal while preserving exactness, using a gradient-free ensemble Kalman update. On a non-differentiable Navier-Stokes initial condition recovery task, diffusion waltz outperforms existing baselines across different noise and nonlinearity regimes.",
+      "authors": [
+        "So Takao",
+        "Gregory David Bellchambers",
+        "Luke Ye",
+        "Sanmitra Ghosh",
+        "Michalis Michaelides"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-10-07T04:06:19+00:00",
+      "link": "https://arxiv.org/pdf/2610.09407v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free MCMC posterior sampling with pretrained diffusion priors",
+      "llm_evidence_cn": "免训练MCMC后验采样，使用预训练扩散先验",
+      "llm_evidence": "免训练MCMC后验采样，使用预训练扩散先验",
+      "canonical_evidence": "免训练MCMC后验采样，使用预训练扩散先验",
+      "llm_tldr_en": "Posterior sampling with pretrained diffusion priors is hard for nonlinear, non-differentiable forward models. This paper introduces diffusion waltz, an MCMC method using SDEdit-style noising-denoising proposals with Metropolis-Hastings correction, requiring no training.",
+      "llm_tldr_cn": "利用预训练扩散先验求解逆问题的后验采样，在非线性、不可微前向模型下仍然困难。作者提出diffusion waltz，将SDEdit式加噪-去噪作为提议分布，用Metropolis-Hastings校正实现精确后验采样，并通过无梯度的集合卡尔曼更新注入观测。在不可微Navier-Stokes初值恢复任务上，该方法在多种噪声与非线性条件下优于基线，展示了免训练采样优化的潜力。",
+      "llm_tldr": "利用预训练扩散先验求解逆问题的后验采样，在非线性、不可微前向模型下仍然困难。作者提出diffusion waltz，将SDEdit式加噪-去噪作为提议分布，用Metropolis-Hastings校正实现精确后验采样，并通过无梯度的集合卡尔曼更新注入观测。在不可微Navier-Stokes初值恢复任务上，该方法在多种噪声与非线性条件下优于基线，展示了免训练采样优化的潜力。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "optimization methods that do not require training for diffusion models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.10524v1",
+      "source": "arxiv",
+      "title": "GRACE: Generation-aware latent compression for efficient video generation",
+      "abstract": "Highly compressed video autoencoders offer an effective way to accelerate video diffusion models, as the Diffusion Transformer (DiT) operates on far fewer tokens. However, such autoencoders are challenging to train, since a higher compression ratio degrades reconstruction quality and recovering it requires more channels, which is known to slow the convergence of the DiT. The compressed latent also differs from the one the DiT was trained on, so the pretrained DiT must be either retrained from scratch or adapted at considerable cost. Compressing the autoencoder the DiT was trained with appears to preserve compatibility, yet optimizing it for reconstruction alone still shifts the latent away from the distribution the DiT has learned. To address this, we propose Generation-Aware Latent Compression for Efficient Video Generation (GRACE), a two-stage framework that compresses a pretrained video autoencoder while keeping it compatible with the pretrained DiT. Specifically, we keep a frozen base latent from the pretrained encoder and learn a residual latent for the information lost under stronger compression, while aligning the compressed latent with the pretrained latent in the feature space of the frozen DiT so that the autoencoder is optimized for generation. We then adapt the DiT with lightweight fine-tuning and asymmetric denoising, where the base is denoised ahead of the residual. GRACE reduces the token count of Wan2.1-I2V-14B by 8x and its latency by 11.1x at 480x832x81, while matching the generation quality of the pretrained pipeline before compression on VBench.",
+      "authors": [
+        "Jiyoung Kim",
+        "Paul Hyunbin Cho",
+        "Jisu Nam",
+        "Donghoon Lee",
+        "Hyunsung Go",
+        "Yeonkyeong Lee",
+        "Hansaem Kim",
+        "Seungryong Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-07T17:57:34+00:00",
+      "link": "https://arxiv.org/pdf/2610.10524v1",
+      "tags": [
+        "keyword:tfree-diff",
+        "query:tfree-diff"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "accelerating video diffusion models via generation-aware latent compression",
+      "llm_evidence_cn": "通过生成感知潜压缩加速视频扩散模型",
+      "llm_evidence": "通过生成感知潜压缩加速视频扩散模型",
+      "canonical_evidence": "通过生成感知潜压缩加速视频扩散模型",
+      "llm_tldr_en": "GRACE proposes generation-aware latent compression to accelerate video diffusion transformers, aligning the compressed latent with the distribution the DiT expects without costly retraining.",
+      "llm_tldr_cn": "视频扩散Transformer在高压缩潜空间上可加速，但高压缩比会损害重建质量，且压缩潜与DiT训练分布不一致，需重训或高成本适配。本文提出生成感知的潜空间压缩GRACE，在优化重建的同时使潜分布贴合DiT所学分布以保持兼容。该方法在减少令牌数的同时缓解收敛变慢问题，为高效视频生成提供兼顾压缩率与兼容性的方案。",
+      "llm_tldr": "视频扩散Transformer在高压缩潜空间上可加速，但高压缩比会损害重建质量，且压缩潜与DiT训练分布不一致，需重训或高成本适配。本文提出生成感知的潜空间压缩GRACE，在优化重建的同时使潜分布贴合DiT所学分布以保持兼容。该方法在减少令牌数的同时缓解收敛变慢问题，为高效视频生成提供兼顾压缩率与兼容性的方案。",
+      "llm_tags": [
+        "query:tfree-diff"
+      ],
+      "matched_query_tag": "query:tfree-diff",
+      "matched_query_text": "video generation with diffusion models",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
