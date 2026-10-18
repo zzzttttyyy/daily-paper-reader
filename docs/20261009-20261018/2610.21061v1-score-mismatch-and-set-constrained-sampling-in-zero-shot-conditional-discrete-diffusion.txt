@@ -1,0 +1,5178 @@
+Title: Score Mismatch and Set-Constrained Sampling in Zero-Shot Conditional Discrete Diffusion
+
+URL Source: https://arxiv.org/pdf/2610.21061v1
+
+Published Time: Fri, 16 Oct 2026 00:30:13 GMT
+
+Number of Pages: 46
+
+Markdown Content:
+> 1
+
+# Score Mismatch and Set-Constrained Sampling in Zero-Shot Conditional Discrete Diffusion 
+
+Renxiang Huang †, Yuchen Liang †, Yingbin Liang, Ness Shroff, and Lifeng Lai 
+
+Abstract 
+
+Discrete diffusion models have become a powerful framework for modeling complex discrete distri-butions across a range of applications. While theoretical convergence guarantees depend on consistency between the target and training distributions, such a case rarely holds in practice, making score mismatch a central challenge in discrete diffusion sampling. This is particularly relevant to zero-shot conditional generation, where a model trained on the unconditional distribution is directly reused at inference time to sample from a conditional target distribution. In this paper, we provide the first theoretical analysis for score-mismatched discrete diffusion models and derive a general KL divergence upper bound that clearly identifies the additional bias caused by such a mismatch. Our analysis covers partial-observation constraints, including text infilling, sentence completion, and more general coordinatewise set constraints. Specifically, we analyze the classical Conditional SEDD sampler and show that it can incur a bias term that scales with the dimension, vocabulary size, and compatibility. Based on this analysis, we propose a Randomized Hard Clamping (RHC) sampler for coordinatewise set constraints. We show that the assignment probabilities can be expressed exactly by the unconditional scores with absorbing rate. Finally, numerical and real-data experiments demonstrate the effectiveness of the proposed RHC sampler. 
+
+Index Terms 
+
+Convergence analysis, discrete diffusion, score mismatch, set constraints, zero-shot conditional generation. 
+
+I. I NTRODUCTION 
+
+In recent years, diffusion model has become one of the core paradigms in generative modeling and has achieved impressive success in image, audio, and text generation. Compared with the classical autoregressive (AR) models, diffusion models model the complex data distribution through gradual denoising, demonstrating the notable advantages in generation quality, stability, and flexibility [1], [2]. For discrete data such as text sequences, discrete diffusion models extend this denoising principle to the discrete case by defining the noising and denoising processes directly on the discrete state space [3], [4]. In an idealized setting, diffusion models are trained and evaluated on the same underlying distribution. However, in practice, this assumption often fails, as discrepancies between the training and target distributions can arise due to factors such as privacy constraints, computational limitations, and mismatches between the training setup and the intended sampling task [5]–[7]. A representative example is conditional generation, where part of the data is observed and the 
+
+† These authors contributed equally to this work. Renxiang Huang and Lifeng Lai are with the Department of Electrical and Computer Engineering, University of California, Davis, Davis, CA, 95616, USA (e-mail: rexhuang@ucdavis.edu; lflai@ucdavis.edu). Yuchen Liang is with the Luddy School of Informatics, Computing, and Engineering, Indiana University Indianapolis, Indianapolis, IN, 46202, USA (e-mail: yucliang@iu.edu). Yingbin Liang and Ness Shroff are with the Department of Electrical and Computer Engineering, The Ohio State University, Columbus, OH, 43210, USA (e-mail: liang.889@osu.edu; shroff.11@osu.edu). arXiv:2610.21061v1 [stat.ML] 15 Oct 2026 2
+
+goal is to infer the unobserved part. Many tasks involving discrete data fall into this category, including sequence completion and text infilling [8]–[11]. Such tasks include generating the subsequent content based on the given prefix and filling the missing content while preserving the context. We refer to conditioning on fixed values as sampling “under fixed observations.” More generally, each constrained coordinate may admit several candidate values, which leads to sampling under the coordinate wise set constraints. We call a feasible combination of values an “assignment”. For example, in text rewriting and lexical simplification, each position of the word can be associated with a set of candidate replacements [12], [13]. Fixed observations are recovered when each set contains a single value. Compared to AR models, diffusion models are more naturally suited to these tasks, as they do not rely on a fixed generation order and can flexibly handle partially observed inputs. Within conditional sampling, one solution is to train a dedicated conditional diffusion model or adapt a pretrained model for each task, such as predictor-free guidance [14] and inference-time alignment methods [15]. However, such approaches may be costly because they require additional training of a new conditional model beyond unconditional pretraining. In comparison, zero-shot conditional generation does not require such an additional conditional model, since it directly uses the given condition at inference time to build a conditional sampler [9], [10]. The core challenge for zero-shot conditional samplers is the inherent mismatch between the pretrained unconditional model and the conditional model needed in the inference process. In diffusion sampling, this discrepancy manifests in the score function, a phenomenon known as 
+
+score mismatch [7]. Among all zero-shot conditional samplers, the Conditional SEDD method [9] is particularly relevant to this paper. At each diffusion sampling step, Conditional SEDD enforces the fixed observations by setting the corresponding components of the current sample to their observed values, an operation we refer to as “hard clamping.” Although this method is straightforward to implement in practice, we will show that it is not generally equivalent to the true conditional reverse process, thereby introducing bias. Moreover, this approach still lacks any theoretical justifications. This naturally raises the first question studied in this paper: 
+
+Question 1: Can we characterize the bias induced by score-mismatched discrete diffusion models? 
+
+Moving from fixed observations to set constraints introduces another challenge, that is, how to allocate sampling probabilities to each feasible assignment. Once an assignment is selected, the fixed-observation sampler can be reused to generate the remaining contents. After under-standing the construction of the assignment distribution, in order to make the fixed-observation sampler better aligned with the target distribution given set constraints while preserving the main advantage of the zero-shot approach, the second question arises: 
+
+Question 2: Can we design a novel method that extends the fixed-observation sampler to the set constraints setting, while explicitly controlling the additional approximation error? 
+
+In this paper, we answer both questions affirmatively. 
+
+A. Our Contributions 
+
+Overall, our analysis focuses on how mismatched scores interfere with the reverse rate matrix, thereby introducing bias into the sampling process for both general and zero-shot conditional samplers. This analysis provides the convergence guarantee for each assignment in set constraints. Based on the mixture representation of the assignments, we further extend the analysis from fixed observations to general set constraints. The detailed contributions of this paper are: 3
+
+Theoretical Guarantees on General Score-Mismatched Discrete Diffusion Models : Upon characterizing the score mismatch for discrete diffusion models, we provide the first non-asymptotic convergence upper bound in KL-divergence between the target (mismatched) and the sampling distributions. Beyond the intrinsic sampling error when there is no mismatch, our theory characterizes a bias term induced by the score mismatch that arises from using the score of the training distribution to sample from a target (mismatched) distribution. Unlike the analysis in the continuous diffusion setting where the mismatch is expressed through the perturbation in the reverse Gaussian mean [7], the mismatch for our setting perturbs the reverse rate matrix of the continuous time Markov chain (CTMC). Moreover, the Bregman divergence term associated with score entropy differs from the usual L2 error for the continuous setting, introducing additional complications in the analysis. 
+
+Bias Characterization of Conditional SEDD: Based on the general score mismatch analysis, we further provide the first theoretical guarantees for the classical Conditional SEDD algorithm [9] under a fixed observation. By comparing the hard clamp score with the true conditional score, we reveal that the effect of hard clamping depends on the diffusion process. Under the absorbing rate, these two scores are identical on unobserved coordinates given the fixed non-MASK observation, and thus the convergence bound does not contain an additional score-mismatch bias term. Under the uniform rate, the hard clamping can introduce score mismatch over unobserved coordinates. With the assumption of condition compatibility, we bound this bias and characterize the dependence on the unobserved coordinates, vocabulary size, and compatibility parameter. 
+
+Randomized Hard Clamping (RHC) for Set Constraints: We propose a Randomized Hard Clamping (RHC) sampler for the set-constraint setting. In particular, we consider the setting where each constrained index in ¯Ω admits several candidate values from the admissible sets rather than a single fixed value. As a result, the target conditional distribution admits an exact mixture representation according to the assignments. We further show that the exact assignment distribution can be reconstructed based on the unconditional score for absorbing-rate CTMCs. As a result, the proposed RHC sampler achieves zero-shot generation with a pretrained unconditional discrete diffusion model. The numerical simulations and real-data experiments further support our theoretical results and validate the practical effectiveness of the proposed RHC sampler. 
+
+B. Related Works 
+
+In this section, we focus on related works for convergence analyses and conditional genera-tion for discrete diffusion models. Other related works on conditional continuous diffusion are provided in Appendix I. 
+
+Score-matched Discrete Diffusion Model: The existing discrete diffusion analysis focuses on the score-matched setting, that is, the target distribution is consistent with the training distribution. In particular, several recent works have established non-asymptotic convergence guarantees under different noise and sampling schemes [16]–[20]. However, these results cannot be directly applied when the target distribution differs from the training distribution, as in the zero-shot conditional generation. 
+
+Guided Discrete Diffusion Model: Recent works have studied guidance mechanisms in discrete diffusion. [14] proposed predictor guidance and predictor-free guidance applicable to CTMC-based discrete diffusion. Their method realized the guidance through scaling the rate matrix. [21] directly derived the classifier-based and classifier-free guidance rules by reweighting the transition kernel in discrete diffusion. 4
+
+For conditional sampling at large, there are several strands of work. [22] proposed a discrete training-free guidance framework. [23] extended the training-free guidance to multimodal data. [24] pointed out that the bias exists in common discrete guidance methods and adopted Sequential Monte Carlo for debiasing. In addition, [25] studied reward optimization in the discrete diffusion. Similarly, [26] proposed soft value-based decoding, which introduced the soft value function to guide the model to approximate the optimal policy to implement conditional generation. These studies focus on how to incorporate conditional information into the sampling pro-cess. Our work provides a general convergence framework to explicitly quantify the additional sampling error introduced by the mismatch. 
+
+Zero-Shot Discrete Diffusion Model: Zero-shot sampling has recently been explored in the discrete diffusion model. SEDD and RADD support zero-shot text infilling by fixing the prompt at each sampling step instead of retraining for the condition [9], [27]. A discrete diffusion model based on heat bath dynamics, developed by [10], reported good performance in zero-shot tasks, such as text and image infilling. [28] proposed a training-free method to calibrate the confidence of the sequence length to allow the adaptive length of the generated sequence. [29] proposed a plug-and-play posterior sampling method based on split Gibbs sampling. Their method introduces external conditions through the likelihood or reward guidance. Finally, note that all the works mentioned above focused mainly on algorithmic design and empirical performance, but did not characterize the theoretical performance introduced by modifications to the sampling process. Our work establishes non-asymptotic convergence guarantees to quantify how the score mis-match affects the convergence of zero-shot conditional sampling with absorbing and uniform rates. This framework further supports the analysis for set constraints. 
+
+Constrained Diffusion Models: There are several studies regarding the explicit constraint for diffusion models. In continuous diffusion, [30] formulate the sampling process as an optimization problem to guide the generation result to satisfy the constraints. Using a similar idea, [31] introduced Constrained Discrete Diffusion. They incorporated differentiable projection and the augmented Lagrangian method into the sampling process so that the generated samples satisfy the conditional constraints. On the application side, [32] proposed a constrained decoding method applicable to the diffusion language model, which aims to make the generation result conform to the context-free grammar. For set constraints, our RHC uses the unconditional score to assign probabilities to feasible values. The convergence guarantee separates the assignment distribution error and the sampling error. II. P ROBLEM SETUP 
+
+In this section, we first review the basic concepts of score-matched discrete diffusion models. Then we extend it to general score-mismatched discrete diffusion models. Finally, we specialize this framework to conditional generation problems and zero-shot methods. 
+
+A. (Score-matched) Discrete Diffusion Models 
+
+We consider the diffusion model defined on the discrete state space X = [ S]d, where d denotes the length or dimensions of the sequence and S denotes the number of possible values for each dimension. Let q0 be the training data distribution and x0 ∼ q0 be a data sample. The training distribution has full support on the clean state space. The basic pipeline of the discrete diffusion model is to first gradually perturb the data distribution into a simple stationary distribution, and then learn the corresponding reverse process for denoising. 5
+
+Forward process: Let T be the time horizon and qt be the marginal distribution for 0 < t < T .The forward process can be expressed as a CTMC with the transition probability in a small time interval [t − dt, t ] given by 
+
+qt|t−dt (y|x) = 1y=x + Qt(x, y )dt + o(dt ),
+
+where 1y=x denotes the indicator function that equals 1 only when y = x and 0 otherwise, and Qt ∈ RSd×Sd
+
+refers to the rate matrix of the CTMC. The rate matrix Qt controls the instantaneous rate of the state transition. A valid rate matrix Qt should satisfy the following requirements: Qt(x, y ) ≥ 0 for x̸ = y, Qt(x, x ) ≤ 0 and also Qt(x, x ) = − P  
+
+> y̸=x
+
+Qt(x, y ). To simplify the computation, a common assumption is that the forward propagation of each token 
+
+xi ∈ [S] is independent [4], [9], [16], [17]. This independence is also reflected in the rate matrix 
+
+Qt, that is, for x̸ = y only at one index i, Qt(x, y ) = Qtoken  
+
+> t
+
+(xi, y i). Here, Qtoken  
+
+> t
+
+∈ RS×S is the rate matrix of each token. In this work, we focus on the time-homogeneous case, which means that the rate matrix Qt is independent of time t during the entire forward process, i.e., 
+
+Qt ≡ Q, Q token  
+
+> t
+
+≡ Qtoken .There are two widely studied rate matrices in previous research. The first one is the absorbing rate matrix [4], [9], [16], [27]. An absorbing rate matrix will cause all tokens to enter a MASK state at the terminal time point. Given MASK ∈ [S], the absorbing rate matrix for one token is defined as 
+
+Qtoken = 1S e⊤ 
+
+> MASK
+
+− IS , (1) where 1S is a vector of ones with a length of S, eMASK is a unit vector where the element is 1 only at the MASK position, and IS is an identity matrix with a size of S × S. By this definition, for all x ∈ [S], x ̸ = MASK, the diagonal elements satisfy Qtoken  
+
+> t
+
+(x, x ) = −1 and the elements in the column of MASK state satisfy Qtoken  
+
+> t
+
+(x, MASK ) = 1 . For the other cases, the elements in Qtoken 
+
+> t
+
+will be 0. Based on this definition, we can have Q(x, x ) = − P  
+
+> y̸=x
+
+Q(x, y ) = −(d − m(x)) ,where m(x) is defined as the number of MASK tokens in x. Here, we also emphasize that the clean data do not contain the MASK token throughout the subsequent analysis, whereas the diffusion state space includes MASK. The second one is the uniform rate matrix [4], [17], [18]. A uniform rate matrix will cause all tokens to be distributed uniformly at the terminal time point. The token-wise rate matrix is defined as 
+
+Qtoken = 1
+
+S 1S 1⊤ 
+
+> S
+
+− IS . (2) This ensures that Q satisfies the requirements of a valid rate matrix. Hence, we can derive 
+
+Q(x, x ) = − P  
+
+> y̸=x
+
+Q(x, y ) = −dS−1 
+
+> S
+
+.
+
+Reverse process: Given a forward CTMC, the time-reverse process is also a CTMC and can be described by the time-reverse process ←−q t = qT −t. The reverse rate matrix ←−
+
+Q t(x, y ) for x̸ = y
+
+satisfies [4, Proposition 1] ←−
+
+Q t(x, y ) = QT −t(y, x ) qT −t(y)
+
+qT −t(x). (3) Similarly, for the reverse rate matrix, we also have ←−
+
+Q t(x, y ) ≥ 0 for x̸ = y, ←−
+
+Q t(x, x ) ≤ 0, and 
+
+←−
+
+Q t(x, x ) = − P 
+
+> y̸=x
+
+←−
+
+Q t(x, y ). Define st(y, x ) := qt(y) 
+
+> qt(x)
+
+as the score function in discrete diffusion. Different from the score function ∇ log qt(x) in continuous diffusion, the discrete score measures the probability ratio of state y relative to the state x at time point t. Thus, the reverse rate matrix can be written as ←−
+
+Q t(x, y ) = QT −t(y, x )sT −t(y, x ). Since the true score function st(y, x ) = qt(y)
+
+> qt(x)6
+
+is inaccessible, we train a neural network to learn this approximation ˆst ≈ st.
+
+Training Objective: Since the true distribution qt cannot generally be obtained explicitly, one can introduce an approximation ˆst to approach the true score st such that ˆQt(x, y ) = 
+
+QT −t(y, x )ˆ sT −t(y, x ). According to [9], a natural training objective is to minimize the score entropy loss: 
+
+LSE = Ext∼←−q t
+
+"X 
+
+> y̸=xt
+
+ˆQt(xt, y ) − ←−
+
+Q t(xt, y ) + ←−
+
+Q t(xt, y ) log 
+
+←−
+
+Qt(xt, y )ˆQt(xt, y )
+
+!# 
+
+. (4) In this work, we focus on two practical samplers, τ -leaping [4] and uniformization [33]. τ -leaping is a time-discretized sampling method. With early-stopping, given the discrete time grids 
+
+0 = t0 < t 1 < · · · < t N = T − δ, the reverse rate matrix in each time interval [tk, t k+1 ) will be frozen as ˆQtk . Given the current state xtk , the number of the state transitions in [tk, t k+1 )
+
+follows a Poisson distribution with rate ˆQtk (xtk , x −itk + s · ei)( tk+1 − tk), where ei is a unit vector with 1 only at the i-th position. The update rule is thus given by 
+
+xtk+1 = xtk +
+
+> d
+
+X
+
+> i=1
+> S
+
+X
+
+> s=1
+
+(s − xitk )Pois ( ˆQtk (xtk , x −itk + s · ei)( tk+1 − tk)) · ei. (5) In particular, for τ -leaping, one update includes all possible transitions during [tk, t k+1 ). For discrete state spaces, τ -leaping may suffer from an out-of-boundary issue. One can handle this issue by clipping in practice [19, Remark A.13]. The final convergence is not affected when the time step is sufficiently small [19, Proposition A.14]. On the other hand, uniformization is a continuous-time sampling method [33]. For t ∈ [tk, t k+1 ), let the rate λk satisfy λk ≥
+
+sup x∈[S]d
+
+P  
+
+> y̸=x
+
+ˆQt(x, y ), then the transition from the current state x to y will occur with a probability of ˆQt(x, y )/λ k. Notably, the uniformization has been proven to exactly simulate the time-inhomogeneous CTMC [18], [19]. 
+
+B. Score Mismatch in Discrete Diffusion Models 
+
+For the score-mismatched setting, the target distribution that we expect to sample from is not q0 used for training, but another distribution ˜q0. With the same forward rate matrix Qt, the corresponding forward marginal distribution is ˜qt (t > 0) and the time-reverse distribution is 
+
+←−
+
+˜q t = ˜ qT −t. The reverse rate matrix ←−
+
+˜Q t corresponding to the target distribution is given by 
+
+←−
+
+˜Q t(x, y ) = QT −t(y, x ) ˜qT −t(y)˜qT −t(x) =: QT −t(y, x )˜ sT −t(y, x ).
+
+To quantify the deviation resulting from the inconsistency between the target score ˜st and training score st, we introduce the score mismatch ∆t as follows: 
+
+Definition 1 (Discrete Score Mismatch) . Given the target distribution ˜q0 and the corresponding forward process ˜qt, the score mismatch ∆t(y, x ) between ˜st and st is defined as 
+
+∆t(y, x ) := ˜sT −t(y, x )
+
+sT −t(y, x ) − 1 = 
+
+ ˜qT −t(y)˜qT −t(x)
+
+ .  qT −t(y)
+
+qT −t(x)
+
+
+
+− 1, ∀x̸ = y, 
+
+where ∆t(y, x ) ≥ − 1 for y̸ = x and ∆t(x, x ) = 0 . Hence, for x̸ = y, we have ←−
+
+˜Q t(x, y ) = 
+
+←−
+
+Q t(x, y )(1 + ∆ t(y, x )) , where ←−
+
+˜Q (x, x ) = − P 
+
+> y̸=x
+
+←−
+
+˜Q (x, y ).7
+
+The score mismatch is naturally a distortion of the original reverse jump rate. This is an important difference from the additive score mismatch, which is typical for continuous diffusion models [7]. For the continuous models, the score mismatch can be expressed as an additive perturbation in the Gaussian reverse mean, that is, the difference between the posterior means. In contrast, for discrete diffusion models, the reverse process is driven by the rate matrix, where the change of the target distribution will result in a modification of these ratios rather than an additive perturbation. This motivates defining score mismatch also in terms of a ratio. 
+
+C. Zero-Shot Conditional Sampling under Fixed Observations 
+
+In the above general score mismatch setting, the target distribution ˜q0 differs from the training distribution q0. A crucial scenario of this setting is conditional generation, such as text infilling [9], [27]. For this scenario, we do not aim to sample from the unconditional distribution q0;instead, our goal is to complete the unobserved parts of a sequence given the condition of observing the partial sequence. More specifically, let x0 ∈ [S]d be divided into two parts: x0 =[xΩ0 , x ¯Ω0 ], where Ω refers to the set of unobserved indices that need to be filled and ¯Ω refers to the observed indices. Given a non-MASK observation y ∈ [S]| ¯Ω|, the target distribution is the conditional distribution of the unobserved coordinates given the observation y:
+
+˜q0 = qΩ0|y = q0(xΩ0 |x¯Ω0 = y).
+
+In the zero-shot setting, our goal is to sample from the conditional target using a pretrained unconditional discrete diffusion without any additional training for the given observations. 
+
+D. Zero-Shot Conditional Sampling under Set Constraints 
+
+More generally, ¯Ω can refer to constrained coordinates, where each coordinate in ¯Ω may accept multiple feasible values. For each coordinate m ∈ ¯Ω, given the nonempty set Am ⊆ [S]\MASK ,we define the set constraints as C = {xm 
+
+> 0
+
+∈ Am, m ∈ ¯Ω} and the feasible set as A = Q  
+
+> m∈¯Ω
+
+Am,then equivalently, C = {x¯Ω0 ∈ A}. Then, the corresponding target distribution should be the conditional marginal given by 
+
+˜q0 = qΩ0|C = q0(xΩ0 |C),
+
+and the fixed observation will be recovered if Am = {ym} for each m ∈ ¯Ω. We extend the same zero-shot setting to these set constraints, aiming to sample from qΩ0|C using a pretrained unconditional discrete diffusion without any additional training for the specified constraints. III. G UARANTEES FOR GENERAL SCORE -M ISMATCHED DISCRETE DIFFUSION MODELS 
+
+In this section, we present the results for the convergence analysis of general score-mismatched discrete diffusion model for a general target distribution ˜q0. We first analyze the τ -leaping sampler and adopt the following two assumptions, which are commonly used in previous studies for the score-matched discrete diffusion models [16], [17], [19]. 
+
+Assumption III.1. (Score Estimation Error). The score estimation ˆsT −tk satisfies  
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk) ˜LSE (ˆ sT −tk ) ≤ εscore ,8
+
+where 
+
+˜LSE := Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )
+
+! .
+
+Theorem III.1 measures the average estimation error of the score function along the reverse trajectory. This estimation error form is commonly used when there is no mismatch [16], [17], [19]. Under the score-mismatched setting, the only difference is in the distribution over which the loss is evaluated: here it is evaluated over the induced target process rather than the training process. This assumption holds when the target ˜qt is close to qt, which is also the scenario of typical interest. For zero-shot generation discussed in Sections II-C and II-D, the scores used do not involve additional conditional training, but it is still assumed that the pretrained model with hard clamp score defined in (6) has sufficient estimation accuracy under the true conditional distribution. Note that such a mismatched loss evaluation has also been used for mismatched continuous diffusion models [7]. 
+
+Assumption III.2. (Bounded Score Estimates) There exists M > 0 such that ∀x, y ∈ [S]d, the score estimation ˆsT −t(y, x ) satisfies M −1 ≤ ˆsT −t(y, x ) ≤ M .
+
+Theorem III.2 is a typical assumption commonly used in the literature [16], [17], [19]. It is also mild as we will later show that the dependence on M is only logarithmic. 
+
+A. Absorbing-Rate CTMCs with τ -leaping 
+
+The following theorem provides an upper bound for the KL-divergence between the target distribution ˜q0 and the sampling distribution pT with early-stopping. The result is the first 
+
+convergence guarantee for the score mismatched discrete diffusion in the CTMC framework. 
+
+Theorem III.3. Under Theorems III.1 and III.2, taking the time-steps tk+1 − tk = c min {1, T −
+
+tk}, and with the absorbing -rate CTMC and the τ -leaping sampler, we have 
+
+KL(˜ qδ|| pT −δ) ≲ Eoracle + (1 + T + log M δ −1)
+
+· 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)( T − tk)−1Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+Q(y, x tk )|∆tk (y, x tk )|
+
+ ,
+
+where Eoracle is the sampling error from the score-matched sampling, including the initialization, discretization, and score estimation errors. To ensure a finite KL divergence, the oracle bound uses a surrogate initialization distribution [16, Theorem 1]. 
+
+Theorem III.3 indicates that with the absorbing-rate CTMC and τ -leaping sampler, 1 the final KL divergence can be divided into two terms. The first term, Eoracle , is the intrinsic sampling error without any score mismatch. For example, under the setting and assumptions of [16, Theorems 1 and 2], the absorbing-rate analysis of τ -leaping gives the following upper bound of oracle error: 
+
+Eoracle ≲ de −T + εscore + d(1 + T + log M δ −1)(T + log δ−1)2
+
+N ,  
+
+> 1Drawing on techniques in [17], our analysis can be easily adapted to analyze other samplers, including Euler method and Tweedie τ-leaping. 9
+
+which yields an explicit bound for Theorem III.3. This term allows sharper bounds on the same oracle contributions without changing the score-mismatch argument as long as the same sampling setting is applied. The second term is an additional bias term introduced by the score mismatch at each reverse sampling step. Such a bias will gradually accumulate and finally impact the KL divergence between the target distribution and the sampling distribution. If ∆t(y, x ) = 0 , that is, the target distribution and the training distribution are matched, the bias term will also disappear. The proof is provided in Appendix II. To showcase the generality of Theorem III.3, we would later apply it to analyze the Conditional SEDD sampler in Section IV-A and the RHC sampler in Section V. Under additional assumptions on the score mismatch, we can further characterize the sum in Theorem III.3 and make the parameter dependence of the resulting bias explicit, as follows. 
+
+Corollary III.4. Under the same setting and assumptions as in Theorem III.3, when |∆t(y, x t)| ≲
+
+1 , we further have 
+
+KL(˜ qδ|| pT −δ) ≲ Eoracle + dS (1 + T + log M δ −1)( T + log δ−1).
+
+This corollary shows that, when |∆t(y, x )| is uniformly upper-bounded by a constant, the bias term shows an explicit dependence on the dimension d and the vocabulary size S. Such a uniformly bounded condition is rather mild. Consider a target shift example, where the ratio ˜q0
+
+> q0
+
+is bounded by constants that are independent of d, S, and t. Since the same forward process is applied to both the target and training distributions, the score mismatch admits |∆t(y, x t)| ≲ 1.See the detailed proof of Theorem III.4 in Appendix III. 
+
+B. Extension to Uniform-Rate CTMCs 
+
+Using similar analysis techniques, we can also extend the result of Theorem III.3 to the uniform-rate CTMC case. 
+
+Corollary III.5. Under Theorems III.1 and III.2, taking the time step tk+1 −tk = c min {1, T −tk},with the uniform -rate CTMC and the τ -leaping sampler, we have 
+
+KL(˜ qδ|| pT −δ) ≲ Euni oracle + S(1 + log M Sδ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk) max {1, (T − tk)−1}· Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+Q(y, x tk )|∆tk (y, x tk )|
+
+ ,
+
+where Euni oracle is the sampling error from the score-matched sampling with uniform rate. 
+
+Theorem III.5 illustrates that, similar to the absorbing-rate CTMC case, the final KL divergence for the uniform-rate CTMC case can also be decomposed into the oracle error Euni oracle and an additional bias term induced by the score mismatch. This also highlights the fact that our method does not rely on a specific rate matrix but rather it reflects a general mechanism when there is score mismatch. As in Theorem III.3, Euni oracle can be bounded by other applicable score-matched analyses of uniform rate and τ -leaping sampler, such as [17, Theorem 2]. Compared to the absorbing-rate CTMC, the bias for the uniform-rate CTMC is worse by O(S). This arises because the uniform rate allows the token transition to other S−1 states and thus the upper-bound of score function under the uniform rate shows a dependence on S. A similar phenomenon has 10 
+
+been observed for the oracle error in score-matched discrete diffusion models [16], [17], [19]. The proof of Theorem III.5 is given in Appendix IV. 
+
+C. Extension to Uniformization Sampling 
+
+After establishing the convergence results for the τ -leaping sampler, we now focus on the score-mismatch analysis of the uniformization sampler. To establish the corresponding con-vergence guarantee, we introduce the following continuous-time integral version of the score estimation error assumption: 
+
+Assumption III.6. (Integrated Score Estimation Error) The ˆsT −t satisfies 
+
+Z T −δ
+
+> 0
+
+˜LSE (ˆ sT −t)d t ≤ ε′
+
+> score
+
+.
+
+Here, we clarify the distinction between Theorems III.1 and III.6. Theorem III.1 indicates that the score estimation error manifests as the accumulation of the score entropy over the discrete time grid. This controls the estimation error at the selected discrete time points tk, which is generally appropriate for analyzing the sampling methods based on the time discretization, for example, the τ -leaping sampler [4], [19]. In contrast, Theorem III.6 requires controlling the score estimation error throughout the continuous time horizon, which is applicable to the analysis of the continuous-time sampling methods, for example, the uniformization sampler [18], [33]. 
+
+Corollary III.7. Under Theorems III.2 and III.6, with absorbing rate and uniformization sampler, we have 
+
+KL(˜ qδ|| pT −δ) ≲ E′
+
+> oracle
+
++ (1 + T + log M δ −1)
+
+Z T −δ
+
+> 0
+
+(T − t)−1Ext∼←− 
+
+> ˜qt
+
+"X 
+
+> y̸=xt
+
+Q(y, x t)|∆t|
+
+#
+
+dt, 
+
+where E′ 
+
+> oracle
+
+is the sampling error from the score-matched sampling with uniformization sampler. 
+
+The uniformization sampler has been demonstrated to exactly simulate the sampling process without inducing time discretization error [19]. This property is also reflected in the accumulation way of score mismatch. Theorem III.7 indicates that the local score mismatch in reverse dynamics will gradually accumulate in the form of a continuous-time integral over time and eventually impact the KL divergence between the target distribution and the generated distribution. Similarly, 
+
+E′ 
+
+> oracle
+
+can incorporate the bounds of score-matched initialization and score estimation errors. [16, Theorem 3] provides a concrete instance. The proof is given in Appendix V. IV. G UARANTEES FOR ZERO -S HOT CONDITIONAL DISCRETE DIFFUSION SAMPLERS UNDER FIXED OBSERVATIONS 
+
+In this section, to showcase the applicability of our score-mismatch framework, we utilize our general convergence analysis in Section III to study the conditional zero-shot discrete diffusion model under fixed observations introduced in Section II-C. Specifically, we analyze one popular conditional zero-shot discrete diffusion sampler in the literature: the Conditional SEDD sampler [9] (see Algorithm 2). This sampler has demonstrated empirical effectiveness in text infilling without requiring additional conditional training. However, a theoretical understanding of this sampler remains lacking, particularly regarding how hard clamping at each diffusion step affects the final sampling error. 11 
+
+Let ¯Ω ⊆ [d] denote the set of observed coordinates, and let Ω = [ d] \ ¯Ω denote the set of unobserved coordinates to be generated. The algorithm directly performs hard clamps on the observed coordinates ¯Ω during each step of the reverse sampling process (which corresponds to a per-step hard projection in view of constrained sampling). We focus on the sampling accuracy over the unobserved coordinates Ω, given a fixed non-MASK observation y. Specifically, for ˆx
+
+and x differing only at a coordinate k ∈ Ω, at each time-step t, the hard clamp mechanism uses 
+
+shard-clamp  
+
+> t|y
+
+(ˆ xt, x t) = qt(ˆ xΩ 
+
+> t
+
+|x¯Ω 
+
+> t
+
+= y)
+
+qt(xΩ 
+
+> t
+
+|x¯Ω 
+
+> t
+
+= y) = qt(ˆ xΩ 
+
+> t
+
+, x ¯Ω 
+
+> t
+
+= y)
+
+qt(xΩ 
+
+> t
+
+, x ¯Ω 
+
+> t
+
+= y). (6) Although this method always satisfies the observation constraints, it may introduce bias on the unobserved space. This is because the hard clamp condition is enforced on the diffusion 
+
+intermediate state x¯Ω 
+
+> t
+
+= y, whereas the true condition is enforced on the clean data x¯Ω0 = y.Indeed, the true conditional score function at time t should be 
+
+st|y(ˆ xt, x t) = qt(ˆ xΩ 
+
+> t
+
+|x¯Ω0 = y)
+
+qt(xΩ 
+
+> t
+
+|x¯Ω0 = y). (7) We further provide an example in Appendix IX to illustrate the difference. From Definition 1, the score mismatch for this case is given as follows. 
+
+Definition 2. For a fixed prompt x¯Ω0 = y, let ˆx̸ = x only at index k ∈ Ω. Given the true conditional score st|y(ˆ x, x ) in (7), hard clamp score shard-clamp  
+
+> t|y
+
+(ˆ x, x ) in (6), the score mismatch 
+
+∆t|y(ˆ x, x ) can be defined as 
+
+1 + ∆ t|y(ˆ x, x ) = sT −t|y(ˆ x, x )
+
+shard-clamp   
+
+> T−t|y
+
+(ˆ x, x ).
+
+We measure the conditional sampling error through the discrepancy between the true condi-tional target and generated distribution on the unobserved coordinates Ω.
+
+A. Conditional SEDD under Fixed Observations with Absorbing Rate 
+
+The following theorem characterizes the theoretical performance of the Conditional SEDD sampler with the absorbing-rate CTMC. 
+
+Theorem IV.1. Under Theorems III.1 and III.2, taking the time step tk+1 −tk = c min {1, T −tk},with the absorbing -rate CTMC and using τ -leaping sampler, Conditional SEDD achieves 
+
+KL( qΩ
+
+> δ|y
+
+|| pΩ 
+
+> T−δ|y
+
+) ≲ Eoracle ,
+
+where qΩ 
+
+> δ|y
+
+denotes the target distribution on Ω given the condition x¯Ω0 = y and pΩ  
+
+> T−δ|y
+
+denotes the generated distribution of the Conditional SEDD on Ω.
+
+Theorem IV.1 shows that Conditional SEDD does not introduce additional score-mismatch bias term in the convergence bound on the unobserved coordinates Ω. This is due to the special structure of absorbing rate matrix. Given a fixed non-MASK observation y, observing x¯Ω 
+
+> t
+
+= y
+
+at time t implies that the initial constrained coordinates are equal to y at time 0 and remain unchanged. Therefore, the common factor regarding the transition over ¯Ω will be canceled in the score ratio, and the hard clamp score coincides with the true conditional score, as established in (21). Consequently, this KL upper bound only contains the oracle error Eoracle , which is introduced by initialization, score estimation, and time discretization. Under the stated assumptions, using 12 
+
+unconditional score for conditional generation will achieve no extra score-mismatch bias. The proof is provided in Appendix VI. 
+
+B. Conditional SEDD under Fixed Observations with Uniform Rate 
+
+In this section, we provide the convergence analysis for Conditional SEDD with the uniform rate in Theorem IV.3. Unlike absorbing rate, uniform-rate CTMC assigns non-zero probabilities between the different clean tokens. Thus, conditioning x¯Ω 
+
+> t
+
+= y at time t does not directly imply 
+
+x¯Ω0 = y. The hard clamp score used by Conditional SEDD will be influenced by the contributions of different clean observations. An example is provided in Appendix IX to illustrate this. This distinction can introduce score mismatch to the unobserved coordinates Ω. Under the setting with the uniform rate, we first employ the following assumption to control this variation: 
+
+Assumption IV.2. For the fixed observation y ∈ [S]| ¯Ω|, there exists a constant 0 < γ < 1 such that 
+
+q0(x¯Ω0 = y|xΩ0 ) ≥ γ, ∀xΩ0 ∈ supp( qΩ0 )
+
+Theorem IV.2 requires that, given any unobserved part xΩ0 , the likelihood of the fixed ob-servation y always has a positive lower bound γ. Intuitively, this assumption quantifies the compatibility between the fixed observation y and all possible completions. Specifically, if there exists a completion xΩ0 such that q0(x¯Ω0 = y|xΩ0 ) = 0 , this completion has zero probability and is excluded from the target. In text generation tasks constrained by context, this assumption therefore allows the context to prefer some completions but requires other completions to remain possible. Such a uniform positive lower bound exists for a finite-state distribution with full support. For example, in structured text generation, y can represent the commonly used conventional expressions such that γ is non-negligible. With Theorem IV.2, we now provide the convergence result of Conditional SEDD with uniform-rate CTMC, as follows. 
+
+Theorem IV.3. Under Theorems III.1, III.2 and IV.2, taking the time step tk+1 −tk = c min {1, T −
+
+tk}, with uniform rate and τ -leaping sampler, Conditional SEDD achieves KL (qΩ
+
+> δ|y
+
+|| pΩ 
+
+> T−δ|y
+
+) ≲ Euni oracle 
+
++ |Ω|S2(1 + log M Sδ −1)
+
+ 1
+
+γ − γ
+
+  
+
+log T + Sγ 
+
+1 + Sγ + 1
+
+Sγ log δ + Sγ δ(1 + Sγ )
+
+
+
+,
+
+where |Ω| is the number of unobserved coordinates. 
+
+Theorem IV.3 bounds the conditional sampling error in two parts. The first term is Euni oracle ,which again refers to the intrinsic error for the corresponding score-matched process. The second term refers to the additional bias induced by score mismatch, which reflects the cost of infilling. In contrast, in the absorbing rate case, Conditional SEDD achieves exact score matching on Ω, as established in Theorem IV.1, whereas Theorem IV.3 indicates that the uniform-rate Conditional SEDD accumulates the score mismatch over the unobserved coordinates Ω. Taken together, Theorems IV.1 and IV.3 suggest that the effect of the hard clamp mechanism depends on the choice of the rate matrix employed during the diffusion processes. The proof of Theorem IV.3 is given in Appendix VII. For a fixed γ, the bias term is linearly dependent on the size of Ω, which means that the conditional bias will increase by the number of positions to be completed. In contrast, when 
+
+|Ω| is small, the bias will concentrate only on a small number of incomplete indices. The parameter γ describes the compatibility of the context constraint according to the Bayes rule 13 
+
+q0(xΩ0 |x¯Ω0 = y) = q0(X ¯Ω0 =y|xΩ0 )q0(xΩ0 ) 
+
+> q0(x¯Ω=y)
+
+. When γ → 1, the bias term will disappear, which means that the specific context is applicable for any completion, and will not provide any additional information. In contrast, as γ → 0, the upper bound of the entire error diverges, which may occur when the context almost determines the unique missing content. It is notable that for a fixed sequence length, increasing or decreasing the number of observed coordinates will change |Ω| while imposing different condition constraints and the corresponding compatibilities. Hence, the parameters |Ω| and γ jointly determine the error deterioration from two distinct perspectives. |Ω| characterizes the number of unknown contents to be generated, while γ quantifies the compatibility of the given observation with the unknown content by providing a uniform lower bound on the likelihood. Moreover, with the remaining parameters fixed, the additional score-mismatch term does not decrease as the number of reverse steps N
+
+increases. The experiments in Figures 2 and 3 further illustrate the effects of |Ω| and γ on the sampling accuracy. V. R ANDOMIZED HARD CLAMPING UNDER SET CONSTRAINTS 
+
+Section IV characterizes the convergence error induced by the score mismatch for the Con-ditional SEDD sampler under a specific constraint x¯Ω = y. In this section, we turn to the more general set constraints introduced in Section II-D, where each constrained index is required to lie in an admissible set rather than to take a single fixed value. Such constraints support controlled text generation while maintaining the flexibility of text. Under this setting, ¯Ω denotes the set of constrained coordinates. Different from the singleton constraint, the set constraint contains multiple feasible assignment values a ∈ A. Since we can generate the remaining coordinates while hard clamping the selected assignment a, the additional task is to select these assignments such that the target distribution satisfies the set constraints. 
+
+A. Assignment distribution and RHC Sampler 
+
+The key observation is that the corresponding target conditional distribution can be expressed by the mixture of the conditional distribution with distinct fixed observations. That is, for any time t, let v(a) := q0(x¯Ω0 = a|C) denote the target assignment distribution over A, we have 
+
+qt(xΩ|C) = X
+
+> a∈A
+
+v(a)qt(xΩ|x¯Ω0 = a), a ∈ A. (8) Each mixture component corresponds to a fixed-observation problem. Thus, set-constrained sampling naturally involves two steps: selecting an assignment a ∼ v and generating the remaining coordinates given by the assignment a.To construct the assignment distribution using a pretrained unconditional model, we first show that v(a) admits an exact expression in terms of the unconditional score under the absorbing rate in the following proposition. 
+
+Proposition V.1. Let ¯Ω = {m1, ..., m | ¯Ω|}, 1 ≤ j ≤ | ¯Ω|, then define an all-mask state z(0)  
+
+> a
+
+=[MASK] d and z(j) 
+
+> a
+
+is obtained from z(j−1)  
+
+> a
+
+by changing the mj -th coordinate from MASK to 
+
+amj . For each a ∈ A, with absorbing rate, and the unconditional score st(y, x ), then, for any 
+
+t > 0, we have 
+
+v(a) = q0(x¯Ω0 = a|C) = 
+
+Q| ¯Ω| 
+
+> j=1
+
+st(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+P
+
+> b∈A
+
+Q| ¯Ω| 
+
+> j=1
+
+st(z(j) 
+
+> b
+
+, z (j−1)  
+
+> b
+
+),14 
+
+where | ¯Ω| refers to the number of the constrained coordinates. 
+
+Proposition V.1 reveals the main mechanism of achieving zero-shot sampling for the setting of set constraints. Interestingly, although the definition of v is based on the unknown true data distribution q0, q0(x¯Ω0 = a|C) can be exactly recovered using the unconditional scores st(y, x )
+
+under the CTMC with absorbing rate. Moreover, although the individual scores depend on the diffusion time t, this identity holds for any t > 0. The proof is provided in Appendix XII. Under the uniform rate, the reconstruction of the assignments distribution requires additional marginalization and inversion of the forward transition kernels. We discuss the computational and numerical challenges in Appendix XI. To obtain computable assignment probabilities, for any chosen time t, we replace the ex-act score in Theorem V.1 with the learned scores, yielding an approximation w to the target assignment distribution v:
+
+w(a) = 
+
+Q| ¯Ω| 
+
+> j=1
+
+ˆst(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+P
+
+> b∈A
+
+Q| ¯Ω| 
+
+> j=1
+
+ˆst(z(j) 
+
+> b
+
+, z (j−1)  
+
+> b
+
+). (9) Consequently, motivated by the mixture representation in (8), we propose Randomized Hard Clamping (RHC) method shown in Algorithm 1. In particular, RHC first samples one constraint value a from a specified assignment distribution w(a), then hard clamps the constrained coor-dinates to a throughout the reverse sampling process and generates the remaining coordinates using pretrained unconditional scores. Therefore, let pHC  
+
+> T−t
+
+(xΩ|x¯Ω0 = a) denote the corresponding distribution on Ω for one specific value a during the reverse process. We define 
+
+pRHC   
+
+> T−t
+
+(xΩ|C) := X
+
+> a∈A
+
+w(a)pHC  
+
+> T−t
+
+(xΩ|x¯Ω0 = a), ∀t ∈ [0 , T ]. (10) 
+
+Algorithm 1: Randomized Hard Clamping (RHC) Sampler 
+
+Input: Initial sample x0 ∼ p0, constrained coordinates ¯Ω, constraint sets C on ¯Ω, time grid 0 = t0 < t 1 < ... < t N = T − δ, a learned unconditional score ˆsT −tn 
+
+> 1
+
+Compute w over A using (9)  
+
+> 2
+
+Sample a ∼ w, set x¯Ω0 = a 
+
+> 3
+
+for n = 0 to N − 1 do  
+
+> 4
+
+for ˆx̸ = x only at index k ∈ Ω do  
+
+> 5
+
+sHC  
+
+> T−tn|a
+
+(ˆ x, x ) = ˆ sT −tn
+
+ [ˆ xΩ, a ], [xΩ, a ], 
+
+> 6
+
+where [·, a ] refers to the whole sequence with x¯Ω = a.
+
+QHC 
+
+> tn|a
+
+(x, ˆx) = QT −tn (ˆ x, x )sHC  
+
+> T−tn|a
+
+(ˆ x, x ) 
+
+> 7
+
+end  
+
+> 8
+
+Draw xtn+1 using QHC  
+
+> tn|a
+
+(e.g., with τ -leaping in (5))  
+
+> 9
+
+Set x¯Ω 
+
+> tn+1
+
+= a 
+
+> 10
+
+end 
+
+B. Convergence Guarantee for RHC 
+
+To establish the convergence guarantee of RHC, we need to control both the assignment distribution error and the sampling error for each selected assignment (see Theorem VIII.1). For 15 
+
+the latter, we can reuse the convergence analysis for the preceding fixed-observation sampler for each component in (10), since each assignment a ∈ A corresponds to a reverse sampling process with hard clamping. To control the assignment distribution error introduced by constructing w(a)
+
+from the estimated unconditional score, we employ the following assumption: 
+
+Assumption V.2. For any t ∈ [δ, T ], let w be the assignment distribution constructed from (9) .For ∀a ∈ A and 1 ≤ j ≤ | ¯Ω|, the score estimation ˆst satisfies 
+
+12(Ea∼v + Ea∼w) 
+
+> |¯Ω|
+
+X
+
+> j=1
+
+"
+
+ˆst(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+st(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+) − 1 − log ˆst(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+st(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+#
+
+≤ εpath score .
+
+This assumption controls the accuracy of the score estimation along the paths that construct the assignment distribution w. Since the assignment probabilities are calculated by the product of the scores, it is natural to measure the error by the ratios ˆst 
+
+> st
+
+. The expectations under v
+
+and w measure the estimation error along the construction paths under the target assignment distribution and the estimated distribution, respectively. This assumption therefore complements Theorem III.1 regarding the required path. The averaging on both v and w is motivated by the symmetric KL used in the proof. Specifically, symmetric KL allows us to cancel the normalization terms in product of scores (see (27)). Moreover, the loss achieves the optimum at the exact score, consistent with the consistency of the score entropy in [9, Proposition 3.2]. With exact unconditional scores, the error vanishes and the construction recovers v = w.Combining the score representation in Theorem V.1 with the KL bound in Theorem VIII.1, we can now provide an upper bound on the KL divergence of the RHC sampling with the corresponding target distribution under the set constraints setting. 
+
+Theorem V.3. For any t ∈ [δ, T ], let w(a) be constructed by estimated unconditional scores as 
+
+(9) . Under Theorems III.1, III.2 and V.2, taking the time step tk+1 − tk = c min {1, T − tk}, with 
+
+absorbing rate and τ -leaping sampler, we have 
+
+KL( qΩ 
+
+> δ|C
+
+∥pΩ,RHC   
+
+> T−δ|C
+
+) ≲ Eoracle +
+
+q
+
+| ¯Ω|εpath score ,
+
+where Eoracle is a common upper bound on the initialization, score estimation, and discretization errors for the fixed-observation sampling for each a ∈ A and | ¯Ω| refers to the number of the constrained coordinates. 
+
+Theorem V.3 indicates that extending a fixed observation to set constraints will not alter the primary form of the convergence results. The additional term is 
+
+q
+
+| ¯Ω|εpath score , which is induced by approximating the distribution v by w based on the estimated score ˆst. Hence, we focus on the dependence on the score estimation error εpath score . If the score is further trained, the additional bound will decrease and vanish as εpath score → 0. In particular, with exact unconditional scores, the construction yields w = v, and the assignment distribution error vanishes. Moreover, with other parameters fixed, this additional cost exhibits a square-root dependence on the number of constrained coordinates | ¯Ω| and does not introduce an explicit dependence on the size of the feasible sequence set |A| = Q  
+
+> m∈¯Ω
+
+|Am|, although the number of feasible sequences may grow combinatorially with the number of constrained values. The proof is given in Appendix VIII. VI. E XPERIMENT RESULTS 
+
+In this section, we provide experiment results to validate the results obtained in this paper. 16 
+
+A. Conditional SEDD under Fixed Observation 
+
+In our simulation, we conduct numerical experiments on a finite data distribution q0 under a fixed observation x¯Ω0 = y. The data distribution is constructed using normalized exponential weights, resulting in a non-uniform distribution with coordinate dependencies. Upon choosing a data distribution, we estimate the corresponding KL divergence between the target distribution and the sampling distribution from the samples. More details about our settings can be found in Appendix X-A. To verify our theory, we first compare Conditional SEDD in [9] with the oracle sampler under absorbing and uniform rates. The oracle sampler uses the true conditional score st|y of the corresponding target distribution. Figures 1 and 2 show the comparison of the KL divergence of Conditional SEDD and the oracle sampler. Next, to further explore the effects of |Ω| and γ
+
+for uniform-rate Conditional SEDD, we compare the performance of Conditional SEDD with different numbers of free coordinates. The results are reported in Figure 3.  
+
+> Fig. 1. Comparison of the Conditional SEDD and Oracle with fixed observation under absorbing rate in terms of the final KL divergence between the target and sampling conditional distributions.
+
+Figure 1 shows that the Conditional SEDD is closely aligned with the oracle sampler under the absorbing rate. Both errors decrease as the number of reverse time steps increases. This observation is consistent with Theorem IV.1, where the hard-clamped score coincides with the true conditional score on Ω. Thus, Conditional SEDD introduces no additional structural score-mismatch bias for the generated results. Under the uniform rate, Figure 2 shows a different phenomenon. Although the KL divergences of both samplers gradually decrease, the Conditional SEDD is stuck on an irreducible plateau for a large number of steps, and the oracle sampler achieves a smaller KL divergence. This observation is consistent with the score mismatch issue in Theorem IV.3, where Conditional SEDD introduces an additional bias term. Thus, these results illustrate that the mismatch be-tween Conditional SEDD and the oracle sampler will not be eliminated even with a finer time discretization. Figure 3 illustrates the trends of the KL divergence of uniform-rate Conditional SEDD with different fixed observations and numbers of unobserved coordinates. For y = [0] , [0 , 2] , and 
+
+[0 , 2, 2] , the KL divergence increases with the larger size of the unobserved set. However, with 
+
+y = [0 , 2, 1] , the KL divergence is the worst among the four settings. The different trends across these settings do not contradict the theoretical bound in Theorem IV.3, since the upper bound depends on both the number of free coordinates |Ω| and the condition compatibility parameter γ17        
+
+> Fig. 2. Comparison of the Conditional SEDD and Oracle with fixed observation under uniform rate in terms of the final KL divergence between the target and sampling conditional distributions.
+> Fig. 3. Comparison of Conditional SEDD with different numbers of free coordinates under the uniform rate in terms of the final KL divergence between the target and sampling conditional distributions. The different sizes of Ωare 1,2,3.
+
+in Theorem IV.2. As the condition changes from y = [0 , 2, 2] to [0 , 2, 1] , we observe a significant increase in KL divergence, which is consistent with Theorem IV.3 that a smaller γ will deteriorate the sampling error. 
+
+B. RHC under Set Constraints a) Synthetic Experiments: For the synthetic experiments, we use the same distribution above and impose the set constraints. We compare our RHC in Algorithm 1 with the oracle sampler under absorbing-rate CTMC. The assignment probabilities w(a) are computed from the exact unconditional scores. Figure 4 shows the comparison of the KL divergence of the oracle sampler and RHC. We evaluate the KL divergence on the generated coordinates without early stopping. In this experiment, since the assignment distribution can be calculated from the data distribution, there is no approximation error in the assignment distribution. In particular, w = v and εpath score = 0 .Therefore, the bound in Theorem V.3 reduces to Eoracle . As shown in Figure 4, the KL divergence of both methods decreases as the number of steps increases, and RHC achieves sampling errors comparable to those of the oracle sampler. This result demonstrates the performance of RHC with the ideal constructions of the assignment distribution and the exact unconditional scores, 18  
+
+> Fig. 4. Comparison of the RHC and Oracle in terms of the final KL divergence between the target and sampling conditional distributions.
+
+corroborating the results in Theorem V.3. Moreover, hard clamping in RHC introduces no score mismatch for each assignment in this experiment with the absorbing rate. 
+
+b) Text Experiments: Beyond synthetic data, we also conduct a series of text infilling experiments with coordinatewise set constraints to validate the effectiveness of our RHC sampler. In our experiments, several positions in the sequence are selected as the constrained coordinates, where multiple candidate tokens are included (see the detailed list in Table II). The sampler is required to select a feasible assignment for these positions in the different scenarios and generate the remaining tokens. We compare RHC with a uniform-assignment baseline. Different from RHC that selects assignments using the assignment distributions calculated from the trained unconditional scores, the baseline method samples the feasible assignments independently and uniformly. Detailed settings are shown in Appendix X-B. We report the generative perplexity, which is widely used to evaluate the quality of the generated text [9], [21], [27], [34], of the proposed RHC sampler and the baseline sampler in Table I.       
+
+> TABLE I SUMMARY OF PERPLEXITY IN TRANSPORTATION ,STUDY ,GAME ,COOKING ,PROJECT AND WEATHER . T HE RESULTS INCLUDE THE MEAN ±STANDARD DEVIATION AND TOTAL GENERATION TIME OF FIVE INDEPENDENT TRIALS .
+
+Sampler Transportation Study Game Uniform Assignment 100.61 ±1.72 (1610 s) 99.54 ±1.44 (1611 s) 103.35 ±1.52 (1605 s) RHC 61.01 ±1.53 (1660 s) 62.82 ±1.08 (1664 s) 69.57 ±0.75 (1659 s) Sampler Cooking Project Weather Uniform Assignment 135.37 ±0.76 (1601 s) 98.26 ±2.66 (1606 s) 91.22 ±1.31 (1600 s) RHC 116.82 ±2.06 (1655 s) 77.48 ±1.35 (1660 s) 65.20 ±1.27 (1650 s) Table I summarizes the results of the perplexity in the six different constraint scenarios. The construction of the assignment distribution takes 50 ∼ 54 seconds per scenario, and the distribution can be reused among independent trials for each scenario. Compared with the uniform-assignment baseline, RHC consistently achieves lower perplexity across all evaluated scenarios. Meanwhile, the total generation time for RHC increases only by 3.1% ∼ 3.4% .19 
+
+Hence, the experiments demonstrate that our RHC sampler can effectively satisfy the desired set constraints without compromising the fluency of conditional generation. Tables III and IV provide several generated results for reference. VII. C ONCLUSION 
+
+In this paper, we have provided the convergence guarantees for the general score-mismatched discrete diffusion model. Based on the general results, we have further studied the zero-shot conditional generation. Our analysis characterizes the bias of Conditional SEDD under the fixed observations. We have shown that the hard clamp score coincides with the true conditional score under the absorbing rate case but not under the uniform rate case. We have derived an additional score-mismatched bias term in the KL upper bound under the uniform rate. To further extend conditional sampling to coordinate-wise set constraints, we have designed a novel Randomized Hard Clamping sampler with an absorbing rate. A natural direction for future work is to extend the current analysis and samplers to more general multimodal data and more complex constraint information. REFERENCES 
+
+[1] J. Sohl-Dickstein, E. Weiss, N. Maheswaranathan, and S. Ganguli, “Deep unsupervised learning using nonequilibrium thermodynamics,” in International conference on machine learning . pmlr, 2015, pp. 2256–2265. [2] J. Ho, A. Jain, and P. Abbeel, “Denoising diffusion probabilistic models,” Advances in neural information processing systems , vol. 33, pp. 6840–6851, 2020. [3] J. Austin, D. D. Johnson, J. Ho, D. Tarlow, and R. Van Den Berg, “Structured denoising diffusion models in discrete state-spaces,” Advances in neural information processing systems , vol. 34, pp. 17 981–17 993, 2021. [4] A. Campbell, J. Benton, V. D. Bortoli, T. Rainforth, G. Deligiannidis, and A. Doucet, “A continuous time framework for discrete denoising models,” in Advances in Neural Information Processing Systems , 2022. [5] Y. Yeganeh, A. Farshad, I. Charisiadis, M. Hasny, M. Hartenberger, B. Ommer, N. Navab, and E. Adeli, “Latent drifting in diffusion models for counterfactual medical image synthesis,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2025. [6] X. Han, C. Shan, Y. Shen, C. Xu, H. Yang, X. Li, and D. Li, “Training-free multi-objective diffusion model for 3d molecule generation,” in The Twelfth International Conference on Learning Representations , 2024. [Online]. Available: https://openreview.net/forum?id=X41c4uB4k0 [7] Y. Liang, P. Ju, Y. Liang, and N. Shroff, “Theory on score-mismatched diffusion models and zero-shot conditional samplers,” in The Thirteenth International Conference on Learning Representations , 2025. [Online]. Available: https://openreview.net/forum?id=nWT6LxbuGi [8] Z. Wu, L. Zheng, Z. Xie, J. Ye, J. Gao, S. Gong, Y. Feng, Z. Li, W. Bi, G. Zhou, and L. Kong, “Dreamon: Diffusion language models for code infilling beyond fixed-size canvas,” in The Fourteenth International Conference on Learning Representations , 2026. [Online]. Available: https://openreview.net/forum?id=EQTPmqukiU [9] A. Lou, C. Meng, and S. Ermon, “Discrete diffusion modeling by estimating the ratios of the data distribution,” in 
+
+Proceedings of the 41st International Conference on Machine Learning , ser. Proceedings of Machine Learning Research, vol. 235, 2024, pp. 32 819–32 848. [10] H. Varma, D. M. Nagaraj, and K. Shanmugam, “Glauber generative model: Discrete diffusion models via binary classification,” in The Thirteenth International Conference on Learning Representations , 2025. [Online]. Available: https://openreview.net/forum?id=HyjIEf90Tn [11] A. Zhang, A. Sivakumar, C.-W. Tang, and C. Thomas, “Flexible-length text infilling for discrete diffusion models,” in 
+
+Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing , C. Christodoulopoulos, T. Chakraborty, C. Rose, and V. Peng, Eds. Suzhou, China: Association for Computational Linguistics, Nov. 2025, pp. 31 344–31 359. [Online]. Available: https://aclanthology.org/2025.emnlp-main.1597/ [12] D. Helbig, E. Troiano, and R. Klinger, “Challenges in emotion style transfer: An exploration with a lexical substitution pipeline,” in Proceedings of the Eighth International Workshop on Natural Language Processing for Social Media , L.-W. Ku and C.-T. Li, Eds. Online: Association for Computational Linguistics, Jul. 2020, pp. 41–50. [Online]. Available: https://aclanthology.org/2020.socialnlp-1.6/ [13] J. Qiang, Y. Li, Y. Zhu, Y. Yuan, and X. Wu, “Lexical simplification with pretrained encoders,” in Proceedings of the AAAI conference on artificial intelligence , vol. 34, no. 05, 2020, pp. 8649–8656. [14] H. Nisonoff, J. Xiong, S. Allenspach, and J. Listgarten, “Unlocking guidance for discrete state-space diffusion and flow models,” in The Thirteenth International Conference on Learning Representations , 2025. [Online]. Available: https://openreview.net/forum?id=XsgHl54yO7 20 
+
+[15] M. Uehara, Y. Zhao, C. Wang, X. Li, A. Regev, S. Levine, and T. Biancalani, “Inference-time alignment in diffusion models with reward-guided generation: Tutorial and review,” arXiv preprint arXiv:2501.09685 , 2025. [16] Y. Liang, R. Huang, L. Lai, N. Shroff, and Y. Liang, “Absorb and converge: Provable convergence guarantee for absorbing discrete diffusion models,” in The Thirty-ninth Annual Conference on Neural Information Processing Systems ,2025. [Online]. Available: https://openreview.net/forum?id=VsZzTSyk5p [17] Y. Liang, Y. Liang, L. Lai, and N. Shroff, “Discrete diffusion models: Novel analysis and new sampler guarantees,” in The Thirty-ninth Annual Conference on Neural Information Processing Systems , 2025. [Online]. Available: https://openreview.net/forum?id=fDl6RolijS [18] H. Chen and L. Ying, “Convergence analysis of discrete diffusion model: Exact implementation through uniformization,” 
+
+Journal of Machine Learning , vol. 4, no. 2, pp. 108–127, 2025. [19] Y. Ren, H. Chen, G. M. Rotskoff, and L. Ying, “How discrete and continuous diffusion meet: Comprehensive analysis of discrete diffusion models via a stochastic integral framework,” in The Thirteenth International Conference on Learning Representations , 2025. [20] Z. Zhang, Z. Chen, and Q. Gu, “Convergence of score-based discrete diffusion models: A discrete-time analysis,” in The Thirteenth International Conference on Learning Representations , 2025. [Online]. Available: https://openreview.net/forum?id=pq1WUegkza [21] Y. Schiff, S. S. Sahoo, H. Phung, G. Wang, S. Boshar, H. Dalla-torre, B. P. de Almeida, A. M. Rush, T. PIERROT, and V. Kuleshov, “Simple guidance mechanisms for discrete diffusion models,” in The Thirteenth International Conference on Learning Representations , 2025. [Online]. Available: https://openreview.net/forum?id=i5MrJ6g5G1 [22] T. J. Kerby and K. R. Moon, “Training-free guidance for discrete diffusion models for molecular generation,” arXiv preprint arXiv:2409.07359 , 2024. [23] H. Lin, S. Li, H. Ye, Y. Yang, S. Ermon, Y. Liang, and J. Ma, “TFG-flow: Training-free guidance in multimodal generative flow,” in The Thirteenth International Conference on Learning Representations , 2025. [Online]. Available: https://openreview.net/forum?id=GK5ni7tIHp [24] L. C. Kit, P. Jeha, J. Frellsen, P. Lio, M. S. Albergo, and F. Vargas, “Debiasing guidance for discrete diffusion with sequential monte carlo,” in Frontiers in Probabilistic Inference: Learning meets Sampling , 2025. [Online]. Available: https://openreview.net/forum?id=vg0dOu3w9g [25] C. Wang, M. Uehara, Y. He, A. Wang, A. Lal, T. Jaakkola, S. Levine, A. Regev, H. Wang, and T. Biancalani, “Fine-tuning discrete diffusion models via reward optimization with applications to DNA and protein design,” in International Conference on Learning Representations , Y. Yue, A. Garg, N. Peng, F. Sha, and R. Yu, Eds., vol. 2025, 2025, pp. 47 871–47 899. [Online]. Available: https://proceedings.iclr.cc/paper_files/paper/2025/file/ 771e09dd204ea339da0d8114c48afd21-Paper-Conference.pdf [26] X. Li, Y. Zhao, C. Wang, G. Scalia, G. Eraslan, S. Nair, T. Biancalani, S. Ji, A. Regev, S. Levine, and M. Uehara, “Derivative-free guidance in continuous and discrete diffusion models with soft value-based decoding,” in The Thirty-ninth Annual Conference on Neural Information Processing Systems , 2025. [Online]. Available: https://openreview.net/forum?id=6QbbaEGkO7 [27] J. Ou, S. Nie, K. Xue, F. Zhu, J. Sun, Z. Li, and C. Li, “Your absorbing discrete diffusion secretly models the conditional distributions of clean data,” in International Conference on Learning Representations ,Y. Yue, A. Garg, N. Peng, F. Sha, and R. Yu, Eds., vol. 2025, 2025, pp. 64 972–65 009. [Online]. Available: https://proceedings.iclr.cc/paper_files/paper/2025/file/a365e37c18fb91af547a2f0012a89e98-Paper-Conference.pdf [28] H. Liu, Z. Yang, and B. Su, “Training-free length discovery for diffusion language model infilling,” in ICLR 2026 2nd Workshop on Deep Generative Model in Machine Learning: Theory, Principle and Efficacy , 2026. [Online]. Available: https://openreview.net/forum?id=Hl8w6DC9VY [29] W. Chu, Z. Wu, Y. Chen, Y. Song, and Y. Yue, “Split gibbs discrete diffusion posterior sampling,” in 
+
+The Thirty-ninth Annual Conference on Neural Information Processing Systems , 2025. [Online]. Available: https://openreview.net/forum?id=U7ab14f4YQ [30] J. K. Christopher, S. Baek, and F. Fioretto, “Constrained synthesis with projected diffusion models,” in 
+
+The Thirty-eighth Annual Conference on Neural Information Processing Systems , 2024. [Online]. Available: https://openreview.net/forum?id=FsdB3I9Y24 [31] M. Cardei, J. K. Christopher, B. Kailkhura, T. Hartvigsen, and F. Fioretto, “Constrained discrete diffusion,” in The Thirty-ninth Annual Conference on Neural Information Processing Systems , 2025. [Online]. Available: https://openreview.net/forum?id=Es4s9dtCjR [32] N. Mündler, J. Dekoninck, and M. Vechev, “Constrained decoding of diffusion LLMs with context-free grammars,” in The Fourteenth International Conference on Learning Representations , 2026. [Online]. Available: https://openreview.net/forum?id=7Sph4KyeYO [33] N. M. Van Dijk, “Uniformization for nonhomogeneous markov chains,” Operations research letters , vol. 12, no. 5, pp. 283–291, 1992. [34] S. S. Sahoo, M. Arriola, Y. Schiff, A. Gokaslan, E. Marroquin, J. T. Chiu, A. Rush, and V. Kuleshov, “Simple and effective masked diffusion language models,” in Advances in Neural Information Processing Systems ,A. Globerson, L. Mackey, D. Belgrave, A. Fan, U. Paquet, J. Tomczak, and C. Zhang, Eds., vol. 37. Curran 21 
+
+Associates, Inc., 2024, pp. 130 136–130 184. [Online]. Available: https://proceedings.neurips.cc/paper_files/paper/2024/ file/eb0b13cc515724ab8015bc978fdde0ad-Paper-Conference.pdf [35] P. Dhariwal and A. Q. Nichol, “Diffusion models beat GANs on image synthesis,” in Advances in Neural Information Processing Systems , A. Beygelzimer, Y. Dauphin, P. Liang, and J. W. Vaughan, Eds., 2021. [Online]. Available: https://openreview.net/forum?id=AAWuCvzaVt [36] J. Ho and T. Salimans, “Classifier-free diffusion guidance,” in NeurIPS 2021 Workshop on Deep Generative Models and Downstream Applications , 2021. [Online]. Available: https://openreview.net/forum?id=qw8AKxfYbI [37] A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark et al. ,“Learning transferable visual models from natural language supervision,” in International conference on machine learning .PmLR, 2021, pp. 8748–8763. [38] A. Q. Nichol, P. Dhariwal, A. Ramesh, P. Shyam, P. Mishkin, B. Mcgrew, I. Sutskever, and M. Chen, “GLIDE: Towards photorealistic image generation and editing with text-guided diffusion models,” in Proceedings of the 39th International Conference on Machine Learning , ser. Proceedings of Machine Learning Research, K. Chaudhuri, S. Jegelka, L. Song, C. Szepesvari, G. Niu, and S. Sabato, Eds., vol. 162. PMLR, 17–23 Jul 2022, pp. 16 784–16 804. [Online]. Available: https://proceedings.mlr.press/v162/nichol22a.html [39] O. Avrahami, D. Lischinski, and O. Fried, “Blended diffusion for text-driven editing of natural images,” in 2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2022, pp. 18 187–18 197. [40] C. Meng, Y. He, Y. Song, J. Song, J. Wu, J.-Y. Zhu, and S. Ermon, “SDEdit: Guided image synthesis and editing with stochastic differential equations,” in International Conference on Learning Representations , 2022. [Online]. Available: https://openreview.net/forum?id=aBsCjcPu_tE [41] A. Lugmayr, M. Danelljan, A. Romero, F. Yu, R. Timofte, and L. Van Gool, “Repaint: Inpainting using denoising diffusion probabilistic models,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2022, pp. 11 461–11 471. [42] L. Rout, A. Parulekar, C. Caramanis, and S. Shakkottai, “A theoretical justification for image inpainting using denoising diffusion probabilistic models,” arXiv preprint arXiv:2302.01217 , 2023. [43] J. Choi, S. Kim, Y. Jeong, Y. Gwon, and S. Yoon, “Ilvr: Conditioning method for denoising diffusion probabilistic models,” in Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , October 2021, pp. 14 367–14 376. [44] B. Kawar, M. Elad, S. Ermon, and J. Song, “Denoising diffusion restoration models,” in Advances in Neural Information Processing Systems , A. H. Oh, A. Agarwal, D. Belgrave, and K. Cho, Eds., 2022. [Online]. Available: https://openreview.net/forum?id=kxXvopt9pWK [45] H. Chung, J. Kim, M. T. Mccann, M. L. Klasky, and J. C. Ye, “Diffusion posterior sampling for general noisy inverse problems,” in The Eleventh International Conference on Learning Representations , 2023. [Online]. Available: https://openreview.net/forum?id=OnD9zGAGT0k [46] Y. Wang, J. Yu, and J. Zhang, “Zero-shot image restoration using denoising diffusion null-space model,” in The Eleventh International Conference on Learning Representations , 2023. [Online]. Available: https://openreview.net/forum? id=mRieQgMtNTQ [47] C. Saharia, W. Chan, H. Chang, C. Lee, J. Ho, T. Salimans, D. Fleet, and M. Norouzi, “Palette: Image-to-image diffusion models,” in ACM SIGGRAPH 2022 conference proceedings , 2022, pp. 1–10. [48] L. Zhang, A. Rao, and M. Agrawala, “Adding conditional control to text-to-image diffusion models,” in Proceedings of the IEEE/CVF international conference on computer vision , 2023, pp. 3836–3847. [49] T. Brooks, A. Holynski, and A. A. Efros, “Instructpix2pix: Learning to follow image editing instructions,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2023, pp. 18 392–18 402. [50] A. Radford, J. Wu, R. Child, D. Luan, D. Amodei, and I. Sutskever, “Language models are unsupervised multitask learners,” 
+
+OpenAI blog , 2019. 22 
+
+# Appendix 
+
+Appendix I: Related Works 22 
+
+Appendix II: Proof of Theorem III.3 23 
+
+Appendix III: Proof of Theorem III.4 26 
+
+Appendix IV: Proof of Theorem III.5 27 
+
+Appendix V: Proof of Theorem III.7 28 
+
+Appendix VI: Proof of Theorem IV.1 29 
+
+Appendix VII: Proof of Theorem IV.3 30 
+
+Appendix VIII: Proof of Theorem V.3 33 
+
+Appendix IX: Difference between Hard Clamp Score and True Conditional Score 35 
+
+Appendix X: Detailed Settings of Experiments 37 X-A Conditional SEDD under Fixed Observations . . . . . . . . . . . . . . . . 37 X-B RHC under Set Constraints . . . . . . . . . . . . . . . . . . . . . . . . . . 37 
+
+Appendix XI: Discussion of RHC with Uniform Rate 38 
+
+Appendix XII: Proof of Theorem V.1 39 
+
+Appendix XIII: Proof of Theorem XI.1 40 
+
+Appendix XIV: Proof of Supporting Lemmas 41 XIV-A Proof of Theorem VII.1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41 XIV-B Proof of Theorem VIII.1 . . . . . . . . . . . . . . . . . . . . . . . . . . . 42 APPENDIX IRELATED WORKS 
+
+Conditional Continuous Diffusion Model 
+
+There exists sufficient research that focuses on the conditional generation related to the continuous diffusion model. These studies are primarily divided into two fields. One field focuses mainly on the guidance mechanism. For example, [35] proposed classifier guidance, which utilized an external classifier to modify the score function to inject conditional information into the diffusion model. [36] introduced classifier-free guidance, which combined an unconditional diffusion and a conditional diffusion to achieve conditional generation and eliminate the classifier. [37] introduced the CLIP model to measure the similarity between images and text, which can therefore be used as external guidance in diffusion models. [38] further studied the guidance mechanism in text-to-image generation and compared CLIP guidance and classifier-free guidance. [39] modified the score function for the image editing area through the CLIP guidance and used the unconditional diffusion for the non-editing area. 23 
+
+Another field is based on the unconditional diffusion without extra training. SDEdit [40] realized the image synthesis and editing by noising and denoising the user input. This method was trained on unlabeled data without retraining on the new input or tasks. RePaint [41] fixed the noised pixels to constrain the sampling process and achieve conditional generation. [42] theoretically analyzed the RePaint [41] and proposed RePaint+ to correct the bias induced by RePaint [41]. [43] proposed the ILVR method to implement image generation given reference images. This method refined the latent variables in the unconditional process to approximate the conditional process. DDRM in [44] solved the linear inverse problem by the posterior sampling based on a pretrained diffusion model, and further DPS in [45] extended the posterior sampling method to the general inverse problem. DDNM and DDNM+ [46] are also well-known zero-shot frameworks that only rely on the pretrained diffusion model. For the theoretical works, [7] provided the theoretical guarantee of the zero-shot conditional diffusion model by introducing the score mismatch concept under the continuous state cases. In addition, [47]–[49] designed the specialized conditional frameworks in the diffusion model to implement the conditional generation rather than to solely control the inference process. APPENDIX II PROOF OF THEOREM III.3 First, we decompose the KL divergence according to [17, Theorem 1], as 
+
+KL( ←−
+
+˜q tN ∥ptN )
+
+≤ KL( ←−
+
+˜q 0∥p0)+ 
+
+> N−1
+
+X
+
+> k=0
+
+Z tk+1 
+
+> tk
+
+Ext∼←− 
+
+> ˜qt
+
+X 
+
+> y̸=xt
+
+ ˆQt(xt, y ) − ←−
+
+˜Q t(xt, y ) + ←−
+
+˜Q t(xt, y ) log 
+
+←−
+
+˜Q t(xt, y )ˆQt(xt, y )
+
+ dt. 
+
+We define ˜gt(xt) := P 
+
+> y̸=xt
+
+ˆQt(xt, y )−←−
+
+˜Q t(xt, y )+ ←−
+
+˜Q t(xt, y ) log   
+
+> ←−
+> ˜Qt(xt,y )ˆQt(xt,y )
+
+and we have ˆQt(xtk , y ) = ˆQtk (xtk , y ) for τ -leaping. Then, the KL divergence can be rewritten as KL (←−
+
+˜q T ∥pT )
+
+≤ KL (←−
+
+˜q 0∥p0)
+
+| {z }
+
+> Initialization error
+
++ 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)Extk ∼←− 
+
+> ˜qtk
+
+[˜ gtk (xtk )] 
+
+| {z }
+
+> Estimation error
+
++ 
+
+> N−1
+
+X
+
+> k=0
+
+Z tk+1 
+
+> tk
+
+
+
+Ext∼←−   
+
+> ˜qt,x tk∼←−
+> ˜qtk
+
+[˜ gt(xt) − ˜gt(xtk )] + Extk ∼←− 
+
+> ˜qtk
+
+[˜ gt(xtk ) − ˜gtk (xtk )] 
+
+
+
+dt
+
+| {z }
+
+> Discretization error
+
+. (11) Since ˜qt evolves under the same absorbing rate generator, the initialization error and the dis-cretization error can be controlled by the existing convergence analyses for τ -leaping (cf. [16, Theorem 2]). These two errors, together with the score estimation error εscore controlled by Theorem III.1, constitute the oracle error Eoracle as follows: 
+
+Eoracle := Einit + Edisc + εscore ,24 
+
+where Einit and Edisc refer to the upper bounds of the initialization and discretization errors, respectively. Substituting these contributions into (11) gives KL (˜ qδ∥pT −δ) ≲Einit + Edisc + 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)Extk ∼←− 
+
+> ˜qtk
+
+[˜ gtk (xtk )] =Eoracle + 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)Extk ∼←− 
+
+> ˜qtk
+
+[˜ gtk (xtk )] − εscore . (12) This representation isolates the oracle sampling error. Subtracting εscore is because the score estimation error is already included in Eoracle . It remains to quantify the contribution of the score mismatch by bounding the difference between the second term and the score estimation error controlled by Theorem III.1. We now focus on PN −1 
+
+> k=0
+
+(tk+1 −tk)Extk ∼←− 
+
+> ˜qtk
+
+[˜ gtk (xtk )] . Here we note a useful relationship given Definition 1: ←−
+
+˜Q tk (xtk , y ) = ←−
+
+Q tk (xtk , y )(1 + ∆ tk (y, x tk )) .
+
+The substitution of the target distribution will result in the perturbation of the score function, consequently manifested as a multiplicative correction to the original rate matrix by the score mismatch. For notational simplicity, we write ∆t(y, x ) as ∆t. Thus, 
+
+˜gtk (xtk ) = X 
+
+> y̸=xtk
+
+ ˆQtk (xtk , y ) − ←−
+
+˜Q tk (xtk , y ) + ←−
+
+˜Q tk (xtk , y ) log 
+
+←−
+
+˜Q tk (xtk , y )ˆQtk (xtk , y )
+
+
+
+= X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y )(1 + ∆ tk )+ ←−
+
+Q tk (xtk , y )(1 + ∆ tk ) log 
+
+←−
+
+Q tk (xtk , y )(1 + ∆ tk )ˆQtk (xtk , y )
+
+#
+
+= X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) − ←−
+
+Q tk (xtk , y )∆ tk
+
++ ←−
+
+Q tk (xtk , y )(1 + ∆ tk ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y ) + log(1 + ∆ tk )
+
+! # 
+
+= X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )+ ←−
+
+Q tk (xtk , y )((1 + ∆ tk ) log(1 + ∆ tk ) − ∆tk )+ ←−
+
+Q tk (xtk , y )∆ tk log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )
+
+#
+
+> (i)
+
+≤ X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )25 
+
++ ←−
+
+Q tk (xtk , y )∆ 2
+
+> tk
+
++ ←−
+
+Q tk (xtk , y )∆ tk log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )
+
+#
+
+= X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )+ Q(y, x tk )(˜ sT −tk (y, x tk ) − sT −tk (y, x tk ))∆ tk
+
++ Q(y, x tk )∆ tk sT −tk (y, x tk ) log sT −tk (y, x tk )ˆsT −tk (y, x tk )
+
+#
+
+> (ii )
+
+≤ X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )+ Q(y, x tk )|∆tk |(T − tk)−1
+
++ Q(y, x tk )|∆tk |sT −tk (y, x tk ) log sT −tk (y, x tk )ˆsT −tk (y, x tk )
+
+#
+
+> (iii )
+
+≲ X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )+ Q(y, x tk )|∆tk |(T − tk)−1(1 + T + log M δ −1)
+
+#
+
+,
+
+where (i) holds since ∀x > −1, we have log(1 + x) ≤ x and hence (1 + x) log(1 + x) − x ≤ x2.
+
+(ii ) is because of the following. Since from [16, Lemma 1], we have a general bound for all score functions under the absorbing rate when Q(y, x ) > 0 and qt(y) > 0, which is 0 ≤
+
+sT −tk (y, x tk ), ˜sT −tk (y, x tk ) ≤ (T − tk)−1, then |˜sT −tk (y, x tk ) − sT −tk (y, x tk )| ≤ (T − tk)−1. (iii )
+
+holds since 
+
+sT −tk (y, x tk ) log sT −tk (y, x tk )ˆsT −tk (y, x tk )
+
+=( T − tk)−1sT −tk (y, x tk )( T − tk) |log( sT −tk (y, x tk )( T − tk)) − log( T − tk) − log ˆ sT −tk (y, x tk )|
+
+≲(T − tk)−1(1 + T + log M δ −1),
+
+where sT −tk (y, x tk )( T − tk) |log( sT −tk (y, x tk )( T − tk)) | ≲ 1 for 0 ≤ sT −tk (y, x tk )( T − tk) ≤ 1.Hence, taking the expectation yields 
+
+Extk ∼←− 
+
+> ˜qtk
+
+[˜ gtk (xtk )] 
+
+≲Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )
+
+!
+
++ ( T − tk)−1(1 + T + log M δ −1)Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+Q(y, x tk )|∆tk |
+
+ . (13) 26 
+
+The first term is controlled directly by Theorem III.1:  
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)·
+
+Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )
+
+! ≤ εscore .
+
+(14) Finally, combining the preceding difference PN −1 
+
+> k=0
+
+(tk+1 − tk)Extk ∼←− 
+
+> ˜qtk
+
+[˜ gtk (xtk )] − εscore with (13) and (14), we obtain  
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)Extk ∼←− 
+
+> ˜qtk
+
+[˜ gtk (xtk )] − εscore 
+
+≲(1 + T + log M δ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)( T − tk)−1Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+Q(y, x tk )|∆tk |
+
+ . (15) Substituting (15) into (12) yields KL (˜ qδ∥pT −δ) ≲ Eoracle + (1 + T + log M δ −1)
+
+· 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)( T − tk)−1Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+Q(y, x tk )|∆tk |
+
+ ,
+
+This completes the proof. APPENDIX III PROOF OF THEOREM III.4 Starting from Definition 1, for all xt̸ = y, we have 
+
+∆t(y, x t) = ˜sT −t(y, x t)
+
+sT −t(y, x t) − 1=
+
+ ˜qT −t(y)˜qT −t(xt)
+
+   qT −t(y)
+
+qT −t(xt)
+
+
+
+− 1=
+
+ ˜qT −t(y)
+
+qT −t(y)
+
+   ˜qT −t(xt)
+
+qT −t(xt)
+
+
+
+− 1. (16) Suppose that there exist two universal constants C1 and C2 satisfying 0 < C 1 ≤ C2 < ∞, such that C1 ≤ ˜q0(x0) 
+
+> q0(x0)
+
+≤ C2 for all x0, then we can have 
+
+˜qt(x) = X
+
+> x0
+
+˜qt|0(x|x0)˜ q0(x0) = X
+
+> x0
+
+˜qt|0(x|x0)q0(x0) ˜q0(x0)
+
+q0(x0).
+
+Hence, 
+
+C1
+
+X
+
+> x0
+
+˜qt|0(x|x0)q0(x0) ≤ ˜qt(x) ≤ C2
+
+X
+
+> x0
+
+˜qt|0(x|x0)q0(x0).27 
+
+Since q0 and ˜q0 share the same forward kernel, then 
+
+C1qt(x) ≤ ˜qt(x) ≤ C2qt(x).
+
+Based on this, we can obtain 
+
+C1 ≤ ˜qt(x)
+
+qt(x) ≤ C2. (17) Plugging (17) back to (16), we have 
+
+|∆t| ≤ C2
+
+C1
+
+− 1,
+
+which implies that |∆t| ≲ 1. Thus, we further have 
+
+(1 + T + log M δ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)( T − tk)−1Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+Q(y, x tk )|∆tk |
+
+
+
+> (i)
+
+≲d(S − 1)(1 + T + log M δ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)( T − tk)−1(ii )
+
+≲ dS (1 + T + log M δ −1)( T + log δ−1),
+
+where (i) holds because we have P  
+
+> y̸=x
+
+Q(y, x ) = m(x)( S − 1) ≤ d(S − 1) with the absorbing rate and m(x) is the number of tokens at MASK state in x. (ii ) holds since PN −1 
+
+> k=0
+
+(tk+1 −
+
+tk)( T − tk)−1 ≤ T + log δ−1 with early stopping. Now, the proof is complete. APPENDIX IV PROOF OF THEOREM III.5 With most of the proof similar to Theorem III.3, we use the corresponding score-matched convergence result for uniform-rate τ -leaping to control Euni oracle , thus it remains to replace the applicable bounds of the score function and rate matrix in the bias term (12) by the corresponding counterparts. Starting from ˜gtk (xtk ), we can bound it as follows: 
+
+˜gtk (xtk ) ≤ X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )+ Q(y, x tk )(˜ sT −tk (y, x tk ) − sT −tk (y, x tk ))∆ tk
+
++ Q(y, x tk )∆ tk sT −tk (y, x tk ) log sT −tk (y, x tk )ˆsT −tk (y, x tk )
+
+#
+
+> (i)
+
+≲ X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )+ Q(y, x tk )|∆tk |S max {1, (T − tk)−1}
+
+
+
+1 + log sT −tk (y, x tk )ˆsT −tk (y, x tk )
+
+ #28 
+
+> (ii )
+
+≲ X 
+
+> y̸=xtk
+
+"
+
+ˆQtk (xtk , y ) − ←−
+
+Q tk (xtk , y ) + ←−
+
+Q tk (xtk , y ) log 
+
+←−
+
+Q tk (xtk , y )ˆQtk (xtk , y )+ Q(y, x tk )|∆tk |S max {1, (T − tk)−1}(1 + log M Sδ −1)
+
+#
+
+,
+
+where (i) follows from 1    
+
+> Smax {1,(T−tk)−1}
+
+≲ sT −tk (y, x tk ), ˜sT −tk (y, x tk ) ≲ S max {1, (T − tk)−1}
+
+given in [17, Lemma 2]. (ii ) holds since log sT −tk (y,x tk )ˆsT −tk (y,x tk ) ≲ log S + log δ−1 + log M with 
+
+M −1 ≤ ˆsT −tk (y, x tk ) ≤ M from Theorem III.2. Hence, with Theorem III.1, taking the expectation and summing over the time steps, we can derive the bias term as follows:  
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk)Extk ∼←− 
+
+> ˜qtk
+
+[˜ gtk (xtk )] − εscore 
+
+≲S(1 + log M Sδ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk) max {1, (T − tk)−1}Extk ∼←− 
+
+> ˜qtk
+
+ X 
+
+> y̸=xtk
+
+Q(y, x tk )|∆tk |
+
+ .
+
+Now, the proof is complete. APPENDIX VPROOF OF THEOREM III.7 The uniformization sampler has been proved to achieve no discretization error [18]. According to [17, Corollary 1] and [16, Theorem 3], the KL divergence can be decomposed into 
+
+KL( ←−
+
+˜q T −δ∥pT −δ) ≤ KL( ←−
+
+˜q 0∥p0)+ Ex0: T −δ ∼←−  
+
+> ˜q0: T−δ
+
+"Z T −δ
+
+> 0
+
+X 
+
+> y̸=xt
+
+ ˆQt(xt, y ) − ←−
+
+˜Q t(xt, y ) + ←−
+
+˜Q t(xt, y ) log 
+
+←−
+
+˜Q t(xt, y )ˆQt(xt, y )
+
+ dt
+
+ .
+
+Also, we define ˜gt(xt) = P 
+
+> y̸=xt
+
+ˆQt(xt, y ) − ←−
+
+˜Q t(xt, y ) + ←−
+
+˜Q t(xt, y ) log   
+
+> ←−
+> ˜Qt(xt,y )ˆQt(xt,y )
+
+and similarly have 
+
+˜gt(xt) ≲ X 
+
+> y̸=xt
+
+"
+
+ˆQt(xt, y ) − ←−
+
+Q t(xt, y ) + ←−
+
+Q t(xt, y ) log 
+
+←−
+
+Q t(xt, y )ˆQt(xt, y )+ Q(y, x t)|∆t|(T − t)−1(1 + T + log M δ −1)
+
+#
+
+.
+
+Given Theorem III.6, the estimation error can be upper-bounded by 
+
+Ex0: T −δ ∼←−  
+
+> ˜q0: T−δ
+
+"Z T −δ
+
+> 0
+
+X 
+
+> y̸=xt
+
+ˆQt(xt, y ) − ←−
+
+Q t(xt, y ) + ←−
+
+Q t(xt, y ) log 
+
+←−
+
+Q t(xt, y )ˆQt(xt, y )
+
+!
+
+dt
+
+#
+
+≲ ε′
+
+> score
+
+.
+
+(18) 29 
+
+Next, we consider the bias term. According to Fubini’s theorem, we can exchange the integral and expectation, then under the absorbing rate, 
+
+Z T −δ
+
+> 0
+
+Ext∼←− 
+
+> ˜qt
+
+"X 
+
+> y̸=xt
+
+ Q(y, x t)|∆t|(T − t)−1(1 + T + log M δ −1)#
+
+dt
+
+=(1 + T + log M δ −1)
+
+Z T −δ
+
+> 0
+
+(T − t)−1Ext∼←− 
+
+> ˜qt
+
+"X 
+
+> y̸=xt
+
+Q(y, x t)|∆t|
+
+#
+
+dt. 
+
+Now, combining the initialization error and the estimation error in (18) as E′
+
+> oracle
+
+, we complete the proof of Theorem III.7. APPENDIX VI PROOF OF THEOREM IV.1 We first begin with the true conditional score. Given x¯Ω0 = y, we have 
+
+qt(xΩ 
+
+> t
+
+|x¯Ω0 = y) = X
+
+> xΩ0
+
+qt(xΩ 
+
+> t
+
+, x Ω0 |x¯Ω0 = y)= X
+
+> xΩ0
+
+qt|0(xΩ 
+
+> t
+
+|xΩ0 , x ¯Ω0 = y)q0(xΩ0 |x¯Ω0 = y)= X
+
+> xΩ0
+
+qt|0(xΩ 
+
+> t
+
+|xΩ0 )q0(xΩ0 |x¯Ω0 = y)= X
+
+> xΩ0
+
+Y
+
+> i∈Ω
+
+qt|0(xit|xi
+
+> 0
+
+)q0(xΩ0 |x¯Ω0 = y). (19) Recall that Ω refers to the set of unobserved indices that need to be filled and ¯Ω refers to the observed indices. Given ˆxt̸ = xt only at index k, we only need to discuss the case where k ∈ Ω.If k ∈ Ω, with (19), the true conditional score can be expressed as 
+
+sT −t|y(ˆ x, x ) = 
+
+P
+
+> xΩ0
+
+qT −t|0(ˆ xk|xk 
+
+> 0
+
+) Q 
+
+> i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+> 0
+
+)q0(xΩ0 |x¯Ω0 = y)
+
+P
+
+> xΩ0
+
+qT −t|0(xk|xk 
+
+> 0
+
+) Q 
+
+> i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+> 0
+
+)q0(xΩ0 |x¯Ω0 = y). (20) Recall that in (6), since we have qT −t(xΩ|x¯Ω = y) = qT −t(xΩ,x ¯Ω=y)  
+
+> qT−t(x¯Ω=y)
+
+, the hard clamp score can be rewritten as qT −t(ˆ xΩ,x ¯Ω=y)  
+
+> qT−t(xΩ,x ¯Ω=y)
+
+by Bayes’ rule. Also, from Definition 2, the score mismatch is 
+
+1 + ∆ t|y = qT −t(ˆ xΩ|x¯Ω0 = y)
+
+qT −t(xΩ|x¯Ω0 = y)
+
+qT −t(ˆ xΩ, x ¯Ω = y)
+
+qT −t(xΩ, x ¯Ω = y).
+
+Here, for simplicity of notation, we write ∆t|y(ˆ x, x ) as ∆t|y in the following. To bound the above score mismatch, we first rewrite the joint distribution, 
+
+qT −t(xΩ, x ¯Ω = y)= X
+
+> x0
+
+qT −t|0(xΩ, x ¯Ω = y|x0)q0(x0)= X
+
+> x0
+
+Y
+
+> i∈Ω
+
+qT −t|0(xi|xi
+
+> 0
+
+) Y 
+
+> j∈¯Ω
+
+qT −t|0(yj |xj
+
+> 0
+
+)q0(x0)30 
+
+= X
+
+> xΩ0
+
+X
+
+> x¯Ω0
+
+Y
+
+> i∈Ω
+
+qT −t|0(xi|xi
+
+> 0
+
+) Y 
+
+> j∈¯Ω
+
+qT −t|0(yj |xj
+
+> 0
+
+)q0(xΩ0 , x ¯Ω0 )
+
+> (i)
+
+= X
+
+> xΩ0
+
+Y
+
+> i∈Ω
+
+qT −t|0(xi|xi
+
+> 0
+
+) Y 
+
+> j∈¯Ω
+
+qT −t|0(yj |yj )q0(xΩ0 , x ¯Ω0 = y)= X
+
+> xΩ0
+
+Y
+
+> i∈Ω
+
+qT −t|0(xi|xi
+
+> 0
+
+) Y 
+
+> j∈¯Ω
+
+qT −t|0(yj |yj )q0(xΩ0 |x¯Ω0 = y)q0(x¯Ω0 = y)= Y 
+
+> j∈¯Ω
+
+qT −t|0(yj |yj )q0(x¯Ω0 = y) X
+
+> xΩ0
+
+Y
+
+> i∈Ω
+
+qT −t|0(xi|xi
+
+> 0
+
+)q0(xΩ0 |x¯Ω0 = y).
+
+Here, we explain (i) as follows: in a forward CTMC with absorbing rate, the state transitions are accepted only from non-MASK to MASK. Since there is no mask in the data and the state 
+
+x¯Ω  
+
+> T−t
+
+= y contains no mask tokens, the state x¯Ω0 must also be y.Then, the hard clamp score in (6) will be 
+
+shard-clamp   
+
+> T−t|y
+
+(ˆ x, x ) = qT −t(ˆ xΩ|x¯Ω = y)
+
+qT −t(xΩ|x¯Ω = y)=qT −t(ˆ xΩ, x ¯Ω = y)
+
+qT −t(xΩ, x ¯Ω = y)=
+
+Q  
+
+> j∈¯Ω
+
+qT −t|0(yj |yj )q0(x¯Ω0 = y) P
+
+> xΩ0
+
+Q 
+
+> i∈Ω
+
+qT −t|0(ˆ xi|xi
+
+> 0
+
+)q0(xΩ0 |x¯Ω0 = y)
+
+Q  
+
+> j∈¯Ω
+
+qT −t|0(yj |yj )q0(x¯Ω0 = y) P
+
+> xΩ0
+
+Q 
+
+> i∈Ω
+
+qT −t|0(xi|xi
+
+> 0
+
+)q0(xΩ0 |x¯Ω0 = y)=
+
+P
+
+> xΩ0
+
+qT −t|0(ˆ xk|xk 
+
+> 0
+
+) Q 
+
+> i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+> 0
+
+)q0(xΩ0 |x¯Ω0 = y)
+
+P
+
+> xΩ0
+
+qT −t|0(xk|xk 
+
+> 0
+
+) Q 
+
+> i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+> 0
+
+)q0(xΩ0 |x¯Ω0 = y) (21) 
+
+> (i)
+
+=sT −t|y(ˆ x, x ).
+
+(i) holds since we have already derived the true score in (20). The hard clamp score is identical to the true conditional score, and thus we conclude that for k ∈ Ω,
+
+∆t|y = 0 . (22) Applying Theorem III.3 yields the following claimed bound: 
+
+KL( qΩ
+
+> δ|y
+
+∥pΩ 
+
+> T−δ|y
+
+) ≲ Eoracle .
+
+APPENDIX VII PROOF OF THEOREM IV.3 In this section, we present the proof of Theorem IV.3. If k ∈ Ω, the hard clamp score with the uniform rate is 
+
+shard-clamp   
+
+> T−t|y
+
+(ˆ x, x )=qT −t(ˆ xΩ|x¯Ω = y)
+
+qT −t(xΩ|x¯Ω = y)=
+
+P
+
+> xΩ0
+
+P
+
+> x¯Ω0
+
+qT −t|0(ˆ xk|xk 
+
+> 0
+
+) Q 
+
+> i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+> 0
+
+) Q  
+
+> j∈¯Ω
+
+qT −t|0(yj |xj
+
+> 0
+
+)q0(xΩ0 , x ¯Ω0 )
+
+P
+
+> xΩ0
+
+P
+
+> x¯Ω0
+
+qT −t|0(xk|xk 
+
+> 0
+
+) Q 
+
+> i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+> 0
+
+) Q  
+
+> j∈¯Ω
+
+qT −t|0(yj |xj
+
+> 0
+
+)q0(xΩ0 , x ¯Ω0 )31 
+
+=
+
+P
+
+xΩ0
+
+qT −t|0(ˆ xk|xk
+
+0 ) Q
+
+i∈Ω\{ k} qT −t|0(xi|xi
+
+0) P
+
+x¯Ω0
+
+Q
+
+j∈ ¯Ω qT −t|0(yj |xj
+
+0)q0(xΩ0 , x ¯Ω0 )
+
+P
+
+xΩ0
+
+qT −t|0(xk|xk
+
+0 ) Q
+
+i∈Ω\{ k} qT −t|0(xi|xi
+
+0) P
+
+x¯Ω0
+
+Q
+
+j∈ ¯Ω qT −t|0(yj |xj
+
+0)q0(xΩ0 , x ¯Ω0 )
+
+(i)
+
+= ( 1
+
+S − 1
+
+S e−(T −t)) P
+
+xΩ0 :xk
+
+> 0
+
+̸ =ˆ xk π(xΩ0 ) + ( 1
+
+S + S−1
+
+S e−(T −t)) P
+
+xΩ0 :xk 
+
+> 0
+
+=ˆ xk π(xΩ0 )( 1
+
+S + S−1
+
+S e−(T −t)) P
+
+xΩ0 :xk 
+
+> 0
+
+=xk π(xΩ0 ) + ( 1
+
+S − 1
+
+S e−(T −t)) P
+
+xΩ0 :xk
+
+> 0
+
+̸ =xk π(xΩ0 )=( 1
+
+S − 1
+
+S e−(T −t)) P
+
+xΩ0
+
+π(xΩ0 ) + e−(T −t) P
+
+xΩ0 :xk 
+
+> 0
+
+=ˆ xk π(xΩ0 )( 1
+
+S − 1
+
+S e−(T −t)) P
+
+xΩ0
+
+π(xΩ0 ) + e−(T −t) P
+
+xΩ0 :xk 
+
+> 0
+
+=xk π(xΩ0 )=( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)
+
+P 
+
+> xΩ0 :xk
+> 0 =ˆ xk
+
+π(xΩ0 )
+
+P
+
+> xΩ0
+
+π(xΩ0 )
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)
+
+P 
+
+> xΩ0 :xk
+> 0 =xk
+
+π(xΩ0 )
+
+P
+
+> xΩ0
+
+π(xΩ0 )
+
+,
+
+where π(xΩ0 ) := Q
+
+i∈Ω\{ k} qT −t|0(xi|xi
+
+0) P
+
+x¯Ω0
+
+Q
+
+j∈ ¯Ω qT −t|0(yj |xj
+
+0)q0(xΩ0 , x ¯Ω0 ), and (i) holds because the transition kernel is given by qt|0(xi|xi
+
+0) = (1 − e−t)/S when xi̸ = xi
+
+0; (1 + ( S − 1) e−t)/S ,otherwise. With (20), the true conditional score is 
+
+sT −t|y(ˆ x, x )=
+
+P
+
+xΩ0
+
+qT −t|0(ˆ xk|xk
+
+0 ) Q
+
+i∈Ω\{ k} qT −t|0(xi|xi
+
+0)q0(xΩ0 |x¯Ω0 = y)
+
+P
+
+xΩ0
+
+qT −t|0(xk|xk
+
+0 ) Q
+
+i∈Ω\{ k} qT −t|0(xi|xi
+
+0)q0(xΩ0 |x¯Ω0 = y)=
+
+P
+
+xΩ0 :xk
+
+> 0
+
+̸ =ˆ xk ( 1
+
+S − 1
+
+S e−(T −t))πtrue (xΩ0 ) + P
+
+xΩ0 :xk 
+
+> 0
+
+=ˆ xk ( 1
+
+S + S−1
+
+S e−(T −t))πtrue (xΩ0 )
+
+P
+
+xΩ0 :xk 
+
+> 0
+
+=xk ( 1
+
+S + S−1
+
+S e−(T −t))πtrue (xΩ0 ) + P
+
+xΩ0 :xk
+
+> 0
+
+̸ =xk ( 1
+
+S − 1
+
+S e−(T −t))πtrue (xΩ0 )=( 1
+
+S − 1
+
+S e−(T −t)) P
+
+xΩ0 :xk
+
+> 0
+
+̸ =ˆ xk πtrue (xΩ0 ) + ( 1
+
+S + S−1
+
+S e−(T −t)) P
+
+xΩ0 :xk 
+
+> 0
+
+=ˆ xk πtrue (xΩ0 )( 1
+
+S + S−1
+
+S e−(T −t)) P
+
+xΩ0 :xk 
+
+> 0
+
+=xk πtrue (xΩ0 ) + ( 1
+
+S − 1
+
+S e−(T −t)) P
+
+xΩ0 :xk
+
+> 0
+
+̸ =xk πtrue (xΩ0 )=( 1
+
+S − 1
+
+S e−(T −t)) P
+
+xΩ0
+
+πtrue (xΩ0 ) + e−(T −t) P
+
+xΩ0 :xk 
+
+> 0
+
+=ˆ xk πtrue (xΩ0 )( 1
+
+S − 1
+
+S e−(T −t)) P
+
+xΩ0
+
+πtrue (xΩ0 ) + e−(T −t) P
+
+xΩ0 :xk 
+
+> 0
+
+=xk πtrue (xΩ0 )=( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)
+
+P 
+
+> xΩ0 :xk
+> 0 =ˆ xk
+
+πtrue (xΩ0 )
+
+P
+
+> xΩ0
+
+πtrue (xΩ0 )
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)
+
+P 
+
+> xΩ0 :xk
+> 0 =xk
+
+πtrue (xΩ0 )
+
+P
+
+> xΩ0
+
+πtrue (xΩ0 )
+
+where we define πtrue (xΩ0 ) := Q
+
+i∈Ω\{ k} qT −t|0(xi|xi
+
+0)q0(xΩ0 , x ¯Ω0 = y).The above two expressions show that the hard clamp score and the true conditional score can be reformulated in the same form using π(xΩ0 ) and πtrue (xΩ0 ), respectively. To upper bound the score mismatch, we first establish a comparison between π(xΩ0 ) and πtrue (xΩ0 ) in the following lemma. 
+
+Lemma VII.1. With Theorem IV.2, we have 
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω|
+
+πtrue (xΩ0 ) ≤ π(xΩ0 ) ≤
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω| 1
+
+γ πtrue (xΩ0 ).
+
+Proof. See Appendix XIV-A. 32 
+
+Thus, with Theorem VII.1, for xΩ0 with xk
+
+0 = xk, we can derive 
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω| X
+
+xΩ0 :xk 
+
+> 0
+
+=xk
+
+πtrue (xΩ0 ) ≤ X
+
+xΩ0 :xk 
+
+> 0
+
+=xk
+
+π(xΩ0 )
+
+≤
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω| 1
+
+γ
+
+X
+
+xΩ0 :xk 
+
+> 0
+
+=xk
+
+πtrue (xΩ0 ).
+
+(23) Similarly, for all xΩ0 , we can derive 
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω| X
+
+xΩ0
+
+πtrue (xΩ0 ) ≤ X
+
+xΩ0
+
+π(xΩ0 )
+
+≤
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω| 1
+
+γ
+
+X
+
+xΩ0
+
+πtrue (xΩ0 ). (24) Taking the ratio of (23) and (24), we have 
+
+γ
+
+P
+
+xΩ0 :xk 
+
+> 0
+
+=xk πtrue (xΩ0 )
+
+P
+
+xΩ0
+
+πtrue (xΩ0 ) ≤
+
+P
+
+xΩ0 :xk 
+
+> 0
+
+=xk π(xΩ0 )
+
+P
+
+xΩ0
+
+π(xΩ0 ) ≤ 1
+
+γ
+
+P
+
+xΩ0 :xk 
+
+> 0
+
+=xk πtrue (xΩ0 )
+
+P
+
+xΩ0
+
+πtrue (xΩ0 ) . (25) Define 
+
+ˆftrue := 
+
+P
+
+xΩ0 :xk 
+
+> 0
+
+=ˆ xk πtrue (xΩ0 )
+
+P
+
+xΩ0
+
+πtrue (xΩ0 ) , ftrue := 
+
+P
+
+xΩ0 :xk 
+
+> 0
+
+=xk πtrue (xΩ0 )
+
+P
+
+xΩ0
+
+πtrue (xΩ0 ) ,
+
+and 
+
+ˆf := 
+
+P
+
+xΩ0 :xk 
+
+> 0
+
+=ˆ xk π(xΩ0 )
+
+P
+
+xΩ0
+
+π(xΩ0 ) , f := 
+
+P
+
+xΩ0 :xk 
+
+> 0
+
+=xk π(xΩ0 )
+
+P
+
+xΩ0
+
+π(xΩ0 ) .
+
+Then, with Definition 2 and (25), we have 
+
+1 + ∆ t|y = sT −t|y(ˆ x, x )
+
+shard-clamp 
+
+T −t|y (ˆ x, x )= ( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t) ˆftrue 
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)ftrue 
+
+· ( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)f
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t) ˆf
+
+≤ ( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t) ˆftrue 
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)ftrue 
+
+· ( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t) 1 
+
+γ ftrue 
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)γ ˆftrue 
+
+= ( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t) ˆftrue 
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)γ ˆftrue 
+
+· ( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t) 1 
+
+γ ftrue 
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)ftrue 
+
+(i)
+
+≤ ( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)γ · ( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t) 1 
+
+γ
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)
+
+= ( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t) 1 
+
+γ
+
+( 1
+
+S − 1
+
+S e−(T −t)) + e−(T −t)γ33 
+
+= 1 + SeT −t−11
+
+> γ
+
+1 + SeT −t−1 γ ,
+
+where (i) holds since 0 ≤ ˆftrue , f true ≤ 1 and G(u) = ( 1            
+
+> S−1
+> Se−(T−t))+ e−(T−t)u
+> (1
+> S−1
+> Se−(T−t))+ e−(T−t)γu
+
+, H(v) =              
+
+> (1
+> S−1
+> Se−(T−t))+ e−(T−t) 1
+> γv
+> (1
+> S−1
+> Se−(T−t))+ e−(T−t)v
+
+are monotonically increasing on [0 , 1] .Applying Theorem III.5, we obtain 
+
+S(1 + log M Sδ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk) max {1, (T − tk)−1}Extk ∼←−q Ω 
+
+> tk|y
+
+ X 
+
+> y̸=xtk
+
+Q(y, x tk )|∆tk |y|
+
+
+
+> (i)
+
+≲dS (1 + log M Sδ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk) max {1, (T − tk)−1}|Ω|
+
+d
+
+1 + SeT −tk −11
+
+> γ
+
+1 + SeT −tk −1 γ − 1
+
+!
+
+=|Ω|S(1 + log M Sδ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk) max {1, (T − tk)−1}   
+
+> SeT−tk−1
+
+( 1 
+
+> γ
+
+− γ)1 + SeT −tk −1 γ
+
+≤| Ω|S(1 + log M Sδ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk) max {1, (T − tk)−1}  
+
+> ST−tk
+
+( 1 
+
+> γ
+
+− γ)1 + ST −tk γ
+
+=|Ω|S(1 + log M Sδ −1) 
+
+> N−1
+
+X
+
+> k=0
+
+(tk+1 − tk) max {1, (T − tk)−1} S( 1 
+
+> γ
+
+− γ)
+
+T − tk + Sγ 
+
+=|Ω|S(1 + log M Sδ −1)S
+
+ 1
+
+γ − γ
+
+ N −1X
+
+> k=0
+
+(tk+1 − tk) max {1, (T − tk)−1} 1
+
+T − tk + Sγ 
+
+≲|Ω|S2(1 + log M Sδ −1)
+
+ 1
+
+γ − γ
+
+  
+
+log T + Sγ 
+
+1 + Sγ + 1
+
+Sγ log δ + Sγ δ(1 + Sγ )
+
+
+
+, (26) where (i) holds, since the symmetry yields the corresponding upper bound of |∆tk |y| and this part of the score mismatch only occurs when k ∈ Ω.Hence, combining (26) and Theorem III.5, the proof is now complete. APPENDIX VIII PROOF OF THEOREM V.3 To perform the convergence analysis, we first provide the following lemma to decompose the total error into the error of distribution of assignment a and the error of the hard clamping reverse process. 
+
+Lemma VIII.1. Let v(a) := q0(x¯Ω0 = a|C), a ∈ A be the target assignment distribution and w
+
+be any probability distribution on A. With the definition of pRHC   
+
+> T−t
+
+(xΩ|C) in (10) , we have 
+
+KL( qΩ 
+
+> δ|C
+
+∥pΩ,RHC   
+
+> T−δ|C
+
+) ≤ KL( v∥w) + Ea∼v
+
+h
+
+KL( qΩ
+
+> δ|a
+
+∥pΩ,HC  
+
+> T−δ|a
+
+)
+
+i
+
+,
+
+where pΩ,RHC   
+
+> T−δ|C
+
+:= pRHC   
+
+> T−δ
+
+(xΩ|C) refers to the distribution of RHC with set constraints and pΩ,HC   
+
+> T−δ|a
+
+:= 
+
+pHC  
+
+> T−δ
+
+(xΩ|x¯Ω0 = a) refers to the distribution that hard clamps the fixed observation to a.Proof. See Appendix XIV-B. 34 
+
+Theorem VIII.1 separates the total KL divergence under the set constraints setting into two parts. The second term is controlled by the fixed-observation convergence results provided in Section IV-A, while the first term KL( v∥w) quantifies the deviation between the alternative assignment distribution w(a) and the target assignment distribution v(a). Note that the mixture decomposition does not require an absorbing rate. To bound KL( v∥w), we start with KL( v∥w) + KL( w∥v),
+
+KL( v∥w) + KL( w∥v)= X
+
+> a
+
+v(a) log v(a)
+
+w(a) + X
+
+> a
+
+w(a) log w(a)
+
+v(a)= X
+
+> a
+
+(w(a) − v(a)) log w(a)
+
+v(a)= X
+
+> a
+
+(w(a) − v(a)) log 
+
+Q| ¯Ω| 
+
+> j=1
+
+ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+Q| ¯Ω| 
+
+> j=1
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)+ X
+
+> a
+
+(w(a) − v(a)) log 
+
+P
+
+> b∈A
+
+Q| ¯Ω| 
+
+> j=1
+
+sT −t(z(j) 
+
+> b
+
+, z (j−1)  
+
+> b
+
+)
+
+P
+
+> b∈A
+
+Q| ¯Ω| 
+
+> j=1
+
+ˆsT −t(z(j) 
+
+> b
+
+, z (j−1)  
+
+> b
+
+)
+
+> (i)
+
+= X
+
+> a
+
+(w(a) − v(a)) log 
+
+Q| ¯Ω| 
+
+> j=1
+
+ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+Q| ¯Ω| 
+
+> j=1
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)= X
+
+> a
+
+(w(a) − v(a))  
+
+> |¯Ω|
+
+X
+
+> j=1
+
+log ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+≤ X
+
+> a
+
+(w(a) + v(a))  
+
+> |¯Ω|
+
+X
+
+> j=1
+
+log ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+) , (27) where (i) holds since P
+
+> a
+
+(w(a) − v(a)) = 0 .When x ≥ 1, let y = log x ≥ 0. By the Taylor expansion for f (y) = ey, we have ey ≥
+
+1 + y + 12 y2. Then x ≥ 1 + log x + 12 (log x)2, and thus | log x| ≤ p2( x − 1 − log x).When 0 < x < 1, by the Taylor expansion for f (x) = − log x, we have − log x ≥ 1 − x + 
+
+> 12
+
+(x−1) 2 and then | log x| = − log x = x−1−log x+(1 −x) ≤ x−1−log x+p2( x − 1 − log x).Hence, ∀x > 0, we have | log x| ≤ p2( x − 1 − log x) + ( x − 1 − log x), then 
+
+log ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+) ≤
+
+vuut2 ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+) − 1 − log ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+!
+
++ ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+) − 1 − log ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+!
+
+.
+
+Thus, we can obtain 
+
+KL( v∥w) + KL( w∥v)35 
+
+> (ii )
+
+≤ X
+
+> a
+
+(w(a) + v(a))  
+
+> |¯Ω|
+
+X
+
+> j=1
+
+vuut2 ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+) − 1 − log ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+!
+
++ 2 εpath score (iii )
+
+≤
+
+vuutX 
+
+> a
+> |¯Ω|
+
+X
+
+> j=1
+
+(w(a) + v(a)) 
+
+·
+
+vuutX 
+
+> a
+> |¯Ω|
+
+X
+
+> j=1
+
+2( w(a) + v(a)) ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+) − 1 − log ˆsT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+sT −t(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+!
+
++ 2 εpath score 
+
+≤2
+
+q
+
+2| ¯Ω|εpath score + 2 εpath score ,
+
+where (ii ) holds by Theorem V.2 and (iii ) holds by the Cauchy-Schwarz inequality. Due to the non-negativity of KL divergence, we have 
+
+KL( v∥w) ≤KL( v∥w) + KL( w∥v)
+
+≤2
+
+q
+
+2| ¯Ω|εpath score + 2 εpath score 
+
+≲
+
+q
+
+| ¯Ω|εpath score ,
+
+where the last inequality holds since 0 ≤ εpath score ≤ 1.From Theorem IV.1 with absorbing rate and τ -leaping, given one constraint value a ∈ A, we can have KL (qΩ
+
+> δ|a
+
+∥pΩ,HC  
+
+> T−δ|a
+
+) ≲ Eoracle ,
+
+where we take Eoracle as the common bound for the fixed-observation sampling on a ∈ A.Finally, combining all above together with Theorem VIII.1, we have KL (qΩ 
+
+> δ|C
+
+∥pΩ,RHC   
+
+> T−δ|C
+
+) ≲
+
+q
+
+| ¯Ω|εpath score + Eoracle .
+
+APPENDIX IX DIFFERENCE BETWEEN HARD CLAMP SCORE AND TRUE CONDITIONAL SCORE 
+
+The following binary example illustrates the difference between the hard clamp score and true conditional score. Consider a binary state space [0 , 1] 2 with Ω = {1} and ¯Ω = {2}. Let the clean data distribution be 
+
+q0(x1 = 0 , x 2 = 0) = 0 .4, q 0(x1 = 1 , x 2 = 1) = 0 .4
+
+q0(x1 = 0 , x 2 = 1) = 0 .1, q 0(x1 = 1 , x 2 = 0) = 0 .1.
+
+Let the transition probabilities be qt|0(xit = 0 |xi 
+
+> 0
+
+= 0) = αt and qt|0(xit = 0 |xi 
+
+> 0
+
+= 1) = βt,
+
+i ∈ { 1, 2}. Fix the condition x20 = 0 , then 
+
+qt(x1 
+
+> t
+
+= 0 |x20 = 0) = X
+
+> x10
+
+qt(x1 
+
+> t
+
+= 0 , x 10|x20 = 0) = X
+
+> x10
+
+qt|0(x1 
+
+> t
+
+= 0 |x10, x 20 = 0) q10 (x10|x20 = 0) 36 
+
+Algorithm 2: Conditional SEDD [9] 
+
+Input: Initial sample x0 ∼ p0, prompt coordinates ¯Ω, observed value y on ¯Ω, time grid 
+
+0 = t0 < t 1 < ... < t N = T − δ, a learned unconditional score ˆsT −tn 
+
+> 1
+
+for n = 0 to N − 1 do  
+
+> 2
+
+for ˆx̸ = x only at index k do  
+
+> 3
+
+if k ∈ Ω then  
+
+> 4
+
+ˆQtn|y(x, ˆx) = QT −tn (ˆ x, x )ˆ sT −tn
+
+ [ˆ xΩ, y ], [xΩ, y ], 
+
+> 5
+
+where [·, y ] refers to the whole sequence with x¯Ω = y. 
+
+> 6
+
+else  
+
+> 7
+
+ˆQtn|y(x, ˆx) = 0  
+
+> 8
+
+end  
+
+> 9
+
+end  
+
+> 10
+
+Draw xtn+1 using ˆQtn|y (e.g., with τ -leaping in (5)).  
+
+> 11
+
+Set x¯Ω 
+
+> tn+1
+
+= y. 
+
+> 12
+
+end 
+
+= X
+
+> x10
+
+qt|0(x1 
+
+> t
+
+= 0 |x10)q10 (x10|x20 = 0) = 0 .8αt + 0 .2βt.
+
+Similarly, 
+
+qt(x1 
+
+> t
+
+= 1 |x20 = 0) = X
+
+> x10
+
+qt|0(x1 
+
+> t
+
+= 1 |x10)q10 (x10|x20 = 0) = 1 − 0.8αt − 0.2βt.
+
+Now, consider conditioning at the intermediate time t,
+
+qt(x1 = 0 |x2 = 0) =qt(x = {0, 0})
+
+qt(x2 = 0) =0.4qt|0(x1 
+
+> t
+
+= 0 |x10 = 0) qt|0(x2 
+
+> t
+
+= 0 |x20 = 0) + 0 .1qt|0(x1 
+
+> t
+
+= 0 |x10 = 0) qt|0(x2 
+
+> t
+
+= 0 |x20 = 1)  
+
+> 12
+
+qt|0(x2 
+
+> t
+
+= 0 |x20 = 0) + 12 qt|0(x2 
+
+> t
+
+= 0 |x20 = 1) + 0.1qt|0(x1 
+
+> t
+
+= 0 |x10 = 1) qt|0(x2 
+
+> t
+
+= 0 |x20 = 0) + 0 .4qt|0(x1 
+
+> t
+
+= 0 |x10 = 1) qt|0(x2 
+
+> t
+
+= 0 |x20 = 1)  
+
+> 12
+
+qt|0(x2 
+
+> t
+
+= 0 |x20 = 0) + 12 qt|0(x2 
+
+> t
+
+= 0 |x20 = 1) =0.8( α2 
+
+> t
+
++ β2 
+
+> t
+
+) + 0 .4αtβt
+
+αt + βt
+
+.
+
+Similarly, 
+
+qt(x1 = 1 |x2 = 0) =qt(x = {1, 0})
+
+qt(x2 = 0) 37 
+
+=0.4qt|0(x1 
+
+> t
+
+= 1 |x10 = 0) qt|0(x2 
+
+> t
+
+= 0 |x20 = 0) + 0 .1qt|0(x1 
+
+> t
+
+= 1 |x10 = 0) qt|0(x2 
+
+> t
+
+= 0 |x20 = 1)  
+
+> 12
+
+qt|0(x2 
+
+> t
+
+= 0 |x20 = 0) + 12 qt|0(x2 
+
+> t
+
+= 0 |x20 = 1) + 0.1qt|0(x1 
+
+> t
+
+= 1 |x10 = 1) qt|0(x2 
+
+> t
+
+= 0 |x20 = 0) + 0 .4qt|0(x1 
+
+> t
+
+= 1 |x10 = 1) qt|0(x2 
+
+> t
+
+= 0 |x20 = 1)  
+
+> 12
+
+qt|0(x2 
+
+> t
+
+= 0 |x20 = 0) + 12 qt|0(x2 
+
+> t
+
+= 0 |x20 = 1) =αt + βt − 0.8( α2 
+
+> t
+
++ β2 
+
+> t
+
+) − 0.4αtβt
+
+αt + βt
+
+.
+
+Choosing x = {0, 0} and ˆx = {1, 0}, with uniform rate, we can obtain 
+
+st|y(ˆ x, x ) = qt(x1 
+
+> t
+
+= 1 |x20 = 0) 
+
+qt(x1 
+
+> t
+
+= 0 |x20 = 0) = 1 − 0.8αt − 0.2βt
+
+0.8αt + 0 .2βt
+
+= 1 − 0.6e−t
+
+1 + 0 .6e−t ,shard clamp  
+
+> t|y
+
+(ˆ x, x ) = qt(x1 = 1 |x2 = 0) 
+
+qt(x1 = 0 |x2 = 0) = αt + βt − 0.8( α2 
+
+> t
+
++ β2 
+
+> t
+
+) − 0.4αtβt
+
+0.8( α2 
+
+> t
+
++ β2 
+
+> t
+
+) + 0 .4αtβt
+
+= 1 − 0.6e−2t
+
+1 + 0 .6e−2t ,
+
+since the transition probability αt = 1+ e−t 
+
+> 2
+
+and βt = 1−e−t 
+
+> 2
+
+for uniform rate. Obviously, the hard clamp score does not coincide with the true conditional score. APPENDIX XDETAILED SETTINGS OF EXPERIMENTS 
+
+In this section, we provide the detailed settings of the experiments in Section VI. 
+
+A. Conditional SEDD under Fixed Observations 
+
+For synthetic data in Section VI-A, we consider a finite discrete state space [S]d and construct a data distribution q0 with d = 4 , S = 4 , where the alphabet is {0, 1, 2, 3}. In detail, q0 is constructed as a Gibbs distribution with token preferences sampled from the Gaussian distribution 
+
+N (0 , 0.35 2) for each position. We also consider neighbor interactions, which include a 0.9 reward for identical adjacent symbols and a 0.25 reward for consecutive adjacent symbols. In absorbing rate simulations, we extend the state space with an additional MASK state and thus S = 5 .We label the coordinates as {1, 2, 3, 4}. The observed subset is ¯Ω = {1, 2}, and the unobserved subset is Ω = {3, 4} for the fixed observation in Figures 1 and 2. The observation of the first two coordinates is fixed to y = [0 , 2] . For the different fixed observations and sizes of free coordinates in Figure 3, the observations are fixed to x1 = 0 , [x1, x 2] = [0 , 2] , and [x1, x 2, x 3] = [0 , 2, 2] . As a comparison, we also evaluate the observation [x1, x 2, x 3] = [0 , 2, 1] . Changing the observed vector from [0 , 2, 2] to [0 , 2, 1] results in γ decreasing from approximately 0.02 to 0.004 .The early stopping is not applied in all numerical experiments, and the time grid is set as 
+
+0 = t0 < ... < t N = T , where 
+
+N ∈ { 16 , 32 , 64 , 128 , 256 , 512 , 1024 , 2048 }, T = 5 .
+
+We compare Conditional SEDD with the oracle conditional score baseline based on Monte-Carlo. At each time step and in each independent trial, we draw 10000 samples and calculate the score ratios from the estimated probabilities. 
+
+B. RHC under Set Constraints a) Synthetic Experiments: For synthetic experiments in Section VI-B, we employ the same distribution, time grid, and sampling setting as those in Appendix X-A. In Figure 4, we use 38 
+
+A1 = {0, 1} and A2 = {2, 3} so that A = A1 × A2 and C = {x1 ∈ A1, x 2 ∈ A2}. The assignment probability of each assignment is calculated by the unconditional scores based on Theorem V.1. 
+
+b) Text Experiments: For real-data experiments in Section VI-B, perplexity is selected as the major evaluation metric to measure the fluency and rationality of the generation results. A lower perplexity indicates that the generation results align more closely with the natural language, thereby achieving a better generation quality. We evaluate the perplexity of the full sequences using the pretrained GPT-2-large [50]. In detail, we use the pretrained discrete diffusion model SEDD-small in [9] and tokenizer GPT-2 [50]. The sampler used is Tweedie τ -leaping with 1024 reverse sampling steps on a time grid from t = 1 to 10 −5. The sequence length is d = 50 , and the six manually constructed scenarios include transportation, study, game, cooking, project, and weather. Each scenario contains six constrained token positions. For each position, the sampler must select one token from the given feasible set. The feasible constraint sets are given in Table II. Moreover, to ensure completeness for generated sentences, we fix the prefix to “We” for transportation, cooking, and weather; “The team” for game and project; and “The student” for study. The suffix is fixed to a period (“.”) in all scenarios. We also compare our RHC with a uniform-assignment baseline. For RHC, we use the pre-trained unconditional scores to construct weights 
+
+w(a) = 
+
+Q| ¯Ω| 
+
+> j=1
+
+ˆst(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+P
+
+> b∈A
+
+Q| ¯Ω| 
+
+> j=1
+
+ˆst(z(j) 
+
+> b
+
+, z (j−1)  
+
+> b
+
+)
+
+at time t = 1 . And the uniform-assignment baseline uses 
+
+wuni (a) = 1
+
+|A| = Y 
+
+> m∈¯Ω
+
+1
+
+|Am|, a ∈ A. 
+
+For each scenario and method, we generate 1000 sequences per trial and perform 5 independent trials. All experiments are conducted on an NVIDIA A100 GPU. APPENDIX XI DISCUSSION OF RHC WITH UNIFORM RATE 
+
+In Section V, we discuss the convergence analysis of RHC with absorbing rate. In this section, we introduce how to construct v(a) with uniform rate. We demonstrate that the exact reconstruction of v(a) still holds by the marginalization and forward transition kernel, but this construction introduces complicated computational and numerical challenges. Recall that for uniform rate, the transition kernel is given by qt|0(xi|xi
+
+> 0
+
+) = (1 − e−t)/S when 
+
+xi̸ = xi
+
+> 0
+
+; (1 + ( S − 1) e−t)/S , otherwise. Hence, the forward transition kernel is invertible. Given a reference state xref ∈ [S]d, let 1 ≤ j ≤ Lx, then define a starting state z(0)  
+
+> x
+
+= xref 
+
+and z(j) 
+
+> x
+
+is obtained from z(j−1)  
+
+> x
+
+by changing the mj -th coordinate. Here, Lx is the length of the chosen path from z0 
+
+> x
+
+to zLx 
+
+> x
+
+. For notational simplicity, we write z(j)(xΩ,x ¯Ω) as z(j) 
+
+> x¯Ω
+
+and L(xΩ,x ¯Ω) as 
+
+Lx¯Ω . We can have the following proposition. 39 
+
+Proposition XI.1. For each a ∈ A, with uniform rate, and the unconditional score st(y, x ),then, for any t > 0, we can have 
+
+v(a) = q0(x¯Ω0 = a|C) = 
+
+P
+
+> x¯Ω
+
+hP
+
+> xΩ
+
+QLx ¯Ω 
+
+> j=1
+
+st(z(j) 
+
+> x¯Ω
+
+, z (j−1)  
+
+> x¯Ω
+
+)
+
+i
+
+[( P −1 
+
+> t
+
+)⊗| ¯Ω|]x¯Ω,a 
+
+P
+
+> b∈A
+
+P
+
+> x¯Ω
+
+hP
+
+> xΩ
+
+QLx ¯Ω 
+
+> j=1
+
+st(z(j) 
+
+> x¯Ω
+
+, z (j−1)  
+
+> x¯Ω
+
+)
+
+i
+
+[( P −1 
+
+> t
+
+)⊗| ¯Ω|]x¯Ω,b 
+
+.
+
+Here, Pt is the forward transition kernel for one coordinate. 
+
+Although Theorem XI.1 provides the expression of the exact distribution v(a), the computa-tional cost of direct implementation may be significantly higher than that of absorbing rate. The proof is given in Appendix XIII. This reconstruction requires the summation over all states in 
+
+[S]d and the matrix inversion uses the marginal over the entire constrained space [S]¯Ω. Thus, it is impractical to enumerate these vectors. By comparison, although absorbing rate may still suffer from the high computational cost caused by the feasible set A, it avoids additional marginal and matrix inversion steps. APPENDIX XII PROOF OF THEOREM V.1 We begin with the transition probabilities with the absorbing rate. Recall that for one coordinate 
+
+k, we have 
+
+qt|0(xkt |yk) = 
+
+
+
+1 − e−t if xk = MASK , y k̸ = MASK 
+
+e−t if xk = yk̸ = MASK 
+
+0 otherwise 
+
+. (28) Then, for a specific constraint value a ∈ A, we have 
+
+qt(xΩ 
+
+> t
+
+= [MASK] |Ω|, x ¯Ω 
+
+> t
+
+= a) = e−t| ¯Ω|(1 − e−t)|Ω| X
+
+> xΩ0
+
+q0(xΩ0 , x ¯Ω0 = a).
+
+Therefore, 
+
+qt(xΩ 
+
+> t
+
+= [MASK] |Ω|, x ¯Ω 
+
+> t
+
+= a)
+
+P 
+
+> b∈A
+
+qt(xΩ 
+
+> t
+
+= [MASK] |Ω|, x ¯Ω 
+
+> t
+
+= b) = e−t| ¯Ω|(1 − e−t)|Ω| P
+
+> xΩ0
+
+q0(xΩ0 , x ¯Ω0 = a)
+
+P 
+
+> b∈A
+
+e−t| ¯Ω|(1 − e−t)|Ω| P
+
+> xΩ0
+
+q0(xΩ0 , x ¯Ω0 = b)=
+
+P
+
+> xΩ0
+
+q0(xΩ0 , x ¯Ω0 = a)
+
+P
+
+> b∈A
+
+P
+
+> xΩ0
+
+q0(xΩ0 , x ¯Ω0 = b)=q0(x¯Ω0 = a|C).
+
+Recall that the unconditional score is defined as st(y, x ) := qt(y) 
+
+> qt(x)
+
+, then 
+
+qt(xΩ 
+
+> t
+
+= [MASK] |Ω|, x ¯Ω 
+
+> t
+
+= a)
+
+P 
+
+> b∈A
+
+qt(xΩ 
+
+> t
+
+= [MASK] |Ω|, x ¯Ω 
+
+> t
+
+= b) =     
+
+> qt(xΩ
+> t=[MASK] |Ω|,x ¯Ω
+> t=a)
+> qt(xt=[MASK] d)
+> P
+> b∈Aqt(xΩ
+> t=[MASK] |Ω|,x ¯Ω
+> t=b)
+> qt(xt=[MASK] d)
+
+=
+
+Q| ¯Ω| 
+
+> j=1
+
+st(z(j) 
+
+> a
+
+, z (j−1)  
+
+> a
+
+)
+
+P
+
+> b∈A
+
+Q| ¯Ω| 
+
+> j=1
+
+st(z(j) 
+
+> b
+
+, z (j−1)  
+
+> b
+
+)=q0(x¯Ω0 = a|C)40 
+
+=v(a),
+
+where for any a ∈ A, z(0)  
+
+> a
+
+= [MASK] d and z(j) 
+
+> a
+
+is obtained from z(j−1)  
+
+> a
+
+by changing the mj -th coordinate from MASK to amj . Now, we complete the proof. APPENDIX XIII PROOF OF THEOREM XI.1 We begin with the qt(x¯Ω 
+
+> t
+
+= b). For each b ∈ [S]| ¯Ω|, we have 
+
+qt(x¯Ω 
+
+> t
+
+= b) = X
+
+> xΩ
+> t
+
+qt(xΩ 
+
+> t
+
+, x ¯Ω 
+
+> t
+
+= b)= X
+
+> xΩ
+> t
+
+X
+
+> xΩ0
+
+X
+
+> x¯Ω0
+
+qt|0(xΩ 
+
+> t
+
+, x ¯Ω 
+
+> t
+
+= b|xΩ0 , x ¯Ω0 )q0(xΩ0 , x ¯Ω0 )= X
+
+> xΩ
+> t
+
+X
+
+> xΩ0
+
+X
+
+> x¯Ω0
+
+qt|0(xΩ 
+
+> t
+
+|xΩ0 )qt|0(x¯Ω 
+
+> t
+
+= b|x¯Ω0 )q0(xΩ0 , x ¯Ω0 )= X
+
+> xΩ0
+
+X
+
+> x¯Ω0
+
+qt|0(x¯Ω 
+
+> t
+
+= b|x¯Ω0 )q0(xΩ0 , x ¯Ω0 )= X
+
+> x¯Ω0
+
+qt|0(x¯Ω 
+
+> t
+
+= b|x¯Ω0 )q0(x¯Ω0 ).
+
+Rewriting the above equation in matrix form, we have q ¯Ω 
+
+> t
+
+= q ¯Ω0 P ⊗| ¯Ω| 
+
+> t
+
+and thus q ¯Ω0 =
+
+q ¯Ω 
+
+> t
+
+(P −1 
+
+> t
+
+)⊗| ¯Ω|, since Pt is the forward transition kernel and invertible. Now, given a reference state xref , we denote St(x) := P
+
+> xΩ
+
+QLx 
+
+> j=1
+
+st(z(j) 
+
+> x
+
+, z (j−1)  
+
+> x
+
+), then 
+
+St(b) = X
+
+> xΩ
+> Lb
+
+Y
+
+> j=1
+
+st(z(j) 
+
+> b
+
+, z (j−1)  
+
+> b
+
+)= X
+
+> xΩ
+
+qt(xΩ, x ¯Ω 
+
+> t
+
+= b)
+
+qt(xref )=qt(x¯Ω 
+
+> t
+
+= b)
+
+qt(xref )=
+
+P
+
+> x¯Ω0
+
+qt|0(x¯Ω 
+
+> t
+
+= b|x¯Ω0 )q0(x¯Ω0 )
+
+qt(xref ) .
+
+Again, in matrix form, we can have St = q ¯Ω  
+
+> t
+> qt(xref )
+
+= q ¯Ω0 P ⊗| ¯Ω|  
+
+> t
+> qt(xref )
+
+, and thus St(P −1 
+
+> t
+
+)⊗| ¯Ω| = q ¯Ω0  
+
+> qt(xref )
+
+.Now, for a given a ∈ A,
+
+q0(x¯Ω0 = a)
+
+qt(xref ) = X
+
+> x¯Ω
+
+St(x¯Ω)[( P −1 
+
+> t
+
+)⊗| ¯Ω|]x¯Ω,a = X
+
+> x¯Ω
+
+X 
+
+> xΩ
+> Lx¯Ω
+
+Y
+
+> j=1
+
+st(z(j) 
+
+> x¯Ω
+
+, z (j−1)  
+
+> x¯Ω
+
+)
+
+ [( P −1 
+
+> t
+
+)⊗| ¯Ω|]x¯Ω,a .
+
+Eventually, we can conclude that 
+
+v(a) = q0(x¯Ω0 = a|C)41 
+
+= q0(x¯Ω0 = a)
+
+P
+
+b∈A q0(x¯Ω0 = b)=
+
+P
+
+x¯Ω
+
+hP
+
+xΩ
+
+QLx ¯Ω
+
+j=1 st(z(j)
+
+x¯Ω , z (j−1) 
+
+x¯Ω )
+
+i
+
+[( P −1
+
+t )⊗| ¯Ω|]x¯Ω,a 
+
+P
+
+b∈A
+
+P
+
+x¯Ω
+
+hP
+
+xΩ
+
+QLx ¯Ω
+
+j=1 st(z(j)
+
+x¯Ω , z (j−1) 
+
+x¯Ω )
+
+i
+
+[( P −1
+
+t )⊗| ¯Ω|]x¯Ω,b 
+
+.
+
+APPENDIX XIV PROOF OF SUPPORTING LEMMAS 
+
+A. Proof of Theorem VII.1 
+
+We begin with π(xΩ0 ) = Q
+
+i∈Ω\{ k} qT −t|0(xi|xi
+
+0) P
+
+x¯Ω0
+
+Q
+
+j∈ ¯Ω qT −t|0(yj |xj
+
+0)q0(xΩ0 , x ¯Ω0 ).
+
+π(xΩ0 ) = Y
+
+i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+0) X
+
+x¯Ω0
+
+Y
+
+j∈ ¯Ω
+
+qT −t|0(yj |xj
+
+0)q0(xΩ0 , x ¯Ω0 )
+
+(i)
+
+= Y
+
+i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+0) X
+
+x¯Ω0
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω|− U  1
+
+S − 1
+
+S e−(T −t)
+
+U
+
+q0(xΩ0 , x ¯Ω0 )= Y
+
+i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+0)
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω|
+
+· X
+
+x¯Ω0
+
+ 1 − e−(T −t)
+
+1 + ( S − 1) e−(T −t)
+
+U
+
+q0(xΩ0 , x ¯Ω0 )
+
+(ii )
+
+= Y
+
+i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+0)
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω|
+
+·
+
+q0(xΩ0 , y ) + X
+
+x¯Ω0̸ =y
+
+ 1 − e−(T −t)
+
+1 + ( S − 1) e−(T −t)
+
+U
+
+q0(xΩ0 , x ¯Ω0 )
+
+ (U ≥ 1) 
+
+(29) 
+
+≤ Y
+
+i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+0)
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω|
+
+·
+
+q0(xΩ0 , y ) + X
+
+x¯Ω0̸ =y
+
+ 1 − e−(T −t)
+
+1 + ( S − 1) e−(T −t)
+
+
+
+q0(xΩ0 , x ¯Ω0 )
+
+
+
+= Y
+
+i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+0)
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω|
+
+·
+
+
+
+q0(xΩ0 , y ) + 1 − e−(T −t)
+
+1 + ( S − 1) e−(T −t) (q0(xΩ0 ) − q0(xΩ0 , y )) 
+
+
+
+=
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω| Y
+
+i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+0)q0(xΩ0 , y )42 
+
+·
+
+
+
+1 + 1 − e−(T −t)
+
+1 + ( S − 1) e−(T −t) · q0(xΩ0 ) − q0(xΩ0 , y )
+
+q0(xΩ0 , y )
+
+
+
+> (iii )
+
+=
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω|
+
+πtrue (xΩ0 )
+
+
+
+1 + 1 − e−(T −t)
+
+1 + ( S − 1) e−(T −t) · q0(xΩ0 ) − q0(xΩ0 , y )
+
+q0(xΩ0 , y )
+
+
+
+=
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω|
+
+πtrue (xΩ0 )
+
+
+
+1 + 1 − e−(T −t)
+
+1 + ( S − 1) e−(T −t)
+
+ 1
+
+q0(y|xΩ0 ) − 1
+
+ 
+
+.
+
+Here, for (i), | ¯Ω| refers to the size of the observed set ¯Ω and U refers to the number of unmatched tokens between y and x¯Ω0 . For (ii ), we extract the case x¯Ω0 = y, and thus U in the remaining terms is at least 1. (iii ) holds since we have πtrue (xΩ0 ) := Q 
+
+> i∈Ω\{ k}
+
+qT −t|0(xi|xi
+
+> 0
+
+)q0(xΩ0 , x ¯Ω0 = y).With Theorem IV.2, we can immediately have 
+
+π(xΩ0 ) ≤
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω| 
+
+1 + min {1, T − t}
+
+ 1
+
+γ − 1
+
+ 
+
+πtrue (xΩ0 )
+
+≤
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω| 1
+
+γ πtrue (xΩ0 ),
+
+meanwhile, from (29) with 
+
+ 1−e−(T −t) 
+
+> 1+( S−1) e−(T−t)
+
+U
+
+q0(xΩ0 , x ¯Ω0 ) nonnegative, 
+
+π(xΩ0 ) ≥
+
+ 1
+
+S + S − 1
+
+S e−(T −t)
+
+| ¯Ω|
+
+πtrue (xΩ0 ).
+
+The proof is now complete. 
+
+B. Proof of Theorem VIII.1 
+
+First, we rewrite the distribution qt(xΩ|C) as follows: 
+
+qt(xΩ|C) = X
+
+> a∈A
+
+qt(xΩ, x ¯Ω0 = a|C)= X
+
+> a∈A
+
+qt(xΩ|x¯Ω0 = a, C )q0(x¯Ω0 = a|C)
+
+> (i)
+
+= X
+
+> a∈A
+
+qt(xΩ|x¯Ω0 = a)q0(x¯Ω0 = a|C)= X
+
+> a∈A
+
+v(a)qt(xΩ|x¯Ω0 = a),
+
+where (i) holds since {x0 : x¯Ω0 = a} ⊆ C for every a ∈ A.Then recall that pRHC   
+
+> T−δ
+
+(xΩ|C) = P 
+
+> a∈A
+
+w(a)pHC  
+
+> T−δ
+
+(xΩ|x¯Ω0 = a), and we have 
+
+KL( qΩ 
+
+> δ|C
+
+∥pΩ,RHC T −δ|C ) = X
+
+> xΩ∈[S]|Ω|
+
+qδ(xΩ|C) log qδ(xΩ|C)
+
+pRHC   
+
+> T−δ
+
+(xΩ|C)= X
+
+> xΩ∈[S]|Ω|
+
+X
+
+> a∈A
+
+v(a)qδ(xΩ|x¯Ω0 = a) log 
+
+P 
+
+> b∈A
+
+v(b)qδ(xΩ|x¯Ω0 = b)
+
+P 
+
+> b∈A
+
+w(b)pHC  
+
+> T−δ
+
+(xΩ|x¯Ω0 = b)43 
+
+> (ii )
+
+≤ X
+
+> a∈A
+
+X
+
+> xΩ∈[S]|Ω|
+
+v(a)qδ(xΩ|x¯Ω0 = a) log v(a)
+
+w(a) + log qδ(xΩ|x¯Ω0 = a)
+
+pHC  
+
+> T−δ
+
+(xΩ|x¯Ω0 = a)
+
+!
+
+> (iii )
+
+= X
+
+> a∈A
+
+v(a) log v(a)
+
+w(a) + X
+
+> a∈A
+
+v(a) X
+
+> xΩ∈[S]|Ω|
+
+qδ(xΩ|x¯Ω0 = a) log qδ(xΩ|x¯Ω0 = a)
+
+pHC  
+
+> T−δ
+
+(xΩ|x¯Ω0 = a)=KL( v∥w) + X
+
+> a∈A
+
+v(a)KL( qΩ
+
+> δ|a
+
+∥pΩ,HC  
+
+> T−δ|a
+
+)=KL( v∥w) + Ea∼v
+
+h
+
+KL( qΩ
+
+> δ|a
+
+∥pΩ,HC  
+
+> T−δ|a
+
+)
+
+i
+
+,
+
+where (ii ) is from the log-sum inequality over the assignments a, b ∈ A, and the following (iii )
+
+holds since P 
+
+> xΩ∈[S]|Ω|
+
+qδ(xΩ|x¯Ω0 = a) = 1 . Now, we complete the proof. 44 
+
+> TABLE II SUMMARY OF SCENARIOS .
+
+Scenario Position Candidate Tokens Transportation 7 plane, bus, taxi, bike, train, car 15 fast, quick, rapid, swift, speedy, brisk 22 anxious, nervous, worried, tense, uneasy, afraid 27 but, however, yet, while 36 safe, secure, protected, reliable, stable, harmless 44 calm, relaxed, peaceful, relieved, quiet, comfortable Game 7 game, match, race, tournament, contest, competition 15 tired, slow, weak, nervous, exhausted, weary 22 losing, trailing, struggling, failing, falling, slipping 27 but, however, yet, while 36 fought, scored, recovered, improved, rallied, persisted 44 won, succeeded, qualified, celebrated, advanced, prevailed Study 7 math, science, history, English, biology, physics 15 anxious, nervous, worried, tense, uneasy, afraid 22 hard, difficult, confusing, challenging, complex, tricky 27 but, however, yet, while 36 studied, practiced, reviewed, prepared, learned, revised 44 confident, calm, ready, relieved, focused, hopeful Cooking 6 soup, pasta, bread, rice, salad, pizza 13 boiled, baked, fried, grilled, roasted, smoked 20 fresh, warm, spicy, tasty, sweet, rich 25 but, however, yet, while 33 burned, cold, salty, bitter, raw, dry 42 fixed, served, shared, finished, saved, enjoyed Project 6 project, system, model, product, platform, application 13 difficult, complex, urgent, risky, challenging, demanding 20 broken, delayed, blocked, unstable, failing, incomplete 25 but, however, yet, while 33 tested, fixed, improved, rebuilt, updated, repaired 42 successful, stable, ready, reliable, complete, finished Weather 6 park, beach, forest, mountain, garden, river 13 sunny, warm, bright, clear, hot, pleasant 20 walking, hiking, running, camping, exploring, climbing 25 but, however, yet, while 33 rainy, cold, wet, cloudy, freezing, damp 42 returned, waited, rested, stopped, stayed, sheltered 45 
+
+> TABLE III EXAMPLES OF GENERATED SENTENCES . T HE BOLD TEXT SHOWS THE SELECTED CONSTRAINED POSITION .
+
+Scenario Generated Sentences Transportation We started driving together in a single car and quickly became hooked on sharing this fast driving fantasy. We were both nervous at this point, yet 
+
+aware it’s important to be safe in driver jobs. We got more comfortable 
+
+working on this scenario. We’re looking for a car . We’ll make it quick . I’m not worried about driver hours, but confident we’ll be comfortable and safe . I’m relieved to make it in. We’re waiting for the train , and it’ll be fast . It’s a tense , terrifying experience, but almost everyone is enjoying it and everything is safe . Our focus right now is staying calm and enjoy the train. Game The team then had a very difficult match . Our team manager made the fans nervous . The team reminded us of losing a great game, but this is it. The team rallied and scored our first goals. The team still advanced to the seventh round. The team took the field in the match . They played in a group with weak 
+
+European play. They ended their losing streak in the match but they went through a difficult patch. They fought a very good campaign and the team 
+
+won their four home matches. The team had competed in their early race . The team had suffered to a 
+
+slow start, suffering the misfortune of losing in first race, but a few hours later, the team had improved to a higher level. They had qualified for their second race. Study The student knew his teacher, his math , and his class. He was nervous , as he was taking a hard class with his teacher but was able to respond more quickly. He prepared for class. He knew he was ready to jump into class. The student intends to study somewhere between English and Pure English. But he is afraid that he will need to be hard and competitive. And yet it is important that he is good and prepared . It is important that he is confident ,quick and decisive. The student really wanted to learn some English . She thought and felt a bit 
+
+nervous . It might be even more challenging in the second exam but she was very confident. When the student learned some Danish and Norwegian, she was ready to access the textbooks. 46 
+
+> TABLE IV EXAMPLES OF GENERATED SENTENCES . T HE BOLD TEXT SHOWS THE SELECTED CONSTRAINED POSITION .
+
+Scenario Generated Sentences Cooking We had tossed green wasabi salad at sea. The combination of roasted pork and cilantro was very spicy and fragrant, but it varied a little bit in this 
+
+salty -and-cheese dish. I enjoyed roasted pork and wasabi salad. We also share the grilled cheese pizza . This improved version of the grilled 
+
+cheese pizza is fortified with the sweet and savory flavours while marinated with the plum and the salty onion, balanced by the juicy cheese and served 
+
+with the tart and grape sticks. Weiner’s sandwich is a salad . It tastes like a ’ smoked ’ flavor of avocado, almost spicy , and sweet, but it does not have a ’ spicy salty ’ flavor of onions. It is also served with hot and fried meat rolls. Project The team first introduces a new system . The design is far more complex .The same system types are broken into primary domains, while differences in each case have to be tested separately. Once the system is ready , new features can be tested. The team managed to rebuild the platform and then solve a few more 
+
+complex problems. The platform was very unstable from the beginning, 
+
+but soon, its stability was increased and improved . The platform was once again in a stable condition and also with new challenges. The team working on the main project had sat for long periods with difficult 
+
+problems. Work there had been delayed for several months, but after several months, the problems were fixed . The project was almost complete and was 
+
+ready to be done before the holidays. Weather We started off easy. The forest was green, and colors were bright . I knew where to go hiking so I could relax while enjoying the rest. Our road was wet and muddy which made me worry. I stayed with a friend and a backpack. We walk together at the dog park . It’s a pleasant experience you can hold onto while walking throughout the day, but I seemed to be getting cold and 
+
+wet after a little bit of walking. I stopped at a light and started walking. We decided to camp at the beach and also try to be as warm as the beach. I was camping at my first beach but the weather was real cold and below 
+
+freezing making it harder to camp here. I stayed and took a minute to rest.

@@ -1,0 +1,1405 @@
+Title: Tikhonov-Stabilized Bezier Representation Forecasting for Training-free Diffusion Acceleration
+
+URL Source: https://arxiv.org/pdf/2610.16448v1
+
+Published Time: Wed, 14 Oct 2026 02:45:09 GMT
+
+Number of Pages: 27
+
+Markdown Content:
+# Tikhonov-Stabilized Bézier Representation Forecasting for Training-free Diffusion Acceleration 
+
+Lei Zhu 1, ∗
+
+, Mujie Lin 1,* , Ruochong Zheng 1, Guangyi Wang 2
+
+Hao Li 1, Peng Jin 1, Chang Liu 3, Jie Chen 1, †
+
+> 1
+
+School of Electronic and Computer Engineering, Peking University 
+
+> 2
+
+School of Informatics, Xiamen University 
+
+> 3
+
+Department of Automation and BNRist, Tsinghua University 
+
+## Abstract 
+
+Diffusion models, particularly Diffusion Transformers, achieve strong image and video generation quality but remain expensive at inference time due to repeated denoiser evaluations. Feature caching offers a deployment-friendly acceleration strategy by reusing or predicting intermediate representations without retraining the generator or modifying the sampler. However, existing cache-then-forecast methods often rely on Taylor-style finite-difference extrapolation, which can be-come unstable over longer cache intervals, and typically predict local module outputs whose errors may accumulate through subsequent denoiser blocks. We propose BeziCast , a training-free diffusion acceleration framework that forecasts output-proximal denoising representations using low-order Bézier trajectories. Bez-iCast estimates Bézier control points via Tikhonov-stabilized fitting, providing a smooth, capacity-controlled temporal parameterization that avoids explicit high-order derivative estimation and decouples trajectory capacity from cache-query density. To moderate aggressive extrapolation, we further derive equivalent fore-casting weights and introduce a convex-hull-inspired guardrail that detects high-risk predictions and softly pulls them toward a conservative simplex-projected estimate. Extensive evaluations across advanced image and video diffusion models demon-strate the effectiveness of BeziCast. In particular, BeziCast accelerates FLUX.1 by up to 4.79 × and HunyuanVideo by up to 4.11 ×, while preserving substantially better generation quality than competing acceleration baselines. 
+
+## 1 Introduction 
+
+Diffusion models[11], especially large generative models based on Diffusion Transformer[31, 4, 52, 14], have become a standard approach for high-fidelity image and video generation. Their sampling process, however, still requires repeated denoiser evaluations across many timesteps, and this inference cost remains a major obstacle to large-scale deployment. A central question in diffusion acceleration is how to approximate the original multi-step sampling process under a limited NFE budget[24, 46]. Existing approaches can be broadly grouped into three directions. Solver-based methods improve the sampler through higher-order updates[24, 25, 46], timestep schedules[13], and trajectory-aware error correction or time allocation[50, 39, 3, 51, 54, 38, 49, 29]. Distillation-based methods compress multi-step sampling into few-step or one-step generation through progressive distillation[33], consistency modeling[26], or distribution matching[45]. Feature caching methods instead keep the pretrained generator largely unchanged and reduce the cost of each denoiser evaluation by reusing or predicting internal representations[27, 20]. Compared with the former two directions, feature caching is particularly deployment-friendly because it avoids retraining the full model and does not require redesigning the sampling dynamics. 
+
+> ∗Equal contribution.
+> †Corresponding author. arXiv:2610.16448v1 [cs.CV] 12 Oct 2026
+
+Early training-free feature caching methods mainly followed a cache-then-reuse paradigm, where intermediate features from nearby timesteps are directly reused to skip selected layers or modules[27, 34, 23, 28]. Recent methods move toward cache-then-forecast .TaylorSeer[20] predicts future features with finite differences and Taylor expansion, and Denoising step           
+
+> Ground Truth Taylor Prediction BeziCast Prediction -50 100 010 20 30 40 50 -12.5 62.5 25 810 12 14 16 18 14 16 18 20 24
+> Latency PSNR PC1 value
+> 26
+> Better
+
+Figure 1: Stable, Fast, and Accurate Diffusion Accelera-tion. Left : PC1 projections of output-proximal representation in denoising step. Right : Speedup and PSNR comparison, where N is the cache interval. BeziCast achieves faster infer-ence while better quality. SpeCa[21] adds a lightweight verifier to accept or reject predicted features. Spectrum[9] takes a global function-approximation view by fitting Cheby-shev polynomial coefficients for final-layer denoiser features and deriving a horizon-independent error bound un-der its approximation setting. These methods show that denoiser represen-tations have exploitable temporal reg-ularity, but they also leave two design choices: which representation should be predicted, and which temporal ba-sis should be used. The first design choice is the temporal basis . Taylor-style predictors are simple, but finite-difference derivative estimates and local power-basis extrapolation can amplify small cache perturbations at longer offsets or higher orders[20, 16, 7], as evidenced by the instability of the blue curve and its large deviation from the ground truth on the left of Fig. 1. This sensitivity is consistent with the numerical behavior of monomial and Vandermonde-type systems[35], the non-monotone feature trajectories discussed by Feng et al.[7], and the large-horizon error growth observed by Han et al.[9]. At the same time, diffusion sampling trajectories often exhibit structured low-dimensional geometry[2]. We therefore seek a compact temporal parameterization that avoids explicit high-order finite differences while remaining analytically evaluable at cache steps. The second design choice is the forecasting target . Existing caching methods often predict attention outputs, MLP outputs inside transformer blocks[34, 28, 53, 21]. These local targets give fine-grained control, but their errors still pass through downstream denoiser blocks before reaching the final noise estimate and may accumulate across predicted modules. We instead predict an output-proximal denoising representation, which makes the path from representation error to denoising error shorter and more direct without assuming that this representation is intrinsically easier to forecast. Based on these observations, we propose BeziCast , a training-free Tikhonov-stabilized Bézier repre-sentation forecasting framework, achieving faster, more stable, and more accurate acceleration than competing methods , as shown on the right of Fig. 1. BeziCast predicts an output-proximal de-noising representation with a low-order Bernstein/Bézier trajectory whose control points are estimated by Tikhonov-stabilized fitting. The Bézier form provides analytic evaluation and a compact capacity-controlled function family[6, 40, 30], while the Bernstein basis has classical stability properties on a fixed interval[5], as shown by the orange curve on the left of Fig. 1, which is closer to the ground truth than Taylor-based extrapolation. Because cache queries are often short-range extrapolations, BeziCast does not use the convex-hull property as a guarantee; instead, it uses equivalent weights to detect signed or non-affine extrapolation and pulls high-risk predictions toward a simplex-projected conservative estimate. The pretrained denoiser and sampler remain unchanged. Our contributions are as follows: (1) We formulate training-free cache-then-forecast acceleration as output-proximal representation forecasting, avoiding multiple local module targets. (2) We use a low-order Bernstein/Bézier trajectory with Tikhonov-stabilized control-point fitting, replacing finite-difference Taylor extrapolation, decoupling trajectory capacity from cache-query density, and expressing each prediction as a regularized linear combination of cached representations. (3) We introduce an equivalent-weight convex-hull guardrail that detects aggressive extrapolation through negative weight mass, deviation from unit sum, and the ℓ1 norm, then pulls high-risk predictions toward a simplex-projected conservative estimate. 
+
+## 2 Related Work 
+
+Diffusion acceleration methods mainly reduce either the number of denoising steps, the cost of each denoising step, or both. 2…                 
+
+> Inside Hull (Acceptable)
+> Safe Boundary
+> (b) Equivalent-Weight Convex-Hull Guardrail
+> Bernstein Basis
+> (a) Bezier trajectory and Bernstein Basis
+> Taylor-style Monomial Extrapolation !𝒛 𝒔
+> 𝑃 !
+> 𝑃 "𝑃 #
+> 𝑃 $
+> 𝑒 "
+> 𝑒 #
+> 𝑒 $
+> Historical full-step (𝑢 ∈ [0, 1] )Future query (𝑢 > 1 )
+> Forecast Target 𝒛 𝒔
+> Convex hull of cached history Raw forecast Historical full-step
+> Outside Hull (Unsafe)
+> z𝒊 𝒎
+> !𝒛 𝒔
+> High-risk extrapolation detection 1
+> Predicted points Guarded prediction
+> z𝒊 𝒎
+> 2Simplex-projected safe prediction
+> Bezier Forecasted Trajectory !𝒛 𝒔
+> Ground Truth Trajectory 𝒛 𝒔
+> 𝑃 #:Control Point of Bezier Trajectory
+> 𝐵 !$
+> 𝐵 "$𝐵 #$
+> 𝐵 $$
+> 01/3 2/3 1𝑢 %
+> Feature space
+> 1
+> '
+> $%& '
+> 𝐵 $'z𝒊 𝒎
+> !𝒛 𝒔
+> !𝒛 𝒔
+> Forecast Prediction !𝒛 𝒔
+> Inference time step
+> -𝒛 𝒔
+
+Figure 2: Overview of BeziCast. (a) A local cubic Bernstein/Bézier trajectory is fitted from cached full-step representations and evaluated at cache queries us > 1, providing a low-order alternative to Taylor-style extrapolation. (b) BeziCast detects risky extrapolation via equivalent history weights, constructs a simplex-projected prediction inside the cached-representation convex hull, and softly blends it with the raw forecast to obtain the guarded prediction. 
+
+Sampler-based Acceleration. Sampler-based methods reduce the number of function evaluations by improving the reverse diffusion discretization. DDIM [36] enables deterministic non-Markovian sampling from DDPM [11] models with fewer steps. DPM-Solver [24] and DPM-Solver++ [25] derive high-order ODE solvers for probability-flow sampling, UniPC [46] unifies predictor-corrector updates, and EDM [13] improves noise parameterization, preconditioning, and sampling schedules. Recent trajectory-aware methods further exploit path regularity, error correction, or time allocation, including AMED-Solver [50], Trajectory Regularity [3], Simple and Fast Distillation [51], PAS [39], PFDiff [38], fast-sampling analysis [49], and BézierFlow [29]. These methods mainly accelerate sampling by changing the solver, schedule, or trajectory correction strategy. 
+
+Training-based Acceleration. Training-based methods compress a multi-step teacher into a faster generator through extra optimization. Progressive Distillation [33] halves sampling steps iteratively; Consistency Models [37] and Latent Consistency Models [26] enforce trajectory-consistent pre-dictions for few-step generation; DMD [45] and DMD2 [44] match the teacher distribution rather than the full teacher trajectory; and InstaFlow [22] uses rectified-flow-style training to straighten text-to-image generation paths. These approaches can be effective, but they usually require additional training, teacher models, or specialized objectives. 
+
+Feature-caching-based Acceleration. Feature-caching methods[20, 42, 34, 43] reduce inference cost by exploiting temporal redundancy in denoiser activations while keeping the pretrained denoiser largely unchanged. Early cache-then-reuse methods directly reuse intermediate features or residuals: DeepCache [27] reuses high-level U-Net features, FORA [34] extends fast-forward caching to dif-fusion transformers, ToCa [55] introduces token-wise feature caching, and Reuse and Diffuse [8] plus MagCache [28] study feature or residual reuse for video diffusion. Recent cache-then-forecast methods model feature evolution instead of copying old features: TaylorSeer [20] uses finite differ-ences and Taylor expansion, FreqCa [19] adds frequency-aware caching, Forecast-then-Calibrate [47] introduces feature calibration, HiCache [7] replaces Taylor-style monomial forecasting with Hermite-polynomial-based prediction, and Spectrum [9] fits global spectral approximations. Adaptive variants such as TeaCache [18], DiCache [1], SpeCa [21], and token-level cache updates [48] further show that diffusion features exhibit strong temporal and structural redundancy. BeziCast follows the training-free cache-then-forecast line, but focuses on output-proximal representation forecasting with a Tikhonov-stabilized Bézier trajectory and an equivalent-weight guardrail for extrapolation risk. 
+
+## 3 Method 
+
+BeziCast is a training-free cache-then-forecast method for diffusion sampling. We recast feature prediction as output-proximal representation trajectory approximation: from a short history of denoising representations near the output, the method estimates a low-order Bézier trajectory and 3(a) Full Step (run backbone) (b) Cache Step (skip backbone) 
+
+> Latent State
+
+𝒙 𝒔  
+
+> Backbone Model
+> (denoiser body) Output-Proximal Representation
+
+𝒛 𝒔 
+
+> Output Head
+> Predicted Noise
+
+𝛜 "
+
+> Sampler Updater
+> Latent State
+
+𝒙 𝒔  
+
+> Backbone Model
+> (denoiser body) Output Head
+> Predicted Noise
+
+$𝛜 𝒔   
+
+> Sampler Updater Skip Backbone
+> Forecasted Output-Proximal Representation
+> BeziCast Forecaster Output-Proximal Cache {𝒞 𝒔 }+
+> !𝒛 𝒔
+
+𝒙 𝒔#𝟏 
+
+%𝒙 𝒔#𝟏     
+
+> full cache cache cache full
+> Cache-then-Forecast Diffusion Sampling
+> cache
+
+Figure 3: BeziCast sampling pipeline. In the cache-then-forecast paradigm, selected full steps run the denoiser backbone and cache output-proximal representations, while intermediate cache steps skip the backbone and forecast the missing representation from history. BeziCast forecasts ˜zs with Tikhonov-stabilized Bézier fitting and then uses the unchanged output head and sampler update. evaluates it at skipped cache steps. As shown in Fig. 2, BeziCast runs the original denoiser at selected full steps, caches output-proximal representations, predicts them at cache steps with Tikhonov-stabilized Bernstein fitting, and applies the guardrail when needed. It does not train additional models, modify the sampler, or change the pretrained denoiser. This section first defines the cache-then-forecast setting, then gives the predictor and guardrail. The full inference algorithm is provided in Appendix A.4. 
+
+3.1 Cache-Then-Forecast Formulation Definition 1 (diffusion sampling). Let T = {t0, t 1, . . . , t T −1} be the sampling time grid, where 
+
+s ∈ { 0, . . . , T − 1} is the solver-step index. Given latent state xs, condition c, and diffusion time ts,the pretrained denoiser predicts ϵs = ϵθ (xs, t s, c ). The sampler updates the latent by 
+
+xs+1 = Ψ s(xs, ϵ s), (1) where Ψs denotes one solver step. We seek to reduce expensive denoiser computation while keeping both the pretrained denoiser ϵθ and the sampler update Ψs unchanged. A key design choice in cache-then-forecast acceleration is the representation to cache and predict. Prior works typically forecast local features such as attention, MLP, or residual outputs within transformer blocks [34, 28, 41, 21], but errors in these intermediate targets are propagated through subsequent nonlinear layers and can accumulate if multiple predictions occur per denoising step. To ensure errors are directly reflected in the final noise estimate and to simplify control, we forecast a single output-proximal representation immediately before the final output map, aligning with the final-block forecasting setting of Spectrum [9]. 
+
+Definition 2 (output-proximal representation). We decompose the pretrained denoiser into a backbone and a final output map: 
+
+zs = Fθ (xs, t s, c ), ϵθ (xs, t s, c ) = Oθ (zs, t s, c ). (2) Here zs ∈ RD is the flattened output-proximal denoising representation, and D absorbs token and channel dimensions. The map Fθ denotes the expensive backbone computation up to this representation, while Oθ denotes the lightweight output map that converts zs into the denoising prediction. The output map is always executed, both at full steps and cache steps. 
+
+Proposition 1 (output-proximal error path). Assume the output map Oθ is locally Lipschitz with respect to its representation input. If ˆzs = zs + ezs is an output-proximal prediction, then 
+
+∥O θ (ˆ zs, t s, c ) − O θ (zs, t s, c )∥ ≤ LO ∥ezs ∥, (3) where LO is a local Lipschitz constant of the output map. Proposition 1 supports our choice of forecasting a single output-proximal representation immediately before the output mapping through the output-map Lipschitz relation. Appendix A.2 provides the corresponding local Jacobian/Lipschitz analysis and proofs, including the derivations for intermediate-layer and sampler-level error propagation. 4Definition 3 (training-free cache forecaster). Let 
+
+Sfull ⊆ { 0, . . . , T − 1}, Scache = {0, . . . , T − 1} \ S full (4) denote full-step and cache-step indices. At a full step s ∈ S full , the method runs the original denoiser backbone, obtains zs and ϵs by Eq. (2), and stores zs. At a cache step s ∈ S cache , it skips the backbone, predicts a raw representation ˆzs from cached representations, optionally forms the guarded representation ˜zs, and computes ˆϵs = Oθ (˜ zs, t s, c ) with the unchanged output map. Without guardrail activation, ˜zs = ˆ zs. The sampler then uses ˆϵs in Eq. (1). Let Cs = {(τim , z im )}Km=1 be the local cache at step s, where i1 < · · · < i K < s are the most recent 
+
+K full steps and τi is a monotone scalar coordinate associated with ti. A cache forecaster has the form 
+
+ˆzs = f (Cs, τ s), s ∈ S cache . (5) Different cache-then-forecast methods correspond to different choices of f . Direct reuse sets 
+
+f (Cs, τ s) = ziK . Taylor-style forecasting estimates finite differences from nearby cached rep-resentations and extrapolates them to τs. BeziCast instead uses the regularized Bernstein/Bézier forecaster defined below. In our cubic Bézier setting, we use a warm-up plus fixed-period schedule (see Appendix A.3). The first W ≥ 4 solver steps are computed fully to initialize the representation history. After warm-up, one full denoiser evaluation is performed every R steps, and each intermediate cache step is forecast from at most Kmax = 6 recent full-step representations. 
+
+3.2 Tikhonov-Stabilized Bézier Forecaster 
+
+The temporal basis determines how cached denoising representations are predicted at skipped timesteps. Taylor-style predictors estimate finite differences and extrapolate them in a Newton-form power basis. BeziCast uses a low-order Bernstein/Bézier trajectory with Tikhonov-stabilized fitting. The forecaster is specified below by local time normalization, a Bernstein basis, and a Tikhonov control-point estimate. Appendix A.1.1 gives the design motivation and perturbation discussion. Since future full-step representations are unavailable during online inference, cache-step prediction is typically performed by extrapolating beyond the recent history window. The standard Bézier convex-hull property only holds inside the interpolation interval, so we control extrapolation by clipping the query coordinate with umax and by applying the equivalent-weight guardrail in Section 3.3. 
+
+Definition 4 (local time normalization). For a cache step s, let Is = {i1, . . . , i K }, with i1 < · · · <iK < s , be the indices of the most recent K full steps. Historical coordinates are normalized by 
+
+um = τim − τi1
+
+τiK − τi1 + ετ
+
+, m = 1 , . . . , K, (6) where ετ > 0 is a small numerical constant. The cache-step query coordinate is normalized with the same local window and clipped by umax :
+
+us = τs − τi1
+
+τiK − τi1 + ετ
+
+, us ← min( us, u max ), (7) The cap umax is a fixed hyperparameter for the extrapolation coordinate. 
+
+Definition 5 (Bernstein/Bézier trajectory). For n control representations P0, . . . , P n−1 ∈ RD,define 
+
+ˆz(u) = 
+
+> n−1
+
+X
+
+> j=0
+
+bj,n −1(u)Pj , bj,n −1(u) = 
+
+n − 1
+
+j
+
+
+
+uj (1 − u)n−1−j . (8) The control representations parameterize a local trajectory; they are fitted parameters and need not coincide with any cached representation. 
+
+Definition 6 (Tikhonov control-point fitting). Let b(u) = [ b0,n −1(u), . . . , b n−1,n −1(u)] ⊤ ∈ Rn,and construct the Bernstein design matrix A ∈ RK×n by Am,j = bj,n −1(um). Stack the cached output-proximal representations as 
+
+Z = [ zi1 zi2 · · · ziK ]⊤ ∈ RK×D . (9) 5We estimate the control matrix P ∈ Rn×D (composed of control points) by 
+
+P ⋆λ = arg min  
+
+> P
+
+∥AP − Z∥2 
+
+> F
+
++ λ∥ΓP ∥2 
+
+> F
+
+, (10) where λ > 0 is the regularization strength and Γ is the Tikhonov matrix. We set Γ = I, yielding the ridge-stabilized solution 
+
+P ⋆λ = ( A⊤A + λI )−1A⊤Z. (11) 
+
+Proposition 2 (equivalent linear smoother). With Γ = I, the cache-step prediction can be written as 
+
+ˆzs = b(us)⊤(A⊤A + λI )−1A⊤Z. (12) Equivalently, 
+
+ˆzs = ωλ(us)⊤Z, ωλ(us)⊤ = b(us)⊤(A⊤A + λI )−1A⊤ ∈ R1×K . (13) 
+
+Proof. Substituting Eq. (11) into Eq. (8) gives Eq. (12). Collecting the coefficients applied to Z
+
+gives Eq. (13). Eq. (13) rewrites the prediction as a weighted sum of cached representations. The equivalent weights depend on the local coordinates, the Bernstein basis, and λ.
+
+Proposition 3 (regularization-controlled sensitivity). For the ridge-stabilized predictor in Eq. (12), any cache perturbation δZ satisfies 
+
+∥δˆzs∥F ≤ ∥b(us)∥2
+
+2√λ ∥δZ ∥F . (14) On the clipped query range us ∈ [0 , u max ], the factor ∥b(us)∥2 is bounded by sup u∈[0 ,u max ] ∥b(u)∥2.The proof and the comparison with ordinary least squares are given in Appendix A.1. 
+
+3.3 Equivalent-Weight Convex-Hull Guardrail 
+
+The equivalent weights in Eq. (13) are also used to define a coefficient-space score. When us > 1,the induced historical weights may become signed, deviate from unit sum, or have a large ℓ1 norm. The following definitions specify the score and the simplex-projected fallback. 
+
+Definition 7 (equivalent-weight risk). Let w = ωλ(us) ∈ RK . Define 
+
+r(us) = |1⊤w − 1| +  ∥w∥1 − | 1⊤w|. (15) The first term measures deviation from an affine combination. The second term measures excess signed mass. 
+
+Proposition 4 (risk-score interpretation). The score r(us) is nonnegative. Moreover, r(us) = 0 if and only if w lies in the probability simplex 
+
+∆ = {α ∈ RK : αm ≥ 0, 1⊤α = 1 }. (16) If 1⊤w = 1 , then 
+
+r(us) = ∥w∥1 − 1 = 2 
+
+> K
+
+X
+
+> m=1
+
+max( −wm, 0) . (17) 
+
+Proof. The inequality ∥w∥1 ≥ | 1⊤w| gives nonnegativity. If r(us) = 0 , then 1⊤w = 1 and 
+
+∥w∥1 = 1 , which implies wm ≥ 0 for all m. Thus w ∈ ∆. The converse is immediate. When 
+
+1⊤w = 1 , decomposing w into positive and negative parts gives ∥w∥1 − 1 = 2 P 
+
+> m
+
+max( −wm, 0) .
+
+Definition 8 (guarded prediction). We project the equivalent weights onto the simplex: 
+
+wsafe (us) = Π ∆(w), (18) where Π∆ denotes Euclidean projection. The conservative representation is 
+
+zsafe  
+
+> s
+
+= wsafe (us)⊤Z. (19) The final cache-step representation is 
+
+˜zs = (1 − βs)ˆ zs + βszsafe  
+
+> s
+
+, (20) 6Table 1: Benchmark results on text-to-image generation with FLUX.1 and text-to-video generation with HunyuanVideo. We use 50 steps as the reference ( †). Our BeziCast achieves higher speedup while maintaining better sample quality across two speedup scenarios consistently.                                                                                                                                                                                                                                                                                          
+
+> Method FLUX.1 [dev] / DrawBench HunyuanVideo / VBench Acceleration Quality Image Reward ↑CLIP ↑Acceleration Quality VBench Quality ↑
+> Latency(s) ↓Speedup ↑PSNR ↑SSIM ↑LPIPS ↓Latency(s) ↓Speedup ↑PSNR ↑SSIM ↑LPIPS ↓
+> 50 steps †37.681 1.00 ×−−−1.052 27.01 489.18 1.00 ×−−−84.03 25 steps 19.583 1.92 ×17.350 0.679 0.228 0.998 27.23 252.40 1.94 ×21.779 0.885 0.243 83.60 15 steps 12.379 3.04 ×15.191 0.602 0.329 0.953 27.38 157.06 3.12 ×18.894 0.796 0.382 83.47 FORA ( N= 4 )11.208 3.36 ×14.702 0.584 0.356 0.885 27.20 153.67 3.18 ×17.892 0.740 0.421 83.21 ToCa ( N= 4 ,R= 0 .9)17.995 2.09 ×16.560 0.599 0.251 0.974 27.01 336.76 1.46 ×17.837 0.736 0.425 83.21 TeaCache ( δ= 0 .4/0.2)20.349 1.86 ×17.100 0.632 0.228 1.002 27.32 178.64 2.74 ×19.869 0.796 0.371 83.46 TaylorSeer ( N= 4 ,O= 1 )12.362 3.05 ×19.158 0.720 0.149 1.041 27.00 152.68 3.20 ×20.629 0.877 0.281 82.81 TaylorSeer ( N= 4 ,O= 2 )12.531 3.00 ×19.486 0.725 0.144 1.035 26.99 152.87 3.12 ×20.475 0.869 0.290 82.25 HiCache ( N= 4 ,O= 2 ,σ= 0 .5)12.654 2.99 ×17.511 0.666 0.206 1.010 26.89 149.63 3.27 ×20.866 0.874 0.274 83.06
+> BeziCast (N= 4 /5,n= 4 ,λ= 0 .5)10.855 3.47 ×22.382 0.782 0.090 1.035 27.17 135.82 3.60 ×24.783 0.916 0.197 83.48
+> FORA ( N= 6 )8.321 4.52 ×14.056 0.551 0.408 0.798 26.96 116.10 4.21 ×16.883 0.652 0.504 82.55 ToCa ( N= 6 ,R= 0 .9)14.342 2.64 ×15.037 0.579 0.276 0.965 27.07 230.32 2.13 ×16.861 0.648 0.504 82.39 TeaCache ( δ= 0 .8/0.25 )12.833 2.94 ×15.106 0.621 0.289 0.960 27.03 157.27 3.11 ×18.768 0.721 0.423 83.01 TaylorSeer ( N= 6 ,O= 1 )8.793 4.31 ×15.617 0.621 0.286 0.940 26.41 125.36 3.90 ×17.561 0.784 0.419 82.80 TaylorSeer ( N= 6 ,O= 2 )8.862 4.27 ×15.872 0.598 0.281 0.988 26.52 125.54 3.90 ×18.041 0.800 0.400 82.52 HiCache ( N= 6 ,O= 2 ,σ= 0 .5)9.663 3.90 ×15.618 0.585 0.296 0.971 26.54 123.47 3.96 ×19.143 0.827 0.361 82.29
+> BeziCast (N= 6 ,n= 4 ,λ= 0 .5)7.881 4.79 ×17.204 0.625 0.240 0.987 27.09 118.62 4.11 ×23.631 0.904 0.217 83.21
+
+with 
+
+βs = βmax · clip 
+
+ r(us) − ργ , 0, 1
+
+
+
+. (21) Here ρ is the activation threshold, γ controls transition smoothness, and βmax ≤ 1 is the maximum blending strength. 
+
+Proposition 5 (convex-hull fallback). The representation zsafe 
+
+s lies in the convex hull of the cached representations {zim }Km=1 . If βs = 1 , the final prediction ˜zs equals this convex-hull fallback. If 
+
+0 < β s < 1, the final prediction is pulled toward the fallback but is not forced to lie inside the historical convex hull. 
+
+Proof. By construction, wsafe ∈ ∆. Therefore zsafe 
+
+s = w⊤
+
+safe Z is a convex combination of the cached representations. The statements about ˜zs follow directly from Eq. (20). 
+
+## 4 Experiments 
+
+We conduct comprehensive experiments on two representative generative tasks using SOTA mod-els, covering text-to-image generation with FLUX.1-dev[4] and text-to-video generation with HunyuanVideo[14]. Each task follows standard evaluation protocols and widely adopted benchmarks, enabling fair and reproducible comparisons with existing methods. We present additional BeziCast configurations and component-level ablations in separate analysis subsections. 
+
+4.1 Experimental Setup Models and Tasks. For text-to-image generation, we evaluate BeziCast on FLUX.1-dev [4] using a 50-step reference schedule and the 200-prompt DrawBench suite [32], generating images at 
+
+1024 × 1024 . For text-to-video generation, we use HunyuanVideo [14] and follow the official VBench [12] prompt set and evaluation protocol. 
+
+Baselines and Metrics. We compare BeziCast with representative training-free acceleration meth-ods, including κ-step sampling, cache-reuse methods FORA [34], ToCa [55], and TeaCache [18], as well as forecasting-based methods TaylorSeer [20] and HiCache [7]. We use N for the cache interval, n for the number of Bézier control representations, and λ for Tikhonov regularization. We report sampling latency (per-image/video) and speedup relative to the original 50-step sampler, together with task-specific quality metrics: PSNR, SSIM, LPIPS, ImageReward, and CLIP Score [10] for text-to-image generation; PSNR, SSIM, LPIPS, and VBench Quality Score for text-to-video generation. 
+
+4.2 Main Comparisons. Text-to-Image Generation. The left part of Table 1 reports the quantitative results on FLUX.1-dev. BeziCast achieves a strong trade-off between acceleration and generation quality under both caching intervals. With N = 4 , BeziCast ( λ = 0 .5) uses 15 network evaluations, reaches a 3.47 × speedup, and obtains the best reference-based fidelity among accelerated methods. Compared with TaylorSeer 7Reference 1.00x Fora 4.52x Teacache 2.92x TaylorSeer 4.31x Hicache 3.90x BeziCast 4.79x 
+
+> A sign that says 'Text to Image' A painting by Grant Wood of an astronaut couple, american gothic style. A maglev train going vertically downward in high speed, New York Times photojournalism.
+
+Figure 4: Qualitative comparison on text-to-image generation using FLUX.1. BeziCast delivers the highest speedup while preserving prompt alignment, text readability, and visual fidelity. “a horse bending down to drink water from a river 
+
+> ”
+> Reference TaylorSeer
+> HunyuanVideo
+> Bezicast
+> “a cat running happily
+> ”
+> 3.05x 3.47x 50 steps
+
+Figure 5: Qualitative comparison on text-to-video generation using HunyuanVideo. BeziCast closely follow the 50-step reference, whereas TaylorSeer is slower and introduces visible artifacts. and HiCache under similar budgets, BeziCast better preserves the 50-step reference, suggesting that Bézier trajectory forecasting provides a more accurate approximation than Taylor-style or Hermite-based extrapolation. Under the more aggressive setting with N = 6 , BeziCast uses 12 network evaluations, achieves a 4.79 × speedup, and maintains competitive quality. It outperforms direct reuse methods and forecasting baselines in reference alignment, achieving the best PSNR, SSIM, LPIPS, and ImageReward score among all N = 6 methods. These results demonstrate the robustness of output-proximal Bézier forecasting for training-free text-to-image acceleration. Fig. 4 provides a qualitative comparison. BeziCast achieves the highest speedup while preserving prompt alignment, text legibility, and global visual fidelity comparable to the full FLUX.1 baseline. 
+
+Text-to-Video Generation. The right part of Table 1 reports the quantitative results on Hunyuan-Video using VBench. BeziCast achieves strong text-to-video acceleration, reaching up to a 4.11 ×
+
+wall-clock speedup while preserving high sample fidelity. With N = 5 , BeziCast ( n = 4 , λ = 0 .5)achieves a 3.60 × speedup and the best overall fidelity among accelerated methods. Compared with TaylorSeer and HiCache at similar speedups, BeziCast better matches the full-sampling reference, suggesting that Bézier-based forecasting more accurately approximates latent dynamics. Even under the more aggressive N = 6 setting, BeziCast maintains strong quality with a 4.11 × speedup, yielding a better efficiency–fidelity trade-off than competing baselines. Fig. 5 further shows that BeziCast more closely follows the 50-step reference and introduces fewer visible artifacts than TaylorSeer. 
+
+4.3 Additional BeziCast Results and Ablations. Effect of the ridge coefficient. We further study the effect of the Tikhonov coefficient λ. As shown in Table 2, small values of λ behave similarly to the pseudoinverse estimator and may not sufficiently suppress extrapolation artifacts. Increasing λ reduces control-point magnitude and cache-step error, but overly large λ can over-shrink the trajectory, leading to over-smoothing or loss of fine details. An intermediate regularization strength achieves the best fidelity–stability trade-off as seen in Fig. 6(a). 8D6 residual D6 output D10 residual D10 output D14 residual D14 output D18 residual D18 output Output-proximal Representation    
+
+> 2.5 3.0 3.5 4.0
+> (b) Model Robustness of Perturbation in different layer
+> Robustness Score[-log(Relative Change)]
+> Tikhonov regularization strength 𝜆
+> (a) Updated Effect of Tikhonov Regularization strength 𝜆 on BeziCast
+> Normalized Score (higher is better)
+
+Figure 6: Ablation on Tikhonov regularization and different forecasting targets. (a) Effect of the Tikhonov coefficient λ. (b) Robustness score under equal relative-norm perturbations injected into different FLUX representations; higher values indicate smaller final-output changes. Table 2: Effect of regularization strength λ.                                                
+
+> λPSNR ↑SSIM ↑LPIPS ↓CLIP ↑IR ↑Lat. ↓
+> 015.425 0.393 0.523 26.590 0.758 15.843
+> 1×10 −217.148 0.524 0.368 27.331 0.920 15.208
+> 5×10 −220.043 0.710 0.147 27.453 1.040 15.208
+> 1×10 −121.416 0.759 0.100 27.301 1.062 15.208
+> 5×10 −122.993 0.793 0.075 27.091 1.035 15.208
+> 1×10 123.037 0.792 0.076 27.086 1.008 15.208
+
+Table 3: Effect of the control point number n.                                                       
+
+> WnPSNR ↑SSIM ↑LPIPS ↓CLIP ↑IR ↑Lat. ↓
+> 6420.993 0.750 0.115 27.192 1.028 10.109 6521.340 0.753 0.113 27.237 1.018 10.101
+> 6621.401 0.752 0.113 27.201 1.015 10.101
+> 8423.287 0.798 0.074 27.099 1.038 11.530
+> 8523.384 0.798 0.075 27.125 1.027 11.587 8623.415 0.796 0.076 27.127 1.040 11.595
+
+Perturbation Injection Diagnostic. We further apply the perturbation-injection diagnostic from Appendix A.2 to measure how errors at different forecasting targets affect the final denoising output . Following the local error-propagation analysis in Appendix A.2, intermediate-target errors must traverse the remaining downstream blocks, while output-proximal errors only pass through the final output map. As shown in Fig. 6(b), the final output-proximal representation achieves the highest robustness score among all tested targets, including double-stream block residuals and outputs at layers 6, 10, 14, and 18. Intermediate residuals are generally more robust than block outputs, and later layers are more robust than earlier ones, but all remain less robust than the output-proximal representation. This supports our target choice: BeziCast does not require the final hidden state to be easier to predict, but benefits from its shorter error-propagation path to the denoising output. Table 4: Effect of equivalent-weight convex-hull guardrails in the Flux.1.                               
+
+> Variant PSNR ↑SSIM ↑LPIPS ↓CLIP ↑Rwd. ↑Lat. ↓
+> None 20.993 0.750 0.115 27.192 1.028 10.109
+> PCA hull 20.930 0.750 0.115 27.214 1.031 10.150 Simplex 21.229 0.753 0.112 27.229 1.032 10.137
+
+Equivalent-weight convex-hull guardrail Bez-iCast uses equivalent history weights to diagnose extrapolation risk and constructs a conservative esti-mate by projecting high-risk weights onto the prob-ability simplex. We compare three variants under the W = 6 FLUX schedule: no guardrail, a PCA convex-hull guardrail, and the simplex guardrail used in our main method. The PCA variant projects cached output-proximal representations into a low-dimensional PCA subspace, applies a convex-hull correction, and maps the estimate back to the original representation space. While lightweight, its behavior depends on the retained PCA subspace. Table 4 shows that the simplex guardrail provides the most stable reference-fidelity improvement with only minor latency overhead. In contrast, the PCA convex-hull guardrail slightly improves some semantic metrics but yields less consistent reference-fidelity gains. These results support using the simplex guardrail by default: rather than reinterpreting u > 1 Bézier extrapolation as standard convex-hull interpolation, it pulls high-risk forecasts toward a conservative estimate when the weights contain large negative entries or deviate from the affine constraint. 
+
+Number of control representations The number of control representations n determines the degree and capacity of the Bézier trajectory, while the warm-up length W controls how many initial solver steps are fully evaluated before forecasting begins. We ablate n ∈ { 4, 5, 6} under W = 6 
+
+and W = 8 , with the Tikhonov coefficient fixed at λ = 5 × 10 −1. As shown in Table 3, increasing 
+
+n yields only marginal gains in reference fidelity, while the other quality metrics change little and latency may slightly increase. We therefore use n = 4 as the default setting, as it provides a stable cubic trajectory with competitive quality and the lowest or near-lowest latency. 
+
+## 5 Conclusion 
+
+We presented BeziCast, a training-free diffusion acceleration framework that forecasts output-proximal denoising representations with low-order Bézier trajectories. With Bernstein fitting and a guardrail, BeziCast preserves the pretrained denoiser and sampler while improving the speed–quality 9trade-off on image and video generation. Experiments on FLUX.1, HunyuanVideo demonstrate substantial acceleration and stronger fidelity than cache-based baselines. 10 References 
+
+[1] Jiazi Bu, Pengyang Ling, Yujie Zhou, Yibin Wang, Yuhang Zang, Dahua Lin, and Jiaqi Wang. Dicache: Let diffusion model determine its own cache. In The Fourteenth International Conference on Learning Representations , 2026. [2] Defang Chen, Zhenyu Zhou, Can Wang, and Siwei Lyu. Geometric regularity in deterministic sampling dynamics of diffusion-based generative models. Journal of Statistical Mechanics: Theory and Experiment , 2025(12):124002, 2025. [3] Defang Chen, Zhenyu Zhou, Can Wang, Chunhua Shen, and Siwei Lyu. On the trajectory regularity of ODE-based diffusion sampling. In Ruslan Salakhutdinov, Zico Kolter, Katherine Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp, editors, Proceed-ings of the 41st International Conference on Machine Learning , volume 235 of Proceedings of Machine Learning Research , pages 7905–7934. PMLR, 21–27 Jul 2024. [4] Patrick Esser, Sumith Kulal, Andreas Blattmann, Rahim Entezari, Jonas Müller, Harry Saini, Yam Levi, Dominik Lorenz, Axel Sauer, Frederic Boesel, Dustin Podell, Tim Dockhorn, Zion English, and Robin Rombach. Scaling rectified flow transformers for high-resolution image synthesis. In Ruslan Salakhutdinov, Zico Kolter, Katherine Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp, editors, Proceedings of the 41st International Conference on Machine Learning , volume 235 of Proceedings of Machine Learning Research ,pages 12606–12633. PMLR, 21–27 Jul 2024. [5] Rida Farouki and Tim Goodman. On the optimal stability of the bernstein basis. Mathematics of computation , 65(216):1553–1566, 1996. [6] Rida T Farouki and VT Rajan. On the numerical condition of polynomials in bernstein form. 
+
+Computer Aided Geometric Design , 4(3):191–216, 1987. [7] Liang Feng, Shikang Zheng, Jiacheng Liu, Yuqi Lin, Qinming Zhou, Peiliang Cai, Xinyu Wang, Junjie Chen, Chang Zou, Yue Ma, et al. Hicache: A plug-in scaled-hermite upgrade for taylor-style cache-then-forecast diffusion acceleration. In The Fourteenth International Conference on Learning Representations , 2026. [8] Jiaxi Gu, Shicong Wang, Haoyu Zhao, Tianyi Lu, Xing Zhang, Zuxuan Wu, Songcen Xu, Wei Zhang, Yu-Gang Jiang, and Hang Xu. Reuse and diffuse: Iterative denoising for text-to-video generation. arXiv preprint arXiv:2309.03549 , 2023. [9] Jiaqi Han, Juntong Shi, Puheng Li, Haotian Ye, Qiushan Guo, and Stefano Ermon. Adaptive spec-tral feature forecasting for diffusion sampling acceleration. arXiv preprint arXiv:2603.01623 ,2026. [10] Jack Hessel, Ari Holtzman, Maxwell Forbes, Ronan Le Bras, and Yejin Choi. Clipscore: A reference-free evaluation metric for image captioning. In Proceedings of the 2021 conference on empirical methods in natural language processing , pages 7514–7528, 2021. [11] Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusion probabilistic models. In H. Larochelle, M. Ranzato, R. Hadsell, M.F. Balcan, and H. Lin, editors, Advances in Neural Information Processing Systems , volume 33, pages 6840–6851, 2020. [12] Ziqi Huang, Yinan He, Jiashuo Yu, Fan Zhang, Chenyang Si, Yuming Jiang, Yuanhan Zhang, Tianxing Wu, Qingyang Jin, Nattapol Chanpaisit, et al. Vbench: Comprehensive benchmark suite for video generative models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 21807–21818, 2024. [13] Tero Karras, Miika Aittala, Timo Aila, and Samuli Laine. Elucidating the design space of diffusion-based generative models. Advances in neural information processing systems ,35:26565–26577, 2022. [14] Weijie Kong, Qi Tian, Zijian Zhang, Rox Min, Zuozhuo Dai, Jin Zhou, Jiangfeng Xiong, Xin Li, Bo Wu, Jianwei Zhang, et al. Hunyuanvideo: A systematic framework for large video generative models. arXiv preprint arXiv:2412.03603 , 2024. 11 [15] Hao Li, He Cao, Bin Feng, Yanjun Shao, Xiangru Tang, Zhiyuan Yan, Li Yuan, Yonghong Tian, and Yu Li. Beyond chemical qa: Evaluating llm’s chemical reasoning with modular chemical operations. arXiv preprint arXiv:2505.21318 , 2025. [16] Hao Li, Jinfa Huang, Peng Jin, Guoli Song, Qi Wu, and Jie Chen. Weakly-supervised 3d spatial reasoning for text-based visual question answering. IEEE Transactions on Image Processing ,32:3367–3382, 2023. [17] Hao Li, Yanhao Jia, Peng Jin, Zesen Cheng, Kehan Li, Jialu Sui, Chang Liu, and Li Yuan. Freestyleret: retrieving images from style-diversified queries. In European Conference on Computer Vision , pages 258–274. Springer, 2024. [18] Feng Liu, Shiwei Zhang, Xiaofeng Wang, Yujie Wei, Haonan Qiu, Yuzhong Zhao, Yingya Zhang, Qixiang Ye, and Fang Wan. Timestep embedding tells: It’s time to cache for video diffusion model. In Proceedings of the Computer Vision and Pattern Recognition Conference ,pages 7353–7363, 2025. [19] Jiacheng Liu, Peiliang Cai, Qinming Zhou, Yuqi Lin, Deyang Kong, Benhao Huang, Yupei Pan, Haowen Xu, Chang Zou, Junshu Tang, et al. Freqca: Accelerating diffusion models via frequency-aware caching. arXiv preprint arXiv:2510.08669 , 2025. [20] Jiacheng Liu, Chang Zou, Yuanhuiyi Lyu, Junjie Chen, and Linfeng Zhang. From reusing to forecasting: Accelerating diffusion models with taylorseers. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 15853–15863, 2025. [21] Jiacheng Liu, Chang Zou, Yuanhuiyi Lyu, Fei Ren, Shaobo Wang, Kaixin Li, and Linfeng Zhang. Speca: Accelerating diffusion transformers with speculative feature caching. In Proceedings of the 33rd ACM International Conference on Multimedia , pages 10024–10033, 2025. [22] Xingchao Liu, Xiwen Zhang, Jianzhu Ma, Jian Peng, et al. Instaflow: One step is enough for high-quality diffusion-based text-to-image generation. In The Twelfth International Conference on Learning Representations , 2023. [23] Yunfei Liu, Lei Zhu, Lijian Lin, Ye Zhu, Ailing Zhang, and Yu Li. Teaser: Token enhanced spatial modeling for expressions reconstruction. In International Conference on Learning Representations , volume 2025, pages 75290–75309, 2025. [24] Cheng Lu, Yuhao Zhou, Fan Bao, Jianfei Chen, Chongxuan Li, and Jun Zhu. Dpm-solver: A fast ode solver for diffusion probabilistic model sampling in around 10 steps. Advances in neural information processing systems , 35:5775–5787, 2022. [25] Cheng Lu, Yuhao Zhou, Fan Bao, Jianfei Chen, Chongxuan Li, and Jun Zhu. Dpm-solver++: Fast solver for guided sampling of diffusion probabilistic models. Machine Intelligence Re-search , 22(4):730–751, 2025. [26] Simian Luo, Yiqin Tan, Longbo Huang, Jian Li, and Hang Zhao. Latent consistency models: Synthesizing high-resolution images with few-step inference. arXiv preprint arXiv:2310.04378 ,2023. [27] Xinyin Ma, Gongfan Fang, and Xinchao Wang. Deepcache: Accelerating diffusion models for free. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,pages 15762–15772, 2024. [28] Zehong Ma, Longhui Wei, Feng Wang, Shiliang Zhang, and Qi Tian. Magcache: Fast video generation with magnitude-aware cache, 2025. [29] Yunhong Min, Juil Koo, Seungwoo Yoo, and Minhyuk Sung. Bézierflow: Learning bézier stochastic interpolant schedulers for few-step generation, 2026. [30] Nicholas M. Patrikalakis, Takashi Maekawa, and Wonjoon Cho. Shape Interrogation for Computer Aided Design and Manufacturing . 2009. Hyperbook edition. [31] William Peebles and Saining Xie. Scalable diffusion models with transformers. In Proceedings of the IEEE/CVF international conference on computer vision , pages 4195–4205, 2023. 12 [32] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily L Denton, Kamyar Ghasemipour, Raphael Gontijo Lopes, Burcu Karagol Ayan, Tim Salimans, et al. Photorealistic text-to-image diffusion models with deep language understanding. Advances in neural information processing systems , 35:36479–36494, 2022. [33] Tim Salimans and Jonathan Ho. Progressive distillation for fast sampling of diffusion models. 
+
+arXiv preprint arXiv:2202.00512 , 2022. [34] Pratheba Selvaraju, Tianyu Ding, Tianyi Chen, Ilya Zharkov, and Luming Liang. Fora: Fast-forward caching in diffusion transformer acceleration. arXiv preprint arXiv:2407.01425 , 2024. [35] Zewen Shen and Kirill Serkh. On polynomial interpolation in the monomial basis. SIAM Journal on Numerical Analysis , 63(2):469–494, March 2025. [36] Jiaming Song, Chenlin Meng, and Stefano Ermon. Denoising diffusion implicit models. arXiv preprint arXiv:2010.02502 , 2020. [37] Yang Song, Prafulla Dhariwal, Mark Chen, and Ilya Sutskever. Consistency models. In Andreas Krause, Emma Brunskill, Kyunghyun Cho, Barbara Engelhardt, Sivan Sabato, and Jonathan Scarlett, editors, Proceedings of the 40th International Conference on Machine Learning ,volume 202 of Proceedings of Machine Learning Research , pages 32211–32252. PMLR, 23–29 Jul 2023. [38] Guangyi Wang, Yuren Cai, Lijiang Li, Wei Peng, and Songzhi Su. Pfdiff: Training-free acceler-ation of diffusion models combining past and future scores. arXiv preprint arXiv:2408.08822 ,2024. [39] Guangyi Wang, Wei Peng, Wenyu Chen, Yuren Cai, Song-Zhi Su, et al. Diffusion sampling correction via approximately 10 parameters. In Forty-second International Conference on Machine Learning , 2025. [40] Jiahao Wu, Yunfei Liu, Lijian Lin, Ye Zhu, Lei Zhu, Jingyi Li, and Yu Li. Pear: Pixel-aligned expressive human mesh recovery. arXiv preprint arXiv:2601.22693 , 2026. [41] Jiahao Wu, Rui Peng, Zhiyan Wang, Lu Xiao, Luyang Tang, Jinbo Yan, Kaiqiang Xiong, and Ronggang Wang. Swift4d: Adaptive divide-and-conquer gaussian splatting for compact and efficient reconstruction of dynamic scene. arXiv preprint arXiv:2503.12307 , 2025. [42] Quanwei Yang, Jiazhi Guan, Kaisiyuan Wang, Lingyun Yu, Wenqing Chu, Hang Zhou, ZhiQiang Feng, Haocheng Feng, Errui Ding, Jingdong Wang, et al. Showmaker: Creating high-fidelity 2d human video via fine-grained diffusion modeling. Advances in Neural Information Processing Systems , 37:51039–51062, 2024. [43] Quanwei Yang, Luying Huang, Kaisiyuan Wang, Jiazhi Guan, Shengyi He, Fengguo Li, Hang Zhou, Lingyun Yu, Yingying Li, Haocheng Feng, et al. Gesturehydra: Semantic co-speech gesture synthesis via hybrid modality diffusion transformer and cascaded-synchronized retrieval-augmented generation. In 2025 IEEE/CVF International Conference on Computer Vision (ICCV) , pages 12615–12625. IEEE, 2025. [44] Tianwei Yin, Michaël Gharbi, Taesung Park, Richard Zhang, Eli Shechtman, Fredo Durand, and William T Freeman. Improved distribution matching distillation for fast image synthesis. 
+
+Advances in neural information processing systems , 37:47455–47487, 2024. [45] Tianwei Yin, Michaël Gharbi, Richard Zhang, Eli Shechtman, Fredo Durand, William T Freeman, and Taesung Park. One-step diffusion with distribution matching distillation. In 
+
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 6613–6623, 2024. [46] Wenliang Zhao, Lujia Bai, Yongming Rao, Jie Zhou, and Jiwen Lu. Unipc: A unified predictor-corrector framework for fast sampling of diffusion models. Advances in Neural Information Processing Systems , 36:49842–49869, 2023. 13 [47] Shikang Zheng, Liang Feng, Xinyu Wang, Qinming Zhou, Peiliang Cai, Chang Zou, Jiacheng Liu, Yuqi Lin, Junjie Chen, Yue Ma, et al. Forecast then calibrate: Feature caching as ode for efficient diffusion transformers. In Proceedings of the AAAI Conference on Artificial Intelligence ,volume 40, pages 13449–13457, 2026. [48] Zhixin Zheng, Xinyu Wang, Chang Zou, Shaobo Wang, and Linfeng Zhang. Compute only 16 tokens in one timestep: Accelerating diffusion transformers with cluster-driven feature caching. In Proceedings of the 33rd ACM International Conference on Multimedia , pages 10181–10189, 2025. [49] Zhenyu Zhou, Defang Chen, Siwei Lyu, Chun Chen, and Can Wang. Analyzing and improving fast sampling of text-to-image diffusion models. arXiv preprint arXiv:2603.00763 , 2026. [50] Zhenyu Zhou, Defang Chen, Can Wang, and Chun Chen. Fast ode-based sampling for diffusion models in around 5 steps. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7777–7786, 2024. [51] Zhenyu Zhou, Defang Chen, Can Wang, Chun Chen, and Siwei Lyu. Simple and fast distillation of diffusion models. Advances in Neural Information Processing Systems , 37:40831–40860, 2024. [52] Lei Zhu, Xing Cai, Yingjie Chen, Yiheng Li, Binxin Yang, Hao Liu, Jie Chen, Chen Li, and Jing LYu. Omnihuman: a large-scale dataset and benchmark for human-centric video generation. In 
+
+European Conference on Computer Vision , pages 92–110. Springer, 2026. [53] Lei Zhu, Yuanqi Chen, Xiaohang Liu, Thomas H Li, and Ge Li. Learning semantic facial descriptors for accurate face animation. In ICASSP 2025-2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) , pages 1–5. IEEE, 2025. [54] Lei Zhu, Lijian Lin, Ye Zhu, Jiahao Wu, Xuehan Hou, Yu Li, Yunfei Liu, and Jie Chen. Realdyadic: Synthesizing realistic dyadic 3d dialogue with neural appearance priors. In 
+
+European Conference on Computer Vision , pages 527–545. Springer, 2026. [55] Chang Zou, Xuyang Liu, Ting Liu, Siteng Huang, and Linfeng Zhang. Accelerating diffusion transformers with token-wise feature caching. arXiv preprint arXiv:2410.05317 , 2024. 
+
+## A Technical appendices and supplementary material 
+
+A.1 Why Use a Tikhonov-Stabilized Bernstein Basis? A.1.1 Design Motivation of Tikhonov-Stabilized Bernstein Basis 
+
+The temporal basis determines how a cache-then-forecast method turns a short history of computed denoising representations into predictions at skipped timesteps [20, 7, 9]. Taylor-style predictors estimate local finite differences and extrapolate them in a Newton-form power basis [20, 7]. This design is effective for short horizons, but it couples two sources of sensitivity: finite differences first form alternating high-order derivative estimates from nearby cached features, and extrapolation then multiplies these estimates by coefficients that grow with the forecast offset and expansion order. Proposition A.1 in Appendix A.1 makes this mechanism explicit: for an order-p backward finite-difference predictor at future offset q, bounded cache perturbations are amplified by a factor upper bounded by Ppj=0 | qj
+
+|2j in Eq. (24), whose leading term grows as a degree-p polynomial in 
+
+q.BeziCast replaces direct reuse and high-order finite-difference extrapolation with a regularized local trajectory fit. It estimates a low-order Bernstein/Bézier curve from recent output-proximal representations and evaluates the fitted curve at cache-step coordinates. A Bézier curve is defined by a small set of control points and Bernstein basis functions [6]; once the control points are fixed, the curve can be evaluated analytically at any normalized time coordinate [30]. Thus, the number of control points sets trajectory capacity, while the cache schedule only determines how often the trajectory is queried. 14 Cache forecasting differs from standard Bézier interpolation because future full-step representations are unavailable during online inference. At a cache step, the method observes only previously computed full steps, so the query is often a short-range extrapolation beyond the most recent full step, i.e., u > 1. We therefore do not use the in-interval convex-hull property of Bézier curves as a direct correctness guarantee. Instead, we use the Bernstein/Bézier form as a smooth low-order trajectory family and explicitly control extrapolation through Tikhonov regularization, query-range clipping, and the equivalent-weight guardrail introduced in Section 3.3. The Bernstein basis provides the geometric structure behind this design. On the standard interval 
+
+u ∈ [0 , 1] , Bernstein basis functions are nonnegative and form a partition of unity, so the correspond-ing Bézier curve lies in the convex hull of its control points [30]. Farouki and Goodman further show that the Bernstein basis has optimal stability among nonnegative polynomial bases on a fixed interval [5]. Although cache prediction may query u > 1, these properties remain useful as a diag-nostic lens: after Tikhonov fitting, each prediction can be written as an equivalent linear combination of historical representations. If the equivalent weights become heavily signed or deviate from an affine combination, the forecast is relying on aggressive extrapolation rather than a conservative combination of observed features. This observation motivates both the regularized fitting below and the coefficient-space guardrail that follows [15, 17]. 
+
+A.1.2 External Propositions and Proofs 
+
+This section formalizes the temporal-basis motivation in Section 3.2 and Appendix A.1.1. We first derive a perturbation bound for Taylor-style finite-difference extrapolation, and then show that the ridge-stabilized Bernstein/Bézier predictor admits a regularization-controlled stability bound. 
+
+Perturbation amplification in Taylor-style forecasting. Consider a scalar feature trajectory observed at equally spaced historical full steps, 
+
+z0, z −1, . . . , z −p. (22) The vector-valued case follows by applying the same argument coordinate-wise. For a future offset 
+
+q > 0, write the order-p backward finite-difference predictor as 
+
+ˆzTay (q) = 
+
+> p
+
+X
+
+> j=0
+
+qj
+
+
+
+∇j z0, (23) where ∇j denotes the j-th backward difference. 
+
+Proposition A.1 (Taylor perturbation). If each cached value is perturbed by η−r with |η−r | ≤ ε,then the induced perturbation of Eq. (23) satisfies 
+
+|δˆzTay (q)| ≤ ε
+
+> p
+
+X
+
+> j=0
+
+qj
+
+
+
+2j . (24) For fixed order p, the leading factor in this upper bound grows as a degree-p polynomial in the forecast offset q.
+
+Proof. The j-th backward difference can be expanded as 
+
+∇j z0 =
+
+> j
+
+X
+
+> r=0
+
+(−1) r
+
+jr
+
+
+
+z−r , (25) so Eq. (23) can be written as a linear extrapolation over historical values, 
+
+ˆzTay (q) = 
+
+> p
+
+X
+
+> r=0
+
+wTay  
+
+> r
+
+(q)z−r . (26) By linearity, the perturbation is δˆzTay (q) = Ppr=0 wTay  
+
+> r
+
+(q)η−r . Therefore, 
+
+|δˆzTay (q)| ≤ ΛTay  
+
+> p
+
+(q)ε, ΛTay  
+
+> p
+
+(q) = 
+
+> p
+
+X
+
+> r=0
+
+|wTay  
+
+> r
+
+(q)|. (27) 15 Using the triangle inequality before collecting the coefficients gives 
+
+ΛTay  
+
+> p
+
+(q) ≤
+
+> p
+
+X
+
+> j=0
+
+qj
+
+
+
+2j . (28) The asymptotic statement follows because  qp
+
+ is a degree-p polynomial in q.This proposition identifies a perturbation mechanism rather than a universal failure mode. Taylor-style predictors can work well for short extrapolation offsets or low expansion orders, but the finite-difference form allows small cache errors to be magnified when the cache interval is aggressive. 
+
+Stabilized Bernstein/Bézier forecasting. BeziCast instead estimates a low-order Bernstein/Bézier trajectory from cached output-proximal representations. Let 
+
+Z =
+
+
+
+z⊤
+
+> i1
+
+...
+
+z⊤
+
+> iK
+
+ ∈ RK×D (29) stack the K cached representations. Let n be the number of Bézier control representations, so the polynomial degree is n − 1. For normalized coordinate u, define the Bernstein basis vector b(u) ∈ Rn
+
+by 
+
+bj,n −1(u) = 
+
+n − 1
+
+j
+
+
+
+uj (1 − u)n−1−j , j = 0 , . . . , n − 1, (30) 
+
+b(u) = [ b0,n −1(u), . . . , b n−1,n −1(u)] ⊤ ∈ Rn. (31) Let the Bernstein design matrix A ∈ RK×n be 
+
+Am,j = bj,n −1(um) (32) for historical coordinates u1, . . . , u K . The control matrix P ∈ Rn×D is estimated by Tikhonov-regularized least squares, 
+
+P ⋆λ = arg min  
+
+> P
+
+∥AP − Z∥2 
+
+> F
+
++ λ∥ΓP ∥2 
+
+> F
+
+, (33) where λ > 0 controls the regularization strength and Γ is the Tikhonov matrix. If A⊤A + λΓ⊤Γ is invertible, the closed-form solution of Eq. (33) is 
+
+P ⋆λ =  A⊤A + λΓ⊤Γ−1 A⊤Z. (34) In the main implementation, we use Γ = I, yielding the ridge-stabilized solution 
+
+P ⋆λ = ( A⊤A + λI )−1A⊤Z. (35) Since A⊤A + λI is positive definite for λ > 0, this estimator remains well posed even when A is rank-deficient or ill-conditioned. The prediction at query coordinate u is 
+
+ˆzBez (u) = b(u)⊤P ⋆λ = b(u)⊤(A⊤A + λI )−1A⊤Z. (36) 
+
+Proposition A.2 (ridge Bernstein stability). For the ridge-stabilized predictor in Eq. (36), any cache perturbation δZ induces 
+
+∥δˆzBez (u)∥F ≤ ∥b(u)∥2
+
+2√λ ∥δZ ∥F . (37) Moreover, for the clipped extrapolation range u ∈ [0 , u max ], define 
+
+Cb(umax , n ) = sup 
+
+> u∈[0 ,u max ]
+
+∥b(u)∥2. (38) Then 
+
+∥δˆzBez (u)∥F ≤ Cb(umax , n )2√λ ∥δZ ∥F , u ∈ [0 , u max ]. (39) 
+
+Proof. Because Eq. (36) is linear in Z,
+
+δˆzBez (u) = b(u)⊤(A⊤A + λI )−1A⊤δZ. (40) 16 Hence 
+
+∥δˆzBez (u)∥F ≤ ∥ b(u)∥2 (A⊤A + λI )−1A⊤ 
+
+> 2
+
+∥δZ ∥F . (41) Let A = U ΣV ⊤ be the singular value decomposition of A. Then 
+
+(A⊤A + λI )−1A⊤ 
+
+> 2
+
+= max 
+
+> i
+
+σi
+
+σ2 
+
+> i
+
++ λ ≤ 12√λ , λ > 0. (42) This proves Eq. (37); taking the supremum of ∥b(u)∥2 over u ∈ [0 , u max ] gives Eq. (39). The bound gives the stability rationale for the Tikhonov-stabilized Bernstein/Bézier predictor. Its perturbation sensitivity is controlled by the regularization coefficient and the bounded query range, rather than by finite-difference order or a polynomial factor in the forecast offset. This does not imply that Bernstein/Bézier forecasting is always more accurate than Taylor forecasting; it states why the stabilized predictor is appropriate under aggressive cache intervals. 
+
+Why not ordinary least squares? The preceding bound depends on the Tikhonov term. Without this term, the Bernstein control points are estimated by ordinary least squares (OLS), 
+
+P ⋆ 
+
+> OLS
+
+= A+Z, (43) where A+ is the Moore–Penrose pseudoinverse. When A has full column rank, Eq. (43) reduces to 
+
+P ⋆ 
+
+> OLS
+
+= ( A⊤A)−1A⊤Z. (44) The induced prediction at query coordinate u is 
+
+ˆzOLS (u) = b(u)⊤A+Z. (45) 
+
+Proposition A.3 (OLS versus ridge sensitivity). Fix the Bernstein design matrix A and query coordinate u. Let A = U ΣV ⊤ have rank r and nonzero singular values σ1 ≥ · · · ≥ σr > 0. For any cache perturbation δZ , the OLS predictor satisfies 
+
+∥δˆzOLS (u)∥F ≤ ∥b(u)∥2
+
+σr
+
+∥δZ ∥F , (46) whereas the ridge-stabilized predictor with λ > 0 satisfies 
+
+∥δˆzλ(u)∥F ≤ ∥b(u)∥2
+
+2√λ ∥δZ ∥F . (47) 
+
+Proof. For OLS, linearity gives 
+
+δˆzOLS (u) = b(u)⊤A+δZ. (48) Using submultiplicativity of the Frobenius norm, 
+
+∥δˆzOLS (u)∥F ≤ ∥ b(u)∥2∥A+∥2∥δZ ∥F . (49) Since ∥A+∥2 = 1 /σ r , Eq. (46) follows. For the ridge estimator, 
+
+P ⋆λ = ( A⊤A + λI )−1A⊤Z, (50) and the same argument yields 
+
+∥δˆzλ(u)∥F ≤ ∥ b(u)∥2 (A⊤A + λI )−1A⊤ 
+
+> 2
+
+∥δZ ∥F . (51) In the singular-vector basis, the spectral filter of (A⊤A + λI )−1A⊤ is 
+
+gλ(σi) = σi
+
+σ2 
+
+> i
+
++ λ . (52) Therefore, 
+
+(A⊤A + λI )−1A⊤ 
+
+> 2
+
+= max  
+
+> i
+
+gλ(σi) ≤ sup 
+
+> σ≥0
+
+σσ2 + λ = 12√λ , (53) which proves Eq. (47). 17 This proposition isolates the role of Tikhonov stabilization. The OLS sensitivity depends on 1/σ r,which can be large when the Bernstein design matrix is ill-conditioned or nearly rank-deficient. By contrast, the ridge predictor replaces this data-dependent factor with the explicit regularization-controlled factor 1/(2 √λ). In each nonzero singular direction, OLS applies the filter 1/σ i, while ridge applies σi/(σ2 
+
+> i
+
++ λ). Their ratio is 
+
+σi/(σ2 
+
+> i
+
++ λ)1/σ i
+
+= σ2
+
+> i
+
+σ2 
+
+> i
+
++ λ ≤ 1, (54) so ridge attenuates directions that are weakly observed by the cache design. Thus, Tikhonov fitting preserves the Bernstein/Bézier trajectory class but stabilizes the estimation of its control representations. This stability is important for training-free cache-step forecasting. The history window contains only a few full denoiser evaluations, adjacent denoising representations are highly correlated, and cache queries are often extrapolative ( u > 1). In this regime, OLS may fit small cache perturbations or local fluctuations too closely, and these perturbations can be propagated by extrapolative Bernstein weights. Tikhonov fitting instead trades exact interpolation of the cached history for a smoother and better-conditioned control-point estimate. The same conclusion can be viewed through the standard bias–variance decomposition. Suppose the cached representations follow a local model 
+
+Z = AP ⋆ + E, (55) where P ⋆ is an ideal local control-point matrix and E denotes cache noise or approximation error. If 
+
+A has full column rank, then 
+
+P ⋆ 
+
+> OLS
+
+− P ⋆ = A+E, (56) whereas ridge gives 
+
+P ⋆λ − P ⋆ = −λ(A⊤A + λI )−1P ⋆ + ( A⊤A + λI )−1A⊤E. (57) The first term is the shrinkage bias introduced by ridge, and the second term is the noise-driven estimation error. The Tikhonov term damps the small-singular-value components of the noise term at the cost of this controlled bias. Since the goal of BeziCast is stable extrapolation at skipped steps rather than exact reconstruction of the cached history, this trade-off is better aligned with the inference-time forecasting objective. 
+
+A.2 Why Forecast Output-Proximal Representations? 
+
+This subsection explains why BeziCast forecasts an output-proximal representation zs rather than intermediate module outputs. We first give a local error-propagation analysis. We then report ablations on the forecasting target, perturbation sensitivity, and the step at which output-proximal forecasting is activated. 
+
+A.2.1 Theoretical Analysis 
+
+The key distinction is the error-injection point. An intermediate prediction error must pass through the remaining denoiser blocks before reaching the final noise estimate, whereas an output-proximal error only passes through the final output map. 
+
+Intermediate-module error propagation. Consider an intermediate representation hℓs inside the denoiser. Let the downstream computation after layer ℓ be 
+
+hr+1  
+
+> s
+
+= Φ r (hrs, t s, c ), r = ℓ, . . . , L − 1, (58) with final denoising output 
+
+ϵs = Oθ (hLs , t s, c ). (59) 
+
+Proposition A.4 (intermediate-module error propagation). Suppose the downstream blocks 
+
+Φℓ, . . . , ΦL−1 have local Lipschitz constants Lℓ, . . . , L L−1, and the output map Oθ has local Lips-chitz constant LO . If the intermediate representation is replaced by 
+
+ˆhℓs = hℓs + eℓs, (60) 18 then the induced denoising error satisfies 
+
+∥δϵ s∥ ≤ LO
+
+> L−1
+
+Y
+
+> r=ℓ
+
+Lr ∥eℓs∥. (61) 
+
+Proof. The denoising error caused by replacing hℓs with ˆhℓs is 
+
+δϵ s = Oθ ◦ ΦL−1 ◦ · · · ◦ Φℓ(hℓs + eℓs)
+
+− O θ ◦ ΦL−1 ◦ · · · ◦ Φℓ(hℓs). (62) Applying the local Lipschitz bounds sequentially through the composed downstream map gives Eq. (61). This proposition does not state that intermediate errors are always amplified. It states that their effect on the final denoising output depends on the local Jacobian path from the injection point to the output. Under the same local Lipschitz assumptions, a corresponding bound for multiple predicted modules can be obtained by accumulating their downstream-modulated terms. 
+
+Output-proximal error propagation. The output-proximal representation zs in Eq. (2) is placed immediately before the final output map: 
+
+ϵs = Oθ (zs, t s, c ). (63) 
+
+Proposition A.5 (output-proximal error propagation). Assume the output map Oθ has local Lipschitz constant LO with respect to its representation input. If 
+
+ˆzs = zs + ezs , (64) then 
+
+∥O θ (ˆ zs, t s, c ) − O θ (zs, t s, c )∥ ≤ LO ∥ezs ∥. (65) 
+
+Proof. Equation (65) follows directly from the local Lipschitz assumption on Oθ .Compared with Eq. (61), Eq. (65) removes the additional product of downstream block constants. This does not imply that zs is always easier to forecast than intermediate activations. Rather, it makes the relationship between representation prediction error and denoising-output error more direct, which is the property used by BeziCast. 
+
+Sampler-level consequence. The denoising error then enters the diffusion sampler. Let the full and forecasted trajectories use the same solver update 
+
+xs+1 = Ψ s(xs, ϵ s), ˆxs+1 = Ψ s(ˆ xs, ˆϵs). (66) 
+
+Proposition A.6 (sampler-level error propagation). Assume Ψs is locally Lipschitz in both arguments: 
+
+∥Ψs(x, ϵ ) − Ψs(x′, ϵ ′)∥ ≤ Lxs ∥x − x′∥ + Lϵs∥ϵ − ϵ′∥. (67) If both trajectories start from the same initial latent, then 
+
+∥ˆxT − xT ∥ ≤  
+
+> T−1
+
+X
+
+> s=0
+
+LϵsT −1Y
+
+> r=s+1
+
+Lxr
+
+!
+
+∥ˆϵs − ϵs∥. (68) 
+
+Proof. Let ds = ∥ˆxs − xs∥ and δs = ∥ˆϵs − ϵs∥. The Lipschitz condition gives 
+
+ds+1 ≤ Lxs ds + Lϵsδs. (69) Unrolling this recursion from d0 = 0 yields Eq. (68). This sampler-level bound explains why reducing denoising-output error is a natural local objective for cache-step forecasting. Output-proximal prediction does not remove sampler error accumulation, but it gives a shorter and more direct path from the forecasted representation to the denoising output that the sampler actually consumes. 19 Table 5: Ablation on forecasting targets on FLUX. All variants use the same pretrained denoiser, sampler, cache schedule, history length, Bernstein order, Tikhonov coefficient, and guardrail configu-ration. Forecasting target PSNR ↑ SSIM ↑ LPIPS ↓ CLIP ↑ ImageReward ↑ Latency ↓                   
+
+> Block-wise forecasting 22.993 0.793 0.075 27.091 1.035 15.208 Residual forecasting 23.289 0.798 0.074 27.097 1.026 14.016
+> Output-proximal forecasting zs23.287 0.798 0.074 27.099 1.038 11.530
+
+A.2.2 Ablation: Forecasting Target 
+
+We first ablate the representation used as the forecasting target. To isolate the target choice, we keep the pretrained FLUX denoiser, sampler, cache schedule, history length, Bernstein order, Tikhonov coefficient, and guardrail configuration fixed, and vary only the predicted representation. We compare three target types. Block-wise forecasting applies the same Bézier forecaster to local transformer-block outputs, resembling local-module feature caching where prediction errors are injected before subsequent blocks. Residual forecasting predicts the block residual/update represen-tation, following the residual-style target used in prior caching methods. In our implementation, the residual is defined as the difference between the block output and the block input. Output-proximal forecasting predicts the final hidden representation zs immediately before the output map Oθ , which is the default design of BeziCast. Table 5 shows that output-proximal forecasting gives the best latency while matching the reference fidelity of residual forecasting. It has nearly identical PSNR, SSIM, and LPIPS to residual forecasting, but reduces latency from 14.016s to 11.530s and gives the best CLIP and ImageReward scores. Compared with block-wise forecasting, it improves all listed quality metrics and also reduces latency. These results indicate that the final hidden representation remains predictable enough for cache-step forecasting, while avoiding the cost of predicting multiple intermediate targets. 
+
+Perturbation injection diagnostic. We next measure how a fixed relative representation error affects the final denoising output. For a candidate target q with representation hqs, let Gq denote the downstream computation from that representation to the denoising output. We inject a random perturbation with relative magnitude σ:
+
+˜hqs = hqs + σ ξ
+
+∥ξ∥2
+
+∥hqs∥2,
+
+where ξ is random noise and σ = 0 .01 . We then continue the forward pass from ˜hqs and measure 
+
+∆ϵ(q) = ∥G q (˜hqs) − G q (hqs)∥2
+
+∥G q (hqs)∥2
+
+.
+
+A smaller ∆ϵ(q) means that the same relative target error induces a smaller final-output deviation. We compare the final hidden state with double-stream block residuals and double-stream block outputs at layers 6, 10, 14, and 18. We focus on double-stream blocks only, to avoid mixing structurally different block types. Figure 6(b) shows that the final hidden state has the smallest output deviation under the same relative perturbation. Block residuals are less sensitive than block outputs at the same layer, and later blocks are generally less sensitive than earlier ones, but all probed block-level targets remain more sensitive than the final hidden representation. This matches the analysis above: intermediate errors pass through additional downstream computation, while the output-proximal target has the shortest path to the denoising output. 
+
+When to switch to output-proximal forecasting. Finally, we test whether output-proximal fore-casting should start immediately after warm-up or only in later denoising steps. The first 8 solver steps are full denoiser evaluations in all variants. Before the switch step, cache steps use the block-wise target; from the switch step onward, cache steps use the output-proximal target zs. All variants use the same cache schedule, λ = 5 × 10 −1, and n = 6 .Table 6 shows that activating output-proximal forecasting from the beginning of the cache phase gives the lowest latency and the strongest overall fidelity among the tested switch points. Delaying 20 Table 6: Ablation on when to switch to output-proximal forecasting. Steps are 0-indexed; the first 8 steps are always full denoiser evaluations. Switching at the first cache step gives the best latency and overall fidelity in this setting. Output-proximal switch step PSNR ↑ SSIM ↑ LPIPS ↓ CLIP ↑ ImageReward ↑ Latency ↓                              
+
+> 25 23.199 0.797 0.074 27.100 1.031 13.146 20 23.229 0.797 0.074 27.111 1.030 12.622 15 23.243 0.797 0.075 27.101 1.027 12.176 10 23.274 0.798 0.075 27.081 1.026 11.749 0 / before first cache step 23.287 0.798 0.074 27.099 1.038 11.530
+
+the switch does not improve PSNR, SSIM, or LPIPS, and it increases latency because more cache steps use the more expensive block-wise target. This result is consistent with the target ablation: after a short full-step warm-up, the output-proximal representation is already a suitable forecasting target. We therefore use output-proximal forecasting from the first cache step in the main experiments. 
+
+A.3 Warm-up and Fixed-period Full-step Schedule 
+
+This subsection first defines the deterministic full-step schedule used by BeziCast, and then reports an ablation on the warm-up length. The schedule has two roles: the initial warm-up provides real output-proximal representations for the first local fit, and the later fixed-period full steps refresh the history used by cache-step forecasting. 
+
+A.3.1 Method Details 
+
+BeziCast uses a warm-up plus fixed-period full-step schedule. The warm-up length W is the number of initial solver steps evaluated by the full denoiser, and the fixed period R specifies how often a full denoiser evaluation is inserted after warm-up. At full steps, BeziCast computes and caches the true output-proximal representation; at cache steps, it predicts the current representation from the most recent cached full-step representations. For a determined or over-determined control-point fit, the warm-up length should provide at least as many historical full-step representations as the number of Bernstein basis functions. Let n denote the number of Bézier control representations. The default well-posed setting therefore uses 
+
+W ≥ n. (70) In the main configuration, BeziCast uses a cubic Bernstein/Bézier forecaster with n = 4 , matching the control-representation notation used in the experimental tables: 
+
+b0,3(u) = (1 − u)3, b1,3(u) = 3 u(1 − u)2,b2,3(u) = 3 u2(1 − u), b3,3(u) = u3. (71) Thus the default well-posed cubic setting uses W ≥ 4. The ridge system is still algebraically defined when fewer than n full-step representations are available, because the Tikhonov term makes the normal matrix invertible. We therefore also evaluate the aggressive W = 3 setting in the ablation below, where the goal is to measure the speed–fidelity trade-off near the well-posedness boundary. After warm-up, full denoiser evaluations follow a fixed period. We use the same zero-indexed solver convention as the main method, s ∈ { 0, . . . , T − 1}. Let R be the full-step period after warm-up, meaning that one full denoiser evaluation is performed every R solver steps. The full-step set is 
+
+Sfull = {0, . . . , W − 1} ∪ { s ∈ { W, . . . , T − 1} : ( s − W + 1) ≡ 0 (mod R)} , (72) and the cache-step set is 
+
+Scache = {0, . . . , T − 1} \ S full . (73) At a cache step s, the predictor uses only the most recent full-step representations: 
+
+Is = Last Kmax ({i ∈ S full : i < s }) , (74) where Kmax is the maximum history length. Unless otherwise stated, we set Kmax = 6 . Therefore, each cache prediction uses at most six real output-proximal representations, and the cubic Bézier trajectory is fitted within a short local history window. 21 Table 7: Warm-up schedule ablation on FLUX. All rows use output-proximal BeziCast with R = 6 ,
+
+n = 4 , Kmax = 6 , and λ = 0 .5.Warm-up W PSNR ↑ SSIM ↑ LPIPS ↓ CLIP ↑ ImageReward ↑ Latency / Speedup 3 17.070 0.623 0.242 27.117 0.984 7.881 / 4.78 ×
+
+4 18.598 0.678 0.180 27.310 1.045 8.732 / 4.32 ×
+
+5 20.010 0.724 0.135 27.414 1.046 9.383 / 4.02 ×
+
+6 20.993 0.750 0.115 27.192 1.028 10.109 / 3.73 ×
+
+7 22.206 0.780 0.093 27.060 1.028 10.848 / 3.47 ×
+
+8 23.287 0.798 0.074 27.099 1.038 11.530 / 3.27 ×
+
+A.3.2 Ablation Experiments 
+
+We evaluate the warm-up schedule on FLUX.1-dev using the same DrawBench protocol and metrics as Section 4. All variants use the output-proximal target with λ = 0 .5, n = 4 , Kmax = 6 , and fixed period R = 6 . We vary only the warm-up length W ∈ { 3, 4, 5, 6, 7, 8}. This isolates the effect of the number of initial full denoiser evaluations before the first cache prediction. Table 7 shows a clear speed–fidelity trade-off. Increasing W gives the forecaster a longer real history before cache-step prediction begins and improves reference fidelity: PSNR increases from 17.070 at 
+
+W = 3 to 23.287 at W = 8 , SSIM increases from 0.623 to 0.798, and LPIPS decreases from 0.242 to 0.074. The cost is higher latency, which increases from 7.881s to 11.530s and reduces speedup from 4.78 × to 3.27 ×. CLIP and ImageReward vary in a narrower range, so this ablation mainly reflects the trade-off between reference fidelity and runtime. We use the aggressive W = 3 schedule for the N = 6 FLUX main result (in Table 1) because it provides the largest speedup in this ablation while still improving the matched TaylorSeer baselines. Specifically, under the same N = 6 setting, BeziCast with W = 3 reaches 17.070 PSNR, 0.623 SSIM, and 0.242 LPIPS at 7.881s, while the best TaylorSeer row reports 15.872 PSNR, 0.621 SSIM, and 0.281 LPIPS at 8.862s. When higher reference fidelity is preferred over maximum speed, increasing W offers a direct schedule-level adjustment without changing the forecaster, output target, or pretrained denoiser. 
+
+A.4 Online Inference Algorithm 
+
+Algorithm 1 summarizes inference. We first construct the warm-up plus fixed-period full-step set. Full steps run the original denoiser and update the cache. Cache steps compute the equivalent ridge-Bézier weights, optionally blend with the convex-hull fallback, and pass the predicted output-proximal representation through the unchanged output map. The Ks < n branch is a fallback branch; under the default requirement W ≥ n, cache prediction starts after enough full-step representations are available. 
+
+A.5 Basis Dependence of Tikhonov-Regularized Forecasting 
+
+We clarify why two polynomial bases spanning the same finite-dimensional function space can nevertheless induce different regularized forecasters. Let 
+
+ϕ(u) = [ ϕ0(u), . . . , ϕ n−1(u)] ⊤ and ψ(u) = [ ψ0(u), . . . , ψ n−1(u)] ⊤
+
+be two bases of the same polynomial space Pn−1. Because both are bases of Pn−1, there exists an invertible matrix M ∈ Rn×n such that 
+
+ψ(u) = M ⊤ϕ(u). (75) For historical coordinates {um}Km=1 , define the corresponding design matrices 
+
+Aϕ =
+
+
+
+ϕ(u1)⊤
+
+...
+
+ϕ(uK )⊤
+
+ , Aψ =
+
+
+
+ψ(u1)⊤
+
+...
+
+ψ(uK )⊤
+
+ . (76) 22 Algorithm 1 BeziCast inference 
+
+Require: pretrained denoiser (Fθ , Oθ ), sampler {Ψs}T −1 
+
+> s=0
+
+, time grid {ts}T −1 
+
+> s=0
+
+, monotone coordi-nates {τs}T −1 
+
+> s=0
+
+, condition c, warm-up length W , fixed full-step period R, maximum history length Kmax , control-point number n, ridge strength λ, extrapolation cap umax , and guardrail parameters (βmax , ρ, γ ). 
+
+> 1:
+
+Construct Sfull by Eq. (72).  
+
+> 2:
+
+Initialize cache C ← ∅ . 
+
+> 3:
+
+for s = 0 , . . . , T − 1 do  
+
+> 4:
+
+if s ∈ S full then  
+
+> 5:
+
+Compute zs = Fθ (xs, t s, c ). 
+
+> 6:
+
+Compute ϵs = Oθ (zs, t s, c ). 
+
+> 7:
+
+Update C ← C ∪ { (τs, z s)} and keep the most recent Kmax full-step entries.  
+
+> 8:
+
+else  
+
+> 9:
+
+Set Ks = min( Kmax , |{ i ∈ S full : i < s }| ). 
+
+> 10:
+
+if Ks < n then  
+
+> 11:
+
+Compute zs = Fθ (xs, t s, c ). 
+
+> 12:
+
+Compute ϵs = Oθ (zs, t s, c ). 
+
+> 13:
+
+Update Sfull ← S full ∪ { s}. 
+
+> 14:
+
+Update C ← C ∪ { (τs, z s)} and keep the most recent Kmax full-step entries.  
+
+> 15:
+
+else  
+
+> 16:
+
+Retrieve the most recent Ks full-step entries {(τim , z im )}Ks 
+
+> m=1
+
+from C. 
+
+> 17:
+
+Compute {um}Ks 
+
+> m=1
+
+and us using Eqs. (6)–(7).  
+
+> 18:
+
+Construct A ∈ RKs×n and Z ∈ RKs×D . 
+
+> 19:
+
+Compute ωλ(us) using Eq. (13).  
+
+> 20:
+
+Predict ˆzs = ωλ(us)⊤Z. 
+
+> 21:
+
+Compute r(us) and βs using Eqs. (15) and (21).  
+
+> 22:
+
+Project w = ωλ(us) onto ∆ to obtain wsafe . 
+
+> 23:
+
+Compute zsafe  
+
+> s
+
+= w⊤
+
+> safe
+
+Z. 
+
+> 24:
+
+Set ˜zs = (1 − βs)ˆ zs + βszsafe  
+
+> s
+
+. 
+
+> 25:
+
+Compute ϵs = Oθ (˜ zs, t s, c ). 
+
+> 26:
+
+end if  
+
+> 27:
+
+end if  
+
+> 28:
+
+Update xs+1 = Ψ s(xs, ϵ s). 
+
+> 29:
+
+end for  
+
+> 30:
+
+return xT .Equation (75) implies 
+
+Aψ = AϕM. (77) 
+
+Proposition 1 (Basis invariance without regularization) . Assume that Aϕ has full column rank. Let Z ∈ RK×D be the matrix of cached representations. For λ = 0 , the least-squares predictors constructed in the two bases are identical at every query coordinate u:
+
+ϕ(u)⊤(A⊤ 
+
+> ϕ
+
+Aϕ)−1A⊤ 
+
+> ϕ
+
+Z
+
+= ψ(u)⊤(A⊤ 
+
+> ψ
+
+Aψ )−1A⊤ 
+
+> ψ
+
+Z. (78) 
+
+Proof. Let G = A⊤ 
+
+> ϕ
+
+Aϕ. By Eq. (75) and Eq. (77), 
+
+ψ(u)⊤ = ϕ(u)⊤M, A⊤ 
+
+> ψ
+
+Aψ = M ⊤GM. 
+
+Since M is invertible, 
+
+(M ⊤GM )−1 = M −1G−1M −⊤ .
+
+23 Therefore, 
+
+ψ(u)⊤(A⊤ 
+
+> ψ
+
+Aψ )−1A⊤ 
+
+> ψ
+
+Z
+
+= ϕ(u)⊤M (M ⊤GM )−1M ⊤A⊤ 
+
+> ϕ
+
+Z
+
+= ϕ(u)⊤M M −1G−1M −⊤ M ⊤A⊤ 
+
+> ϕ
+
+Z
+
+= ϕ(u)⊤G−1A⊤ 
+
+> ϕ
+
+Z, (79) which is precisely the predictor constructed in the ϕ basis. Proposition 1 shows that changing the basis alone does not change the unregularized polynomial least-squares fit, provided that both bases span the same space and the linear systems are solved exactly. The situation changes when the same identity Tikhonov penalty is imposed in both coefficient systems. 
+
+Proposition 2 (Basis dependence of identity Tikhonov regularization) . Under the assumptions of Proposition 1, let λ > 0. Define the identity-Tikhonov predictors 
+
+bzϕ,λ (u) = ϕ(u)⊤(A⊤ 
+
+> ϕ
+
+Aϕ + λI )−1A⊤ 
+
+> ϕ
+
+Z (80) 
+
+and 
+
+bzψ,λ (u) = ψ(u)⊤(A⊤ 
+
+> ψ
+
+Aψ + λI )−1A⊤ 
+
+> ψ
+
+Z. (81) 
+
+Expressed in the ϕ coordinates, the second predictor is 
+
+bzψ,λ (u) = ϕ(u)⊤  A⊤ 
+
+> ϕ
+
+Aϕ + λM −⊤ M −1−1 A⊤ 
+
+> ϕ
+
+Z. (82) 
+
+Consequently, the two identity-Tikhonov coefficient estimators coincide for every Z if and only if 
+
+M −⊤ M −1 = I, (83) 
+
+or equivalently, M is orthogonal. For a general non-orthogonal change of basis, the two regularized forecasters are different despite spanning the same polynomial space. Proof. Let Cψ ∈ Rn×D be the coefficient matrix in the ψ basis. The identity-Tikhonov objective is 
+
+min 
+
+> Cψ
+
+∥Aψ Cψ − Z∥2 
+
+> F
+
++ λ∥Cψ ∥2 
+
+> F
+
+. (84) Define the equivalent coefficient matrix in the ϕ basis by 
+
+Cϕ = M C ψ . (85) Using Aψ = AϕM , we have 
+
+Aψ Cψ = AϕCϕ, Cψ = M −1Cϕ.
+
+Thus, Eq. (84) is equivalent to 
+
+min 
+
+> Cϕ
+
+∥AϕCϕ − Z∥2 
+
+> F
+
++ λ∥M −1Cϕ∥2 
+
+> F
+
+. (86) The regularization term can be written as 
+
+∥M −1Cϕ∥2 
+
+> F
+
+= tr  C⊤ 
+
+> ϕ
+
+M −⊤ M −1Cϕ
+
+ . (87) The corresponding normal equations are therefore 
+
+ A⊤ 
+
+> ϕ
+
+Aϕ + λM −⊤ M −1 Cϕ = A⊤ 
+
+> ϕ
+
+Z, (88) which yields Eq. (82). By comparison, identity Tikhonov regularization directly in the ϕ coordinates gives 
+
+ A⊤ 
+
+> ϕ
+
+Aϕ + λI  Cϕ = A⊤ 
+
+> ϕ
+
+Z. (89) Since Aϕ has full column rank, A⊤ 
+
+> ϕ
+
+is surjective onto Rn. Hence the two coefficient estimators agree for every Z if and only if 
+
+ A⊤ 
+
+> ϕ
+
+Aϕ + λM −⊤ M −1−1 =  A⊤ 
+
+> ϕ
+
+Aϕ + λI −1 ,
+
+which is equivalent to 
+
+M −⊤ M −1 = I. 
+
+For an invertible square matrix, this condition is equivalent to M being orthogonal. 24 Corollary 1 (Basis-aware Tikhonov invariance) . Let the Tikhonov matrix in the ϕ coordinates be 
+
+Γϕ. To obtain the same regularized function estimator in the ψ coordinates, the regularizer must be transformed as 
+
+Γψ = Γ ϕM. (90) 
+
+In particular, if Γϕ = I, then the basis-equivalent penalty in the ψ coordinates is Γψ = M , rather than I.Proof. Since Cϕ = M C ψ ,
+
+∥ΓϕCϕ∥2 
+
+> F
+
+= ∥ΓϕM C ψ ∥2 
+
+> F
+
+.
+
+Thus, choosing Γψ = Γ ϕM makes both the data-fitting term and the regularization term identical under the change of coordinates. 
+
+Application to Bernstein and shifted-Chebyshev bases. Let 
+
+b(u) = [ B30 (u), B 31 (u), B 32 (u), B 33 (u)] ⊤
+
+be the cubic Bernstein basis on [0 , 1] , and let 
+
+c(u) = [ T0(2 u − 1) , T 1(2 u − 1) , T 2(2 u − 1) , T 3(2 u − 1)] ⊤
+
+be the shifted cubic Chebyshev basis. They are related by 
+
+c(u) = M ⊤b(u), (91) where 
+
+M =
+
+
+
+1 −1 1 −11 − 13 − 53 51 13 − 53 −51 1 1 1
+
+ . (92) This transformation is not orthogonal; for example, the inner product between its first and third columns is −4/3. Therefore, 
+
+M −⊤ M −1̸ = I. 
+
+By Proposition 2, applying the same identity Tikhonov penalty and the same numerical value of 
+
+λ in the Bernstein and shifted-Chebyshev coefficient systems generally produces different fitted trajectories, different equivalent history weights, and different cache-step predictions. This distinction does not imply that one basis universally dominates the other. It shows that, once coefficient regularization is introduced, “the choice of basis” and “the choice of regularizer” jointly define the forecasting estimator. Two bases with the same approximation space need not yield the same regularized forecasting operator. 
+
+Proposition 3 (Uniform norm comparison between Bernstein and shifted-Chebyshev bases) . For an integer d ≥ 0, define the degree-d Bernstein basis vector on the normalized coordinate u ∈ R as 
+
+bd(u) = Bd 
+
+> 0
+
+(u), . . . , B dd (u)⊤ , Bdj (u) = 
+
+dj
+
+
+
+uj (1 − u)d−j , (93) 
+
+and define the standard shifted-Chebyshev basis vector as 
+
+ϕd(u) = [ T0(2 u − 1) , . . . , T d(2 u − 1)] ⊤ , (94) 
+
+where Tk denotes the Chebyshev polynomial of the first kind. Then, for every u ∈ R,
+
+∥bd(u)∥2 ≤ ∥ ϕd(u)∥2 . (95) 
+
+Moreover, the inequality is strict for every u ∈ R whenever d ≥ 1.Proof. We consider separately the interpolation region u ∈ [0 , 1] and the extrapolation region 
+
+u / ∈ [0 , 1] .25 Case 1: u ∈ [0 , 1] . The Bernstein basis functions are nonnegative and form a partition of unity: 
+
+Bdj (u) ≥ 0,
+
+> d
+
+X
+
+> j=0
+
+Bdj (u) = 1 . (96) Therefore, 
+
+∥bd(u)∥2 ≤ ∥ bd(u)∥1 = 1 . (97) The shifted-Chebyshev vector always contains the constant component 
+
+T0(2 u − 1) = 1 , (98) and hence 
+
+∥ϕd(u)∥2 ≥ 1. (99) Combining Eqs. (97) and (99) gives 
+
+∥bd(u)∥2 ≤ ∥ ϕd(u)∥2. (100) For d ≥ 1, the inequality is strict. If u ∈ (0 , 1) , at least two Bernstein basis entries are positive, so 
+
+∥bd(u)∥2 < ∥bd(u)∥1 = 1 . At u ∈ { 0, 1}, ∥bd(u)∥2 = 1 , whereas 
+
+∥ϕd(u)∥2 = √d + 1 > 1.
+
+Case 2: u / ∈ [0 , 1] . Let 
+
+x = |2u − 1| > 1. (101) Using the binomial theorem, 
+
+∥bd(u)∥2 ≤ ∥ bd(u)∥1
+
+=
+
+> d
+
+X
+
+> j=0
+
+dj
+
+
+
+|u|j |1 − u|d−j
+
+=  |u| + |1 − u|d
+
+= |2u − 1|d = xd. (102) The last equality follows because |u| + |1 − u| = |2u − 1| for u / ∈ [0 , 1] .Since the shifted-Chebyshev vector contains its degree-d component, 
+
+∥ϕd(u)∥2 ≥ | Td(2 u − 1) | = Td(x), (103) where we used |Td(−x)| = |Td(x)| = Td(x) for x ≥ 1.It remains to show that 
+
+Td(x) ≥ xd, x ≥ 1. (104) Write x = cosh θ for some θ ≥ 0. By the identity Td(cosh θ) = cosh( dθ ),
+
+Td(x) = cosh( dθ ) = edθ + e−dθ 
+
+2 . (105) Because y 7 → yd is convex on R+ for integer d ≥ 1, Jensen’s inequality gives 
+
+edθ + e−dθ 
+
+2 ≥
+
+ eθ + e−θ
+
+2
+
+d
+
+= cosh d θ = xd. (106) Therefore, 
+
+∥bd(u)∥2 ≤ xd ≤ Td(x) ≤ ∥ ϕd(u)∥2. (107) For d ≥ 1 and u / ∈ [0 , 1] , all d + 1 Bernstein entries are nonzero. Hence ∥bd(u)∥2 < ∥bd(u)∥1,making the final inequality strict. The case d = 0 gives equality, since both basis vectors reduce to [1] .26 A.6 Analysis Complexity. Let D be the flattened representation dimension, Ks ≤ Kmax the available history length at cache step s, and n the number of Bézier control points. At one cache step, building the design matrix costs O(Ksn). Solving the n × n ridge system costs O(n3), and this part can be precomputed when the cache schedule and hyperparameters are fixed. The main high-dimensional operation is the weighted sum ωλ(us)⊤Z, which costs O(KsD). The guardrail adds a simplex projection in Ks dimensions, costing O(Ks log Ks) with a sorting-based algorithm, and one additional weighted sum. The memory overhead is O(Kmax D) for cached output-proximal representations. Algorithm 1 does not store the control representations persistently; prediction uses equivalent historical weights. Our experiments on both FLUX and HunyuanVideo were run on NVIDIA H20 GPU. 
+
+Relation to existing predictors. Direct reuse is the zeroth-order case ˆzs = ziK . Taylor-style forecasting estimates local finite differences and extrapolates them in a power basis. Spectral predictors fit global polynomial bases over the denoising trajectory. BeziCast uses a local function-approximation form: it fits a short-history Bernstein/Bézier trajectory with Tikhonov regularization, evaluates it at cache steps, and writes the result as equivalent weights over historical output-proximal representations. The control-point number n is chosen independently of the cache period. 
+
+Limitation. BeziCast is a training-free acceleration method and therefore preserves the pretrained denoiser and sampler, but its effectiveness depends on the temporal regularity of output-proximal denoising representations; when the denoising trajectory changes abruptly, aggressive cache intervals may still introduce prediction errors despite Tikhonov stabilization and the convex-hull guardrail. Its speed–quality trade-off is also sensitive to schedule and hyperparameters such as the warm-up length, cache period, Bézier control-point number, and regularization strength, which may require task- or model-specific tuning. In addition, our experiments mainly cover FLUX.1 for text-to-image generation and HunyuanVideo for text-to-video generation, so further validation on more architectures, samplers, resolutions, longer videos, and stronger downstream metrics is needed to fully establish generality. Finally, BeziCast assumes access to a suitable output-proximal representation and still executes the output map at cache steps, which may limit its applicability or acceleration benefit for architectures where such representations are inaccessible or the output head is non-negligible in cost. 27

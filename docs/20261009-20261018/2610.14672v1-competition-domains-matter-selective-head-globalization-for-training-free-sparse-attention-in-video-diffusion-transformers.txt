@@ -1,0 +1,462 @@
+Title: Competition Domains Matter: Selective Head Globalization for Training-Free Sparse Attention in Video Diffusion Transformers
+
+URL Source: https://arxiv.org/pdf/2610.14672v1
+
+Published Time: Wed, 14 Oct 2026 00:44:20 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# Competition Domains Matter: Selective Head Globalization for Training-Free Sparse Attention in Video Diffusion Transformers 
+
+## Tiantian Liu, Meng Wan, Zhiqiang Liang, Jue Wang ∗, Ningming Nie, Yangang Wang ∗
+
+University of Chinese Academy of Sciences, Beijing, China 
+
+> ∗
+
+Corresponding authors. 
+
+Abstract 
+
+Training-free sparse attention is a practical route to efficient video diffusion transformer inference, yet existing methods typically fix the competition domain at each query row for every attention head. Prior work primarily addresses how to estimate token-level importance within this fixed domain; whether the domain itself should adapt to head heterogeneity remains under-specified. We introduce EG-Sparse , a training-free framework that routes low-entropy heads to a grouped cross-head pool while retaining per-row local selection for high-entropy heads, using only scores already materialized by the sparse pipeline. A controlled diagnostic fixes the ranking score and varies only the competition rule: grouped cross-head selection reduces low-entropy-head reconstruction er-ror by 9.8% , whereas forcing high-entropy heads into an all-head global pool increases it by 7.9% . Across four configura-tions, EG-Sparse achieves higher video quality while reduc-ing attention density and GPU denoising latency compared with strong training-free sparse-attention baselines. Mecha-nism ablations further show that selective domain adaptation outperforms uniform, random, and fixed domain-assignment policies. These results support competition-domain adapta-tion as a distinct design axis within centroid-guided training-free sparse attention. 
+
+## 1 Introduction 
+
+Video diffusion transformers (DiTs) (Peebles and Xie 2023) have become a central backbone of modern video generation, powering state-of-the-art models such as CogVideoX (Yang et al. 2025b), HunyuanVideo (Kong et al. 2025), and Wan (Team Wan 2025). Recent systems further extend this paradigm toward scalable and long-form video synthe-sis (Gupta et al. 2024; Jin et al. 2025; Lin et al. 2025b; Henschel et al. 2025). As these systems scale toward longer videos and higher resolutions, the quadratic complexity of full 3D attention becomes the dominant inference bottleneck. Efficiency research around diffusion transformers spans architecture/token-level compression (Sun et al. 2025; Tian et al. 2024; Wang et al. 2025b; Chang et al. 2025), inter-step reuse (Ma et al. 2024; Zhao et al. 2025b; Liu et al. 2025; Lv et al. 2025), quantization and distributed execution (Li et al. 2025a; 2024), attention-kernel optimization (Shah et al. 2024; Zhang et al. 2025c; b; Wang et al. 2025a), and head compression (Zhang et al. 2025a; e). Our focus is distinct: the competition domain used to select interactions within a centroid-guided sparse-attention pipeline. Training-free sparse attention has emerged as a practical remedy: it selectively computes only a subset of query-key interactions at inference time without modifying pretrained weights (Xi et al. 2025; Yang et al. 2025a; Zhang et al. 2025d; Xu et al. 2025). Within training-free sparse attention, top-p block se-lection has become the dominant paradigm, adopted by SVG2 (Yang et al. 2025a), XAttention (Xu et al. 2025), SpargeAttn (Zhang et al. 2025d), and others. The common workflow first partitions tokens into clusters, then ranks can-didate (query-cluster, key-cluster) pairs by some importance score, and retains pairs until their cumulative importance reaches a threshold p. Despite extensive work on improving the ranking (how to estimate block importance more accu-rately), the partition and retention steps share an unexamined assumption: the competition domain, i.e., the set of candi-date pairs that compete for the same budget, is always each head independently and within each head, each query row independently. This uniform policy ignores substantial head heterogene-ity in video DiTs. Some heads concentrate most probabil-ity mass on a few key clusters, whereas others distribute it broadly. Figure 1 shows this variation across layers and heads and contrasts two dense attention structures from the same layer. Normalized entropy varies substantially at both scales: one representative head concentrates on sparse cluster pairs, whereas the other spreads mass broadly across keys. The value of enlarging the competition domain should therefore depend on head structure. A controlled diagnostic (Section 3.3) fixes the ranking score and varies only the domain. Low-entropy heads benefit from larger pools, whereas high-entropy heads are penalized in an all-head global pool where concentrated heads cap-ture disproportionate budget. Fixed-domain policies there-fore cannot satisfy both groups simultaneously. To turn this analysis into online competition-domain adap-tation, we propose EG-Sparse (Entropy-Guided Sparse At-tention). As shown in figure 2, at each denoising step, it computes per-head entropy from centroid attention already materialized by the base pipeline. Low-entropy heads enter a grouped cross-head pool while the remainder retain per-row local selection. The current layer’s median entropy provides arXiv:2610.14672v1 [cs.CV] 10 Oct 2026 Figure 1: Attention heads exhibit substantial structural heterogeneity. (a) Normalized attention entropy eHh =
+
+Hh/ log Ck varies across layers and heads. (b–c) Two rep-resentative heads from the same layer show distinct dense centroid-attention patterns: a low-entropy head concentrates its mass on a small set of query–key cluster pairs, whereas a high-entropy head distributes attention broadly across keys. This heterogeneity motivates head-adaptive competition do-mains. an adaptive threshold without manual tuning, offline calibra-tion, or prompt pools. EG-Sparse avoids recomputing atten-tion scores: entropy uses P′ already materialized by the base pipeline, and the median split is O(H log H) with H = 24 .The implementation is training-free and operates directly on the centroid-level attention scores already produced by the SVG2 pipeline. We evaluate EG-Sparse across four model configurations spanning Wan2.1 and HunyuanVideo, covering both text-to-video (T2V) and image-to-video (I2V) generation, at 480P and 720P resolutions. Across all four configurations, EG-Sparse improves PSNR, SSIM and VBench scores while re-ducing LPIPS, attention density, and GPU denoising latency. Controlled ablations separate the contribution of entropy-guided domain assignment from the additional gain of value-aware ranking, showing that the diagnosed mismatch trans-lates into practical improvements without retraining or cali-bration. Our contributions are as follows: 1. We identify the competition-domain mismatch : a con-trolled diagnostic at fixed ranking score reveals that head heterogeneity determines opposing domain needs, where low-entropy heads benefit from cross-head budget shar-ing while high-entropy heads suffer interference when competing in the same pool. 2. We propose EG-Sparse , a training-free online frame-work that selectively expands the competition domain to cross-head global selection for low-entropy heads while retaining per-row local selection for high-entropy heads. 3. We demonstrate consistent quality–efficiency improve-ments over strong baselines across four model configura-tions. Mechanism ablations validate that entropy-guided selective domain adaptation outperforms uniform, ran-dom and fixed domain-assignment policies. 
+
+## 2 Related Work 
+
+Video-DiT sparse attention. Sparse VideoGen (SVG) profiles spatio-temporal head patterns (Xi et al. 2025); SVG2 adds semantic token clustering and centroid Top-
+
+p selection (Yang et al. 2025a); XAttention uses anti-diagonal block scores (Xu et al. 2025); and SpargeAttn applies selective token compression (Zhang et al. 2025d). Sparse-vDiT and Compact Attention search offline for struc-tured, model-specific sparse patterns (Chen et al. 2026; Li et al. 2025b), whereas EG-Sparse routes heads online from current-layer entropy without offline profiling. Other video methods change sliding-tile locality or cached search (Zhang et al. 2025f; Xia et al. 2025), structured topology or to-ken order (Li et al. 2025c; Shmilovich et al. 2025; Zhao et al. 2025a), and low-resolution guidance or progressive resolution (Shen et al. 2025; Zhang et al. 2025g). These approaches primarily change how candidates are found or executed; EG-Sparse changes which candidates share a Top-
+
+p budget. 
+
+Head adaptation and cross-domain context. Video-DiT methods allocate head-wise computation using training statistics, learned mechanisms, or offline calibration (Wu et al. 2026; Zhang et al. 2025a; Zheng et al. 2026). AdaSpa combines cached search with head-adaptive spar-sity (Xia et al. 2025), whereas HASTE couples temporal reuse with calibrated per-head budgets. EG-Sparse instead uses current-step entropy to decide which heads share a pool, without learned routing or calibration. Entropy has previ-ously been diagnostic (Zhou et al. 2026; Wu et al. 2025); here it predicts domain-dependent efficiency. Head-role and adaptive-selection methods for causal language models (Xiao et al. 2024; Gao et al. 2024; Lin et al. 2025a; Zhu et al. 2025) assume different masks and inference dynamics, so they provide conceptual context rather than direct video-DiT baselines. 
+
+## 3 Method 
+
+Preliminaries 
+
+We follow the standard centroid-guided setup of modern video sparse attention (Yang et al. 2025a; Zhang et al. 2025d). At a given layer and denoising step, the H atten-tion heads process query and key tokens that are clustered (for instance, by k-means) into Cq query centroids and Ck
+
+key centroids. Let ni and nj denote the number of tokens in query cluster i and key cluster j, respectively. For head h,the centroid-level attention is computed via the cluster-size-weighted softmax: 1 Head structure & online routing  2 Adaptive competition domains  3 Head-adaptive masks         
+
+> Centroid attention P′
+> concentrated diffuse
+> Online head entropy
+> low high median gate
+> Low entropy
+> concentrated
+> High entropy
+> diffuse
+> Low-entropy heads Shared cross-row, cross-head Top-p
+> one candidate pool across all routed heads and query rows
+> hhh
+> Non-uniform allocation across rows and heads: many · few · none
+> High-entropy heads Independent row-wise Top-p
+> hhh
+> every query
+> row
+> retains coverage
+> Separate competition and cumulative Top-p selection in every row
+> merge by
+> head index
+> Sparse mask M ₕ
+> Match competition domains
+> to head structure
+
+Figure 2: Overview of EG-Sparse. A fixed row-wise domain constrains low-entropy heads because the budget cannot flow across rows to where it is most needed, whereas indiscriminate all-head global competition penalizes high-entropy heads. EG-Sparse resolves both: entropy routes low-entropy heads to a grouped cross-head pool, retains per-row local selection for the remaining heads, and merges both masks for execution by the sparse attention kernel. 
+
+P ′ 
+
+> h,i,j
+
+= nj exp  Sh,i,j 
+
+PCk 
+
+> k=1
+
+nk exp  Sh,i,k 
+
+ , Sh,i,j = q⊤
+
+> h,i
+
+kh,j 
+
+√d ,
+
+(1) where qh,i and kh,j are the centroids. Each row sums to one, P 
+
+> j
+
+P ′ 
+
+> h,i,j
+
+= 1 ; P ′ 
+
+> h,i,j
+
+approximates the total attention mass that a representative query in cluster i allocates to the entire key cluster j. Sparse attention selects a subset of cluster pairs to compute densely and skips the rest. 
+
+The head-wise paradigm. Given a per-token target p,existing methods select, independently for each (h, i ), the smallest set of key clusters whose cumulative mass reaches 
+
+p:
+
+Sh,i = Top 
+
+> p
+
+ P ′
+
+> h,i, :
+
+, s.t. X
+
+> j∈S h,i
+
+P ′ 
+
+> h,i,j
+
+≥ p. (2) Equation (2) is the per-row local Top-p selection rule adopted by nearly all training-free sparse attention methods. Crucially, each head, and indeed each query row within a head, independently competes for its own budget. The conse-quence of this isolation is the structural mismatch described in §3: the same row-wise boundary is imposed on heads whose attention structures make that constraint very differ-ent in cost. 
+
+Head Entropy as a Structural Descriptor 
+
+The structural property that determines how a head responds to a larger competition domain is the concentration of its attention distribution. We quantify this through per-head at-tention entropy, computed directly from P ′ at zero additional materialization cost: 
+
+Hh = − 1
+
+CqCq
+
+X
+
+> i=1
+> Ck
+
+X
+
+> j=1
+
+P ′ 
+
+> h,i,j
+
+· log  P ′ 
+
+> h,i,j
+
++ ε, (3) where ε is a small constant for numerical stability. Hh is the average per-row entropy: it is low when the attention mass within each query row concentrates on very few key clusters, and high when the mass spreads nearly uniformly across all key clusters. For comparisons across configurations, we use the normalized entropy eHh = Hh/ log Ck; normalization does not affect the within-layer ordering used by EG-Sparse. 
+
+Why entropy is useful for domain assignment. Entropy describes the shape of the score landscape before sparse se-lection. A low-entropy head concentrates importance on a small set of query–key cluster pairs; a high-entropy head dis-tributes importance broadly. As we demonstrate in the con-trolled diagnostic below, this difference determines whether a head benefits from or is harmed by a larger competition domain. Entropy is therefore used not as a semantic head label, but as an online routing signal for domain assignment. 
+
+The Competition Domain Mismatch 
+
+We isolate the competition-domain effect by holding the ranking score fixed and varying only the domain. Let Vh ∈
+
+RCk ×D collect the Value centroid of each key cluster. The dense centroid output of head h is 
+
+Oh = P′
+
+> h
+
+Vh. (4) For a binary mask M ∈ { 0, 1}Cq ×Ck , we mask and renor-malize each query row: 
+
+eP ′ 
+
+> h,i,j
+
+(M) = P ′ 
+
+> h,i,j
+
+Mi,j 
+
+PCk 
+
+> ℓ=1
+
+P ′
+
+> h,i,ℓ
+
+Mi,ℓ 
+
+,
+
+Oh(M) = eP′
+
+> h
+
+(M)Vh.
+
+(5) Every mask considered below retains at least one key cluster per row, so the denominator is nonzero. We measure centroid-output distortion using relative Frobenius error, 
+
+eh(M) = ∥Oh − Oh(M)∥F
+
+∥Oh∥F
+
+. (6) 
+
+Domain hierarchy. We test four successively larger com-petition domains, all under the same Top-p threshold, cen-troid construction, and P ′ ranking score. Only the set of candidates that compete for the same budget is varied: 1. Per-row local. Each query row (h, i ) independently se-lects the top-p portion of P ′ 
+
+> h,i, :
+
+as defined in Eq. (2). This is the standard baseline adopted by existing training-free sparse methods and serves as the reference point for all comparisons. 2. Per-head global. Within each head h, all (i, j ) pairs compete jointly by descending P ′ 
+
+> h,i,j
+
+. This removes row boundaries but keeps each head independent. 3. Grouped cross-head. Low-entropy heads compete in one shared pool; high-entropy heads compete in another. Heads are split by the median of their entropy Hh (Eq. 3), using P ′ as the ranking score within each pool. 4. All-head global. All H heads compete in a single pool over tuples (h, i, j ), ranked uniformly by P ′ 
+
+> h,i,j
+
+.For the three expanded domains, which allocate budget glob-ally rather than per row, we apply a minimum one-key-per-row safeguard: after Top-p selection, any query row left empty receives its single highest-scoring key cluster. This affects fewer than 0.1% of rows and ensures the renormal-ization in Eq. (5) always has a nonzero denominator. 
+
+Error-change metric. Let Mlocal  
+
+> h
+
+denote the per-row lo-cal mask with error elocal  
+
+> h
+
+. For each expanded domain, we compute a mask Mdomain  
+
+> h
+
+at the same p and measure the relative error change against the local baseline: 
+
+∆local  
+
+> h
+
+= eh(Mdomain ) − eh(Mlocal )
+
+eh(Mlocal ) . (7) A negative ∆local  
+
+> h
+
+means the expanded domain reduces re-construction error relative to per-row local selection. 
+
+Results. The bars in Figure 3 report ∆local  
+
+> h
+
+for the three ex-panded domains, split by low-entropy and high-entropy heads (median split on Hh). We use p=0 .9 and report measure-ments across 200 prompts from vbench on HunyuanVideo-T2V-13B at 480P, aggregated over six denoising steps and ten layers. Two patterns emerge. First, at fixed scoring P ′, changing only the domain alters reconstruction error by tens of percentage points, showing that the domain is an independent efficiency lever. Second, the effect is head-dependent and asymmetric: 
+
+• Low-entropy heads benefit monotonically from do-main expansion. Per-head global reduces error by 3.7% ;grouped cross-head reduces it further by 9.8% ; all-head global achieves a 32 .0% reduction. Each successive do-main enlargement improves reconstruction fidelity, in-dicating that per-row boundaries constrain these heads’ efficiency. 
+
+• High-entropy heads are indifferent to homogeneous expansion but are penalized under all-head global se-lection. Per-head global and grouped cross-head produce changes near zero ( ≈0% ), while all-head global increases error by +7 .9% . When high-entropy and low-entropy heads compete in the same pool, the concentrated pairs from low-entropy heads capture a disproportionate share of the pooled budget, as shown by the overlaid budget-ratio curves in Figure 3, crowding out high-entropy heads. Fixed domains create opposing mismatches: per-row local selection prevents useful cross-row and cross-head redistri-bution for low-entropy heads, whereas all-head global se-lection causes interference for high-entropy heads. We there-fore use entropy to route only low-entropy heads to a grouped cross-head pool, retaining per-row local selection for the rest. 
+
+Figure 3: Competition-Domain Mismatch under a Fixed Ranking Score. Bars report the relative reconstruction-error change from the per-row local baseline for low- and high-entropy heads; error bars show mean ± 95% CI over 200 HunyuanVideo-T2V-13B prompts at 480P. The overlaid curves report the retained-budget ratio relative to the per-row local baseline. Low-entropy heads benefit increasingly from domain expansion, whereas high-entropy heads incur a 
+
++7 .9% error increase under all-head global selection, where low-entropy heads capture a disproportionate share of the pooled budget. 
+
+Entropy-Guided Selective Domain Assignment 
+
+EG-Sparse resolves this mismatch by making the competition domain an explicit, per-head, per-step design variable. At each denoising step, the procedure operates in three stages. 
+
+Stage 1: Automatic Thresholding The routing threshold 
+
+τ is set to the median entropy across all H heads: 
+
+τ = median  H1, H 2, . . . , H H
+
+. (8) The median requires zero manual tuning , adapts to each layer and step’s entropy scale, and is robust to outliers. Table 3 confirms it as a strong calibration-free operating point. 
+
+Stage 2: Head Splitting Heads are partitioned by their entropy relative to τ :
+
+Hcon = { h | Hh ≤ τ }, (9) 
+
+Hdif = { h | Hh > τ }. (10) 
+
+Hcon contains heads with concentrated attention distribu-tions; Hdif contains heads with diffuse attention. Each group is routed according to its predicted domain benefit, as estab-lished by the diagnostic in Section 3. 
+
+Stage 3: Domain-Specific Sparse Selection Domain A: Grouped Cross-Head Top-p. For heads in Hcon , we con-struct a single competition pool over the joint index space: 
+
+Ωcon = { (h, i, j ) | h ∈ H con , i = 1 , . . . , C q , j = 1 , . . . , C k }.
+
+(11) All tuples are ranked by the Value-aware importance score 
+
+Uh,i,j = P ′ 
+
+> h,i,j
+
+·∥ cVh,j ∥2 in descending order, where cVh,j is the Value centroid of key cluster j in head h. This score estimates the output contribution of each interaction: Uh,i,j measures the L2 contribution of pair (h, i, j ) to the centroid output (Eq. 4), and ranking by U across heads directly prioritizes the tuples with the largest cumulative impact on total output fidelity. Let π be the descending permutation of Ωcon by U ,and let k∗ be the smallest integer satisfying Pk∗ 
+
+> t=1
+
+Uπ(t) ≥
+
+pP 
+
+> Ωcon
+
+U . The retained tuples are the first k∗ elements of this sorted sequence: 
+
+Scon = { π(1) , π (2) , . . . , π (k∗) }, (12) A binary mask Mcon  
+
+> h
+
+∈ { 0, 1}Cq ×Ck is set for each h ∈ H con .This shared domain replaces many independent stopping rules with one joint allocation over candidate tuples. It does not reuse an interaction across rows; rather, it allows the retained-pair budget to move toward the highest-importance 
+
+(h, i, j ) tuples without requiring every row and head to sat-isfy an identical threshold independently. We additionally enforce a minimum one-key-per-row constraint: after Top-p
+
+selection, any query row left empty is filled with its single highest-scoring key cluster. In practice, this fallback affects fewer than 0.1% of rows and does not change density at the reported precision. 
+
+Domain B: Per-Row Local Top-p. Heads in Hdif retain the standard per-row local selection of Eq. (2). Because high-entropy heads show no benefit from domain expansion in the diagnostic (Section 3), coupling them to the grouped cross-head pool adds complexity without a comparable expected efficiency gain. 
+
+Mask Merging and Sparse Execution The two masks are merged into a single per-head mask M ∈ { 0, 1}H×Cq ×Ck :
+
+Mh = Mcon  
+
+> h
+
+for h ∈ H con , Mh = Mdif  
+
+> h
+
+for h ∈ H dif .
+
+(13) The merged mask is expanded to token granularity using the cluster sizes and handed to an unmodified variable block-sparse attention kernel. The kernel operates identically re-gardless of which domain produced each head’s mask. EG-Sparse introduces zero parameters, zero calibration data, and zero offline preprocessing. 
+
+Value-Aware Ranking in the Cross-Head Pool 
+
+The competition-domain diagnostic in Section 3 uses atten-tion mass P ′ to isolate the domain effect. In the deployed method, the cross-head pool replaces P ′ with a value-aware importance score: 
+
+Uh,i,j = P ′ 
+
+> h,i,j
+
+· ∥ cVh,j ∥2, (14) where cVh,j is the value centroid of key cluster j in head h.This score estimates each pair’s contribution to the centroid output by scaling attention mass by the value-vector norm. Pairs with large attention mass but small output impact are deprioritized relative to pairs whose selection moves the out-put substantially. The domain routing (which heads share a pool) and the ranking score (how pairs are sorted within that pool) are separate design choices; our ablation in Table 2 con-firms that domain routing alone provides a measurable gain (PSNR 21 .79 vs. 21 .56 for per-row local), and value-aware ranking amplifies this within the already-selected domain (PSNR 21 .95 ). 
+
+## 4 Experiments 
+
+Our evaluation is organized around three questions: (i) Does EG-Sparse improve quality–efficiency across the evaluated video-DiT configurations (§4)? (ii) Does the competition-domain mismatch diagnosed in Section 3 translate to practi-cal gains, and is selective domain expansion necessary (§4)? (iii) What overhead does online domain adaptation introduce (§4)? 
+
+Experimental Setup 
+
+Models and data. We evaluate four model configurations spanning two model families, text- and image-conditioned generation, and two resolutions: Wan2.1-I2V-14B at 720P, Wan2.1-T2V-14B at 720P, HunyuanVideo-T2V-13B at 480P, HunyuanVideo-T2V-13B at 720P. We use Wan2.1-T2V-1.3B at 480P for the selective-policy ablation and HunyuanVideo-T2V-13B at 480P for the domain diagnostic and routing-ratio sensitivity. Following standard protocol (Yang et al. 2025a), HunyuanVideo-T2V-13B samples are generated with 129 frames, Wan2.1-T2V-14B samples with 81 frames, all us-ing 50 denoising steps. Sparse attention is applied at every denoising step with no dense warmup ( warmup =0). Eval-uation uses the standard VBench benchmark (Huang et al. 2024) across all configurations. Experiments are conducted on NVIDIA GH200 GPUs. 
+
+Metrics. We report three orthogonal families: (a) fidelity to dense attention : PSNR, SSIM, LPIPS computed frame-by-frame against the dense reference output; (b) perceptual quality : VBench (Huang et al. 2024) overall score, follow-ing the official weighting protocol; (c) efficiency : attention density, the fraction of the full attention matrix computed on the GPU; GPU denoising latency for the complete 50-step DiT denoising process; and speedup over dense inference. 
+
+Baselines. We compare against Dense (full 3D attention), 
+
+SVG (Xi et al. 2025), SpargeAttn (Zhang et al. 2025d), 
+
+SVG2 (Yang et al. 2025a) (the base framework we build on), and XAttention (Xu et al. 2025). For the mechanism abla-tion, we additionally construct All-head global (all 12 heads compete in a single Top-p pool), Random Split (each step randomly assigns half the heads to grouped cross-head selec-tion and the rest to per-row local selection), and Fixed Split 
+
+(heads 0–5 permanently use grouped cross-head selection, while heads 6–11 use per-row local selection). 
+
+Configuration. Unless stated otherwise, we use Top-p
+
+threshold p=0 .9 for all methods. The grouped cross-head competition domain uses Value-aware Importance Uh,i,j =
+
+P ′ 
+
+> h,i,j
+
+· ∥ cVh,j ∥2 as the ranking score. 
+
+Competition-domain diagnostic. Figure 3 is computed on 200 T2V prompts with HunyuanVideo-T2V-13B at 480P. We sample six denoising steps {0, 9, 18 , 27 , 36 , 45 } and ten Table 1: Main results in the evaluated model configurations. All sparse methods use no dense warmup. Density is the fraction of retained centroid pairs; lower is better. GPU denoising latency is the total GPU time for the 50-step DiT denoising process, and speedup is relative to Dense. †: p < 0.05 vs. SVG2 (Wilcoxon).                                                                                                                                                                   
+
+> Model Method PSNR ↑SSIM ↑LPIPS ↓VBench ↑Density ↓Latency (s) ↓Speedup vs. Dense ↑
+> Wan2.1 I2V-14B 720P
+> Dense –––79.31 100% 1823 1.00 ×
+> SVG 17.80 0.635 0.318 77.40 28% 974 1.87 ×
+> SpargeAttn 17.60 0.628 0.325 77.20 41% 1050 1.74 ×
+> SVG2 18.26 0.649 0.307 77.73 27% 902 2.02 ×
+> EG-Sparse (Ours) 18.75 †0.672 0.252 78.52 25% 889 2.05 ×
+> Wan2.1 T2V-14B 720P
+> Dense –––78.16 100% 1815 1.00 ×
+> SVG 14.96 0.575 0.472 74.45 30% 975 1.86 ×
+> SpargeAttn 13.30 0.314 0.706 74.21 42% 1045 1.74 ×
+> XAttention 16.01 0.623 0.505 76.00 29% 893 2.03 ×
+> SVG2 16.47 0.611 0.467 76.03 29% 904 2.01 ×
+> EG-Sparse (Ours) 17.03 †0.655 0.446 76.24 27% 881 2.06 ×
+> HunyuanVideo T2V-13B 720P
+> Dense –––78.50 100% 1620 1.00 ×
+> SVG 12.21 0.483 0.491 75.89 28% 646 2.51 ×
+> XAttention 17.25 0.637 0.421 76.07 29% 689 2.35 ×
+> SVG2 17.39 0.648 0.414 76.12 28% 611 2.65 ×
+> EG-Sparse (Ours) 17.93 †0.716 0.394 76.36 26% 602 2.69 ×
+> HunyuanVideo T2V-13B 480P
+> Dense –––80.10 100% 415 1.00 ×
+> SVG 18.64 0.673 0.291 77.89 28% 237 1.75 ×
+> SpargeAttn 18.70 0.665 0.310 77.94 39% 254 1.63 ×
+> XAttention 19.20 0.690 0.290 78.01 29% 243 1.71 ×
+> SVG2 19.88 0.700 0.281 78.43 27% 218 1.90 ×
+> EG-Sparse (Ours) 20.35 †0.740 0.252 78.62 24% 204 2.03 ×
+
+layers {0, 6, 12 , 18 , 24 , 30 , 36 , 42 , 48 , 54 }, with 24 heads per layer. For each sampled step–layer–head tuple, we compute the relative error change ∆local  
+
+> h
+
+(Eq. 7) for the three expanded domains against the per-row local baseline. Reported values aggregate all sampled steps and layers, with heads grouped into low-entropy and high-entropy halves by their entropy 
+
+Hh.
+
+Statistical rigor. We apply a paired Wilcoxon signed-rank test on per-prompt PSNR against SVG2; † denotes p < 0.05 .For VBench, we follow the official evaluation protocol with the full benchmark prompt set and report the weighted overall score. 
+
+Main Results: Fidelity and Efficiency 
+
+Table 1 shows EG-Sparse improves fidelity and efficiency across model families and conditioning modes. Across all four configurations, EG-Sparse achieves the best PSNR, SSIM, LPIPS, and VBench among the compared sparse methods while also attaining the lowest attention density and GPU denoising latency, with 2.03 ×–2.69 × speedup over Dense. This lower-density, higher-quality result shows that the gain does not come from retaining more interactions; in-stead, domain adaptation allocates the sparse-attention bud-get more effectively across rows and heads according to their structural needs. On HunyuanVideo, the PSNR and VBench margins over the strongest competing sparse baseline are larger at 720P than at 480P, suggesting that the benefit may become more pronounced as spatial resolution and attention demands increase. The following mechanism analysis fur-ther isolates the contributions of selective domain routing and value-aware ranking. 
+
+Mechanism Analysis: The Competition-Domain Effect 
+
+The controlled diagnostic in Section 3.3 established that the competition-domain effect is head-dependent and asymmet-ric: low-entropy heads benefit from domain expansion while high-entropy heads are penalized under all-head global selec-tion. Table 2 tests whether selective, entropy-guided domain adaptation converts this diagnosis into practical quality gains over uniform and non-adaptive domain policies. Table 2: Selective-globalization ablation on Wan2.1-T2V-1.3B at 480P. All variants share the same upstream candi-date representation and use p=0 .9. †: p < 0.05 vs. SVG2 (Wilcoxon).                      
+
+> Selection Rule PSNR ↑VBench ↑Speedup ↑
+> SVG2: per-row local 21.56 76.79 1.15 ×
+> All-head global 21.47 76.69 1.18 ×
+> Random 50/50 split 21.18 76.41 1.16 ×
+> Fixed head-index split 21.28 76.52 1.16 ×
+> Entropy split 21.95 †77.35 1.13 ×
+> w/o Value weighting 21.79 †77.15 1.14 ×
+
+Table 2 supports three conclusions. First, all-head global underperforms per-row local (PSNR 21 .47 vs. 21 .56 ), con-sistent with the observed +7 .9% high-entropy penalty under all-head global selection; unselective expansion is harmful. Second, the entropy split without value weighting (PSNR 
+
+21 .79 vs. 21 .56 , +0 .23 dB) significantly improves over the per-row local baseline, confirming that domain routing alone provides a measurable gain. Because both the per-row local domain and the grouped cross-head pool in this variant use the same P ′ ranking score, this gain is attributable to the do-main assignment rather than to an improved scoring function. Third, adding value-aware scoring in the cross-head pool fur-ther raises PSNR to 21 .95 . The additional 0.16 dB gain from 
+
+21 .79 to 21 .95 represents the benefit of ranking cross-head pairs by their output contribution rather than by raw atten-tion mass. Random and fixed splits both underperform the per-row local baseline (PSNR 21 .18 and 21 .28 ), confirming that entropy is the operative domain-selection signal rather than any arbitrary head split. Table 3: Sensitivity to the fraction of low-entropy heads routed to grouped cross-head selection on HunyuanVideo-T2V13B at 480P with p=0 .9. Heads are added in ascending entropy order. Fidelity improves as heads predicted to benefit from grouped cross-head selection enter the pool, peaks at the median split, and declines as the pool expands into the higher-entropy regime where inter-group budget interference outweighs the gain.                   
+
+> Grouped Cross-Head (of 24) PSNR ↑SSIM ↑LPIPS ↓
+> 6 ( 25% )19.86 0.701 0.280 10 ( 40% )20.04 0.700 0.272
+> 12 ( 50% )20.35 0.740 0.252
+> 14 ( 60% )20.11 0.710 0.267 18 ( 75% )19.78 0.708 0.277
+
+Sensitivity to the routing ratio. The median thresh-old routes approximately half of the heads with the low-est entropy to the grouped cross-head domain. To test whether this choice requires fine tuning, we vary the num-ber of low-entropy heads assigned to the cross-head pool (HunyuanVideo-T2V-13B has 24 heads per layer) while keeping p=0 .9. Table 3 shows that the median split (12 heads) achieves the best PSNR, SSIM, and LPIPS simul-taneously. Moving from 6 to 12 heads progressively captures more heads that benefit from grouped cross-head selection, but extending the pool to 14 and 18 heads introduces increas-ingly higher-entropy heads and reverses the fidelity gain. This saturation pattern matches the diagnostic in Figure 3: the benefit of domain expansion is concentrated in low-entropy heads, and including higher-entropy heads eventually trig-gers the cross-group budget interference indicated by the overlaid budget-ratio curves. The median is therefore a strong calibration-free operating point in the evaluated setting rather than an arbitrary routing ratio. 
+
+Efficiency and Overhead Analysis 
+
+The entropy signal and selective domain routing account for 
+
+9.0% of per-block attention latency (Table 4); Table 1 in-cludes these costs. The breakdown also explains why density does not translate one-for-one into denoising speed: shared Table 4: Per-attention-block latency breakdown on HunyuanVideo-T2V-13B at 480P (GH200, ms). Comput-ing the entropy signal costs only 0.13 ms; the complete selec-tive domain routing and sparse execution costs are reported separately.        
+
+> Component Latency (ms) Share
+> Candidate preprocessing 13.64 41.8% Head-entropy computation 0.13 0.4% Selective domain routing and mask selection 2.80 8.6% FlashInfer sparse attention 16.06 49.2%
+> Total per attention block 32.63 100%
+
+candidate preprocessing consumes 41 .8% of attention-block time, and computation outside sparse attention is unchanged. Even with these unchanged costs, EG-Sparse reduces GPU denoising latency by 1.4% –6.4% relative to SVG2 across the four evaluated configurations. 
+
+## 5 Conclusion 
+
+We revisited a design choice shared by training-free sparse attention methods for video diffusion transformers: fixing sparse competition independently within every query row. A controlled diagnostic at fixed ranking score shows that the cost of this uniform boundary is head-dependent and asymmetric: low-entropy heads benefit monotonically from larger competition domains, while high-entropy heads are penalized when forced into the same pool. EG-Sparse adapts domains online, using current head en-tropy at every layer and denoising step to route low-entropy heads to a grouped cross-head pool while retaining per-row local selection for the rest. The median rule requires neither retraining, offline calibration, nor manual threshold selection. Across the evaluated bidirectional video DiTs, this selective expansion reduces attention density and GPU denoising la-tency while improving overall dense-reference fidelity and generation quality; its behavior in causal or non-diffusion Transformers is untested. Ablations show that the gain is not explained by uniform expansion or an arbitrary split: it depends on directing expansion toward heads predicted to benefit. The broader implication is that video-DiT sparse atten-tion should optimize not only the score and budget, but also the domain over which candidates compete. Together, these findings support competition-domain adaptation as a useful design principle for training-free sparse attention in video DiTs. 
+
+## References 
+
+Chang, S.; Wang, P.; Tang, J.; Wang, F.; and Yang, Y. 2025. SparseDiT: Token Sparsification for Efficient Diffusion Transformer. In NeurIPS .Chen, P.; Zeng, X.; Zhao, M.; Shen, M.; Cheng, W.; Yu, G.; and Chen, T. 2026. Sparse-vDiT: Unleashing the Power of Sparse Attention to Accelerate Video Diffusion Transform-ers. In AAAI .Gao, Y.; et al. 2024. SeerAttention: Learning Intrinsic Sparse Attention in Your LLMs. arXiv:2410.13276. Gupta, A.; et al. 2024. W.A.L.T.: Photorealistic Video Gen-eration with Diffusion Models. In ECCV .Henschel, R.; et al. 2025. StreamingT2V: Consistent, Dy-namic, and Extendable Long Video Generation from Text. In CVPR .Huang, Z.; et al. 2024. VBench: Comprehensive Benchmark Suite for Video Generative Models. In CVPR .Jin, Y.; et al. 2025. Pyramidal Flow Matching for Efficient Video Generative Modeling. In ICLR .Kong, W.; et al. 2025. HunyuanVideo: A Systematic Frame-work for Large Video Generative Models. arXiv:2412.03603. Li, M.; Cai, T.; Cao, J.; Zhang, Q.; Cai, H.; Bai, J.; Jia, Y.; Li, K.; and Han, S. 2024. DistriFusion: Distributed Parallel Inference for High-Resolution Diffusion Models. In CVPR .Li, M.; et al. 2025a. SVDQuant: Absorbing Outliers by Low-Rank Components for 4-Bit Diffusion Models. In ICLR .Li, Q.; et al. 2025b. Compact Attention: Exploiting Struc-tured Spatio-Temporal Sparsity. arXiv:2508.12969. Li, X.; et al. 2025c. Radial Attention: O(n log n) Sparse Attention with Energy Decay. arXiv:2506.19852. Lin, Y.; et al. 2025a. Twilight: Adaptive Attention Sparsity with Hierarchical Top-p Pruning. In NeurIPS .Lin, Z.; et al. 2025b. STIV: Scalable Text and Image Condi-tioned Video Generation. In ICCV .Liu, F.; Zhang, S.; Wang, X.; Wei, Y.; Qiu, H.; Zhao, Y.; Zhang, Y.; Ye, Q.; and Wan, F. 2025. Timestep Embedding Tells: It’s Time to Cache for Video Diffusion Model. In 
+
+CVPR .Lv, Z.; Si, C.; Song, J.; Yang, Z.; Qiao, Y.; Liu, Z.; and Wong, K.-Y. K. 2025. FasterCache: Training-Free Video Diffusion Model Acceleration with High Quality. In ICLR .Ma, X.; Fang, G.; Mi, M. B.; and Wang, X. 2024. Learning-to-Cache: Accelerating Diffusion Transformer via Layer Caching. In NeurIPS .Peebles, W.; and Xie, S. 2023. Scalable Diffusion Models with Transformers. In ICCV .Shah, J.; Bikshandi, G.; Zhang, Y.; Thakkar, V.; Ramani, P.; and Dao, T. 2024. FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-Precision. In NeurIPS .Shen, X.; et al. 2025. DraftAttention: Fast Video Diffusion via Low-Resolution Attention Guidance. arXiv:2505.14708. Shmilovich, D.; et al. 2025. LiteAttention: A Tem-poral Sparse Attention for Diffusion Transformers. arXiv:2511.11062. Sun, W.; Tu, R.-C.; Liao, J.; Jin, Z.; and Tao, D. 2025. AsymRnR: Video Diffusion Transformers Acceleration with Asymmetric Reduction and Restoration. In ICML .Team Wan. 2025. Wan: Open and Advanced Large-Scale Video Generative Models. arXiv:2503.20314. Tian, Y.; Tu, Z.; Chen, H.; Hu, J.; Xu, C.; and Wang, Y. 2024. U-DiTs: Downsample Tokens in U-Shaped Diffusion Transformers. In NeurIPS .Wang, G.; et al. 2025a. FlashMask: Efficient and Rich Mask Extension of FlashAttention. In ICLR .Wang, J.; Ma, A.; Feng, J.; Leng, D.; Yin, Y.; and Liang, X. 2025b. PT-T2I/V: An Efficient Proxy-Tokenized Diffusion Transformer for Text-to-Image/Video Tasks. In ICLR .Wu, X.; Wang, H.; Zhou, Y.; and Lu, Q. 2025. USV: Uni-fied Sparsification for Accelerating Video Diffusion Models. arXiv:2512.05754. Wu, X.; et al. 2026. DSV: Exploiting Dynamic Sparsity to Accelerate Large-Scale Video DiT Training. In ASPLOS .Xi, H.; Yang, S.; Zhao, Y.; Xu, C.; Li, M.; Li, X.; Lin, Y.; Cai, H.; Zhang, J.; Li, D.; Chen, J.; Stoica, I.; Keutzer, K.; and Han, S. 2025. Sparse VideoGen: Accelerating Video Diffusion Transformers with Spatial-Temporal Sparsity. In 
+
+ICML .Xia, Y.; Ling, S.; Fu, F.; Wang, Y.; Li, H.; Xiao, X.; and Cui, B. 2025. Training-Free and Adaptive Sparse Attention for Efficient Long Video Generation. In ICCV .Xiao, G.; Tian, Y.; Chen, B.; Han, S.; and Lewis, M. 2024. DuoAttention: Efficient Long-Context LLM Inference with Retrieval and Streaming Heads. arXiv:2410.10819. Xu, R.; Xiao, G.; Huang, H.; Guo, J.; and Han, S. 2025. XAt-tention: Block Sparse Attention with Antidiagonal Scoring. In ICML .Yang, S.; Xi, H.; Zhao, Y.; Li, M.; Zhang, J.; Cai, H.; Lin, Y.; Li, X.; Xu, C.; Peng, K.; Chen, J.; Han, S.; Keutzer, K.; and Stoica, I. 2025a. Sparse VideoGen2: Accelerate Video Generation with Sparse Attention via Semantic-Aware Permutation. In NeurIPS .Yang, Z.; et al. 2025b. CogVideoX: Text-to-Video Diffusion Models with an Expert Transformer. In ICLR .Zhang, H.; Su, R.; Yuan, Z.; Chen, P.; Shen, M.; Fan, Y.; Yan, S.; Dai, G.; and Wang, Y. 2025a. DiTFastAttnV2: Head-Wise Attention Compression for Multi-Modality Diffusion Transformers. In ICCV .Zhang, J.; Huang, H.; Zhang, P.; Wei, J.; Zhu, J.; and Chen, J. 2025b. SageAttention2: Efficient Attention with Thorough Outlier Smoothing and Per-Thread INT4 Quantization. In 
+
+ICML .Zhang, J.; Wei, J.; Zhang, P.; Zhu, J.; and Chen, J. 2025c. SageAttention: Accurate 8-Bit Attention for Plug-and-Play Inference Acceleration. In ICLR .Zhang, J.; Xiang, C.; Huang, H.; Wei, J.; Xi, H.; Zhu, J.; and Chen, J. 2025d. SpargeAttention: Accurate and Training-Free Sparse Attention. In ICML .Zhang, P.; Chen, Y.; Huang, H.; Lin, W.; Liu, Z.; Stoica, I.; Xing, E. P.; and Zhang, H. 2025e. Faster Video Diffusion with Trainable Sparse Attention. In NeurIPS .Zhang, P.; Chen, Y.; Su, R.; Ding, H.; Stoica, I.; Liu, Z.; and Zhang, H. 2025f. Fast Video Generation with Sliding Tile Attention. In ICML .Zhang, Y.; et al. 2025g. Training-Free Efficient Video Gen-eration via Dynamic Token Carving. arXiv:2505.16864. Zhao, T.; et al. 2025a. PAROAttention: Pattern-Aware Re-ordering. arXiv:2506.16054. Zhao, X.; Jin, X.; Wang, K.; and You, Y. 2025b. Real-Time Video Generation with Pyramid Attention Broadcast. In 
+
+ICLR .Zheng, X.; Ma, Y.; Xu, J.; Zheng, X.; Ji, R.; and Chao, F. 2026. HASTE: Training-Free Video Diffusion Acceleration via Head-Wise Adaptive Sparse Attention. arXiv:2605.14513v1. Zhou, J.; et al. 2026. Full Attention Strikes Back: Trans-ferring Full Attention into Sparse within Hundred Training Steps. arXiv:2605.16928. Zhu, Y.; et al. 2025. Tactic: Adaptive Sparse Attention with Clustering and Distribution Fitting. arXiv:2502.12216.
