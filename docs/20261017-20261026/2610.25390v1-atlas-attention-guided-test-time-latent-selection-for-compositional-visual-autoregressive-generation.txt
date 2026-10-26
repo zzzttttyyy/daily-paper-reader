@@ -1,0 +1,498 @@
+Title: ATLAS: Attention-Guided Test-Time Latent Selection for Compositional Visual Autoregressive Generation
+
+URL Source: https://arxiv.org/pdf/2610.25390v1
+
+Published Time: Tue, 20 Oct 2026 01:44:14 GMT
+
+Number of Pages: 18
+
+Markdown Content:
+# ATLAS: Attention-Guided Test-Time Latent Selection for Compositional Visual Autoregressive Generation 
+
+Hossein Shahabadi Raya Namazi Mahdieh Soleymani Baghshah Sharif University of Technology 
+
+hosseinshahabadi.me@gmail.com 
+
+## Abstract 
+
+Visual autoregressive models produce convincing images but can misassign attributes and spatial relations. Searching multiple generation paths can improve composition, yet com-pleting every candidate is costly. We introduce ATLAS, a training-free framework that uses the frozen generator’s internal attention to guide search before final images are available. Within-prompt diagnostics identify attention-derived scores that predict final compositional preferences on Infinity, with category-dependent transfer to Switti. ATLAS uses these on-the-fly signals to progressively concentrate computation on promising trajectories. It maintains multiple coarse alternatives, prunes candidates without decoding at intermediate scales, and reserves image-space evaluation for a final choice among partial trajectories. ATLAS scales effectively on both backbones, achieving higher mean scores on the evaluated T2I-CompBench and GenEval categories as more computation is devoted to search. At the largest tested budget, the targeted T2I-CompBench mean improves by over 10% relative to each backbone. Separate profiles show over 50% less generation time than completing and evaluating all candidates at equal initial counts, alongside lower peak allocated GPU memory. Relative time savings are larger at the higher tested candidate count. Together, these results support scalable compositional search: additional sampling expands explo-ration, while attention-guided selection limits continuation cost without parameter updates or gradient-based optimization. 
+
+## 1 Introduction 
+
+Diffusion models generate images by iterative denoising (Rombach et al., 2022); visual autoregressive (VAR) models predict tokens across progressively finer scales (Tian et al., 2024). Infinity extends next-scale prediction to high-resolution text-to-image synthesis, while Switti uses a distinct scale-wise transformer design (Han et al., 2025; Voronov et al., 2024). Both expose intermediate states that can be inspected before generation is complete. High visual quality does not ensure correct composition. An image may misassign an attribute, omit an entity, or reverse a relation. T2I-CompBench++ and GenEval evaluate such errors (Huang et al., 2025; Ghosh et al., 2023; Shahabadi et al., 2025). Sampling alternatives creates opportunities for better composition, but completing every alternative incurs the full generation cost. Early selection avoids some of that work only if an intermediate score identifies paths worth continuing. Test-time interventions address composition through steering or search. VISTA steers intermediate representa-tions with attention constraints, and SynVAR guides spatial and semantic generation (Shahabadi et al., 2026; Chen et al., 2026). TTS-VAR preserves coarse diversity before potential-based path selection (Chen et al., 2025b); related next-token and raster-scan methods use token confidence and progressive grid partitions (Chen et al., 2025a; Park et al., 2026). Attention offers another selection signal by connecting prompt tokens to visual positions without decoding candidates. Its use for steering does not establish whether it predicts which sampled trajectory will finish better. 1arXiv:2610.25390v1 [cs.CV] 18 Oct 2026 We ask whether a frozen generator’s attention can allocate search computation toward better compositional outcomes. We choose losses and layers on calibration prompts, then test their predictions among held-out candidates for the same prompt. Infinity scores achieve 72.9% pairwise agreement for planar relations and 62.7% for color binding over scale indices 2–6, against 50% chance. Selected color and texture losses also rank Switti candidates above chance by their prompt-bootstrap intervals. Scale and layer analyses characterize signal availability; a separate prompt-switch experiment provides context on early visual commitments. Attention-Guided Test-Time Latent Selection (ATLAS) turns intermediate scores into a search policy. It retains several coarse candidates, applies three attention-guided cuts, and decodes the remaining partial images for one ImageReward decision (Xu et al., 2023). Only one survivor completes the finer scales. This division uses internal scores for repeated selection and reserves image-space evaluation for the final commitment. The generator remains frozen, with no parameter updates or gradient-based latent optimization. To our knowledge, ATLAS is the first attention-guided compositional search framework evaluated across two distinct VAR model families. End-to-end T2I-CompBench and GenEval averages increase with search budget on Infinity and Switti. Separate profiles with 8 or 16 initial candidates show 52–73% less generation time than completing and evaluating the same number, with lower peak allocated memory. These results assess the complete controller; the diagnostic study separately establishes the predictive value of its attention-based scores. Our contributions are as follows: • We study when prompt changes affect next-scale generation and how attention-derived compositional signals vary with scale, layer selection, and constraint category. • We evaluate those signals through within-prompt final-image preferences, freeze loss and layer choices before held-out testing, and test their transfer from Infinity to Switti. • We introduce ATLAS, a training-free controller that combines internal attention pruning with one image-space selection stage, and evaluate its compositional scores across search budgets alongside generation time and GPU memory. 
+
+## 2 Preliminaries 
+
+Early selection compares unfinished trajectories, not completed images. We first define what a trajectory contains and how its attention yields a score available at a scale boundary. 
+
+Next-scale generation yields a sequence of candidate prefixes. VAR predicts each visual scale conditional on the maps already sampled (Tian et al., 2024). This lets a search controller retain a prefix and generate only its continuation. Let p be a text prompt, c its text-conditioning sequence, and rs the token map at scale s. For S scales, the corresponding factorization is 
+
+P (r0: S−1 | c) = 
+
+> S−1
+
+∏
+
+> s=0
+
+P (rs | r<s , c ). (1) Earlier maps form input zs ∈ RLs×C , with Ls = hsws visual positions and feature dimension C. Infinity uses bitwise prediction; Switti has a distinct scale-wise design (Han et al., 2025; Voronov et al., 2024). Our configurations have 13 scales and 32 layers for Infinity, and 14 scales and 30 recorded layers for Switti. Scales are zero-based; layers are one-based. Candidate k has prefix rk, ≤s through scale s and completed image xk.
+
+Cross-attention connects visual positions to prompt tokens. Cross-attention is a candidate diagnostic because it connects visual positions to prompt tokens. These maps support diffusion editing and compositional steering (Hertz et al., 2022; Chefer et al., 2023; Agarwal et al., 2023; Li et al., 2023; Rassin et al., 2023). VISTA uses their constraints for gradient descent on intermediate representations of a frozen next-scale generator (Shahabadi et al., 2026). We denote candidate k’s map at scale s and layer l by A(l)
+
+> k,s
+
+. ATLAS reads it without modifying the trajectory. 2Attention-derived objectives provide candidate scores. To compare candidates, a map must be reduced to a prompt-dependent scalar. Prior objectives measure attribute–noun agreement or separation between entity maps (Rassin et al., 2023; Meral et al., 2024; Shahabadi et al., 2026). Let ϕd(A, c ) be such an objective for category d, oriented so that lower values predict better composition. A layer set Wd specifies which maps the objective reads: ¯AWd 
+
+> k,s
+
+= 1
+
+|Wd|
+
+∑
+
+> l∈Wd
+
+A(l)
+
+> k,s
+
+, Ld(k, s ; Wd) = ϕd
+
+( ¯AWd 
+
+> k,s
+
+, c 
+
+)
+
+. (2) Comparing Ld(i, s ; Wd) and Ld(j, s ; Wd) orders two candidates after the same scale. The definition includes sign conventions and averages maps before evaluating the objective, rather than averaging nonlinear layer losses. Table 3 lists the chosen objectives; Appendix C explains how they are computed. We test whether the lower-scoring candidate produces a final image that better satisfies the prompt. 
+
+## 3 What Does Attention Reveal Before an Image Is Complete? 
+
+An intermediate score is useful only if it distinguishes continuations worth computing. We examine this requirement in two ways. Prompt switches probe whether early prefixes constrain the eventual image. Completed same-prompt candidates then provide a direct test of attention-based prediction, including its dependence on scale and layer choice. 
+
+3.1 Prompt sensitivity declines at different scales for different properties 
+
+How strongly does an early prefix constrain its continuation? We replace the prompt while retaining sampled visual tokens. Unlike its use for diffusion editing (Hertz et al., 2022), replacement here probes responsiveness. With cA, c B encoding the original and replacement prompts, a switch after completed scale s changes the condition at scale u as follows: 
+
+rA→B(s) 
+
+> u
+
+∼ P
+
+(
+
+ru | rA→B(s) 
+
+> <u
+
+, c (s)
+
+> u
+
+)
+
+, c(s) 
+
+> u
+
+=
+
+{
+
+cA, u ≤ s, cB , u > s. (3) We save the prefix and its continuation state, re-encode B, and resume at scale s + 1 without replacing earlier visual tokens. Indices start at zero: switching after scale 2 keeps the first three scales generated under A and uses B from scale 3 onward. We test prompt replacement after each completed scale from 0 to 5, with ten prompt pairs per property: color, object identity, style, and texture. Figure 1 compares the completed image with full-generation references for A and B; Figure 2 shows six illustrative sequences. 
+
+Replacing the prompt later leaves the final image closer to the original A reference. When we replace A immediately after scale 0 is generated, the completed image is more similar to B than to A for all four properties. When replacement occurs after scale 2, color and texture are already more similar to A. Object identity remains more similar to B when replacement occurs after scale 3, but is more similar to A when replacement is delayed until after scale 4. In the qualitative panel, full A/B generations bracket five completed switched continuations, ordered from late to early switches. The reference-similarity ordering reverses between switches after scales 1 and 2 for color and texture, and after scales 3 and 4 for object identity; style is near balance after scale 1. These patterns suggest that several visual properties are already strongly constrained once scales 2–3 have been generated, while object identity remains responsive later. Early commitments persist through refinement, consistent with VISTA’s emphasis on coarse-scale steering (Shahabadi et al., 2026). For search, this raises a practical opportunity: rank trajectories after these commitments begin to emerge, while substantial generation work remains. 30.00 0.25 0.50 0.75 1.00            
+
+> A/B reference = 0.64
+> Color
+> A/B reference = 0.09
+> Object
+> 0123450.00 0.25 0.50 0.75 1.00
+> A/B reference = 0.65
+> Style
+> 012345
+> A/B reference = 0.43
+> Texture
+> Later switches preserve more of the initial prompt
+> Switch index (zero-based) Final-image similarity Similarity to A Similarity to B
+
+Figure 1: Final-image similarity after replacing A with B. A horizontal-axis value s means scale s has been generated under A before replacement; B is used from scale s + 1 onward (Equation 3). Blue/pink curves show image-embedding cosine similarity to full A/B references generated with the same seed. Dotted lines show reference similarity. Each point covers ten prompt pairs. Appendix B details the scoring protocol and the scope of these descriptive summaries. 
+
+3.2 Selected attention losses anticipate final compositional alignment 
+
+Early commitment makes selection valuable only if promising trajectories can be recognized. We therefore ask whether attention measured during generation predicts which candidate will better satisfy the same prompt at completion. We compare three completed candidates per prompt using their earlier losses and final-image preferences. Per category, Infinity calibration uses 100 records and each backbone has 50 distinct held-out prompts, sharing text but not generations (Appendix E). Categories are color, shape, texture, 2D, and 3D; binding groups the first three. Recorded scales are 2–8 (Appendix A). A visual-language model judges entity existence and requested constraints in two reversed-order calls per pair. Answers are mapped back to candidate seeds. Agreement or one winner plus one tie yields a directional label; conflicting winners, two ties, and effectively tied losses are excluded. Appendix A specifies the judge, prompt, and tolerances. Our primary metric asks how often retaining the lower-loss member of a pair would retain the preferred final image. For prompt p and scale s, let Ep,s contain evaluable pairs, wpij their observed winner, and ̂w pij,s the loss-based prediction. Agreement over scale set S is Acc pair (S) = 
+
+∑
+
+> p
+
+∑
+
+> s∈S
+
+∑ 
+
+> (i,j )∈Ep,s
+
+1[̂w pij,s = wpij ]
+
+∑
+
+> p
+
+∑ 
+
+> s∈S
+
+|Ep,s | . (4) Chance agreement is 50%. The denominator counts pair–scale decisions: it does not average a candidate’s losses across scales or simulate successive cuts. Calibration examines 52 losses and 15 layer selections, then freezes a score and eight-layer block per category. Held-out testing uses the primary window 2–6. Appendix A gives the selection and aggregation rules. 
+
+Frozen attention scores predict the preferred Infinity image most clearly for planar relations and color. Table 1 reports 72.9% agreement for planar relations and 62.7% for color. Holm-adjusted 4Prompt A s4 s3 s2 s1 s0 Prompt B 
+
+> Color Fish House
+> Object identity Wizard Monk
+> Texture / material Bench Spoon
+
+Figure 2: Two examples each of color, object-identity, and texture/material switches. Full A/B references bracket completed switched continuations. A column labeled s4, for example, uses A through scale 4 and B from scale 5 onward. Columns run from replacement after scale 4 to replacement after scale 0; earlier replacement increasingly reflects B. permutation p-values are 0.0015 and 0.0308 across the original 15 locked endpoints. Texture reaches 60.3% with adjusted p = 0 .167; shape and 3D provide less conclusive evidence. Thus predictive strength varies by constraint, even though all five point estimates exceed 50%. 
+
+Selected binding losses also transfer to Switti. Applying Infinity’s frozen scores and layer windows to Switti yields 63.2% agreement for color and 62.2% for texture, supporting their predictive value on a second backbone (Table 9). These diagnostic comparisons reuse the selected windows. In the end-to-end experiments, Infinity uses those windows, whereas Switti uses all 30 layers. The latter setting tests ATLAS without imposing Infinity’s restricted layer choices. Calibration estimates in Table 1 remain subject to selection optimism. Pairwise agreement need not imply that the best of three candidates is selected. We therefore also test whether the unique lowest-loss candidate has the highest tie-aware preference score. Infinity reaches 61.7% for 2D versus a 38.1% random baseline, and 47.8% for color versus 41.5% (Table 8). This secondary test measures one decision among three completed paths, not survival through repeated cuts in a larger search. 
+
+The attention signal strengthens after the earliest recorded scale. A score that becomes useful only at completion cannot save continuation work. Table 10 in Appendix A evaluates each recorded scale: Infinity’s equal-category agreement rises from 55.7% at scale 2 to 63.7% at scale 3, stays near 62–64% through scale 7, and reaches 57.9% at scale 8. Useful ranking information is therefore available while finer-scale computation remains. 5Table 1: Pairwise agreement (%) over indices 2–6. Both held-out sets use frozen Infinity choices. Chance is 50%; indices need not denote matching resolutions. Intervals and prompt counts: Table 9.                   
+
+> Category Infinity calibration Infinity held-out Switti held-out 2D 68.6 72.9 56.7 Color 63.6 62.7 63.2 Shape 57.9 54.0 55.0 Texture 65.6 60.3 62.2 3D 65.7 58.4 54.7
+
+3.3 Layer choice determines which attention an objective reads 
+
+Calibration compares 15 contiguous layer selections to identify which maps support ranking. Figure 3 summarizes layers 1–8, 9–16, and all 32. The selected blocks are 1–8 for binding/depth and 9–16 for planar relations; depth broadens the best four-layer choice for simplicity (Appendix A). 
+
+Fixed-loss comparisons retain much of the calibrated layer pattern. With each loss held fixed, the selected block has the highest held-out agreement in four Infinity categories; texture instead favors all layers (Table 2). Switti point estimates likewise favor layers 1–8 for binding/depth and 9–16 for planar relations. Agreement extends beyond the selected loss: Top-3 and Top-5 mean accuracies exceed 50% by point estimate in every category (Table 2). These averages of per-loss metrics summarize several objectives; they are not candidate-score ensembles. Layer preference also depends on the objective. Across the full loss bank, held-out averages favor early layers for color and all layers for texture; planar correlation favors early layers even though Separation ranks best with layers 9–16 (Figure 4). The useful choice is therefore a loss–layer pairing, rather than a layer block alone. Together, prompt switches reveal persistent early visual commitments, and within-prompt comparisons show that selected attention losses can rank trajectories before completion. The depth patterns are consistent with early attention organizing entity, attribute, and depth-related regions, while further processing benefits some planar scores. ATLAS turns this predictive information into a search policy, using attention to decide which paths receive the remaining computation. 
+
+## 4 ATLAS: Attention-Guided Test-Time Latent Selection 
+
+Turning attention-based ranking into computational savings requires deciding which paths survive, how many remain, and when to commit to one. ATLAS uses category-specific scores for three cuts without decoding, a descending candidate budget, and one ImageReward decision to choose the path to complete (Figure 5). 
+
+4.1 Frozen category scores rank active trajectories 
+
+To identify promising trajectories, ATLAS applies attention losses matched to the prompt’s binding and spatial constraints. Infinity uses the selected loss–layer pairs in Table 3; Switti uses all 30 layers. Scores guide selection without changing parameters or surviving latents. SynGen and CONFORM follow prior objectives (Rassin et al., 2023; Meral et al., 2024); Appendix C summarizes the objectives and key formulas. A mixed-constraint prompt still requires one candidate ordering. Let D(p) index its available binding, planar, and depth terms. For candidate k after scale s, ATLAS combines them as 
+
+ℓk,s (p) = 1
+
+|D (p)|
+
+∑
+
+> d∈D (p)
+
+Ld(k, s ; Wd), |D (p)| > 0. (5) For prompts with multiple supported constraints, we average the corresponding losses and rank candidates by the resulting score, with lower values preferred. When no supported constraint is present, ATLAS remains inactive and generation is unchanged. Numeracy and non-spatial scores therefore retain the backbone values in our benchmark tables. 6Color Shape Texture 2D 3D 40 45 50 55 60 65 70       
+
+> Pairwise agreement (%)
+> Color Shape Texture 2D 3D −0.10 −0.05 0.00 0.05 0.10 0.15 0.20 0.25
+> Correlation quality (−ρ)
+> Layers 1–8 Layers 9–16 Layers 1–32
+
+Figure 3: Comparing layers 1–8, 9–16, and all 32 on Infinity calibration prompts. Left: pairwise agreement, with the axis starting at 40%; right: negative within-prompt Spearman correlation. Higher bars indicate better ranking. Dashed lines mark 50% chance agreement and zero correlation. Appendix A defines aggregation across losses and scales. Table 2: Held-out agreement (%) over 2–6. Top: frozen losses, equally averaged over scales; blue marks selected blocks, All means 32/30 layers. Switti 3D coverage varies. Bottom: Infinity pooled accuracy for Top-1 and per-loss metric averages for Top-3/Top-5. Aggregations differ; Top-5 is exploratory. 
+
+Infinity-2B Switti Category Frozen block 1–8 9–16 All 1–8 9–16 All 2D 9–16 64.1 72.9 69.6 47.9 56.7 56.3 Color 1–8 62.7 56.5 53.1 63.2 57.6 60.4 Shape 1–8 54.0 45.1 49.1 55.0 43.1 44.7 Texture 1–8 60.3 60.9 61.8 62.2 57.3 61.8 3D 1–8 58.3 49.1 56.3 54.5 53.3 52.5 Category Top-1 Top-3 mean Top-5 mean 2D 72.9 66.8 57.8 Color 62.7 64.0 65.1 Shape 54.0 55.6 53.7 Texture 60.3 58.2 58.1 3D 58.4 55.0 52.8 
+
+Ranking saves work by stopping lower-ranked paths before another scale. Let Ks enter scale s, with Ms = |K s|.At a scheduled attention cut after generating that scale, sort scores from lowest to highest, yielding identities 
+
+k(1) , . . . , k (Ms). If the next-scale budget is Ks+1 < M s, retain 
+
+Ks+1 = {k(1) , . . . , k (Ks+1 )}. (6) Retained paths continue from their existing latents; discarded paths stop. Scores determine which paths survive, while the schedule sets their number. All active paths continue between cuts. Appendix D describes tie handling and skipped cuts. 
+
+4.2 A descending budget concentrates computation on surviving paths 
+
+Keeping many candidates supports exploration but increases continuation cost (Chen et al., 2025b). ATLAS preserves the initial pool through coarse scales, then reduces 8 m → 6m → 4m → 2m → 1, where m is a positive integer budget multiplier. Attention controls the first three reductions; ImageReward makes the final choice. Our benchmark label N = m multiplies the base eight-path schedule: 8 N initial paths narrow to 2 N finalists, preserving the pruning proportions. Thus N measures search-budget scaling, not candidate count. BoN reports completed candidates; cost profiles use actual initial count n throughout. 7Color Shape Texture 2D 3D 40 45 50 55 60 65 70       
+
+> Pairwise agreement (%)
+> Color Shape Texture 2D 3D −0.10 −0.05 0.00 0.05 0.10 0.15 0.20 0.25
+> Correlation quality (−ρ)
+> Layers 1–8 Layers 9–16 Layers 1–32
+
+Figure 4: Exploratory Infinity held-out layer comparison using Figure 3’s aggregation. Agreement starts at 40%; correlation is −ρ. Reference lines mark 50% and zero. These post-lock aggregates do not redefine frozen choices. Shared prompt: “a black cat and a white dog” 
+
+> Same initial count: 8 candidate trajectories
+
+(a) Best-of-N 
+
+> Complete every path, then select
+
+(b) ATLAS (ours)    
+
+> Prune using text-visual cross-attention
+> At each pruning step, for every active candidate
+> Cross-attention
+> “black” “cat” “white” “dog”
+> Token attention maps (schematic)
+> Constraint loss
+> Entities / binding / spatial
+> lower = better
+> Rank & prune
+
+All candidates continue    
+
+> Selection uses completed images
+> 8 paths
+> All scales
+> coarse fine
+> 8 complete images
+> ImageReward · select 1 of 8
+> Final output
+> 8 paths
+> 6 retained
+> cross-attn. cut
+> 4 retained
+> cross-attn. cut
+> 2 retained
+> cross-attn. cut
+> Decode partial latents
+> ImageReward · select 1 of 2
+> Complete remaining fine scales
+> Final output
+> Continuing path Discarded path Image-space selection Schematic; spacing is not runtime
+
+Figure 5: BoN and ATLAS at the same initial count. BoN completes all eight paths before ImageReward selection. ATLAS retains six, four, then two using losses computed from text–visual cross-attention; ImageRe-ward selects one partial decode for completion. Crossed nodes stop. For larger ATLAS budgets, pre-reward counts scale by m. Icons and spacing are schematic, not image results or measured runtime. Cut placement determines which later scales avoid processing discarded paths. With Ks the target count 
+
+entering scale s, the schedules are 
+
+KInf (m) = (8 m, 8m, 8m, 8m, 6m, 4m, 2m, 2m, 2m, 1, 1, 1, 1) , (7) 
+
+KSwitti (m) = (8 m, 8m, 8m, 8m, 8m, 8m, 6m, 4m, 2m, 2m, 1, 1, 1, 1) . (8) Infinity cuts after completed scales 3 , 4, 5, and Switti after 5 , 6, 7. Their grids are 6 2, 82, 12 2 and 7 2, 92, 12 2,respectively, aligning cuts at nearby resolutions rather than identical indices. Pruning at these intermediate scales reduces the number of trajectories processed by the remaining finer scales. The remaining 2 m paths continue to image-space selection. 
+
+4.3 ImageReward selects one partial trajectory for completion 
+
+The final choice evaluates rendered candidates beyond their token-map relationships. ATLAS decodes only the 2m finalists and scores prompt alignment with ImageReward (Xu et al., 2023). Let D decode an accumulated prefix and RIR score its prompt–image preference. After scale sR, select the highest-reward candidate: 
+
+k⋆ ∈ argmax 
+
+k∈K sR
+
+RIR (p, D (rk, ≤sR )) . (9) 8Table 3: Category-specific attention losses and selected transformer layers used by ATLAS on Infinity-2B. Layer indices are one-based.             
+
+> Category Attention loss Infinity layers 2D Separation (Appendix C) 9–16 Color SynGen (Rassin et al., 2023) 1–8 Shape Peak (Appendix C) 1–8 Texture CONFORM (Meral et al., 2024) 1–8 3D Footprint (Appendix C) 1–8
+
+Here sR = 8 on Infinity and sR = 9 on Switti. Full-resolution decodes represent partial latents, not completed generations; chunked decoding limits peak memory. Only the selected path completes the remaining scales. This combines attention-guided allocation with an image-space final choice, evaluated through output quality and inference cost rather than ranking agreement alone. 
+
+## 5 Compositional Quality and Inference Cost 
+
+We test whether ATLAS turns intermediate selection into better final composition and lower search cost. Benchmarks follow standard protocols with four seeds, except the single-run Infinity BoN baseline and random-pruning ablation. CompBench Avg. 6 covers binding, spatial relations, and complex composition; Overall is the mean across all eight categories, including numeracy and non-spatial relations. GenEval Avg. covers its three displayed categories. 
+
+5.1 T2I-CompBench 
+
+ATLAS improves targeted compositional scores as candidate budget grows. The backbone comparison tests whether more ATLAS computation improves composition (Table 4). Relative Avg. 6 gains are 4 .3%, 7 .3%, and 10 .5% on Infinity and 5 .2%, 7 .7%, and 10 .6% on Switti at budget multipliers N = 1 , 2, 8, using unrounded means. Complex composition improves at every budget; numeracy and non-spatial outputs remain unchanged. Both backbones therefore benefit from scaling this search policy. Appendix G reports run-level variability. 
+
+ATLAS reaches competitive compositional quality across both backbones. TTS-VAR and BoN compare ATLAS with alternative uses of additional sampling. On Infinity, TTS-VAR has higher averages, while ATLAS leads on texture and complex composition at both shared budgets and on color at N = 2. Switti ATLAS approaches BoN’s averages at its largest setting, although ATLAS starts 64 paths and BoN completes eight. These are quality comparisons at the stated budgets; equal-count cost comparisons follow below. Infinity TTS-VAR N = 8 exceeded A100 40 GB memory and is omitted. Published diffusion results provide context rather than matched controls (Shahabadi et al., 2025). 
+
+Attention-guided pruning improves composition, with a further gain from selected layers. 
+
+Table 5 separates the scoring and layer choices while retaining ImageReward final selection. All-layer ATLAS improves Avg. 6 over random pruning by 2 .45% at N = 1 and 4 .27% at N = 2, using unrounded means. This comparison is descriptive: random pruning uses one seed, ATLAS four. Comparing the two attention settings on the same four seeds, selected layers add 0 .5% and 0 .8%, despite mixed category changes. Switti’s all-layer results show that restricted windows are not required for the framework. 
+
+5.2 GenEval 
+
+ATLAS also improves the targeted GenEval constraints on both backbones. GenEval tests whether the scaling trend extends to another benchmark (Table 6). The mean over color, color–attribute binding, and position rises at each budget on both backbones. Infinity’s position scores increase throughout; Switti gains mainly in binding, with position improving at the largest budget. 9Table 4: T2I-CompBench scores. Avg. 6 covers binding, spatial relations, and complex composition; Overall is the mean across all eight categories. Gray columns are untargeted and unchanged for ATLAS. ATLAS, TTS-VAR, and Switti BoN average four seeds; Infinity BoN uses one run. ATLAS and TTS-VAR start 8N paths; BoN completes n = 8 candidates. Diffusion references: Shahabadi et al. (2025). Blue: ATLAS. Bold/underline: highest/second-highest per column across all models, including displayed ties. 
+
+Model / setting Color Texture Shape 2D 3D Cmplx Num. Non-S. Avg. 6 Overall SDXL 0.593 0.519 0.466 0.215 0.341 0.319 0.504 0.311 0.4088 0.4085 PixArt-α 0.407 0.444 0.367 0.202 0.350 0.324 0.506 0.308 0.3490 0.3635 Flux-Dev 0.746 0.644 0.482 0.273 0.393 0.363 0.613 0.309 0.4835 0.4779 Flux-Schnell 0.725 0.683 0.559 0.271 0.373 0.364 0.604 0.312 0.4958 0.4864 Switti 0.732 0.620 0.500 0.208 0.378 0.366 0.555 0.315 0.4673 0.4593 + ATLAS ( N =1, All) 0.773 0.688 0.518 0.219 0.363 0.389 0.555 0.315 0.4916 0.4774 + ATLAS ( N =2, All) 0.799 0.695 0.524 0.227 0.387 0.390 0.555 0.315 0.5035 0.4864 + BoN ( n=8) 0.815 0.708 0.568 0.226 0.400 0.399 0.555 0.315 0.5193 0.4983 + ATLAS ( N =8, All) 0.817 0.708 0.544 0.242 0.395 0.396 0.555 0.315 0.5169 0.4964 Infinity-2B 0.749 0.632 0.475 0.234 0.405 0.384 0.572 0.310 0.4798 0.4701 + TTS-VAR ( N =1) 0.777 0.672 0.531 0.261 0.419 0.388 0.590 0.311 0.5080 0.4936 + ATLAS ( N =1) 0.765 0.673 0.502 0.254 0.409 0.399 0.572 0.310 0.5004 0.4856 + TTS-VAR ( N =2) 0.783 0.682 0.549 0.264 0.425 0.393 0.613 0.311 0.5159 0.5024 + ATLAS ( N =2) 0.785 0.695 0.523 0.262 0.421 0.403 0.572 0.310 0.5147 0.4963 + BoN ( n=8) 0.739 0.614 0.456 0.233 0.398 0.383 0.565 0.309 0.4705 0.4621 + ATLAS ( N =8) 0.801 0.716 0.561 0.275 0.424 0.405 0.572 0.310 0.5303 0.5080 
+
+Table 5: Infinity pruning and layer ablations with ImageReward final selection. Random: one seed; attention: four-seed means. Avg. 6: displayed categories, excluding inactive Numeracy and Non-Spatial. Blue: selected-layer ATLAS. Bold/underline: highest/second-highest within each budget.                                                               
+
+> Pruning rule Budget Color Texture Shape 2D 3D Cmplx Avg. 6
+> Random N= 1 0.7510 0.6410 0.4820 0.2450 0.4080 0.3890 0.4860 Attention (All) N= 1 0.7630 0.6748 0.4985 0.2440 0.4107 0.3965 0.4979 Attention (Selected) N= 1 0.7653 0.6728 0.5023 0.2543 0.4093 0.3988 0.5004
+> Random N= 2 0.7530 0.6430 0.4880 0.2510 0.4120 0.3920 0.4898 Attention (All) N= 2 0.7810 0.6873 0.5235 0.2578 0.4140 0.4010 0.5108 Attention (Selected) N= 2 0.7850 0.6945 0.5233 0.2620 0.4208 0.4028 0.5147
+
+5.3 Inference Time and GPU Memory 
+
+ATLAS reduces measured Infinity search cost at equal initial counts. To assess the computational benefit of early selection, Table 7 compares complete search procedures at equal initial counts on the same A100 40 GB, with 30 outputs per setting. At n = 8 and 16, Infinity ATLAS reduces generation time by 52 .0% and 70 .8% relative to BoN, and by 49 .2% and 60 .9% relative to TTS-VAR. Peak allocated memory is also lower than both baselines. 
+
+The time and memory savings extend to Switti. The Switti comparison tests whether savings extend beyond Infinity. Relative to BoN, ATLAS reduces time by 61 .1% and 73 .1% at n = 8 and 16, and peak allocated memory by 5 .3% and 13 .1%. Both backbones thus show lower measured search cost at equal initial counts, rather than matched quality. Appendix H details their scope. 
+
+## 6 Limitations and Future Work 
+
+Broader prompts, human evaluation, and diversity audits would test how the measured gains extend beyond automated compositional scores. Adaptive selection rules could further balance exploration and continuation cost. Another direction is to combine ATLAS with VISTA’s coarse-scale steering (Shahabadi et al., 2026): 10 Table 6: Targeted GenEval scores. Published diffusion and Infinity references: Shahabadi et al. (2025); ATLAS averages four seeds. Switti’s parameter count: Voronov et al. (2024). Blue: ATLAS. Bold/underline: highest/second-highest per score column across all models, including displayed ties. 
+
+Method # Params GenEval ↑
+
+Color Color attr. Position Avg. 
+
+Diffusion models 
+
+SDXL 3.5B 0.862 0.210 0.105 0.392 PixArt-α 0.6B 0.801 0.093 0.068 0.321 Flux-Dev 12B 0.766 0.470 0.185 0.474 Flux-Schnell 12B 0.785 0.505 0.263 0.518 
+
+Autoregressive models 
+
+Switti 2.5B 0.880 0.328 0.145 0.451 + ATLAS ( N =1, All) 2.5B 0.891 0.415 0.145 0.484 + ATLAS ( N =2, All) 2.5B 0.896 0.420 0.145 0.487 + ATLAS ( N =8, All) 2.5B 0.904 0.450 0.150 0.501 Infinity-2B (published) 2B 0.830 0.590 0.270 0.563 + ATLAS ( N =1) 2B 0.862 0.650 0.295 0.602 + ATLAS ( N =2) 2B 0.862 0.650 0.310 0.607 + ATLAS ( N =8) 2B 0.883 0.650 0.343 0.625 
+
+Table 7: A100 40 GB profiles at initial count n: 30 outputs per setting and mean s/output. Peak mem-ory is rounded MiB; load allocation retains the source-reported MB label (Appendix H). Blue: ATLAS. Bold/underline: lowest/second-lowest per metric within each backbone and initial count, excluding Base and including ties.                                                                  
+
+> Backbone Method ( n)Outputs Time (s) Load alloc. (MB) Peak alloc. (MiB) Peak reserv. (MiB) Switti Base (1) 30 1.34 6,720 8,732 15,620 BoN (8) 30 5.24 8,474 13,189 20,472 ATLAS (8) 30 2.04 8,474 12,485 18,200
+> BoN (16) 30 9.54 8,474 14,434 22,158 ATLAS (16) 30 2.57 8,474 12,537 18,200
+> Infinity-2B Base (1) 30 2.63 7,342 11,520 22,178 BoN (8) 30 12.49 8,232 19,965 31,108 TTS-VAR (8) 30 11.81 8,819 18,485 24,466 ATLAS (8) 30 6.00 8,232 16,414 21,914
+> BoN (16) 30 24.05 8,232 28,491 39,544 TTS-VAR (16) 30 17.96 8,819 20,989 27,726 ATLAS (16) 30 7.02 8,232 17,416 24,774
+
+steering modifies developing trajectories, while ATLAS selects which receive further computation. Their complementary operations motivate testing a joint approach. 
+
+## 7 Conclusion 
+
+Internal attention can guide compositional search before final images are available. Within-prompt diagnostics identify predictive binding and spatial scores, with category-dependent transfer across backbones. ATLAS turns these on-the-fly signals into training-free selection, retaining promising trajectories while reducing the number that require further computation. Compositional benchmark means rise with search budget on both Infinity and Switti. Separate profiles show lower generation time and peak allocated memory than completing all candidates at equal initial counts. Together, these results connect internal compositional signals to scalable search: additional sampling expands exploration, while early selection limits continuation cost. 11 References 
+
+Aishwarya Agarwal, Srikrishna Karanam, KJ Joseph, Apoorv Saxena, Koustava Goswami, and Balaji Vasan Srinivasan. A-star: Test-time attention segregation and retention for text-to-image synthesis. In 2023 IEEE/CVF International Conference on Computer Vision (ICCV) , pp. 2283–2293. IEEE, 2023. Hila Chefer, Yuval Alaluf, Yael Vinker, Lior Wolf, and Daniel Cohen-Or. Attend-and-excite: Attention-based semantic guidance for text-to-image diffusion models. ACM transactions on Graphics (TOG) , 42(4):1–10, 2023. Harold Haodong Chen, Xianfeng Wu, Wen-Jie Shu, Rongjin Guo, Disen Lan, Harry Yang, and Ying-Cong Chen. Scalingar: Scaling confidence for autoregressive image generation. arXiv preprint arXiv:2509.26376 ,2025a. Zhekai Chen, Ruihang Chu, Yukang Chen, Shiwei Zhang, Yujie Wei, Yingya Zhang, and Xihui Liu. Tts-var: A test-time scaling framework for visual auto-regressive generation. arXiv preprint arXiv:2507.18537 ,2025b. Zhennan Chen, Tianxing Shi, Pengcheng Xu, Kepan Nan, Qian Wang, Zili Yi, Jian Yang, and Ying Tai. Synvar: Synergizing spatial and semantic alignment in visual autoregressive model. In European Conference on Computer Vision , pp. 201–218. Springer, 2026. Dhruba Ghosh, Hannaneh Hajishirzi, and Ludwig Schmidt. Geneval: An object-focused framework for evaluating text-to-image alignment. Advances in Neural Information Processing Systems , 36:52132–52152, 2023. Jian Han, Jinlai Liu, Yi Jiang, Bin Yan, Yuqi Zhang, Zehuan Yuan, Bingyue Peng, and Xiaobing Liu. Infinity: Scaling bitwise autoregressive modeling for high-resolution image synthesis. In 2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 15733–15744. IEEE, 2025. Amir Hertz, Ron Mokady, Jay Tenenbaum, Kfir Aberman, Yael Pritch, and Daniel Cohen-Or. Prompt-to-prompt image editing with cross attention control. arXiv preprint arXiv:2208.01626 , 2022. Kaiyi Huang, Chengqi Duan, Kaiyue Sun, Enze Xie, Zhenguo Li, and Xihui Liu. T2i-compbench++: An enhanced and comprehensive benchmark for compositional text-to-image generation. IEEE Transactions on Pattern Analysis and Machine Intelligence , 47(5):3563–3579, 2025. Prannay Khosla, Piotr Teterwak, Chen Wang, Aaron Sarna, Yonglong Tian, Phillip Isola, Aaron Maschinot, Ce Liu, and Dilip Krishnan. Supervised contrastive learning. Advances in neural information processing systems , 33:18661–18673, 2020. Yumeng Li, Margret Keuper, Dan Zhang, and Anna Khoreva. Divide & bind your attention for improved generative semantic nursing. arXiv preprint arXiv:2307.10864 , 2023. Tuna Han Salih Meral, Enis Simsar, Federico Tombari, and Pinar Yanardag. Conform: Contrast is all you need for high-fidelity text-to-image diffusion models. In 2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 9005–9014. IEEE, 2024. Joonhyung Park, Hyeongwon Jang, Joowon Kim, and Eunho Yang. Progress by pieces: Test-time scaling for autoregressive image generation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 38091–38100, 2026. Royi Rassin, Eran Hirsch, Daniel Glickman, Shauli Ravfogel, Yoav Goldberg, and Gal Chechik. Linguistic binding in diffusion models: Enhancing attribute correspondence through attention map alignment. 
+
+Advances in Neural Information Processing Systems , 36:3536–3559, 2023. Sarah Rastegar, Violeta Chatalbasheva, Sieger Falkena, Anuj Singh, Yanbo Wang, Tejas Gokhale, Hamid Palangi, and Hadi Jamali-Rad. Infsplign: Inference-time spatial alignment of text-to-image diffusion models. 
+
+arXiv preprint arXiv:2512.17851 , 2025. 12 Parham Rezaei, Arash Marioriyad, Mahdieh Soleymani Baghshah, and Mohammad Hossein Rohban. Why settle for mid: A probabilistic viewpoint to spatial relationship alignment in text-to-image models. arXiv preprint arXiv:2506.23418 , 2025. Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Björn Ommer. High-resolution image synthesis with latent diffusion models. In 2022 IEEE/CVF conference on computer vision and pattern recognition (CVPR) , pp. 10674–10685. ieee, 2022. Hossein Shahabadi, Niki Sepasian, Arash Marioriyad, Ali Sharifi-Zarchi, and Mahdieh Soleymani Baghshah. In-finity and beyond: Compositional alignment in var and diffusion t2i models. arXiv preprint arXiv:2512.11542 ,2025. Hossein Shahabadi, Niki Sepasian, and Mahdieh Soleymani Baghshah. Vista: Test-time compositional alignment for visual autoregressive generation. arXiv preprint arXiv:2608.22521 , 2026. Keyu Tian, Yi Jiang, Zehuan Yuan, Bingyue Peng, and Liwei Wang. Visual autoregressive modeling: Scalable image generation via next-scale prediction. Advances in neural information processing systems , 37: 84839–84865, 2024. Anton Voronov, Denis Kuznedelev, Mikhail Khoroshikh, Valentin Khrulkov, and Dmitry Baranchuk. Switti: Designing scale-wise transformers for text-to-image synthesis. arXiv preprint arXiv:2412.01819 , 2024. Jiazheng Xu, Xiao Liu, Yuchen Wu, Yuxuan Tong, Qinkai Li, Ming Ding, Jie Tang, and Yuxiao Dong. Imagereward: Learning and evaluating human preferences for text-to-image generation. Advances in Neural Information Processing Systems , 36:15903–15935, 2023. 
+
+## A Diagnostic Evaluation Protocol 
+
+Records and settings. Infinity calibration has 100 records per category; each backbone has 50 held-out prompts per category, with seeds 1000–1002. Records join by prompt and seed. The 52 losses comprise nine planar, eleven per binding category, and ten depth definitions. Layers are one-based; recorded scales 2–8 are zero-based. Reference settings use bfloat16 inference. Infinity-2B uses its associated visual tokenizer and Flan-T5-XL text encoder, guidance 3, temperature 0.5, top-k 900, and top-p 0.97. ScaleKV uses window/capacity/kernel 8/400 /5 with max pooling. Switti uses the 1024-resolution model, guidance 6, top-k 400, top-p 0.95, and disables guidance from index 10. 
+
+Preferences and exclusions. After deduplicating stored calls and mapping display positions to seeds, agreeing winners or a winner plus a tie define a directional pair. Conflicting winners and all-tie pairs are excluded. Missing matches and effective loss ties (relative tolerance 10 −7, absolute tolerance 10 −12 ) are also excluded. Signed 2D scores use absolute value; other frozen scores use identity. Correlation and single-winner selection require a preference score for each candidate. Each candidate faces the other two candidates in both display orders, giving four judgments. We award one point for a win, half a point for a tie, and zero for a loss, then average these four values. Unlike pairwise agreement, this score retains the individual judgments even when reversing image order changes the winner. At each prompt and scale, selection chooses the candidate with the lowest attention loss. We evaluate it when losses are available for all three candidates, the minimum loss is unique, and the VLM preference scores are not all equal. Selection is correct if the chosen candidate has the highest preference score, including a shared highest score. Its random baseline is the number of VLM-best candidates divided by three, averaged over eligible selections. In the tables, Top-1 loss means the single objective chosen during calibration; selection accuracy measures how often that objective chooses a VLM-best candidate. 13 Aggregation and calibration. Per-prompt Spearman and Kendall’s τb require complete, nonconstant values. Prompt-centered Spearman subtracts each prompt’s mean loss and preference before pooling candidates; figures display its negative. Layer figures average scale-wise metrics within windows 2–3, 2–4, 2–6, and 2–8, then equally across windows and losses. Early scales therefore recur. Primary agreement instead pools evaluable pair–scale decisions (Equation 4). Calibration evaluates 15 layer selections and ranks losses by mean negative centered Spearman across those windows. The lock fixes loss order, an eight-layer block, and primary scales 2–6. Binding/depth use layers 1–8; planar relations use 9–16. Depth broadens the best four-layer block, 5–8, for simplicity. The original 15 held-out endpoints combine five categories with Top-1, mean Top-3 accuracy, and mean all-loss accuracy. The all-loss endpoint remains in multiplicity correction; Top-5 is later descriptive analysis. 
+
+Uncertainty and coverage. 95% intervals use the 2.5th/97.5th percentiles of 10,000 prompt-bootstrap replicates. Permutation tests reassign candidate identities within each prompt, sharing permutations across losses and scales. One-sided p-values use (1 + # {null ≥ observed })/10001 from 10,000 replicates, followed by Holm correction across the original 15 endpoints. Marginal intervals and adjusted tests need not agree. Calibration intervals omit selection uncertainty; post-lock sweeps are descriptive. Switti’s early-minus-middle contrasts remain uncertain: color +5 .6 points, CI [ −4.6, 16 .0]; texture +4 .9, [ −3.1, 13 .0]. Table 8: Infinity held-out coverage and secondary selection results for the frozen single loss over indices 2–6. 
+
+M counts evaluable pair–scale decisions; U counts eligible prompt–scale selections. These repeated decisions are not independent samples. Selection and random baseline are percentages; selection intervals resample prompts. The adjusted p-value tests pairwise agreement within the original 15-endpoint family.                                     
+
+> Category MUSelection 95% CI Random pHolm
+> 2D 365 175 61.7 [51.0, 72.1] 38.1 0.0015 Color 405 205 47.8 [38.2, 57.6] 41.5 0.0308 Shape 350 190 38.4 [27.8, 49.7] 39.5 0.604 Texture 340 185 51.9 [40.6, 62.7] 39.6 0.167 3D 149 71 45.1 [25.0, 65.8] 37.6 0.604
+
+Ranking intervals and scale coverage. Table 9 gives prompt counts and intervals for Table 1. Table 10 averages category accuracies equally, bootstrapping prompts within categories. Final-image judgments recur across scales. Table 9: 95% prompt-bootstrap intervals for pairwise agreement (%) and contributing prompt counts over indices 2–6. Held-out choices are frozen from Infinity calibration.                   
+
+> Category Infinity calibration Infinity held-out Switti held-out 2D [62.5, 74.7]
+> n= 80 [64.5, 80.5]
+> n= 35 [48.7, 64.5]
+> n= 45 Color [57.3, 69.4]
+> n= 87 [54.4, 70.5]
+> n= 42 [56.1, 70.0]
+> n= 46 Shape [51.7, 64.2]
+> n= 75 [44.6, 62.8]
+> n= 38 [44.7, 65.7]
+> n= 39 Texture [58.2, 72.8]
+> n= 82 [51.2, 69.2]
+> n= 37 [53.6, 70.2]
+> n= 44 3D [53.5, 76.8]
+> n= 39 [43.9, 72.5]
+> n= 23 [41.8, 66.9]
+> n= 20
+
+Judge and comparison prompt. We use GPT-4o mini to compare completed images, presenting each pair twice in reversed order. Images are resized to at most 512 pixels. The judge returns a winner or a tie; an uninterpretable response is retried once and excluded if it remains unresolved. Candidate preference scores are calculated from these comparisons, not requested as separate scalar ratings. 14 Table 10: Infinity held-out scale-wise pairwise agreement of frozen scores. Scale indices are zero-based; agreement and 95% prompt-bootstrap intervals are percentages. Pair counts sum evaluable pairs across categories; multiple pairs can belong to one prompt. Chance agreement is 50%.                             
+
+> Scale 2345678Agreement 55.7 63.7 62.0 63.7 63.1 62.3 57.9 95% CI [49.0, 62.3] [57.1, 70.2] [56.1, 67.7] [57.7, 69.5] [57.0, 69.1] [56.1, 68.3] [51.1, 64.4] Pairs 318 324 323 322 322 320 319
+
+The template below prioritizes entity existence, then annotated attributes or relations. For occlusion, existence requires recognizability rather than full visibility. 
+
+You are judging text-to-image results for compositional correctness. Prompt: “ {prompt} ”Below are two images generated from this prompt, labelled Image 1 and Image 2. Decide which one is BETTER using ONLY these criteria, in this order of importance: 1. Entity existence: {existence} 
+
+2. {category} . Specifically: {conditions} .Ignore aesthetics, style, resolution and background details that the prompt does not mention. If the two images are truly equal on both criteria, say so. Reply with JSON only, no other text: 
+
+{"winner": 1, "reason": "one short sentence"} 
+
+(use "winner": 2 if Image 2 is better, or "winner": 0 if they are equal) 
+
+## B Prompt-Switch Protocol and Scoring 
+
+Full A/B references share a seed. After scale s, the A prefix resumes under B with sampled maps, accumulated codes, next-scale input, self-attention cache, and sampler state preserved; only text conditioning and cross-attention tensors are rebuilt. Scoring uses cosine similarities between normalized embeddings of completed switched and reference images. Means and marginal standard errors cover ten prompt pairs per property and scale. Crossover patterns are descriptive. The script supports CLIP, SigLIP, and DINOv2 with optional reference filtering; qualitative sequences are separate illustrations. 
+
+## C Attention-Loss Definitions and Sources 
+
+This appendix provides context for the loss bank by summarizing objectives from prior work and the local variants evaluated in our study. SynGen motivates matching attributes to their nouns while separating unrelated pairs (Rassin et al., 2023); CONFORM supplies a contrastive formulation (Meral et al., 2024); and Divide&Bind supplies an attribute–noun binding objective (Li et al., 2023). SupCon draws on supervised con-trastive learning (Khosla et al., 2020). For spatial relations, PoS and PSE follow the probability-of-superiority approach of PSG (Rezaei et al., 2025), while the centroid implementation follows the spatial-violation construction of InfSplign (Rastegar et al., 2025). Separation is related to A-STAR’s attention-segregation principle (Agarwal et al., 2023), and boundary containment follows VISTA’s depth objective (Shahabadi et al., 2026). We summarize these objectives and their adaptations here, rather than introduce them as new contributions. The bank contains eleven binding losses evaluated separately for color, shape, and texture, nine planar losses, and ten depth losses: 52 category-specific definitions in total. For layer-averaged attention ¯A in Equation 2, define phrase map mt(u) = |It|−1 ∑
+
+> j∈It
+
+¯A(u, j ) at visual position u, using valid token indices It. Objectives average over valid prompt constraints. Appendix A specifies the diagnostic sign convention. 15 C.1 Selected objectives: Separation, Peak, and Footprint 
+
+Separation. For valid noun pairs P, cosine similarity penalizes shared attention support, not a specific spatial direction: 
+
+ℓsep =
+
+∣∣∣∣∣∣
+
+1
+
+|P| 
+
+∑
+
+> (a,b )∈P
+
+cos( ma, m b)
+
+∣∣∣∣∣∣ . (10) On nonnegative maps, the controller’s negative cosine score gives the same ordering. 
+
+Peak. For the offline ranking study, we use integer grid coordinates. Let ct = ∑ 
+
+> u
+
+u softmax(10 mt)u and 
+
+Dij = ∥cadj ,i − cnoun ,j ∥22. For valid attribute–noun pairs B and other valid nouns Ji,
+
+ℓpeak = 1
+
+|B| 
+
+∑
+
+> i∈B
+
+Dii − 0.3 ∑
+
+> j∈J i
+
+Dij 
+
+ . (11) Peak uses soft centroids. Competing nouns need not have valid attributes. In ATLAS, we use Peak for shape with coordinates normalized to [0 , 1], sharpening factor 10, and competing-noun weight 0.3. Coordinate normalization preserves isolated rankings but changes mixed-loss scale. 
+
+Footprint. For valid depth relations r = ( a, b ) ∈ R , set pt = softmax(10 mt). In the offline ranking study, we use effective support Ft = exp[ − ∑ 
+
+> u
+
+pt(u) log( pt(u) + 10 −8)]. Let sr = +1 when a is foreground relative to b, and −1 when background: 
+
+ℓfoot = 1
+
+|R| 
+
+∑
+
+> r=( a,b )∈R
+
+max {0, s r (Fb − Fa)}. (12) Larger support is a depth proxy, also affected by object size and concentration. For ATLAS generation, we instead use coordinate spread: Ft = √Var pt (ux) + 10 −6√Var pt (uy ) + 10 −6 on [0 , 1] 2, with sharpening factor 10 and zero hinge margin. We retain this distinction between the diagnostic and generation objectives. 
+
+C.2 Binding objectives 
+
+Binding objectives measure whether an attribute and its noun attend to compatible regions. The local SynGen variant uses cosine similarity to favor matched pairs over unrelated nouns. KL and JSD compare their spatial attention distributions, while Divide&Bind aligns those distributions after rescaling the attribute map. CONFORM treats matched attribute–noun embeddings as positives and other pairs as negatives; Exclusive and SupCon instead score the correct noun against competing nouns. The remaining variants probe alternative matching statistics: Overlap measures Bhattacharyya overlap, Focal reweights cosine matching to emphasize poorly aligned pairs, and Peak compares soft centroids as defined above. The binding Composite equally averages the local SynGen and KL objectives. We evaluate these eleven losses separately on color, shape, and texture prompts. Our generation implementation uses SynGen with competing-noun weight 0.3 and CONFORM with temperature 0.07 and 3 × 3 Gaussian smoothing (σ = 0 .5). We include the objective implementations in the supplement. 
+
+C.3 Planar objectives 
+
+The nine planar objectives measure ordering, location, and separation. Centroid penalizes violations of the requested ordering between noun-map centers; Centroid-Prox adds similarity-based scoring for proximity relations. PoS and PSE use spatial distributions rather than centers to assess which noun lies on the requested side. Half-Field measures attention outside the requested image half, while Gaussian-Target compares it with a smooth target near the appropriate edge. Separation penalizes shared support. Our soft-box overlap objective, named IoU in the code, measures intersection area without dividing by union. Planar Composite combines separation and directional terms. Together, these variants test whether relative position or broader map geometry better predicts compositional preference. 16 C.4 Depth objectives 
+
+The ten depth objectives use attention geometry as a proxy for foreground–background ordering. Footprint and Entropy compare coordinate spread and effective support size, respectively. Depth-Peak favors a stronger foreground attention peak; Depth-Overlap favors foreground dominance where both maps have mass. Vertical PSE tests whether the foreground noun lies lower in the image, a ground-plane heuristic rather than a direct depth measurement. Containment-Adjacency encourages the objects to be adjacent without merging their maps. Boundary Containment evaluates whether virtual points from the background boundary facing the foreground fall within foreground attention support. Depth Composite combines containment-adjacency, peak dominance, and overlap dominance. Separation and soft-box intersection complete the depth bank, providing relation-independent comparisons against these ordering-sensitive objectives. 
+
+## D Controller Operation 
+
+Attention scoring. The controller averages text-conditioned attention across heads and selected layers before computing each loss. If the selected layers are unavailable, it uses all captured layers. Benchmark annotations identify the constraints; free-form parsing supports at most one relation. Each run uses one binding objective and equally averages it with applicable planar and depth losses, without rescaling their values. CONFORM requires at least two attribute–noun pairs; a configured alternative can handle fewer. 
+
+Pruning and final selection. At each scheduled pruning step, the controller retains the required number of lowest-loss candidates. Cutoff ties follow the sorting order, so the budget remains fixed; the offline diagnostic instead excludes tied comparisons. If attention maps or required loss terms are unavailable, the cut is skipped. The remaining finalists are decoded from their accumulated latents into full-resolution partial images, and ImageReward selects the trajectory to continue. Profiling decodes two finalists at a time to limit memory use. 
+
+## E Data Integrity and Pair Consensus 
+
+Each held-out category has 150 unordered pairs. Unanimous and winner-plus-tie pairs are directional; loss ties further reduce coverage. Table 11: Infinity held-out VLM consensus counts. Each row totals 150 unordered pairs. Subsequent effective loss ties further reduce the coverage of a given score. Category Unanimous Winner + tie All tie Conflict 2D 47 26 45 32 Color 44 37 51 18 Shape 41 29 54 26 Texture 32 36 49 33 3D 52 25 28 45 Audits verify complete calls, exact order reversal, consistent duplicate records, and answer-to-seed mapping. Reversal balances positions, not all judge biases. Trimmed exact texts show no calibration/held-out overlap; both held-out backbones share 50 distinct prompts per category. Calibration has 100 distinct texts except shape/depth, with 99 each. Their duplicate texts remain separate record-ID bootstrap clusters, so calibration intervals omit this dependence as well as selection uncertainty. 17 F Reproducibility and Data Provenance 
+
+We release our analysis and generation code, frozen configurations, diagnostic records, and benchmark, prompt-switch, and profiling summaries. We document model identifiers, weight-hash prefixes or snapshot revisions, environments, and launch scripts. For CompBench, we use the category-specific losses in Table 3; for GenEval, we use SynGen for binding and Separation for position. Layer selections and budgets follow Section 4; Appendices G and H specify benchmark seeds and profiling settings. Our extraction script restores diagnostic JSON files with checksum verification, and the README lists reproduction commands. We provide manuscript sources and qualitative figures separately. Generation requires the upstream models, weights, and evaluation dependencies. We anonymize release copies without changing measurements. We calculate CompBench means and sample standard deviations from valid category values, excluding missing or erroneous cells. 
+
+## G Multi-Seed Benchmark Reporting 
+
+We use seeds 1001–1004 for standard CompBench and GenEval runs, except the single-run Infinity BoN baseline and random-pruning ablation. Table 12 reports per-run means and sample standard deviations; Run 1–4 index the four repetitions. We calculate Avg. 6 and Overall within each run before averaging and report category means for GenEval. The random-pruning ablation covers six targeted categories at N = 1 , 2. We include benchmark summaries and ablation configurations in the supplement. Table 12: T2I-CompBench Avg. 6 for four repetitions, with means and sample standard deviations for Avg. 6
+
+and Overall (the eight-category mean). ATLAS N = 8 begins with 64 trajectories, while BoN n = 8 completes eight.                                                                                                                     
+
+> Backbone / setting Run 1 Run 2 Run 3 Run 4 Avg. 6±SD Overall ±SD Infinity-2B / TTS-VAR N=1 0.5150 0.5075 0.5035 0.5058 0.5080 ±0.0050 0.4936 ±0.0042 Infinity-2B / TTS-VAR N=2 0.5130 0.5177 0.5170 0.5160 0.5159 ±0.0021 0.5024 ±0.0014 Infinity-2B / ATLAS N=1 0.5010 0.4963 0.5037 0.5007 0.5004 ±0.0030 0.4856 ±0.0023 Infinity-2B / ATLAS N=2 0.5177 0.5138 0.5127 0.5147 0.5147 ±0.0021 0.4963 ±0.0016 Infinity-2B / ATLAS N=8 0.5292 0.5273 0.5340 0.5307 0.5303 ±0.0028 0.5080 ±0.0021 Switti / ATLAS N=1 0.4912 0.4927 0.4915 0.4910 0.4916 ±0.0008 0.4774 ±0.0006 Switti / ATLAS N=2 0.5087 0.4983 0.5012 0.5058 0.5035 ±0.0046 0.4864 ±0.0035 Switti / ATLAS N=8 0.5232 0.5145 0.5123 0.5177 0.5169 ±0.0047 0.4964 ±0.0035 Switti / BoN n=8 0.5242 0.5160 0.5163 0.5208 0.5193 ±0.0039 0.4983 ±0.0029
+
+## H Inference Profiling Protocol 
+
+We profile equal initial candidate counts on an A100 40 GB, with 30 outputs per setting. We use color prompts, seed 1000, one discarded warm-up, two-candidate decoding batches, and expandable memory segments for every method. We keep Infinity’s text encoder on the GPU. Our timing code synchronizes CUDA before and after each generation call and resets peak-memory counters before timing. Initial model loading, attention-hook setup, and image-file writing lie outside that interval. We report mean generation time and maximum allocated and reserved memory across outputs, dividing peak bytes by 2 20 (MiB). We also report model-load allocation, labeled MB in our profiling records. 
+
+## I Broader Impact 
+
+More efficient compositional generation can support visual content creation, but can also facilitate misleading imagery. Selection may amplify biases in the generator or reward model. Deployment should retain appropriate content safeguards and evaluate demographic bias and output diversity; compositional benchmark scores alone do not assess these risks. 18
